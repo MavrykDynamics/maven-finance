@@ -98,8 +98,6 @@ export const GovernanceView = ({
     }
   }
 
-  console.log('%c ||||| selectedProposalToShow', 'color:yellowgreen', selectedProposalToShow)
-
   const emptyContainer = (
     <EmptyContainer>
       <img src="/images/not-found.svg" alt=" No proposals to show" />

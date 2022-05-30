@@ -58,21 +58,9 @@ export const onStart = () => async (dispatch: any, getState: any) => {
     glassBroken: breakGlassStorage.glassBroken,
   })
 
-  let govPhase
-  switch (governanceStorage.currentRound) {
-    case 'proposal':
-      govPhase = 'PROPOSAL'
-      break
-    case 'voting':
-      govPhase = 'VOTING'
-      break
-    default:
-      govPhase = 'TIME_LOCK'
-      break
-  }
   dispatch({
     type: SET_GOVERNANCE_PHASE,
-    phase: govPhase,
+    phase: governanceStorage.currentRound,
   })
 
   //dispatching all the different actions into the redux

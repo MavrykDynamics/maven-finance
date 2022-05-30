@@ -27,6 +27,7 @@ import {
   ProposalRecordType,
   ProposalVote,
   SnapshotRecordType,
+  GovernanceRoundType,
 } from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
@@ -489,6 +490,8 @@ function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
   }
 }
 
+
+
 function convertToCouncilStorageType(storage: any): CouncilStorage {
   const councilActionsLedger: CouncilActionRecord[] = [],
     councilMembers: { address: string }[] = []
@@ -555,6 +558,10 @@ function convertToVestingStorageType(storage: any): VestingStorage {
   }
 }
 
+function convertGovernanceRound(round: number): GovernanceRoundType {
+  return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : 'TIME_LOCK'
+}
+
 function convertToGovernanceStorageType(storage: {
   governance: any
   governance_financial_request_record: any
@@ -568,38 +575,41 @@ function convertToGovernanceStorageType(storage: {
   const satelliteSnapshotLedger = convertGovernanceSatelliteSnapshotRecordsToInterface(
     storage?.governance_satellite_snapshot_record,
   )
+  const currentGovernance = storage?.governance?.[1] || {}
+
+  console.log('%c ~~~~~~~ currentGovernance', 'color:red', currentGovernance);
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
-    address: storage?.governance.address,
+    address: currentGovernance.address,
     config: {
-      successReward: storage?.governance.success_reward,
-      minQuorumPercentage: storage?.governance.min_quorum_percentage,
-      minQuorumMvkTotal: storage?.governance.min_quorum_mvk_total,
-      votingPowerRatio: storage?.governance.voting_power_ratio,
-      proposalSubmissionFee: storage?.governance.proposal_submission_fee, // 10 tez
-      minimumStakeReqPercentage: storage?.governance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
-      maxProposalsPerDelegate: storage?.governance.max_proposal_per_delegate,
-      newBlockTimeLevel: storage?.governance.new_blocktime_level,
-      newBlocksPerMinute: storage?.governance.new_block_per_minute,
-      blocksPerMinute: storage?.governance.blocks_per_minute,
-      blocksPerProposalRound: storage?.governance.blocks_per_proposal_round,
-      blocksPerVotingRound: storage?.governance.blocks_per_voting_round,
-      blocksPerTimelockRound: storage?.governance.blocks_per_timelock_round,
+      successReward: currentGovernance.success_reward,
+      minQuorumPercentage: currentGovernance.min_quorum_percentage,
+      minQuorumMvkTotal: currentGovernance.min_quorum_mvk_total,
+      votingPowerRatio: currentGovernance.voting_power_ratio,
+      proposalSubmissionFee: currentGovernance.proposal_submission_fee, // 10 tez
+      minimumStakeReqPercentage: currentGovernance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
+      maxProposalsPerDelegate: currentGovernance.max_proposal_per_delegate,
+      newBlockTimeLevel: currentGovernance.new_blocktime_level,
+      newBlocksPerMinute: currentGovernance.new_block_per_minute,
+      blocksPerMinute: currentGovernance.blocks_per_minute,
+      blocksPerProposalRound: currentGovernance.blocks_per_proposal_round,
+      blocksPerVotingRound: currentGovernance.blocks_per_voting_round,
+      blocksPerTimelockRound: currentGovernance.blocks_per_timelock_round,
     },
-    currentCycleEndLevel: storage?.governance.current_cycle_end_level,
-    currentRound: storage?.governance.current_round,
-    currentRoundEndLevel: storage?.governance.current_round_end_level,
+    currentCycleEndLevel: currentGovernance.current_cycle_end_level,
+    currentRound: convertGovernanceRound(currentGovernance.current_round || 0),
+    currentRoundEndLevel: currentGovernance.current_round_end_level,
     currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
-    currentRoundStartLevel: storage?.governance.current_round_start_level,
+    currentRoundStartLevel: currentGovernance.current_round_start_level,
     currentRoundVotes: new MichelsonMap<string, Date>(),
     financialRequestLedger: financialRequestRecords,
     governanceLambdaLedger: new MichelsonMap<string, Date>(),
-    nextProposalId: storage?.governance.next_proposal_id,
+    nextProposalId: currentGovernance.next_proposal_id,
     proposalLedger: proposalLedger,
     snapshotLedger: satelliteSnapshotLedger,
-    startLevel: storage?.governance.start_level,
-    tempFlag: storage?.governance.start_level,
-    timelockProposalId: storage?.governance.timelock_proposal,
+    startLevel: currentGovernance.start_level,
+    tempFlag: currentGovernance.start_level,
+    timelockProposalId: currentGovernance.timelock_proposal,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,
