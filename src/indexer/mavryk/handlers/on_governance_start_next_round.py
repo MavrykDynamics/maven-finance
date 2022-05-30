@@ -74,7 +74,7 @@ async def on_governance_start_next_round(
         satellite_snapshot, _           = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
             governance              = governance,
             user                    = user,
-            total_mvk_balance       = float(storage_satellite_snapshot.totalMvkBalance),
+            total_smvk_balance      = float(storage_satellite_snapshot.totalMvkBalance),
             total_delegated_amount  = float(storage_satellite_snapshot.totalDelegatedAmount),
             total_voting_power      = float(storage_satellite_snapshot.totalVotingPower),
             # cycle                   = int(storage_satellite_snapshot.cycle)

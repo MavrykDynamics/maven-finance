@@ -10,36 +10,36 @@ async def on_vesting_claim(
     ctx: HandlerContext,
     claim: Transaction[ClaimParameter, VestingStorage],
 ) -> None:
-    #TODO: could not be tested because of how the contract works
+
     # Get operation values
-    vestingAddress                      = claim.data.target_address
-    vesteeAddress                       = claim.data.sender_address
-    vesteeLedgerRecord                  = claim.storage.vesteeLedger[vesteeAddress]
-    vesteeMonthsRemaining               = int(vesteeLedgerRecord.monthsRemaining)
-    vesteeMonthsClaimed                 = int(vesteeLedgerRecord.monthsClaimed)
-    vesteeNextRedemptionTimestamp       = parser.parse(vesteeLedgerRecord.nextRedemptionTimestamp)
-    vesteeLastClaimedTimestamp          = parser.parse(vesteeLedgerRecord.lastClaimedTimestamp)
-    vesteeTotalClaimed                  = int(vesteeLedgerRecord.totalClaimed)
-    vesteeTotalRemainder                = int(vesteeLedgerRecord.totalRemainder)
-    vestingTotalVestedAmount            = int(claim.storage.totalVestedAmount)
+    vesting_address                     = claim.data.target_address
+    vestee_address                      = claim.data.sender_address
+    vestee_storage                      = claim.storage.vesteeLedger[vestee_address]
+    months_remaining                    = int(vestee_storage.monthsRemaining)
+    months_claimed                      = int(vestee_storage.monthsClaimed)
+    next_redemption_timestamp           = parser.parse(vestee_storage.nextRedemptionTimestamp)
+    last_claimed_timestamp              = parser.parse(vestee_storage.lastClaimedTimestamp)
+    total_claimed                       = float(vestee_storage.totalClaimed)
+    total_remainder                     = float(vestee_storage.totalRemainder)
+    total_vested_amount                 = float(claim.storage.totalVestedAmount)
 
     # Update and create record
     vesting = await models.Vesting.get(
-        address=vestingAddress
+        address = vesting_address
     )
     vestee = await models.MavrykUser.get(
-        address=vesteeAddress
+        address = vestee_address
     )
     vesteeRecord    = await models.VestingVesteeRecord.get(
-        vestee=vestee,
-        vesting=vesting
+        vestee  = vestee,
+        vesting = vesting
     )
-    vesteeRecord.months_remaining               = vesteeMonthsRemaining
-    vesteeRecord.months_claimed                 = vesteeMonthsClaimed
-    vesteeRecord.next_redemption_timestamp      = vesteeNextRedemptionTimestamp
-    vesteeRecord.last_claimed_timestamp         = vesteeLastClaimedTimestamp
-    vesteeRecord.total_claimed                  = vesteeTotalClaimed
-    vesteeRecord.total_remainder                = vesteeTotalRemainder
-    vesting.months_remaining                    = vestingTotalVestedAmount
+    vesteeRecord.months_remaining               = months_remaining
+    vesteeRecord.months_claimed                 = months_claimed
+    vesteeRecord.next_redemption_timestamp      = next_redemption_timestamp
+    vesteeRecord.last_claimed_timestamp         = last_claimed_timestamp
+    vesteeRecord.total_claimed                  = total_claimed
+    vesteeRecord.total_remainder                = total_remainder
+    vesting.months_remaining                    = total_vested_amount
     await vesting.save()
     await vesteeRecord.save()

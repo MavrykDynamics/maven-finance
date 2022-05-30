@@ -1,11 +1,19 @@
 
+from mavryk.utils.persisters import persist_governance
 from mavryk.types.mvk.parameter.set_governance import SetGovernanceParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.mvk.storage import MvkStorage
+import mavryk.models as models
 
 async def on_mvk_set_governance(
     ctx: HandlerContext,
     set_governance: Transaction[SetGovernanceParameter, MvkStorage],
 ) -> None:
-    ...
+    
+    # Get operation info
+    target_contract = set_governance.data.target_address
+    contract        = await models.MVKToken.get(address = target_contract)
+
+    # Persist new admin
+    await persist_governance(set_governance, contract)

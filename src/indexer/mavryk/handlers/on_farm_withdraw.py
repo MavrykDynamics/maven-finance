@@ -9,6 +9,7 @@ async def on_farm_withdraw(
     ctx: HandlerContext,
     withdraw: Transaction[WithdrawParameter, FarmStorage],
 ) -> None:
+
     # Get operation data
     userWithdrawAmount = int(withdraw.parameter.__root__)
     userParticipation = float(withdraw.data.diffs[-1]['content']['value']['participationMVKPerShare'])
