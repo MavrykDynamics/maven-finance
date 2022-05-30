@@ -79,19 +79,33 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
 type governanceSatelliteActionLedgerType is big_map (nat, governanceSatelliteActionRecordType);
 
 
-type satelliteOracleRecordType is [@layout:comb] record [
-  aggregatorPair  : string;
-  status          : bool;
+type oracleAggregatorPairRecord is [@layout:comb] record [
+  aggregatorPair     : string;      // e.g. BTC/USD
+  aggregatorAddress  : address; 
+  startDateTime      : timestamp;   
 ]
-type satelliteOraclesLedgerType is map(address, satelliteOracleRecordType)
+type aggregatorPairsMapType is map(address, oracleAggregatorPairRecord)
+type satelliteOracleRecordType is [@layout:comb] record [
+  status           : string;                    // ACTIVE / SUSPENDED / BANNED
+  aggregatorPairs  : aggregatorPairsMapType;    // map of aggregators that oracle is providing service for
+]
+type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
+
+
+type aggregatorRecordType is [@layout:comb] record [
+  aggregatorPair     : string;
+  status             : string;        // ACTIVE / INACTIVE
+  startDateTime      : timestamp; 
+  oracles            : set(address);
+]
+type aggregatorLedgerType is big_map(address, aggregatorRecordType)
 
 // ------------------------------------------------------------------------------
 // Snapshot Types
 // ------------------------------------------------------------------------------
 
-
 type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this counter
+    totalStakedMvkBalance     : nat;      // log of satellite's total staked mvk balance for this counter
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
     totalVotingPower          : nat;      // log calculated total voting power 
 ]
@@ -167,7 +181,6 @@ type removeOracleInAggregatorActionType is [@layout:comb] record [
 
 type dropActionType is [@layout:comb] record [
     dropActionId      : nat;
-    purpose           : string;
 ]
 
 
@@ -229,9 +242,9 @@ type governanceSatelliteStorage is record [
     governanceSatelliteSnapshotLedger       : governanceSatelliteSnapshotLedgerType;
     governanceSatelliteCounter              : nat;
 
-    satelliteOraclesLedger                  : satelliteOraclesLedgerType;
-
-    // snapshotStakedMvkTotalSupply            : nat;             
+    // satellite oracles and aggregators
+    satelliteOracleLedger                   : satelliteOracleLedgerType;
+    aggregatorLedger                        : aggregatorLedgerType;
 
     // lambda storage
     lambdaLedger                            : lambdaLedgerType;             

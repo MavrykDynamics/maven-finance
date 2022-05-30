@@ -140,7 +140,7 @@ block {
     else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
     var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := record [
-        totalMvkBalance         = stakedMvkBalance; 
+        totalStakedMvkBalance   = stakedMvkBalance; 
         totalDelegatedAmount    = totalDelegatedAmount; 
         totalVotingPower        = totalVotingPower;
       ];
