@@ -58,6 +58,7 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
       font-size: 12px;
       display: flex;
       align-items: center;
+      font-weight: 600;
 
       a {
         margin-left: 4px;
@@ -76,7 +77,7 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
       overflow: hidden;
       text-overflow: ellipsis;
       font-style: normal;
-      font-weight: 400;
+      font-weight: 600;
       font-size: 12px;
       line-height: 12px;
       text-align: right;
@@ -87,6 +88,7 @@ export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
         font-size: 12px;
         text-align: right;
         width: 100%;
+        font-weight: 600;
       }
     }
 
