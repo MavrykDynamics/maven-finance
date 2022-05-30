@@ -30,6 +30,10 @@ export const ProposalsView = ({
     handleItemSelect(undefined)
   }, [location.pathname, proposalsList])
 
+  if (!listProposalsArray.length) {
+    return null
+  }
+
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>

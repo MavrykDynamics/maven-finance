@@ -187,3 +187,7 @@ export interface FinancialRequestVote {
   voterId: string
   votingPower: number
 }
+
+
+export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL'
+
