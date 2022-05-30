@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-import { cyanColor, middleColor } from '../styles/colors'
+import { cyanColor, containerColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const ModalStyled = styled.div<{ showing: boolean }>`
@@ -31,7 +31,7 @@ export const ModalCard = styled.div`
 `
 
 export const ModalCardContent = styled.div<{ width?: number; height?: number; theme: MavrykTheme }>`
-  background: ${middleColor};
+  background: ${containerColor};
   border-radius: 10px;
   min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
   max-height: calc(90vh - 50px);

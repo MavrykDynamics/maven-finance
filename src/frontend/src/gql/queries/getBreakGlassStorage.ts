@@ -1,5 +1,5 @@
 export const BREAK_GLASS_STORAGE_QUERY = `
-  query GetBreakGlassQuery {
+  query GetBreakGlassStorageQuery {
     break_glass {
       action_counter
       action_expiry_days
@@ -21,14 +21,17 @@ export const BREAK_GLASS_STORAGE_QUERY = `
           id
           break_glass_action_record_id
         }
+        executed_level
+        signers_count
       }
-      council_members {
-        break_glass_id
-        address
-      }
+      council_member_image_max_length
+      council_member_name_max_length
+      council_member_website_max_length
+      admin
+      governance_id
     }
   }
 `
 
-export const BREAK_GLASS_STORAGE_QUERY_NAME = 'GetBreakGlassQuery'
+export const BREAK_GLASS_STORAGE_QUERY_NAME = 'GetBreakGlassStorageQuery'
 export const BREAK_GLASS_STORAGE_QUERY_VARIABLE = {}

@@ -45,29 +45,6 @@ export const SATELLITE_RECORDS_QUERY = `
           treasury_id
         }
       }
-      governance_proposal_records_votes {
-        current_round_vote
-        governance_proposal_record_id
-        id
-        round
-        vote
-        timestamp
-        voter_id
-        voting_power
-        governance_proposal_record {
-          abstain_mvk_total
-          current_cycle_end_level
-          current_cycle_start_level
-          cycle
-          current_round_proposal
-          description
-          down_vote_mvk_total
-          executed
-          id
-          invoice
-          locked
-        }
-      }
     }
   }
 `
@@ -150,8 +127,8 @@ export const SATELLITE_RECORDS_QUERY_OLD = `
   }
 `
 
-
 export const SATELLITE_RECORDS_QUERY_NAME = 'GetSatelliteRecord'
+
 export function SATELLITE_RECORDS_QUERY_VARIABLES(address: string): Record<string, any> {
   /* prettier-ignore */
   return { _eq: address }
