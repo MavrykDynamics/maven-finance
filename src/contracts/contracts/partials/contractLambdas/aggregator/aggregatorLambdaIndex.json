@@ -17,34 +17,74 @@
   },
   {
     "index": 4,
-    "name": "lambdaAddOracle"
+    "name": "lambdaUpdateWhitelistContracts"
   },
   {
     "index": 5,
-    "name": "lambdaRemoveOracle"
+    "name": "lambdaUpdateGeneralContracts"
   },
   {
     "index": 6,
-    "name": "lambdaRequestRateUpdate"
+    "name": "lambdaAddOracle"
   },
   {
     "index": 7,
-    "name": "lambdaRequestRateUpdateDeviation"
+    "name": "lambdaRemoveOracle"
   },
   {
     "index": 8,
-    "name": "lambdaSetObservationCommit"
+    "name": "lambdaPauseAll"
   },
   {
     "index": 9,
-    "name": "lambdaSetObservationReveal"
+    "name": "lambdaUnpauseAll"
   },
   {
     "index": 10,
-    "name": "lambdaWithdrawRewardXTZ"
+    "name": "lambdaTogglePauseReqRateUpd"
   },
   {
     "index": 11,
-    "name": "lambdaWithdrawRewardMVK"
+    "name": "lambdaTogglePauseReqRateUpdDev"
+  },
+  {
+    "index": 12,
+    "name": "lambdaTogglePauseSetObsCommit"
+  },
+  {
+    "index": 13,
+    "name": "lambdaTogglePauseSetObsReveal"
+  },
+  {
+    "index": 14,
+    "name": "lambdaTogglePauseRewardXtz"
+  },
+  {
+    "index": 15,
+    "name": "lambdaTogglePauseRewardSMvk"
+  },
+  {
+    "index": 16,
+    "name": "lambdaRequestRateUpdate"
+  },
+  {
+    "index": 17,
+    "name": "lambdaRequestRateUpdateDeviation"
+  },
+  {
+    "index": 18,
+    "name": "lambdaSetObservationCommit"
+  },
+  {
+    "index": 19,
+    "name": "lambdaSetObservationReveal"
+  },
+  {
+    "index": 20,
+    "name": "lambdaWithdrawRewardXtz"
+  },
+  {
+    "index": 21,
+    "name": "lambdaWithdrawRewardStakedMvk"
   }  
 ]

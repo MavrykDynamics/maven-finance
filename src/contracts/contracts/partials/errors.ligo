@@ -756,6 +756,10 @@
 //
 // ------------------------------------------------------------------------------
 
+[@inline] const error_ONLY_INITIATOR_CAN_DROP_ACTION                                                                    = 543n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_IS_ALREADY_DROPPED                                                    = 543n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXECUTED                                                              = 543n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXPIRED                                                               = 543n;
 
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                = 504n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                           = 505n;
