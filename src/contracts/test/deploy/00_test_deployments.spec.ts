@@ -863,8 +863,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[6]))  // requestRateUpdateDeviation
       .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationCommit"               , aggregatorLambdas[7]))  // setObservationCommit
       .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationReveal"               , aggregatorLambdas[8]))  // setObservationReveal
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardXTZ"                  , aggregatorLambdas[9]))  // withdrawRewardXTZ
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardMVK"                  , aggregatorLambdas[10])) // withdrawRewardMVK 
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardXtz"                  , aggregatorLambdas[9]))  // withdrawRewardXTZ
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardMvk"                  , aggregatorLambdas[10])) // withdrawRewardMVK 
 
       const setupAggregatorLambdasOperation = await aggregatorLambdaBatch.send()
       await setupAggregatorLambdasOperation.confirmation()
@@ -897,8 +897,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdateDeviation"  , aggregatorLambdas[6]))  // requestRateUpdateDeviation
       .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationCommit"        , aggregatorLambdas[7]))  // setObservationCommit
       .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationReveal"        , aggregatorLambdas[8]))  // setObservationReveal
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXTZ"           , aggregatorLambdas[9]))  // withdrawRewardXTZ
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardMVK"           , aggregatorLambdas[10])) // withdrawRewardMVK 
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXtz"           , aggregatorLambdas[9]))  // withdrawRewardXTZ
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardMvk"           , aggregatorLambdas[10])) // withdrawRewardMVK 
 
       const setupAggregatorFactoryProductLambdasOperation = await aggregatorFactoryProductLambdaBatch.send()
       await setupAggregatorFactoryProductLambdasOperation.confirmation()
