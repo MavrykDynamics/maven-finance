@@ -15,10 +15,14 @@ export const ToggleButton = ({ toggleData }: ToggleButtonViewProps) => {
   );
 
   return (
-    <ToggleButtonWrapper>
+    <ToggleButtonWrapper
+      className={`${toggleData.length <= 2 ? 'small-size' : ''} ${
+        toggleData.length > 4 ? 'big-size' : ''
+      }`}
+    >
       {toggleData.map(({ buttonName, buttonId }) => (
         <ToggleButtonItem
-          className={selectedToogler === buttonId ? 'selected' : ''}
+          className={`${selectedToogler === buttonId ? 'selected' : ''} toggle-btn`}
           onClick={() => setSelectedToggler(buttonId)}
         >
           {buttonName}
