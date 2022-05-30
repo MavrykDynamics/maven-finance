@@ -9,19 +9,20 @@ async def on_vesting_remove_vestee(
     ctx: HandlerContext,
     remove_vestee: Transaction[RemoveVesteeParameter, VestingStorage],
 ) -> None:
+
     # Get operation values
-    vestingAddress = remove_vestee.data.target_address
-    vesteeAddress  = remove_vestee.parameter.__root__
+    vesting_address = remove_vestee.data.target_address
+    vestee_address  = remove_vestee.parameter.__root__
 
     # Delete record
     vesting = await models.Vesting.get(
-        address=vestingAddress
+        address=vesting_address
     )
     vestee = await models.MavrykUser.get(
-        address=vesteeAddress
+        address=vestee_address
     )
     vesteeRecord    = await models.VestingVesteeRecord.get(
-        vestee=vestee,
-        vesting=vesting
+        vestee  = vestee,
+        vesting = vesting
     )
     await vesteeRecord.delete()

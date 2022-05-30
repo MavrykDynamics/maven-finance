@@ -9,6 +9,7 @@ async def on_mvk_update_operators(
     ctx: HandlerContext,
     update_operators: Transaction[UpdateOperatorsParameter, MvkStorage],
 ) -> None:
+
     # Get operation values
     operatorChanges = update_operators.parameter.__root__
 

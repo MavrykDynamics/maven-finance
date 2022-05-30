@@ -9,6 +9,7 @@ async def on_mvk_mint(
     ctx: HandlerContext,
     mint: Transaction[MintParameter, MvkStorage],
 ) -> None:
+
     # Get operation values
     mintAddress = mint.parameter.address
     newUserBalance = mint.storage.ledger[mintAddress]

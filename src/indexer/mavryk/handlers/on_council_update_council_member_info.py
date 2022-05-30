@@ -3,9 +3,30 @@ from mavryk.types.council.parameter.update_council_member_info import UpdateCoun
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
 from mavryk.types.council.storage import CouncilStorage
+import mavryk.models as models
 
 async def on_council_update_council_member_info(
     ctx: HandlerContext,
     update_council_member_info: Transaction[UpdateCouncilMemberInfoParameter, CouncilStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    council_address         = update_council_member_info.data.target_address
+    council_member_address  = update_council_member_info.data.sender_address
+    council_member_storage  = update_council_member_info.storage.councilMembers[council_member_address]
+    name                    = council_member_storage.name
+    website                 = council_member_storage.website
+    image                   = council_member_storage.image
+
+    # Update record
+    council                 = await models.Council.get(address   = council_address)
+    user, _                 = await models.MavrykUser.get_or_create(address   = council_member_address)
+    await user.save()
+    council_member          = await models.CouncilCouncilMember.get(
+        council     = council,
+        user        = user
+    )
+    council_member.name     = name
+    council_member.website  = website
+    council_member.image    = image
+    await council_member.save()

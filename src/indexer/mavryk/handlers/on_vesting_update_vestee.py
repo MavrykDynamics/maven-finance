@@ -10,52 +10,53 @@ async def on_vesting_update_vestee(
     ctx: HandlerContext,
     update_vestee: Transaction[UpdateVesteeParameter, VestingStorage],
 ) -> None:
+
     # Get operation values
-    vestingAddress                      = update_vestee.data.target_address
-    vesteeAddress                       = update_vestee.parameter.address
-    vesteeLedgerRecord                  = update_vestee.storage.vesteeLedger[vesteeAddress]
-    vesteeTotalAllocatedAmount          = int(vesteeLedgerRecord.totalAllocatedAmount)
-    vesteeClaimAmountPerMonth           = int(vesteeLedgerRecord.claimAmountPerMonth)
-    vesteeStartTimestamp                = parser.parse(vesteeLedgerRecord.startTimestamp)
-    vesteeVestingMonths                 = int(vesteeLedgerRecord.vestingMonths)
-    vesteeCliffMonths                   = int(vesteeLedgerRecord.cliffMonths)
-    vesteeEndCliffTimestamp             = parser.parse(vesteeLedgerRecord.endCliffDateTime)
-    vesteeEndVestingTimestamp           = parser.parse(vesteeLedgerRecord.endVestingDateTime)
-    vesteeStatus                        = vesteeLedgerRecord.status
-    vesteeTotalRemainder                = int(vesteeLedgerRecord.totalRemainder)
-    vesteeTotalClaimed                  = int(vesteeLedgerRecord.totalClaimed)
-    vesteeMonthsClaimed                 = int(vesteeLedgerRecord.monthsClaimed)
-    vesteeMonthsRemaining               = int(vesteeLedgerRecord.monthsRemaining)
-    vesteeNextRedemptionTimestamp       = parser.parse(vesteeLedgerRecord.nextRedemptionTimestamp)
-    vesteeLastClaimedTimestamp          = parser.parse(vesteeLedgerRecord.lastClaimedTimestamp)
-    vesteeLocked = False
-    if vesteeStatus == 'LOCKED':
-        vesteeLocked    = True
+    vesting_address                     = update_vestee.data.target_address
+    vestee_address                      = update_vestee.parameter.vesteeAddress
+    vestee_storage                      = update_vestee.storage.vesteeLedger[vestee_address]
+    total_allocated_amount              = float(vestee_storage.totalAllocatedAmount)
+    claim_amount_per_month              = float(vestee_storage.claimAmountPerMonth)
+    start_timestamp                     = parser.parse(vestee_storage.startTimestamp)
+    vesting_months                      = int(vestee_storage.vestingMonths)
+    cliff_months                        = int(vestee_storage.cliffMonths)
+    end_cliff_timestamp                 = parser.parse(vestee_storage.endCliffDateTime)
+    end_vesting_timestamp               = parser.parse(vestee_storage.endVestingDateTime)
+    status                              = vestee_storage.status
+    total_remainder                     = float(vestee_storage.totalRemainder)
+    total_claimed                       = float(vestee_storage.totalClaimed)
+    months_claimed                      = int(vestee_storage.monthsClaimed)
+    months_remaining                    = int(vestee_storage.monthsRemaining)
+    next_redemption_timestamp           = parser.parse(vestee_storage.nextRedemptionTimestamp)
+    last_claimed_timestamp              = parser.parse(vestee_storage.lastClaimedTimestamp)
+    locked                              = False
+    if status == 'LOCKED':
+        locked    = True
 
     # Create and update records
     user, _ = await models.MavrykUser.get_or_create(
-        address = vesteeAddress
+        address = vestee_address
     )
     await user.save()
     vesting = await models.Vesting.get(
-        address = vestingAddress
+        address = vesting_address
     )
-    vesteeRecord    = await models.VestingVesteeRecord.get(
+    vestee_record    = await models.VestingVesteeRecord.get(
         vesting                         = vesting,
         vestee                          = user
     )
-    vesteeRecord.total_allocated_amount          = vesteeTotalAllocatedAmount
-    vesteeRecord.claim_amount_per_month          = vesteeClaimAmountPerMonth
-    vesteeRecord.start_timestamp                 = vesteeStartTimestamp
-    vesteeRecord.vesting_months                  = vesteeVestingMonths
-    vesteeRecord.cliff_months                    = vesteeCliffMonths
-    vesteeRecord.end_cliff_timestamp             = vesteeEndCliffTimestamp
-    vesteeRecord.end_vesting_timestamp           = vesteeEndVestingTimestamp
-    vesteeRecord.locked                          = vesteeLocked
-    vesteeRecord.total_remainder                 = vesteeTotalRemainder
-    vesteeRecord.total_claimed                   = vesteeTotalClaimed
-    vesteeRecord.months_claimed                  = vesteeMonthsClaimed
-    vesteeRecord.months_remaining                = vesteeMonthsRemaining
-    vesteeRecord.next_redemption_timestamp       = vesteeNextRedemptionTimestamp
-    vesteeRecord.last_claimed_timestamp          = vesteeLastClaimedTimestamp
-    await vesteeRecord.save()
+    vestee_record.total_allocated_amount          = total_allocated_amount
+    vestee_record.claim_amount_per_month          = claim_amount_per_month
+    vestee_record.start_timestamp                 = start_timestamp
+    vestee_record.vesting_months                  = vesting_months
+    vestee_record.cliff_months                    = cliff_months
+    vestee_record.end_cliff_timestamp             = end_cliff_timestamp
+    vestee_record.end_vesting_timestamp           = end_vesting_timestamp
+    vestee_record.locked                          = locked
+    vestee_record.total_remainder                 = total_remainder
+    vestee_record.total_claimed                   = total_claimed
+    vestee_record.months_claimed                  = months_claimed
+    vestee_record.months_remaining                = months_remaining
+    vestee_record.next_redemption_timestamp       = next_redemption_timestamp
+    vestee_record.last_claimed_timestamp          = last_claimed_timestamp
+    await vestee_record.save()

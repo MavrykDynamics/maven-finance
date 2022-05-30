@@ -49,3 +49,6 @@ async def on_delegation_register_as_satellite(
     await user.save()
     await satelliteRecord.save()
     await satelliteRewardRecord.save()
+
+    satelliteRewardRecord.reference                                     = satelliteRewardRecord
+    await satelliteRewardRecord.save()

@@ -9,24 +9,25 @@ async def on_vesting_toggle_vestee_lock(
     ctx: HandlerContext,
     toggle_vestee_lock: Transaction[ToggleVesteeLockParameter, VestingStorage],
 ) -> None:
+
     # Get operation values
-    vestingAddress  = toggle_vestee_lock.data.target_address
-    vesteeAddress   = toggle_vestee_lock.parameter.__root__
-    vesteeStatus    = toggle_vestee_lock.storage.vesteeLedger[vesteeAddress].status
-    vesteeLocked = False
-    if vesteeStatus == 'LOCKED':
-        vesteeLocked    = True
+    vesting_address = toggle_vestee_lock.data.target_address
+    vestee_address  = toggle_vestee_lock.parameter.__root__
+    status          = toggle_vestee_lock.storage.vesteeLedger[vestee_address].status
+    locked          = False
+    if status == 'LOCKED':
+        locked    = True
 
     # Update record
     vesting = await models.Vesting.get(
-        address=vestingAddress
+        address=vesting_address
     )
     vestee = await models.MavrykUser.get(
-        address=vesteeAddress
+        address=vestee_address
     )
     vesteeRecord    = await models.VestingVesteeRecord.get(
-        vestee=vestee,
-        vesting=vesting
+        vestee  = vestee,
+        vesting = vesting
     )
-    vesteeRecord.locked = vesteeLocked
+    vesteeRecord.locked = locked
     await vesteeRecord.save()

@@ -81,8 +81,8 @@ class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     admin                           = fields.CharField(max_length=36)
     governance                      = fields.ForeignKeyField('models.Governance', related_name='mvk_token')
-    maximum_supply                  = fields.BigIntField(default=0)
-    total_supply                    = fields.BigIntField(default=0)
+    maximum_supply                  = fields.FloatField(default=0)
+    total_supply                    = fields.FloatField(default=0)
     inflation_rate                  = fields.SmallIntField(default=0)
     next_inflation_timestamp        = fields.DatetimeField()
 
@@ -172,6 +172,11 @@ class Council(Model):
     threshold                       = fields.BigIntField(default=0)
     action_expiry_days              = fields.BigIntField(default=0)
     action_counter                  = fields.BigIntField(default=0)
+    council_member_name_max_length  = fields.SmallIntField(default=0)
+    council_member_website_max_length= fields.SmallIntField(default=0)
+    council_member_image_max_length = fields.SmallIntField(default=0)
+    request_purpose_max_length      = fields.SmallIntField(default=0)
+    request_token_name_max_length   = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'council'
@@ -279,8 +284,8 @@ class MavrykUser(Model):
 
 class Treasury(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    admin                           = fields.CharField(max_length=36)
-    governance                      = fields.ForeignKeyField('models.Governance', related_name='treasuries')
+    admin                           = fields.CharField(max_length=36, default="")
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
     transfer_paused                 = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused    = fields.BooleanField(default=False)
     stake_mvk                       = fields.BooleanField(default=False)
@@ -378,16 +383,29 @@ class StakeRecord(Model):
     class Meta:
         table = 'stake_record'
 
+class CouncilCouncilMember(Model):
+    id                              = fields.BigIntField(pk=True)
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_member')
+    council                         = fields.ForeignKeyField('models.Council', related_name='council_council_members')
+    name                            = fields.CharField(max_length=255)
+    website                         = fields.CharField(max_length=255)
+    image                           = fields.CharField(max_length=255)
+
+    class Meta:
+        table = 'council_council_member'
+
 class CouncilActionRecord(Model):
     id                              = fields.BigIntField(pk=True)
     council                         = fields.ForeignKeyField('models.Council', related_name='council_action_records')
     initiator                       = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
     start_datetime                  = fields.DatetimeField()
     executed_datetime               = fields.DatetimeField()
+    executed_level                  = fields.BigIntField(default=0)
     expiration_datetime             = fields.DatetimeField()
     action_type                     = fields.CharField(max_length=48)
     status                          = fields.IntEnumField(enum_type=ActionStatus)
     executed                        = fields.BooleanField(default=False)
+    signers_count                   = fields.SmallIntField(default=1)
 
     class Meta:
         table = 'council_action_record'
@@ -413,20 +431,20 @@ class VestingVesteeRecord(Model):
     id                              = fields.BigIntField(pk=True)
     vesting                         = fields.ForeignKeyField('models.Vesting', related_name='vesting_vestee_records')
     vestee                          = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestee_record')
-    total_allocated_amount          = fields.BigIntField(default=0)
-    claim_amount_per_month          = fields.BigIntField(default=0)
-    start_timestamp                 = fields.DatetimeField()
-    vesting_months                  = fields.BigIntField(default=0)
-    cliff_months                    = fields.BigIntField(default=0)
-    end_cliff_timestamp             = fields.DatetimeField()
-    end_vesting_timestamp           = fields.DatetimeField()
+    total_allocated_amount          = fields.FloatField(default=0)
+    claim_amount_per_month          = fields.FloatField(default=0)
+    start_timestamp                 = fields.DatetimeField(null=True)
+    vesting_months                  = fields.SmallIntField(default=0)
+    cliff_months                    = fields.SmallIntField(default=0)
+    end_cliff_timestamp             = fields.DatetimeField(null=True)
+    end_vesting_timestamp           = fields.DatetimeField(null=True)
     locked                          = fields.BooleanField(default=False)
-    total_remainder                 = fields.BigIntField(default=0)
-    total_claimed                   = fields.BigIntField(default=0)
-    months_claimed                  = fields.BigIntField(default=0)
-    months_remaining                = fields.BigIntField(default=0)
-    next_redemption_timestamp       = fields.DatetimeField()
-    last_claimed_timestamp          = fields.DatetimeField()
+    total_remainder                 = fields.FloatField(default=0)
+    total_claimed                   = fields.FloatField(default=0)
+    months_claimed                  = fields.SmallIntField(default=0)
+    months_remaining                = fields.SmallIntField(default=0)
+    next_redemption_timestamp       = fields.DatetimeField(null=True)
+    last_claimed_timestamp          = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'vesting_vestee_record'
@@ -474,7 +492,7 @@ class EmergencyGovernanceVote(Model):
 
 class BreakGlassCouncilMember(Model):
     id                              = fields.BigIntField(pk=True)
-    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='council_member')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_council_member')
     break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_council_members')
     name                            = fields.CharField(max_length=255)
     website                         = fields.CharField(max_length=255)
@@ -601,7 +619,7 @@ class GovernanceSatelliteSnapshotRecord(Model):
     id                              = fields.BigIntField(pk=True)
     governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
     user                            = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records_votes')
-    total_mvk_balance               = fields.FloatField(default=0.0)
+    total_smvk_balance              = fields.FloatField(default=0.0)
     total_delegated_amount          = fields.FloatField(default=0.0)
     total_voting_power              = fields.FloatField(default=0.0)
     cycle                           = fields.BigIntField(default=0)
@@ -616,13 +634,14 @@ class GovernanceFinancialRequestRecord(Model):
     requester                       = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_request_records')
     request_type                    = fields.CharField(max_length=255)
     status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
-    ready                           = fields.BooleanField()
     executed                        = fields.BooleanField()
     token_contract_address          = fields.CharField(max_length=36)
     token_amount                    = fields.FloatField(default=0.0)
     token_name                      = fields.CharField(max_length=255)
-    token_id                        = fields.BigIntField(default=0)
+    token_id                        = fields.SmallIntField(default=0)
+    token_type                      = fields.CharField(max_length=12)
     request_purpose                 = fields.CharField(max_length=255)
+    key_hash                        = fields.CharField(max_length=255, null=True)
     approve_vote_total              = fields.FloatField(default=0.0)
     disapprove_vote_total           = fields.FloatField(default=0.0)
     smvk_percentage_for_approval    = fields.BigIntField(default=0)
@@ -637,10 +656,21 @@ class GovernanceFinancialRequestRecord(Model):
 class GovernanceFinancialRequestRecordVote(Model):
     id                              = fields.BigIntField(pk=True)
     governance_financial_request    = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='votes')
-    voter                           = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_financial_requests_votes')
+    voter                           = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_votes')
     timestamp                       = fields.DatetimeField(null=True)
     vote                            = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     voting_power                    = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'governance_financial_request_vote'
+
+class GovernanceFinancialRequestSatelliteSnapshotRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_financial_request    = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='snapshot_records')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_satellite_snapshot_records_votes')
+    total_smvk_balance              = fields.FloatField(default=0.0)
+    total_delegated_amount          = fields.FloatField(default=0.0)
+    total_voting_power              = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'governance_financial_request_satellite_snapshot_record'
