@@ -48,6 +48,24 @@ async def on_break_glass_sign_action(
     action_record.executed_level    = executed_level
     await action_record.save()
 
+    # Update the status if there are multiple records (flush)
+    if len(sign_action.storage.actionsLedger) > 1:
+        for single_action_id in sign_action.storage.actionsLedger:
+            action_status           = sign_action.storage.actionsLedger[single_action_id].status
+            single_action_record    = await models.BreakGlassActionRecord.get(
+                break_glass = break_glass,
+                id          = single_action_id
+            )
+            status                  = action_status.status
+            # Select correct status
+            status_type = models.ActionStatus.PENDING
+            if status == "FLUSHED":
+                status_type = models.ActionStatus.FLUSHED
+            elif status == "EXECUTED":
+                status_type = models.ActionStatus.EXECUTED
+            single_action_record.status            = status_type
+            await single_action_record.save()
+
     # Update council members
     council_members_records         = await models.BreakGlassCouncilMember.all()
     for council_member_record in council_members_records:

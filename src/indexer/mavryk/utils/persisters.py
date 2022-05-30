@@ -188,13 +188,16 @@ async def persist_break_glass_action(action):
 
 async def persist_financial_request(action):
     # Get operation values
-    governanceAddress       = action.data.target_address
+    financialAddress        = action.data.target_address
     requestLedger           = action.storage.financialRequestLedger
+    requestCounter          = int(action.storage.financialRequestCounter)
 
     # Create record
-    governance  = await models.Governance.get(
-        address = governanceAddress
+    governanceFinancial     = await models.GovernanceFinancial.get(
+        address = financialAddress
     )
+    governanceFinancial.fin_req_counter = requestCounter
+    await governanceFinancial.save()
 
     for requestID in requestLedger:
         requestRecord       = await models.GovernanceFinancialRequestRecord.get_or_none(
@@ -209,12 +212,13 @@ async def persist_financial_request(action):
             statusType                      = models.GovernanceRecordStatus.ACTIVE
             if not status:
                 statusType  = models.GovernanceRecordStatus.DROPPED
-            ready                           = requestRecordStorage.ready
             executed                        = requestRecordStorage.executed
             token_contract_address          = requestRecordStorage.tokenContractAddress
             token_amount                    = float(requestRecordStorage.tokenAmount)
             token_name                      = requestRecordStorage.tokenName
             token_id                        = int(requestRecordStorage.tokenId)
+            token_type                      = requestRecordStorage.tokenType
+            key_hash                        = requestRecordStorage.keyHash
             request_purpose                 = requestRecordStorage.requestPurpose
             approve_vote_total              = float(requestRecordStorage.approveVoteTotal)
             disapprove_vote_total           = float(requestRecordStorage.disapproveVoteTotal)
@@ -223,9 +227,10 @@ async def persist_financial_request(action):
             smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
+            satellites_snapshot             = action.storage.financialRequestSnapshotLedger[requestID]
 
             treasury, _             = await models.Treasury.get_or_create(
-                address = treasuryAddress
+                address     = treasuryAddress
             )
             await treasury.save()
 
@@ -234,12 +239,13 @@ async def persist_financial_request(action):
             )
             requestRecord           = models.GovernanceFinancialRequestRecord(
                 id                              = int(requestID),
-                governance                      = governance,
+                governance_financial            = governanceFinancial,
                 treasury                        = treasury,
                 requester                       = requester,
                 request_type                    = request_type,
                 status                          = statusType,
-                ready                           = ready,
+                token_type                      = token_type,
+                key_hash                        = key_hash,
                 executed                        = executed,
                 token_contract_address          = token_contract_address,
                 token_amount                    = token_amount,
@@ -255,6 +261,21 @@ async def persist_financial_request(action):
                 requested_datetime              = requested_datetime
             )
             await requestRecord.save()
+
+            for satellite_address in satellites_snapshot:
+                satellite_snapshot_record   = satellites_snapshot[satellite_address]
+                user, _                     = await models.MavrykUser.get_or_create(
+                    address = satellite_address
+                )
+                await user.save()
+                satellite_snapshot, _   = await models.GovernanceFinancialRequestSatelliteSnapshotRecord.get_or_create(
+                    governance_financial_request    = requestRecord,
+                    user                            = user
+                )
+                satellite_snapshot.total_smvk_balance              = float(satellite_snapshot_record.totalMvkBalance)
+                satellite_snapshot.total_delegated_amount          = float(satellite_snapshot_record.totalDelegatedAmount)
+                satellite_snapshot.total_voting_power              = float(satellite_snapshot_record.totalVotingPower)
+                await satellite_snapshot.save()
 
 ###
 #
@@ -333,8 +354,7 @@ async def persist_admin(set_admin,contract):
 async def persist_governance(set_governance,contract):
     # Get operation info
     governance_address      = set_governance.parameter.__root__
-    governance, _           = await models.Governance.get_or_create(address = governance_address)
+    governance              = await models.Governance.get(address = governance_address)
     contract.governance     = governance
-    await governance.save()
 
     await contract.save()
