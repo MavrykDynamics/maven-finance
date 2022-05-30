@@ -42,7 +42,7 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   }
 
   &:hover:not(:disabled) {
-    border-color: ${({ theme }) => theme.primaryColor}7F;
+    background-color: ${({ theme }) => theme.containerColor};
   }
 
   &:focus {
