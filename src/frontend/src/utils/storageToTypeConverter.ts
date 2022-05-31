@@ -28,6 +28,8 @@ import {
   ProposalVote,
   SnapshotRecordType,
   GovernanceRoundType,
+  CurrentRoundProposalsStorageType,
+  ProposalStatusType,
 } from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
@@ -577,7 +579,6 @@ function convertToGovernanceStorageType(storage: {
   )
   const currentGovernance = storage?.governance?.[1] || {}
 
-  console.log('%c ~~~~~~~ currentGovernance', 'color:red', currentGovernance);
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
     address: currentGovernance.address,
@@ -766,3 +767,55 @@ function convertGovernanceSatelliteSnapshotRecordsToInterface(
   }
   return governanceProposalRecords
 }
+
+function convertProposalStatus(statusNumber: number): ProposalStatusType {
+  return statusNumber === 0 ? 'ACTIVE' : 'DROPPED'
+}
+
+export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
+  const convertData = {
+    id: item.id,
+    proposerId: item.proposer_id,
+    status: convertProposalStatus(item?.status),
+    title: item.title,
+    description: item.description,
+    invoice: item.invoice,
+    successReward: item.successReward,
+    startDateTime: item.start_datetime,
+    executed: item.executed,
+    locked: item.locked,
+    timelockProposal: item.timelock_proposal,
+    passVoteMvkTotal: item.pass_vote_mvk_total,
+    upvoteMvkTotal: item.up_vote_mvk_total,
+    downvoteMvkTotal: item.down_vote_count,
+    abstainMvkTotal: item.abstain_mvk_total,
+    votes: convertGovernanceProposalVoteToInterface(item.votes),
+    minProposalRoundVoteRequirement: item.min_proposal_round_vote_req,
+    minProposalRoundVotePercentage: item.min_proposal_round_vote_pct,
+    minQuorumPercentage: item.min_quorum_percentage,
+    minQuorumMvkTotal: item.min_quorum_mvk_total,
+    quorumMvkTotal: item.quorum_mvk_total,
+    currentRoundProposal: item.quorum_mvk_total,
+    currentCycleStartLevel: item.current_cycle_start_level,
+    currentCycleEndLevel: item.current_cycle_end_level,
+    roundHighestVotedProposal: item.round_highest_voted_proposal,
+    cycle: item.cycle,
+    details: item.details,
+    invoiceTable: item.invoice_table,
+  }
+  // @ts-ignore
+  return convertData
+}
+
+
+
+export function convertCurrentRoundProposalsStorageType(storage: {
+  governance_proposal_record: ProposalRecordType[]
+}): CurrentRoundProposalsStorageType {
+  const governanceProposalRecord = storage?.governance_proposal_record
+  const mapProposalRecordType = governanceProposalRecord.length
+    ? new Map(governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]))
+    : undefined
+  return mapProposalRecordType
+}
+

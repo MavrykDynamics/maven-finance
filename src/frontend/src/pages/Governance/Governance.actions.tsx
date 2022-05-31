@@ -10,10 +10,13 @@ import {
   GOVERNANCE_STORAGE_QUERY,
   GOVERNANCE_STORAGE_QUERY_NAME,
   GOVERNANCE_STORAGE_QUERY_VARIABLE,
+  CURRENT_ROUND_PROPOSALS_QUERY,
+  CURRENT_ROUND_PROPOSALS_QUERY_NAME,
+  CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
 } from '../../gql/queries/getGovernanceStorage'
 import { State } from '../../reducers'
 import { getContractBigmapKeys } from '../../utils/api'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import storageToTypeConverter, { convertCurrentRoundProposalsStorageType } from '../../utils/storageToTypeConverter'
 import { GovernanceStorage, ProposalRecordType, SnapshotRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { GET_COUNCIL_STORAGE } from '../Treasury/Treasury.actions'
 
@@ -41,6 +44,24 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     phase: convertedStorage.currentRound,
   })
   dispatch({ type: SET_PAST_PROPOSALS, pastProposals: convertedStorage.proposalLedger })
+}
+
+export const GET_CURRENT_ROUND_PROPOSALS = 'GET_CURRENT_ROUND_PROPOSALS'
+export const getCurrentRoundProposals = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  const storage = await fetchFromIndexer(
+    CURRENT_ROUND_PROPOSALS_QUERY,
+    CURRENT_ROUND_PROPOSALS_QUERY_NAME,
+    CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE,
+  )
+
+  const currentRoundProposals = convertCurrentRoundProposalsStorageType(storage)
+
+  dispatch({
+    type: GET_CURRENT_ROUND_PROPOSALS,
+    currentRoundProposals,
+  })
 }
 
 export const PROPOSAL_ROUND_VOTING_REQUEST = 'PROPOSAL_ROUND_VOTING_REQUEST'

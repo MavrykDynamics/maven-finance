@@ -11,7 +11,7 @@ type TzAddressProps = {
   iconToLeft?: boolean | undefined
   isBold?: boolean
 }
-export const TzAddress = ({ tzAddress, type, hasIcon, iconToLeft, isBold }: TzAddressProps) => {
+export const TzAddress = ({ tzAddress = '', type, hasIcon, iconToLeft, isBold }: TzAddressProps) => {
   let addrClasses = type
   if (isBold) addrClasses += ' bold'
   const dispatch = useDispatch()
@@ -19,6 +19,10 @@ export const TzAddress = ({ tzAddress, type, hasIcon, iconToLeft, isBold }: TzAd
   const _handleCopyToClipboard = (address: string) => {
     navigator.clipboard.writeText(address)
     dispatch(showToaster('SUCCESS', 'Copied to Clipboard', `${address}`))
+  }
+
+  if (!tzAddress) {
+    return null
   }
 
   if (hasIcon) {

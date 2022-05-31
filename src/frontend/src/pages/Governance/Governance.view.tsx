@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
 import { EmptyContainer } from '../../app/App.style'
 import { GovernancePhase } from '../../reducers/governance'
-import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
+import { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from './Governance.controller'
 
 import {
@@ -19,20 +18,23 @@ import {
 } from './Governance.style'
 import { Proposals } from './Proposals/Proposals.controller'
 import { VotingArea } from './VotingArea/VotingArea.controller'
+import { calcTimeToBlock } from '../../utils/calcFunctions'
+import { Button } from 'app/App.components/Button/Button.controller'
 
 type GovernanceViewProps = {
   ready: boolean
   loading: boolean
   accountPkh: string | undefined
-  ongoingProposals?: Map<string, ProposalRecordType>
-  nextProposals: Map<string, ProposalRecordType>
-  pastProposals?: Map<string, ProposalRecordType>
+  ongoingProposals?: CurrentRoundProposalsStorageType
+  nextProposals: CurrentRoundProposalsStorageType
+  pastProposals?: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
   handleProposalRoundVote: (proposalId: number) => void
   handleVotingRoundVote: (vote: string) => void
   setVoteStatistics: (voteStatistics: VoteStatistics) => void
   selectedProposal: ProposalRecordType | undefined
   voteStatistics: VoteStatistics
+  userIsSatellite: boolean
 }
 
 export const GovernanceView = ({
@@ -48,6 +50,7 @@ export const GovernanceView = ({
   setVoteStatistics,
   selectedProposal,
   voteStatistics,
+  userIsSatellite,
 }: GovernanceViewProps) => {
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
@@ -104,6 +107,12 @@ export const GovernanceView = ({
       <figcaption> No proposals to show</figcaption>
     </EmptyContainer>
   )
+  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
+
+  const days = calcTimeToBlock(
+    rightSideContent?.currentCycleStartLevel || 0,
+    rightSideContent?.currentCycleEndLevel || 0,
+  )
 
   return (
     <GovernanceStyled>
@@ -146,15 +155,28 @@ export const GovernanceView = ({
             <StatusFlag text={rightSideContent.status} status={rightSideContent.status} />
           </GovRightContainerTitleArea>
           <RightSideSubContent id="votingDeadline">Voting ending on September 12th, 05:16 CEST</RightSideSubContent>
-          <VotingArea
-            ready={ready}
-            loading={loading}
-            accountPkh={accountPkh}
-            handleProposalRoundVote={handleProposalRoundVote}
-            handleVotingRoundVote={handleVotingRoundVote}
-            selectedProposal={rightSideContent}
-            voteStatistics={voteStatistics}
-          />
+          {userIsSatellite ? (
+            <>
+              <div className="voted-block">
+                <span className="voted-label">12,324 voted MVK</span>
+                <Button
+                  onClick={() => handleProposalRoundVote(rightSideContent.id)}
+                  loading={loading}
+                  text="Vote for Proposal"
+                  kind="actionPrimary"
+                />
+              </div>
+              <VotingArea
+                ready={ready}
+                loading={loading}
+                accountPkh={accountPkh}
+                handleProposalRoundVote={handleProposalRoundVote}
+                handleVotingRoundVote={handleVotingRoundVote}
+                selectedProposal={rightSideContent}
+                voteStatistics={voteStatistics}
+              />
+            </>
+          ) : null}
           <hr />
           <article>
             <RightSideSubHeader>Details</RightSideSubHeader>
