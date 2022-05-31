@@ -12,7 +12,7 @@ async def on_doorman_farm_claim(
     
     # Get operation info
     doorman_address                 = farm_claim.data.target_address
-    sender_address                  = farm_claim.data.sender_address
+    sender_address                  = farm_claim.parameter.address
     sender_stake_balance_ledger     = farm_claim.storage.userStakeBalanceLedger[sender_address]
     smvk_balance                    = float(sender_stake_balance_ledger.balance)
     participation_fees_per_share    = sender_stake_balance_ledger.participationFeesPerShare
@@ -43,7 +43,7 @@ async def on_doorman_farm_claim(
     # Create a stake record
     stake_record = models.StakeRecord(
         timestamp           = timestamp,
-        type                = models.StakeType.farm_claim,
+        type                = models.StakeType.FARM_CLAIM,
         desired_amount      = amount,
         final_amount        = amount,
         doorman             = doorman,

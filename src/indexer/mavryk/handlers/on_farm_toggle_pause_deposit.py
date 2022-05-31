@@ -9,12 +9,13 @@ async def on_farm_toggle_pause_deposit(
     ctx: HandlerContext,
     toggle_pause_deposit: Transaction[TogglePauseDepositParameter, FarmStorage],
 ) -> None:
-    # Get farm contract
-    farmAddress = toggle_pause_deposit.data.target_address
-    farm = await models.Farm.get(address=farmAddress)
 
-    # Update farm
-    farm.deposit_paused = toggle_pause_deposit.data.storage['breakGlassConfig']['depositIsPaused']
-    farm.withdraw_paused = toggle_pause_deposit.data.storage['breakGlassConfig']['withdrawIsPaused']
-    farm.claim_paused = toggle_pause_deposit.data.storage['breakGlassConfig']['claimIsPaused']
+    # Get operation info
+    farm_address    = toggle_pause_deposit.data.target_address
+    farm            = await models.Farm.get(address=farm_address)
+
+    # Update record
+    farm.deposit_paused     = toggle_pause_deposit.storage.breakGlassConfig.depositIsPaused
+    farm.withdraw_paused    = toggle_pause_deposit.storage.breakGlassConfig.withdrawIsPaused
+    farm.claim_paused       = toggle_pause_deposit.storage.breakGlassConfig.claimIsPaused
     await farm.save()
