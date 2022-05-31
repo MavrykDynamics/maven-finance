@@ -9,32 +9,18 @@ async def on_farm_factory_track_farm(
     ctx: HandlerContext,
     track_farm: Transaction[TrackFarmParameter, FarmFactoryStorage],
 ) -> None:
-    # Get operation values
-    trackedFarmAddress = track_farm.parameter.__root__
-    trackedFarm = await models.Farm.get_or_none(address=trackedFarmAddress)
-    farmIndexedContract = await Contract.get_or_none(address=trackedFarmAddress)
 
-    # Index farm if it does not exist in the db yet
-    if trackedFarm is None and farmIndexedContract is None:
-        # Prepare farm
-        farmFactoryAddress  = track_farm.data.target_address
-        farmFactory         = await models.FarmFactory.get(address=farmFactoryAddress)
-        farm, _             = await models.Farm.get_or_create(
-            address = trackedFarmAddress
-        )
-        farm.farm_factory   = farmFactory
+    # Get operation info
+    farm_address            = track_farm.parameter.__root__
+    farm_factory_address    = track_farm.data.target_address
+
+    # Update record
+    farm_factory    = await models.FarmFactory.get(
+        address = farm_factory_address
+    )
+    farm            = await models.Farm.get_or_none(
+        address = farm_address
+    )
+    if farm:
+        farm.farm_factory   = farm_factory
         await farm.save()
-
-        # Create a contract and index it
-        await ctx.add_contract(
-            name=trackedFarmAddress + 'contract',
-            address=trackedFarmAddress,
-            typename="farm"
-        )
-        await ctx.add_index(
-            name=trackedFarmAddress + 'index',
-            template="farm_template",
-            values=dict(
-                farm_contract=trackedFarmAddress + 'contract'
-            )
-        )

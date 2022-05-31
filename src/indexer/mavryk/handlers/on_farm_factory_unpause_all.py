@@ -9,12 +9,13 @@ async def on_farm_factory_unpause_all(
     ctx: HandlerContext,
     unpause_all: Transaction[UnpauseAllParameter, FarmFactoryStorage],
 ) -> None:
-    # Get farm contract
-    farmFactoryAddress = unpause_all.data.target_address
-    farmFactory = await models.FarmFactory.get(address=farmFactoryAddress)
 
-    # Update farm factory
-    farmFactory.create_farm_paused = unpause_all.data.storage['breakGlassConfig']['createFarmIsPaused']
-    farmFactory.track_farm_paused = unpause_all.data.storage['breakGlassConfig']['trackFarmIsPaused']
-    farmFactory.untrack_farm_paused = unpause_all.data.storage['breakGlassConfig']['untrackFarmIsPaused']
-    await farmFactory.save()
+    # Get operation info
+    farm_factory_address    = unpause_all.data.target_address
+    farm_factory            = await models.FarmFactory.get(address=farm_factory_address)
+
+    # Update record
+    farm_factory.create_farm_paused     = unpause_all.storage.breakGlassConfig.createFarmIsPaused
+    farm_factory.track_farm_paused      = unpause_all.storage.breakGlassConfig.trackFarmIsPaused
+    farm_factory.untrack_farm_paused    = unpause_all.storage.breakGlassConfig.untrackFarmIsPaused
+    await farm_factory.save()

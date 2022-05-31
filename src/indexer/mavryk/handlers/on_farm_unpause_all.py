@@ -9,12 +9,13 @@ async def on_farm_unpause_all(
     ctx: HandlerContext,
     unpause_all: Transaction[UnpauseAllParameter, FarmStorage],
 ) -> None:
-    # Get farm contract
-    farmAddress = unpause_all.data.target_address
-    farm = await models.Farm.get(address=farmAddress)
 
-    # Update farm
-    farm.deposit_paused = unpause_all.data.storage['breakGlassConfig']['depositIsPaused']
-    farm.withdraw_paused = unpause_all.data.storage['breakGlassConfig']['withdrawIsPaused']
-    farm.claim_paused = unpause_all.data.storage['breakGlassConfig']['claimIsPaused']
+    # Get operation info
+    farm_address    = unpause_all.data.target_address
+    farm            = await models.Farm.get(address=farm_address)
+
+    # Update record
+    farm.deposit_paused     = unpause_all.storage.breakGlassConfig.depositIsPaused
+    farm.withdraw_paused    = unpause_all.storage.breakGlassConfig.withdrawIsPaused
+    farm.claim_paused       = unpause_all.storage.breakGlassConfig.claimIsPaused
     await farm.save()

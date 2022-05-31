@@ -9,30 +9,45 @@ async def on_farm_claim(
     ctx: HandlerContext,
     claim: Transaction[ClaimParameter, FarmStorage],
 ) -> None:
-    breakpoint()
-    # Get operation data
-    userParticipation = float(claim.data.diffs[-1]['content']['value']['participationMVKPerShare'])
-    userAddress = claim.data.sender_address
-    farmAddress = claim.data.target_address
-    farmAccumulated = float(claim.storage.accumulatedMVKPerShare)
-    farmLastBlock = int(claim.storage.lastBlockUpdate)
 
-    # Update values
-    farm = await models.Farm.get(
-        address = farmAddress
+    # Get operation info
+    farm_address                    = claim.data.target_address
+    depositor_address               = claim.data.sender_address
+    depositor_storage               = claim.storage.depositors[depositor_address]
+    balance                         = int(depositor_storage.balance)
+    participation_mvk_per_share     = float(depositor_storage.participationMVKPerShare)
+    claimed_rewards                 = float(depositor_storage.claimedRewards)
+    unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
+    lp_token_balance                = int(claim.storage.config.lpToken.tokenBalance)
+    last_block_update               = int(claim.storage.lastBlockUpdate)
+    open                            = claim.storage.open
+    accumulated_rewards_per_share   = float(claim.storage.accumulatedRewardsPerShare)
+    unpaid_rewards                  = float(claim.storage.claimedRewards.unpaid)
+    paid_rewards                    = float(claim.storage.claimedRewards.paid)
+    
+    # Create and update records
+    farm                            = await models.Farm.get(
+        address = farm_address
     )
-    farm.accumulated_mvk_per_share = farmAccumulated
-    farm.last_block_update = farmLastBlock
+    farm.lp_balance                 = lp_token_balance
+    farm.accumulated_mvk_per_share  = accumulated_rewards_per_share
+    farm.last_block_update          = last_block_update
+    farm.open                       = open
+    farm.unpaid_rewards             = unpaid_rewards
+    farm.paid_rewards               = paid_rewards
     await farm.save()
 
-    user, _ = await models.MavrykUser.get_or_create(
-        address = userAddress
+    user, _                         = await models.MavrykUser.get_or_create(
+        address = depositor_address
     )
     await user.save()
 
-    farmAccount, _ = await models.FarmAccount.get_or_create(
+    farm_account, _                 = await models.FarmAccount.get_or_create(
         user = user,
         farm = farm
     )
-    farmAccount.participation_mvk_per_share = userParticipation
-    await farmAccount.save()
+    farm_account.deposited_amount               = balance
+    farm_account.participation_mvk_per_share    = participation_mvk_per_share
+    farm_account.unclaimed_rewards              = unclaimed_rewards
+    farm_account.claimed_rewards                = claimed_rewards
+    await farm_account.save()

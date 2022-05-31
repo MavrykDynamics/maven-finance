@@ -3,14 +3,6 @@ from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
 from tortoise import Model, fields
 from enum import IntEnum
 
-
-class ExampleModel(Model):
-    id = fields.IntField(pk=True)
-    ...
-
-    class Meta:
-        table = 'example_models'
-
 class StakeType(IntEnum):
     STAKE       = 0
     UNSTAKE     = 1
@@ -108,6 +100,7 @@ class Farm(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     admin                           = fields.CharField(max_length=36, default='')
     governance                      = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
+    farm_factory                    = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
     blocks_per_minute               = fields.SmallIntField(default=0)
     force_rewards_from_transfer     = fields.BooleanField(default=False)
     infinite                        = fields.BooleanField(default=False)
@@ -128,7 +121,6 @@ class Farm(Model):
     accumulated_rewards_per_share   = fields.FloatField(default=0)
     unpaid_rewards                  = fields.FloatField(default=0)
     paid_rewards                    = fields.FloatField(default=0)
-    farm_factory                    = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
 
     class Meta:
         table = 'farm'
@@ -137,6 +129,7 @@ class FarmFactory(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     admin                           = fields.CharField(max_length=36)
     governance                      = fields.ForeignKeyField('models.Governance', related_name='farm_factories')
+    blocks_per_minute               = fields.SmallIntField(default=0)
     create_farm_paused              = fields.BooleanField(default=False)
     track_farm_paused               = fields.BooleanField(default=False)
     untrack_farm_paused             = fields.BooleanField(default=False)
@@ -263,7 +256,7 @@ class Governance(Model):
 
 class GovernanceFinancial(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    governance                      = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_financials')
     voting_power_ratio              = fields.SmallIntField(default=0)
     fin_req_approval_percentage     = fields.SmallIntField(default=0)
     fin_req_duration_in_days        = fields.SmallIntField(default=0)
@@ -286,10 +279,11 @@ class Treasury(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     admin                           = fields.CharField(max_length=36, default="")
     governance                      = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
+    treasury_factory                = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
     transfer_paused                 = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused    = fields.BooleanField(default=False)
-    stake_mvk                       = fields.BooleanField(default=False)
-    unstake_mvk                     = fields.BooleanField(default=False)
+    stake_mvk_paused                = fields.BooleanField(default=False)
+    unstake_mvk_paused              = fields.BooleanField(default=False)
 
     class Meta:
         table = 'treasury'
@@ -315,10 +309,12 @@ class MavrykUserOperator(Model):
 
 class FarmAccount(Model):
     id                              = fields.BigIntField(pk=True, default=0)
-    deposited_amount                = fields.BigIntField(default=0)
-    participation_mvk_per_share     = fields.FloatField(default=0)
     user                            = fields.ForeignKeyField('models.MavrykUser', related_name='farm_accounts', index=True)
     farm                            = fields.ForeignKeyField('models.Farm', related_name='farm_accounts', index=True)
+    deposited_amount                = fields.BigIntField(default=0)
+    participation_mvk_per_share     = fields.FloatField(default=0)
+    unclaimed_rewards               = fields.FloatField(default=0)
+    claimed_rewards                 = fields.FloatField(default=0)
 
     class Meta:
         table = 'farm_account'

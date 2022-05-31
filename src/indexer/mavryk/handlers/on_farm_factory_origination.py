@@ -8,10 +8,12 @@ async def on_farm_factory_origination(
     ctx: HandlerContext,
     farm_factory_origination: Origination[FarmFactoryStorage],
 ) -> None:
+
     # Get Factory address
     address                     = farm_factory_origination.data.originated_contract_address
     admin                       = farm_factory_origination.storage.admin
     governance_address          = farm_factory_origination.storage.governanceAddress
+    blocks_per_minute           = int(farm_factory_origination.storage.config)
     create_farm_paused          = farm_factory_origination.storage.breakGlassConfig.createFarmIsPaused
     track_farm_paused           = farm_factory_origination.storage.breakGlassConfig.trackFarmIsPaused
     untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused
@@ -25,6 +27,7 @@ async def on_farm_factory_origination(
         address                     = address,
         admin                       = admin,
         governance                  = governance,
+        blocks_per_minute           = blocks_per_minute,
         track_farm_paused           = track_farm_paused,
         create_farm_paused          = create_farm_paused,
         untrack_farm_paused         = untrack_farm_paused
