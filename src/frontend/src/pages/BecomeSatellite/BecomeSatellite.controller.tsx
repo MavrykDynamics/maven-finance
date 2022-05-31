@@ -1,21 +1,21 @@
 import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import { useEffect } from 'react'
 import * as React from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-import { registerAsSatellite, updateSatelliteRecord } from './BecomeSatellite.actions'
-import { BecomeSatelliteView } from './BecomeSatellite.view'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { RegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
+import { registerAsSatellite, updateSatelliteRecord } from './BecomeSatellite.actions'
+import { BecomeSatelliteView } from './BecomeSatellite.view'
 
 export const BecomeSatellite = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
+  const satelliteLedger = delegationStorage?.satelliteLedger
   const { user } = useSelector((state: State) => state.user)
 
   const usersSatellite =
@@ -26,6 +26,8 @@ export const BecomeSatellite = () => {
           name: '',
           image: '',
           description: '',
+          website: '',
+          participation: 0,
           satelliteFee: 0,
           active: false,
           mvkBalance: 0,
@@ -44,6 +46,7 @@ export const BecomeSatellite = () => {
   }, [dispatch, accountPkh])
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
+    console.log(typeof form.fee)
     dispatch(registerAsSatellite(form, accountPkh as any))
   }
   const updateSatelliteCallback = (form: RegisterAsSatelliteForm) => {

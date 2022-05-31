@@ -20,7 +20,7 @@ export const BreakGlassTop = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 30px;
 `
 export const BreakGlassTopLeftCard = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   width: 30%;
   height: 100px;
   margin-right: 15px;
@@ -37,7 +37,7 @@ export const BreakGlassTopLeftCard = styled.div<{ theme: MavrykTheme }>`
   }
 `
 export const BreakGlassTopRightCard = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   width: 68%;
   height: 100px;
   margin-left: 15px;

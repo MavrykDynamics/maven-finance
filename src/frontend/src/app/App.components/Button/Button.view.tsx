@@ -7,6 +7,7 @@ import { ButtonIcon, ButtonLoadingIcon, ButtonStyled, ButtonText } from './Butto
 type ButtonViewProps = {
   text: string
   icon?: string
+  className?: string
   kind?: ButtonStyle
   onClick?: () => void
   clickCallback: () => void
@@ -28,6 +29,7 @@ export const ButtonView = ({
   loading,
   glassBroken,
   disabled,
+  className = '',
 }: ButtonViewProps) => {
   let buttonClasses = kind
   if (clicked) buttonClasses += ' clicked'
@@ -42,7 +44,7 @@ export const ButtonView = ({
   }
   return (
     <ButtonStyled
-      className={buttonClasses}
+      className={`${buttonClasses} ${className}`}
       onClick={() => {
         clickCallback()
         onClick && onClick()

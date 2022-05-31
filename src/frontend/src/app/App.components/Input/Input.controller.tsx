@@ -12,10 +12,13 @@ type InputProps = {
   value?: string | number
   onChange: any
   onBlur: any
+  onFocus?: any
+  onKeyDown?: any
   inputStatus?: InputStatusType
   type: string
   errorMessage?: string
   disabled?: boolean
+  required?: boolean
   pinnedText?: string
   kind?: InputKind
 }
@@ -27,22 +30,28 @@ export const Input = ({
   value,
   onChange,
   onBlur,
+  onFocus,
+  onKeyDown,
   inputStatus,
   type,
   errorMessage,
   disabled,
   pinnedText,
   kind,
+  required,
 }: InputProps) => {
   return (
     <InputView
       type={type}
       icon={icon}
       name={name}
+      required={required}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
       onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      onFocus={onFocus}
       inputStatus={inputStatus}
       errorMessage={errorMessage}
       disabled={disabled}

@@ -1,5 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card } from 'styles'
+
+import { cyanColor, headerColor, upColor } from '../../styles/colors'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
@@ -7,17 +9,40 @@ export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const BecomeSatelliteForm = styled(Card)`
-  padding-bottom: 80px;
+  padding-bottom: 53px;
+  margin-top: 0;
+  padding-top: 28px;
 
   > h1 {
     margin: 0;
+    color: ${headerColor};
+    padding-bottom: 26px;
   }
-  > p,
-  > div > p {
-    margin-top: 30px;
+
+  input.success,
+  input.error {
+    border-color: ${({ theme }) => theme.cardBorderColor};
+  }
+
+  label,
+  .label {
     font-weight: 600;
     font-size: 14px;
-    color: ${({ theme }) => theme.textColor};
+    color: ${({ theme }) => theme.headerColor};
+    margin-bottom: 10px;
+    display: block;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  #textAreaContainer {
+    margin-bottom: 18px;
+  }
+
+  .input-fee-wrap {
+    width: 163px;
   }
 
   > button {
@@ -36,12 +61,24 @@ export const BecomeSatelliteFormTitle = styled.h1<{ theme: MavrykTheme }>`
 
 export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean; theme: MavrykTheme }>`
   color: ${({ balanceOk, theme }) => (balanceOk ? theme.upColor : theme.downColor)};
+  display: flex;
+  padding-bottom: 20px;
+
+  p {
+    margin: 0;
+  }
+
+  svg {
+    stroke: ${({ balanceOk, theme }) => (balanceOk ? theme.upColor : theme.downColor)};
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+  }
 `
 export const BecomeSatelliteFormFeeCheck = styled.div<{ feeOk: boolean; theme: MavrykTheme }>`
   color: ${({ feeOk, theme }) => (feeOk ? theme.upColor : theme.downColor)};
 `
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
-  margin: 15px 0;
   cursor: pointer;
   height: 100px;
   width: 100%;
@@ -90,7 +127,7 @@ export const UploadIcon = styled.svg<{ theme: MavrykTheme }>`
     overflow: visible;
   }
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {
@@ -106,5 +143,21 @@ export const BecomeSatelliteProfilePic = styled.div`
   min-height: 200px;
   > img {
     height: 100%;
+  }
+`
+export const BecomeSatelliteFormHorizontal = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 33px;
+  padding-bottom: 19px;
+`
+export const BecomeSatelliteButttons = styled.div`
+  display: flex;
+  padding-top: 40px;
+  justify-content: flex-end;
+
+  button {
+    width: 255px;
+    margin-left: 40px;
   }
 `

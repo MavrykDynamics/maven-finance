@@ -10,28 +10,36 @@ export const GOVERNANCE_STORAGE_QUERY = `
       current_round
       current_round_end_level
       current_round_start_level
-      financial_req_approval_percent
-      financial_req_duration_in_days
       max_proposal_per_delegate
-      min_quorum_mvk_total
-      min_quorum_percentage
       minimum_stake_req_percentage
-      new_block_per_minute
-      new_blocktime_level
       next_proposal_id
       proposal_round_vote_percentage
       proposal_round_vote_required
-      proposal_submission_fee
-      start_level
       voting_power_ratio
       success_reward
+      current_blocks_per_proposal_round
+      current_blocks_per_timelock_round
+      current_blocks_per_voting_round
+      current_cycle_total_voters_reward
+      current_round_highest_voted_proposal_id
+      cycle_counter
+      cycle_voters_reward
+      governance_proxy_address
+      proposal_invoice_max_length
+      proposal_metadata_title_max_length
+      proposal_description_max_length
+      proposal_source_code_max_length
+      proposal_submission_fee_mutez
+      proposal_title_max_length
+      quorum_mvk_total
+      quorum_percentage
+      timelock_proposal_id
     }
     governance_financial_request_record {
       approve_vote_total
       executed
       disapprove_vote_total
       expiration_datetime
-      governance_id
       id
       ready
       request_purpose
@@ -55,6 +63,7 @@ export const GOVERNANCE_STORAGE_QUERY = `
         voter_id
         voting_power
       }
+      governance_financial_id
     }
     governance_proposal_record {
       abstain_mvk_total
@@ -76,39 +85,46 @@ export const GOVERNANCE_STORAGE_QUERY = `
       proposer_id
       quorum_mvk_total
       source_code
-      round_highest_voted_proposal
       start_datetime
       status
       success_reward
-      timelock_proposal
       title
-      up_vote_mvk_total
       votes {
         current_round_vote
         governance_proposal_record_id
         id
         round
-        timestamp
         vote
         voter_id
         voting_power
       }
-    }
-    governance_proposal_record_metadata {
-      governance_proposal_record_id
-      id
-      metadata
-      name
-    }
-    governance_satellite_snapshot_record {
-      current_cycle_end_level
-      current_cycle_start_level
-      satellite_id
-      total_delegated_amount
-      total_mvk_balance
-      total_voting_power
-      id
+      abstain_vote_count
+      down_vote_count
+      execution_counter
       governance_id
+      payment_processed
+      pass_vote_count
+      quorum_vote_count
+      up_vote_count
+      up_vote_mvk_total
+      proposal_data {
+        bytes
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+      }
+      proposal_payments {
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+        to__id
+        token_address
+        token_amount
+        token_id
+        token_standard
+      }
     }
   }
 `

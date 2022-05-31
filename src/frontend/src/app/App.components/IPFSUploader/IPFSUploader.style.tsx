@@ -1,9 +1,19 @@
 import styled, { keyframes } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
+import { primaryColor, headerColor } from 'styles'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
-  margin-top: 30px;
+  margin-top: 19px;
+
+  label {
+    margin-bottom: 10px;
+
+    & + div {
+    }
+  }
+
   > p {
     font-weight: 700;
     color: ${({ theme }) => theme.textColor};
@@ -11,14 +21,16 @@ export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
-  margin: 15px 0;
   cursor: pointer;
-  height: 100px;
+  height: 96px;
   width: 100%;
-  border: 2px dashed ${({ theme }) => theme.borderColor};
-  background-color: ${({ theme }) => theme.backgroundColor};
-  display: inline-block;
+  border: 2px dashed ${({ theme }) => theme.headerColor};
+  background-color: ${({ theme }) => theme.containerColor};
+  display: flex;
   border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 
   > div {
     width: 100%;
@@ -38,38 +50,78 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
       -webkit-appearance: none;
     }
   }
+
+  .loading-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+  }
+
+  .uploaded-image {
+    position: relative;
+    object-fit: cover;
+  }
 `
 
 export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
-  top: 15%;
-  left: 47.5%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-  > div {
-    font-size: 14px;
+  .upload-figure {
+    font-size: 12px;
     font-weight: 400;
-    color: ${({ theme }) => theme.primaryColor};
-  }
-`
-export const UploadIcon = styled.svg<{ theme: MavrykTheme }>`
-  stroke: ${({ theme }) => theme.primaryColor};
-  width: 37px;
-  height: 37px;
+    color: ${({ theme }) => theme.headerColor};
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
 
-  > use {
-    overflow: visible;
-  }
-  &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
-  }
-
-  &.secondary {
-    stroke: ${({ theme }) => theme.primaryColor};
+    small {
+      font-weight: 400;
+      padding-top: 2px;
+      font-size: 10px;
+      line-height: 10px;
+      color: ${primaryColor};
+    }
   }
 
-  &.transparent {
-    stroke: ${({ theme }) => theme.textColor};
+  .upload-icon {
+    stroke: ${({ theme }) => theme.headerColor};
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .pencil-wrap {
+    width: 16px;
+    height: 16px;
+    background-color: ${({ theme }) => theme.headerColor};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: absolute;
+    right: 0;
+    bottom: 0px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+      stroke: ${({ theme }) => theme.containerColor};
+    }
   }
 `
 const zoomIn = keyframes`
@@ -111,11 +163,23 @@ export const IPFSUploaderStatus = styled.div`
   }
 `
 
-export const IpfsUploadedImageContainer = styled.div`
-  margin: 30px 0 15px;
-  min-height: 200px;
+export const IpfsUploadedImageContainer = styled.figure`
+  margin: 0;
+  position: relative;
+  width: 50px;
+  height: 50px;
+
   > img {
-    height: 100%;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+  }
+
+  .uploaded-document {
+    width: 20px;
+    height: 20px;
+    stroke: ${headerColor};
+    margin-top: 12px;
   }
 `
 

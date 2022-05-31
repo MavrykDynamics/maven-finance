@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { backgroundColor } from 'styles'
+import { whiteColor } from 'styles'
 
 const spin = keyframes` 
   0% { 
@@ -66,13 +66,13 @@ export const DoormanHeaderStyled = styled.div`
   position: relative;
 
   > h1 {
-    color: ${backgroundColor};
+    color: ${whiteColor};
     font-size: 25px;
     margin: 40px 0 0 40px;
   }
 
   > p {
-    color: ${backgroundColor};
+    color: ${whiteColor};
     font-size: 14px;
     margin: 0 0 0 40px;
   }

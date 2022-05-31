@@ -28,3 +28,11 @@ export const hideExitFeeModal = () => (dispatch: any) => {
     type: HIDE_EXIT_FEE_MODAL,
   })
 }
+
+export const SET_EXIT_FEE_AMOUNT = 'SET_EXIT_FEE_AMOUNT'
+export const setExitFeeAmount = (amount: number) => (dispatch: any) => {
+  dispatch({
+    type: SET_EXIT_FEE_AMOUNT,
+    amount,
+  })
+}

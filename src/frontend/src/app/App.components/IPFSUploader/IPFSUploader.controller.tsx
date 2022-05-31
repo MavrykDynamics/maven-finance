@@ -1,4 +1,3 @@
-import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { useRef, useState } from 'react'
 
@@ -10,9 +9,12 @@ import { useDispatch } from 'react-redux'
 import { isHexadecimalByteString } from '../../../utils/validatorFunctions'
 
 export type IPFSUploaderStatusType = 'success' | 'error' | '' | undefined
+export type IPFSUploaderTypeFile = 'document' | 'image'
 type IPFSUploaderProps = {
   title?: string
+  typeFile: IPFSUploaderTypeFile
   listNumber?: number
+  disabled?: boolean
   imageIpfsUrl: string
   setIpfsImageUrl: (imageUrl: string) => void
   formInputStatus?: any
@@ -24,6 +26,8 @@ const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
 export const IPFSUploader = ({
   title,
   listNumber,
+  typeFile,
+  disabled,
   imageIpfsUrl,
   setIpfsImageUrl,
   formInputStatus,
@@ -64,7 +68,9 @@ export const IPFSUploader = ({
   }
   return (
     <IPFSUploaderView
+      typeFile={typeFile}
       title={title}
+      disabled={disabled}
       listNumber={listNumber}
       imageIpfsUrl={imageIpfsUrl}
       imageOk={imageOk}
@@ -78,22 +84,4 @@ export const IPFSUploader = ({
       errorMessage={errorMessage}
     />
   )
-}
-
-IPFSUploader.propTypes = {
-  title: PropTypes.string,
-  listNumber: PropTypes.number,
-  imageIpfsUrl: PropTypes.string,
-  setIpfsImageUrl: PropTypes.func,
-  formInputStatus: PropTypes.any,
-  setFormInputStatus: PropTypes.func,
-}
-
-IPFSUploader.defaultProps = {
-  title: undefined,
-  listNumber: undefined,
-  imageIpfsUrl: undefined,
-  setIpfsImageUrl: undefined,
-  formInputStatus: undefined,
-  setFormInputStatus: undefined,
 }

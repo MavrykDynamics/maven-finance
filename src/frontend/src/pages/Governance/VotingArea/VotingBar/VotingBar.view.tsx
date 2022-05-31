@@ -1,5 +1,9 @@
+import { Tooltip } from '@mui/material'
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
+
+import { CommaNumber } from '../../../../app/App.components/CommaNumber/CommaNumber.controller'
+import { VoteStatistics } from '../../Governance.controller'
 import { VotingBarStatus } from './VotingBar.constants'
 
 import {
@@ -11,8 +15,6 @@ import {
   VotingContainer,
   VotingFor,
 } from './VotingBar.style'
-import { Tooltip } from '@mui/material'
-import { VoteStatistics } from '../../Governance.controller'
 
 type VotingViewProps = {
   status: VotingBarStatus
@@ -37,20 +39,28 @@ export const VotingBarView = ({
 
   return (
     <VotingContainer>
-      <QuorumBar width={quorumWidth}>Quorum {5}%</QuorumBar>
+      <QuorumBar width={quorumWidth}>Quorum {quorumWidth}%</QuorumBar>
       <VotingBarStyled>
         <Tooltip title={`${voteStatistics.forVotesMVKTotal} Yay votes`}>
-          <VotingFor width={forVotesWidth} />
+          <VotingFor width={forVotesWidth}>
+            <CommaNumber value={voteStatistics.forVotesMVKTotal} />
+          </VotingFor>
         </Tooltip>
         <Tooltip title={`${voteStatistics.unusedVotesMVKTotal} Unused votes`}>
-          <NotYetVoted width={unusedVotesWidth} />
+          <NotYetVoted width={unusedVotesWidth}>
+            <CommaNumber value={voteStatistics.unusedVotesMVKTotal} />
+          </NotYetVoted>
         </Tooltip>
         <Tooltip title={`${voteStatistics.abstainVotesMVKTotal} Abstention votes`}>
-          <VotingAbstention width={abstainingVotesWidth} />
+          <VotingAbstention width={abstainingVotesWidth}>
+            <CommaNumber value={voteStatistics.abstainVotesMVKTotal} />
+          </VotingAbstention>
         </Tooltip>
 
         <Tooltip title={`${voteStatistics.againstVotesMVKTotal} Nay votes`}>
-          <VotingAgainst width={againstVotesWidth} />
+          <VotingAgainst width={againstVotesWidth}>
+            <CommaNumber value={voteStatistics.againstVotesMVKTotal} />
+          </VotingAgainst>
         </Tooltip>
       </VotingBarStyled>
     </VotingContainer>

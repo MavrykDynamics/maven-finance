@@ -1,15 +1,16 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
 import { ButtonView } from './Button.view'
-import { useSelector } from 'react-redux'
-import { State } from '../../../reducers'
 
 type ButtonProps = {
   text: string
   icon?: string
+  className?: string
   kind?: ButtonStyle
   onClick?: () => void
   type?: ButtonTypes
@@ -17,7 +18,7 @@ type ButtonProps = {
   disabled?: boolean
 }
 
-export const Button = ({ text, icon, kind, onClick, type, loading, disabled }: ButtonProps) => {
+export const Button = ({ text, icon, kind, onClick, type, loading, disabled, className }: ButtonProps) => {
   const { glassBroken } = useSelector((state: State) => state.breakGlass)
   const [clicked, setClicked] = useState(false)
   const clickCallback = () => {
@@ -27,6 +28,7 @@ export const Button = ({ text, icon, kind, onClick, type, loading, disabled }: B
   return (
     <ButtonView
       text={text}
+      className={className}
       icon={icon}
       kind={kind}
       onClick={onClick}

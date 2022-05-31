@@ -7,11 +7,12 @@ import { getDelegationStorage } from '../Satellites.actions'
 import { SatelliteSideBarView } from './SatelliteSideBar.view'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 
-export const SatelliteSideBar = () => {
+export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
+  const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
+  const satelliteLedger = delegationStorage?.satelliteLedger
   const numSatellites = satelliteLedger?.length || 0
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = accountPkh && satelliteLedger ? checkIfUserIsSatellite(accountPkh, satelliteLedger) : false
@@ -25,6 +26,8 @@ export const SatelliteSideBar = () => {
       userIsSatellite={userIsSatellite}
       numberOfSatellites={numSatellites}
       totalDelegatedMVK={totalDelegatedMVK}
+      isButton={isButton}
+      satelliteFactory={delegationAddress?.address || ''}
     />
   )
 }

@@ -22,7 +22,7 @@ export const SatelliteDetails = () => {
     const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
     dispatch(getSatelliteByAddress(pathAddress))
     dispatch(getDelegationStorage())
-  }, [dispatch])
+  }, [dispatch, location])
 
   const delegateCallback = (address: string) => {
     dispatch(delegate(address))

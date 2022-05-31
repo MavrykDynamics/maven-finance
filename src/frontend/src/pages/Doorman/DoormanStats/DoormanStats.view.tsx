@@ -1,9 +1,15 @@
-// prettier-ignore
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
-import { DoormanStatsGrid, DoormanStatsStyled } from './DoormanStats.style'
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
+// style
+import { DoormanList, DoormanStatsHeader, DoormanStatsStyled } from './DoormanStats.style'
 
 type DoormanStatsViewProps = {
   loading: boolean
@@ -12,67 +18,98 @@ type DoormanStatsViewProps = {
 }
 
 export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply }: DoormanStatsViewProps) => {
-  const mvkTokens = mvkTotalSupply ?? 0
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
+  const { exchangeRate, mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  const { doormanAddress } = useSelector((state: State) => state.contractAddresses)
+  const { user } = useSelector((state: State) => state.user)
+  const totalSupply = mvkTokenStorage?.totalSupply ?? 0
+  const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
+
+  const marketCapValue = exchangeRate ? exchangeRate * totalSupply : 0
+  const maxSupplyCapValue = exchangeRate ? exchangeRate * maximumTotalSupply : 0
+
   return (
     <DoormanStatsStyled>
-      <DoormanStatsGrid>
+      <DoormanStatsHeader>MVK Staking contract details</DoormanStatsHeader>
+      <DoormanList>
+        {doormanAddress?.address ? (
+          <div>
+            <h4>Contract address</h4>
+            <var className="click-addrese">
+              <TzAddress tzAddress={doormanAddress?.address} hasIcon />
+            </var>
+          </div>
+        ) : null}
+
         <div>
-          <h4 className={'primary bold'}>MVK Total Supply</h4>
-        </div>
-        <div>
-          <h4 className={'primary bold'}>Total Staked MVK Supply</h4>
-        </div>
-        {mvkTokens <= 0 ? (
-          <>
-            <p>
-              <ButtonLoadingIcon className={'transparent'}>
-                <use xlinkHref="/icons/sprites.svg#loading" />
-              </ButtonLoadingIcon>
-              Loading...
-            </p>
-            <p>
-              <ButtonLoadingIcon className={'transparent'}>
-                <use xlinkHref="/icons/sprites.svg#loading" />
-              </ButtonLoadingIcon>
-              Loading...
-            </p>
-          </>
-        ) : (
-          <>
-            <CommaNumber value={mvkTokens} loading={loading} endingText={'MVK'} />
+          <h4>Total staked MVK</h4>
+          <var>
             <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
-            <div>
-              <h4 className={'primary bold'}>
-                MVK Loyalty Index{' '}
-                <a
-                  href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  [?]
-                </a>
-              </h4>
-            </div>
-            <div>
-              <h4 className={'primary bold'}>
-                Exit Fee{' '}
-                <a
-                  href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  [?]
-                </a>
-              </h4>
-            </div>
+          </var>
+        </div>
+
+        <div>
+          <h4>
+            MVK Loyalty Index
+            <a
+              href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Icon id="question" />
+            </a>
+          </h4>
+          <var>
             <CommaNumber value={mli} loading={loading} endingText={' '} />
+          </var>
+        </div>
+
+        <div>
+          <h4>
+            Exit Fee
+            <a
+              href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Icon id="question" />
+            </a>
+          </h4>
+          <var>
             <CommaNumber value={fee} loading={loading} endingText={'%'} />
-          </>
-        )}
-      </DoormanStatsGrid>
+          </var>
+        </div>
+
+        <div>
+          <h4>Circulating</h4>
+          <var>
+            <CommaNumber value={totalSupply} loading={loading} endingText={'MVK'} />
+          </var>
+        </div>
+
+        <div>
+          <h4>Market cap</h4>
+          <var>
+            <CommaNumber value={marketCapValue} loading={loading} endingText={'USD'} />
+          </var>
+        </div>
+
+        <div>
+          <h4>Max supply cap</h4>
+          <var>
+            <CommaNumber value={maxSupplyCapValue} loading={loading} endingText={'USD'} />
+          </var>
+        </div>
+
+        <div>
+          <h4>Total supply</h4>
+          <var>
+            <CommaNumber value={maximumTotalSupply} loading={loading} endingText={'MVK'} />
+          </var>
+        </div>
+      </DoormanList>
     </DoormanStatsStyled>
   )
 }

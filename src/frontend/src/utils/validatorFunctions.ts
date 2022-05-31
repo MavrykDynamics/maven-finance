@@ -1,6 +1,6 @@
-import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
+import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 
 const isIPFS = require('is-ipfs')
 /**
@@ -31,7 +31,7 @@ export function isValidIPFSUrl(input: string) {
 }
 
 export function isNotAllWhitespace(input: string) {
-  return !(input.length > 0 && input.replace(/\s/g, '').length === 0) && input.length > 0
+  return !(input?.length > 0 && input?.replace(/\s/g, '').length === 0) && input?.length > 0
 }
 
 export function isHexadecimalByteString(input: string) {
@@ -72,4 +72,8 @@ export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFor
     dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
     return false
   }
+}
+
+export function mathRoundTwoDigit(digit: string | number | undefined): number | '' {
+  return digit ? Math.round(+digit * 100) / 100 : 0
 }

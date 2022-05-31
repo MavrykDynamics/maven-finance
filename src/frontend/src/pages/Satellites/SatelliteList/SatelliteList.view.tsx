@@ -1,5 +1,14 @@
+import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
+import React, { useEffect } from 'react'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import Select from 'react-select'
+
+import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { State } from '../../../reducers'
+import { darkMode, lightMode } from '../../../styles'
+import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 import {
   SatelliteListEmptyContainer,
   SatelliteListStyled,
@@ -7,14 +16,6 @@ import {
   SelectContainer,
 } from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
-import { darkMode, lightMode } from '../../../styles'
-import { useSelector } from 'react-redux'
-import { State } from '../../../reducers'
-import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
-import * as React from 'react'
-import { useState } from 'react'
-import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 
 type SatelliteListViewProps = {
   loading: boolean
@@ -39,7 +40,7 @@ export const SatelliteListView = ({
   satelliteUserIsDelegatedTo,
   satelliteFound,
 }: SatelliteListViewProps) => {
-  if (satelliteFound === undefined && !loading && satellitesList.length === 0) {
+  if (satelliteFound === undefined && !loading && satellitesList?.length === 0) {
     return <EmptySatelliteList />
   } else {
     return (
@@ -59,7 +60,12 @@ export const SatelliteListView = ({
 }
 
 const EmptySatelliteList = () => {
-  return <SatelliteListEmptyContainer>No satellites currently active</SatelliteListEmptyContainer>
+  return (
+    <SatelliteListEmptyContainer>
+      <img src="/images/not-found.svg" alt="No satellites found" />
+      <figcaption>No satellites found</figcaption>
+    </SatelliteListEmptyContainer>
+  )
 }
 
 const ListWithSatellites = ({
@@ -95,7 +101,7 @@ const ListWithSatellites = ({
   ]
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(undefined)
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -104,8 +110,12 @@ const ListWithSatellites = ({
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
-    handleSelect(chosenItem.value)
+    handleSelect(chosenItem)
   }
+
+  useEffect(() => {
+    handleSelect(itemsForDropDown[0])
+  }, [])
 
   return (
     <SatelliteListStyled>
@@ -113,12 +123,12 @@ const ListWithSatellites = ({
         <Input
           type="text"
           kind={'search'}
-          placeholder="Search by address..."
+          placeholder="Search by address or name..."
           onChange={handleSearch}
           onBlur={() => {}}
         />
         <DropdownContainer>
-          <h4>Order By:</h4>
+          <h4>Order by:</h4>
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
@@ -131,20 +141,24 @@ const ListWithSatellites = ({
           />{' '}
         </DropdownContainer>
       </SatelliteSearchFilter>
-      {satelliteFound === false && <SatelliteListEmptyContainer>Satellite Not Found</SatelliteListEmptyContainer>}
-      {satellitesList.map((item, index) => {
-        return (
-          <SatelliteListCard
-            key={String(index + item.address)}
-            satellite={item}
-            loading={loading}
-            delegateCallback={delegateCallback}
-            undelegateCallback={undelegateCallback}
-            userStakedBalance={userStakedBalance}
-            satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
-          />
-        )
-      })}
+      {satelliteFound === false ? (
+        <EmptySatelliteList />
+      ) : (
+        satellitesList?.map((item, index) => {
+          return (
+            <SatelliteListCard
+              key={String(index + item.address)}
+              className="iterable"
+              satellite={item}
+              loading={loading}
+              delegateCallback={delegateCallback}
+              undelegateCallback={undelegateCallback}
+              userStakedBalance={userStakedBalance}
+              satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+            />
+          )
+        })
+      )}
     </SatelliteListStyled>
   )
 }

@@ -17,17 +17,22 @@ export interface EmergencyGovernanceState {
   emergencyGovernanceProposal?: any
   error?: any
 }
+
 const defaultEmergencyGovernanceStorage: EmergencyGovernanceStorage = {
   address: '',
   config: {
-    minStakedMvkPercentageForTrigger: 0,
-    requiredFee: 0,
-    voteDuration: 0,
+    minStakedMvkRequiredToTrigger: 0,
+    minStakedMvkRequiredToVote: 0,
+    requiredFeeMutez: 10,
+    voteExpiryDays: 3,
     sMvkPercentageRequired: 0,
+    proposalTitleMaxLength: 400,
+    proposalDescMaxLength: 400,
+    decimals: 4,
   },
-  currentEmergencyGovernanceId: 0,
+  currentEmergencyGovernanceRecordId: 0,
   emergencyGovernanceLedger: [],
-  nextEmergencyGovernanceProposalId: 0,
+  nextEmergencyGovernanceRecordId: 0,
 }
 const emergencyGovernanceDefaultState: EmergencyGovernanceState = {
   emergencyGovernanceStorage: getItemFromStorage('EmergencyGovernanceStorage') || defaultEmergencyGovernanceStorage,

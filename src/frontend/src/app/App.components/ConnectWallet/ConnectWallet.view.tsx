@@ -1,5 +1,9 @@
-import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import * as React from 'react'
+
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+// components
+import Icon from '../Icon/Icon.view'
 import {
   ConnectWalletStyled,
   SimpleConnectedButton,
@@ -33,19 +37,17 @@ export const ConnectWalletView = ({
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
       {wallet ? (
         <>
-          {ready && type !== 'simpleButton' && (
+          {ready && type !== 'simpleButton' && accountPkh ? (
             <WalletConnectedButton>
-              <p>
-                {accountPkh
-                  ? `${accountPkh.slice(0, 7)}...${accountPkh.slice(accountPkh.length - 4, accountPkh.length)}`
-                  : 'undefined'}
-                <svg onClick={handleNewConnect}>
-                  <use xlinkHref="/icons/sprites.svg#switch" />
-                </svg>
-              </p>
+              <var>
+                <TzAddress tzAddress={accountPkh} hasIcon />
+              </var>
+              <button onClick={handleNewConnect}>
+                <Icon id="switch" />
+              </button>
               <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
             </WalletConnectedButton>
-          )}
+          ) : null}
           {type === 'simpleButton' && <SimpleConnectButtonNoAddress handleConnect={handleConnect} />}
           {!ready && type !== 'simpleButton' && <NoWalletConnectedButton handleConnect={handleConnect} />}
         </>
@@ -61,10 +63,8 @@ export const ConnectWalletView = ({
 export const NoWalletConnectedButton = ({ handleConnect }: { handleConnect: () => void }) => {
   return (
     <WalletNotConnectedButton onClick={handleConnect}>
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#wallet" />
-      </svg>
-      <div>Connect wallet</div>
+      <Icon id="wallet" />
+      <span>Connect Wallet</span>
     </WalletNotConnectedButton>
   )
 }
@@ -74,7 +74,7 @@ export const SimpleConnectButtonNoAddress = ({ handleConnect }: { handleConnect:
       <svg>
         <use xlinkHref="/icons/sprites.svg#wallet" />
       </svg>
-      <div>Connect wallet</div>
+      <div>Connect Wallet</div>
     </SimpleConnectedButton>
   )
 }

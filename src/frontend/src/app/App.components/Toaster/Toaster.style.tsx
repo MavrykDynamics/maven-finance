@@ -11,7 +11,7 @@ export const ToasterStyled = styled.div<{ showing: boolean; theme: MavrykTheme }
   margin: 10px;
   padding: 21px 20px;
   border-radius: 4px;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   box-shadow: 1px 7px 14px -5px rgba(0, 0, 0, 0.2);
   transform: translate3d(0px, 0, 0);
   transition: transform 1s ease-in-out;

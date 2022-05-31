@@ -94,8 +94,8 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
   [
     'proposal submission',
     {
-      title: 'Submit a Proposal',
-      subText: 'Satellites upgrade proposal submission',
+      title: 'Governance Proposal Submission',
+      subText: 'Use your tokens to vote on proposals, or delegate your votes to a satellite.',
       foregroundImageSrc: '/images/gov-main-header-fg.svg',
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
@@ -105,7 +105,7 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     {
       title: 'Break Glass',
       subText: 'Break Glass and emergency shutdown protocol',
-      foregroundImageSrc: '/images/break-glass-header-fg.svg',
+      foregroundImageSrc: '/images/break-glass-header.svg',
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
   ],
@@ -114,7 +114,7 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     {
       title: 'Emergency Governance',
       subText: 'Fast proposal and execution for emergency situations',
-      foregroundImageSrc: '/images/break-glass-header-fg.svg',
+      foregroundImageSrc: '/images/break-glass-header.svg',
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
   ],

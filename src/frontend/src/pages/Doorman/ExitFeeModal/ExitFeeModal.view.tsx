@@ -1,10 +1,26 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import * as PropTypes from 'prop-types'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
-import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { Input } from '../../../app/App.components/Input/Input.controller'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
+import {
+  StakeUnstakeForm,
+  StakeUnstakeFormInputStatus,
+  ValidStakeUnstakeForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
+// helpers
+import { isValidNumberValue, mathRoundTwoDigit } from '../../../utils/validatorFunctions'
+import { DoormanList } from '../DoormanStats/DoormanStats.style'
+import { setExitFeeAmount } from './ExitFeeModal.actions'
+import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
 
 type ExitFeeModalViewProps = {
   loading: boolean
@@ -25,78 +41,145 @@ export const ExitFeeModalView = ({
   totalStakedMvkSupply,
   amount,
 }: ExitFeeModalViewProps) => {
+  const dispatch = useDispatch()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+
   const mvkTokens = mvkTotalSupply ?? 0
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
+  const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
+  const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
+  const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
+  const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
+  const { user } = useSelector((state: State) => state.user)
+  const inputAmountValue = +inputAmount.amount
+  const myMvkTokenBalance = user?.myMvkTokenBalance
+  const userStakeBalance = user?.mySMvkTokenBalance
+
+  const checkInputIsOk = (value: number) => {
+    let validityCheckResult = false
+    setStakeUnstakeValueError('')
+    if (accountPkh) {
+      validityCheckResult = isValidNumberValue(value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
+    } else {
+      validityCheckResult = isValidNumberValue(value, 1)
+    }
+    setStakeUnstakeValueOK({ amount: validityCheckResult })
+    setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
+  }
+
+  const onInputChange = (e: any) => {
+    const value = mathRoundTwoDigit(e.target.value)
+    checkInputIsOk(+value)
+
+    setInputAmount({ amount: value })
+  }
+
+  useEffect(() => {
+    checkInputIsOk(amount)
+    setInputAmount({ amount })
+  }, [amount])
+
+  const handleFocus = (e: any) => {
+    const value = e.target.value
+
+    if (+value === 0) {
+      setInputAmount({ amount: '' })
+    }
+  }
+
   return (
     <ModalStyled showing={showing}>
       {showing && (
         <>
-          <ModalMask showing={showing} onClick={() => cancelCallback()} />
+          <ModalMask
+            showing={showing}
+            onClick={() => {
+              dispatch(setExitFeeAmount(inputAmountValue))
+              cancelCallback()
+            }}
+          />
           <ModalCard>
-            <ModalClose onClick={() => cancelCallback()}>
+            <ModalClose
+              onClick={() => {
+                dispatch(setExitFeeAmount(inputAmountValue))
+                cancelCallback()
+              }}
+            >
               <svg>
                 <use xlinkHref="/icons/sprites.svg#error" />
               </svg>
             </ModalClose>
-            <ModalCardContent width={50}>
+            <ModalCardContent style={{ width: 586 }}>
+              <h1>Exit Fee</h1>
               <ExitFeeModalContent>
-                <h1>Exit Fee</h1>
-
-                <ExitFeeModalGrid>
+                <label>Amount to Unstake:</label>
+                <Input
+                  type={'number'}
+                  onChange={onInputChange}
+                  onBlur={() => checkInputIsOk(inputAmountValue)}
+                  value={inputAmount.amount}
+                  onFocus={handleFocus}
+                  pinnedText={'MVK'}
+                  inputStatus={stakeUnstakeInputStatus.amount}
+                  errorMessage={stakeUnstakeValueError}
+                />
+                <DoormanList>
                   <div>
-                    <h4 className={'primary'}>MVK Total Supply</h4>
-                  </div>
-                  <div>
-                    <h4 className={'primary'}>Total Staked MVK Supply</h4>
-                  </div>
-                  <CommaNumber value={mvkTokens} endingText={'MVK'} />
-                  <CommaNumber value={stakedMvkTokens} endingText={'MVK'} />
-                  <div>
-                    <h4 className={'primary'}>Amount to Unstake</h4>
-                  </div>
-                  <div>
-                    <h4 className={'primary'}>
-                      MVK Loyalty Index{' '}
+                    <h4>
+                      MVK Loyalty Index
                       <a
                         href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
                         target="_blank"
                         rel="noreferrer"
                       >
-                        [?]
+                        <Icon id="question" />
                       </a>
                     </h4>
+                    <var>
+                      <CommaNumber value={mli} loading={loading} endingText={' '} />
+                    </var>
                   </div>
-                  <CommaNumber value={Number(amount)} endingText={'MVK'} />
                   <div>
-                    <p>{mli.toFixed(2)} </p>
+                    <h4>
+                      Exit Fee
+                      <a
+                        href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Icon id="question" />
+                      </a>
+                    </h4>
+                    <var>
+                      <CommaNumber value={fee} loading={loading} endingText={'%'} />
+                    </var>
                   </div>
-                </ExitFeeModalGrid>
-
-                <ExitFeeModalFee>
-                  <div>
-                    Exit Fee{' '}
-                    <a
-                      href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      [?]
-                    </a>
-                  </div>
-                  <p>{fee.toFixed(2)} %</p>
-                </ExitFeeModalFee>
+                </DoormanList>
 
                 <ExitFeeModalButtons>
                   <Button
                     text="Cancel"
-                    kind="secondary"
+                    kind={ACTION_SECONDARY}
                     icon="error"
                     loading={loading}
-                    onClick={() => cancelCallback()}
+                    onClick={() => {
+                      dispatch(setExitFeeAmount(inputAmountValue))
+                      cancelCallback()
+                    }}
                   />
-                  <Button text="Proceed" icon="success" loading={loading} onClick={() => unstakeCallback(amount)} />
+                  <Button
+                    text="Proceed"
+                    icon="success"
+                    disabled={!stakeUnstakeValueOK.amount}
+                    kind={ACTION_PRIMARY}
+                    loading={loading}
+                    onClick={() => {
+                      dispatch(setExitFeeAmount(inputAmountValue))
+                      unstakeCallback(inputAmountValue)
+                    }}
+                  />
                 </ExitFeeModalButtons>
               </ExitFeeModalContent>
             </ModalCardContent>

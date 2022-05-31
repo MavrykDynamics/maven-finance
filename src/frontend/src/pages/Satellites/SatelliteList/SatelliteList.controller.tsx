@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 
-import { SatelliteListView } from './SatelliteList.view'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { SatelliteListView } from './SatelliteList.view'
 
 type SatelliteListProps = {
   satellitesList: SatelliteRecord[]
@@ -35,7 +35,11 @@ export const SatelliteList = ({
     const searchQuery = e.target.value
     let searchResult: SatelliteRecord[] = []
     if (searchQuery !== '') {
-      searchResult = allSatellites.filter((item: SatelliteRecord) => searchQuery === item.address)
+      searchResult = allSatellites.filter(
+        (item: SatelliteRecord) =>
+          item.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
     } else {
       searchResult = allSatellites
     }
@@ -50,11 +54,13 @@ export const SatelliteList = ({
   }
 
   const handleSelect = (selectedOption: any) => {
-    const sortLabel = selectedOption.label,
+    const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
+
     if (sortValue !== '') {
       setFilteredSatelliteList((data: SatelliteRecord[]) => {
-        const dataToSort = [...data]
+        const dataToSort = data ? [...data] : []
+
         dataToSort.sort((a: any, b: any) => {
           let res = 0
           switch (sortLabel) {

@@ -1,12 +1,8 @@
-import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import doormanAddress from 'deployments/doormanAddress.json'
-import mvkTokenAddress from 'deployments/mvkTokenAddress.json'
 import { State } from 'reducers'
 
-import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import { PRECISION_NUMBER } from '../../utils/constants'
+import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import {
   DOORMAN_STORAGE_QUERY,
   DOORMAN_STORAGE_QUERY_NAME,
@@ -14,13 +10,16 @@ import {
   MVK_TOKEN_STORAGE_QUERY,
   MVK_TOKEN_STORAGE_QUERY_NAME,
   MVK_TOKEN_STORAGE_QUERY_VARIABLE,
+  USER_INFO_QUERY,
+  USER_INFO_QUERY_NAME,
+  USER_INFO_QUERY_VARIABLES,
 } from '../../gql/queries'
-import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { calcWithoutMu } from '../../utils/calcFunctions'
+import { calcWithoutPrecision } from '../../utils/calcFunctions'
+import { PRECISION_NUMBER } from '../../utils/constants'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
-import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries'
+import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
+import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -39,7 +38,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
     MVK_TOKEN_STORAGE_QUERY_VARIABLE,
   )
 
-  const convertedStorage = storageToTypeConverter('mvkToken', storage.mvk_token[0])
+  const convertedStorage = storageToTypeConverter('mvkToken', storage?.mvk_token[0])
   //
   // const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
   // const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
@@ -48,10 +47,10 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
   // const mvkTokenStorage: MvkTokenStorage = {
   //   tokenId: await storage['token_metadata'].id.toNumber(),
   //   maximumTotalSupply: 0,
-  //   admin: storage.admin,
-  //   contractAddresses: storage.contractAddresses,
+  //   admin: storage?.admin,
+  //   contractAddresses: storage?.contractAddresses,
   //   totalSupply: totalMvkSupply,
-  //   whitelistContracts: storage.contractAddresses,
+  //   whitelistContracts: storage?.contractAddresses,
   // }
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
@@ -91,7 +90,7 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
         {
           add_operator: {
             owner: state.wallet.accountPkh,
-            operator: doormanAddress.address,
+            operator: state.contractAddresses.doormanAddress.address,
             token_id: 0,
           },
         },
@@ -100,7 +99,7 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
         {
           remove_operator: {
             owner: state.wallet.accountPkh,
-            operator: doormanAddress.address,
+            operator: state.contractAddresses.doormanAddress.address,
             token_id: 0,
           },
         },
@@ -202,6 +201,56 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
   }
 }
 
+export const COMPOUND_REQUEST = 'COMPOUND_REQUEST'
+export const COMPOUND_RESULT = 'COMPOUND_RESULT'
+export const COMPOUND_ERROR = 'COMPOUND_ERROR'
+export const rewardsCompound = (address: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.compound(address).send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: COMPOUND_REQUEST,
+    })
+    dispatch(showToaster(INFO, 'Compounding rewards...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Compounding done', 'All good :)'))
+
+    dispatch({
+      type: COMPOUND_RESULT,
+    })
+
+    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+
+    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getDoormanStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: COMPOUND_ERROR,
+      error,
+    })
+  }
+
+  dispatch(showToaster(INFO, 'Compound', 'Coming Soon', 3000))
+}
+
 export const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
 export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
@@ -212,7 +261,8 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
       DOORMAN_STORAGE_QUERY_NAME,
       DOORMAN_STORAGE_QUERY_VARIABLE,
     )
-    const convertedStorage = storageToTypeConverter('doorman', storage.doorman[0])
+
+    const convertedStorage = storageToTypeConverter('doorman', storage?.doorman?.[0])
     // const userStakeBalanceLedgerBigMap = await getContractBigmapKeys(doormanAddress.address, 'userStakeBalanceLedger')
     //
     // const userStakeBalanceLedger: UserStakeBalanceLedger = new Map<string, string>()
@@ -225,9 +275,9 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     // })
     //
     // const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
-    //   stakeIsPaused: storage.breakGlassConfig?.stakeIsPaused,
-    //   unstakeIsPaused: storage.breakGlassConfig?.unstakeIsPaused,
-    //   compoundIsPaused: storage.breakGlassConfig?.compoundIsPaused,
+    //   stakeIsPaused: storage?.breakGlassConfig?.stakeIsPaused,
+    //   unstakeIsPaused: storage?.breakGlassConfig?.unstakeIsPaused,
+    //   compoundIsPaused: storage?.breakGlassConfig?.compoundIsPaused,
     // }
     //
     // const stakedMvkTotalSupply = calcWithoutMu(storage?.stakedMvkTotalSupply)
@@ -237,7 +287,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     // const tempMvkMaximumTotalSupply = calcWithoutMu(storage?.tempMvkMaximumTotalSupply)
     //
     // const doormanStorage: DoormanStorage = {
-    //   admin: storage.admin,
+    //   admin: storage?.admin,
     //   breakGlassConfig: doormanBreakGlassConfig,
     //   userStakeBalanceLedger: userStakeBalanceLedger,
     //   tempMvkTotalSupply: tempMvkTotalSupply,
@@ -254,7 +304,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     // }
     //
     // const doormanStorage: DoormanStorage = {
-    //   admin: storage.admin,
+    //   admin: storage?.admin,
     //   breakGlassConfig: doormanBreakGlassConfig,
     //   tempMvkTotalSupply: convertedStorage.tempMvkTotalSupply,
     //   stakedMvkTotalSupply: convertedStorage.stakedMvkTotalSupply,
@@ -267,7 +317,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     dispatch({
       type: GET_DOORMAN_STORAGE,
       storage: convertedStorage,
-      totalStakedMvkSupply: convertedStorage.stakedMvkTotalSupply,
+      totalStakedMvkSupply: convertedStorage.totalStakedMvk,
     })
   } catch (error: any) {
     console.error(error)
@@ -292,14 +342,14 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       USER_INFO_QUERY_VARIABLES(accountPkh),
     )
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
-    const userIsDelegatedToSatellite = userInfoData.delegation_records.length > 0
+    const userIsDelegatedToSatellite = userInfoData?.delegation_records.length > 0
     const userInfo: UserData = {
-      myAddress: userInfoData.address,
-      myMvkTokenBalance: calcWithoutMu(userInfoData.mvk_balance),
-      mySMvkTokenBalance: calcWithoutMu(userInfoData.smvk_balance),
-      participationFeesPerShare: calcWithoutMu(userInfoData.participation_fees_per_share),
+      myAddress: userInfoData?.address,
+      myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
+      mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
+      participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
-        ? userInfoData.delegation_records[0].satellite_record?.user_id
+        ? userInfoData?.delegation_records[0].satellite_record?.user_id
         : '',
     }
     setItemInStorage('UserData', userInfo)

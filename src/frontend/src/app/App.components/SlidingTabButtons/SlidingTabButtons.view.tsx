@@ -32,6 +32,7 @@ export const SlidingTabButtonsView = ({
     <SlidingTabButtonsStyled>
       {tabValues.map((tabItem, index) => (
         <TabButton
+          key={index}
           buttonRef={tabItem.ref}
           text={tabItem.text}
           buttonId={tabItem.id}

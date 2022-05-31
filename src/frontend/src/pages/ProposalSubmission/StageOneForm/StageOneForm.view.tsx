@@ -1,13 +1,20 @@
-import {
-  FormSubTitle,
-  FormTitleContainer,
-  FormTitleAndFeeContainer,
-  FormButtonContainer,
-} from '../ProposalSubmission.style'
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { SubmitProposalFormInputStatus, SubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { Input } from '../../../app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+// styles
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+} from '../ProposalSubmission.style'
 
 type StageOneFormViewProps = {
   loading: boolean
@@ -27,13 +34,19 @@ export const StageOneFormView = ({
 }: StageOneFormViewProps) => {
   return (
     <>
-      <h1>Stage 1</h1>
+      <FormHeaderGroup>
+        <h1>Stage 1</h1>
+        {/* TODO Need condition */}
+        <StatusFlag text="UNLOCKED" status={ProposalStatus.EXECUTED} />
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+      </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <FormSubTitle>1- Enter the title of your proposal</FormSubTitle>
+          <label>1- Enter Proposal Title</label>
           <Input
             type="text"
-            placeholder="Title"
             value={form.title}
             onChange={(e: any) => setForm({ ...form, title: e.target.value })}
             onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
@@ -41,10 +54,9 @@ export const StageOneFormView = ({
           />
         </FormTitleContainer>
         <div>
-          <FormSubTitle>2- Enter the MVK success reward</FormSubTitle>
+          <label>2- Proposal Sucess Reward</label>
           <Input
             type="number"
-            placeholder="Success MVK Reward"
             value={form.successMVKReward}
             onChange={(e: any) => setForm({ ...form, successMVKReward: Number(e.target.value) })}
             onBlur={(e: any) => handleOnBlur(e, 'SUCCESS_MVK_REWARD')}
@@ -52,32 +64,40 @@ export const StageOneFormView = ({
           />
         </div>
       </FormTitleAndFeeContainer>
-      <FormSubTitle>3- Enter your description</FormSubTitle>
-      <Input
+      <label>3- Enter a description</label>
+      <TextArea
         type="text"
-        placeholder="Proposal Description"
+        className="description-textarea"
         value={form.description}
         onChange={(e: any) => setForm({ ...form, description: e.target.value })}
         onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
         inputStatus={formInputStatus.description}
       />
-      <FormSubTitle>4- Please add a link to the source code changes (if you have)</FormSubTitle>
+      <label>4- Please add a link to the source code changes (if you have)</label>
       <Input
         type="text"
-        placeholder="Link to Source Code"
         value={form.sourceCodeLink}
         onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
         onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
         inputStatus={formInputStatus.sourceCodeLink}
       />
-      <IPFSUploader
-        imageIpfsUrl={form.ipfs}
-        setIpfsImageUrl={(e: any) => setForm({ ...form, ipfs: e })}
-        title={'Upload invoice for governance proposal and required expense report'}
-        listNumber={4}
-      />
+      <div className="document-uploader-wrap">
+        <IPFSUploader
+          typeFile="document"
+          imageIpfsUrl={form.ipfs}
+          setIpfsImageUrl={(e: any) => setForm({ ...form, ipfs: e })}
+          title={'Upload Invoice Document'}
+          listNumber={4}
+        />
+      </div>
       <FormButtonContainer>
-        <Button icon="hammer" text={'Submit Governance Proposal'} loading={loading} onClick={handleSubmitProposal} />
+        <Button
+          icon="auction"
+          kind="actionPrimary"
+          text={'Submit Proposal'}
+          loading={loading}
+          onClick={handleSubmitProposal}
+        />
       </FormButtonContainer>
     </>
   )

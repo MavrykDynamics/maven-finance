@@ -1,4 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
+
 import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
 
 export interface SatelliteProposalVotingHistory extends ProposalVote {
@@ -69,6 +70,8 @@ export interface SatelliteRecord {
   name: string
   image: string
   description: string
+  website: string
+  participation: number
   satelliteFee: number
   active: boolean
   mvkBalance: number
@@ -79,23 +82,39 @@ export interface SatelliteRecord {
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
 }
+
 export type DelegationConfig = {
-  maxSatellites: string
-  delegationRatio: string
+  maxSatellites: number
+  delegationRatio: number
   minimumStakedMvkBalance: number
+  satelliteNameMaxLength: number
+  satelliteDescriptionMaxLength: number
+  satelliteImageMaxLength: number
+  satelliteWebsiteMaxLength: number
 }
+
+export type ParticipationMetrics = {
+  pollParticipation: number
+  proposalParticipation: number
+  communication: number
+}
+
 export interface DelegationBreakGlassConfigType {
   delegateToSatelliteIsPaused: boolean
   undelegateFromSatelliteIsPaused: boolean
   registerAsSatelliteIsPaused: boolean
   unregisterAsSatelliteIsPaused: boolean
   updateSatelliteRecordIsPaused: boolean
+  distributeRewardPaused: boolean
 }
+
 export interface DelegateRecord {
   satelliteAddress: string
   delegatedDateTime: Date | null
 }
+
 export type DelegationLedger = MichelsonMap<string, DelegateRecord>
+
 export interface DelegationStorage {
   admin?: string
   contractAddresses?: MichelsonMap<string, string>
@@ -104,4 +123,6 @@ export interface DelegationStorage {
   config: DelegationConfig
   delegateLedger: DelegationLedger
   breakGlassConfig: DelegationBreakGlassConfigType
+  numberActiveSatellites: number
+  totalDelegatedMVK: number
 }

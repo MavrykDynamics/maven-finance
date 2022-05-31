@@ -1,15 +1,11 @@
-import { EmergencyGovernancePastProposal } from '../mockEGovProposals'
-import {
-  EGovHistoryArrowButton,
-  EGovHistoryCardDropDown,
-  EGovHistoryCardStyled,
-  EGovHistoryCardTitleTextGroup,
-  EGovHistoryCardTopSection,
-} from './EGovHistoryCard.style'
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { useEffect, useRef, useState } from 'react'
 import * as React from 'react'
+
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { EmergencyGovernancePastProposal } from '../mockEGovProposals'
+//prettier-ignore
+import { EGovHistoryArrowButton, EGovHistoryCardDropDown, EGovHistoryCardStyled, EGovHistoryCardTitleTextGroup, EGovHistoryCardTopSection } from './EGovHistoryCard.style'
 
 type EGovHistoryCardProps = {
   pastProposal: EmergencyGovernancePastProposal
@@ -66,6 +62,7 @@ export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
 
       <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <div className={'accordion ' + `${expanded}`} ref={ref}>
+          <h3>Description</h3>
           <p>Information regarding the proposal should be place here. Such as:</p>
           <ul>
             <li>What the exact fatal flaw was</li>

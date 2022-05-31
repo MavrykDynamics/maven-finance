@@ -5,6 +5,7 @@ import { MvkTokenStorage } from '../utils/TypesAndInterfaces/MvkToken'
 export interface MvkTokenState {
   mvkTokenStorage: MvkTokenStorage | any
   myMvkTokenBalance?: string
+  exchangeRate?: number
 }
 
 const defaultMvkTokenStorage: MvkTokenStorage = {
@@ -14,12 +15,14 @@ const defaultMvkTokenStorage: MvkTokenStorage = {
 const mvkTokenDefaultState: MvkTokenState = {
   mvkTokenStorage: getItemFromStorage('MvkTokenStorage') ?? defaultMvkTokenStorage,
   myMvkTokenBalance: getItemFromStorage('UserData')?.myMvkBalance ?? 0,
+  exchangeRate: 0.25,
 }
 
 export function mvkToken(state = mvkTokenDefaultState, action: any): MvkTokenState {
   switch (action.type) {
     case GET_MVK_TOKEN_STORAGE:
       return {
+        ...state,
         mvkTokenStorage: action.mvkTokenStorage,
         myMvkTokenBalance: action.myMvkTokenBalance,
       }

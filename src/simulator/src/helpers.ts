@@ -11,9 +11,9 @@ export function increaseBlockHeight(state: state, blockHeight?: number): state {
 };
 
 export function getBalance(poolIndex: number, state: state): number {
-    return state.storage.pools[poolIndex].balance
+    return state.storage?.pools[poolIndex].balance
 };
 
 export function getWeight(poolIndex: number, state: state): number {
-    return state.storage.pools[poolIndex].denorm
+    return state.storage?.pools[poolIndex].denorm
 };

@@ -1,3 +1,4 @@
+import { MichelsonMap } from '@taquito/taquito'
 import {
   DELEGATE_ERROR,
   DELEGATE_REQUEST,
@@ -18,28 +19,38 @@ import {
   UPDATE_AS_SATELLITE_REQUEST,
   UPDATE_AS_SATELLITE_RESULT,
 } from '../pages/BecomeSatellite/BecomeSatellite.actions'
-import { MichelsonMap } from '@taquito/taquito'
-import { getItemFromStorage } from '../utils/storage'
-import { DelegateRecord, DelegationStorage, SatelliteRecord } from '../utils/TypesAndInterfaces/Delegation'
 import { GET_SATELLITE_BY_ADDRESS } from '../pages/SatelliteDetails/SatelliteDetails.actions'
+import { getItemFromStorage } from '../utils/storage'
+import {
+  DelegateRecord,
+  DelegationStorage,
+  ParticipationMetrics,
+  SatelliteRecord,
+} from '../utils/TypesAndInterfaces/Delegation'
 
 export const DELEGATE = 'DELEGATE'
 export const UNDELEGATE = 'UNDELEGATE'
 export const SATELLITE_ACTION = 'SATELLITE_ACTION'
+
 export interface DelegationState {
   type?: typeof DELEGATE | typeof UNDELEGATE | typeof SATELLITE_ACTION
   delegationStorage: DelegationStorage
   amount?: number
   error?: any
   currentSatellite: SatelliteRecord
+  participationMetrics: ParticipationMetrics
 }
 
 const defaultDelegationStorage: DelegationStorage = {
   satelliteLedger: [],
   config: {
-    maxSatellites: '1000',
-    delegationRatio: '10000',
+    maxSatellites: 1000,
+    delegationRatio: 10000,
     minimumStakedMvkBalance: 10000,
+    satelliteNameMaxLength: 400,
+    satelliteDescriptionMaxLength: 400,
+    satelliteImageMaxLength: 400,
+    satelliteWebsiteMaxLength: 400,
   },
   delegateLedger: new MichelsonMap<string, DelegateRecord>(),
   breakGlassConfig: {
@@ -48,7 +59,10 @@ const defaultDelegationStorage: DelegationStorage = {
     registerAsSatelliteIsPaused: false,
     unregisterAsSatelliteIsPaused: false,
     updateSatelliteRecordIsPaused: false,
+    distributeRewardPaused: false,
   },
+  numberActiveSatellites: 0,
+  totalDelegatedMVK: 0,
 }
 const delegationDefaultState: DelegationState = {
   delegationStorage: getItemFromStorage('DelegationStorage') || defaultDelegationStorage,
@@ -57,6 +71,8 @@ const delegationDefaultState: DelegationState = {
     active: false,
     address: '',
     description: '',
+    website: '',
+    participation: 0,
     image: '',
     mvkBalance: 0,
     name: '',
@@ -66,6 +82,11 @@ const delegationDefaultState: DelegationState = {
     totalDelegatedAmount: 0,
     unregisteredDateTime: new Date(),
   },
+  participationMetrics: {
+    pollParticipation: 0,
+    proposalParticipation: 0,
+    communication: 0,
+  },
 }
 
 export function delegation(state = delegationDefaultState, action: any): DelegationState {
@@ -73,7 +94,7 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
     case GET_DELEGATION_STORAGE:
       return {
         ...state,
-        delegationStorage: action.delegationStorage,
+          delegationStorage: action.delegationStorage,
       }
     case DELEGATE_REQUEST:
       return {

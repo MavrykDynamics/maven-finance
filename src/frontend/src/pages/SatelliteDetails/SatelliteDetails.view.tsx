@@ -1,3 +1,11 @@
+import * as React from 'react'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+import { useDispatch, useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
+import { State } from 'reducers'
+import { Page, PageContent } from 'styles'
+
 import { Button } from 'app/App.components/Button/Button.controller'
 import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
@@ -15,17 +23,19 @@ import {
   SatelliteTextGroup,
   SideBySideImageAndText,
 } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
+import { SatelliteListCard } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.view'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
-import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { Page, PageContent } from 'styles'
 
-import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+// view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
-import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { DOWN } from '../../app/App.components/StatusFlag/StatusFlag.constants'
+import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
+import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
+import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
+// style
+import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
+import { EmptyContainer } from '../../app/App.style'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
@@ -42,7 +52,10 @@ export const SatelliteDetailsView = ({
   undelegateCallback,
   userStakedBalanceInSatellite,
 }: SatelliteDetailsViewProps) => {
-  const totalDelegatedMVK = satellite.totalDelegatedAmount
+  const params: { satelliteId: string } = useParams()
+  const { user } = useSelector((state: State) => state.user)
+  const { participationMetrics } = useSelector((state: State) => state.delegation)
+  const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
 
   const options: HTMLReactParserOptions = {
@@ -66,95 +79,82 @@ export const SatelliteDetailsView = ({
       } else return
     },
   }
+
+  const emptyContainer = (
+    <EmptyContainer>
+      <img src="/images/not-found.svg" alt=" No proposals to show" />
+      <figcaption> No Satellite to show</figcaption>
+    </EmptyContainer>
+  )
+
+  const isSameId = satellite?.address === params.satelliteId
+  const isSatellite = satellite && satellite.address && satellite.address !== 'None'
+
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <PageContent>
-        {!satellite && <Loader />}
-        {satellite && satellite.address === 'None' && (
-          <SatelliteCard>
-            <SatelliteCardTopRow>No Satellite found..</SatelliteCardTopRow>
-            <div>
-              <Link to="/satellites/">
-                <Button text="To Satellites" icon="satellite" kind="primary" />
-              </Link>
-            </div>
-          </SatelliteCard>
-        )}
-        {satellite && satellite.address !== 'None' && (
-          <SatelliteCard key={satellite.address}>
-            <SatelliteCardTopRow>
-              <SideBySideImageAndText>
-                <SatelliteProfileImageContainer>
-                  <SatelliteProfileImage src={satellite.image} />
-                </SatelliteProfileImageContainer>
-                <SatelliteTextGroup>
-                  <SatelliteMainText>{satellite.name}</SatelliteMainText>
-                  <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
-                </SatelliteTextGroup>
-              </SideBySideImageAndText>
-              <SatelliteTextGroup>
-                <SatelliteMainText>
-                  <CommaNumber value={totalDelegatedMVK} />
-                </SatelliteMainText>
-                <SatelliteSubText>Delegated MVK</SatelliteSubText>
-              </SatelliteTextGroup>
-              <SatelliteTextGroup>
-                <SatelliteMainText>
-                  <CommaNumber value={myDelegatedMVK} />
-                </SatelliteMainText>
-                <SatelliteSubText>Your delegated MVK</SatelliteSubText>
-              </SatelliteTextGroup>
-              {satellite.active ? (
-                <Button
-                  text="Delegate"
-                  icon="man-check"
-                  loading={loading}
-                  onClick={() => delegateCallback(satellite.address)}
-                />
-              ) : (
-                <div>
-                  <StatusFlag status={DOWN} text={'INACTIVE'} />
+        <div>
+          <SatellitePagination />
+          {loading || !isSameId ? (
+            <Loader />
+          ) : isSatellite ? (
+            <SatelliteListCard
+              satellite={satellite}
+              loading={loading}
+              delegateCallback={delegateCallback}
+              undelegateCallback={undelegateCallback}
+              userStakedBalance={myDelegatedMVK}
+              satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
+              isDetaisPage
+            >
+              <SatelliteCardBottomRow>
+                <div className="descr satellite-info-block">
+                  <h4>Description:</h4>
+                  <p>{parse(satellite.description, options)}</p>
+                  {satellite.website ? (
+                    <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
+                      Website
+                    </a>
+                  ) : null}
                 </div>
-              )}
-              <div>Put last voted here</div>
-              <SatelliteTextGroup>
-                <SatelliteMainText>{satellite.totalDelegatedAmount}%</SatelliteMainText>
-                <SatelliteSubText>Participation</SatelliteSubText>
-              </SatelliteTextGroup>
-              <SatelliteTextGroup>
-                <SatelliteMainText>{satellite.satelliteFee}%</SatelliteMainText>
-                <SatelliteSubText>Fee</SatelliteSubText>
-              </SatelliteTextGroup>
-              {satellite.active ? (
-                <Button
-                  text="Undelegate"
-                  icon="man-close"
-                  kind="secondary"
-                  loading={loading}
-                  onClick={() => undelegateCallback(satellite.address)}
-                />
-              ) : (
-                <div />
-              )}
-            </SatelliteCardTopRow>
-            <ColoredLine kind="secondary" />
-            <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>
-            <ColoredLine kind="secondary" />
-            <SatelliteCardBottomRow>
-              <div>
-                <h4>Description:</h4>
-                <div>{parse(satellite.description, options)}</div>
-              </div>
-              <div>
-                <h4>Voting History:</h4>
-              </div>
-              <div>
-                <h4>Participation Metrics:</h4>
-              </div>
-            </SatelliteCardBottomRow>
-          </SatelliteCard>
-        )}
+
+                <div className="satellite-info-block">
+                  <h4>Participation Metrics:</h4>
+                  <div className="satellite-info-block-metrics">
+                    <h5>Poll participation</h5>
+                    <p>{participationMetrics.pollParticipation}%</p>
+                    <h5>Proposal participation</h5>
+                    <p>{participationMetrics.proposalParticipation}%</p>
+                    <h5>Communication</h5>
+                    <p>{participationMetrics.communication}%</p>
+                  </div>
+                </div>
+
+                {satellite.proposalVotingHistory?.length ? (
+                  <div>
+                    <h4>Voting History:</h4>
+                    <div>
+                      {satellite.proposalVotingHistory.map((item) => {
+                        return (
+                          <div className="satellite-voting-history" key={item.id}>
+                            <p>Proposal 42 - Adjusting Auction Parameters</p>
+                            <span>
+                              Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
+                              on <Time value={item.timestamp} format="M d\t\h, Y" />
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+              </SatelliteCardBottomRow>
+            </SatelliteListCard>
+          ) : (
+            emptyContainer
+          )}
+        </div>
         <SatelliteSideBar />
       </PageContent>
     </Page>

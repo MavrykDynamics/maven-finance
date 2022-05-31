@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+
 import { MavrykTheme } from './interfaces'
 
 export const Page = styled.div<{ theme: MavrykTheme }>`
@@ -6,10 +7,10 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   padding: 40px;
   width: 100%;
   position: relative;
-  background-color: ${({ theme }) => theme.containerColor};
   height: 100%;
   min-height: 100vh;
-  max-width: 1270px;
+  max-width: 1170px;
+  padding-top: 32px;
 `
 
 export const GridPage = styled.div`
@@ -52,16 +53,27 @@ export const Message = styled.div`
 
 export const Card = styled.div<{ theme: MavrykTheme }>`
   margin-top: 30px;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
-  padding: 35px;
+  padding: 25px 35px;
   font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
+  border: 1px solid ${({ theme }) => theme.cardBorderColor};
 `
 
-export const PageContent = styled.div`
+export const CardHeader = styled.h2<{ theme: MavrykTheme }>`
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 21px;
+  color: ${({ theme }) => theme.headerColor};
+`
+
+export const PageContent = styled.section`
   display: grid;
-  grid-template-columns: 3fr 1fr;
-  grid-gap: 20px;
+  grid-template-columns: 1fr 310px;
+  grid-gap: 30px;
+  align-items: baseline;
+  align-items: start;
+  padding-top: 30px;
 `

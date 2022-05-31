@@ -1,5 +1,8 @@
 import styled, { keyframes } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
+
+import { backdropColor, royalPurpleColor } from 'styles/colors'
 
 export const moveDown = keyframes`
   from {
@@ -10,18 +13,93 @@ export const moveDown = keyframes`
   }
 `
 export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
-  position: relative;
-  text-align: center;
   width: 270px;
-  min-height: 100vh;
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  transition: all 0.3s;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  left: 0;
+  .mobile-logo {
+    display: none;
+  }
+
+  @media screen and (max-width: 1460px) {
+    &:not(.menu-expanded) {
+      width: 72px;
+      .desctop-logo,
+      a .navLinkSubTitle,
+      a .navLinkTitle {
+        display: none !important;
+      }
+
+      .mobile-logo {
+        display: block;
+        width: 50px;
+        margin: 27px auto;
+        height: fit-content;
+      }
+
+      #connectWalletButton {
+        display: none;
+      }
+    }
+
+    &.menu-expanded {
+      width: 100vw;
+      display: flex;
+      display: flex;
+      background: ${backdropColor};
+      z-index: 10;
+      align-items: flex-start;
+      .burger-menu {
+        margin: 21px 29px 0 auto;
+        transform: rotate(45deg);
+        > div {
+          display: none;
+        }
+
+        > div:first-child {
+          display: block;
+          transform: rotate(90deg) translateX(3px);
+        }
+
+        > div:last-child {
+          display: block;
+          transform: translateY(-5px);
+        }
+      }
+
+      .menu-backdrop {
+        display: block;
+      }
+    }
+  }
+
   > div {
     width: 100%;
     max-width: 270px;
+  }
+`
+
+export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
+  display: none;
+  width: 24px;
+  margin: 0 auto;
+  margin-top: 21px;
+  justify-content: center;
+  flex-direction: column;
+  transition: all 0.3s;
+  align-items: center;
+  cursor: pointer;
+  @media screen and (max-width: 1460px) {
+    display: flex;
+  }
+  > div {
+    width: 100%;
+    height: 2px;
+    border-radius: 3px;
+    background-color: ${royalPurpleColor};
+    margin: 3px 0;
   }
 `
 
@@ -30,16 +108,22 @@ export const MenuTopSection = styled.div`
   flex-direction: column;
   top: 0;
   left: 0;
-  z-index: 1;
-  background-image: url('/images/menu-bg.svg');
-  background-position: top left;
-  background-repeat: no-repeat;
-  justify-content: space-between;
+  z-index: 10;
+  text-align: center;
+  width: 100%;
+  max-width: 270px;
+  min-height: 100vh;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.containerColor};
+  position: relative;
 `
 export const MenuLogo = styled.img`
-  margin: 17px auto 25px auto;
+  margin: 44px auto 20px auto;
   z-index: 1;
-  width: 175px;
+  width: 218px;
+  height: 43px;
 `
 
 export const MenuGrid = styled.div`
@@ -50,22 +134,19 @@ export const MenuGrid = styled.div`
   width: 100%;
 `
 
-export const MenuBottomSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  margin-top: 40px;
-`
-
-export const MenuBanner = styled.img`
-  margin: 0 auto 15px auto;
-`
-
-export const MenuFooter = styled.div`
-  margin: 15px auto 15px auto;
+export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   font-size: 11px;
+  color: ${({ theme }) => theme.footerColor};
   font-weight: 600;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  @media screen and (max-width: 1460px) {
+    padding: 0 10px;
+    font-size: 10px;
+  }
 
   > p {
     display: inline-block;

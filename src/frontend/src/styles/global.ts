@@ -1,5 +1,6 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
+import { royalPurpleColor, headerColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
@@ -17,14 +18,20 @@ body {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-width: 1460px;
+
+  @media screen and (max-width: 1460px) {
+    min-width: 1250px;
+  }
 }
 
 h1 {
-  font-size: 40px;
   font-weight: bold;
   display: inline-block;
   margin: 30px auto;
-  color: ${({ theme }) => theme.subTextColor};
+  color: ${headerColor};
+  font-weight: 700;
+  font-size: 25px;
 
   @media (max-width: 700px) {   
     font-size: 30px;
@@ -35,10 +42,18 @@ h1 {
     content: '';
     display: block;
     width: 80px;
-    height: 5px;
-    background-color: ${({ theme }) => theme.primaryColor};
+    height: 4px;
+    background-color: ${royalPurpleColor};
     margin: 7px 0 10px 1px;
   }
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
 }
 
 h2 {
@@ -177,11 +192,11 @@ p {
 }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
 }
 
 .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
 }
 
 .react-toggle-track-check {

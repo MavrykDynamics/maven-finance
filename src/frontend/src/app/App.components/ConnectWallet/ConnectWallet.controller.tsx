@@ -1,10 +1,10 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
-
-import { ConnectWalletView } from './ConnectWallet.view'
-import { connect } from '../Menu/Menu.actions'
 import { useDispatch, useSelector } from 'react-redux'
+
 import { State } from '../../../reducers'
+import { connect } from './ConnectWallet.actions'
+import { ConnectWalletView } from './ConnectWallet.view'
 
 type ConnectWalletProps = {
   type?: string | null
@@ -27,11 +27,11 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
   return (
     <ConnectWalletView
       type={type}
-      loading={loading}
+      loading={false}
       wallet={wallet}
       ready={ready}
       accountPkh={accountPkh}
-      myMvkTokenBalance={user.myMvkTokenBalance}
+      myMvkTokenBalance={user?.myMvkTokenBalance}
       handleConnect={handleConnect}
       handleNewConnect={handleNewConnect}
     />
