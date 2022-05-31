@@ -84,8 +84,6 @@ block {
                         // check if farm has been initiated
                         checkFarmIsInit(s);
 
-                        checkFarmIsInit(s);
-
                         // update farmStorage
                         s := updateFarm(s);
 

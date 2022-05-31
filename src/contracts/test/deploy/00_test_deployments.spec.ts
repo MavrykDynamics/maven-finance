@@ -745,8 +745,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasury.contract.methods.setLambda("lambdaUnpauseAll"                             , treasuryLambdas[8]))  // unpauseAll
       .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseTransfer"                    , treasuryLambdas[9]))  // togglePauseTransfer
       .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseMintMvkAndTransfer"          , treasuryLambdas[10]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseStake"                       , treasuryLambdas[11]))  // togglePauseStake
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstake"                     , treasuryLambdas[12]))  // togglePauseUnstake
+      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseStakeMvk"                    , treasuryLambdas[11]))  // togglePauseStakeMvk
+      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstakeMvk"                  , treasuryLambdas[12]))  // togglePauseUnstakeMvk
       .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[13]))  // transfer
       .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[14]))  // mintMvkAndTransfer
       .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMvkOperators"                     , treasuryLambdas[15]))  // updateMvkOperators
@@ -794,8 +794,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnpauseAll"                   , treasuryLambdas[8]))  // unpauseAll
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseTransfer"          , treasuryLambdas[9]))  // togglePauseTransfer
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseMintMvkAndTransfer", treasuryLambdas[10]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseStake"             , treasuryLambdas[11]))  // togglePauseStake
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstake"           , treasuryLambdas[12]))  // togglePauseUnstake
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseStakeMvk"          , treasuryLambdas[11]))  // togglePauseStakeMvk
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstakeMvk"        , treasuryLambdas[12]))  // togglePauseUnstakeMvk
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTransfer"                     , treasuryLambdas[13]))  // transfer
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaMintMvkAndTransfer"           , treasuryLambdas[14]))  // mintMvkAndTransfer
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateMvkOperators"           , treasuryLambdas[15]))  // updateMvkOperators
