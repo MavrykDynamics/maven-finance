@@ -39,47 +39,6 @@ export interface ProposalVote {
   votingPower: number
 }
 export interface ProposalRecordType {
-  // id: number
-  //
-  // proposerAddress: string
-  // proposalMetadata: proposalMetadataType | {}
-  // status: ProposalStatus // status - "ACTIVE", "DROPPED"
-  // title: string // title
-  // description: string // description
-  // invoice: string // ipfs hash of invoice file
-  // successReward: number // log of successful proposal reward for voters - may change over time
-  // executed: boolean // true / false
-  // locked: boolean // true / false   For updating of the proposal metadata
-  //
-  // passVoteCount: number // proposal round: pass votes count - number of satellites
-  // passVoteMvkTotal: number // proposal round pass vote total mvk from satellites who voted pass
-  // passVotersMap: passVotersMapType | {} // proposal round ledger
-  //
-  // upvoteCount: number // voting round: upvotes count - number of satellites
-  // upvoteMvkTotal: number // voting round: upvotes MVK total
-  // downvoteCount: number // voting round: downvotes count - number of satellites
-  // downvoteMvkTotal: number // voting round: downvotes MVK total
-  // abstainCount: number // voting round: abstain count - number of satellites
-  // abstainMvkTotal: number // voting round: abstain MVK total
-  // voters: votersMapType | {} // voting round ledger
-  //
-  // minQuorumPercentage: number // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-  // minQuorumMvkTotal: number // log of min quorum in MVK - capture state at this point
-  // quorumCount: number // log of turnout for voting round - number of satellites who voted
-  // quorumMvkTotal: number // log of total positive votes in MVK
-  // startDateTime: Date // log of when the proposal was proposed
-  //
-  // currentCycleStartLevel: number // log of current cycle starting block level
-  // currentCycleEndLevel: number // log of current cycle end block level
-  //
-  // invoiceTable: string
-  // details?: string
-  // votedMVK?: number | 0
-  // totalVotingPower?: number | 0
-
-  /*
-    New version of type after interface implementation
-   */
   id: number
 
   proposerId: string
@@ -190,4 +149,6 @@ export interface FinancialRequestVote {
 
 
 export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL'
+export type ProposalStatusType = "ACTIVE" | "DROPPED"
+export type CurrentRoundProposalsStorageType = Map<string, ProposalRecordType> | undefined
 

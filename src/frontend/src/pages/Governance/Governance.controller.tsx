@@ -10,9 +10,15 @@ import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from './Governance.actions'
+import {
+  getGovernanceStorage,
+  proposalRoundVote,
+  votingRoundVote,
+  getCurrentRoundProposals,
+} from './Governance.actions'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
+import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 
 // const
 import { MOCK_PAST_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST } from './mockProposals'
@@ -28,7 +34,13 @@ export const Governance = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+  const {
+    governanceStorage,
+    governancePhase,
+    currentRoundProposals: currentRoundProposals1,
+  } = useSelector((state: State) => state.governance)
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
 
   const { currentRoundProposals } = governanceStorage
   const { emergencyGovernanceStorage } = useSelector((state: State) => state.emergencyGovernance)
@@ -57,6 +69,7 @@ export const Governance = () => {
   })
 
   useEffect(() => {
+    dispatch(getCurrentRoundProposals())
     dispatch(getGovernanceStorage())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getDelegationStorage())
@@ -118,9 +131,11 @@ export const Governance = () => {
         ready={ready}
         loading={loading}
         accountPkh={accountPkh}
+        userIsSatellite={userIsSatellite}
         ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
-        nextProposals={currentRoundProposals || undefined}
+        nextProposals={currentRoundProposals1}
         pastProposals={MOCK_PAST_PROPOSAL_LIST}
+        // pastProposals={currentRoundProposals1}
         handleProposalRoundVote={handleProposalRoundVote}
         handleVotingRoundVote={handleVotingRoundVote}
         setVoteStatistics={setVoteStatistics}

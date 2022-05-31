@@ -34,6 +34,24 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     margin-top: 40px;
     margin-bottom: 40px;
   }
+
+  .voted-block {
+    display: flex;
+    align-items: center;
+    padding-top: 30px;
+
+    button {
+      width: 194px;
+      margin-left: auto;
+    }
+  }
+
+  .voted-label {
+    color: ${({ theme }) => theme.valueColor};
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 18px;
+  }
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
