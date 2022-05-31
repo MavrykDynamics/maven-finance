@@ -2,11 +2,11 @@
 name = "mavryk-indexer"
 version = "0.1.0"
 description = ""
-authors = ["Tristan Allaire <tristan@tezosdynamics.com>"]
+authors = ["Tristan Allaire <tristan.allaire@alarch.fr>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-dipdup = "5.1.1"
+python = "3.10.4"
+dipdup = "5.1.3"
 python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]

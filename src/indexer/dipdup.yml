@@ -32,7 +32,7 @@ contracts:
     address: KT1GJ3NmTCTSYcfVqNhfMnA1Q7vKDgEsixbs
     typename: doorman
   farm:
-    address: KT1HSVbzssUpuSVvuq4G1bq8TWQmphywWu7d
+    address: KT1TwYNogSQfioeR79Qtne1sqSVeVfY4TxoV #KT1HSVbzssUpuSVvuq4G1bq8TWQmphywWu7d
     typename: farm
   farm_factory:
     address: KT19xF64F4aJ97gjyZ3ifDihRQ1jgVRMfU24
@@ -68,6 +68,7 @@ datasources:
     url: ${TZKT_URL:-changeme}
 
 templates:
+  # Template for Farm Factory
   farm_template:
     kind: operation
     datasource: tzkt
@@ -77,10 +78,10 @@ templates:
     contracts:
       - <farm_contract>
     handlers:
-      - callback: on_farm_origination
-        pattern:
-          - type: origination
-            originated_contract: <farm_contract>
+      # - callback: on_farm_origination
+      #   pattern:
+      #     - type: origination
+      #       originated_contract: <farm_contract>
       - callback: on_farm_set_admin
         pattern:
           - destination: <farm_contract>
@@ -145,6 +146,64 @@ templates:
         pattern:
           - destination: <farm_contract>
             entrypoint: claim
+  # Template for treasury Factory
+  treasury_template:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - <treasury_contract>
+    handlers:
+      # - callback: on_treasury_origination
+      #   pattern:
+      #     - type: origination
+      #       originated_contract: <treasury_contract>
+      - callback: on_treasury_set_admin
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: setAdmin
+      - callback: on_treasury_set_governance
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: setGovernance
+      - callback: on_treasury_update_general_contracts
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: updateGeneralContracts
+      - callback: on_treasury_update_whitelist_contracts
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: updateWhitelistContracts
+      - callback: on_treasury_update_whitelist_token_contracts
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: updateWhitelistTokenContracts
+      - callback: on_treasury_pause_all
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: pauseAll
+      - callback: on_treasury_unpause_all
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: unpauseAll
+      - callback: on_treasury_toggle_pause_transfer
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: togglePauseTransfer
+      - callback: on_treasury_toggle_pause_mint_mvk_and_transfer
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: togglePauseMintMvkAndTransfer
+      - callback: on_treasury_toggle_pause_stake_mvk
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: togglePauseStakeMvk
+      - callback: on_treasury_toggle_pause_unstake_mvk
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: togglePauseUnstakeMvk
 
 indexes:
   # MVK Token contract indexes
@@ -314,10 +373,6 @@ indexes:
         pattern:
           - destination: doorman
             entrypoint: updateGeneralContracts
-      - callback: on_doorman_migrate_funds
-        pattern:
-          - destination: doorman
-            entrypoint: migrateFunds
       - callback: on_doorman_pause_all
         pattern:
           - destination: doorman
@@ -451,6 +506,7 @@ indexes:
       - transaction
     contracts:
       - farm_factory
+      - farm
     handlers:
       - callback: on_farm_factory_origination
         pattern:
@@ -500,10 +556,17 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: createFarm
+          - source: farm_factory
+            type: origination
+            similar_to: farm
       - callback: on_farm_factory_track_farm
         pattern:
           - destination: farm_factory
             entrypoint: trackFarm
+      - callback: on_farm_factory_untrack_farm
+        pattern:
+          - destination: farm_factory
+            entrypoint: untrackFarm
   # Delegation contract indexes
   delegation:
     kind: operation
@@ -946,7 +1009,7 @@ indexes:
         pattern:
           - type: origination
             originated_contract: treasury
-      - callback: on_treasury_financial_set_admin
+      - callback: on_treasury_set_admin
         pattern:
           - destination: treasury
             entrypoint: setAdmin
@@ -954,10 +1017,6 @@ indexes:
         pattern:
           - destination: treasury
             entrypoint: setGovernance
-      - callback: on_treasury_set_baker
-        pattern:
-          - destination: treasury
-            entrypoint: setBaker
       - callback: on_treasury_update_general_contracts
         pattern:
           - destination: treasury
@@ -994,14 +1053,6 @@ indexes:
         pattern:
           - destination: treasury
             entrypoint: togglePauseUnstakeMvk
-      - callback: on_treasury_transfer
-        pattern:
-          - destination: treasury
-            entrypoint: transfer
-      - callback: on_treasury_mint_mvk_and_transfer
-        pattern:
-          - destination: treasury
-            entrypoint: mintMvkAndTransfer
   # Treasury Factory contract indexes
   treasury_factory:
     kind: operation
@@ -1011,12 +1062,13 @@ indexes:
       - transaction
     contracts:
       - treasury_factory
+      - treasury
     handlers:
       - callback: on_treasury_factory_origination
         pattern:
           - type: origination
             originated_contract: treasury_factory
-      - callback: on_treasury_factory_financial_set_admin
+      - callback: on_treasury_factory_set_admin
         pattern:
           - destination: treasury_factory
             entrypoint: setAdmin
@@ -1060,6 +1112,9 @@ indexes:
         pattern:
           - destination: treasury_factory
             entrypoint: createTreasury
+          - source: treasury_factory
+            type: origination
+            similar_to: treasury
       - callback: on_treasury_factory_track_treasury
         pattern:
           - destination: treasury_factory

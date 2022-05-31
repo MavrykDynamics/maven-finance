@@ -2,9 +2,34 @@
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
 from mavryk.types.treasury.storage import TreasuryStorage
+import mavryk.models as models
 
 async def on_treasury_origination(
     ctx: HandlerContext,
     treasury_origination: Origination[TreasuryStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    treasury_address                = treasury_origination.data.originated_contract_address
+    admin                           = treasury_origination.storage.admin
+    governance_address              = treasury_origination.storage.governanceAddress
+    transfer_paused                 = treasury_origination.storage.breakGlassConfig.transferIsPaused
+    mint_mvk_and_transfer_paused    = treasury_origination.storage.breakGlassConfig.mintMvkAndTransferIsPaused
+    stake_mvk_paused                = treasury_origination.storage.breakGlassConfig.stakeMvkIsPaused
+    unstake_mvk_paused              = treasury_origination.storage.breakGlassConfig.unstakeMvkIsPaused
+
+    # Create record
+    governance          = await models.Governance.get(
+        address = governance_address
+    )
+    treasury            = models.Treasury(
+        address                         = treasury_address,
+        admin                           = admin,
+        governance                      = governance,
+        transfer_paused                 = transfer_paused,
+        mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused,
+        stake_mvk_paused                = stake_mvk_paused,
+        unstake_mvk_paused              = unstake_mvk_paused
+    )
+    await treasury.save()
+    

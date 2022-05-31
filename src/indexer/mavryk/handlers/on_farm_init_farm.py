@@ -9,38 +9,51 @@ async def on_farm_init_farm(
     ctx: HandlerContext,
     init_farm: Transaction[InitFarmParameter, FarmStorage],
 ) -> None:
-# Get farm data
-    farmAddress = init_farm.data.target_address
-    farmLPTokenAddress = init_farm.storage.lpToken.tokenAddress
-    farmLPBalance = init_farm.storage.lpToken.tokenBalance
-    farmOpen = init_farm.storage.open
-    farmLastBlockUpdate = int(init_farm.storage.lastBlockUpdate)
-    farmAccumulatedMvkPerShare = float(init_farm.storage.accumulatedMVKPerShare)
-    farmTotalBlocks = int(init_farm.storage.plannedRewards.totalBlocks)
-    farmRewardPerBlock = int(init_farm.storage.plannedRewards.currentRewardPerBlock)
-    farmBlocksPerMinute = int(init_farm.storage.blocksPerMinute)
-    farmInfinite = init_farm.storage.infinite
-    farmDepositPaused = init_farm.storage.breakGlassConfig.depositIsPaused
-    farmWithdrawPaused = init_farm.storage.breakGlassConfig.withdrawIsPaused
-    farmClaimPaused = init_farm.storage.breakGlassConfig.claimIsPaused
-    farmRewardFromTreasury = init_farm.storage.forceRewardFromTransfer
 
-    # Create farm object
-    farm = await models.Farm.get(
-        address = farmAddress,
+    # Get operation info
+    farm_address                    = init_farm.data.target_address
+    admin                           = init_farm.storage.admin
+    governance_address              = init_farm.storage.governanceAddress
+    blocks_per_minute               = int(init_farm.storage.config.blocksPerMinute)
+    force_rewards_from_transfer     = init_farm.storage.config.forceRewardFromTransfer
+    infinite                        = init_farm.storage.config.infinite
+    total_blocks                    = int(init_farm.storage.config.plannedRewards.totalBlocks)
+    current_reward_per_block        = int(init_farm.storage.config.plannedRewards.currentRewardPerBlock)
+    total_rewards                   = int(init_farm.storage.config.plannedRewards.totalRewards)
+    deposit_paused                  = init_farm.storage.breakGlassConfig.depositIsPaused
+    withdraw_paused                 = init_farm.storage.breakGlassConfig.withdrawIsPaused
+    claim_paused                    = init_farm.storage.breakGlassConfig.claimIsPaused
+    last_block_update               = int(init_farm.storage.lastBlockUpdate)
+    open                            = init_farm.storage.open
+    init                            = init_farm.storage.init
+    init_block                      = int(init_farm.storage.initBlock)
+    accumulated_rewards_per_share   = float(init_farm.storage.accumulatedRewardsPerShare)
+    unpaid_rewards                  = float(init_farm.storage.claimedRewards.unpaid)
+    paid_rewards                    = float(init_farm.storage.claimedRewards.paid)
+
+    # Create record
+    governance      = await models.Governance.get(
+        address = governance_address
     )
-    farm.address                         = farmAddress
-    farm.lp_token                        = farmLPTokenAddress
-    farm.lp_balance                      = farmLPBalance
-    farm.open                            = farmOpen
-    farm.rewards_from_treasury           = farmRewardFromTreasury
-    farm.last_block_update               = farmLastBlockUpdate
-    farm.accumulated_mvk_per_share       = farmAccumulatedMvkPerShare
-    farm.total_blocks                    = farmTotalBlocks
-    farm.reward_per_block                = farmRewardPerBlock
-    farm.blocks_per_minute               = farmBlocksPerMinute
-    farm.infinite                        = farmInfinite
-    farm.deposit_paused                  = farmDepositPaused
-    farm.withdraw_paused                 = farmWithdrawPaused
-    farm.claim_paused                    = farmClaimPaused
+    farm, _         = await models.Farm.get_or_create(
+        address     = farm_address,
+        admin       = admin,
+        governance  = governance
+    )
+    farm.blocks_per_minute               = blocks_per_minute
+    farm.force_rewards_from_transfer     = force_rewards_from_transfer
+    farm.infinite                        = infinite
+    farm.total_blocks                    = total_blocks
+    farm.current_reward_per_block        = current_reward_per_block
+    farm.total_rewards                   = total_rewards
+    farm.deposit_paused                  = deposit_paused
+    farm.withdraw_paused                 = withdraw_paused
+    farm.claim_paused                    = claim_paused
+    farm.last_block_update               = last_block_update
+    farm.open                            = open
+    farm.init                            = init
+    farm.init_block                      = init_block
+    farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
+    farm.unpaid_rewards                  = unpaid_rewards
+    farm.paid_rewards                    = paid_rewards
     await farm.save()

@@ -3,9 +3,24 @@ from mavryk.types.treasury_factory.parameter.track_treasury import TrackTreasury
 from mavryk.types.treasury_factory.storage import TreasuryFactoryStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
+import mavryk.models as models
 
 async def on_treasury_factory_track_treasury(
     ctx: HandlerContext,
     track_treasury: Transaction[TrackTreasuryParameter, TreasuryFactoryStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    treasury_address            = track_treasury.parameter.__root__
+    treasury_factory_address    = track_treasury.data.target_address
+
+    # Update record
+    treasury_factory    = await models.TreasuryFactory.get(
+        address = treasury_factory_address
+    )
+    treasury            = await models.Treasury.get_or_none(
+        address = treasury_address
+    )
+    if treasury:
+        treasury.treasury_factory   = treasury_factory
+        await treasury.save()

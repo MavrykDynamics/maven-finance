@@ -8,6 +8,7 @@ async def on_governance_drop_proposal(
     ctx: HandlerContext,
     drop_proposal: Transaction[DropProposalParameter, GovernanceStorage],
 ) -> None:
+
     # Get operation values
     proposal_id = int(drop_proposal.parameter.__root__)
 

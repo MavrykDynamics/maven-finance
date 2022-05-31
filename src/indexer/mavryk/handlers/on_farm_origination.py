@@ -8,8 +8,8 @@ async def on_farm_origination(
     farm_origination: Origination[FarmStorage],
 ) -> None:
 
-    # Get farm data
-    address                         = farm_origination.data.originated_contract_address
+    # Get operation info
+    farm_address                    = farm_origination.data.originated_contract_address
     admin                           = farm_origination.storage.admin
     governance_address              = farm_origination.storage.governanceAddress
     lp_token_address                = farm_origination.storage.config.lpToken.tokenAddress
@@ -33,29 +33,27 @@ async def on_farm_origination(
     claim_paused                    = farm_origination.storage.breakGlassConfig.claimIsPaused
     force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer
 
-    # Parse LP Token standard
-    lp_token_standard_parsed    = models.TokenType.OTHER
-    if lp_token_standard == fa12:
-        lp_token_standard_parsed    = models.TokenType.FA12
-    elif lp_token_standard == fa2:
-        lp_token_standard_parsed    = models.TokenType.FA2
-
-    # Get or create governance record
-    governance, _ = await models.Governance.get_or_create(address=governance_address)
-    await governance.save();
+    # Token standard
+    lp_token_standard_type  = models.TokenType.OTHER
+    if lp_token_standard == fa2:
+        lp_token_standard_type  = models.TokenType.FA2
+    elif lp_token_standard == fa12:
+        lp_token_standard_type  = models.TokenType.FA12
     
-    # Create farm object
-    farm, _ = await models.Farm.get_or_create(
-        address = address
+    governance      = await models.Governance.get(
+        address = governance_address
     )
-    farm.admin                           = admin
-    farm.governance                      = governance
+    farm, _         = await models.Farm.get_or_create(
+        address     = farm_address,
+        admin       = admin,
+        governance  = governance
+    )
     farm.blocks_per_minute               = blocks_per_minute
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
     farm.lp_token_address                = lp_token_address
     farm.lp_token_id                     = lp_token_id
-    farm.lp_token_standard               = lp_token_standard_parsed
+    farm.lp_token_standard               = lp_token_standard_type
     farm.lp_token_balance                = lp_token_balance
     farm.total_blocks                    = total_blocks
     farm.current_reward_per_block        = current_reward_per_block
@@ -70,10 +68,4 @@ async def on_farm_origination(
     farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
     farm.unpaid_rewards                  = unpaid_rewards
     farm.paid_rewards                    = paid_rewards
-
-    if 'farmFactory' in farm_origination.storage.whitelistContracts:
-        farm_factory_address    = farm_origination.storage.whitelistContracts['farmFactory']
-        farm_factory            = await models.FarmFactory.get_or_none(address=farm_factory_address)
-        farm.farm_factory       = farm_factory
-    
     await farm.save()
