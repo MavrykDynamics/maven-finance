@@ -115,6 +115,23 @@ block {
 
 
 
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage): return is
+block {
+    
+    checkSenderIsAdmin(s);
+    
+    case governanceFinancialLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateWhitelistTokenContracts lambda *)
 function lambdaUpdateWhitelistTokenContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorage): return is
 block {
@@ -151,19 +168,28 @@ block {
                 
                 const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
 
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptViewDelegation of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
-                s.snapshotStakedMvkTotalSupply  := case getBalanceView of [
+
+                const balanceView : option (nat) = Tezos.call_view ("balance", doormanAddress, s.mvkTokenAddress);
+                s.snapshotStakedMvkTotalSupply  := case balanceView of [
                     Some (value) -> value
-                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                | None -> (failwith (error_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -217,10 +243,10 @@ block {
                 s.financialRequestCounter := financialRequestId + 1n;
 
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("activeSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
                       Some (value) -> value
-                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 for satelliteAddress -> satellite in map activeSatellites block {
@@ -256,20 +282,28 @@ block {
   
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptViewDelegation of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
-                s.snapshotStakedMvkTotalSupply  := case getBalanceView of [
+                const balanceView : option (nat) = Tezos.call_view ("balance", doormanAddress, s.mvkTokenAddress);
+                s.snapshotStakedMvkTotalSupply  := case balanceView of [
                     Some (value) -> value
-                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                | None -> (failwith (error_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -317,10 +351,10 @@ block {
                 s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("activeSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
                       Some (value) -> value
-                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 for satelliteAddress -> satellite in map activeSatellites block {
@@ -355,19 +389,28 @@ block {
   
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
-                ];
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
-                s.snapshotStakedMvkTotalSupply  := case getBalanceView of [
-                    Some (value) -> value
-                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptViewDelegation of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                const balanceView : option (nat) = Tezos.call_view ("balance", doormanAddress, s.mvkTokenAddress);
+                s.snapshotStakedMvkTotalSupply  := case balanceView of [
+                    Some (value) -> value
+                | None -> (failwith (error_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -413,10 +456,10 @@ block {
                 s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("activeSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
                       Some (value) -> value
-                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 for satelliteAddress -> satellite in map activeSatellites block {
@@ -478,17 +521,21 @@ block {
         | LambdaVoteForRequest(voteForRequest) -> {
                 
                 // check if satellite exists in the active satellites map
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptViewDelegation of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> skip
                         | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                       ]
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const financialRequestId : nat = voteForRequest.requestId;
@@ -559,9 +606,13 @@ block {
 
                             const treasuryAddress : address = _financialRequest.treasuryAddress;
 
-                            const councilAddress : address = case s.generalContracts["council"] of [
-                                  Some(_address) -> _address
-                                | None           -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
+                            const generalContractsOptViewCouncil : option (option(address)) = Tezos.call_view ("generalContractOpt", "council", s.governanceAddress);
+                            const councilAddress: address = case generalContractsOptViewCouncil of [
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_COUNCIL_CONTRACT_NOT_FOUND)
+                                    ]
+                            |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                             ];
 
                             if _financialRequest.requestType = "TRANSFER" then block {

@@ -1415,6 +1415,8 @@ describe("Governance proxy lambdas tests", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createFarm',
+                    "testFarm",
+                    false,
                     false,
                     false,
                     12000,
@@ -1531,6 +1533,8 @@ describe("Governance proxy lambdas tests", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createFarm',
+                    "testFarm",
+                    false,
                     false,
                     false,
                     12000,
@@ -1852,6 +1856,8 @@ describe("Governance proxy lambdas tests", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createTreasury',
+                    "testTreasuryPropo",
+                    false,
                     treasuryMetadataBase
                 ).toTransferParams();
                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -1961,6 +1967,8 @@ describe("Governance proxy lambdas tests", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createTreasury',
+                    "testTreasuryPropo",
+                    false,
                     treasuryMetadataBase
                 ).toTransferParams();
                 const lambdaParamsValue = lambdaParams.parameter.value;

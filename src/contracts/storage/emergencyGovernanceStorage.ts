@@ -41,6 +41,7 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   mvkTokenAddress                     : "",
   governanceAddress                   : "",
   metadata                            : metadata,
+  whitelistContracts                  : MichelsonMap.fromLiteral({}),
   generalContracts                    : MichelsonMap.fromLiteral({}),
 
   emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),

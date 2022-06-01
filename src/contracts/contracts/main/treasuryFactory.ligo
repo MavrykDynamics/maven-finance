@@ -56,7 +56,7 @@ type treasuryFactoryAction is
     |   TogglePauseUntrackTreasury          of (unit)
 
         // Treasury Factory Entrypoints
-    |   CreateTreasury                      of bytes
+    |   CreateTreasury                      of createTreasuryType
     |   TrackTreasury                       of address
     |   UntrackTreasury                     of address
 
@@ -210,6 +210,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function admin(const _: unit; var s : treasuryFactoryStorage) : address is
+  s.admin
+
+
+
 (* View: checkTreasuryExists *)
 [@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
@@ -217,55 +223,55 @@ block {
 
 
 (* View: get tracked treasuries *)
-[@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
+[@view] function trackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
     s.trackedTreasuries
 
 
 
 (* View: get break glass config *)
-[@view] function getBreakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
+[@view] function breakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
     s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
+[@view] function whitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
+[@view] function whitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
     s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
+[@view] function generalContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+[@view] function lambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+[@view] function lambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 
 
-(* View: get a product lambda *)
-[@view] function getProductLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+(* View: get a treasury lambda *)
+[@view] function treasuryLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.treasuryLambdaLedger)
 
 
 
-(* View: get the product lambda ledger *)
-[@view] function getProductLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+(* View: get the treasury lambda ledger *)
+[@view] function treasuryLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
   s.treasuryLambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -512,7 +518,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createTreasury entrypoint *)
-function createTreasury(const treasuryMetadata: bytes; var s: treasuryFactoryStorage): return is 
+function createTreasury(const createTreasuryParams: createTreasuryType; var s: treasuryFactoryStorage): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateTreasury"] of [
@@ -521,7 +527,7 @@ block{
     ];
 
     // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(treasuryMetadata);
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(createTreasuryParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  

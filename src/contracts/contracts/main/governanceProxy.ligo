@@ -308,26 +308,32 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function admin(const _: unit; var s : governanceProxyStorage) : address is
+  s.admin
+
+
+
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : governanceProxyStorage) : whitelistContractsType is
+[@view] function whitelistContracts(const _: unit; var s : governanceProxyStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : governanceProxyStorage) : generalContractsType is
+[@view] function generalContracts(const _: unit; var s : governanceProxyStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceProxyStorage) : whitelistTokenContractsType is
+[@view] function whitelistTokenContracts(const _: unit; var s : governanceProxyStorage) : whitelistTokenContractsType is
   s.whitelistTokenContracts
 
 
 
 (* View: get a proxy lambda *)
-[@view] function getProxyLambdaOpt(const lambdaIndex: nat; var s : governanceProxyStorage) : option(bytes) is
+[@view] function proxyLambdaOpt(const lambdaIndex: nat; var s : governanceProxyStorage) : option(bytes) is
   Big_map.find_opt(lambdaIndex, s.proxyLambdaLedger)
 
 // ------------------------------------------------------------------------------

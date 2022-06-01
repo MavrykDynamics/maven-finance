@@ -67,6 +67,7 @@ type emergencyGovernanceLambdaActionType is
 | LambdaUpdateMetadata            of updateMetadataType
 | LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
 | LambdaUpdateGeneralContracts    of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts  of updateWhitelistContractsParams
 
   // Emergency Governance Entrypoints
 | LambdaTriggerEmergencyControl   of triggerEmergencyControlType
@@ -85,6 +86,7 @@ type emergencyGovernanceStorage is [@layout:comb] record [
     metadata                            : metadata;
     config                              : emergencyConfigType;
     
+    whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
 
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 

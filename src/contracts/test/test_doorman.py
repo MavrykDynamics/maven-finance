@@ -40,6 +40,7 @@ deployedDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
 deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
 deployedFarmFactoryContract = os.path.join(deploymentsDir, 'farmFactoryAddress.json')
 deployedDelegationContract = os.path.join(deploymentsDir, 'delegationAddress.json')
+deployedGovernanceContract = os.path.join(deploymentsDir, 'governanceAddress.json')
 lambdaDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
 
 deployedDoorman = open(deployedDoormanContract)
@@ -56,6 +57,10 @@ mvkTokenAddress = mvkTokenAddress['address']
 deployedDelegation = open(deployedDelegationContract)
 delegationAddress = json.load(deployedDelegation)
 delegationAddress = delegationAddress['address']
+
+deployedGovernance = open(deployedGovernanceContract)
+governanceAddress = json.load(deployedGovernance)
+governanceAddress = governanceAddress['address']
 
 deployedFarmFactoryContract = open(deployedFarmFactoryContract)
 farmFactoryAddress = json.load(deployedFarmFactoryContract)
@@ -631,9 +636,10 @@ class DoormanContract(TestCase):
         stakeAmount = self.MVK(2)
 
         # Operations
-        res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=init_doorman_storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
-            self.doormanContract.stake( stakeAmount).interpret(storage=res.storage, sender=bob);
+            self.doormanContract.stake( stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": None
+            })
 
         print('----')
         print('✅ User tries to stake while doorman does not have delegation contract in generalContracts')
@@ -669,7 +675,9 @@ class DoormanContract(TestCase):
         mvkTotalSupply = self.MVK(100)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": None
+            })
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
             self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={

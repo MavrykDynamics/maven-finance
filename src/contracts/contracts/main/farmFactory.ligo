@@ -216,62 +216,68 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function admin(const _: unit; var s : farmFactoryStorage) : address is
+  s.admin
+
+
+
 (* View: checkFarmExists *)
 [@view] function checkFarmExists (const farmContract: address; const s: farmFactoryStorage): bool is 
     Set.mem(farmContract, s.trackedFarms)
 
 
 
-(* View: get config *)
-[@view] function getConfig (const _: unit; const s: farmFactoryStorage): farmFactoryConfigType is 
-    s.config
+(* View: get blocks per minute *)
+[@view] function blocksPerMinute (const _: unit; const s: farmFactoryStorage): nat is 
+    s.blocksPerMinute
 
 
 
 (* View: get break glass config *)
-[@view] function getBreakGlassConfig (const _: unit; const s: farmFactoryStorage): farmFactoryBreakGlassConfigType is 
+[@view] function breakGlassConfig (const _: unit; const s: farmFactoryStorage): farmFactoryBreakGlassConfigType is 
     s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _: unit; const s: farmFactoryStorage): whitelistContractsType is 
+[@view] function whitelistContracts (const _: unit; const s: farmFactoryStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts (const _: unit; const s: farmFactoryStorage): generalContractsType is 
+[@view] function generalContracts (const _: unit; const s: farmFactoryStorage): generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get tracked farms *)
-[@view] function getTrackedFarms (const _: unit; const s: farmFactoryStorage): set(address) is 
+[@view] function trackedFarms (const _: unit; const s: farmFactoryStorage): set(address) is 
     s.trackedFarms
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
+[@view] function lambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
+[@view] function lambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 
 
-(* View: get a product lambda *)
-[@view] function getProductLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
+(* View: get a farm lambda *)
+[@view] function farmLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.farmLambdaLedger)
 
 
 
-(* View: get the product lambda ledger *)
-[@view] function getProductLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
+(* View: get the farm lambda ledger *)
+[@view] function farmLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
   s.farmLambdaLedger
 
 // ------------------------------------------------------------------------------

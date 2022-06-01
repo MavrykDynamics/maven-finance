@@ -16,6 +16,12 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
+type createTreasuryType is [@layout:comb] record[
+    name                    : string;
+    addToGeneralContracts   : bool;
+    metadata                : bytes;
+]
+
 type treasuryFactoryLambdaActionType is 
 
     // Housekeeping Entrypoints
@@ -34,7 +40,7 @@ type treasuryFactoryLambdaActionType is
 |   LambdaToggleUntrackTreasury               of (unit)
 
     // Treasury Factory Entrypoints
-|   LambdaCreateTreasury                      of bytes
+|   LambdaCreateTreasury                      of createTreasuryType
 |   LambdaTrackTreasury                       of address
 |   LambdaUntrackTreasury                     of address
 

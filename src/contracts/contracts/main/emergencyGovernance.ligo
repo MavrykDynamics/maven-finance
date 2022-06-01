@@ -2,6 +2,9 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
@@ -25,6 +28,7 @@ type emergencyGovernanceAction is
   | UpdateMetadata            of updateMetadataType
   | UpdateConfig              of emergencyUpdateConfigParamsType    
   | UpdateGeneralContracts    of updateGeneralContractsParams
+  | UpdateWhitelistContracts  of updateWhitelistContractsParams
 
     // Emergency Governance Entrypoints
   | TriggerEmergencyControl   of triggerEmergencyControlType
@@ -109,9 +113,13 @@ block{
 
 function checkSenderIsDoormanContract(var s : emergencyGovernanceStorage) : unit is
 block{
-  const doormanAddress : address = case s.generalContracts["doorman"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+  const doormanAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -122,6 +130,11 @@ block{
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
 
 
 
@@ -212,44 +225,56 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(* View: getConfig *)
-[@view] function getConfig (const _: unit; var s : emergencyGovernanceStorage) : emergencyConfigType is
+(* View: get admin variable *)
+[@view] function admin(const _: unit; var s : emergencyGovernanceStorage) : address is
+  s.admin
+
+
+
+(* View: config *)
+[@view] function config (const _: unit; var s : emergencyGovernanceStorage) : emergencyConfigType is
   s.config
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
+[@view] function generalContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
   s.generalContracts
 
 
 
+(* View: get whitelist contracts *)
+[@view] function whitelistContracts (const _: unit; const s: emergencyGovernanceStorage): whitelistContractsType is 
+    s.whitelistContracts
+
+
+
 (* View: get emergency governance *)
-[@view] function getEmergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorage) : option(emergencyGovernanceRecordType) is
+[@view] function emergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorage) : option(emergencyGovernanceRecordType) is
   Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
 
 
 
 (* View: get current emergency governance id *)
-[@view] function getCurrentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+[@view] function currentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
   s.currentEmergencyGovernanceId
 
 
 
 (* View: get next emergency governance id *)
-[@view] function getNextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+[@view] function nextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
   s.nextEmergencyGovernanceId
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorage) : option(bytes) is
+[@view] function lambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : emergencyGovernanceStorage) : lambdaLedgerType is
+[@view] function lambdaLedger(const _: unit; var s : emergencyGovernanceStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 
@@ -364,6 +389,25 @@ block {
 
 } with response
 
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: emergencyGovernanceStorage): return is
+block {
+        
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -469,10 +513,11 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)
-      | SetGovernance(parameters)            -> setGovernance(parameters, s)
+      | SetGovernance(parameters)             -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
       | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+      | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
 
         // Emergency Governance Entrypoints
       | TriggerEmergencyControl(parameters)   -> triggerEmergencyControl(parameters, s)
