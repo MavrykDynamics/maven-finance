@@ -6,6 +6,7 @@ export type treasuryStorageType = {
   mvkTokenAddress           : string;
   governanceAddress         : string;
 
+  name                      : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
   config                    : {};

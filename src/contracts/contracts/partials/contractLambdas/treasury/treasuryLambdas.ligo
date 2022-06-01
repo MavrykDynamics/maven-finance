@@ -453,9 +453,13 @@ block {
         | LambdaStakeMvk(stakeAmount) -> {
                 
                 // Get doorman address
-                const doormanAddress: address   = case s.generalContracts["doorman"] of [
-                    Some (_address)     -> _address
-                |   None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in doorman
@@ -502,9 +506,13 @@ block {
         | LambdaUnstakeMvk(unstakeAmount) -> {
                 
                 // Get doorman address
-                const doormanAddress: address   = case s.generalContracts["doorman"] of [
-                    Some (_address)     -> _address
-                |   None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in doorman

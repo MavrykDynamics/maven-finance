@@ -1046,6 +1046,8 @@ describe("Testnet interactions helper", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createFarm',
+                    "testFarm",
+                    false,
                     false,
                     false,
                     12000,
@@ -1143,6 +1145,8 @@ describe("Testnet interactions helper", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createFarm',
+                    "testFarm",
+                    false,
                     false,
                     false,
                     12000,
@@ -1266,6 +1270,8 @@ describe("Testnet interactions helper", async () => {
                 // Create a farm compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
                     'createFarm',
+                    "testFarm",
+                    false,
                     false,
                     false,
                     12000,
@@ -1982,7 +1988,11 @@ describe("Testnet interactions helper", async () => {
         it('Admin creates a treasury', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()
+                const operation = await treasuryFactoryInstance.methods.createTreasury(
+                    "treasuryInteraction",
+                    true,
+                    treasuryMetadataBase
+                ).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2243,6 +2253,8 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await farmFactoryInstance.methods.createFarm(
+                    "testFarm",
+                    false,
                     false,
                     false,
                     12000,

@@ -249,6 +249,7 @@ type governanceFinancialLambdaActionType is
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceFinancialUpdateConfigParamsType
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
 
   // Financial Governance Lambdas
@@ -273,6 +274,7 @@ type governanceFinancialStorage is [@layout:comb] record [
     config                              : governanceFinancialConfigType;
 
     whitelistTokenContracts             : whitelistTokenContractsType;
+    whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
     
     // financial governance storage 

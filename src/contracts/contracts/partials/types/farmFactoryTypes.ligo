@@ -32,6 +32,8 @@ type farmTokenPair is [@layout:comb] record [
 ]
 
 type createFarmType is [@layout:comb] record[
+    name                    : string;
+    addToGeneralContracts   : bool;
     forceRewardFromTransfer : bool;
     infinite                : bool;
     plannedRewards          : farmPlannedRewards;
@@ -52,19 +54,10 @@ type farmMetadataType is record[
     authors                  : string;
 ]
 
-// type initFarmParamsType is record[
-//     totalBlocks: nat;
-//     currentRewardPerBlock: nat;
-// ]
-
 type farmFactoryBreakGlassConfigType is record [
     createFarmIsPaused     : bool;
     trackFarmIsPaused      : bool;
     untrackFarmIsPaused    : bool;
-]
-
-type farmFactoryConfigType is record [
-    blocksPerMinute        : nat;
 ]
 
 type updateMetadataType is [@layout:comb] record [
@@ -104,7 +97,7 @@ type farmFactoryStorage is [@layout:comb] record[
     metadata               : metadata;
     mvkTokenAddress        : address;
     governanceAddress      : address;
-    config                 : farmFactoryConfigType;
+    blocksPerMinute        : nat;
     breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
     whitelistContracts     : whitelistContractsType;      

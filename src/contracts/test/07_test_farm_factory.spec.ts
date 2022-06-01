@@ -92,6 +92,8 @@
 //                 try{
 //                     // Create a transaction for initiating a farm
 //                     const operation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         12000,
@@ -129,6 +131,8 @@
 //                     await signerFactory(alice.sk)
 //                     // Create a transaction for initiating a farm
 //                     await chai.expect(farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         12000,
@@ -147,6 +151,8 @@
 //                 try{
 //                     // Create a transaction for initiating a farm
 //                     const operation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         12000,
@@ -257,6 +263,8 @@
 
 //                     // Test calls
 //                     await chai.expect(farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         12000,
@@ -351,6 +359,8 @@
 
 //                     // Test calls
 //                     const createFarmOperation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         12000,
@@ -471,6 +481,8 @@
 
 //                     // Test calls
 //                     await chai.expect(farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         12000,
@@ -793,6 +805,8 @@
 
 //                     // Create a transaction for initiating a farm
 //                     const createFarmOperation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
 //                         false,
 //                         false,
 //                         100,
