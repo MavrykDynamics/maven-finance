@@ -1,7 +1,0 @@
-{
-  "name": "@mavryk-oracle-node/tx-manager",
-  "version": "0.0.1",
-  "dependencies": {
-    "@taquito/remote-signer": "^12.1.0"
-  }
-}
