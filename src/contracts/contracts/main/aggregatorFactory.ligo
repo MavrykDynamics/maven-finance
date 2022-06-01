@@ -11,6 +11,9 @@
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
+// Treasury transfers Type
+#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------

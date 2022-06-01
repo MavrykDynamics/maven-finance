@@ -424,12 +424,17 @@ block{
                   } else skip;
                 } else skip;
 
+                const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewards(s);
+                const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), updateRewardsXtz(s));
+
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := emptyMapCommit;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
+                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
+                s.oracleRewardXtz         := newOracleRewardXtz;
             }
         | _ -> skip
     ];
@@ -488,7 +493,7 @@ block{
                       ];
                 
                 const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewards(s);
-                const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), s.oracleRewardXtz);
+                const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), updateRewardsXtz(s));
 
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
