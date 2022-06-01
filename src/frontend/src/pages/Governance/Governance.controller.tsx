@@ -134,6 +134,7 @@ export const Governance = () => {
         userIsSatellite={userIsSatellite}
         ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
         nextProposals={currentRoundProposals1}
+        watingProposals={MOCK_PAST_PROPOSAL_LIST}
         pastProposals={MOCK_PAST_PROPOSAL_LIST}
         // pastProposals={currentRoundProposals1}
         handleProposalRoundVote={handleProposalRoundVote}

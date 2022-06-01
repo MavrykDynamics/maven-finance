@@ -8,13 +8,17 @@ type ProposalsProps = {
   proposalsList: Map<string, ProposalRecordType>
   handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
-  isProposalHistory?: boolean
+  title?: string
+  type: string
+  firstVisible: boolean
 }
 export const Proposals = ({
   proposalsList,
   handleItemSelect,
   selectedProposal,
-  isProposalHistory = false,
+  title = '',
+  type,
+  firstVisible,
 }: ProposalsProps) => {
   const { governancePhase } = useSelector((state: State) => state.governance)
   let proposalListTitle = '',
@@ -35,17 +39,18 @@ export const Proposals = ({
       break
   }
 
-  if (isProposalHistory) {
+  if (type === 'history') {
     proposalListTitle = 'Past Proposals'
     isProposalPhase = false
   }
   return (
     <ProposalsView
-      listTitle={proposalListTitle}
+      listTitle={title || proposalListTitle}
       proposalsList={proposalsList}
       handleItemSelect={handleItemSelect}
       selectedProposal={selectedProposal}
       isProposalPhase={isProposalPhase}
+      firstVisible={firstVisible}
     />
   )
 }
