@@ -4,7 +4,6 @@ type lambdaLedgerType is map(string, bytes)
 
 // type trackedAggregatorsType is map (string * string, address)
 type trackedAggregatorsType is set(address)
-type trackedSatelliteType is set (address)
 
 // rewards type
 type distributeRewardStakedMvkType is [@layout:comb] record [
@@ -32,9 +31,9 @@ type aggregatorMetadataType is [@layout:comb] record[
 ]
 
 type createAggregatorParamsType is string * string * [@layout:comb] record[
-  oracleAddresses: oracleAddressesType;
-  aggregatorConfig: aggregatorConfigType;
-  admin: adminType;
+  oracleAddresses   : oracleAddressesType;
+  aggregatorConfig  : aggregatorConfigType;
+  admin             : adminType;
 ];
 
 type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
@@ -78,10 +77,6 @@ type aggregatorFactoryLambdaActionType is
   | LambdaCreateAggregator              of createAggregatorParamsType
   | LambdaTrackAggregator               of (address)
   | LambdaUntrackAggregator             of (address)
-  // | LambdaAddSatellite                  of (address)
-  // | LambdaBanSatellite                  of (address)
-  // | LambdaUpdateAggregatorConfig        of updateAggregatorConfigParamsType
-  // | LambdaUpdateAggregatorAdmin         of updateAggregatorAdminParamsType
 
     // Aggregator Lambdas
   | LambdaDistributeRewardXtz           of distributeRewardXtzType
@@ -103,7 +98,6 @@ type aggregatorFactoryStorage is [@layout:comb] record [
     generalContracts        : generalContractsType;
     
     trackedAggregators      : trackedAggregatorsType;
-    trackedSatellites       : trackedSatelliteType;
 
     lambdaLedger            : lambdaLedgerType;
     aggregatorLambdaLedger  : lambdaLedgerType;

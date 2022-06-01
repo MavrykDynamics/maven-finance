@@ -49,7 +49,6 @@
     "compile-all-lambdas-3": "yarn compile-aggregator-lambdas && yarn compile-aggregatorFactory-lambdas && yarn compile-governanceSatellite-lambdas",
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
-    "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 600000",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ithacanet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 900000",
     "test-net-interact": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ithacanet ts-mocha --paths test/deploy/01_test_testnet_interactions.spec.ts --bail --timeout 900000",

@@ -35,7 +35,7 @@ type updateSatelliteRecordType is [@layout:comb] record [
 
 // record for satellites
 type satelliteRecordType is [@layout:comb] record [
-    status                : nat;        // active: 1; inactive: 0; 
+    status                : string;     // ACTIVE / SUSPENDED / BANNED
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
@@ -113,6 +113,11 @@ type distributeRewardTypes is [@layout:comb] record [
     totalSMvkReward       : nat;
 ]
 
+type updateSatelliteStatusParamsType is [@layout:comb] record [
+    satelliteAddress        : address;
+    newStatus               : string;
+]
+
 type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
@@ -151,6 +156,7 @@ type delegationLambdaActionType is
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
+| LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
 // ------------------------------------------------------------------------------
 // Storage

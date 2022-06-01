@@ -55,9 +55,9 @@ type passVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
 type voteForProposalChoiceType is 
-  Yay of unit
-| Nay of unit
-| Abstain of unit
+  Yay     of unit
+| Nay     of unit
+| Abstain     of unit
 type votingRoundVoteType is [@layout:comb] record [
   vote  : voteForProposalChoiceType;
   empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %abstain become entrypoints.

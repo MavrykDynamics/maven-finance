@@ -8,14 +8,17 @@ export type aggregatorStorageType = {
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
   
   config                    : {
-    decimals: BigNumber;
-    percentOracleThreshold: BigNumber;
-    rewardAmountXTZ: BigNumber;
-    rewardAmountMVK: BigNumber;
-    minimalTezosAmountDeviationTrigger: BigNumber;
-    perthousandDeviationTrigger: BigNumber;
-    maintainer: string;
-    numberBlocksDelay: BigNumber;
+    decimals                            : BigNumber;
+    numberBlocksDelay                   : BigNumber;
+    maintainer                          : string;
+
+    minimalTezosAmountDeviationTrigger  : BigNumber;
+    perthousandDeviationTrigger         : BigNumber;
+    percentOracleThreshold              : BigNumber;
+    
+    deviationRewardAmountXtz            : BigNumber;    
+    rewardAmountXtz                     : BigNumber;
+    rewardAmountStakedMvk               : BigNumber;
   };
 
   breakGlassConfig          : {
@@ -24,11 +27,14 @@ export type aggregatorStorageType = {
     setObservationCommitIsPaused        : boolean;
     setObservationRevealIsPaused        : boolean;
     withdrawRewardXtzIsPaused           : boolean;
-    withdrawRewardMvkIsPaused           : boolean;
+    withdrawRewardStakedMvkIsPaused     : boolean;
   };
 
   mvkTokenAddress           : string;
   governanceAddress         : string;
+
+  whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
   round                     : BigNumber;
   roundStart                : string;
@@ -37,23 +43,23 @@ export type aggregatorStorageType = {
   oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
   
   deviationTriggerInfos: {
-    oracleAddress: string;
-    amount: BigNumber;
-    roundPrice: BigNumber;
+    oracleAddress   : string;
+    amount          : BigNumber;
+    roundPrice      : BigNumber;
   };
 
   lastCompletedRoundPrice: {
-    round: BigNumber;
-    price: BigNumber;
-    percentOracleResponse: BigNumber;
-    priceDateTime: string;
+    round                 : BigNumber;
+    price                 : BigNumber;
+    percentOracleResponse : BigNumber;
+    priceDateTime         : string;
   };
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
   observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
 
-  oracleRewardsMVK          : MichelsonMap<MichelsonMapKey, unknown>;
-  oracleRewardsXTZ          : MichelsonMap<MichelsonMapKey, unknown>;
+  oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
+  oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 

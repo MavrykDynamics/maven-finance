@@ -11,7 +11,8 @@ import { governanceSatelliteStorageType } from '../test/types/governanceSatellit
 const config = {
   governanceSatelliteApprovalPercentage  : 6700,
   governanceSatelliteDurationInDays      : 3,
-  governancePurposeMaxLength             : 400
+  governancePurposeMaxLength             : 1000,
+  votingPowerRatio                       : 10000
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -33,16 +34,17 @@ export const governanceSatelliteStorage: governanceSatelliteStorageType = {
   metadata                            : metadata,
   
   mvkTokenAddress                     : zeroAddress,
-  governanceProxyAddress              : zeroAddress,
+  governanceAddress                   : zeroAddress,
 
   whitelistContracts                  : MichelsonMap.fromLiteral({}),
   generalContracts                    : MichelsonMap.fromLiteral({}),
 
-  governanceSatelliteLedger           : MichelsonMap.fromLiteral({}),
+  governanceSatelliteActionLedger     : MichelsonMap.fromLiteral({}),
   governanceSatelliteSnapshotLedger   : MichelsonMap.fromLiteral({}),
   governanceSatelliteCounter          : new BigNumber(1),
 
-  snapshotStakedMvkTotalSupply        :  new BigNumber(1),
+  satelliteOracleLedger               : MichelsonMap.fromLiteral({}),
+  aggregatorLedger                    : MichelsonMap.fromLiteral({}),
   
   lambdaLedger                        : MichelsonMap.fromLiteral({})
 

@@ -502,7 +502,7 @@ block {
                 
                 var emptySatelliteRecord : satelliteRecordType :=
                 record [
-                    status                = 0n;        
+                    status                = "ACTIVE";        
                     stakedMvkBalance      = 0n;       
                     satelliteFee          = 0n;    
                     totalDelegatedAmount  = 0n;
@@ -520,7 +520,7 @@ block {
                     | Some(_record) -> _record
                 ];
 
-                if _satelliteRecord.status = 1n then block {
+                if _satelliteRecord.status = "ACTIVE" then block {
                 // satellite exists
 
                 // check that sMVK balance does not exceed satellite's total delegated amount
@@ -617,7 +617,7 @@ block {
                 const satelliteRecord: satelliteRecordType = case Map.find_opt(userAddress, s.satelliteLedger) of [
                       Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
                     | None -> record [            
-                            status                = 1n;
+                            status                = "ACTIVE";
                             stakedMvkBalance      = stakedMvkBalance;
                             satelliteFee          = satelliteFee;
                             totalDelegatedAmount  = 0n;
@@ -969,6 +969,47 @@ block {
     ];
 
 } with (operations, s)
+
+
+
+(* updateSatelliteStatus lambda *)
+function lambdaUpdateSatelliteStatus(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+block {
+
+    // Overall steps:
+    
+
+    // Operation list
+    var operations: list(operation) := nil;
+
+    // Check sender is a whitelist contract
+    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+
+    case delegationLambdaAction of [
+        | LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {
+                
+                // Get variables from parameters
+                const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
+                const newStatus         : string  = updateSatelliteStatusParams.newStatus;
+
+                // get satellite record if exists
+                var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
+                      Some(_record) -> _record 
+                    | None -> failwith(error_SATELLITE_NOT_FOUND)
+                ];
+            
+                // update satellite with new status
+                satelliteRecord.status := newStatus;
+
+                // update satellite record
+                s.satelliteLedger[satelliteAddress] := satelliteRecord;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 
 // ------------------------------------------------------------------------------
 // General Lambdas End

@@ -33,7 +33,7 @@ block {
 function lambdaSetGovernance(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is
 block {
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);    // entrypoint should not receive any tez amount
     
     checkSenderIsAllowed(s); // check that sender is admin
     

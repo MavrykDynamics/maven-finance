@@ -15,20 +15,14 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Treasury Transfer Types
+#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
+
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
 // Aggregator Factory Types
 #include "../partials/types/aggregatorFactoryTypes.ligo"
-
-type aggregatorFactoryLambdaActionType is 
-
-  | LambdaCreateAggregator            of createAggregatorParamsType
-  | LambdaAddSatellite                of (address)
-  | LambdaBanSatellite                of (address)
-  | LambdaUpdateAggregatorConfig      of updateAggregatorConfigParamsType
-  | LambdaUpdateAggregatorAdmin       of updateAggregatorAdminParamsType
-
 
 // ------------------------------------------------------------------------------
 
@@ -51,10 +45,6 @@ type aggregatorFactoryAction is
     | TogglePauseDistributeRewardSMvk of (unit)
 
       // Aggregator Factory Entrypoints
-    // | UpdateAggregatorAdmin           of updateAggregatorAdminParamsType
-    // | UpdateAggregatorConfig          of updateAggregatorConfigParamsType
-    // | AddSatellite                    of (address)
-    // | BanSatellite                    of (address)
     | CreateAggregator                of createAggregatorParamsType
     | TrackAggregator                 of (address)
     | UntrackAggregator               of (address)
@@ -118,12 +108,6 @@ function checkSenderIsAdmin(const s: aggregatorFactoryStorage): unit is
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
-
-
-function checkIfAddressContainInTrackedSatelliteSet(const satelliteAddress: address; const trackedSatellite: trackedSatelliteType): unit is
-  if not (trackedSatellite contains satelliteAddress) then failwith(error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED)
-  else unit
 
 
 
@@ -227,6 +211,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
     Some(contr) -> contr
   | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
   ];
+
 
 
 // helper function to get distributeReward entrypoint in delegation contract
@@ -563,82 +548,6 @@ block {
 // Aggregator Factory Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  updateAggregatorAdmin entrypoint  *)
-// function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: aggregatorFactoryStorage): return is
-// block{
-
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorAdmin"] of [
-//       | Some(_v) -> _v
-//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // init aggregator factory lambda action
-//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorAdmin(updateAggregatorAdminParams);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
-
-// } with response
-
-
-
-(*  updateAggregatorConfig entrypoint  *)
-// function updateAggregatorConfig(const updateAggregatorConfigParams: updateAggregatorConfigParamsType; var s: aggregatorFactoryStorage): return is
-// block{
-    
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorConfig"] of [
-//       | Some(_v) -> _v
-//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // init aggregator factory lambda action
-//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorConfig(updateAggregatorConfigParams);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);    
-
-// } with response
-
-
-
-(*  addSatellite entrypoint  *)
-// function addSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
-// block{
-    
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddSatellite"] of [
-//       | Some(_v) -> _v
-//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // init aggregator factory lambda action
-//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaAddSatellite(satelliteAddress);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
-
-// } with response
-
-
-
-(*  banSatellite entrypoint  *)
-// function banSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
-// block{
-
-//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBanSatellite"] of [
-//       | Some(_v) -> _v
-//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // init aggregator factory lambda action
-//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaBanSatellite(satelliteAddress);
-
-//     // init response
-//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
-
-// } with response
-
-
-
 (*  createAggregator entrypoint  *)
 function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: aggregatorFactoryStorage): return is
 block {
@@ -814,10 +723,6 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
       | TogglePauseDistributeRewardSMvk (_parameters) -> togglePauseDistributeRewardSMvk(s)
 
         // Aggregator Factory Entrypoints  
-      // | UpdateAggregatorAdmin (parameters)          -> updateAggregatorAdmin(parameters, s)
-      // | UpdateAggregatorConfig (parameters)         -> updateAggregatorConfig(parameters, s)
-      // | AddSatellite (parameters)                   -> addSatellite(parameters, s)
-      // | BanSatellite (parameters)                   -> banSatellite(parameters, s)
       | CreateAggregator (parameters)                 -> createAggregator(parameters, s)
       | TrackAggregator (parameters)                  -> trackAggregator(parameters, s)
       | UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
