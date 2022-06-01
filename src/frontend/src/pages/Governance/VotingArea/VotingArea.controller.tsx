@@ -56,7 +56,6 @@ export const VotingArea = ({
         />
       ) : null}
       <VotingAreaStyled>
-        {/* {true && ( */}
         {!ready && ready && governancePhase !== 'TIME_LOCK' && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
@@ -64,7 +63,6 @@ export const VotingArea = ({
           </div>
         )}
 
-        {/* {true && ( */}
         {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
           <VotingButtonsContainer>
             <Button
@@ -90,7 +88,7 @@ export const VotingArea = ({
             />
           </VotingButtonsContainer>
         )}
-        {/* {true && ( */}
+
         {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
@@ -103,7 +101,7 @@ export const VotingArea = ({
             />
           </div>
         )}
-        {/* {true && ( */}
+
         {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
