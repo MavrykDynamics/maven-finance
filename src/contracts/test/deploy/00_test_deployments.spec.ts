@@ -34,8 +34,8 @@ import treasuryFactoryLambdas from '../../build/lambdas/treasuryFactoryLambdas.j
 import aggregatorLambdas from '../../build/lambdas/aggregatorLambdas.json'
 import aggregatorFactoryLambdas from '../../build/lambdas/aggregatorFactoryLambdas.json'
 
-import { Aggregator } from '../helpers/aggregatorHelper'
-import { AggregatorFactory } from '../helpers/aggregatorFactoryHelper'
+import { Aggregator, aggregatorLambdaIndexOf } from '../helpers/aggregatorHelper'
+import { AggregatorFactory, aggregatorFactoryLambdaIndexOf } from '../helpers/aggregatorFactoryHelper'
 import { Doorman } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
@@ -891,17 +891,18 @@ describe('Contracts Deployment for Tests', async () => {
       // Aggregator Setup Lambdas
       const aggregatorLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorLambdas[0]))  // setAdmin
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[1]))  // updateMetadata
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateConfig"                       , aggregatorLambdas[2]))  // updateConfig
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaAddOracle"                          , aggregatorLambdas[3]))  // addOracle
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaRemoveOracle"                       , aggregatorLambdas[4]))  // removeOracle
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[5]))  // requestRateUpdate
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[6]))  // requestRateUpdateDeviation
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationCommit"               , aggregatorLambdas[7]))  // setObservationCommit
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationReveal"               , aggregatorLambdas[8]))  // setObservationReveal
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardXtz"                  , aggregatorLambdas[9]))  // withdrawRewardXTZ
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardMvk"                  , aggregatorLambdas[10])) // withdrawRewardMVK 
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetAdmin')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateMetadata')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateConfig"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateConfig')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaAddOracle"                          , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaAddOracle')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaRemoveOracle"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRemoveOracle')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdate')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdateDeviation')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationCommit"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationCommit')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationReveal"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationReveal')]))
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardXtz"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardXtz')]))
+      // TODO: Look into the mismatch between lambdaWithdrawRewardMvk and lambdaWithdrawRewardStakedMvk
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardMvk"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardStakedMvk')]))
 
       const setupAggregatorLambdasOperation = await aggregatorLambdaBatch.send()
       await setupAggregatorLambdasOperation.confirmation()
@@ -911,13 +912,13 @@ describe('Contracts Deployment for Tests', async () => {
       // Aggregator Factory Setup Lambdas
       const aggregatorFactoryLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorFactoryLambdas[0]))  // setAdmin
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorFactoryLambdas[1]))  // updateMetadata
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateAggregatorAdmin"              , aggregatorFactoryLambdas[2]))  // updateAggregatorAdmin
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateAggregatorConfig"             , aggregatorFactoryLambdas[3]))  // updateAggregatorConfig
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaAddSatellite"                       , aggregatorFactoryLambdas[4]))  // addSatellite
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaBanSatellite"                       , aggregatorFactoryLambdas[5]))  // banSatellite
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaCreateAggregator"                   , aggregatorFactoryLambdas[6]))  // createAggregator
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaSetAdmin')]))
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUpdateMetadata')]))
+      //.withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateAggregatorAdmin"              , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUpdateAggregatorAdmin')]))
+      //.withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateAggregatorConfig"             , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUpdateAggregatorConfig')]))
+      //.withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaAddSatellite"                       , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaAddSatellite')]))
+      //.withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaBanSatellite"                       , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaBanSatellite')]))
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaCreateAggregator"                   , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaCreateAggregator')]))
 
       const setupAggregatorFactoryLambdasOperation = await aggregatorFactoryLambdaBatch.send()
       await setupAggregatorFactoryLambdasOperation.confirmation()
@@ -925,17 +926,18 @@ describe('Contracts Deployment for Tests', async () => {
       
       const aggregatorFactoryProductLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetAdmin"                    , aggregatorLambdas[0]))  // setAdmin
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"              , aggregatorLambdas[1]))  // updateMetadata
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateConfig"                , aggregatorLambdas[2]))  // updateConfig
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaAddOracle"                   , aggregatorLambdas[3]))  // addOracle
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRemoveOracle"                , aggregatorLambdas[4]))  // removeOracle
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdate"           , aggregatorLambdas[5]))  // requestRateUpdate
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdateDeviation"  , aggregatorLambdas[6]))  // requestRateUpdateDeviation
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationCommit"        , aggregatorLambdas[7]))  // setObservationCommit
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationReveal"        , aggregatorLambdas[8]))  // setObservationReveal
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXtz"           , aggregatorLambdas[9]))  // withdrawRewardXTZ
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardMvk"           , aggregatorLambdas[10])) // withdrawRewardMVK 
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetAdmin"                    , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetAdmin')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateMetadata')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateConfig"                , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateConfig')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaAddOracle"                   , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaAddOracle')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRemoveOracle"                , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRemoveOracle')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdate"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdate')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdateDeviation"  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdateDeviation')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationCommit"        , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationCommit')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationReveal"        , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationReveal')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXtz"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardXtz')]))
+      // TODO: Look into the mismatch between lambdaWithdrawRewardMvk and lambdaWithdrawRewardStakedMvk
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardMvk"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardStakedMvk')]))
 
       const setupAggregatorFactoryProductLambdasOperation = await aggregatorFactoryProductLambdaBatch.send()
       await setupAggregatorFactoryProductLambdasOperation.confirmation()
