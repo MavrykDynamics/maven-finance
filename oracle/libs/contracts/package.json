@@ -1,8 +1,0 @@
-{
-  "name": "@mavryk-oracle-node/contracts",
-  "version": "0.0.1",
-  "type": "commonjs",
-  "devDependencies": {
-    "ts-node": "^10.7.0"
-  }
-}
