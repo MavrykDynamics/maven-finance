@@ -377,8 +377,8 @@ block {
                   observationCommits        = observationCommits;
                   observationReveals        = observationReveals;
                   
-                  oracleRewardXtz          = oracleRewardXtz;
-                  oracleRewardStakedMvk    = oracleRewardStakedMvk;      
+                  oracleRewardXtz           = oracleRewardXtz;
+                  oracleRewardStakedMvk     = oracleRewardStakedMvk;      
 
                   lambdaLedger              = aggregatorLambdaLedger;
                   
@@ -390,8 +390,8 @@ block {
                     0tez,
                     originatedAggregatorStorage
                 );
-                // s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
-                s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
+                s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
+                // s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
 
                 operations := aggregatorOrigination.0 # operations; 
 
