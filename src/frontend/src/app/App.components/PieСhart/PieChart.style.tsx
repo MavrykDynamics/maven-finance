@@ -1,6 +1,4 @@
-import styled, { keyframes } from 'styled-components/macro'
-
-import { whiteColor } from '../../../styles'
+import styled from 'styled-components/macro'
 
 export const PieChartWrap = styled.figure`
   margin: 0;
