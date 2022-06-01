@@ -5,6 +5,19 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { aggregatorStorageType } from "../types/aggregatorStorageType";
 
+import aggregatorLambdaIndex  from '../../../contracts/contracts/partials/contractLambdas/aggregator/aggregatorLambdaIndex.json';
+
+export const aggregatorLambdaIndexOf = (name: string) => {
+    const index = aggregatorLambdaIndex.find(x => x.name === name)?.index
+
+    if (index === undefined) {
+        throw new Error(`aggregatorLambdaIndexOf: ${name} not found`)
+    }
+
+    return index;
+}
+
+
 export class Aggregator {
     contract: Contract;
     storage: aggregatorStorageType;
@@ -53,4 +66,3 @@ export class Aggregator {
     }
 
   }
-  
