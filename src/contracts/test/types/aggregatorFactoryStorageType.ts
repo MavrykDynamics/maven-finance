@@ -18,8 +18,8 @@ export type aggregatorFactoryStorageType = {
   mvkTokenAddress           : string;
   governanceAddress         : string;
   
-  // trackedAggregators        : Array<unknown>;
-  trackedAggregators        : MichelsonMap<MichelsonMapKey, unknown>;
+  trackedAggregators        : Array<unknown>;
+  //trackedAggregators        : MichelsonMap<MichelsonMapKey, unknown>;
   trackedSatellites         : Array<unknown>;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
