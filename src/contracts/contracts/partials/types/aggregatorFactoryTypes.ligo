@@ -2,8 +2,8 @@ type setAdminParams is address;
 type metadataType is big_map (string, bytes);
 type lambdaLedgerType is map(string, bytes)
 
-// type trackedAggregatorsType is map (string * string, address)
-type trackedAggregatorsType is set(address)
+type trackedAggregatorsType is map (string * string, address)
+// type trackedAggregatorsType is set(address)
 
 // rewards type
 type distributeRewardStakedMvkType is [@layout:comb] record [
