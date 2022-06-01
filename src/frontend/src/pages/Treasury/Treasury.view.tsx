@@ -45,7 +45,7 @@ export default function TreasuryView({ treasury }: Props) {
         </div>
       </div>
       <div>
-        <PieChartView />
+        <PieChartView differentStrokeWidth={Boolean(treasury.id)} />
       </div>
       <div>
         <div className="asset-lables scroll-block">
