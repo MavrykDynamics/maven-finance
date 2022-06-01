@@ -443,13 +443,6 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
     | None -> 0n
   ]
 
-function getRewardAmountXTZ(const oracleAddress: address; const s: aggregatorStorage) : nat is
-  case Map.find_opt(oracleAddress, s.oracleRewardXtz) of [
-      Some (v) -> (v)
-    | None -> 0n
-  ]
-
-
 function updateRewards (const s: aggregatorStorage) : oracleRewardStakedMvkType is block {
 
   var empty : map(address, nat) := map [];
@@ -502,6 +495,14 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardStakedMvkType 
     newOracleRewardStakedMvk := Map.update(key, Some (getRewardAmountStakedMvk(Tezos.sender, s) + reward), newOracleRewardStakedMvk);
   };
 } with (newOracleRewardStakedMvk)
+
+function updateRewardsXtz (const s: aggregatorStorage) : oracleRewardStakedMvkType is block {
+  var newOracleRewardXtz: oracleRewardXtzType := s.oracleRewardXtz;
+
+  for key -> _value in map s.observationReveals block {
+    newOracleRewardXtz := Map.update(key, Some (getRewardAmountXtz(key, s) + s.config.rewardAmountXtz), newOracleRewardXtz);
+  };
+} with (newOracleRewardXtz)
 
 // ------------------------------------------------------------------------------
 // Reward Helper Functions End
@@ -564,7 +565,7 @@ block {
 // Helper Functions End
 //
 // ------------------------------------------------------------------------------
-  
+
 
 
 // ------------------------------------------------------------------------------
@@ -593,11 +594,11 @@ block {
 (* View: get last completed round price *)
 [@view] function lastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
   const withDecimal : lastCompletedRoundPriceReturnType = record [
-    round                   = s.lastCompletedRoundPrice.round;
-    price                   = s.lastCompletedRoundPrice.price;
-    percentOracleResponse   = s.lastCompletedRoundPrice.percentOracleResponse;
-    decimals                = s.config.decimals;
-    priceDateTime           = s.lastCompletedRoundPrice.priceDateTime;
+    price= s.lastCompletedRoundPrice.price;
+    percentOracleResponse= s.lastCompletedRoundPrice.percentOracleResponse;
+    round= s.lastCompletedRoundPrice.round;
+    decimals= s.config.decimals;
+    priceDateTime= s.lastCompletedRoundPrice.priceDateTime;
   ]
 } with (withDecimal)
 
