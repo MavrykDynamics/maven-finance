@@ -25,6 +25,7 @@ type governanceSatelliteAction is
       
       // Housekeeping Actions
     | SetAdmin                      of address
+    | SetGovernance                 of address
     | UpdateMetadata                of updateMetadataType
     | UpdateConfig                  of governanceSatelliteUpdateConfigParamsType
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
@@ -41,16 +42,23 @@ type governanceSatelliteAction is
     | AddOracleToAggregator         of addOracleToAggregatorActionType
     | RemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
+      // Aggregator Governance
+    | RegisterAggregator            of registerAggregatorActionType
+    | UpdateAggregatorStatus        of updateAggregatorStatusActionType
+
       // Governance Actions
     | DropAction                    of dropActionType
     | VoteForAction                 of voteForActionType
+
+      // Lambda Entrypoints
+    | SetLambda                     of setLambdaType
+
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * governanceSatelliteStorage
 
 // governance satellite contract methods lambdas
 type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaActionType * governanceSatelliteStorage) -> return
-
 
 
 
@@ -62,20 +70,6 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 
 // Error Codes
 #include "../partials/errors.ligo"
-
-
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                             = 0n;
-[@inline] const error_ONLY_SATELLITE_ALLOWED                                 = 1n;
-
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                      = 3n;
-[@inline] const error_NOT_ENOUGH_TEZ_RECEIVED                                = 4n;
-
-[@inline] const error_GET_SATELLITE_OPT_VIEW_NOT_FOUND                       = 5n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND        = 6n;
-[@inline] const error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND         = 7n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                       = 8n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 9n;
 
 // ------------------------------------------------------------------------------
 //
@@ -94,6 +88,12 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : governanceSatelliteStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(const s: governanceSatelliteStorage): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -189,6 +189,28 @@ case (Tezos.get_entrypoint_opt(
 ];
 
 
+
+// helper function to get pauseAll entrypoint in aggregator contract
+function getPauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
+case (Tezos.get_entrypoint_opt(
+      "%pauseAll",
+      contractAddress) : option(contract(unit))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_PAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
+];
+
+
+
+// helper function to get unpauseAll entrypoint in aggregator contract
+function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : contract(unit) is
+case (Tezos.get_entrypoint_opt(
+      "%unpauseAll",
+      contractAddress) : option(contract(unit))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
+];
+
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -216,6 +238,84 @@ block {
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : governanceSatelliteStorage) : governanceSatelliteConfigType is
+  s.config
+
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _: unit; var s : governanceSatelliteStorage) : address is
+  s.governanceAddress
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : governanceSatelliteStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : governanceSatelliteStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get a governance satellite action *)
+[@view] function getGovernanceSatelliteActionOpt(const actionId: nat; var s : governanceSatelliteStorage) : option(governanceSatelliteActionRecordType) is
+  Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
+
+
+
+(* View: get a governance satellite action snapshot *)
+[@view] function getGovernanceActionSnapshotOpt(const actionId: nat; var s : governanceSatelliteStorage) : option(governanceSatelliteSnapshotMapType) is
+  Big_map.find_opt(actionId, s.governanceSatelliteSnapshotLedger)
+
+
+
+(* View: get governance satellite counter *)
+[@view] function getGovernanceSatelliteCounter(const _: unit; var s : governanceSatelliteStorage) : nat is
+  s.governanceSatelliteCounter
+
+
+
+(* View: get a satellite oracle record *)
+[@view] function getSatelliteOracleRecordOpt(const satelliteAddress: address; var s : governanceSatelliteStorage) : option(satelliteOracleRecordType) is
+  Big_map.find_opt(satelliteAddress, s.satelliteOracleLedger)
+
+
+
+(* View: get an aggregator record *)
+[@view] function getAggregatorRecordOpt(const aggregatorAddress: address; var s : governanceSatelliteStorage) : option(aggregatorRecordType) is
+  Big_map.find_opt(aggregatorAddress, s.aggregatorLedger)
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceSatelliteStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : governanceSatelliteStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
 //
 // ------------------------------------------------------------------------------
 
@@ -259,6 +359,25 @@ block {
 
     // init council lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : governanceSatelliteStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -497,6 +616,52 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Aggregator Governance Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  registerAggregator entrypoint  *)
+function registerAggregator(const registerAggregatorParams : registerAggregatorActionType; var s : governanceSatelliteStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterAggregator"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance satellite lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRegisterAggregator(registerAggregatorParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  updateAggregatorStatus entrypoint  *)
+function updateAggregatorStatus(const updateAggregatorStatusParams : updateAggregatorStatusActionType; var s : governanceSatelliteStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorStatus"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance satellite lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateAggregatorStatus(updateAggregatorStatusParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Aggregator Governance Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Governance Actions Entrypoints Begin
 // ------------------------------------------------------------------------------
 
@@ -540,6 +705,32 @@ block {
 // Governance Actions Entrypoints End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams: setLambdaType; var s: governanceSatelliteStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+
+    // set lambda in lambdaLedger - allow override of lambdas
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Entrypoints End
@@ -554,6 +745,7 @@ function main (const action : governanceSatelliteAction; const s : governanceSat
         
           // Housekeeping Actions
         | SetAdmin(parameters)                      -> setAdmin(parameters, s)
+        | SetGovernance(parameters)                 -> setGovernance(parameters, s)
         | UpdateMetadata(parameters)                -> updateMetadata(parameters, s)  
         | UpdateConfig(parameters)                  -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
@@ -570,8 +762,15 @@ function main (const action : governanceSatelliteAction; const s : governanceSat
         | AddOracleToAggregator(parameters)         -> addOracleToAggregator(parameters, s)
         | RemoveOracleInAggregator(parameters)      -> removeOracleInAggregator(parameters, s)
 
+          // Aggregator Governance
+        | RegisterAggregator(parameters)            -> registerAggregator(parameters, s)
+        | UpdateAggregatorStatus(parameters)        -> updateAggregatorStatus(parameters, s)
+
           // Governance Actions
         | DropAction(parameters)                    -> dropAction(parameters, s)
         | VoteForAction(parameters)                 -> voteForAction(parameters, s)
+
+          // Lambda Entrypoints
+        | SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]

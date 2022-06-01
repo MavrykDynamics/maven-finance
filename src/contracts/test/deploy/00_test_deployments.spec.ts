@@ -20,6 +20,7 @@ import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer }
 import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
 import governanceFinancialLambdas from '../../build/lambdas/governanceFinancialLambdas.json'
+import governanceSatelliteLambdas from '../../build/lambdas/governanceSatelliteLambdas.json'
 import doormanLambdas from '../../build/lambdas/doormanLambdas.json'
 import delegationLambdas from '../../build/lambdas/delegationLambdas.json'
 import breakGlassLambdas from '../../build/lambdas/breakGlassLambdas.json'
@@ -40,6 +41,7 @@ import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
 import { Governance } from '../helpers/governanceHelper'
 import { GovernanceFinancial } from '../helpers/governanceFinancialHelper'
+import { GovernanceSatellite } from '../helpers/governanceSatelliteHelper'
 import { GovernanceProxy } from '../helpers/governanceProxyHelper'
 import { BreakGlass } from '../helpers/breakGlassHelper'
 import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
@@ -61,6 +63,7 @@ import { delegationStorage } from '../../storage/delegationStorage'
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { governanceStorage } from '../../storage/governanceStorage'
 import { governanceFinancialStorage } from '../../storage/governanceFinancialStorage'
+import { governanceSatelliteStorage } from '../../storage/governanceSatelliteStorage'
 import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
 import { breakGlassStorage } from '../../storage/breakGlassStorage'
 import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
@@ -85,6 +88,7 @@ describe('Contracts Deployment for Tests', async () => {
   var delegation: Delegation
   var governance: Governance
   var governanceFinancial: GovernanceFinancial
+  var governanceSatellite: GovernanceSatellite
   var governanceProxy: GovernanceProxy
   var breakGlass: BreakGlass
   var emergencyGovernance: EmergencyGovernance
@@ -297,6 +301,7 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('governanceFinancialAddress', governanceFinancial.contract.address)
     console.log('Governance Financial Contract deployed at:', governanceFinancial.contract.address)
 
+
     treasuryStorage.governanceAddress = governance.contract.address
     treasuryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
@@ -368,7 +373,6 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
 
     aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
-    aggregatorStorage.delegationAddress = delegation.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -378,7 +382,6 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
     aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
-    aggregatorFactoryStorage.delegationAddress = delegation.contract.address;
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
       aggregatorFactoryStorage
@@ -386,6 +389,20 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('aggregatorFactoryAddress', aggregatorFactory.contract.address)
     console.log('Aggregator Factory Contract deployed at:', aggregatorFactory.contract.address)
+
+    governanceSatelliteStorage.generalContracts = MichelsonMap.fromLiteral({
+      "delegation"            : delegation.contract.address,
+      "doorman"               : doorman.contract.address,
+      "council"               : council.contract.address,
+      "aggregatorFactory"     : aggregatorFactory.contract.address
+    })
+    governanceSatelliteStorage.mvkTokenAddress     = mvkToken.contract.address
+    governanceSatelliteStorage.governanceAddress   = governance.contract.address
+    governanceSatellite = await GovernanceSatellite.originate(utils.tezos,governanceSatelliteStorage);
+
+    await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
+    console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
+
 
     /* ---- ---- ---- ---- ---- */
 
@@ -471,7 +488,7 @@ describe('Contracts Deployment for Tests', async () => {
       console.log("Governance Proxy Proxy Lambdas Setup")
 
 
-      // Governance Setup Lambdas
+      // Governance Financial Setup Lambdas
       const governanceFinancialLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaSetAdmin"                              , governanceFinancialLambdas[0]))  // setAdmin
@@ -489,6 +506,29 @@ describe('Contracts Deployment for Tests', async () => {
       await setupGovernanceFinancialLambdasOperation.confirmation()
       console.log("Governance Financial Lambdas Setup")
 
+      // Governance Satellite Setup Lambdas
+      const governanceSatelliteLambdaBatch = await tezos.wallet
+      .batch()
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaSetAdmin"                              , governanceSatelliteLambdas[0]))  // setAdmin
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaSetGovernance"                         , governanceSatelliteLambdas[1]))  // setGovernance
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateMetadata"                        , governanceSatelliteLambdas[2]))  // updateMetadata
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateConfig"                          , governanceSatelliteLambdas[3]))  // updateConfig
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateWhitelistContracts"              , governanceSatelliteLambdas[4]))  // updateWhitelistContracts
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceSatelliteLambdas[5]))  // updateGeneralContracts
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaSuspendSatellite"                      , governanceSatelliteLambdas[6]))  // suspendSatellite
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUnsuspendSatellite"                    , governanceSatelliteLambdas[7]))  // unsuspendSatellite
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaBanSatellite"                          , governanceSatelliteLambdas[8]))  // banSatellite
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUnbanSatellite"                        , governanceSatelliteLambdas[9]))  // unbanSatellite
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaRemoveAllSatelliteOracles"             , governanceSatelliteLambdas[10])) // removeAllSatelliteOracles
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaAddOracleToAggregator"                 , governanceSatelliteLambdas[11])) // removeAddOracleToAggregator
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaRemoveOracleInAggregator"              , governanceSatelliteLambdas[12])) // removeRemoveOracleInAggregator
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaRegisterAggregator"                    , governanceSatelliteLambdas[13])) // registerAggregator
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateAggregatorStatus"                , governanceSatelliteLambdas[14])) // updateAggregatorStatus
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaDropAction"                            , governanceSatelliteLambdas[15])) // dropAction
+      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaVoteForAction"                         , governanceSatelliteLambdas[16])) // voteForAction
+      const setupGovernanceSatelliteLambdasOperation = await governanceSatelliteLambdaBatch.send()
+      await setupGovernanceSatelliteLambdasOperation.confirmation()
+      console.log("Governance Satellite Lambdas Setup")
 
       // Governance Setup Lambdas
       const governanceLambdaFirstBatch = await tezos.wallet
@@ -573,6 +613,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteRecord"              , delegationLambdas[18])) // updateSatelliteRecord
       .withContractCall(delegation.contract.methods.setLambda("lambdaDistributeReward"                   , delegationLambdas[19])) // distributeReward
       .withContractCall(delegation.contract.methods.setLambda("lambdaOnStakeChange"                      , delegationLambdas[20])) // onStakeChange
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteStatus"              , delegationLambdas[21])) // updateSatelliteStatus
     
       const setupDelegationLambdasOperation = await delegationLambdaBatch.send()
       await setupDelegationLambdasOperation.confirmation()
@@ -843,10 +884,6 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStakeMvk"                     , treasuryLambdas[16]))  // stakeMvk
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstakeMvk"                   , treasuryLambdas[17]))  // unstakeMvk
 
-<<<<<<< HEAD
-=======
-
->>>>>>> feat: add oracle code
       const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
       await setupTreasuryFactoryProductLambdasOperation.confirmation()
       console.log("Treasury Factory Product Lambdas Setup")
@@ -929,51 +966,54 @@ describe('Contracts Deployment for Tests', async () => {
             'USD',
             'BTC',
             oracleMap,
-            mvkToken.contract.address,
-            delegation.contract.address,
             new BigNumber(8),             // decimals
-            new BigNumber(2600),          // deviationRewardAmountXTZ
+            new BigNumber(2),             // numberBlocksDelay
             oracleMaintainer.pkh,         // maintainer
+
             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
             new BigNumber(5),             // perthousandDeviationTrigger
             new BigNumber(60),            // percentOracleThreshold
-            new BigNumber(5),             // rewardAmountMVK
-            new BigNumber(1300),           // rewardAmountXTZ
-            new BigNumber(2),             // numberBlocksDelay
+
+            new BigNumber(2600),          // deviationRewardAmountXtz
+            new BigNumber(5),             // rewardAmountMvk
+            new BigNumber(1300),          // rewardAmountXtz
+            
             aggregatorFactory.contract.address
         ))
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
             'USD',
             'XTZ',
             oracleMap,
-            mvkToken.contract.address,
-            delegation.contract.address,
             new BigNumber(8),             // decimals
-            new BigNumber(2600),          // deviationRewardAmountXTZ
+            new BigNumber(2),             // numberBlocksDelay
             oracleMaintainer.pkh,         // maintainer
+            
             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
             new BigNumber(5),             // perthousandDeviationTrigger
             new BigNumber(60),            // percentOracleThreshold
-            new BigNumber(5),             // rewardAmountMVK
-            new BigNumber(1300),           // rewardAmountXTZ
-            new BigNumber(2),             // numberBlocksDelay
+
+            new BigNumber(2600),          // deviationRewardAmountXtz
+            new BigNumber(5),             // rewardAmountMvk
+            new BigNumber(1300),          // rewardAmountXtz
+            
             aggregatorFactory.contract.address
         ))
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
             'USD',
             'DOGE',
             oracleMap,
-            mvkToken.contract.address,
-            delegation.contract.address,
-            new BigNumber(16),             // decimals
-            new BigNumber(2600),          // deviationRewardAmountXTZ
+            new BigNumber(16),            // decimals
+            new BigNumber(2),             // numberBlocksDelay
             oracleMaintainer.pkh,         // maintainer
+            
             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
             new BigNumber(5),             // perthousandDeviationTrigger
             new BigNumber(60),            // percentOracleThreshold
-            new BigNumber(5),             // rewardAmountMVK
-            new BigNumber(1300),           // rewardAmountXTZ
-            new BigNumber(2),             // numberBlocksDelay
+            
+            new BigNumber(2600),          // deviationRewardAmountXtz
+            new BigNumber(5),             // rewardAmountMvk
+            new BigNumber(1300),          // rewardAmountXtz
+            
             aggregatorFactory.contract.address
         ))
 

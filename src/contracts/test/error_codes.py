@@ -523,6 +523,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                   
 
 
 
+
+
 error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND                                                           = 391
 error_ONLY_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED                                                        = 392
 error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED                                               = 393
@@ -561,6 +563,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND         
 
 
 
+
+
 error_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                                               = 419
 error_ONLY_GOVERNANCE_PROXY_CONTRACT_ALLOWED                                                            = 420
 
@@ -574,6 +578,8 @@ error_GET_WHITELIST_TOKEN_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND 
 error_GET_WHITELIST_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                               = 426
 error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                 = 427
 error_GET_PROXY_LAMBDA_OPT_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                  = 428
+
+
 
 
 
@@ -623,17 +629,6 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_TREASURY_CONTRACT_NOT_FOUND                     
 
 
 
-error_SET_ADMIN_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                = 501
-error_SET_GOVERNANCE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                           = 502
-error_UPDATE_METADATA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                          = 503
-error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                               = 504
-error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                 = 505
-error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 506
-error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 507
-error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 508
-error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                       = 509
-error_CLAIM_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                    = 510
-error_SET_LAMBDA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 511
 
 error_TREASURY_FACTORY_CONTRACT_NOT_FOUND                                                               = 462
 error_ONLY_TREASURY_FACTORY_CONTRACT_ALLOWED                                                            = 463
@@ -672,24 +667,8 @@ error_GET_LAMBDA_OPT_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                
 error_GET_LAMBDA_LEDGER_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                                     = 492
 error_GET_PRODUCT_LAMBDA_OPT_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                                = 493
 error_GET_PRODUCT_LAMBDA_LEDGER_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                             = 494
-error_AGGREGATOR_CONTRACT_NOT_FOUND                                                                     = 520
-error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 521
 
-error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 522
-error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                            = 523
-error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 524
-error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 525
-error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 526
-error_WITHDRAW_REWARD_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 527
 
-error_WRONG_ROUND_NUMBER                                                                                = 528
-error_LAST_ROUND_IS_NOT_COMPLETE                                                                        = 529
-error_YOU_CANNOT_COMMIT_NOW                                                                             = 530
-error_YOU_CANNOT_REVEAL_NOW                                                                             = 531
-error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW                                                            = 532
-error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT                                                                = 533
-error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL                                                                = 534
-error_ORACLE_DID_NOT_ANSWER                                                                             = 535
 
 
 
@@ -706,67 +685,150 @@ error_CLIFF_PERIOD_TOO_LONG                                                     
 
 error_VESTEE_ALREADY_EXISTS                                                                             = 501
 error_VESTEE_NOT_FOUND                                                                                  = 502
-error_VESTEE_LOCKED                                                                                     = 503
+error_VESTEE_LOCKED
+= 503
 
-error_SET_ADMIN_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                = 504
-error_SET_GOVERNANCE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                           = 505
-error_UPDATE_METADATA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                          = 506
-error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                               = 507
-error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                 = 508
-error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 509
-error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 510
-error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 511
-error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                       = 512
-error_CLAIM_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                    = 513
-error_SET_LAMBDA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 514
 
-error_GET_WHITELIST_CONTRACTS_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                        = 515
-error_GET_GENERAL_CONTRACTS_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                          = 516
-error_GET_TOTAL_VESTED_AMOUNT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                        = 517
-error_GET_VESTEE_BALANCE_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                             = 518
-error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                                 = 519
-error_GET_TOTAL_VESTED_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                               = 520
-error_GET_LAMBDA_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                                 = 521
-error_GET_LAMBDA_LEDGER_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                              = 522
-error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                                             = 536
 
-error_ONLY_MAINTAINER_ALLOWED                                                                           = 537
-error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED                                                      = 538
+
+
+
+error_AGGREGATOR_CONTRACT_NOT_FOUND                                                                     = 504
+error_AGGREGATOR_CONTRACT_EXISTS                                                                        = 505
+error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 506
+
+error_ONLY_AUTHORIZED_ORACLES_ALLOWED                                                                   = 507
+error_NOT_ENOUGH_TEZ_RECEIVED                                                                           = 508
+
+error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 509
+error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                            = 510
+error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 511
+error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 512
+error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 513
+error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                               = 514
+
+error_PAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                             = 515
+error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                           = 516
+error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                            = 517
+error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                         = 518
+error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND                                    = 519
+error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND                                    = 520
+
+error_WRONG_ROUND_NUMBER                                                                                = 521
+error_LAST_ROUND_IS_NOT_COMPLETE                                                                        = 522
+error_YOU_CANNOT_COMMIT_NOW                                                                             = 523
+error_YOU_CANNOT_REVEAL_NOW                                                                             = 524
+error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW                                                            = 525
+error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT                                                                = 526
+error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL                                                                = 527
+error_ORACLE_DID_NOT_ANSWER                                                                             = 528
+
+
+
+
+
+
+
+
+
+error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                                             = 529
+
+error_SENDER_IS_NOT_TRACKED_AGGREGATOR                                                                  = 530
+error_ONLY_MAINTAINER_ALLOWED                                                                           = 531
+error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED                                                      = 532
+error_ONLY_ADMIN_OR_GOVERNANCE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                   = 533
+
+error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                = 534
+error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                 = 535
+error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                               = 536
+error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 537
+error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 538
+
 error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND                                                                   = 539
 error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND                                                                = 540
 error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND                                                     = 541
 error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND                                                                 = 542
 error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND                                                       = 543
 
+error_AGGREGATOR_ALREADY_TRACKED                                                                        = 544
+error_AGGREGATOR_NOT_TRACKED                                                                            = 545
 
 
 
 
 
 
-error_TOKEN_SALE_CONTRACT_NOT_FOUND                                                                     = 523
-error_ONLY_TOKEN_SALE_CONTRACT_ALLOWED                                                                  = 524
 
-error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                                                            = 525
-error_TOKEN_SALE_HAS_NOT_STARTED                                                                        = 526
-error_WHITELIST_SALE_HAS_NOT_STARTED                                                                    = 527
-error_USER_IS_NOT_WHITELISTED                                                                           = 528
-error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                                                          = 529
-error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                                                              = 530
-error_WHITELIST_MAX_AMOUNT_CAP_REACHED                                                                  = 531
-error_OVERALL_MAX_AMOUNT_CAP_REACHED                                                                    = 532
 
-error_SET_ADMIN_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                             = 533
-error_UPDATE_METADATA_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                       = 534
-error_UPDATE_CONFIG_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                         = 535
-error_ADD_TO_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                      = 536
-error_REMOVE_FROM_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 537
-error_BUY_TOKENS_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 538
+error_ONLY_INITIATOR_CAN_DROP_ACTION                                                                    = 546
+error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                                           = 547
+error_GOVERNANCE_SATELLITE_ACTION_DROPPED                                                               = 548
+error_GOVERNANCE_SATELLITE_ACTION_NOT_FOUND                                                             = 549
+error_GOVERNANCE_SATELLITE_ACTION_EXECUTED                                                              = 550
+error_GOVERNANCE_SATELLITE_ACTION_EXPIRED                                                               = 551
+error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND                                                    = 552
+error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT                                                            = 553
 
-error_GET_CONFIG_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                                  = 539
-error_GET_TREASURY_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                        = 540
-error_GET_WHITELISTED_ADDRESS_OPT_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                    = 541
-error_GET_TOKEN_SALE_RECORD_OPT_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                      = 542
-error_GET_TOKEN_SALE_HAS_STARTED_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 543
-error_GET_WHITELIST_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 544
-error_GET_OVERALL_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                       = 545
+error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                                             = 554
+error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 555
+error_SNAPSHOT_STAKED_MVK_TOTAL_SUPPLY_NOT_FOUND                                                        = 556
+error_SATELLITE_ORACLE_RECORD_NOT_FOUND                                                                 = 557
+
+error_ORACLE_NOT_FOUND                                                                       = 558
+error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND                                                                       = 559
+error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 560
+
+
+error_SET_ADMIN_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                = 561
+error_SET_GOVERNANCE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                           = 562
+error_UPDATE_METADATA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                          = 563
+error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                               = 564
+error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                 = 565
+error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 566
+error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 567
+error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 568
+error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                       = 569
+error_CLAIM_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                    = 570
+error_SET_LAMBDA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 571
+
+error_GET_WHITELIST_CONTRACTS_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                        = 572
+error_GET_GENERAL_CONTRACTS_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                          = 573
+error_GET_TOTAL_VESTED_AMOUNT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                        = 574
+error_GET_VESTEE_BALANCE_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                             = 575
+error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                                 = 576
+error_GET_TOTAL_VESTED_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                               = 577
+error_GET_LAMBDA_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                                 = 578
+error_GET_LAMBDA_LEDGER_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                              = 579
+
+
+
+
+
+
+
+error_TOKEN_SALE_CONTRACT_NOT_FOUND                                                                     = 580
+error_ONLY_TOKEN_SALE_CONTRACT_ALLOWED                                                                  = 581
+
+error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                                                            = 582
+error_TOKEN_SALE_HAS_NOT_STARTED                                                                        = 583
+error_WHITELIST_SALE_HAS_NOT_STARTED                                                                    = 584
+error_USER_IS_NOT_WHITELISTED                                                                           = 585
+error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                                                          = 586
+error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                                                              = 587
+error_WHITELIST_MAX_AMOUNT_CAP_REACHED                                                                  = 588
+error_OVERALL_MAX_AMOUNT_CAP_REACHED                                                                    = 589
+
+error_SET_ADMIN_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                             = 590
+error_UPDATE_METADATA_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                       = 591
+error_UPDATE_CONFIG_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                         = 592
+error_ADD_TO_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                      = 593
+error_REMOVE_FROM_WHITELIST_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                 = 594
+error_BUY_TOKENS_ENTRYPOINT_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                            = 595
+
+error_GET_CONFIG_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                                  = 596
+error_GET_TREASURY_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                                        = 597
+error_GET_WHITELISTED_ADDRESS_OPT_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                    = 598
+error_GET_TOKEN_SALE_RECORD_OPT_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                      = 599
+error_GET_TOKEN_SALE_HAS_STARTED_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 600
+error_GET_WHITELIST_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 601
+error_GET_OVERALL_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                       = 602

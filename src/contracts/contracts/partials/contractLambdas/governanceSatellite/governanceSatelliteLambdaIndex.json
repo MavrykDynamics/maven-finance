@@ -5,54 +5,66 @@
   },
   {
     "index": 1,
-    "name": "lambdaUpdateMetadata"
+    "name": "lambdaSetGovernance"
   },
   {
     "index": 2,
-    "name": "lambdaUpdateConfig"
+    "name": "lambdaUpdateMetadata"
   },
   {
     "index": 3,
-    "name": "lambdaUpdateWhitelistContracts"
+    "name": "lambdaUpdateConfig"
   },
   {
     "index": 4,
-    "name": "lambdaUpdateGeneralContracts"
+    "name": "lambdaUpdateWhitelistContracts"
   },
   {
     "index": 5,
-    "name": "lambdaSuspendSatellite"
+    "name": "lambdaUpdateGeneralContracts"
   },
   {
     "index": 6,
-    "name": "lambdaUnsuspendSatellite"
+    "name": "lambdaSuspendSatellite"
   },
   {
     "index": 7,
-    "name": "lambdaBanSatellite"
+    "name": "lambdaUnsuspendSatellite"
   },
   {
     "index": 8,
-    "name": "lambdaUnbanSatellite"
+    "name": "lambdaBanSatellite"
   },
   {
     "index": 9,
-    "name": "lambdaRemoveAllSatelliteOracles"
+    "name": "lambdaUnbanSatellite"
   },
   {
     "index": 10,
-    "name": "lambdaAddOracleToAggregator"
+    "name": "lambdaRemoveAllSatelliteOracles"
   },
   {
     "index": 11,
-    "name": "lambdaRemoveOracleInAggregator"
+    "name": "lambdaAddOracleToAggregator"
   },
   {
     "index": 12,
-    "name": "lambdaVoteForAction"
+    "name": "lambdaRemoveOracleInAggregator"
   },
   {
     "index": 13,
+    "name": "lambdaRegisterAggregator"
+  },
+  {
+    "index": 14,
+    "name": "lambdaUpdateAggregatorStatus"
+  },
+  {
+    "index": 15,
     "name": "lambdaDropAction"
+  },
+  {
+    "index": 16,
+    "name": "lambdaVoteForAction"
   }
 ]

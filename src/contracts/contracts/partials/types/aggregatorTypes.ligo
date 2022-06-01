@@ -3,8 +3,8 @@ type maintainerType is address;
 
 type metadataType is big_map (string, bytes);
 
-type observationCommitsType     is map (address, bytes);
-type observationRevealsType     is map (address, nat);
+type observationCommitsType      is map (address, bytes);
+type observationRevealsType      is map (address, nat);
 
 type pivotedObservationsType     is map (nat, nat);
 type oracleAddressesType         is map (address, bool);
@@ -13,19 +13,19 @@ type oracleRewardXtzType         is map (address, nat);
 
 // rewards type
 type distributeRewardMvkType is [@layout:comb] record [
-    eligibleSatellites    : set(address);
-    totalStakedMvkReward  : nat;
+    eligibleSatellites          : set(address);
+    totalStakedMvkReward        : nat;
 ]
 type distributeRewardXtzType is [@layout:comb] record [
-    recipient             : address;
-    reward                : nat;
+    recipient                   : address;
+    reward                      : nat;
 ]
 
 
 type deviationTriggerInfosType is  [@layout:comb] record [
-    oracleAddress: address;
-    amount: tez;
-    roundPrice: nat;
+    oracleAddress               : address;
+    amount                      : tez;
+    roundPrice                  : nat;
 ];
 
 type lastCompletedRoundPriceType is  [@layout:comb] record [
@@ -36,21 +36,21 @@ type lastCompletedRoundPriceType is  [@layout:comb] record [
 ];
 
 type lastCompletedRoundPriceReturnType is  [@layout:comb] record [
-    round: nat;
-    price: nat;
-    percentOracleResponse: nat;
-    decimals: nat;
-    priceDateTime: timestamp;  
+    round                       : nat;
+    price                       : nat;
+    percentOracleResponse       : nat;
+    decimals                    : nat;
+    priceDateTime               : timestamp;  
 ];
 
 type setObservationCommitType is  [@layout:comb] record [
-    roundId: nat;
-    sign: bytes;
+    roundId       : nat;
+    sign          : bytes;
 ];
 
 type setObservationRevealType is  [@layout:comb] record [
-    roundId: nat;
-    priceSalted: nat * string * address;
+    roundId       : nat;
+    priceSalted   : nat * string * address;
 ];
 
 type aggregatorConfigType is [@layout:comb] record [
@@ -76,29 +76,30 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
     withdrawRewardStakedMvkIsPaused     : bool;
 ]
 
+type updateConfigParams                 is aggregatorConfigType;
+type setAdminParams                     is address;
+type withdrawRewardXtzParams            is address;
+type withdrawRewardStakedMvkParams      is address;
 
-type isWhiteListedContractParams is address;
-type addOracleParams is address;
-type removeOracleParams is address;
-type requestRateUpdateParams is unit;
-type requestRateUpdateDeviationParams is setObservationCommitType;
-type setObservationCommitParams is setObservationCommitType;
-type setObservationRevealParams is setObservationRevealType;
-type updateConfigParams is aggregatorConfigType;
-type setAdminParams is address;
-type withdrawRewardXtzParams is address;
-type withdrawRewardStakedMvkParams is address;
-type defaultParams is unit;
+type isWhiteListedContractParams        is address;
+type addOracleParams                    is address;
+type removeOracleParams                 is address;
+
+type requestRateUpdateParams            is unit;
+type requestRateUpdateDeviationParams   is setObservationCommitType;
+type setObservationCommitParams         is setObservationCommitType;
+type setObservationRevealParams         is setObservationRevealType;
+
 
 type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: nat;
+  to_       : address;
+  token_id  : nat;
+  amount    : nat;
 ];
 
 type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
+  from_     : address;
+  txs       : list(transferDestination);
 ];
 
 type newTransferType is list(transfer);

@@ -16,19 +16,21 @@ const breakGlassConfig = {
   setObservationCommitIsPaused        : false,
   setObservationRevealIsPaused        : false,
   withdrawRewardXtzIsPaused           : false,
-  withdrawRewardMvkIsPaused           : false
+  withdrawRewardStakedMvkIsPaused     : false
 }
 
 const config = {
   decimals                            : new BigNumber(8),
-  deviationRewardAmountXTZ            : new BigNumber(2600),
+  numberBlocksDelay                   : new BigNumber(2),
   maintainer                          : oracleMaintainer.pkh,
+  
   minimalTezosAmountDeviationTrigger  : new BigNumber(1),
   perthousandDeviationTrigger         : new BigNumber(2),
   percentOracleThreshold              : new BigNumber(49),
-  rewardAmountMVK                     : new BigNumber(1),
-  rewardAmountXTZ                     : new BigNumber(1),
-  numberBlocksDelay                   : new BigNumber(2),
+
+  deviationRewardAmountXtz            : new BigNumber(2600),  
+  rewardAmountStakedMvk               : new BigNumber(1),
+  rewardAmountXtz                     : new BigNumber(1),
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -44,23 +46,23 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 const oracleAddresses = MichelsonMap.fromLiteral({
-  [oracleMaintainer.pkh] : true,
-  [oracle0.pkh] : true,
-  [oracle1.pkh] : true,
-  [oracle2.pkh] : true,
+  [oracleMaintainer.pkh]  : true,
+  [oracle0.pkh]           : true,
+  [oracle1.pkh]           : true,
+  [oracle2.pkh]           : true,
 });
 
 const deviationTriggerInfos = {
-  oracleAddress : oracleMaintainer.pkh,
-  amount : new BigNumber(0),
-  roundPrice: new BigNumber(0),
+  oracleAddress   : oracleMaintainer.pkh,
+  amount          : new BigNumber(0),
+  roundPrice      : new BigNumber(0),
 }
 
 const lastCompletedRoundPrice = {
-  round: new BigNumber(0),
-  price: new BigNumber(0),
-  percentOracleResponse: new BigNumber(0),
-  priceDateTime: '1'
+  round                   : new BigNumber(0),
+  price                   : new BigNumber(0),
+  percentOracleResponse   : new BigNumber(0),
+  priceDateTime           : '1'
 }
 
 export const aggregatorStorage: aggregatorStorageType = {
@@ -72,6 +74,9 @@ export const aggregatorStorage: aggregatorStorageType = {
   
   mvkTokenAddress           : mvkTokenAddress.address,
   governanceAddress         : governanceAddress.address,
+
+  whitelistContracts        : MichelsonMap.fromLiteral({}),
+  generalContracts          : MichelsonMap.fromLiteral({}),
 
   round                     : new BigNumber(0),
   roundStart                : '1',
@@ -85,8 +90,8 @@ export const aggregatorStorage: aggregatorStorageType = {
   observationCommits        : MichelsonMap.fromLiteral({}),
   observationReveals        : MichelsonMap.fromLiteral({}),
 
-  oracleRewardsMVK          : MichelsonMap.fromLiteral({}),
-  oracleRewardsXTZ          : MichelsonMap.fromLiteral({}),
+  oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
+  oracleRewardXtz           : MichelsonMap.fromLiteral({}),
 
   lambdaLedger              : MichelsonMap.fromLiteral({}),
 

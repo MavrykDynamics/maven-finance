@@ -186,7 +186,7 @@ block {
 function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
     
-    checkSenderIsGovernanceOrFactory(s);
+    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -222,7 +222,7 @@ block {
 function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -472,8 +472,8 @@ block{
                 ) then { // -> previous round = deviation trigger
                     const receiver : contract (unit) =
                       case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
-                        Some (contract) -> contract
-                      | None  -> (failwith ("Not a contract") : contract (unit))
+                            Some (contract) -> contract
+                        | None  -> (failwith ("Not a contract") : contract (unit))
                       ];
                     const operation = Tezos.transaction(Unit, s.deviationTriggerInfos.amount, receiver);
                     operations := operation # operations;
@@ -482,9 +482,9 @@ block{
 
                 const newDeviationTriggerInfos: deviationTriggerInfosType =
                       record[
-                          oracleAddress=Tezos.sender;
-                          amount=Tezos.amount;
-                          roundPrice= s.lastCompletedRoundPrice.price;
+                          oracleAddress = Tezos.sender;
+                          amount        = Tezos.amount;
+                          roundPrice    = s.lastCompletedRoundPrice.price;
                       ];
                 
                 const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewards(s);
