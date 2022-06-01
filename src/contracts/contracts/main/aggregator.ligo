@@ -22,7 +22,7 @@
 
 type aggegatorAction is
 
-  | Default                              of defaultParams
+  | Default                              of (unit)
 
     // Housekeeping Entrypoints
   | SetAdmin                             of setAdminParams
@@ -119,6 +119,29 @@ block {
             |   None -> (failwith(error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED): address)
         ];
         if Tezos.sender = aggregatorFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+    };
+
+} with(unit)
+
+
+
+function checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(const s: aggregatorStorage): unit is
+block {
+
+    // First check because a aggregator without a factory should still be accessible
+    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
+    else {
+        const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
+                Some (_address) -> _address
+            |   None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND): address)
+        ];
+
+        const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
+                Some (_address) -> _address
+            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
+        ];
+
+        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -421,7 +444,7 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
   ]
 
 function getRewardAmountXTZ(const oracleAddress: address; const s: aggregatorStorage) : nat is
-  case Map.find_opt(oracleAddress, s.oracleRewardsXTZ) of [
+  case Map.find_opt(oracleAddress, s.oracleRewardXtz) of [
       Some (v) -> (v)
     | None -> 0n
   ]
@@ -541,35 +564,6 @@ block {
 // Helper Functions End
 //
 // ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Views Begin
-//
-// ------------------------------------------------------------------------------
-
-(* View: get last completed round price *)
-[@view] function lastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
-  const withDecimal : lastCompletedRoundPriceReturnType = record [
-    price= s.lastCompletedRoundPrice.price;
-    percentOracleResponse= s.lastCompletedRoundPrice.percentOracleResponse;
-    round= s.lastCompletedRoundPrice.round;
-    decimals= s.config.decimals;
-    priceDateTime= s.lastCompletedRoundPrice.priceDateTime;
-  ]
-} with (withDecimal)
-
-(* View: get decimals *)
-[@view] function decimals (const _ : unit ; const s: aggregatorStorage) : nat is s.config.decimals;
-
-// ------------------------------------------------------------------------------
-//
-// Views End
-//
-// ------------------------------------------------------------------------------
-
   
 
 
@@ -599,10 +593,11 @@ block {
 (* View: get last completed round price *)
 [@view] function lastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
   const withDecimal : lastCompletedRoundPriceReturnType = record [
-    price= s.lastCompletedRoundPrice.price;
-    percentOracleResponse= s.lastCompletedRoundPrice.percentOracleResponse;
-    round= s.lastCompletedRoundPrice.round;
-    decimals= s.config.decimals;
+    round                   = s.lastCompletedRoundPrice.round;
+    price                   = s.lastCompletedRoundPrice.price;
+    percentOracleResponse   = s.lastCompletedRoundPrice.percentOracleResponse;
+    decimals                = s.config.decimals;
+    priceDateTime           = s.lastCompletedRoundPrice.priceDateTime;
   ]
 } with (withDecimal)
 
@@ -612,24 +607,6 @@ block {
 // ------------------------------------------------------------------------------
 //
 // Views End
-//
-// ------------------------------------------------------------------------------
-
-  
-
-
-// ------------------------------------------------------------------------------
-//
-// Lambda Methods Begin
-//
-// ------------------------------------------------------------------------------
-
-// Aggregator Lambdas:
-#include "../partials/contractLambdas/aggregator/aggregatorLambdas.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Lambda Methods End
 //
 // ------------------------------------------------------------------------------
 

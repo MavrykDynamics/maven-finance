@@ -8,16 +8,17 @@ export type governanceSatelliteStorageType = {
   config                              : {};
 
   mvkTokenAddress                     : string;
-  governanceProxyAddress              : string;
+  governanceAddress                   : string;
 
   whitelistContracts                  : MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  governanceSatelliteLedger           : MichelsonMap<MichelsonMapKey, unknown>;
+  governanceSatelliteActionLedger     : MichelsonMap<MichelsonMapKey, unknown>;
   governanceSatelliteSnapshotLedger   : MichelsonMap<MichelsonMapKey, unknown>;
   governanceSatelliteCounter          : BigNumber;
 
-  snapshotStakedMvkTotalSupply        : BigNumber;
+  satelliteOracleLedger               : MichelsonMap<MichelsonMapKey, unknown>;
+  aggregatorLedger                    : MichelsonMap<MichelsonMapKey, unknown>;
 
   lambdaLedger                        : MichelsonMap<MichelsonMapKey, unknown>;
 };

@@ -16,6 +16,7 @@ type satelliteRecordType is [@layout:comb] record [
     name                  : string;     // string for name
     description           : string;     // string for description
     image                 : string;     // ipfs hash
+    website               : string;     // satellite website if it has one
     
     registeredDateTime    : timestamp;  
 ]
@@ -38,8 +39,9 @@ type governanceSatelliteConfigType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 type governanceSatelliteVoteChoiceType is 
-  Approve of unit
-| Disapprove of unit
+  Yay    of unit
+| Nay    of unit
+| Pass   of unit
 
 type governanceSatelliteVoteType is [@layout:comb] record [
   vote              : governanceSatelliteVoteChoiceType;
@@ -66,8 +68,9 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     stringMap                          : stringMapType;
     natMap                             : natMapType;
 
-    approveVoteTotal                   : nat;
-    disapproveVoteTotal                : nat;
+    yayVoteTotal                       : nat;
+    nayVoteTotal                       : nat;
+    passVoteTotal                      : nat;
 
     snapshotStakedMvkTotalSupply       : nat;
     stakedMvkPercentageForApproval     : nat; 
@@ -80,22 +83,23 @@ type governanceSatelliteActionLedgerType is big_map (nat, governanceSatelliteAct
 
 
 type oracleAggregatorPairRecord is [@layout:comb] record [
-  aggregatorPair     : string;      // e.g. BTC/USD
+  aggregatorPair     : string;      // e.g. BTC-USD
   aggregatorAddress  : address; 
   startDateTime      : timestamp;   
 ]
 type aggregatorPairsMapType is map(address, oracleAggregatorPairRecord)
 type satelliteOracleRecordType is [@layout:comb] record [
-  status           : string;                    // ACTIVE / SUSPENDED / BANNED
-  aggregatorPairs  : aggregatorPairsMapType;    // map of aggregators that oracle is providing service for
+  // status           : string;                    // ACTIVE / SUSPENDED / BANNED -> shift to delegation contract
+  aggregatorsSubscribed  : nat;                       // total number of aggregators that satellite is providing data for
+  aggregatorPairs        : aggregatorPairsMapType;    // map of aggregators that satellite oracle is providing service for
 ]
 type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
 
 
 type aggregatorRecordType is [@layout:comb] record [
-  aggregatorPair     : string;
+  aggregatorPair     : string;        // e.g. BTC-USD
   status             : string;        // ACTIVE / INACTIVE
-  startDateTime      : timestamp; 
+  createdTimestamp   : timestamp; 
   oracles            : set(address);
 ]
 type aggregatorLedgerType is big_map(address, aggregatorRecordType)
@@ -134,6 +138,7 @@ type governanceSatelliteUpdateConfigActionType is
   ConfigApprovalPercentage          of unit
 | ConfigSatelliteDurationInDays     of unit
 | ConfigPurposeMaxLength            of unit
+| ConfigVotingPowerRatio            of unit
 
 type governanceSatelliteUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType; 
@@ -180,16 +185,25 @@ type removeOracleInAggregatorActionType is [@layout:comb] record [
 
 
 type dropActionType is [@layout:comb] record [
-    dropActionId      : nat;
+    dropActionId                : nat;
 ]
-
 
 type voteForActionType is [@layout:comb] record [
-    actionId         : nat;
-    vote             : governanceSatelliteVoteChoiceType;
-    purpose          : string;
+    actionId                    : nat;
+    vote                        : governanceSatelliteVoteChoiceType;
+    purpose                     : string;
 ]
 
+type registerAggregatorActionType is [@layout:comb] record [
+  aggregatorPair                : string;        // e.g. BTC-USD  
+  aggregatorAddress             : address; 
+]
+
+type updateAggregatorStatusActionType is [@layout:comb] record [
+  aggregatorAddress             : address;      
+  status                        : string;
+  purpose                       : string;
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -200,6 +214,7 @@ type governanceSatelliteLambdaActionType is
 
   // Housekeeping Lambdas
 | LambdaSetAdmin                      of address
+| LambdaSetGovernance                 of address
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateConfig                  of governanceSatelliteUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
@@ -215,6 +230,10 @@ type governanceSatelliteLambdaActionType is
 | LambdaRemoveAllSatelliteOracles     of removeAllSatelliteOraclesActionType
 | LambdaAddOracleToAggregator         of addOracleToAggregatorActionType
 | LambdaRemoveOracleInAggregator      of removeOracleInAggregatorActionType
+
+  // Aggregator Governance
+| LambdaRegisterAggregator            of registerAggregatorActionType     // callback from governance proxy in creating aggregator contract
+| LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
 
   // Governance Actions
 | LambdaVoteForAction                 of voteForActionType
@@ -232,7 +251,7 @@ type governanceSatelliteStorage is record [
     config                                  : governanceSatelliteConfigType;
 
     mvkTokenAddress                         : address;
-    governanceProxyAddress                  : address; 
+    governanceAddress                       : address; 
 
     whitelistContracts                      : whitelistContractsType;      
     generalContracts                        : generalContractsType;
