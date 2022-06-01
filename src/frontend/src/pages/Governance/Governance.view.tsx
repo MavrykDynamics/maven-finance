@@ -7,6 +7,7 @@ import { EmptyContainer } from '../../app/App.style'
 import { GovernancePhase } from '../../reducers/governance'
 import { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from './Governance.controller'
+import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 
 import {
   GovernanceLeftContainer,
@@ -56,6 +57,7 @@ export const GovernanceView = ({
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const [selectedProposalToShow, setSelectedProposalToShow] = useState<number>(Number(selectedProposal?.id || 1))
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
+  const isProposalPhase = governancePhase === 'PROPOSAL'
   // const options: HTMLReactParserOptions = {
   //   replace: (domNode: any) => {
   //     const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
@@ -155,28 +157,15 @@ export const GovernanceView = ({
             <StatusFlag text={rightSideContent.status} status={rightSideContent.status} />
           </GovRightContainerTitleArea>
           <RightSideSubContent id="votingDeadline">Voting ending on September 12th, 05:16 CEST</RightSideSubContent>
-          {userIsSatellite ? (
-            <>
-              <div className="voted-block">
-                <span className="voted-label">12,324 voted MVK</span>
-                <Button
-                  onClick={() => handleProposalRoundVote(rightSideContent.id)}
-                  loading={loading}
-                  text="Vote for Proposal"
-                  kind="actionPrimary"
-                />
-              </div>
-              <VotingArea
-                ready={ready}
-                loading={loading}
-                accountPkh={accountPkh}
-                handleProposalRoundVote={handleProposalRoundVote}
-                handleVotingRoundVote={handleVotingRoundVote}
-                selectedProposal={rightSideContent}
-                voteStatistics={voteStatistics}
-              />
-            </>
-          ) : null}
+          <VotingArea
+            ready={ready}
+            loading={loading}
+            accountPkh={accountPkh}
+            handleProposalRoundVote={handleProposalRoundVote}
+            handleVotingRoundVote={handleVotingRoundVote}
+            selectedProposal={rightSideContent}
+            voteStatistics={voteStatistics}
+          />
           <hr />
           <article>
             <RightSideSubHeader>Details</RightSideSubHeader>
