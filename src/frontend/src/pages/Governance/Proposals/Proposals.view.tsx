@@ -11,6 +11,7 @@ type ProposalsViewProps = {
   handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
+  firstVisible: boolean
 }
 export const ProposalsView = ({
   listTitle,
@@ -18,13 +19,15 @@ export const ProposalsView = ({
   handleItemSelect,
   selectedProposal,
   isProposalPhase,
+  firstVisible,
 }: ProposalsViewProps) => {
   const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
   const location = useLocation()
 
   useEffect(() => {
-    handleItemSelect(listProposalsArray[0])
-  }, [proposalsList])
+    console.log('%c ||||| firstVisible', 'color:pink', firstVisible)
+    if (firstVisible) handleItemSelect(listProposalsArray[0])
+  }, [proposalsList, firstVisible])
 
   useEffect(() => {
     handleItemSelect(undefined)
@@ -49,10 +52,14 @@ export const ProposalsView = ({
                 <span>{value.id}</span>
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
-              <div>
-                {isProposalPhase && <CommaNumber value={value.passVoteMvkTotal || 0} endingText={'voted MVK'} />}
-                {!isProposalPhase && <StatusFlag text={value?.status} status={value.status} />}
-              </div>
+              {isProposalPhase && (
+                <CommaNumber
+                  className="proposal-voted-mvk"
+                  value={value.passVoteMvkTotal || 0}
+                  endingText={'voted MVK'}
+                />
+              )}
+              <StatusFlag text={value?.status} status={value.status} />
             </ProposalListItem>
           )
         })}
