@@ -122,7 +122,7 @@ type executeActionParamsType is
 | InitFarm                           of (targetFarmInitType)
 | CloseFarm                          of (address)
 
-| CreateTreasury                     of bytes
+| CreateTreasury                     of createTreasuryType
 | TrackTreasury                      of (address)
 | UntrackTreasury                    of (address)
 | TransferTreasury                   of targetTreasuryTransferType

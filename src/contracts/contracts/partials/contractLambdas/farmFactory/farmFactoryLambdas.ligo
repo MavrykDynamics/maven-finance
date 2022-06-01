@@ -117,7 +117,7 @@ block {
                     ];
                 };
 
-                s.config.blocksPerMinute := newBlocksPerMinute;
+                s.blocksPerMinute := newBlocksPerMinute;
 
             }
         | _ -> skip
@@ -300,15 +300,7 @@ block{
                     ("farmFactory")  -> (Tezos.self_address: address);
                     ("council")      -> (councilAddress: address)
                 ];
-
-                // Add FarmFactory Address to doormanContracts of created farm
-                const doormanAddress : address = case s.generalContracts["doorman"] of [ 
-                        Some (_address) -> _address
-                    |   None            -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
-                ];
-                const farmGeneralContracts : generalContractsType = map[
-                    ("doorman") -> (doormanAddress: address)
-                ];
+                const farmGeneralContracts : generalContractsType = map[];
 
                 // Create needed records for farm contract
                 const farmClaimedRewards : claimedRewards = record[
@@ -338,7 +330,7 @@ block{
                     lpToken                     = farmLPToken;
                     infinite                    = farmInfinite;
                     forceRewardFromTransfer     = farmForceRewardFromTransfer;
-                    blocksPerMinute             = s.config.blocksPerMinute;
+                    blocksPerMinute             = s.blocksPerMinute;
                     plannedRewards              = farmPlannedRewards;
                 ];
 
@@ -359,6 +351,7 @@ block{
                     governanceAddress       = s.governanceAddress;
                     metadata                = farmMetadata;
 
+                    name                    = createFarmParams.name;
                     config                  = farmConfig;
                     
                     whitelistContracts      = farmWhitelistContract;      
@@ -377,7 +370,7 @@ block{
                     lambdaLedger            = farmLambdaLedger;
                 ];
 
-                // Do we want to send tez to the farm contract?
+                // Originate the farm
                 const farmOrigination : (operation * address) = createFarmFunc(
                     (None: option(key_hash)), 
                     0tez,
@@ -385,6 +378,30 @@ block{
                 );
 
                 s.trackedFarms := Set.add(farmOrigination.1, s.trackedFarms);
+
+                // Add the farm to the governance general contracts map
+                if createFarmParams.addToGeneralContracts then {
+                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                        generalContractName    = createFarmParams.name;
+                        generalContractAddress = farmOrigination.1;
+                    ];
+
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                        Some (contr) -> contr
+                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                    ];
+
+                    // updateContractGeneralMap operation
+                    const updateContractGeneralMapOperation : operation = Tezos.transaction(
+                        updateGeneralMapRecord,
+                        0tez, 
+                        updateContractGeneralMapEntrypoint
+                    );
+
+                    operations := updateContractGeneralMapOperation # operations;
+
+                }
+                else skip;
 
                 operations := farmOrigination.0 # operations;
 

@@ -270,9 +270,13 @@ function transferReward(const depositor: depositor; const tokenAmount: tokenBala
 block{
 
     // Call farmClaim from the doorman contract
-    const doormanContractAddress: address = case Map.find_opt("doorman", s.generalContracts) of [
-        Some (a) -> a
-    |   None -> (failwith(error_DOORMAN_CONTRACT_NOT_FOUND): address)
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+    const doormanContractAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     
     const doormanContract: contract(farmClaimType) =
@@ -361,7 +365,7 @@ block{
         ];
 
     // Compute depositor reward
-    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
+    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationRewardsPerShare;
     const accumulatedRewardsPerShareEnd: tokenBalance = s.accumulatedRewardsPerShare;
     if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
     const currentMVKPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
@@ -374,9 +378,9 @@ block{
         paid=s.claimedRewards.paid + depositorReward;
     ];
 
-    // Update user's unclaimed rewards and participationMVKPerShare
+    // Update user's unclaimed rewards and participationRewardsPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
-    depositorRecord.participationMVKPerShare := accumulatedRewardsPerShareEnd;
+    depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
     s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
 } with(s)
@@ -434,80 +438,86 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function admin(const _: unit; var s : farmStorage) : address is
+  s.admin
+
+
+
 (*  View: get config *)
-[@view] function getConfig(const _: unit; const s: farmStorage) : farmConfigType is
+[@view] function config(const _: unit; const s: farmStorage) : farmConfigType is
   s.config
 
 
 
 (*  View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; const s: farmStorage) : whitelistContractsType is
+[@view] function whitelistContracts(const _: unit; const s: farmStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (*  View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; const s: farmStorage) : generalContractsType is
+[@view] function generalContracts(const _: unit; const s: farmStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (*  View: get break glass config *)
-[@view] function getBreakGlassConfig(const _: unit; const s: farmStorage) : farmBreakGlassConfigType is
+[@view] function breakGlassConfig(const _: unit; const s: farmStorage) : farmBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (*  View: get last block update *)
-[@view] function getLastBlockUpdate(const _: unit; const s: farmStorage) : nat is
+[@view] function lastBlockUpdate(const _: unit; const s: farmStorage) : nat is
   s.lastBlockUpdate
 
 
 
 (*  View: get last block update *)
-[@view] function getAccumulatedRewardsPerShare(const _: unit; const s: farmStorage) : nat is
+[@view] function accumulatedRewardsPerShare(const _: unit; const s: farmStorage) : nat is
   s.accumulatedRewardsPerShare
 
 
 
 (*  View: get claimed rewards *)
-[@view] function getClaimedRewards(const _: unit; const s: farmStorage) : claimedRewards is
+[@view] function claimedRewards(const _: unit; const s: farmStorage) : claimedRewards is
   s.claimedRewards
 
 
 
 (*  View: get depositor *)
-[@view] function getDepositorOpt(const depositorAddress: depositor; const s: farmStorage) : option(depositorRecord) is
+[@view] function depositorOpt(const depositorAddress: depositor; const s: farmStorage) : option(depositorRecord) is
   Big_map.find_opt(depositorAddress, s.depositors)
 
 
 
 (*  View: get open *)
-[@view] function getOpen(const _: unit; const s: farmStorage) : bool is
+[@view] function open(const _: unit; const s: farmStorage) : bool is
   s.open
 
 
 
 (*  View: get init *)
-[@view] function getInit(const _: unit; const s: farmStorage) : bool is
+[@view] function init(const _: unit; const s: farmStorage) : bool is
   s.init
 
 
 
 (*  View: get init block *)
-[@view] function getInitBlock(const _: unit; const s: farmStorage) : nat is
+[@view] function initBlock(const _: unit; const s: farmStorage) : nat is
   s.initBlock
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorage) : option(bytes) is
+[@view] function lambdaOpt(const lambdaName: string; var s : farmStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : farmStorage) : lambdaLedgerType is
+[@view] function lambdaLedger(const _: unit; var s : farmStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

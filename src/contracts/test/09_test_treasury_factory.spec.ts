@@ -160,7 +160,11 @@
 //                     treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury",
+//                         true,
+//                         treasuryMetadataBase
+//                     ).send()).to.be.rejected;
     
 //                     // Reset admin
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
@@ -366,7 +370,10 @@
 //             it('Admin should be able to call this entrypoint', async () => {
 //                 try{
 //                     // Operation
-//                     const operation = await treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send();
+//                     const operation = await treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury1",
+//                         true,
+//                         treasuryMetadataBase).send();
 //                     await operation.confirmation()
 
 //                     // Final values
@@ -386,7 +393,10 @@
 //                 try{
 //                     // Operation
 //                     await signerFactory(alice.sk);
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.eventually.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury",
+//                         false,
+//                         treasuryMetadataBase).send()).to.be.eventually.rejected;
 //                 }catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -406,7 +416,11 @@
 //                     treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury",
+//                         false,
+//                         treasuryMetadataBase
+//                     ).send()).to.be.rejected;
     
 //                     // Reset admin
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();

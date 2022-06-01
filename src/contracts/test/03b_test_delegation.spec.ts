@@ -507,9 +507,12 @@
 //                   throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Metadata#1": packedUpdateConfigSuccessRewardParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Metadata#1",
+//                         data: packedUpdateConfigSuccessRewardParam
+//                     }
+//                 ]
 
 //                 // Initial governance storage operations
 //                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
@@ -658,9 +661,12 @@
 //                   throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Metadata#1": packedUpdateConfigSuccessRewardParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Metadata#1",
+//                         data: packedUpdateConfigSuccessRewardParam
+//                     }
+//                 ]
 
 //                 // Initial governance storage operations
 //                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
@@ -769,14 +775,14 @@
 //                 delegationStorage = await delegationInstance.storage();
 
 //                 // Preparation operation
-//                 var updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 
 //                 // Distribute Operation
 //                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
 
 //                 // Reset operation
-//                 updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 //             }
 //             catch(e) {
@@ -790,14 +796,14 @@
 //                 delegationStorage = await delegationInstance.storage();
 
 //                 // Preparation operation
-//                 var updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+//                 var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 
 //                 // Distribute Operation
 //                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
 
 //                 // Reset operation
-//                 updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+//                 updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 //             }
 //             catch(e) {

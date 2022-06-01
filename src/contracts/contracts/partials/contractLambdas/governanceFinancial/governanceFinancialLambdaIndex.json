@@ -21,26 +21,30 @@
   },
   {
     "index": 5,
-    "name": "lambdaUpdateWhitelistTokenContracts"
+    "name": "lambdaUpdateWhitelistContracts"
   },
   {
     "index": 6,
-     "name": "lambdaRequestTokens"
+    "name": "lambdaUpdateWhitelistTokenContracts"
   },
   {
     "index": 7,
-    "name": "lambdaRequestMint"
+     "name": "lambdaRequestTokens"
   },
   {
     "index": 8,
-    "name": "lambdaSetContractBaker"
+    "name": "lambdaRequestMint"
   },
   {
     "index": 9,
-    "name": "lambdaDropFinancialRequest"
+    "name": "lambdaSetContractBaker"
   },
   {
     "index": 10,
+    "name": "lambdaDropFinancialRequest"
+  },
+  {
+    "index": 11,
     "name": "lambdaVoteForRequest"
   }
 ]

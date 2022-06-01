@@ -917,7 +917,7 @@
 
 //                 // Update config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 
 //                 // Operations
@@ -926,7 +926,7 @@
 
 //                 // Reset config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -983,7 +983,7 @@
 
 //                 // Update config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 
 //                 // Operations
@@ -992,7 +992,7 @@
 
 //                 // Reset config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -1153,7 +1153,7 @@
 //         });
 //     });
 
-//     describe('%togglePauseStake', function() {
+//     describe('%togglePauseStakeMvk', function() {
 //         beforeEach("Set signer to admin", async () => {
 //             await signerFactory(bob.sk)
 //         });
@@ -1161,7 +1161,7 @@
 //             try{
 //                 // Initial Values
 //                 treasuryStorage                 = await treasuryInstance.storage();
-//                 const isPausedStart             = treasuryStorage.breakGlassConfig.stakeIsPaused
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.stakeMvkIsPaused
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
@@ -1170,7 +1170,7 @@
 
 //                 // Final values
 //                 treasuryStorage       = await treasuryInstance.storage();
-//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeIsPaused
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeMvkIsPaused
 
 //                 await chai.expect(treasuryInstance.methods.stakeMvk(
 //                     amount,
@@ -1197,7 +1197,7 @@
 //         });
 //     });
 
-//     describe('%togglePauseUnstake', function() {
+//     describe('%togglePauseUnstakeMvk', function() {
 //         beforeEach("Set signer to admin", async () => {
 //             await signerFactory(bob.sk)
 //         });
@@ -1205,7 +1205,7 @@
 //             try{
 //                 // Initial Values
 //                 treasuryStorage                 = await treasuryInstance.storage();
-//                 const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeIsPaused
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeMvkIsPaused
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
@@ -1214,7 +1214,7 @@
 
 //                 // Final values
 //                 treasuryStorage       = await treasuryInstance.storage();
-//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeIsPaused
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeMvkIsPaused
 
 //                 await chai.expect(treasuryInstance.methods.unstakeMvk(
 //                     amount,

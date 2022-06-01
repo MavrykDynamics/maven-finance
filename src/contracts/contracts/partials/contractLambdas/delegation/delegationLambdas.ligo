@@ -367,9 +367,13 @@ block {
                 | None -> failwith(error_SATELLITE_NOT_FOUND)
             ];
 
-            const doormanAddress : address = case s.generalContracts["doorman"] of [
-            Some(_address) -> _address
-            | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+            const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+            const doormanAddress: address = case generalContractsOptView of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                    ]
+            |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
             // enable redelegation of satellites even if a user is delegated to a satellite already - easier alternative -> batch call undelegateFromSatellite, then delegateToSatellite
@@ -409,7 +413,7 @@ block {
 
             } else block {
 
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                     Some (value) -> value
                 | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
@@ -489,15 +493,19 @@ block {
                     | None -> failwith(error_DELEGATE_NOT_FOUND)
                 ];
 
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                     Some (value) -> value
-                | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                | None         -> (failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
                 
                 var emptySatelliteRecord : satelliteRecordType :=
@@ -585,15 +593,19 @@ block {
                 if Map.size(s.satelliteLedger) >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_REACHED) else skip;
 
                 // Get user stake balance
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                     Some (value) -> value
-                | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                | None         -> (failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // lock satellite's sMVK amount -> bond? 
@@ -768,13 +780,22 @@ block {
             const totalReward: nat = distributeRewardParams.totalSMvkReward;
 
             // Send the rewards from the treasury to the doorman contract
-            const treasuryAddress: address  = case Map.find_opt("satelliteTreasury", s.generalContracts) of [
-                Some (_treasury) -> _treasury
-            |   None -> failwith(error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND)
+            const generalContractsOptViewSatelliteTreasury : option (option(address)) = Tezos.call_view ("generalContractOpt", "satelliteTreasury", s.governanceAddress);
+            const treasuryAddress: address = case generalContractsOptViewSatelliteTreasury of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND)
+                    ]
+            |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
-            const doormanAddress: address  = case Map.find_opt("doorman", s.generalContracts) of [
-                Some (_treasury) -> _treasury
-            |   None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+
+            const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+            const doormanAddress: address = case generalContractsOptViewDoorman of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                    ]
+            |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
             // Check if provided treasury exists
             const transferParam: transferActionType = list[
@@ -858,9 +879,13 @@ block {
                 const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
 
                 // Check sender is doorman contract
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                Some(_address) -> _address
-                | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 if doormanAddress = Tezos.sender then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
@@ -889,17 +914,11 @@ block {
                 // check if user is a satellite
                 if userIsSatellite then block {
 
-                    // Find doorman address
-                    const doormanAddress : address = case s.generalContracts["doorman"] of [
-                        Some(_address) -> _address
-                        | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
-                    ];
-
                     // Get user SMVK Balance
-                    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
                     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                         Some (value) -> value
-                    | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                    | None -> (failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                     ];
 
                     var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
@@ -925,17 +944,12 @@ block {
 
                     const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
                     if userHasActiveSatellite then block {
-                        // Find doorman address
-                        const doormanAddress : address = case s.generalContracts["doorman"] of [
-                            Some(_address) -> _address
-                            | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ];
 
                         // Get user SMVK Balance
-                        const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                        const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
                         const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                             Some (value) -> value
-                        | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                        | None -> (failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                         ];
 
                         var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
