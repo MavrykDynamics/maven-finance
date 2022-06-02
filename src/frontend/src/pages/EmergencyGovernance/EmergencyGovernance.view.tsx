@@ -47,7 +47,6 @@ export const EmergencyGovernanceView = ({
   selectedProposal,
   voteStatistics,
 }: Props) => {
-  console.log('%c ||||| emergencyGovernanceActive', 'color:yellowgreen', emergencyGovernanceActive)
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
       <CardContent>

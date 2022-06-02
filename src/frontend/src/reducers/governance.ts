@@ -14,8 +14,14 @@ import {
   VOTING_ROUND_VOTING_ERROR,
   VOTING_ROUND_VOTING_REQUEST,
   VOTING_ROUND_VOTING_RESULT,
+  GET_CURRENT_ROUND_PROPOSALS,
 } from 'pages/Governance/Governance.actions'
-import { GovernanceConfig, GovernanceStorage } from '../utils/TypesAndInterfaces/Governance'
+import {
+  GovernanceConfig,
+  GovernanceStorage,
+  ProposalRecordType,
+  CurrentRoundProposalsStorageType,
+} from '../utils/TypesAndInterfaces/Governance'
 import {
   PROPOSAL_UPDATE_ERROR,
   SUBMIT_FINANCIAL_DATA_REQUEST,
@@ -29,6 +35,7 @@ const PROPOSAL = 'PROPOSAL',
   TIME_LOCK = 'TIME_LOCK'
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
+  currentRoundProposals: CurrentRoundProposalsStorageType
   governanceStorage: GovernanceStorage | any
   governancePhase: GovernancePhase
   form?: any
@@ -70,10 +77,16 @@ const defaultGovernanceStorage: GovernanceStorage = {
 const governanceDefaultState: GovernanceState = {
   governanceStorage: getItemFromStorage('GovernanceStorage') || defaultGovernanceStorage,
   governancePhase: 'PROPOSAL',
+  currentRoundProposals: undefined,
 }
 
 export function governance(state = governanceDefaultState, action: any): GovernanceState {
   switch (action.type) {
+    case GET_CURRENT_ROUND_PROPOSALS:
+      return {
+        ...state,
+        currentRoundProposals: action.currentRoundProposals,
+      }
     case GET_GOVERNANCE_STORAGE:
       return {
         ...state,

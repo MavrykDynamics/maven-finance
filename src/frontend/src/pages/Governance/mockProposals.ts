@@ -800,3 +800,50 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     },
   ],
 ])
+
+export const MOCK_EXEC_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
+  [
+    '0',
+    {
+      id: 5066393,
+
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
+
+      title: 'Grant Program V3',
+      details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
+      description:
+        'Mavryk Governance is at a major crossroads, struggling with how to deploy larger tranches of capital from its treasury with effective oversight.',
+      invoice: 'https://ipfs.infura.io/ipfs/bafybeigce6thkldylhsj6iqhfyl6a3mjef6cv2atf25e2nnuof6qdhtfl4',
+      invoiceTable:
+        '{"myrows":[{"Satellite Name":"Satellite A","Satellite Address":"tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb","Purpose":"Code Audit","Amount":"1000","Token":"MVK"},{"Satellite Name":"Satellite B","Satellite Address":"tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6","Purpose":"Implement Code","Amount":"500","Token":"XTZ"}]}',
+
+      successReward: 1235,
+      executed: true,
+      locked: false,
+
+      passVoteMvkTotal: 0,
+      upvoteMvkTotal: 4898123,
+      abstainMvkTotal: 50000,
+      downvoteMvkTotal: 340998,
+      votes: new Map<string, ProposalVote>(),
+
+      minQuorumMvkTotal: 5000000,
+      minQuorumPercentage: 64.89,
+      quorumMvkTotal: 0,
+      startDateTime: new Date(),
+
+      currentCycleEndLevel: 626004,
+      currentCycleStartLevel: 591444,
+
+      status: ProposalStatus.WAITING,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
+    },
+  ],
+])
+

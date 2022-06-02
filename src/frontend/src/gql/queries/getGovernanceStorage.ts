@@ -89,36 +89,115 @@ export const GOVERNANCE_STORAGE_QUERY = `
       status
       success_reward
       title
-      up_vote_mvk_total
       votes {
         current_round_vote
         governance_proposal_record_id
         id
         round
-        timestamp
         vote
         voter_id
         voting_power
       }
-    }
-    governance_proposal_record_metadata {
-      governance_proposal_record_id
-      id
-      metadata
-      name
-    }
-    governance_satellite_snapshot_record {
-      current_cycle_end_level
-      current_cycle_start_level
-      satellite_id
-      total_delegated_amount
-      total_mvk_balance
-      total_voting_power
-      id
+      abstain_vote_count
+      down_vote_count
+      execution_counter
       governance_id
+      payment_processed
+      pass_vote_count
+      quorum_vote_count
+      up_vote_count
+      up_vote_mvk_total
+      proposal_data {
+        bytes
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+      }
+      proposal_payments {
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+        to__id
+        token_address
+        token_amount
+        token_id
+        token_standard
+      }
     }
   }
 `
 
 export const GOVERNANCE_STORAGE_QUERY_NAME = 'GetGovernanceStorageQuery'
 export const GOVERNANCE_STORAGE_QUERY_VARIABLE = {}
+
+export const CURRENT_ROUND_PROPOSALS_QUERY = `
+  query GetCurrentRoundProposalsQuery {
+    governance_proposal_record(where: {current_round_proposal: {_eq: true}}) {
+      abstain_mvk_total
+      current_cycle_end_level
+      current_cycle_start_level
+      current_round_proposal
+      cycle
+      description
+      down_vote_mvk_total
+      id
+      executed
+      invoice
+      locked
+      min_proposal_round_vote_pct
+      pass_vote_mvk_total
+      min_quorum_percentage
+      min_quorum_mvk_total
+      min_proposal_round_vote_req
+      proposer_id
+      quorum_mvk_total
+      source_code
+      start_datetime
+      status
+      success_reward
+      title
+      votes {
+        current_round_vote
+        governance_proposal_record_id
+        id
+        round
+        vote
+        voter_id
+        voting_power
+      }
+      abstain_vote_count
+      down_vote_count
+      execution_counter
+      governance_id
+      payment_processed
+      pass_vote_count
+      quorum_vote_count
+      up_vote_count
+      up_vote_mvk_total
+      proposal_data {
+        bytes
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+      }
+      proposal_payments {
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+        to__id
+        token_address
+        token_amount
+        token_id
+        token_standard
+      }
+    }
+  }
+`
+
+export const CURRENT_ROUND_PROPOSALS_QUERY_NAME = 'GetCurrentRoundProposalsQuery'
+export const CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE = {}
+

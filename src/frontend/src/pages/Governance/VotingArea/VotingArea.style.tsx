@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import { cyanColor } from 'styles'
 
 export const VotingAreaStyled = styled.article`
   display: flex;
@@ -11,6 +12,26 @@ export const VotingAreaStyled = styled.article`
 
   > button {
     max-width: 40%;
+  }
+
+  .voted-block {
+    display: flex;
+    align-items: center;
+    padding-top: 30px;
+    width: 100%;
+
+    button {
+      width: 194px;
+      margin-left: auto;
+      margin-right: 0;
+    }
+  }
+
+  .voted-label {
+    color: ${cyanColor};
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 18px;
   }
 `
 

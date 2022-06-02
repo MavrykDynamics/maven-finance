@@ -44,25 +44,25 @@ export const VotingArea = ({
   }
   const totalMVKVoted =
     voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
+
   return (
     <>
-      <VotingBar
-        totalMVKVoted={totalMVKVoted}
-        totalCirculatingMVKSupply={mvkTokenStorage.totalSupply}
-        voteStatistics={voteStatistics}
-        loading={loading}
-      />
+      {ready && governancePhase === 'VOTING' && accountPkhIsSatellite ? (
+        <VotingBar
+          totalMVKVoted={totalMVKVoted}
+          totalCirculatingMVKSupply={mvkTokenStorage.totalSupply}
+          voteStatistics={voteStatistics}
+          loading={loading}
+        />
+      ) : null}
       <VotingAreaStyled>
         {!ready && ready && governancePhase !== 'TIME_LOCK' && (
-          <>
-            <ConnectWalletStyled>
-              <NoWalletConnectedButton handleConnect={handleConnect} />
-            </ConnectWalletStyled>
-            <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
-          </>
+          <div className="voted-block">
+            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <NoWalletConnectedButton handleConnect={handleConnect} />
+          </div>
         )}
-        {/* TODO - for test */}
-        {/* {true && ( */}
+
         {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
           <VotingButtonsContainer>
             <Button
@@ -88,22 +88,24 @@ export const VotingArea = ({
             />
           </VotingButtonsContainer>
         )}
+
         {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && (
-          <VotingButtonsContainer className={governancePhase}>
+          <div className="voted-block">
+            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
             <Button
               text={'Vote for this Proposal'}
               onClick={() => handleProposalRoundVote(Number(selectedProposal.id))}
               type={SUBMIT}
-              kind={'transparent'}
+              kind="actionPrimary"
               loading={loading}
             />
-            <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
-          </VotingButtonsContainer>
+          </div>
         )}
+
         {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && (
-          <VotingButtonsContainer>
-            <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
-          </VotingButtonsContainer>
+          <div className="voted-block">
+            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+          </div>
         )}
       </VotingAreaStyled>
     </>
