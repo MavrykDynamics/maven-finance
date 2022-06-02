@@ -122,3 +122,34 @@ export const TreasuryViewStyle = styled(Card)`
     padding-right: 16px;
   }
 ` //TreasuryViewStyle
+
+export const TreasuryActiveStyle = styled.section`` //TreasuryActiveStyle
+export const TreasurySelectStyle = styled(Card)`
+  display: flex;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 17px;
+  padding-bottom: 17px;
+
+  & + div {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none;
+  }
+
+  h2 {
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 22px;
+    color: ${headerColor};
+
+    & + div {
+      width: 502px;
+      margin-left: auto;
+      margin-right: 0;
+    }
+  }
+` //TreasurySelectStyle
