@@ -327,43 +327,43 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : treasuryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : treasuryStorage) : address is
   s.admin
 
 
 
 (* View: get break glass config *)
-[@view] function breakGlassConfig(const _: unit; var s : treasuryStorage) : treasuryBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _: unit; var s : treasuryStorage) : treasuryBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; var s : treasuryStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : treasuryStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function whitelistTokenContracts(const _: unit; var s : treasuryStorage) : whitelistTokenContractsType is
+[@view] function getWhitelistTokenContracts(const _: unit; var s : treasuryStorage) : whitelistTokenContractsType is
   s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : treasuryStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : treasuryStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : treasuryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : treasuryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : treasuryStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

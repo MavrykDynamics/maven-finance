@@ -341,55 +341,55 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : councilStorage) : address is
+[@view] function getAdmin(const _: unit; var s : councilStorage) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function config(const _: unit; var s : councilStorage) : councilConfigType is
+[@view] function getConfig(const _: unit; var s : councilStorage) : councilConfigType is
   s.config
 
 
 
 (* View: get council members *)
-[@view] function councilMembers(const _: unit; var s : councilStorage) : councilMembersType is
+[@view] function getCouncilMembers(const _: unit; var s : councilStorage) : councilMembersType is
   s.councilMembers
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; var s : councilStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : councilStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : councilStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : councilStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get a council action *)
-[@view] function councilActionOpt(const actionId: nat; var s : councilStorage) : option(councilActionRecordType) is
+[@view] function getCouncilActionOpt(const actionId: nat; var s : councilStorage) : option(councilActionRecordType) is
   Big_map.find_opt(actionId, s.councilActionsLedger)
 
 
 
 (* View: get the action counter *)
-[@view] function actionCounter(const _: unit; var s : councilStorage) : nat is
+[@view] function getActionCounter(const _: unit; var s : councilStorage) : nat is
   s.actionCounter
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : councilStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : councilStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : councilStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : councilStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

@@ -191,22 +191,31 @@ class DoormanContract(TestCase):
         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
-        finalFarmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
+        finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob)
+            res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
         
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
         
         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                farmFactoryAddress+"%checkFarmExists": True,
-                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getMaximumSupply": mvkMaximumSupply,
+                governanceAddress+"%getGeneralContractOpt": farmFactoryAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                farmFactoryAddress+"%checkFarmExists": True
             });
 
         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
@@ -290,10 +299,14 @@ class DoormanContract(TestCase):
         res = self.doormanContract.unpauseAll().interpret(storage=res.storage, sender=bob)
 
         # Tests operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-            mvkTokenAddress+"%getTotalSupply": int(init_mvk_storage['totalSupply'])
-        })
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
         res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
         
         # Final values
@@ -354,12 +367,16 @@ class DoormanContract(TestCase):
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-            })
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
         
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
@@ -413,7 +430,10 @@ class DoormanContract(TestCase):
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
 
         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
 
@@ -439,7 +459,10 @@ class DoormanContract(TestCase):
             finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
 
             # Tests operations
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
 
             self.assertEqual(stakeIsPaused, finalStakeIsPaused)
 
@@ -467,11 +490,15 @@ class DoormanContract(TestCase):
         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
 
         # Tests operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-            })
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
 
@@ -498,10 +525,14 @@ class DoormanContract(TestCase):
             finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
 
             # Tests operations
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-            })
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
             self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
 
@@ -638,8 +669,9 @@ class DoormanContract(TestCase):
         # Operations
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
             self.doormanContract.stake( stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                governanceAddress+"%getGeneralContractOpt": None
-            })
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
 
         print('----')
         print('✅ User tries to stake while doorman does not have delegation contract in generalContracts')
@@ -657,10 +689,14 @@ class DoormanContract(TestCase):
         mvkTotalSupply = self.MVK(100)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-            mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-        })
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         print('----')
         print('✅ MVK Token contract tries to call unstake')
@@ -676,13 +712,15 @@ class DoormanContract(TestCase):
 
         # Operations
         res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                governanceAddress+"%getGeneralContractOpt": None
-            })
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
             self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-            })
+                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         print('----')
         print('✅ MVK Token contract tries to call unstake while doorman does not have delegation contract in generalContracts')
@@ -696,7 +734,10 @@ class DoormanContract(TestCase):
         unstakeAmount = self.MVK(2)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         with self.raisesMichelsonError(error_codes.error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED):
             self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, source=bob, view_results={
                 mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply'],
@@ -716,7 +757,10 @@ class DoormanContract(TestCase):
         stakeAmount = self.MVK(2)
 
         # Operations
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
             self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob, source=bob);
@@ -741,12 +785,16 @@ class DoormanContract(TestCase):
 
         # Test operation
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob);
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
             res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-            })
+                mvkTokenAddress+"%getTotalSupply": self.MVK(100),
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         newAmount = res.storage['minMvkAmount']
 
@@ -773,12 +821,16 @@ class DoormanContract(TestCase):
 
         # Test operation
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob);
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
             res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-            })
+                mvkTokenAddress+"%getTotalSupply": self.MVK(100),
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         newAmount = res.storage['minMvkAmount']
 
@@ -803,10 +855,14 @@ class DoormanContract(TestCase):
             res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
 
         # Test operation
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": delegationAddress,
+                governanceAddress+"%getGeneralContractOpt": delegationAddress
+            });
         res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-            mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-        })
+                mvkTokenAddress+"%getTotalSupply": self.MVK(100),
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         newAmount = res.storage['minMvkAmount']
 
@@ -832,11 +888,14 @@ class DoormanContract(TestCase):
             res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=alice);
 
         # Test operation
-        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob);
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob, view_results={
+            governanceAddress+"%getGeneralContractOpt": delegationAddress,
+            governanceAddress+"%getGeneralContractOpt": delegationAddress
+        });
         res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, source=bob, view_results={
-            mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply'],
-            delegationAddress+"%getSatelliteRewardsOpt": None
-        })
+                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply'],
+                mvkTokenAddress+"%getBalance": self.MVK(2),
+            });
 
         newAmount = res.storage['minMvkAmount']
 

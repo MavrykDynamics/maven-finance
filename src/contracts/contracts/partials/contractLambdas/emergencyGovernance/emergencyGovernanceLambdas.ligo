@@ -161,32 +161,32 @@ block {
             then failwith(error_TEZ_FEE_UNPAID) 
             else skip;
             
-            const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("generalContractOpt", "taxTreasury", s.governanceAddress);
+            const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "taxTreasury", s.governanceAddress);
             const treasuryAddress: address = case generalContractsOptViewTax of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_TAX_TREASURY_CONTRACT_NOT_FOUND)
                     ]
-            |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
             const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
             const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
 
             // check if user has sufficient staked MVK to trigger emergency control
-            const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+            const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
             const doormanAddress: address = case generalContractsOptViewDoorman of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
                     ]
-            |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
-            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
+            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
             const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                 Some (value) -> value
-              | None         -> (failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+              | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
             ];
             
             if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
@@ -194,10 +194,10 @@ block {
             else skip;
 
             // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
-            const balanceView : option (nat) = Tezos.call_view ("balance", doormanAddress, s.mvkTokenAddress);
+            const balanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
             const stakedMvkTotalSupply: nat = case balanceView of [
                 Some (value) -> value
-            | None -> (failwith (error_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+            | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
             ];
 
             var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
@@ -273,20 +273,20 @@ block {
                 // Check is user already voted
                 if not Map.mem(userAddress, _emergencyGovernance.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
-                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptViewDoorman of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 
                 // get user staked MVK Balance
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None         -> failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
+                    | None         -> failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
 
                 if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
@@ -306,13 +306,13 @@ block {
                 // check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
 
-                    const generalContractsOptViewBreakGlass : option (option(address)) = Tezos.call_view ("generalContractOpt", "breakGlass", s.governanceAddress);
+                    const generalContractsOptViewBreakGlass : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "breakGlass", s.governanceAddress);
                     const breakGlassContractAddress: address = case generalContractsOptViewBreakGlass of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_BREAK_GLASS_CONTRACT_NOT_FOUND)
                             ]
-                    |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                     ];
                     const governanceContractAddress : address = s.governanceAddress;
 

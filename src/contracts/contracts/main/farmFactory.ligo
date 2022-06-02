@@ -217,7 +217,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : farmFactoryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : farmFactoryStorage) : address is
   s.admin
 
 
@@ -228,44 +228,44 @@ block {
 
 
 
-(* View: get blocks per minute *)
-[@view] function blocksPerMinute (const _: unit; const s: farmFactoryStorage): nat is 
-    s.blocksPerMinute
+(* View: get config *)
+[@view] function getConfig (const _: unit; const s: farmFactoryStorage): farmFactoryConfigType is 
+    s.config
 
 
 
 (* View: get break glass config *)
-[@view] function breakGlassConfig (const _: unit; const s: farmFactoryStorage): farmFactoryBreakGlassConfigType is 
+[@view] function getBreakGlassConfig (const _: unit; const s: farmFactoryStorage): farmFactoryBreakGlassConfigType is 
     s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts (const _: unit; const s: farmFactoryStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: farmFactoryStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts (const _: unit; const s: farmFactoryStorage): generalContractsType is 
+[@view] function getGeneralContracts (const _: unit; const s: farmFactoryStorage): generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get tracked farms *)
-[@view] function trackedFarms (const _: unit; const s: farmFactoryStorage): set(address) is 
+[@view] function getTrackedFarms (const _: unit; const s: farmFactoryStorage): set(address) is 
     s.trackedFarms
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 

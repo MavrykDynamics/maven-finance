@@ -222,31 +222,31 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : vestingStorage) : address is
+[@view] function getAdmin(const _: unit; var s : vestingStorage) : address is
   s.admin
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; var s : vestingStorage) : whitelistContractsType is 
+[@view] function getWhitelistContracts(const _: unit; var s : vestingStorage) : whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : vestingStorage) : generalContractsType is 
+[@view] function getGeneralContracts(const _: unit; var s : vestingStorage) : generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get total vested amount *)
-[@view] function totalVestedAmount(const _: unit; var s : vestingStorage) : nat is 
+[@view] function getTotalVestedAmount(const _: unit; var s : vestingStorage) : nat is 
     s.totalVestedAmount
 
 
 
 (* View: get total vesting remainder of vestee *)
-[@view] function vesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
+[@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
     case s.vesteeLedger[vesteeAddress] of [ 
           Some(_record) -> _record.totalRemainder
         | None          -> failwith(error_VESTEE_NOT_FOUND)
@@ -255,19 +255,19 @@ block {
 
 
 (* View: get vestee record *)
-[@view] function vesteeOpt(const vesteeAddress : address; var s : vestingStorage) : option(vesteeRecordType) is 
+[@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorage) : option(vesteeRecordType) is 
     Big_map.find_opt(vesteeAddress, s.vesteeLedger)
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : vestingStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : vestingStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : vestingStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : vestingStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
