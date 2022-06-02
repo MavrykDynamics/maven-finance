@@ -279,29 +279,31 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
         proposalVotingHistory.push(newRequestVote)
       },
     )
-    satelliteRecord.governance_financial_requests_votes.forEach(
-      (vote: {
-        id: any
-        governance_financial_request_id: any
-        round: any
-        timestamp: string | number | Date
-        vote: any
-        voter_id: any
-        voting_power: string
-        governance_financial_request: any
-      }) => {
-        const newRequestVote: SatelliteFinancialRequestVotingHistory = {
-          id: vote.id,
-          governanceFinancialRequestId: vote.governance_financial_request_id,
-          timestamp: new Date(vote.timestamp),
-          vote: vote.vote,
-          voterId: vote.voter_id,
-          votingPower: calcWithoutPrecision(vote.voting_power),
-          requestData: vote.governance_financial_request,
-        }
-        financialRequestsVotes.push(newRequestVote)
-      },
-    )
+    if (satelliteRecord.governance_financial_requests_votes) {
+      satelliteRecord.governance_financial_requests_votes.forEach(
+        (vote: {
+          id: any
+          governance_financial_request_id: any
+          round: any
+          timestamp: string | number | Date
+          vote: any
+          voter_id: any
+          voting_power: string
+          governance_financial_request: any
+        }) => {
+          const newRequestVote: SatelliteFinancialRequestVotingHistory = {
+            id: vote.id,
+            governanceFinancialRequestId: vote.governance_financial_request_id,
+            timestamp: new Date(vote.timestamp),
+            vote: vote.vote,
+            voterId: vote.voter_id,
+            votingPower: calcWithoutPrecision(vote.voting_power),
+            requestData: vote.governance_financial_request,
+          }
+          financialRequestsVotes.push(newRequestVote)
+        },
+      )
+    }
   }
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
