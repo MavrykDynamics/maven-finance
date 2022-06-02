@@ -90,7 +90,7 @@ function checkNoAmount(const _p: unit): unit is
 
 function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
   block{
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", store.governanceAddress);
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
   } with(case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
                 Some (_contract)    -> if _contract =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
@@ -204,43 +204,43 @@ block{
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var store : mvkTokenStorage) : address is
+[@view] function getAdmin(const _: unit; var store : mvkTokenStorage) : address is
   store.admin
 
 
 
 (* get: general contracts *)
-[@view] function generalContracts(const _: unit; const store: mvkTokenStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; const store: mvkTokenStorage) : generalContractsType is
   store.generalContracts
 
 
 
 (* get: whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; const store: mvkTokenStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; const store: mvkTokenStorage) : whitelistContractsType is
   store.whitelistContracts
 
 
 
 (* get: inflation rate *)
-[@view] function inflationRate(const _: unit; const store: mvkTokenStorage) : nat is
+[@view] function getInflationRate(const _: unit; const store: mvkTokenStorage) : nat is
   store.inflationRate
 
 
 
 (* get: next inflation timestamp *)
-[@view] function nextInflationTimestamp(const _: unit; const store: mvkTokenStorage) : timestamp is
+[@view] function getNextInflationTimestamp(const _: unit; const store: mvkTokenStorage) : timestamp is
   store.nextInflationTimestamp
 
 
 
 (* get: operator *)
-[@view] function operatorOpt(const operator: (owner * operator * nat); const store: mvkTokenStorage) : option(unit) is
+[@view] function getOperatorOpt(const operator: (owner * operator * nat); const store: mvkTokenStorage) : option(unit) is
   Big_map.find_opt(operator, store.operators)
 
 
 
 (* get: balance View *)
-[@view] function balance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
+[@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
   case Big_map.find_opt(user, store.ledger) of [
       Some (_v) -> _v
     | None      -> 0n
@@ -249,13 +249,13 @@ block{
 
 
 (* totalSupply View *)
-[@view] function totalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+[@view] function getTotalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
   store.totalSupply
 
 
 
 (* maximumSupply View *)
-[@view] function maximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
   store.maximumSupply
 
 // ------------------------------------------------------------------------------
@@ -359,8 +359,8 @@ block{
             const tokenId: tokenId = destination.token_id;
             const tokenAmount: tokenBalance = destination.amount;
             const receiver: owner = destination.to_;
-            const ownerBalance: tokenBalance = balance(owner, accumulator);
-            const receiverBalance: tokenBalance = balance(receiver, accumulator);
+            const ownerBalance: tokenBalance = getBalance(owner, accumulator);
+            const receiverBalance: tokenBalance = getBalance(receiver, accumulator);
 
             // Validate operator
             checkOperator(owner, tokenId, account.1.operators);
@@ -457,7 +457,7 @@ block {
     else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = balance(recipientAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
 
     // Update mvkTokenStorage
     store.totalSupply := store.totalSupply + mintedTokens;

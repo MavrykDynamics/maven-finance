@@ -20,7 +20,9 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   metadata              : metadata,
   mvkTokenAddress       : "",
   governanceAddress     : "",
-  blocksPerMinute       : new BigNumber(2),
+  config                : {
+    blocksPerMinute       : new BigNumber(2)
+  },
   breakGlassConfig      : {
     createFarmIsPaused  : false,
     trackFarmIsPaused   : false,

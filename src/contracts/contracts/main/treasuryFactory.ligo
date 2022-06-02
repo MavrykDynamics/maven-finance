@@ -211,7 +211,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : treasuryFactoryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : treasuryFactoryStorage) : address is
   s.admin
 
 
@@ -223,55 +223,55 @@ block {
 
 
 (* View: get tracked treasuries *)
-[@view] function trackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
+[@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
     s.trackedTreasuries
 
 
 
 (* View: get break glass config *)
-[@view] function breakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
+[@view] function getBreakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
     s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function whitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
+[@view] function getWhitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
     s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
+[@view] function getGeneralContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 
 
 (* View: get a treasury lambda *)
-[@view] function treasuryLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+[@view] function getTreasuryLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.treasuryLambdaLedger)
 
 
 
 (* View: get the treasury lambda ledger *)
-[@view] function treasuryLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+[@view] function getTreasuryLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
   s.treasuryLambdaLedger
 
 // ------------------------------------------------------------------------------

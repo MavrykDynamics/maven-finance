@@ -518,17 +518,17 @@ block {
     ];
 
     // update snapshot MVK total supply
-    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("totalSupply", unit, s.mvkTokenAddress);
+    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
     s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
         Some (value) -> value
-      | None -> (failwith (error_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+      | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // Get active satellites from the delegation contract and loop through them
-    const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("activeSatellites", unit, delegationAddress);
+    const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
     const activeSatellites: map(address,satelliteRecordType) = case activeSatellitesView of [
         Some (value) -> value
-      | None -> failwith (error_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+      | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
     for satelliteAddress -> satellite in map activeSatellites block {
@@ -635,103 +635,103 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : governanceStorage) : address is
+[@view] function getAdmin(const _: unit; var s : governanceStorage) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function config(const _: unit; var s : governanceStorage) : governanceConfigType is
+[@view] function getConfig(const _: unit; var s : governanceStorage) : governanceConfigType is
   s.config
 
 
 
 (* View: get Governance Proxy address *)
-[@view] function governanceProxyAddress(const _: unit; var s : governanceStorage) : address is
+[@view] function getGovernanceProxyAddress(const _: unit; var s : governanceStorage) : address is
   s.governanceProxyAddress
 
 
 
 (* View: get general contracts *)
-[@view] function generalContractOpt(const contractName: string; var s : governanceStorage) : option(address) is
+[@view] function getGeneralContractOpt(const contractName: string; var s : governanceStorage) : option(address) is
   Map.find_opt(contractName, s.generalContracts)
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : governanceStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : governanceStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; const s: governanceStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts(const _: unit; const s: governanceStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get Whitelist developers *)
-[@view] function whitelistDevelopers(const _: unit; var s : governanceStorage) : whitelistDevelopersType is
+[@view] function getWhitelistDevelopers(const _: unit; var s : governanceStorage) : whitelistDevelopersType is
   s.whitelistDevelopers
 
 
 
 (* View: get a proposal *)
-[@view] function proposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+[@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
   Big_map.find_opt(proposalId, s.proposalLedger)
 
 
 
 (* View: get a satellite snapshot *)
-[@view] function snapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
+[@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
   Map.find_opt(satelliteAddress, s.snapshotLedger)
 
 
 
 (* View: get a satellite snapshot ledger *)
-[@view] function snapshotLedger(const _: unit; var s : governanceStorage) : snapshotLedgerType is
+[@view] function getSnapshotLedger(const _: unit; var s : governanceStorage) : snapshotLedgerType is
   s.snapshotLedger
 
 
 
 (* View: get current cycle info *)
-[@view] function currentCycleInfo(const _: unit; var s : governanceStorage) : currentCycleInfoType is
+[@view] function getCurrentCycleInfo(const _: unit; var s : governanceStorage) : currentCycleInfoType is
   s.currentCycleInfo
 
 
 
 (* View: get next proposal id *)
-[@view] function nextProposalId(const _: unit; var s : governanceStorage) : nat is
+[@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
   s.nextProposalId
 
 
 
 (* View: get cycle counter *)
-[@view] function cycleCounter(const _: unit; var s : governanceStorage) : nat is
+[@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
   s.cycleCounter
 
 
 
 (* View: get current cycle highest voted proposal id *)
-[@view] function cycleHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+[@view] function getCycleHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
   s.cycleHighestVotedProposalId
 
 
 
 (* View: get timelock proposal id *)
-[@view] function timelockProposalId(const _: unit; var s : governanceStorage) : nat is
+[@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
   s.timelockProposalId
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : governanceStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : governanceStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : governanceStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

@@ -131,13 +131,13 @@ function checkNoAmount(const _p : unit) : unit is
 
 function checkSenderIsDoormanContract(var s : governanceFinancialStorage) : unit is
 block{
-  const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+  const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
   const doormanAddress: address = case generalContractsOptViewDelegation of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   
   if (Tezos.sender = doormanAddress) then skip
@@ -150,13 +150,13 @@ block{
 function checkSenderIsDelegationContract(var s : governanceFinancialStorage) : unit is
 block{
 
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
   const delegationAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
   if (Tezos.sender = delegationAddress) then skip
@@ -180,13 +180,13 @@ block{
 function checkSenderIsCouncilContract(var s : governanceFinancialStorage) : unit is
 block{
 
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "council", s.governanceAddress);
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
   const councilAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_COUNCIL_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   
   if (Tezos.sender = councilAddress) then skip
@@ -199,13 +199,13 @@ block{
 function checkSenderIsEmergencyGovernanceContract(var s : governanceFinancialStorage) : unit is
 block{
 
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "emergencyGovernance", s.governanceAddress);
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "emergencyGovernance", s.governanceAddress);
   const emergencyGovernanceAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
   if (Tezos.sender = emergencyGovernanceAddress) then skip
@@ -388,62 +388,62 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : governanceFinancialStorage) : address is
+[@view] function getAdmin(const _: unit; var s : governanceFinancialStorage) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function config(const _: unit; var s : governanceFinancialStorage) : governanceFinancialConfigType is
+[@view] function getConfig(const _: unit; var s : governanceFinancialStorage) : governanceFinancialConfigType is
   s.config
 
 
 
 (* View: get Whitelist token contracts *)
-[@view] function whitelistTokenContracts(const _: unit; var s : governanceFinancialStorage) : whitelistTokenContractsType is
+[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceFinancialStorage) : whitelistTokenContractsType is
   s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : governanceFinancialStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : governanceFinancialStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts (const _: unit; const s: governanceFinancialStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: governanceFinancialStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get a financial request *)
-[@view] function financialRequestOpt(const requestId: nat; var s : governanceFinancialStorage) : option(financialRequestRecordType) is
+[@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceFinancialStorage) : option(financialRequestRecordType) is
   Big_map.find_opt(requestId, s.financialRequestLedger)
 
 
 
 (* View: get a financial request snapshot *)
-[@view] function financialRequestSnapshotOpt(const requestId: nat; var s : governanceFinancialStorage) : option(financialRequestSnapshotMapType) is
+[@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceFinancialStorage) : option(financialRequestSnapshotMapType) is
   Big_map.find_opt(requestId, s.financialRequestSnapshotLedger)
 
 
 
 
 (* View: get financial request counter *)
-[@view] function financialRequestCounter(const _: unit; var s : governanceFinancialStorage) : nat is
+[@view] function getFinancialRequestCounter(const _: unit; var s : governanceFinancialStorage) : nat is
   s.financialRequestCounter
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : governanceFinancialStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceFinancialStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : governanceFinancialStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : governanceFinancialStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

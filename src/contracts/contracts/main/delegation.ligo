@@ -139,13 +139,13 @@ function checkUserIsNotDelegate(const userAddress: address; var s : delegationSt
 
 function checkSenderIsDoormanContract(var s : delegationStorage) : unit is
 block{
-  const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
-  const doormanAddress: address = case generalContractsOptViewDelegation of [
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+  const doormanAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -193,19 +193,19 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
       | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
       ];
 
-      const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+      const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
       const doormanAddress: address = case generalContractsOptView of [
           Some (_optionContract) -> case _optionContract of [
                   Some (_contract)    -> _contract
               |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
               ]
-      |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
 
-      const stakedMvkBalanceView : option (nat) = Tezos.call_view ("stakedBalance", userAddress, doormanAddress);
+      const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
       const stakedMvkBalance: nat = case stakedMvkBalanceView of [
           Some (value) -> value
-        | None -> (failwith (error_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+        | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
       ];
 
       const _satelliteReferenceRewardsRecord: satelliteRewards  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
@@ -397,55 +397,55 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : delegationStorage) : address is
+[@view] function getAdmin(const _: unit; var s : delegationStorage) : address is
   s.admin
 
 
 
 (* View: get Config *)
-[@view] function config(const _: unit; var s : delegationStorage) : delegationConfigType is
+[@view] function getConfig(const _: unit; var s : delegationStorage) : delegationConfigType is
   s.config
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; var s : delegationStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : delegationStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : delegationStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : delegationStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get break glass config *)
-[@view] function breakGlassConfig(const _: unit; var s : delegationStorage) : delegationBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _: unit; var s : delegationStorage) : delegationBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (* View: get Satellite Record *)
-[@view] function delegateOpt(const delegateAddress: address; var s : delegationStorage) : option(delegateRecordType) is
+[@view] function getDelegateOpt(const delegateAddress: address; var s : delegationStorage) : option(delegateRecordType) is
   Big_map.find_opt(delegateAddress, s.delegateLedger)
 
 
 
 (* View: get Satellite Record *)
-[@view] function satelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
+[@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
   Map.find_opt(satelliteAddress, s.satelliteLedger)
 
 
 
 (* View: get User reward *)
-[@view] function satelliteRewardsOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
+[@view] function getSatelliteRewardsOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
   Big_map.find_opt(userAddress, s.satelliteRewardsLedger)
 
 
 
 (* View: get map of active satellites *)
-[@view] function activeSatellites(const _: unit; var s : delegationStorage) : map(address, satelliteRecordType) is
+[@view] function getActiveSatellites(const _: unit; var s : delegationStorage) : map(address, satelliteRecordType) is
 block {
 
     var activeSatellites: map(address, satelliteRecordType) := Map.empty; 
@@ -461,13 +461,13 @@ block {
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : delegationStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : delegationStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : delegationStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : delegationStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

@@ -519,13 +519,13 @@ block {
         | LambdaCouncilActionAddVestee(addVesteeParams) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
 
@@ -536,13 +536,13 @@ block {
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
                 // Check if the vestee already exists
-                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("vesteeOpt", vesteeAddress, vestingAddress);
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
                         |   None -> skip
                     ]
-                |   None -> failwith (error_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -605,24 +605,24 @@ block {
         | LambdaCouncilActionRemoveVestee(vesteeAddress) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(address) = sendRemoveVesteeParams(vestingAddress);
 
                 // Check if the vestee already exists
-                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("vesteeOpt", vesteeAddress, vestingAddress);
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> skip
                         |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith (error_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -681,13 +681,13 @@ block {
         | LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(updateVesteeType)  = sendUpdateVesteeParams(vestingAddress);
 
@@ -698,13 +698,13 @@ block {
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
                 // Check if the vestee already exists
-                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("vesteeOpt", vesteeAddress, vestingAddress);
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> skip
                         |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith (error_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -767,24 +767,24 @@ block {
         | LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(address) = sendToggleVesteeLockParams(vestingAddress);
 
                 // Check if the vestee already exists
-                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("vesteeOpt", vesteeAddress, vestingAddress);
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> skip
                         |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith (error_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -925,13 +925,13 @@ block {
                 if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exist on Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                 const governanceFinancialAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(governanceFinancialAddress);
 
@@ -1008,13 +1008,13 @@ block {
                 if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exists on Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                 const governanceFinancialAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
 
@@ -1078,13 +1078,13 @@ block {
         | LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
                 // Check if entrypoint exist on Governance contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                 const governanceFinancialAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
                         |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(governanceFinancialAddress);
 
@@ -1518,13 +1518,13 @@ block {
                             vestingInMonths         = vestingInMonths;
                         ];
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const addVesteeOperation : operation = Tezos.transaction(
@@ -1549,13 +1549,13 @@ block {
                         ];
                         // fetch params end ---
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const removeVesteeOperation : operation = Tezos.transaction(
@@ -1602,13 +1602,13 @@ block {
                             newVestingInMonths          = newVestingInMonths;
                         ];
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const updateVesteeOperation : operation = Tezos.transaction(
@@ -1633,13 +1633,13 @@ block {
                         ];
                         // fetch end begin ---
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "vesting", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const toggleVesteeLockOperation : operation = Tezos.transaction(
@@ -1783,13 +1783,13 @@ block {
                             purpose               = purpose;
                         ];
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                         const governanceFinancialAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const requestTokensOperation : operation = Tezos.transaction(
@@ -1827,13 +1827,13 @@ block {
                         // Validate inputs
                         if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                         const governanceFinancialAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const requestMintParams : councilActionRequestMintType = record[
@@ -1864,13 +1864,13 @@ block {
                         ];
                         // fetch params end ---
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                         const governanceFinancialAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const setContractBakerParams : councilActionSetContractBakerType = record[
@@ -1900,13 +1900,13 @@ block {
                         ];
                         // fetch params end ---
 
-                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "governanceFinancial", s.governanceAddress);
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                         const governanceFinancialAddress: address = case generalContractsOptView of [
                             Some (_optionContract) -> case _optionContract of [
                                     Some (_contract)    -> _contract
                                 |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const dropFinancialRequestOperation : operation = Tezos.transaction(

@@ -134,49 +134,49 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : tokenSaleStorage) : address is
+[@view] function getAdmin(const _: unit; var s : tokenSaleStorage) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function config(const _: unit; var s : tokenSaleStorage) : tokenSaleConfigType is
+[@view] function getConfig(const _: unit; var s : tokenSaleStorage) : tokenSaleConfigType is
   s.config
 
 
 
 (* View: get treasury address *)
-[@view] function treasuryAddress(const _: unit; var s : tokenSaleStorage) : address is
+[@view] function getTreasuryAddress(const _: unit; var s : tokenSaleStorage) : address is
   s.treasuryAddress
 
 
 
 (* View: get treasury address *)
-[@view] function whitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
+[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
   Big_map.find_opt(userAddress, s.whitelistedAddresses)
 
 
 
 (* View: get token sale record *)
-[@view] function tokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorage) : option(tokenSaleRecordType) is
+[@view] function getTokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorage) : option(tokenSaleRecordType) is
   Big_map.find_opt(userAddress, s.tokenSaleLedger)
 
 
 
 (* View: tokenSaleHasStarted *)
-[@view] function tokenSaleHasStarted(const _: unit; var s : tokenSaleStorage) : bool is
+[@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorage) : bool is
   s.tokenSaleHasStarted
 
 
 
 (* View: whitelistAmountTotal *)
-[@view] function whitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
   s.whitelistAmountTotal
 
 
 
 (* View: overallAmountTotal *)
-[@view] function overallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
   s.overallAmountTotal
 
 // ------------------------------------------------------------------------------
