@@ -1,16 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
 import * as React from 'react'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+
+// types
+import { EmergencyGovernanceLedgerType } from '../EmergencyGovernance.controller'
 
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { EmergencyGovernancePastProposal } from '../mockEGovProposals'
-//prettier-ignore
-import { EGovHistoryArrowButton, EGovHistoryCardDropDown, EGovHistoryCardStyled, EGovHistoryCardTitleTextGroup, EGovHistoryCardTopSection } from './EGovHistoryCard.style'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+
+import {
+  EGovHistoryArrowButton,
+  EGovHistoryCardDropDown,
+  EGovHistoryCardStyled,
+  EGovHistoryCardTitleTextGroup,
+  EGovHistoryCardTopSection,
+} from './EGovHistoryCard.style'
 
 type EGovHistoryCardProps = {
-  pastProposal: EmergencyGovernancePastProposal
+  emergencyGovernance: EmergencyGovernanceLedgerType
 }
-export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
+export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) => {
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const ref = useRef(null)
@@ -23,25 +35,25 @@ export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
     setAccordionHeight(getHeight)
   }, [expanded])
 
+  const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
+
   return (
-    <EGovHistoryCardStyled key={String(pastProposal.title + pastProposal.proposer)} onClick={open}>
+    <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
       <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <EGovHistoryCardTitleTextGroup>
           <h3>Title</h3>
-          <p>{pastProposal.title}</p>
+          <p>{emergencyGovernance.title}</p>
         </EGovHistoryCardTitleTextGroup>
         <EGovHistoryCardTitleTextGroup>
           <h3>Date</h3>
-          <p>{pastProposal.date}</p>
-        </EGovHistoryCardTitleTextGroup>
-        <EGovHistoryCardTitleTextGroup>
-          <h3>MVK Burned</h3>
-          <p>{pastProposal.mvkBurned}</p>
+          <p>
+            <Time value={emergencyGovernance.startTimestamp} format="M d\t\h, Y, H:m \U\T\C" />
+          </p>
         </EGovHistoryCardTitleTextGroup>
         <EGovHistoryCardTitleTextGroup>
           <h3>Proposer</h3>
           <p>
-            <TzAddress tzAddress={pastProposal.proposer} hasIcon={false} />
+            <TzAddress tzAddress={emergencyGovernance.proposerId} hasIcon={false} />
           </p>
         </EGovHistoryCardTitleTextGroup>
         <EGovHistoryArrowButton>
@@ -56,19 +68,19 @@ export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
           )}
         </EGovHistoryArrowButton>
         <EGovHistoryCardTitleTextGroup className={'statusFlag'}>
-          <StatusFlag status={pastProposal.status} text={pastProposal.status} />
+          <StatusFlag status={status} text={status} />
         </EGovHistoryCardTitleTextGroup>
       </EGovHistoryCardTopSection>
 
       <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <div className={'accordion ' + `${expanded}`} ref={ref}>
           <h3>Description</h3>
-          <p>Information regarding the proposal should be place here. Such as:</p>
-          <ul>
+          <p>{emergencyGovernance.description}</p>
+          {/* <ul>
             <li>What the exact fatal flaw was</li>
             <li>What the break glass triggered</li>
             <li>What actions the council took</li>
-          </ul>
+          </ul> */}
         </div>
       </EGovHistoryCardDropDown>
     </EGovHistoryCardStyled>

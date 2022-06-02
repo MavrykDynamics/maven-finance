@@ -20,7 +20,7 @@ export const EGovHistoryCardStyled = styled(Card)<{ theme: MavrykTheme }>`
 export const EGovHistoryCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
   width: 100%;
   display: grid;
-  grid-template-columns: 180px 260px 150px 110px auto 120px;
+  grid-template-columns: 180px 260px 150px auto 130px;
   padding: 20px 40px;
 `
 
