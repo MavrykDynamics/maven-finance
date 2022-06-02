@@ -31,11 +31,12 @@ import farmFactoryLambdas from '../../build/lambdas/farmFactoryLambdas.json'
 import vestingLambdas from '../../build/lambdas/vestingLambdas.json'
 import treasuryLambdas from '../../build/lambdas/treasuryLambdas.json'
 import treasuryFactoryLambdas from '../../build/lambdas/treasuryFactoryLambdas.json'
-import aggregatorLambdas from '../../build/lambdas/aggregatorLambdas.json'
-import aggregatorFactoryLambdas from '../../build/lambdas/aggregatorFactoryLambdas.json'
 
-import { Aggregator, aggregatorLambdaIndexOf } from '../helpers/aggregatorHelper'
-import { AggregatorFactory, aggregatorFactoryLambdaIndexOf } from '../helpers/aggregatorFactoryHelper'
+import {Aggregator, setAggregatorLambdas} from '../helpers/aggregatorHelper'
+import {
+  AggregatorFactory,
+  setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
+} from '../helpers/aggregatorFactoryHelper'
 import { Doorman, doormanLambdaIndexOf } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
@@ -76,6 +77,7 @@ import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import {TezosToolkit} from "@taquito/taquito";
 
 describe('Contracts Deployment for Tests', async () => {
   
@@ -892,88 +894,14 @@ describe('Contracts Deployment for Tests', async () => {
       console.log("Treasury Factory Product Lambdas Setup")
 
       // Aggregator Setup Lambdas
-      const aggregatorLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetAdmin')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetGovernance"                      , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetGovernance')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateMetadata')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateConfig"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateConfig')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateWhitelistContracts')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateGeneralContracts')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaAddOracle"                          , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaAddOracle')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaRemoveOracle"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRemoveOracle')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaPauseAll"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaPauseAll')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUnpauseAll"                         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUnpauseAll')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaTogglePauseReqRateUpd"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseReqRateUpd')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaTogglePauseReqRateUpdDev"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseReqRateUpdDev')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaTogglePauseSetObsCommit"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseSetObsCommit')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaTogglePauseSetObsReveal"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseSetObsReveal')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaTogglePauseRewardXtz"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseRewardXtz')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaTogglePauseRewardSMvk"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseRewardSMvk')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdate')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdateDeviation')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationCommit"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationCommit')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationReveal"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationReveal')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardXtz"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardXtz')]))
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardStakedMvk"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardStakedMvk')]))
-
-      const setupAggregatorLambdasOperation = await aggregatorLambdaBatch.send()
-      await setupAggregatorLambdasOperation.confirmation()
+      await setAggregatorLambdas(tezos, aggregator.contract);
       console.log("Aggregator Lambdas Setup")
 
-
       // Aggregator Factory Setup Lambdas
-      const aggregatorFactoryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaSetAdmin')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaSetGovernance"                      , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaSetGovernance')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUpdateMetadata')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUpdateWhitelistContracts')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUpdateGeneralContracts')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaPauseAll"                           , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaPauseAll')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUnpauseAll"                         , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUnpauseAll')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaTogglePauseCreateAgg"               , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaTogglePauseCreateAgg')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaTogglePauseTrackAgg"                , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaTogglePauseTrackAgg')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaTogglePauseUntrackAgg"              , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaTogglePauseUntrackAgg')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaTogglePauseDisRewardXtz"            , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaTogglePauseDisRewardXtz')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaTogglePauseDisRewardSMvk"           , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaTogglePauseDisRewardSMvk')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaCreateAggregator"                   , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaCreateAggregator')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaTrackAggregator"                    , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaTrackAggregator')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUntrackAggregator"                  , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaUntrackAggregator')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaDistributeRewardXtz"                , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaDistributeRewardXtz')]))
-      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaDistributeRewardStakedMvk"          , aggregatorFactoryLambdas[aggregatorFactoryLambdaIndexOf('lambdaDistributeRewardStakedMvk')]))
-
-      const setupAggregatorFactoryLambdasOperation = await aggregatorFactoryLambdaBatch.send()
-      await setupAggregatorFactoryLambdasOperation.confirmation()
+      await setAggregatorFactoryLambdas(tezos, aggregatorFactory.contract);
       console.log("AggregatorFactory Lambdas Setup")
-      
-      const aggregatorFactoryProductLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetAdmin"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetAdmin')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetGovernance"                      , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetGovernance')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateMetadata')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateConfig"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateConfig')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistContracts"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateWhitelistContracts')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateGeneralContracts"             , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateGeneralContracts')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaAddOracle"                          , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaAddOracle')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRemoveOracle"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRemoveOracle')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaPauseAll"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaPauseAll')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUnpauseAll"                         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUnpauseAll')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseReqRateUpd"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseReqRateUpd')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseReqRateUpdDev"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseReqRateUpdDev')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseSetObsCommit"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseSetObsCommit')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseSetObsReveal"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseSetObsReveal')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseRewardXtz"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseRewardXtz')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseRewardSMvk"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseRewardSMvk')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdate')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdateDeviation')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationCommit"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationCommit')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationReveal"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationReveal')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXtz"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardXtz')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardStakedMvk"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardStakedMvk')]))
 
-      const setupAggregatorFactoryProductLambdasOperation = await aggregatorFactoryProductLambdaBatch.send()
-      await setupAggregatorFactoryProductLambdasOperation.confirmation()
+      await setAggregatorFactoryProductLambdas(tezos, aggregatorFactory.contract);
       console.log("Aggregator Factory Product Lambdas Setup")
     // Set Lambdas End
 
