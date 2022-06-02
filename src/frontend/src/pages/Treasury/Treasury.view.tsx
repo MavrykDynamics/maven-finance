@@ -33,7 +33,7 @@ export default function TreasuryView({ treasury }: Props) {
             <h5>Amount</h5>
             <h5 className="right-text">USD Value</h5>
           </div>
-          <div className="assets-map scroll-block">
+          <div style={{ paddingRight: treasury?.assets?.length > 4 ? 16 : 0 }} className="assets-map scroll-block">
             {treasury?.assets?.length
               ? treasury.assets.map((item: any) => {
                   return (
