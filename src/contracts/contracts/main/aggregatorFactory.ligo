@@ -49,8 +49,8 @@ type aggregatorFactoryAction is
 
       // Aggregator Factory Entrypoints
     | CreateAggregator                of createAggregatorParamsType
-    | TrackAggregator                 of (address)
-    | UntrackAggregator               of (address)
+    | TrackAggregator                 of trackAggregatorParamsType
+    | UntrackAggregator               of untrackAggregatorParamsType
 
       // Aggregator Entrypoints
     | DistributeRewardXtz             of distributeRewardXtzType
@@ -121,6 +121,17 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+function checkInTrackedAggregators(const aggregatorAddress : address; const s : aggregatorFactoryStorage) : bool is 
+block {
+  var inTrackedAggregatorsMap : bool := False;
+  for _key -> value in map s.trackedAggregators block {
+    if aggregatorAddress = value then inTrackedAggregatorsMap := True
+      else skip;
+  }
+} with inTrackedAggregatorsMap
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -571,7 +582,7 @@ block {
 
 
 (*  trackAggregator entrypoint  *)
-function trackAggregator(const aggregatorAddress: address; var s: aggregatorFactoryStorage): return is
+function trackAggregator(const trackAggregatorParams: trackAggregatorParamsType; var s: aggregatorFactoryStorage): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackAggregator"] of [
@@ -580,7 +591,7 @@ block {
     ];
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTrackAggregator(aggregatorAddress);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTrackAggregator(trackAggregatorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
@@ -590,7 +601,7 @@ block {
 
 
 (*  untrackAggregator entrypoint  *)
-function untrackAggregator(const aggregatorAddress: address; var s: aggregatorFactoryStorage): return is
+function untrackAggregator(const untrackAggregatorParams: untrackAggregatorParamsType; var s: aggregatorFactoryStorage): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackAggregator"] of [
@@ -599,7 +610,7 @@ block {
     ];
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUntrackAggregator(aggregatorAddress);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUntrackAggregator(untrackAggregatorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);

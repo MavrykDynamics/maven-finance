@@ -3,7 +3,18 @@ type metadataType is big_map (string, bytes);
 type lambdaLedgerType is map(string, bytes)
 
 type trackedAggregatorsType is map (string * string, address)
-// type trackedAggregatorsType is set(address)
+
+type trackAggregatorParamsType is [@layout:comb] record [
+  pairFirst           : string;
+  pairSecond          : string;
+  aggregatorAddress   : address;
+]
+
+type untrackAggregatorParamsType is [@layout:comb] record [
+  pairFirst           : string;
+  pairSecond          : string;
+]
+
 
 // rewards type
 type distributeRewardStakedMvkType is [@layout:comb] record [
@@ -75,8 +86,8 @@ type aggregatorFactoryLambdaActionType is
 
     // Aggregator Factory Lambdas
   | LambdaCreateAggregator              of createAggregatorParamsType
-  | LambdaTrackAggregator               of (address)
-  | LambdaUntrackAggregator             of (address)
+  | LambdaTrackAggregator               of trackAggregatorParamsType
+  | LambdaUntrackAggregator             of untrackAggregatorParamsType
 
     // Aggregator Lambdas
   | LambdaDistributeRewardXtz           of distributeRewardXtzType
