@@ -31,7 +31,7 @@ export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
   height: 100%;
   max-height: 0;
   height: 185px;
-  overflow: scroll;
+  overflow-y: scroll;
   padding-left: 26px;
   padding-bottom: 16px;
   row-gap: 8px;
