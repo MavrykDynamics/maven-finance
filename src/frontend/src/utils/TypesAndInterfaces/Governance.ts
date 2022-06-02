@@ -5,6 +5,7 @@ export enum ProposalStatus {
   DEFEATED = 'DEFEATED',
   ONGOING = 'ONGOING',
   DISCOVERY = 'DISCOVERY',
+  WAITING = 'WAITING',
 }
 
 export interface GovernanceConfig {

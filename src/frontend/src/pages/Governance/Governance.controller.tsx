@@ -21,7 +21,7 @@ import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller
 import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 
 // const
-import { MOCK_PAST_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST } from './mockProposals'
+import { MOCK_PAST_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST, MOCK_EXEC_PROPOSAL_LIST } from './mockProposals'
 
 export type VoteStatistics = {
   passVotesMVKTotal: number
@@ -134,7 +134,7 @@ export const Governance = () => {
         userIsSatellite={userIsSatellite}
         ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
         nextProposals={currentRoundProposals1}
-        watingProposals={MOCK_PAST_PROPOSAL_LIST}
+        watingProposals={MOCK_EXEC_PROPOSAL_LIST}
         pastProposals={MOCK_PAST_PROPOSAL_LIST}
         // pastProposals={currentRoundProposals1}
         handleProposalRoundVote={handleProposalRoundVote}

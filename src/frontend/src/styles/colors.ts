@@ -14,6 +14,7 @@ export const boxShadowColor = 'rgba(134, 212, 201, 0.5)'
 export const subTextColor = '#7E8794'
 export const accordeonTogglerColor = '#6a6a9b';
 export const infoColor = '#00C2FF';
+export const awaitingColor = '#FFCA43';
 
 export const borderColor = '#4F457C';
 export const textColor = '#29264C';
