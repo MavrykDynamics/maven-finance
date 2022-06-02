@@ -208,61 +208,61 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : breakGlassStorage) : address is
+[@view] function getAdmin(const _: unit; var s : breakGlassStorage) : address is
   s.admin
 
 
 
 (* View: get Glass broken variable *)
-[@view] function glassBroken(const _: unit; var s : breakGlassStorage) : bool is
+[@view] function getGlassBroken(const _: unit; var s : breakGlassStorage) : bool is
   s.glassBroken
 
 
 
 (* View: get config *)
-[@view] function config(const _: unit; var s : breakGlassStorage) : breakGlassConfigType is
+[@view] function getConfig(const _: unit; var s : breakGlassStorage) : breakGlassConfigType is
   s.config
 
 
 
 (* View: get council members *)
-[@view] function councilMembers(const _: unit; var s : breakGlassStorage) : councilMembersType is
+[@view] function getCouncilMembers(const _: unit; var s : breakGlassStorage) : councilMembersType is
   s.councilMembers
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; var s : breakGlassStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : breakGlassStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts(const _: unit; var s : breakGlassStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : breakGlassStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get an action *)
-[@view] function actionOpt(const actionId: nat; var s : breakGlassStorage) : option(actionRecordType) is
+[@view] function getActionOpt(const actionId: nat; var s : breakGlassStorage) : option(actionRecordType) is
   Big_map.find_opt(actionId, s.actionsLedger)
 
 
 
 (* View: get the action counter *)
-[@view] function actionCounter(const _: unit; var s : breakGlassStorage) : nat is
+[@view] function getActionCounter(const _: unit; var s : breakGlassStorage) : nat is
   s.actionCounter
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : breakGlassStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : breakGlassStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : breakGlassStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : breakGlassStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

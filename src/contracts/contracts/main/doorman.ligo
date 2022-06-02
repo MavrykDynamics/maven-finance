@@ -135,13 +135,13 @@ block{
 
 function checkSenderIsDelegationContract(var s : doormanStorage) : unit is
 block{
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
   const delegationAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
@@ -274,18 +274,18 @@ block{
     if userRecord.balance > 0n then {
 
       // Get delegation contract
-      const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "delegation", s.governanceAddress);
+      const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
       const delegationAddress: address = case generalContractsOptView of [
           Some (_optionContract) -> case _optionContract of [
                   Some (_contract)    -> _contract
               |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
               ]
-      |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
       
       // -- Satellite rewards -- //
       // Get the user satelliteRewards record
-      const satelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("satelliteRewardsOpt", userAddress, delegationAddress);
+      const satelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
       const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
         Some (_v) -> True
       | None -> False
@@ -297,15 +297,15 @@ block{
       block{
         const satelliteRewardsOpt: option(satelliteRewards) = case satelliteRewardsOptView of [
           Some (value) -> value
-        | None -> failwith (error_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
         ];
 
         satelliteUnpaidRewards := case satelliteRewardsOpt of [
           Some (_rewards) -> block{
-            const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("satelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+            const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
             const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
               Some (value) -> value
-            | None -> failwith (error_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
             ];
             
             // Calculate the user unclaimed rewards
@@ -400,55 +400,55 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : doormanStorage) : address is
+[@view] function getAdmin(const _: unit; var s : doormanStorage) : address is
   s.admin
 
 
 
 (*  View: get minMvkAmount *)
-[@view] function minMvkAmount(const _: unit; const s: doormanStorage) : nat is
+[@view] function getMinMvkAmount(const _: unit; const s: doormanStorage) : nat is
   s.minMvkAmount
 
 
 
 (*  View: get whitelist contracts *)
-[@view] function whitelistContracts(const _: unit; const s: doormanStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; const s: doormanStorage) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (*  View: get general contracts *)
-[@view] function generalContracts(const _: unit; const s: doormanStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; const s: doormanStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (*  View: get break glass config *)
-[@view] function breakGlassConfig(const _: unit; const s: doormanStorage) : doormanBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _: unit; const s: doormanStorage) : doormanBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (* View: get userStakeBalance *)
-[@view] function userStakeBalanceOpt (const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
+[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
   Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
 
 
 
 (*  View: unclaimedRewards *)
-[@view] function unclaimedRewards(const _: unit; const s: doormanStorage) : nat is
+[@view] function getUnclaimedRewards(const _: unit; const s: doormanStorage) : nat is
   s.unclaimedRewards
 
 
 
 (*  View: accumulatedFeesPerShare *)
-[@view] function accumulatedFeesPerShare(const _: unit; const s: doormanStorage) : nat is
+[@view] function getAccumulatedFeesPerShare(const _: unit; const s: doormanStorage) : nat is
   s.accumulatedFeesPerShare
 
 
 
 (* View: stakedBalance *)
-[@view] function stakedBalance (const userAddress : address; var s : doormanStorage) : nat is
+[@view] function getStakedBalance(const userAddress : address; var s : doormanStorage) : nat is
   case s.userStakeBalanceLedger[userAddress] of [
     Some (_val) -> _val.balance
   | None -> 0n
@@ -457,13 +457,13 @@ block {
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : doormanStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : doormanStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : doormanStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------

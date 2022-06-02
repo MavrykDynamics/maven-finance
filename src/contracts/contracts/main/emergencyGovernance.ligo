@@ -113,13 +113,13 @@ block{
 
 function checkSenderIsDoormanContract(var s : emergencyGovernanceStorage) : unit is
 block{
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("generalContractOpt", "doorman", s.governanceAddress);
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
   const doormanAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
           |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -226,55 +226,55 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function admin(const _: unit; var s : emergencyGovernanceStorage) : address is
+[@view] function getAdmin(const _: unit; var s : emergencyGovernanceStorage) : address is
   s.admin
 
 
 
 (* View: config *)
-[@view] function config (const _: unit; var s : emergencyGovernanceStorage) : emergencyConfigType is
+[@view] function getConfig (const _: unit; var s : emergencyGovernanceStorage) : emergencyConfigType is
   s.config
 
 
 
 (* View: get general contracts *)
-[@view] function generalContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
+[@view] function getGeneralContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get whitelist contracts *)
-[@view] function whitelistContracts (const _: unit; const s: emergencyGovernanceStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: emergencyGovernanceStorage): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get emergency governance *)
-[@view] function emergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorage) : option(emergencyGovernanceRecordType) is
+[@view] function getEmergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorage) : option(emergencyGovernanceRecordType) is
   Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
 
 
 
 (* View: get current emergency governance id *)
-[@view] function currentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+[@view] function getCurrentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
   s.currentEmergencyGovernanceId
 
 
 
 (* View: get next emergency governance id *)
-[@view] function nextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+[@view] function getNextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
   s.nextEmergencyGovernanceId
 
 
 
 (* View: get a lambda *)
-[@view] function lambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function lambdaLedger(const _: unit; var s : emergencyGovernanceStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : emergencyGovernanceStorage) : lambdaLedgerType is
   s.lambdaLedger
 
 

@@ -117,7 +117,7 @@ block {
                     ];
                 };
 
-                s.blocksPerMinute := newBlocksPerMinute;
+                s.config.blocksPerMinute := newBlocksPerMinute;
 
             }
         | _ -> skip
@@ -330,7 +330,7 @@ block{
                     lpToken                     = farmLPToken;
                     infinite                    = farmInfinite;
                     forceRewardFromTransfer     = farmForceRewardFromTransfer;
-                    blocksPerMinute             = s.blocksPerMinute;
+                    blocksPerMinute             = s.config.blocksPerMinute;
                     plannedRewards              = farmPlannedRewards;
                 ];
 

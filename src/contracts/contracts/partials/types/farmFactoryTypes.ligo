@@ -54,11 +54,16 @@ type farmMetadataType is record[
     authors                  : string;
 ]
 
-type farmFactoryBreakGlassConfigType is record [
-    createFarmIsPaused     : bool;
-    trackFarmIsPaused      : bool;
-    untrackFarmIsPaused    : bool;
+type farmFactoryBreakGlassConfigType is [@layout:comb] record [
+    createFarmIsPaused      : bool;
+    trackFarmIsPaused       : bool;
+    untrackFarmIsPaused     : bool;
 ]
+
+type farmFactoryConfigType is [@layout:comb] record [
+    blocksPerMinute         : nat;
+    _empty                  : unit;
+] 
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
@@ -97,7 +102,7 @@ type farmFactoryStorage is [@layout:comb] record[
     metadata               : metadata;
     mvkTokenAddress        : address;
     governanceAddress      : address;
-    blocksPerMinute        : nat;
+    config                 : farmFactoryConfigType;
     breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
     whitelistContracts     : whitelistContractsType;      

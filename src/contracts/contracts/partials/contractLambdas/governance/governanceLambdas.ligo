@@ -59,10 +59,10 @@ block {
                     | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
 
-                const glassBrokenView : option (bool) = Tezos.call_view ("glassBroken", unit, _breakGlassAddress);
+                const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
                 const glassBroken: bool = case glassBrokenView of [
                       Some (_glassBroken) -> _glassBroken
-                    | None -> failwith (error_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
 
                 if glassBroken then skip else failwith(error_GLASS_NOT_BROKEN);
@@ -458,14 +458,14 @@ block {
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> skip
                         | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                       ]
                     
-                    | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
@@ -645,13 +645,13 @@ block {
                       Some(_address) -> _address
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", proposalRecord.proposerAddress, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
                 case satelliteOptView of [
                         Some (value) -> case value of [
                             Some (_satellite) -> skip
                             | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
                         ]
-                    | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // Create the new proposalMetadata
@@ -732,13 +732,13 @@ block {
                       Some(_address) -> _address
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", proposalRecord.proposerAddress, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
                 case satelliteOptView of [
                         Some (value) -> case value of [
                             Some (_satellite) -> skip
                             | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
                         ]
-                    | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // Create the new paymentMetadata
@@ -808,13 +808,13 @@ block {
                       Some(_address) -> _address
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", proposalRecord.proposerAddress, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
                 case satelliteOptView of [
                         Some (value) -> case value of [
                             Some (_satellite) -> skip
                             | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
                         ]
-                    | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // check that proposal is not locked
@@ -856,7 +856,7 @@ block {
                       Some(_address) -> _address
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
 
                   Some (value) -> case value of [
@@ -864,7 +864,7 @@ block {
                     | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                   ]
 
-                | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
                 ];
 
@@ -994,7 +994,7 @@ block {
                 | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                 
                     Some (value) -> case value of [
@@ -1002,7 +1002,7 @@ block {
                         | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                     ]
 
-                    | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
                 ];
 
@@ -1348,14 +1348,14 @@ block {
                     | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("satelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
 
                     Some (value) -> case value of [
                           Some (_satellite) -> skip
                         | None -> if Tezos.sender = s.admin then skip else failwith(error_ONLY_SATELLITE_ALLOWED)
                     ]
-                | None -> failwith (error_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
                 ];
 
