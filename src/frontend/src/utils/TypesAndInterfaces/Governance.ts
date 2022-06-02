@@ -6,6 +6,7 @@ export enum ProposalStatus {
   ONGOING = 'ONGOING',
   DISCOVERY = 'DISCOVERY',
   WAITING = 'WAITING',
+  DROPPED = 'DROPPED',
 }
 
 export interface GovernanceConfig {

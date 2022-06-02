@@ -86,6 +86,14 @@ export const CardContentVoiting = styled.div`
   width: 100%;
   padding-left: 40px;
 
+  .voted-label {
+    display: none;
+  }
+
+  .voted-block {
+    padding-top: 0;
+  }
+
   aside {
     margin-top: 33px;
     margin-bottom: 58px;
