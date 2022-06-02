@@ -30,10 +30,10 @@ export const Treasury = () => {
   const { vestingStorage } = useSelector((state: State) => state.vesting)
 
   const itemsForDropDown = [
-    { text: 'Lowest Fee', value: 'satelliteFee' },
-    { text: 'Highest Fee', value: 'satelliteFee' },
-    { text: 'Delegated MVK', value: 'totalDelegatedAmount' },
-    { text: 'Participation', value: 'participation' },
+    { text: 'Development', value: 'development' },
+    { text: 'Test 0', value: 'satelliteFee' },
+    { text: 'Test 1', value: 'totalDelegatedAmount' },
+    { text: 'Test 2', value: 'participation' },
   ]
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -64,7 +64,6 @@ export const Treasury = () => {
     <Page>
       <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
       <TreasuryView treasury={MOCK_TREASURYS[0]} />
-      <TreasuryView treasury={MOCK_TREASURYS[1]} />
       <TreasuryActiveStyle>
         <TreasurySelectStyle>
           <h2>Active Treasuries</h2>

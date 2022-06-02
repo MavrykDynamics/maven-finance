@@ -9,11 +9,15 @@ type Props = {
 }
 
 export default function TreasuryView({ treasury }: Props) {
+  const chartData = treasury.assets.map((item: any) => {
+    return { title: item.asset, value: item.amount, color: item.color, segmentStroke: 15 }
+  })
+
   return (
     <TreasuryViewStyle>
       <div>
         <header>
-          <h1>Global Treasury TVL</h1>
+          <h1>{treasury.title}</h1>
           {treasury.type === 'global' ? <var>$ 38,987,657.329</var> : null}
         </header>
         <div>
@@ -45,14 +49,18 @@ export default function TreasuryView({ treasury }: Props) {
         </div>
       </div>
       <div>
-        <PieChartView differentStrokeWidth={Boolean(treasury.id)} />
+        <PieChartView chartData={chartData} differentStrokeWidth={Boolean(treasury.id)} />
       </div>
       <div>
         <div className="asset-lables scroll-block">
           {treasury?.assets?.length
             ? treasury.assets.map((item: any) => {
                 return (
-                  <div className="asset-lable" key={item.asset}>
+                  <div
+                    style={{ background: `linear-gradient(90deg,${item.color} 0%,rgba(255,255,255,0) 100%)` }}
+                    className="asset-lable"
+                    key={item.asset}
+                  >
                     <p className="asset-lable-text">{item.asset}</p>
                   </div>
                 )
