@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
 
-import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor, middleColor } from 'styles'
+import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor } from 'styles'
 
 export const TreasuryViewStyle = styled(Card)`
   display: grid;
@@ -109,7 +109,7 @@ export const TreasuryViewStyle = styled(Card)`
     font-size: 18px;
     line-height: 18px;
     color: ${whiteColor};
-    background-color: ${middleColor};
+    background-color: ${containerColor};
     margin: 0;
     margin-left: 8px;
     line-height: 40px;
