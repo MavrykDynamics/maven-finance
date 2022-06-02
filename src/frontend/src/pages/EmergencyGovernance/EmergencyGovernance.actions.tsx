@@ -36,7 +36,6 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
     EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
     EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
-
   const convertedStorage = storageToTypeConverter('emergencyGovernance', storage?.emergency_governance[0])
 
   const currentEmergencyGovernanceId = convertedStorage.currentEmergencyGovernanceId

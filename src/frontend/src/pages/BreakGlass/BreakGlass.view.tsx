@@ -58,7 +58,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: Break
         </BGStatusIndicator>
         <BGInfo>
           <p>
-            The Break Glass protocol (BGP) allows MVK holders to shutdown the system without waiting
+            The breakglass protocal (BGP) allows MVK holders to shutdown the system without waiting
             for a central authority. The BGP is triggered through the Emergency governance vote.
           </p>
 

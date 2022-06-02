@@ -1,10 +1,12 @@
 import styled, { css } from 'styled-components/macro'
-import { boxShadowColor, cyanColor, royalPurpleColor } from 'styles'
+import { boxShadowColor, cyanColor, royalPurpleColor, skyColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div`
+  margin-bottom: 38px;
+
   > h1 {
     color: ${({ theme }) => theme.headerColor};
     font-size: 25px;
@@ -33,12 +35,21 @@ export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykThe
       border-color: ${cyanColor};
       box-shadow: 0px 4px 4px ${boxShadowColor};
     `}
+
+  .proposal-voted-mvk {
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 12px;
+    color: ${skyColor};
+    margin-right: 30px;
+  }
 `
 
 export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   font-size: 14px;
   align-items: center;
+  margin-right: auto;
 
   > span {
     font-weight: 400;

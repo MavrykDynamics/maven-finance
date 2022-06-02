@@ -62,7 +62,7 @@ export const GovernanceTopBarView = ({
               icon="man-running"
               text={'Move to next round'}
               loading={loading}
-              kind="primary"
+              kind="actionPrimary"
               onClick={handleMoveToNextRound}
             />
           )}

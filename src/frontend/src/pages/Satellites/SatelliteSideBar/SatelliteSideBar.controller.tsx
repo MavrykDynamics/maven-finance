@@ -15,7 +15,9 @@ export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) =>
   const satelliteLedger = delegationStorage?.satelliteLedger
   const numSatellites = satelliteLedger?.length || 0
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
-  const userIsSatellite = accountPkh && satelliteLedger ? checkIfUserIsSatellite(accountPkh, satelliteLedger) : false
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
+
+  console.log('%c ||||| userIsSatellite', 'color:yellowgreen', userIsSatellite)
 
   useEffect(() => {
     dispatch(getDelegationStorage())
@@ -32,8 +34,8 @@ export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) =>
   )
 }
 
-export function checkIfUserIsSatellite(accountPkh: string, satelliteLedger: SatelliteRecord[]): boolean {
-  return satelliteLedger.some((record) => record.address === accountPkh)
+export function checkIfUserIsSatellite(accountPkh?: string, satelliteLedger?: SatelliteRecord[]): boolean {
+  return accountPkh && satelliteLedger ? satelliteLedger.some((record) => record.address === accountPkh) : false
 }
 
 function getTotalDelegatedMVK(satelliteLedger: SatelliteRecord[]): number {

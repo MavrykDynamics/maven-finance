@@ -237,6 +237,10 @@ export const StakeCompound = styled.button<{ theme: MavrykTheme }>`
   width: 120px;
   padding-top: 10px;
 
+  &:hover {
+    opacity: 0.8;
+  }
+
   img {
     width: 98px;
     margin-top: 12px;

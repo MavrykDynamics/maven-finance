@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-
+import { awaitingColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const StatusFlagStyled = styled.div<{ theme: MavrykTheme }>`
@@ -39,5 +39,10 @@ export const StatusFlagStyled = styled.div<{ theme: MavrykTheme }>`
   &.warning {
     color: ${({ theme }) => theme.warningColor};
     border-color: ${({ theme }) => theme.warningColor};
+  }
+
+  &.waiting {
+    color: ${awaitingColor};
+    border-color: ${awaitingColor};
   }
 `

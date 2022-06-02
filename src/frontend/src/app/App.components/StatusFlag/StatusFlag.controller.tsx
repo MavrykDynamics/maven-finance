@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { StatusFlagStyle, UP, DOWN, PRIMARY, INFO } from './StatusFlag.constants'
+import { StatusFlagStyle, UP, DOWN, PRIMARY, INFO, WAITING } from './StatusFlag.constants'
 
 import { StatusFlagView } from './StatusFlag.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -21,6 +21,9 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
       break
     case ProposalStatus.ONGOING:
       kind = PRIMARY
+      break
+    case ProposalStatus.WAITING:
+      kind = WAITING
       break
     default:
       kind = INFO

@@ -1,5 +1,5 @@
 export const darkColor = '#080628'
-export const middleColor = '#160E3F'
+export const containerColor = '#160E3F'
 export const darkPurpleColor = '#38237C'
 export const whiteColor = '#FFFFFF'
 export const lightColor = '#EBF0FF'
@@ -14,8 +14,8 @@ export const boxShadowColor = 'rgba(134, 212, 201, 0.5)'
 export const subTextColor = '#7E8794'
 export const accordeonTogglerColor = '#6a6a9b';
 export const infoColor = '#00C2FF';
+export const awaitingColor = '#FFCA43';
 
-export const containerColor = '#F7F9FD';
 export const borderColor = '#4F457C';
 export const textColor = '#29264C';
 export const backgroundTextColor = '#F7F9FD';
@@ -26,11 +26,13 @@ export const downColor = '#FF4343';
 export const warningColor = '#FF7A00';
 export const selectedColor = '#aea3ff3d';
 
+
+
 export const backdropColor = '#08062880';
 
 export const darkMode = {
   backgroundColor: darkColor,
-  containerColor: middleColor,
+  containerColor,
   navTitleColor: headerColor,
   navIconColor: headerColor,
   footerColor: royalPurpleColor,

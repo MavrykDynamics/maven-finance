@@ -28,6 +28,8 @@ export const EmergencyGovernance = () => {
 
   const selectedProposal = MOCK_PAST_PROPOSAL_LIST.values().next().value
 
+  const pastProposals = emergencyGovernanceStorage?.emergencyGovernanceLedger
+
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
@@ -111,6 +113,7 @@ export const EmergencyGovernance = () => {
         loading={loading}
         accountPkh={accountPkh}
         pastProposals={MOCK_E_GOV_PAST_PROPOSALS}
+        // pastProposals={pastProposals}
         selectedProposal={selectedProposal}
         voteStatistics={voteStatistics}
       />
