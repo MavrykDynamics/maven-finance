@@ -8,10 +8,10 @@ import { tezosColor, royalPurpleColor, skyColor } from 'styles'
 const defaultStroke = 15
 
 const dataMock = [
-  { title: 'One', value: 15, color: tezosColor, segmentStroke: 20 },
-  { title: 'Two', value: 25, color: '#8DD8C7', segmentStroke: 25 },
-  { title: 'Three', value: 40, color: royalPurpleColor, segmentStroke: defaultStroke },
-  { title: 'Three', value: 20, color: skyColor, segmentStroke: 25 },
+  { title: 'One', value: 15, color: tezosColor, segmentStroke: 15 },
+  { title: 'Two', value: 25, color: '#8DD8C7', segmentStroke: 19 },
+  { title: 'Three', value: 40, color: royalPurpleColor, segmentStroke: 15 },
+  { title: 'Three', value: 20, color: skyColor, segmentStroke: 19 },
 ]
 
 const dataMockSameStrokeWidth = [
@@ -22,11 +22,17 @@ const dataMockSameStrokeWidth = [
 ]
 
 const segmentsStyle = { transition: 'stroke .3s', cursor: 'pointer' }
-export default function PieChartView({ differentStrokeWidth }: { differentStrokeWidth?: boolean }) {
+export default function PieChartView({
+  differentStrokeWidth,
+  chartData,
+}: {
+  differentStrokeWidth?: boolean
+  chartData: any
+}) {
   const [selected, setSelected] = useState<undefined | number>(1)
   const [focused, setFocused] = useState<undefined | number>(undefined)
 
-  const dataToUse = differentStrokeWidth ? dataMock : dataMockSameStrokeWidth
+  const dataToUse = differentStrokeWidth ? chartData : dataMock
 
   return (
     <PieChartWrap>
