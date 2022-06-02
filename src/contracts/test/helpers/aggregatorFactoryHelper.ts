@@ -1,29 +1,102 @@
-import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import {
+    ContractAbstraction,
+    ContractMethod,
+    ContractMethodObject,
+    ContractProvider,
+    ContractView,
+    OriginationOperation,
+    TezosToolkit,
+    Wallet
+} from "@taquito/taquito";
 import fs from "fs";
 
 import env from "../../env";
-import { confirmOperation } from "../../scripts/confirmation";
-import { aggregatorFactoryStorageType } from "../types/aggregatorFactoryStorageType";
+import {confirmOperation} from "../../scripts/confirmation";
+import {aggregatorFactoryStorageType} from "../types/aggregatorFactoryStorageType";
 
-import aggregatorFactoryLambdaIndex  from '../../../contracts/contracts/partials/contractLambdas/aggregatorFactory/aggregatorFactoryLambdaIndex.json';
+import aggregatorFactoryLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/aggregatorFactory/aggregatorFactoryLambdaIndex.json';
+import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+import {aggregatorStorageType} from "../types/aggregatorStorageType";
+import aggregatorLambdaIndex from "../../contracts/partials/contractLambdas/aggregator/aggregatorLambdaIndex.json";
+import aggregatorFactoryLambdas from '../../build/lambdas/aggregatorFactoryLambdas.json'
+import aggregatorLambdas from '../../build/lambdas/aggregatorLambdas.json'
+import {MichelsonMap} from "@taquito/michelson-encoder";
+import {BigNumber} from "bignumber.js";
 
-export const aggregatorFactoryLambdaIndexOf = (name: string) => {
-    const index = aggregatorFactoryLambdaIndex.find(x => x.name === name)?.index
 
-    if (index === undefined) {
-        throw new Error(`aggregatorFactoryLambdaIndexOf: ${name} not found`)
-    }
+type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
+    setLambda: (number, string) => ContractMethod<T>;
+    setProductLambda: (number, string) => ContractMethod<T>;
+    createAggregator: (
+        pair1: string,
+        pair2: string,
+        oracleAddresses: MichelsonMap<string, boolean>,
+        decimals: BigNumber,
+        numberBlocksDelay: BigNumber,
+        maintainer: string,
+        minimalTezosAmountDeviationTrigger: BigNumber,
+        perthousandDeviationTrigger: BigNumber,
+        percentOracleThreshold: BigNumber,
+        deviationRewardAmountXTZ: BigNumber,
+        rewardAmountMVK: BigNumber,
+        rewardAmountXTZ: BigNumber,
+        owner: string
+    ) => ContractMethod<T>;
+};
 
-    return index;
+type AggregatorFactoryContractMethodObject<T extends ContractProvider | Wallet> =
+    Record<string, (...args: any[]) => ContractMethodObject<T>>;
+
+type AggregatorViews = Record<string, (...args: any[]) => ContractView>;
+
+type AggregatorOnChainViews = {
+    [key: string]: OnChainView
+};
+
+type AggregatorFactoryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+    AggregatorFactoryContractMethods<T>,
+    AggregatorFactoryContractMethodObject<T>,
+    AggregatorViews,
+    AggregatorOnChainViews,
+    aggregatorStorageType>;
+
+
+export const setAggregatorFactoryLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorFactoryContractAbstraction) => {
+    const batch = tezosToolkit.wallet
+        .batch();
+
+    aggregatorFactoryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+        batch.withContractCall(contract.methods.setLambda(name, aggregatorFactoryLambdas[index]))
+
+    });
+
+
+    const op = await batch.send()
+    await op.confirmation()
+}
+
+export const setAggregatorFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorFactoryContractAbstraction) => {
+    const batch = tezosToolkit.wallet
+        .batch();
+
+    aggregatorLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+        batch.withContractCall(contract.methods.setProductLambda(name, aggregatorLambdas[index]))
+
+    });
+
+
+    const op = await batch.send()
+    await op.confirmation()
 }
 
 
 export class AggregatorFactory {
-    contract: Contract;
+    contract: AggregatorFactoryContractAbstraction;
     storage: aggregatorFactoryStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: Contract, tezos: TezosToolkit) {
+    constructor(contract: AggregatorFactoryContractAbstraction, tezos: TezosToolkit) {
       this.contract = contract;
       this.tezos = tezos;
     }
