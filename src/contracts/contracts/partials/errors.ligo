@@ -768,6 +768,7 @@
 [@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXPIRED                                                               = 551n;
 [@inline] const error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND                                                    = 552n;
 [@inline] const error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT                                                            = 553n;
+[@inline] const error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND                               = 553n;
 
 [@inline] const error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                                             = 554n;
 [@inline] const error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 555n;

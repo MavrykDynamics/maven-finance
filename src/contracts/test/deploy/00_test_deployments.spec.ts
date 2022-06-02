@@ -36,7 +36,7 @@ import aggregatorFactoryLambdas from '../../build/lambdas/aggregatorFactoryLambd
 
 import { Aggregator, aggregatorLambdaIndexOf } from '../helpers/aggregatorHelper'
 import { AggregatorFactory, aggregatorFactoryLambdaIndexOf } from '../helpers/aggregatorFactoryHelper'
-import { Doorman } from '../helpers/doormanHelper'
+import { Doorman, doormanLambdaIndexOf } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
 import { Governance } from '../helpers/governanceHelper'
@@ -382,6 +382,9 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
     aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
+      "delegation"            : delegation.contract.address,
+    })
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
       aggregatorFactoryStorage
@@ -567,23 +570,23 @@ describe('Contracts Deployment for Tests', async () => {
       // Doorman Setup Lambdas
       const doormanLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(doorman.contract.methods.setLambda("lambdaSetAdmin"                     , doormanLambdas[0]))  // setAdmin
-      .withContractCall(doorman.contract.methods.setLambda("lambdaSetGovernance"                , doormanLambdas[1]))  // setGovernance
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMetadata"               , doormanLambdas[2]))  // updateMetadata
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMinMvkAmount"           , doormanLambdas[3]))  // updateMinMvkAmount
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateWhitelistContracts"     , doormanLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateGeneralContracts"       , doormanLambdas[5]))  // updateGeneralContracts
-      .withContractCall(doorman.contract.methods.setLambda("lambdaMigrateFunds"                 , doormanLambdas[6]))  // migrateFunds
-      .withContractCall(doorman.contract.methods.setLambda("lambdaPauseAll"                     , doormanLambdas[7]))  // pauseAll
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUnpauseAll"                   , doormanLambdas[8]))  // unpauseAll
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseStake"             , doormanLambdas[9]))  // togglePauseStake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseUnstake"           , doormanLambdas[10])) // togglePauseUnstake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseCompound"          , doormanLambdas[11])) // togglePauseCompound
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseFarmClaim"         , doormanLambdas[12])) // togglePauseFarmClaim
-      .withContractCall(doorman.contract.methods.setLambda("lambdaStake"                        , doormanLambdas[13])) // stake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"                      , doormanLambdas[14])) // unstake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"                     , doormanLambdas[15])) // compound
-      .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"                    , doormanLambdas[16])) // farmClaim
+      .withContractCall(doorman.contract.methods.setLambda("lambdaSetAdmin"                     , doormanLambdas[doormanLambdaIndexOf("lambdaSetAdmin")]))                  // setAdmin
+      .withContractCall(doorman.contract.methods.setLambda("lambdaSetGovernance"                , doormanLambdas[doormanLambdaIndexOf("lambdaSetGovernance")]))             // setGovernance
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMetadata"               , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateMetadata")]))            // updateMetadata
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMinMvkAmount"           , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateMinMvkAmount")]))        // updateMinMvkAmount
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateWhitelistContracts"     , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateWhitelistContracts")]))  // updateWhitelistContracts
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateGeneralContracts"       , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateGeneralContracts")]))    // updateGeneralContracts
+      .withContractCall(doorman.contract.methods.setLambda("lambdaMigrateFunds"                 , doormanLambdas[doormanLambdaIndexOf("lambdaMigrateFunds")]))              // migrateFunds
+      .withContractCall(doorman.contract.methods.setLambda("lambdaPauseAll"                     , doormanLambdas[doormanLambdaIndexOf("lambdaPauseAll")]))                  // pauseAll
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUnpauseAll"                   , doormanLambdas[doormanLambdaIndexOf("lambdaUnpauseAll")]))                // unpauseAll
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseStake"             , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseStake")]))          // togglePauseStake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseUnstake"           , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseUnstake")]))        // togglePauseUnstake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseCompound"          , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseCompound")]))       // togglePauseCompound
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseFarmClaim"         , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseFarmClaim")]))      // togglePauseFarmClaim
+      .withContractCall(doorman.contract.methods.setLambda("lambdaStake"                        , doormanLambdas[doormanLambdaIndexOf("lambdaStake")]))                     // stake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"                      , doormanLambdas[doormanLambdaIndexOf("lambdaUnstake")]))                   // unstake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"                     , doormanLambdas[doormanLambdaIndexOf("lambdaCompound")]))                  // compound
+      .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"                    , doormanLambdas[doormanLambdaIndexOf("lambdaFarmClaim")]))                 // farmClaim
     
       const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
       await setupDoormanLambdasOperation.confirmation()
@@ -946,18 +949,28 @@ describe('Contracts Deployment for Tests', async () => {
       
       const aggregatorFactoryProductLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetAdmin"                    , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetAdmin')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateMetadata')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateConfig"                , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateConfig')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaAddOracle"                   , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaAddOracle')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRemoveOracle"                , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRemoveOracle')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdate"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdate')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdateDeviation"  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdateDeviation')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationCommit"        , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationCommit')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationReveal"        , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationReveal')]))
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXtz"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardXtz')]))
-      // TODO: Look into the mismatch between lambdaWithdrawRewardMvk and lambdaWithdrawRewardStakedMvk
-      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardMvk"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardStakedMvk')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetAdmin"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetAdmin')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetGovernance"                      , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetGovernance')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateMetadata')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateConfig"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateConfig')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistContracts"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateWhitelistContracts')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUpdateGeneralContracts"             , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUpdateGeneralContracts')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaAddOracle"                          , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaAddOracle')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRemoveOracle"                       , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRemoveOracle')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaPauseAll"                           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaPauseAll')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaUnpauseAll"                         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaUnpauseAll')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseReqRateUpd"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseReqRateUpd')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseReqRateUpdDev"           , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseReqRateUpdDev')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseSetObsCommit"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseSetObsCommit')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseSetObsReveal"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseSetObsReveal')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseRewardXtz"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseRewardXtz')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaTogglePauseRewardSMvk"              , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaTogglePauseRewardSMvk')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdate')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaRequestRateUpdateDeviation')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationCommit"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationCommit')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaSetObservationReveal"               , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaSetObservationReveal')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardXtz"                  , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardXtz')]))
+      .withContractCall(aggregatorFactory.contract.methods.setProductLambda("lambdaWithdrawRewardStakedMvk"            , aggregatorLambdas[aggregatorLambdaIndexOf('lambdaWithdrawRewardStakedMvk')]))
 
       const setupAggregatorFactoryProductLambdasOperation = await aggregatorFactoryProductLambdaBatch.send()
       await setupAggregatorFactoryProductLambdasOperation.confirmation()
@@ -967,14 +980,13 @@ describe('Contracts Deployment for Tests', async () => {
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
-    // MVK Token Contract - set governance contract address
-
-
+    
+    console.log("Setup Oracles")
 
     const oracleMap = MichelsonMap.fromLiteral({
-      [oracle0.pkh]: true,
-      [oracle1.pkh]: true,
-      [oracle2.pkh]: true,
+      [oracle0.pkh] : true,
+      [oracle1.pkh] : true,
+      [oracle2.pkh] : true,
 //      [oracle3.pkh]: true,
 //      [oracle4.pkh]: true,
     }) as MichelsonMap<
@@ -987,7 +999,9 @@ describe('Contracts Deployment for Tests', async () => {
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
             'USD',
             'BTC',
+            
             oracleMap,
+
             new BigNumber(8),             // decimals
             new BigNumber(2),             // numberBlocksDelay
             oracleMaintainer.pkh,         // maintainer
@@ -1005,7 +1019,9 @@ describe('Contracts Deployment for Tests', async () => {
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
             'USD',
             'XTZ',
+
             oracleMap,
+
             new BigNumber(8),             // decimals
             new BigNumber(2),             // numberBlocksDelay
             oracleMaintainer.pkh,         // maintainer
@@ -1023,7 +1039,9 @@ describe('Contracts Deployment for Tests', async () => {
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
             'USD',
             'DOGE',
+
             oracleMap,
+
             new BigNumber(16),            // decimals
             new BigNumber(2),             // numberBlocksDelay
             oracleMaintainer.pkh,         // maintainer
@@ -1044,6 +1062,7 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("Aggregators deployed")
 
+    // MVK Token Contract - set governance contract address
     // MVK Token Contract - set general contract addresses [doorman]
     // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
 

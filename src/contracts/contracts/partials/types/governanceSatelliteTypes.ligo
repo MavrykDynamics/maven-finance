@@ -8,7 +8,7 @@ type lambdaLedgerType is map(string, bytes)
 
 
 type satelliteRecordType is [@layout:comb] record [
-    status                : nat;        // active: 1; inactive: 0; 
+    status                : string;     // ACTIVE / SUSPENDED / BANNED
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
@@ -31,7 +31,7 @@ type governanceSatelliteConfigType is [@layout:comb] record [
     governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
     governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength             : nat;
-    votingPowerRatio                       : nat;  // todo: use view to get votingPowerRatio from governance contract
+    votingPowerRatio                       : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
 ]
 
 // ------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     status                             : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     executed                           : bool;                  // false on creation; set to true when financial request is executed successfully
     
-    governanceType                     : string;                // "MINT" or "TRANSFER"
+    governanceType                     : string;                // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR"
     governancePurpose                  : string;
     voters                             : governanceSatelliteVotersMapType; 
 
@@ -83,13 +83,12 @@ type governanceSatelliteActionLedgerType is big_map (nat, governanceSatelliteAct
 
 
 type oracleAggregatorPairRecord is [@layout:comb] record [
-  aggregatorPair     : string;      // e.g. BTC-USD
+  aggregatorPair     : (string * string);   // e.g. BTC-USD
   aggregatorAddress  : address; 
   startDateTime      : timestamp;   
 ]
 type aggregatorPairsMapType is map(address, oracleAggregatorPairRecord)
 type satelliteOracleRecordType is [@layout:comb] record [
-  // status           : string;                    // ACTIVE / SUSPENDED / BANNED -> shift to delegation contract
   aggregatorsSubscribed  : nat;                       // total number of aggregators that satellite is providing data for
   aggregatorPairs        : aggregatorPairsMapType;    // map of aggregators that satellite oracle is providing service for
 ]
@@ -97,8 +96,9 @@ type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
 
 
 type aggregatorRecordType is [@layout:comb] record [
-  aggregatorPair     : string;        // e.g. BTC-USD
-  status             : string;        // ACTIVE / INACTIVE
+  aggregatorPair     : (string * string);   // e.g. BTC-USD
+  status             : string;              // ACTIVE / INACTIVE
+  // description        : string;
   createdTimestamp   : timestamp; 
   oracles            : set(address);
 ]
@@ -195,7 +195,7 @@ type voteForActionType is [@layout:comb] record [
 ]
 
 type registerAggregatorActionType is [@layout:comb] record [
-  aggregatorPair                : string;        // e.g. BTC-USD  
+  aggregatorPair                : string * string;        // e.g. BTC-USD  
   aggregatorAddress             : address; 
 ]
 
@@ -204,6 +204,12 @@ type updateAggregatorStatusActionType is [@layout:comb] record [
   status                        : string;
   purpose                       : string;
 ]
+
+type updateSatelliteStatusParamsType is [@layout:comb] record [
+    satelliteAddress        : address;
+    newStatus               : string;
+]
+
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types

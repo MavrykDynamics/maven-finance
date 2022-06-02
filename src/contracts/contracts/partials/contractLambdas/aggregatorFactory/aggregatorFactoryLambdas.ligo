@@ -128,7 +128,7 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then skip
                 else s.breakGlassConfig.untrackAggregatorIsPaused := True;
 
-                for aggregatorAddress in set s.trackedAggregators
+                for _key -> aggregatorAddress in map s.trackedAggregators
                 block {
                     case (Tezos.get_entrypoint_opt("%pauseAll", aggregatorAddress): option(contract(unit))) of [
                             Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
@@ -165,7 +165,7 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
                 else skip;
 
-                for aggregatorAddress in set s.trackedAggregators
+                for _key -> aggregatorAddress in map s.trackedAggregators
                 block {
                     case (Tezos.get_entrypoint_opt("%unpauseAll", aggregatorAddress): option(contract(unit))) of [
                             Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
@@ -307,21 +307,21 @@ block {
                 const observationCommits  : observationCommitsType  = map[];
                 const observationReveals  : observationRevealsType  = map[];
                 const lastCompletedRoundPrice = record[
-                      round= 0n;
-                      price= 0n;
-                      percentOracleResponse= 0n;
-                      priceDateTime= Tezos.now;
+                      round                 = 0n;
+                      price                 = 0n;
+                      percentOracleResponse = 0n;
+                      priceDateTime         = Tezos.now;
                   ];
                 const oracleRewardXtz        : oracleRewardXtzType        = map[];
                 const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
                 const deviationTriggerInfos  : deviationTriggerInfosType  = record[
-                  oracleAddress=Tezos.sender;
-                  amount=0tez;
-                  roundPrice=0n;
+                  oracleAddress             = Tezos.sender;
+                  amount                    = 0tez;
+                  roundPrice                = 0n;
                 ];
 
                 const aggregatorWhitelistContracts : whitelistContractsType = map[
-                    ("aggregatorFactory")  -> (Tezos.self_address: address);
+                    ("aggregatorFactory")  -> (Tezos.self_address : address);
                 ];
                 const delegationAddress : address = case s.generalContracts["delegation"] of [ 
                         Some (_address) -> _address
@@ -390,8 +390,8 @@ block {
                     0tez,
                     originatedAggregatorStorage
                 );
+                
                 s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
-                // s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
 
                 operations := aggregatorOrigination.0 # operations; 
 
@@ -416,11 +416,11 @@ block{
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
-        | LambdaTrackAggregator(aggregatorContract) -> {
+        | LambdaTrackAggregator(trackAggregatorParams) -> {
                 
-                s.trackedAggregators := case Set.mem(aggregatorContract, s.trackedAggregators) of [
-                        True  -> (failwith(error_AGGREGATOR_ALREADY_TRACKED): set(address))
-                    |   False -> Set.add(aggregatorContract, s.trackedAggregators)
+                s.trackedAggregators := case Map.mem((trackAggregatorParams.pairFirst, trackAggregatorParams.pairSecond), s.trackedAggregators) of [
+                        True  -> failwith(error_AGGREGATOR_ALREADY_TRACKED)
+                    |   False -> Map.add((trackAggregatorParams.pairFirst, trackAggregatorParams.pairSecond), trackAggregatorParams.aggregatorAddress, s.trackedAggregators)
                 ];
 
             }
@@ -444,12 +444,9 @@ block{
     var operations : list(operation) := nil;
 
     case aggregatorFactoryLambdaAction of [
-        | LambdaUntrackAggregator(aggregatorContract) -> {
-                
-                s.trackedAggregators := case Set.mem(aggregatorContract, s.trackedAggregators) of [
-                        True  -> Set.remove(aggregatorContract, s.trackedAggregators)
-                    |   False -> (failwith(error_AGGREGATOR_NOT_TRACKED): set(address))
-                ];
+        | LambdaUntrackAggregator(untrackAggregatorParams) -> {
+
+                s.trackedAggregators := Map.update((untrackAggregatorParams.pairFirst, untrackAggregatorParams.pairSecond), (None : option(address)), s.trackedAggregators);
 
             }
         | _ -> skip
@@ -479,10 +476,7 @@ block{
         | LambdaDistributeRewardXtz(distributeRewardXtzParams) -> {
                 
                 // check that sender is from a tracked aggregator
-                case Set.mem(Tezos.sender, s.trackedAggregators) of [
-                        True  -> skip
-                    |   False -> failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR)
-                ];
+                if checkInTrackedAggregators(Tezos.sender, s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
 
                 const recipient          : address    = distributeRewardXtzParams.recipient;
                 const reward             : nat        = distributeRewardXtzParams.reward;
@@ -530,10 +524,7 @@ block{
         | LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams) -> {
                 
                 // check that sender is from a tracked aggregator
-                case Set.mem(Tezos.sender, s.trackedAggregators) of [
-                        True  -> skip
-                    |   False -> failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR)
-                ];
+                if checkInTrackedAggregators(Tezos.sender, s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
                       Some(_address) -> _address

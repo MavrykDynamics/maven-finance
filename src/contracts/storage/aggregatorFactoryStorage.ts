@@ -36,8 +36,8 @@ export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
   generalContracts        : MichelsonMap.fromLiteral({}),
   whitelistContracts      : MichelsonMap.fromLiteral({}),
     
-  trackedAggregators      : [],
-  //trackedAggregators      : MichelsonMap.fromLiteral({}),
+  // trackedAggregators      : [],
+  trackedAggregators      : MichelsonMap.fromLiteral({}),
   trackedSatellites       : [],
   
   
