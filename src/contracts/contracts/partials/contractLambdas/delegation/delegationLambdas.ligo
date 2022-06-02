@@ -976,14 +976,11 @@ block {
 function lambdaUpdateSatelliteStatus(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
 block {
 
-    // Overall steps:
-    
-
     // Operation list
     var operations: list(operation) := nil;
 
-    // Check sender is a whitelist contract
-    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+    // Check sender is admin or a whitelisted contract (governance satellite)
+    if s.admin = Tezos.sender or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     case delegationLambdaAction of [
         | LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {

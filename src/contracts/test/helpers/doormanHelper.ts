@@ -5,6 +5,18 @@ import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { doormanStorageType } from "../types/doormanStorageType";
 
+import doormanLambdaIndex  from '../../../contracts/contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json';
+
+export const doormanLambdaIndexOf = (name: string) => {
+    const index = doormanLambdaIndex.find(x => x.name === name)?.index
+
+    if (index === undefined) {
+        throw new Error(`doormanLambdaIndexOf: ${name} not found`)
+    }
+
+    return index;
+}
+
 export class Doorman {
     contract: Contract;
     storage: doormanStorageType;

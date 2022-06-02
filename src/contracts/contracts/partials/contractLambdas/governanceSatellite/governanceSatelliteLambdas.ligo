@@ -1067,8 +1067,8 @@ block {
         | LambdaRegisterAggregator(registerAggregatorParams) -> {
                 
                 // init params
-                const aggregatorAddress    : address = registerAggregatorParams.aggregatorAddress;
-                const aggregatorPair       : string  = registerAggregatorParams.aggregatorPair;
+                const aggregatorAddress    : address          = registerAggregatorParams.aggregatorAddress;
+                const aggregatorPair       : string * string  = registerAggregatorParams.aggregatorPair;
 
                 // check if aggregator already exists
                 case s.aggregatorLedger[aggregatorAddress] of [
@@ -1392,8 +1392,19 @@ block {
                                         | None -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
                                     ];
 
-                                    // update satellite oracle record
-                                    // satelliteOracleRecord.status := "SUSPENDED";
+                                    // update satellite status in delegation contract
+                                    const updateSatelliteStatusParams : updateSatelliteStatusParamsType = record [
+                                        satelliteAddress = satelliteToBeSuspended;
+                                        newStatus        = "SUSPENDED";
+                                    ];
+
+                                    const updateSatelliteStatusOperation : operation = Tezos.transaction(
+                                        updateSatelliteStatusParams,
+                                        0tez,
+                                        getUpdateSatelliteStatusInDelegationEntrypoint(delegationAddress)
+                                    );
+
+                                    operations := updateSatelliteStatusOperation # operations;
 
                                     // remove satellite oracles in aggregators
                                     for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregatorPairs {
@@ -1424,8 +1435,19 @@ block {
                                         | None -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
                                     ];
 
-                                    // update satellite oracle record
-                                    // satelliteOracleRecord.status := "ACTIVE";
+                                    // update satellite status in delegation contract
+                                    const updateSatelliteStatusParams : updateSatelliteStatusParamsType = record [
+                                        satelliteAddress = satelliteToBeUnsuspended;
+                                        newStatus        = "ACTIVE";
+                                    ];
+
+                                    const updateSatelliteStatusOperation : operation = Tezos.transaction(
+                                        updateSatelliteStatusParams,
+                                        0tez,
+                                        getUpdateSatelliteStatusInDelegationEntrypoint(delegationAddress)
+                                    );
+
+                                    operations := updateSatelliteStatusOperation # operations;
 
                                     // add satellite oracles in aggregators
                                     for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregatorPairs {
@@ -1456,8 +1478,19 @@ block {
                                         | None -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
                                     ];
 
-                                    // update satellite oracle record
-                                    // satelliteOracleRecord.status := "BANNED";
+                                    // update satellite status in delegation contract
+                                    const updateSatelliteStatusParams : updateSatelliteStatusParamsType = record [
+                                        satelliteAddress = satelliteToBeBanned;
+                                        newStatus        = "BANNED";
+                                    ];
+
+                                    const updateSatelliteStatusOperation : operation = Tezos.transaction(
+                                        updateSatelliteStatusParams,
+                                        0tez,
+                                        getUpdateSatelliteStatusInDelegationEntrypoint(delegationAddress)
+                                    );
+
+                                    operations := updateSatelliteStatusOperation # operations;
 
                                     // remove satellite oracles in aggregators
                                     for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregatorPairs {
@@ -1488,8 +1521,19 @@ block {
                                         | None -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
                                     ];
 
-                                    // update satellite oracle record
-                                    // satelliteOracleRecord.status := "ACTIVE";
+                                    // update satellite status in delegation contract
+                                    const updateSatelliteStatusParams : updateSatelliteStatusParamsType = record [
+                                        satelliteAddress = satelliteToBeUnbanned;
+                                        newStatus        = "ACTIVE";
+                                    ];
+
+                                    const updateSatelliteStatusOperation : operation = Tezos.transaction(
+                                        updateSatelliteStatusParams,
+                                        0tez,
+                                        getUpdateSatelliteStatusInDelegationEntrypoint(delegationAddress)
+                                    );
+
+                                    operations := updateSatelliteStatusOperation # operations;
 
                                     // add satellite oracles in aggregators
                                     for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregatorPairs {

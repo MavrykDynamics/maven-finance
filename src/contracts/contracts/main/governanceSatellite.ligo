@@ -211,6 +211,16 @@ case (Tezos.get_entrypoint_opt(
 ];
 
 
+
+// helper function to get updateSatelliteStatus entrypoint in delegation contract
+function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : address) : contract(updateSatelliteStatusParamsType) is
+case (Tezos.get_entrypoint_opt(
+      "%updateSatelliteStatus",
+      contractAddress) : option(contract(updateSatelliteStatusParamsType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
+];
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
