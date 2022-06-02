@@ -119,7 +119,6 @@ export const TreasuryViewStyle = styled(Card)`
   .assets-map {
     max-height: 132px;
     overflow: auto;
-    padding-right: 16px;
   }
 ` //TreasuryViewStyle
 
