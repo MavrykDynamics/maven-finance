@@ -49,7 +49,6 @@ export const setAggregatorLambdas = async (tezosToolkit: TezosToolkit, contract:
 
     });
 
-
     const setupAggregatorLambdasOperation = await batch.send()
     await setupAggregatorLambdasOperation.confirmation()
 };

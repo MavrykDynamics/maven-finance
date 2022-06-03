@@ -57,6 +57,12 @@
 // TreasuryFactory Type
 #include "../partials/types/treasuryFactoryTypes.ligo"
 
+// Aggregator Type
+#include "../partials/types/aggregatorTypes.ligo"
+
+// AggregatorFactory Type
+#include "../partials/types/aggregatorFactoryTypes.ligo"
+
 // Governance Proxy Types
 #include "../partials/types/governanceProxyTypes.ligo"
 
