@@ -202,8 +202,8 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
         
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
@@ -211,7 +211,7 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
                 mvkTokenAddress+"%getMaximumSupply": mvkMaximumSupply,
                 governanceAddress+"%getGeneralContractOpt": farmFactoryAddress,
                 governanceAddress+"%getGeneralContractOpt": delegationAddress,
@@ -304,8 +304,8 @@ class DoormanContract(TestCase):
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
         res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
         
@@ -374,8 +374,8 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
         
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
@@ -496,8 +496,8 @@ class DoormanContract(TestCase):
             });
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
@@ -530,8 +530,8 @@ class DoormanContract(TestCase):
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
             self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
@@ -694,8 +694,8 @@ class DoormanContract(TestCase):
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         print('----')
@@ -718,8 +718,8 @@ class DoormanContract(TestCase):
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=bob);
         with self.raisesMichelsonError(error_codes.error_DELEGATION_CONTRACT_NOT_FOUND):
             self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": mvkTotalSupply,
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": mvkTotalSupply,
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         print('----')
@@ -740,7 +740,7 @@ class DoormanContract(TestCase):
             });
         with self.raisesMichelsonError(error_codes.error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED):
             self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, source=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply'],
+                mvkTokenAddress+"%total_supply": init_mvk_storage['totalSupply'],
                 delegationAddress+"%getSatelliteRewardsOpt": None,
             })
 
@@ -792,8 +792,8 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
             res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": self.MVK(100),
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": self.MVK(100),
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         newAmount = res.storage['minMvkAmount']
@@ -828,8 +828,8 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):
             res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": self.MVK(100),
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": self.MVK(100),
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         newAmount = res.storage['minMvkAmount']
@@ -860,8 +860,8 @@ class DoormanContract(TestCase):
                 governanceAddress+"%getGeneralContractOpt": delegationAddress
             });
         res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": self.MVK(100),
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": self.MVK(100),
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         newAmount = res.storage['minMvkAmount']
@@ -893,8 +893,8 @@ class DoormanContract(TestCase):
             governanceAddress+"%getGeneralContractOpt": delegationAddress
         });
         res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, source=bob, view_results={
-                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply'],
-                mvkTokenAddress+"%getBalance": self.MVK(2),
+                mvkTokenAddress+"%total_supply": init_mvk_storage['totalSupply'],
+                mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
         newAmount = res.storage['minMvkAmount']
