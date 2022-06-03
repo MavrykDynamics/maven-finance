@@ -3,8 +3,13 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class CreateTreasuryParameter(BaseModel):
-    __root__: str
+    class Config:
+        extra = Extra.forbid
+
+    name: str
+    addToGeneralContracts: bool
+    metadata: str

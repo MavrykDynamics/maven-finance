@@ -40,9 +40,10 @@ async def on_farm_origination(
     elif lp_token_standard == fa12:
         lp_token_standard_type  = models.TokenType.FA12
     
-    governance      = await models.Governance.get(
+    governance, _      = await models.Governance.get_or_create(
         address = governance_address
     )
+    await governance.save()
     farm, _         = await models.Farm.get_or_create(
         address     = farm_address,
         admin       = admin,

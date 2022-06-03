@@ -3,9 +3,17 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
+
+
+class Config(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    blocksPerMinute: str
+    empty: Dict[str, Any]
 
 
 class BreakGlassConfig(BaseModel):
@@ -25,7 +33,7 @@ class FarmFactoryStorage(BaseModel):
     metadata: Dict[str, str]
     mvkTokenAddress: str
     governanceAddress: str
-    config: str
+    config: Config
     breakGlassConfig: BreakGlassConfig
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]

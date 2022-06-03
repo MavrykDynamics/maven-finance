@@ -13,7 +13,7 @@ async def on_farm_factory_origination(
     address                     = farm_factory_origination.data.originated_contract_address
     admin                       = farm_factory_origination.storage.admin
     governance_address          = farm_factory_origination.storage.governanceAddress
-    blocks_per_minute           = int(farm_factory_origination.storage.config)
+    blocks_per_minute           = int(farm_factory_origination.storage.config.blocksPerMinute)
     create_farm_paused          = farm_factory_origination.storage.breakGlassConfig.createFarmIsPaused
     track_farm_paused           = farm_factory_origination.storage.breakGlassConfig.trackFarmIsPaused
     untrack_farm_paused         = farm_factory_origination.storage.breakGlassConfig.untrackFarmIsPaused

@@ -74,7 +74,7 @@ class Depositors(BaseModel):
         extra = Extra.forbid
 
     balance: str
-    participationMVKPerShare: str
+    participationRewardsPerShare: str
     unclaimedRewards: str
     claimedRewards: str
 
@@ -87,6 +87,7 @@ class FarmStorage(BaseModel):
     mvkTokenAddress: str
     governanceAddress: str
     metadata: Dict[str, str]
+    name: str
     config: Config
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]

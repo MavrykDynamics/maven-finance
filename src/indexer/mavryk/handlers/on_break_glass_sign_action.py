@@ -56,12 +56,11 @@ async def on_break_glass_sign_action(
                 break_glass = break_glass,
                 id          = single_action_id
             )
-            status                  = action_status.status
             # Select correct status
             status_type = models.ActionStatus.PENDING
-            if status == "FLUSHED":
+            if action_status == "FLUSHED":
                 status_type = models.ActionStatus.FLUSHED
-            elif status == "EXECUTED":
+            elif action_status == "EXECUTED":
                 status_type = models.ActionStatus.EXECUTED
             single_action_record.status            = status_type
             await single_action_record.save()

@@ -272,7 +272,7 @@ async def persist_financial_request(action):
                     governance_financial_request    = requestRecord,
                     user                            = user
                 )
-                satellite_snapshot.total_smvk_balance              = float(satellite_snapshot_record.totalMvkBalance)
+                satellite_snapshot.total_smvk_balance              = float(satellite_snapshot_record.totalStakedMvkBalance)
                 satellite_snapshot.total_delegated_amount          = float(satellite_snapshot_record.totalDelegatedAmount)
                 satellite_snapshot.total_voting_power              = float(satellite_snapshot_record.totalVotingPower)
                 await satellite_snapshot.save()

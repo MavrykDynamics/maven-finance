@@ -140,7 +140,6 @@ class ProposalLedger(BaseModel):
     sourceCode: str
     successReward: str
     executed: bool
-    isSuccessful: bool
     paymentProcessed: bool
     locked: bool
     passVoteCount: str
@@ -169,11 +168,10 @@ class SnapshotLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    totalMvkBalance: str
+    totalStakedMvkBalance: str
     totalDelegatedAmount: str
     totalVotingPower: str
-    currentCycleStartLevel: str
-    currentCycleEndLevel: str
+    cycle: str
 
 
 class RoundItem(BaseModel):
@@ -225,12 +223,13 @@ class GovernanceStorage(BaseModel):
     governanceProxyAddress: str
     whitelistDevelopers: List[str]
     generalContracts: Dict[str, str]
+    whitelistContracts: Dict[str, str]
     proposalLedger: Dict[str, ProposalLedger]
     snapshotLedger: Dict[str, SnapshotLedger]
     currentCycleInfo: CurrentCycleInfo
     nextProposalId: str
     cycleCounter: str
-    currentRoundHighestVotedProposalId: str
+    cycleHighestVotedProposalId: str
     timelockProposalId: str
     snapshotMvkTotalSupply: str
     lambdaLedger: Dict[str, str]
