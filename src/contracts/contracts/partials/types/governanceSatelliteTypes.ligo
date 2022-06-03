@@ -191,7 +191,6 @@ type dropActionType is [@layout:comb] record [
 type voteForActionType is [@layout:comb] record [
     actionId                    : nat;
     vote                        : governanceSatelliteVoteChoiceType;
-    purpose                     : string;
 ]
 
 type registerAggregatorActionType is [@layout:comb] record [

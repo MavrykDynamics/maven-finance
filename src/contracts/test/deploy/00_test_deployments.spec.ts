@@ -1094,6 +1094,7 @@ describe('Contracts Deployment for Tests', async () => {
     .batch()
     .withContractCall(delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
     .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
+    .withContractCall(delegation.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
     .withContractCall(delegation.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address))
     const delegationContractsBatchOperation = await delegationContractsBatch.send()
     await delegationContractsBatchOperation.confirmation()
@@ -1162,9 +1163,8 @@ describe('Contracts Deployment for Tests', async () => {
     const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
     await treasuryContractsBatchOperation.confirmation()
     
-    console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy]')
+    console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, AggregatorFactory]')
     console.log('Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]')
-    console.log('Treasury Contract - set whitelist aggregator factory contract addresses map [AggregatorFactory]')
 
 
 
