@@ -239,24 +239,48 @@ block{
 
 
 
+(* maximumSupply View *)
+[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+  store.maximumSupply
+
+
+
 (* get: balance View *)
-[@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
-  case Big_map.find_opt(user, store.ledger) of [
+[@view] function get_balance(const userAndId: owner * nat; const store: mvkTokenStorage) : tokenBalance is
+  case Big_map.find_opt(userAndId.0, store.ledger) of [
       Some (_v) -> _v
     | None      -> 0n
   ]
 
 
 
-(* totalSupply View *)
-[@view] function getTotalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
-  store.totalSupply
+(* total_supply View *)
+[@view] function total_supply(const _tokenId: nat; const _store: mvkTokenStorage) : tokenBalance is
+  _store.totalSupply
 
 
 
-(* maximumSupply View *)
-[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
-  store.maximumSupply
+(* all_tokens View *)
+[@view] function all_tokens(const _: unit; const _store: mvkTokenStorage) : list(nat) is
+  list[0n]
+
+
+
+(* check if operator *)
+[@view] function is_operator(const operator: (owner * operator * nat); const store: mvkTokenStorage) : bool is
+  Big_map.mem(operator, store.operators)
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId: nat; const store: mvkTokenStorage) : tokenMetadataInfo is
+  case Big_map.find_opt(tokenId, store.token_metadata) of [
+    Some (_metadata)  -> _metadata
+  | None              -> record[
+    token_id    = tokenId;
+    token_info  = map[]
+  ]
+  ]
 
 // ------------------------------------------------------------------------------
 //
@@ -359,8 +383,8 @@ block{
             const tokenId: tokenId = destination.token_id;
             const tokenAmount: tokenBalance = destination.amount;
             const receiver: owner = destination.to_;
-            const ownerBalance: tokenBalance = getBalance(owner, accumulator);
-            const receiverBalance: tokenBalance = getBalance(receiver, accumulator);
+            const ownerBalance: tokenBalance = get_balance((owner, 0n), accumulator);
+            const receiverBalance: tokenBalance = get_balance((receiver, 0n), accumulator);
 
             // Validate operator
             checkOperator(owner, tokenId, account.1.operators);
@@ -457,7 +481,7 @@ block {
     else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = get_balance((recipientAddress, 0n), store) + mintedTokens;
 
     // Update mvkTokenStorage
     store.totalSupply := store.totalSupply + mintedTokens;
