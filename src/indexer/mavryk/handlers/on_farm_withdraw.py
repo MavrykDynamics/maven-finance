@@ -15,7 +15,7 @@ async def on_farm_withdraw(
     depositor_address               = withdraw.data.sender_address
     depositor_storage               = withdraw.storage.depositors[depositor_address]
     balance                         = int(depositor_storage.balance)
-    participation_mvk_per_share     = float(depositor_storage.participationMVKPerShare)
+    participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
     claimed_rewards                 = float(depositor_storage.claimedRewards)
     unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
     lp_token_balance                = int(withdraw.storage.config.lpToken.tokenBalance)
@@ -47,7 +47,7 @@ async def on_farm_withdraw(
         farm = farm
     )
     farm_account.deposited_amount               = balance
-    farm_account.participation_mvk_per_share    = participation_mvk_per_share
+    farm_account.participation_rewards_per_share     = participation_rewards_per_share 
     farm_account.unclaimed_rewards              = unclaimed_rewards
     farm_account.claimed_rewards                = claimed_rewards
     await farm_account.save()

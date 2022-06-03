@@ -70,7 +70,7 @@ class FinancialRequestSnapshotLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    totalMvkBalance: str
+    totalStakedMvkBalance: str
     totalDelegatedAmount: str
     totalVotingPower: str
 
@@ -85,6 +85,7 @@ class GovernanceFinancialStorage(BaseModel):
     metadata: Dict[str, str]
     config: Config
     whitelistTokenContracts: Dict[str, str]
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     financialRequestLedger: Dict[str, FinancialRequestLedger]
     financialRequestSnapshotLedger: Dict[str, Dict[str, FinancialRequestSnapshotLedger]]

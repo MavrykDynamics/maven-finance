@@ -25,6 +25,7 @@ class TreasuryStorage(BaseModel):
     admin: str
     mvkTokenAddress: str
     governanceAddress: str
+    name: str
     metadata: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     whitelistContracts: Dict[str, str]

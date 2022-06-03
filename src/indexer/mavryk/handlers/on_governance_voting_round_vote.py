@@ -12,8 +12,8 @@ async def on_governance_voting_round_vote(
 
     # Get operation values
     governance_address      = voting_round_vote.data.target_address
-    proposal_id             = int(voting_round_vote.storage.currentRoundHighestVotedProposalId)
-    storage_proposal        = voting_round_vote.storage.proposalLedger[voting_round_vote.storage.currentRoundHighestVotedProposalId]
+    proposal_id             = int(voting_round_vote.storage.cycleHighestVotedProposalId )
+    storage_proposal        = voting_round_vote.storage.proposalLedger[voting_round_vote.storage.cycleHighestVotedProposalId ]
     voter_address           = voting_round_vote.data.sender_address
     current_round           = models.GovernanceRoundType.VOTING
     vote_type               = voting_round_vote.parameter.vote

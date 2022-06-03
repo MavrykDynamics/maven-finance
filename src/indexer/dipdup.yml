@@ -23,43 +23,43 @@ advanced:
 
 contracts:
   mvk:
-    address: KT1HVVchMjYZUs1HBwp7Zp4EKebqLsC4SZQm
+    address: KT1JMNii1SQya2hXK4YKeNKzdsY13jKmasCL
     typename: mvk
   governance:
-    address: KT1WxxvZ4ofHGPezKBSoJ5CW3yhKZqpfwcp3
+    address: KT1V7V1hRfjcTxyJeBDjYksngtMQUvtWWwa4
     typename: governance
   doorman:
-    address: KT1GJ3NmTCTSYcfVqNhfMnA1Q7vKDgEsixbs
+    address: KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm
     typename: doorman
   farm:
-    address: KT1TwYNogSQfioeR79Qtne1sqSVeVfY4TxoV #KT1HSVbzssUpuSVvuq4G1bq8TWQmphywWu7d
+    address: KT1XN2EMwxoDrAy873z4gX3yRDCPnjAi6Jzm #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
     typename: farm
   farm_factory:
-    address: KT19xF64F4aJ97gjyZ3ifDihRQ1jgVRMfU24
+    address: KT1SFQqKBEbaJ7Nfp29qFQcDApkbF8gUH3bX
     typename: farm_factory
   delegation:
-    address: KT1LBBB89VUpYGoNo3HJi8YRsu6jdXcqpyx2
+    address: KT1UYJoRz8BcsXv3SCzSnySVFcuWJQ5eebcb
     typename: delegation
   vesting:
-    address: KT1H7HY8CasfLb8SfdUZh2o9obbivhzGFKj1
+    address: KT1XYzCK6byh9HUpLP2poHrfBkv6hBLwvieH
     typename: vesting
   emergency_governance:
-    address: KT1EDWxv1v1TEBrmmWxgur84sz5Tz8PCR3Yq
+    address: KT1Mrp2aNC11vTDcXBZykyYpuYfXjGdJ755n
     typename: emergency_governance
   council:
-    address: KT1ArMpZbetnugsAmHsR97jQWkwkYhfC4s57
+    address: KT192JmK3PQKnXfHRDj9LUUAvmPY4unVsXkB
     typename: council
   break_glass:
-    address: KT1JPD2BFkvoSZwhVzSP8umbKJqwWD7igQ3L
+    address: KT1K2J38WHQbdrYgCqD8fW5gGFAaUXbmv3XT
     typename: break_glass
   governance_financial:
-    address: KT1NcGXwFFMmkzgNFb3H9m4vXktDK8RsBXUb
+    address: KT1JZNNKR55c2GqYf2AFbkSb5ZbE48kez5th
     typename: governance_financial
   treasury:
-    address: KT1QMZ2jqRSyqvRTu8RCtDJdhrnBs5ez9uzR
+    address: KT1WxAZbk5QMnTmqPpw2Z9GHWxFh24Q9whDG
     typename: treasury
   treasury_factory:
-    address: KT1TGXbDDNyeQRf9xdQD8XPat2KKMCcLm7Ss
+    address: KT1B9YuFnaJ857Rb3Pq3vqrgExKMN15DKSED
     typename: treasury_factory
 
 datasources:
@@ -290,6 +290,10 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: updateGeneralContracts
+      - callback: on_governance_update_whitelist_contracts
+        pattern:
+          - destination: governance
+            entrypoint: updateWhitelistContracts
       - callback: on_governance_update_whitelist_developers
         pattern:
           - destination: governance
@@ -741,6 +745,10 @@ indexes:
         pattern:
           - destination: emergency_governance
             entrypoint: updateGeneralContracts
+      - callback: on_emergency_governance_update_whitelist_contracts
+        pattern:
+          - destination: emergency_governance
+            entrypoint: updateWhitelistContracts
       - callback: on_emergency_governance_trigger_emergency_control
         pattern:
           - destination: emergency_governance
@@ -971,6 +979,10 @@ indexes:
         pattern:
           - destination: governance_financial
             entrypoint: updateGeneralContracts
+      - callback: on_governance_financial_update_whitelist_contracts
+        pattern:
+          - destination: governance_financial
+            entrypoint: updateWhitelistContracts
       - callback: on_governance_financial_update_whitelist_token_contracts
         pattern:
           - destination: governance_financial

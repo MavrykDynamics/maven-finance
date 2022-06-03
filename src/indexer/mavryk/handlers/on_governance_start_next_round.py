@@ -23,7 +23,7 @@ async def on_governance_start_next_round(
     current_round_proposals             = start_next_round.storage.currentCycleInfo.roundProposals
     current_round_votes                 = start_next_round.storage.currentCycleInfo.roundVotes
     cycle_counter                       = int(start_next_round.storage.cycleCounter)
-    highest_voted_proposal              = int(start_next_round.storage.currentRoundHighestVotedProposalId)
+    highest_voted_proposal              = int(start_next_round.storage.cycleHighestVotedProposalId )
     timelock_proposal                   = int(start_next_round.storage.timelockProposalId)
     satellite_snapshots                 = start_next_round.storage.snapshotLedger
 
@@ -47,7 +47,7 @@ async def on_governance_start_next_round(
     governance.current_cycle_end_level                  = current_cycle_end_level
     governance.current_cycle_total_voters_reward        = current_cycle_voters_rewards
     governance.cycle_counter                            = cycle_counter
-    governance.current_round_highest_voted_proposal_id  = highest_voted_proposal
+    governance.cycle_highest_voted_proposal_id   = highest_voted_proposal
     governance.timelock_proposal_id                     = timelock_proposal
     await governance.save()
 
@@ -74,9 +74,9 @@ async def on_governance_start_next_round(
         satellite_snapshot, _           = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
             governance              = governance,
             user                    = user,
-            total_smvk_balance      = float(storage_satellite_snapshot.totalMvkBalance),
+            total_smvk_balance      = float(storage_satellite_snapshot.totalStakedMvkBalance),
             total_delegated_amount  = float(storage_satellite_snapshot.totalDelegatedAmount),
             total_voting_power      = float(storage_satellite_snapshot.totalVotingPower),
-            # cycle                   = int(storage_satellite_snapshot.cycle)
+            cycle                   = int(storage_satellite_snapshot.cycle)
         )
         await satellite_snapshot.save()
