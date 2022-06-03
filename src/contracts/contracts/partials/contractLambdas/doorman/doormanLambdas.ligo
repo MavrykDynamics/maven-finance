@@ -135,7 +135,7 @@ block {
                 else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
 
                 // Get Doorman MVK balance
-                const balanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
                 const doormanBalance: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -461,14 +461,14 @@ block {
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Get SMVK Total Supply
-                const balanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
                 const stakedMvkTotalSupply: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -597,14 +597,14 @@ block {
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Get SMVK Total Supply
-                const balanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
                 const stakedMvkTotalSupply: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -784,7 +784,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
                 if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
                 const mvkTotalSupply: (nat) = case mvkTotalSupplyView of [
                     Some (_totalSupply) -> _totalSupply
                   | None                -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)

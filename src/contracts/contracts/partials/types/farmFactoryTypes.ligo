@@ -62,7 +62,7 @@ type farmFactoryBreakGlassConfigType is [@layout:comb] record [
 
 type farmFactoryConfigType is [@layout:comb] record [
     blocksPerMinute         : nat;
-    _empty                  : unit;
+    empty                   : unit;
 ] 
 
 type updateMetadataType is [@layout:comb] record [
