@@ -386,6 +386,7 @@ describe('Contracts Deployment for Tests', async () => {
     aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
     aggregatorFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
+      "aggregatorTreasury"    : treasury.contract.address,
     })
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
@@ -1157,11 +1158,13 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
+    .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("AggregatorFactory", aggregatorFactory.contract.address))
     const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
     await treasuryContractsBatchOperation.confirmation()
     
     console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy]')
     console.log('Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]')
+    console.log('Treasury Contract - set whitelist aggregator factory contract addresses map [AggregatorFactory]')
 
 
 
