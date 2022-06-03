@@ -92,6 +92,15 @@ type unstakeTreasuryType is [@layout:comb] record [
   unstakeAmount             : nat;
 ]
 
+// type pauseEntrypointType is 
+//   | LambdaTogglePauseStake
+
+// type pauseSingleEntrypointInContractType is [@layout:comb] record [
+//   contract                  : address;
+//   entrypoint                : pauseEntrypointType;
+// ]
+
+
 type executeActionParamsType is 
 
   UpdateProxyLambda                  of setProxyLambdaType
@@ -113,6 +122,10 @@ type executeActionParamsType is
 | UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
 | UpdateDoormanMinMvkAmount          of (nat)
 
+| PauseAllInContract                 of (address)
+| UnpauseAllInContract               of (address)
+// | PauseSingleEntrypointInContract    of pauseSingleEntrypointInContractType
+
 | UpdateWhitelistDevelopersSet       of (address)
 | SetGovernanceProxy                 of (address)
 
@@ -130,6 +143,10 @@ type executeActionParamsType is
 | UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
 | StakeMvkTreasury                   of stakeTreasuryType
 | UnstakeMvkTreasury                 of unstakeTreasuryType
+
+| CreateAggregator                   of createAggregatorParamsType
+| TrackAggregator                    of trackAggregatorParamsType
+| UntrackAggregator                  of untrackAggregatorParamsType
 
 | UpdateMvkInflationRate             of (nat)
 | TriggerMvkInflation                of unit

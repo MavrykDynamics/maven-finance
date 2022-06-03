@@ -1479,6 +1479,129 @@ block {
 
 
 
+function createAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      CreateAggregator(createAggregatorParams) -> {
+
+                // find and get aggregatorFactory contract address from the generalContracts map
+                const aggregatorFactoryAddress : address = case s.generalContracts["aggregatorFactory"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // find and get createAggregator entrypoint of aggregatorFactory contract
+                const createAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%createAggregator",
+                    aggregatorFactoryAddress) : option(contract(bytes))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
+                    ];
+
+                // create a new aggregator
+                const createAggregatorOperation : operation = Tezos.transaction(
+                    (createAggregatorParams),
+                    0tez, 
+                    createAggregatorEntrypoint
+                  );
+
+                operations := createAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      TrackAggregator(trackAggregatorParams) -> {
+
+                // find and get aggregatorFactory contract address from the generalContracts map
+                const aggregatorFactoryAddress : address = case s.generalContracts["aggregatorFactory"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // find and get trackAggregator entrypoint of aggregatorFactory contract
+                const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "trackAggregator",
+                    aggregatorFactoryAddress) : option(contract(bytes))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
+                    ];
+
+                // track aggregator
+                const trackAggregatorOperation : operation = Tezos.transaction(
+                    (trackAggregatorParams),
+                    0tez, 
+                    trackAggregatorEntrypoint
+                  );
+
+                operations := trackAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UntrackAggregator(untrackAggregatorParams) -> {
+
+                // find and get aggregatorFactory contract address from the generalContracts map
+                const aggregatorFactoryAddress : address = case s.generalContracts["aggregatorFactory"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // find and get trackAggregator entrypoint of aggregatorFactory contract
+                const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "untrackAggregator",
+                    aggregatorFactoryAddress) : option(contract(bytes))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
+                    ];
+
+                // untrack aggregator
+                const untrackAggregatorOperation : operation = Tezos.transaction(
+                    (untrackAggregatorParams),
+                    0tez, 
+                    untrackAggregatorEntrypoint
+                  );
+
+                operations := untrackAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
 function updateMvkInflationRate(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 

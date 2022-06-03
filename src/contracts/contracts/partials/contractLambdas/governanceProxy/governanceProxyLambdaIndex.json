@@ -157,26 +157,38 @@
   },
   {
     "index": 39,
-    "name": "updateMvkInflationRate"
+    "name": "createAggregator"
   },
   {
     "index": 40,
-    "name": "triggerMvkInflation"
+    "name": "trackAggregator"
   },
   {
     "index": 41,
-    "name": "addVestee"
+    "name": "untrackAggregator"
   },
   {
     "index": 42,
-    "name": "removeVestee"
+    "name": "updateMvkInflationRate"
   },
   {
     "index": 43,
-    "name": "updateVestee"
+    "name": "triggerMvkInflation"
   },
   {
     "index": 44,
+    "name": "addVestee"
+  },
+  {
+    "index": 45,
+    "name": "removeVestee"
+  },
+  {
+    "index": 46,
+    "name": "updateVestee"
+  },
+  {
+    "index": 47,
     "name": "toggleVesteeLock"
   }
 ]

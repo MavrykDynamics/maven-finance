@@ -187,256 +187,252 @@ describe("Governance Satellite tests", async () => {
 
     
 
-    describe("%setAdmin", async () => {
+    // describe("%setAdmin", async () => {
 
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
 
-        it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
-            try{
+    //     it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+    //         try{
 
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentAdmin = governanceSatelliteStorage.admin;
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentAdmin = governanceSatelliteStorage.admin;
 
-                // Operation
-                const setAdminOperation = await governanceSatelliteInstance.methods.setAdmin(alice.pkh).send();
-                await setAdminOperation.confirmation();
+    //             // Operation
+    //             const setAdminOperation = await governanceSatelliteInstance.methods.setAdmin(alice.pkh).send();
+    //             await setAdminOperation.confirmation();
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newAdmin = governanceSatelliteStorage.admin;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const newAdmin = governanceSatelliteStorage.admin;
 
-                // reset admin
-                await signerFactory(alice.sk);
-                const resetAdminOperation = await governanceSatelliteInstance.methods.setAdmin(bob.pkh).send();
-                await resetAdminOperation.confirmation();
+    //             // reset admin
+    //             await signerFactory(alice.sk);
+    //             const resetAdminOperation = await governanceSatelliteInstance.methods.setAdmin(bob.pkh).send();
+    //             await resetAdminOperation.confirmation();
 
-                // Assertions
-                assert.notStrictEqual(newAdmin, currentAdmin);
-                assert.strictEqual(newAdmin, alice.pkh);
-                assert.strictEqual(currentAdmin, bob.pkh);
+    //             // Assertions
+    //             assert.notStrictEqual(newAdmin, currentAdmin);
+    //             assert.strictEqual(newAdmin, alice.pkh);
+    //             assert.strictEqual(currentAdmin, bob.pkh);
 
-            } catch(e){
-                console.log(e);
-            }
-        });
+    //         } catch(e){
+    //             console.log(e);
+    //         }
+    //     });
 
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try{
-                // Initial Values
-                await signerFactory(alice.sk);
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentAdmin = governanceSatelliteStorage.admin;
+    //     it('Non-admin should not be able to call this entrypoint', async () => {
+    //         try{
+    //             // Initial Values
+    //             await signerFactory(alice.sk);
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentAdmin = governanceSatelliteStorage.admin;
 
-                // Operation
-                await chai.expect(governanceSatelliteInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
+    //             // Operation
+    //             await chai.expect(governanceSatelliteInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newAdmin = governanceSatelliteStorage.admin;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const newAdmin = governanceSatelliteStorage.admin;
 
-                // Assertions
-                assert.strictEqual(newAdmin, currentAdmin);
-            } catch(e){
-                console.log(e);
-            }
-        });
+    //             // Assertions
+    //             assert.strictEqual(newAdmin, currentAdmin);
+    //         } catch(e){
+    //             console.log(e);
+    //         }
+    //     });
         
-    });
+    // }); // end %setAdmin tests
 
     
 
-    describe("%setGovernance", async () => {
+    // describe("%setGovernance", async () => {
 
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
 
-        it('Admin should be able to call this entrypoint and update the governance contract with a new address', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentGovernance = governanceSatelliteStorage.governanceAddress;
+    //     it('Admin should be able to call this entrypoint and update the governance contract with a new address', async () => {
+    //         try{
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentGovernance = governanceSatelliteStorage.governanceAddress;
 
-                // Operation
-                const setGovernanceOperation = await governanceSatelliteInstance.methods.setGovernance(alice.pkh).send();
-                await setGovernanceOperation.confirmation();
+    //             // Operation
+    //             const setGovernanceOperation = await governanceSatelliteInstance.methods.setGovernance(alice.pkh).send();
+    //             await setGovernanceOperation.confirmation();
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newGovernance = governanceSatelliteStorage.governanceAddress;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const newGovernance = governanceSatelliteStorage.governanceAddress;
 
-                // reset admin
-                await signerFactory(alice.sk);
-                const resetGovernanceOperation = await governanceSatelliteInstance.methods.setGovernance(governanceAddress.address).send();
-                await resetGovernanceOperation.confirmation();
+    //             // reset admin
+    //             await signerFactory(alice.sk);
+    //             const resetGovernanceOperation = await governanceSatelliteInstance.methods.setGovernance(governanceAddress.address).send();
+    //             await resetGovernanceOperation.confirmation();
 
-                // Assertions
-                assert.notStrictEqual(newGovernance, currentGovernance);
-                assert.strictEqual(newGovernance, alice.pkh);
-                assert.strictEqual(currentGovernance, governanceAddress.address);
+    //             // Assertions
+    //             assert.notStrictEqual(newGovernance, currentGovernance);
+    //             assert.strictEqual(newGovernance, alice.pkh);
+    //             assert.strictEqual(currentGovernance, governanceAddress.address);
 
-            } catch(e){
-                console.log(e);
-            }
-        });
+    //         } catch(e){
+    //             console.log(e);
+    //         }
+    //     });
 
-        it('Non-admin should not be able to call this entrypoint', async () => {
-            try{
-                // Initial Values
-                await signerFactory(alice.sk);
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentGovernance = governanceSatelliteStorage.governanceAddress;
+    //     it('Non-admin should not be able to call this entrypoint', async () => {
+    //         try{
+    //             // Initial Values
+    //             await signerFactory(alice.sk);
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentGovernance = governanceSatelliteStorage.governanceAddress;
 
-                // Operation
-                await chai.expect(governanceSatelliteInstance.methods.setGovernance(alice.pkh).send()).to.be.rejected;
+    //             // Operation
+    //             await chai.expect(governanceSatelliteInstance.methods.setGovernance(alice.pkh).send()).to.be.rejected;
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newGovernance = governanceSatelliteStorage.governanceAddress;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const newGovernance = governanceSatelliteStorage.governanceAddress;
 
-                // Assertions
-                assert.strictEqual(newGovernance, currentGovernance);
-            } catch(e){
-                console.log(e);
-            }
-        });
+    //             // Assertions
+    //             assert.strictEqual(newGovernance, currentGovernance);
+    //         } catch(e){
+    //             console.log(e);
+    //         }
+    //     });
         
-    });
+    // }); // end %setGovernance tests
 
-    describe("%updateConfig", async () => {
+    // describe("%updateConfig", async () => {
 
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
 
-        it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentConfigValue = governanceSatelliteStorage.config.votingPowerRatio;
-                const newConfigValue = 10001;
+    //     it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
+    //         try{
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentConfigValue = governanceSatelliteStorage.config.votingPowerRatio;
+    //             const newConfigValue = 10001;
 
-                // Operation
-                await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue, "configVotingPowerRatio").send()).to.be.rejected;
+    //             // Operation
+    //             await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue, "configVotingPowerRatio").send()).to.be.rejected;
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.votingPowerRatio;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const updateConfigValue = governanceSatelliteStorage.config.votingPowerRatio;
 
-                // Assertions
-                assert.notEqual(newConfigValue, currentConfigValue);
-                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+    //             // Assertions
+    //             assert.notEqual(newConfigValue, currentConfigValue);
+    //             assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin should be able to call the entrypoint and configure the approval percentage', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newConfigValue = 6700;
+    //     it('Admin should be able to call the entrypoint and configure the approval percentage', async () => {
+    //         try{
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const newConfigValue = 6700;
 
-                // Operation
-                const updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configApprovalPercentage").send();
-                await updateConfigOperation.confirmation();
+    //             // Operation
+    //             const updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configApprovalPercentage").send();
+    //             await updateConfigOperation.confirmation();
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
 
-                // Assertions
-                assert.equal(updateConfigValue, newConfigValue);
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Assertions
+    //             assert.equal(updateConfigValue, newConfigValue);
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin should not be able to call the entrypoint and configure the approval percentage if it exceed 100%', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-                const newConfigValue = 10001;
+    //     it('Admin should not be able to call the entrypoint and configure the approval percentage if it exceed 100%', async () => {
+    //         try{
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
+    //             const newConfigValue = 10001;
 
-                // Operation
-                await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configApprovalPercentage").send()).to.be.rejected;
+    //             // Operation
+    //             await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configApprovalPercentage").send()).to.be.rejected;
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
 
-                // Assertions
-                assert.notEqual(newConfigValue, currentConfigValue);
-                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Assertions
+    //             assert.notEqual(newConfigValue, currentConfigValue);
+    //             assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Admin should be able to call the entrypoint and configure the action duration in days', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const newConfigValue = 1;
+    //     it('Admin should be able to call the entrypoint and configure the action duration in days', async () => {
+    //         try{
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const newConfigValue = 1;
 
-                // Operation
-                const updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configSatelliteDurationInDays").send();
-                await updateConfigOperation.confirmation();
+    //             // Operation
+    //             const updateConfigOperation = await governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configSatelliteDurationInDays").send();
+    //             await updateConfigOperation.confirmation();
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
 
-                // Assertions
-                assert.equal(updateConfigValue, newConfigValue);
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //             // Assertions
+    //             assert.equal(updateConfigValue, newConfigValue);
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
 
-        it('Non-admin should not be able to call the entrypoint', async () => {
-            try{
-                // Initial Values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const currentConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
-                const newConfigValue = 1;
+    //     it('Non-admin should not be able to call the entrypoint', async () => {
+    //         try{
+    //             // Initial Values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const currentConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
+    //             const newConfigValue = 1;
 
-                // Operation
-                await signerFactory(alice.sk)
-                await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configSatelliteDurationInDays").send()).to.be.rejected;
+    //             // Operation
+    //             await signerFactory(alice.sk)
+    //             await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue,"configSatelliteDurationInDays").send()).to.be.rejected;
 
-                // Final values
-                governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-                const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
+    //             // Final values
+    //             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+    //             const updateConfigValue = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
 
-                // Assertions
-                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    });
+    //             // Assertions
+    //             assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+    // }); // end %updateConfig tests
 
-    describe("%suspendSatellite", async () => {
+    describe("%suspendSatellite, #unsuspendSatellite", async () => {
 
         it('Any satellite should be able to create a governance action to suspend a satellite', async () => {
             try{        
-                
-              // delegationStorage = await delegationInstance.storage();
-              // const satelliteMap = await delegationStorage.satelliteLedger;
-
-              // console.log(satelliteMap);
 
               // some init constants
                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
-                
-                // const generalContracts = await governanceSatelliteStorage.generalContracts;
-                // console.log(generalContracts);
+                const delegationStorage        = await delegationInstance.storage();        
+                const aliceSatelliteRecord     = await delegationStorage.satelliteLedger.get(alice.pkh);
+
+                assert.equal(aliceSatelliteRecord.status, "ACTIVE");
 
                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
                 const bobStakeAmount           = MVK(100);
@@ -456,234 +452,192 @@ describe("Governance Satellite tests", async () => {
                     ).send();
                 await governanceSatelliteSuspendOperation.confirmation();
     
-                // get new council storage and assert tests            
-                // governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
-                // const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-                // const governanceSatelliteActionSnapshotLedger  = await governanceSatelliteStorage.governanceSatelliteSnapshotLedger.get(actionId);
+
+                governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
+                const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+                const governanceSatelliteActionSnapshotLedger  = await governanceSatelliteStorage.governanceSatelliteSnapshotLedger.get(actionId);
                 
-                // const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
-                // const governanceSatellitePercentageDecimals    = 4;
-                // const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
-                // const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
+                const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
+                const governanceSatellitePercentageDecimals    = 4;
+                const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
+                const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
+
     
-                // // check details of financial request
-                // assert.equal(governanceAction.initiator,                                bob.pkh);
-                // assert.equal(governanceAction.governanceType,                           "suspendSatellite");
-                // assert.equal(governanceAction.status,                                   true);
-                // assert.equal(governanceAction.executed,                                 false);
-                // assert.equal(governanceAction.purpose,                                  purpose);
-                // assert.equal(governanceAction.approveVoteTotal.toNumber(),               0);
-                // assert.equal(governanceAction.disapproveVoteTotal.toNumber(),            0);
-                // assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
-                // assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+                // check details of financial request
+                assert.equal(governanceAction.initiator,                                 bob.pkh);
+                assert.equal(governanceAction.governanceType,                            "suspendSatellite");
+                assert.equal(governanceAction.status,                                    true);
+                assert.equal(governanceAction.executed,                                  false);
+                assert.equal(governanceAction.governancePurpose,                         purpose);
+                assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
+                assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+                assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+                assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+                assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
-                // // check details of governance satellite action snapshot ledger
-                // const bobSnapshot = await governanceSatelliteActionSnapshotLedger.get(bob.pkh);
-                // assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),  0);
-                // assert.equal(bobSnapshot.totalMvkBalance.toNumber(),       bobStakeAmount);
-                // assert.equal(bobSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+                // check details of governance satellite action snapshot ledger
+                const bobSnapshot = await governanceSatelliteActionSnapshotLedger.get(bob.pkh);
+                assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
+                assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+                assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
     
-                // const aliceSnapshot   = await governanceSatelliteActionSnapshotLedger.get(alice.pkh);
-                // assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),    0);
-                // assert.equal(aliceSnapshot.totalMvkBalance.toNumber(),         aliceStakeAmount);
-                // assert.equal(aliceSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
+                const aliceSnapshot   = await governanceSatelliteActionSnapshotLedger.get(alice.pkh);
+                assert.equal(aliceSnapshot.totalDelegatedAmount.toNumber(),      0);
+                assert.equal(aliceSnapshot.totalStakedMvkBalance.toNumber(),     aliceStakeAmount);
+                assert.equal(aliceSnapshot.totalVotingPower.toNumber(),          aliceStakeAmount);
 
-                // const eveSnapshot   = await governanceSatelliteActionSnapshotLedger.get(eve.pkh);
-                // assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),    0);
-                // assert.equal(eveSnapshot.totalMvkBalance.toNumber(),         eveStakeAmount);
-                // assert.equal(eveSnapshot.totalVotingPower.toNumber(),        eveStakeAmount);
+                const eveSnapshot   = await governanceSatelliteActionSnapshotLedger.get(eve.pkh);
+                assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
+                assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
+                assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
 
-                // const mallorySnapshot   = await governanceSatelliteActionSnapshotLedger.get(mallory.pkh);
-                // assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
-                // assert.equal(mallorySnapshot.totalMvkBalance.toNumber(),         malloryStakeAmount);
-                // assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
+                const mallorySnapshot   = await governanceSatelliteActionSnapshotLedger.get(mallory.pkh);
+                assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
+                assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
+                assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
     
-                // 3 satellites vote and approve governance action to suspend alice satellite
-                // await signerFactory(bob.sk);
-                // const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "approve").send();
-                // await bobVotesForGovernanceActionOperation.confirmation();
+                // 3 satellites vote yay to suspend alice satellite, alice's satellite votes nay
+                await signerFactory(bob.sk);
+                const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await bobVotesForGovernanceActionOperation.confirmation();
     
-                // await signerFactory(eve.sk);
-                // const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "approve").send();
-                // await eveVotesForGovernanceActionOperation.confirmation();
+                await signerFactory(eve.sk);
+                const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await eveVotesForGovernanceActionOperation.confirmation();
+                
+                await signerFactory(alice.sk);
+                const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "nay").send();
+                await aliceVotesForGovernanceActionOperation.confirmation();
 
-                // await signerFactory(mallory.sk);
-                // const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "approve").send();
-                // await malloryVotesForGovernanceActionOperation.confirmation();
-
-                // // alice disapprove vote not to be suspended
-                // await signerFactory(alice.sk);
-                // const aliceVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "disapprove").send();
-                // await aliceVotesForGovernanceActionOperation.confirmation();
+                await signerFactory(mallory.sk);
+                const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await malloryVotesForGovernanceActionOperation.confirmation();
     
-                // // get updated storage
-                // const updatedGovernanceSatelliteStorage                = await governanceSatelliteInstance.storage();        
-                // const updatedGovernanceAction                          = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
-                // const aliceSatelliteOracleLedger                       = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(alice.pkh);
+                // get updated storage
+                const updatedGovernanceSatelliteStorage                = await governanceSatelliteInstance.storage();        
+                const updatedGovernanceAction                          = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
 
-                // // check that governance action has been executed
-                // assert.equal(updatedGovernanceAction.approveVoteTotal,        MVK(300));
-                // assert.equal(updatedGovernanceAction.disapproveVoteTotal,     MVK(100));
-                // assert.equal(updatedGovernanceAction.status,                  true);
-                // assert.equal(updatedGovernanceAction.executed,                true);
+                const updatedDelegationStorage                         = await delegationInstance.storage();        
+                const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 
-                // // check that alice is now suspended
-                // assert.equal(aliceSatelliteOracleLedger.status,               "SUSPENDED");
+                // check that governance action has been executed
+                assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
+                assert.equal(updatedGovernanceAction.nayVoteTotal,            MVK(100));
+                assert.equal(updatedGovernanceAction.status,                  true);
+                assert.equal(updatedGovernanceAction.executed,                true);
+
+                // check that alice is now suspended
+                assert.equal(updatedAliceSatelliteRecord.status,              "SUSPENDED");
             
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
         });
 
-        // it('Council contract should not be able to call this entrypoint with a wrong token type', async () => {
-        //     try{        
-        //         // some init constants
-        //         var councilStorage             = await councilInstance.storage();
-        //         const councilActionId          = councilStorage.actionCounter;
-        //         const councilContractAddress   = councilAddress.address;
-        //         const bobStakeAmount           = MVK(10);
-        //         const aliceStakeAmount         = MVK(10);
-        //         var mvkTokenStorage            = await mvkTokenInstance.storage();
-        //         const initialCouncilBalance    = await mvkTokenStorage.ledger.get(councilAddress.address);
-    
-        //         // request tokens params
-        //         const tokenAmount              = MVK(100); // 100 MVK
-        //         const treasury                 = treasuryAddress.address;
-        //         const tokenContractAddress     = mvkTokenAddress.address; 
-        //         const tokenName                = "MVK";
-        //         const tokenType                = "FA3";
-        //         const tokenId                  = 0;
-        //         const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";            
-    
-        //         // Council member (bob) requests for MVK to be transferred from the Treasury
-        //         await signerFactory(bob.sk);
-        //         await chai.expect(councilInstance.methods.councilActionRequestTokens(
-        //             treasury, 
-        //             tokenContractAddress,
-        //             tokenName, 
-        //             tokenAmount, 
-        //             tokenType, 
-        //             tokenId, 
-        //             purpose
-        //         ).send()).to.be.rejected;
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     } 
-        // });
+        
+        it('Any satellite should be able to create a governance action to unsuspend a satellite', async () => {
+          try{        
 
+            // some init constants
+              governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+              const delegationStorage        = await delegationInstance.storage();        
+              const aliceSatelliteRecord     = await delegationStorage.satelliteLedger.get(alice.pkh);
 
-        // it('Other contracts should not be able to call this entrypoint', async () => {
-        //     try{
-        //         // Initial values
-        //         const tokenAmount              = MVK(100); // 100 MVK
-        //         const treasury                 = treasuryAddress.address;
-        //         const tokenContractAddress     = mvkTokenAddress.address; 
-        //         const tokenName                = "MVK";
-        //         const tokenType                = "FA2";
-        //         const tokenId                  = 0;
-        //         const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";         
+              assert.equal(aliceSatelliteRecord.status, "SUSPENDED");
 
-        //         // Operation
-        //         await chai.expect(governanceSatelliteInstance.methods.requestTokens(treasury, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose).send()).to.be.rejected;
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     } 
-        // });
+              const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+              const bobStakeAmount           = MVK(100);
+              const aliceStakeAmount         = MVK(100);
+              const eveStakeAmount           = MVK(100);
+              const malloryStakeAmount       = MVK(100);
 
-        // it('Council contract should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map or if the getStakedMvkTotalSupply view does not exist', async () => {
-        //     try{
-        //         // some init constants
-        //         var councilStorage             = await councilInstance.storage();
-        //         governanceSatelliteStorage              = await governanceSatelliteInstance.storage();
-        //         const councilActionId          = councilStorage.actionCounter;
-        //         const financialRequestID       = governanceSatelliteStorage.financialRequestCounter;
+              // suspend satellite action params
+              const satelliteToBeSuspended   = alice.pkh;
+              const purpose                  = "Test Unsuspend Satellite";            
+  
+              // Satellite Bob creates a governance action to unsuspend Alice
+              await signerFactory(bob.sk);
+              const governanceSatelliteSuspendOperation = await governanceSatelliteInstance.methods.unsuspendSatellite(
+                      satelliteToBeSuspended,
+                      purpose
+                  ).send();
+              await governanceSatelliteSuspendOperation.confirmation();
+  
 
-        //         // request mint params
-        //         const tokenAmount              = MVK(100); // 100 MVK
-        //         const treasury                 = treasuryAddress.address;
-        //         const tokenContractAddress     = mvkTokenAddress.address; 
-        //         const tokenName                = "MVK";
-        //         const tokenType                = "FA2";
-        //         const tokenId                  = 0;
-        //         const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";
+              governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
+              const governanceAction                         = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
+              const governanceSatelliteActionSnapshotLedger  = await governanceSatelliteStorage.governanceSatelliteSnapshotLedger.get(actionId);
+              
+              const governanceSatelliteApprovalPercentage    = governanceSatelliteStorage.config.governanceSatelliteApprovalPercentage;
+              const governanceSatellitePercentageDecimals    = 4;
+              const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
+              const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
-        //         // Operation
-        //         await signerFactory(bob.sk);
-        //         var updateGeneralContractOperation = await governanceSatelliteInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
-        //         await updateGeneralContractOperation.confirmation();
-        //         const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
-        //                 treasury, 
-        //                 tokenContractAddress,
-        //                 tokenName, 
-        //                 tokenAmount, 
-        //                 tokenType, 
-        //                 tokenId, 
-        //                 purpose
-        //             ).send();
-        //         await councilRequestsTokensOperation.confirmation();
+  
+              // check details of financial request
+              assert.equal(governanceAction.initiator,                                 bob.pkh);
+              assert.equal(governanceAction.governanceType,                            "unsuspendSatellite");
+              assert.equal(governanceAction.status,                                    true);
+              assert.equal(governanceAction.executed,                                  false);
+              assert.equal(governanceAction.governancePurpose,                         purpose);
+              assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
+              assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+              assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+              assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
+              assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
+              
+              // check details of governance satellite action snapshot ledger
+              const bobSnapshot = await governanceSatelliteActionSnapshotLedger.get(bob.pkh);
+              assert.equal(bobSnapshot.totalDelegatedAmount.toNumber(),        0);
+              assert.equal(bobSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+              assert.equal(bobSnapshot.totalVotingPower.toNumber(),            bobStakeAmount);
+  
+              const aliceSnapshot   = await governanceSatelliteActionSnapshotLedger.get(alice.pkh);
+              assert.equal(aliceSnapshot, undefined);
+              
+              const eveSnapshot   = await governanceSatelliteActionSnapshotLedger.get(eve.pkh);
+              assert.equal(eveSnapshot.totalDelegatedAmount.toNumber(),        0);
+              assert.equal(eveSnapshot.totalStakedMvkBalance.toNumber(),       eveStakeAmount);
+              assert.equal(eveSnapshot.totalVotingPower.toNumber(),            eveStakeAmount);
 
-        //         await signerFactory(alice.sk);
-        //         const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
-        //         await aliceSignsRequestMintActionOperation.confirmation();
-    
-        //         await signerFactory(eve.sk);
-        //         await chai.expect(councilInstance.methods.signAction(councilActionId).send()).to.be.rejected;
+              const mallorySnapshot   = await governanceSatelliteActionSnapshotLedger.get(mallory.pkh);
+              assert.equal(mallorySnapshot.totalDelegatedAmount.toNumber(),    0);
+              assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
+              assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
+  
+              // 3 satellites vote yay to suspend alice satellite, alice's satellite votes nay
+              await signerFactory(bob.sk);
+              const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+              await bobVotesForGovernanceActionOperation.confirmation();
+  
+              await signerFactory(eve.sk);
+              const eveVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+              await eveVotesForGovernanceActionOperation.confirmation();
 
-        //         // Reset general Contracts
-        //         await signerFactory(bob.sk);
-        //         var updateGeneralContractOperation = await governanceSatelliteInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
-        //         await updateGeneralContractOperation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     } 
-        // });
+              await signerFactory(mallory.sk);
+              const malloryVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+              await malloryVotesForGovernanceActionOperation.confirmation();
+  
+              // get updated storage
+              const updatedGovernanceSatelliteStorage                = await governanceSatelliteInstance.storage();        
+              const updatedGovernanceAction                          = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);              
 
-        // it('Council contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map or if the getActiveSatellites view does not exist', async () => {
-        //     try{
-        //         // some init constants
-        //         var councilStorage             = await councilInstance.storage();
-        //         const councilActionId          = councilStorage.actionCounter;
-        //         const financialRequestID       = governanceSatelliteStorage.financialRequestCounter;
+              const updatedDelegationStorage                         = await delegationInstance.storage();        
+              const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 
-        //         // request mint params
-        //         const tokenAmount              = MVK(100); // 100 MVK
-        //         const treasury                 = treasuryAddress.address;
-        //         const tokenContractAddress     = mvkTokenAddress.address; 
-        //         const tokenName                = "MVK";
-        //         const tokenType                = "FA2";
-        //         const tokenId                  = 0;
-        //         const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";
+              // check that governance action has been executed
+              assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
+              assert.equal(updatedGovernanceAction.nayVoteTotal,            0);
+              assert.equal(updatedGovernanceAction.status,                  true);
+              assert.equal(updatedGovernanceAction.executed,                true);
 
-        //         // Operation
-        //         await signerFactory(bob.sk);
-        //         var updateGeneralContractOperation = await governanceSatelliteInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
-        //         await updateGeneralContractOperation.confirmation();
-        //         const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
-        //                 treasury, 
-        //                 tokenContractAddress,
-        //                 tokenName, 
-        //                 tokenAmount, 
-        //                 tokenType, 
-        //                 tokenId, 
-        //                 purpose
-        //             ).send();
-        //         await councilRequestsTokensOperation.confirmation();
-
-        //         await signerFactory(alice.sk);
-        //         const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
-        //         await aliceSignsRequestMintActionOperation.confirmation();
-    
-        //         await signerFactory(eve.sk);                
-        //         await chai.expect(councilInstance.methods.signAction(councilActionId).send()).to.be.rejected;
-
-        //         // Reset general Contracts
-        //         await signerFactory(bob.sk);
-        //         updateGeneralContractOperation = await governanceSatelliteInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
-        //         await updateGeneralContractOperation.confirmation();
-        //     } catch(e){
-        //         console.dir(e, {depth: 5})
-        //     } 
-        // });
+              // check that alice is now suspended
+              assert.equal(updatedAliceSatelliteRecord.status,              "ACTIVE");
+          
+          } catch(e){
+              console.dir(e, {depth: 5})
+          } 
+      });
         
     });
 
