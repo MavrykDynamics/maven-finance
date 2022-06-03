@@ -41,7 +41,7 @@ async def on_governance_origination(
     current_cycle_total_voters_reward       = int(governance_origination.storage.currentCycleInfo.cycleTotalVotersReward)
     next_proposal_id                        = int(governance_origination.storage.nextProposalId)
     cycle_counter                           = int(governance_origination.storage.cycleCounter)
-    current_round_highest_voted_proposal_id = int(governance_origination.storage.currentRoundHighestVotedProposalId)
+    cycle_highest_voted_proposal_id  = int(governance_origination.storage.cycleHighestVotedProposalId )
     timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
 
     # Current round
@@ -86,6 +86,6 @@ async def on_governance_origination(
     governance.current_cycle_total_voters_reward       = current_cycle_total_voters_reward
     governance.next_proposal_id                        = next_proposal_id
     governance.cycle_counter                           = cycle_counter
-    governance.current_round_highest_voted_proposal_id = current_round_highest_voted_proposal_id
+    governance.cycle_highest_voted_proposal_id  = cycle_highest_voted_proposal_id 
     governance.timelock_proposal_id                    = timelock_proposal_id
     await governance.save()

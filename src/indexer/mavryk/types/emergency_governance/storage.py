@@ -59,6 +59,7 @@ class EmergencyGovernanceStorage(BaseModel):
     governanceAddress: str
     metadata: Dict[str, str]
     config: Config
+    whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     emergencyGovernanceLedger: Dict[str, EmergencyGovernanceLedger]
     currentEmergencyGovernanceId: str

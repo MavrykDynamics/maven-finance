@@ -43,6 +43,8 @@ class CreateFarmParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    name: str
+    addToGeneralContracts: bool
     forceRewardFromTransfer: bool
     infinite: bool
     plannedRewards: PlannedRewards
