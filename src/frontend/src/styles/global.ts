@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
-import { royalPurpleColor, headerColor } from '../styles/colors'
+import { royalPurpleColor, headerColor, cyanColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
@@ -296,6 +296,29 @@ p {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
     background-color: ${royalPurpleColor};
+  }
+
+  .info-link {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      svg {
+        fill: ${cyanColor};
+      }
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: ${headerColor};
+    }
   }
 
 `
