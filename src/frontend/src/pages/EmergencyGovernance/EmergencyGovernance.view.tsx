@@ -3,6 +3,9 @@ import * as React from 'react'
 // types
 import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.controller'
 
+// components
+import Icon from '../../app/App.components/Icon/Icon.view'
+
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
@@ -52,10 +55,11 @@ export const EmergencyGovernanceView = ({
   voteStatistics,
   emergencyGovernanceLedger,
 }: Props) => {
-  console.log('%c ||||| pastProposals', 'color:yellowgreen', pastProposals)
-  console.log('%c ||||| emergencyGovernanceLedger', 'color:green', emergencyGovernanceLedger)
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
+      <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+        <Icon id="question" />
+      </a>
       <CardContent>
         <CardContentLeftSide>
           <h1>{selectedProposal.title}</h1>
@@ -103,6 +107,9 @@ export const EmergencyGovernanceView = ({
         emergencyGovernanceCardActive
       ) : (
         <EmergencyGovernanceCard>
+          <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+            <Icon id="question" />
+          </a>
           <CardContent>
             <CardContentLeftSide>
               <h1>Trigger Emergency Governance Vote</h1>
