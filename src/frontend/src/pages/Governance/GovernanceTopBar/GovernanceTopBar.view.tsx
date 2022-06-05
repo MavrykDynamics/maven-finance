@@ -60,15 +60,14 @@ export const GovernanceTopBarView = ({
               )}
             </div>
           ) : (
-            <div className="right-block">
-              <Button
-                icon="man-running"
-                text={'Move to next round'}
-                loading={loading}
-                kind="actionPrimary"
-                onClick={handleMoveToNextRound}
-              />
-            </div>
+            <Button
+              icon="man-running"
+              text={'Move to next round'}
+              loading={loading}
+              kind="actionSecondary"
+              className="move-to-next"
+              onClick={handleMoveToNextRound}
+            />
           )}
         </>
       )}

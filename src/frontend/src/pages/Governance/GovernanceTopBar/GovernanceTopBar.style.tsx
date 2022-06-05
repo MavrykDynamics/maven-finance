@@ -25,6 +25,14 @@ export const GovernanceTopBarStyled = styled(Card)`
     display: flex;
     justify-content: flex-end;
   }
+
+  .move-to-next {
+    margin-left: auto;
+    height: 50px;
+    width: 250px;
+    max-width: none;
+    margin-right: 8px;
+  }
 `
 
 export const GovTopBarSidewaysArrowIcon = styled.svg<{ theme: MavrykTheme }>`
