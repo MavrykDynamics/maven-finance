@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
-import { royalPurpleColor, headerColor } from '../styles/colors'
+import { royalPurpleColor, headerColor, cyanColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
@@ -19,6 +19,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-width: 1460px;
+  width: calc(100vw - 16px);
 
   @media screen and (max-width: 1460px) {
     min-width: 1250px;
@@ -280,21 +281,44 @@ p {
 }
 
 .scroll-block::-webkit-scrollbar-track
-{
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-	border-radius: 10px;
-	background-color: ${royalPurpleColor}4d;
-}
+  {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: ${royalPurpleColor}4d;
+  }
 .scroll-block::-webkit-scrollbar
-{
-	width: 5px;
-	background-color: transparent;
-}
+  {
+    width: 5px;
+    background-color: transparent;
+  }
 .scroll-block::-webkit-scrollbar-thumb
-{
-	border-radius: 10px;
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-	background-color: ${royalPurpleColor};
-}
+  {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: ${royalPurpleColor};
+  }
+
+  .info-link {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      svg {
+        fill: ${cyanColor};
+      }
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: ${headerColor};
+    }
+  }
 
 `

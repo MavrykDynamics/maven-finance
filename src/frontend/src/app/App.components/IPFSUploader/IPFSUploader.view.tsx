@@ -60,6 +60,9 @@ export const IPFSUploaderView = ({
   const isTypeFileDocument = typeFile === 'document'
   const isTypeFileImage = typeFile === 'image'
 
+  const isUploadedDocument = imageIpfsUrl && !isTypeFileImage && !isUploading
+  const isUploadedImage = imageIpfsUrl && isTypeFileImage && !isUploading
+
   const handleChange = (e: any) => {
     const fileSize = e.target.files[0].size / 1024 / 1024 // in MiB
     if (fileSize <= IMG_MAX_SIZE) {
@@ -77,45 +80,54 @@ export const IPFSUploaderView = ({
         </label>
       )}
       <div style={{ opacity: disabled ? 0.4 : 1 }}>
-        <UploaderFileSelector>
-          {isUploading ? (
-            <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
-          ) : (
-            <div>
-              <input
-                id="uploader"
-                type="file"
-                disabled={disabled}
-                accept={isTypeFileImage ? 'image/*' : '*'}
-                required
-                ref={inputFile}
-                onChange={handleChange}
-                onBlur={onBlur}
-              />
-              <UploadIconContainer onClick={handleIconClick}>
-                {imageIpfsUrl ? (
-                  <IpfsUploadedImageContainer>
-                    {isTypeFileImage ? (
-                      <>
-                        <img className="uploaded-image" src={imageIpfsUrl} alt="" />
-                        <div className="pencil-wrap">
-                          <Icon id="pencil-stroke" />
-                        </div>
-                      </>
+        <UploaderFileSelector className={disabled ? 'disabled' : ''}>
+          <div>
+            <input
+              id="uploader"
+              type="file"
+              disabled={disabled || isUploading}
+              accept={isTypeFileImage ? 'image/*' : '*'}
+              required
+              ref={inputFile}
+              onChange={handleChange}
+              onBlur={onBlur}
+            />
+            <UploadIconContainer onClick={handleIconClick}>
+              {imageIpfsUrl && !isUploading ? (
+                <>
+                  {isTypeFileImage ? (
+                    <IpfsUploadedImageContainer>
+                      <img className="uploaded-image" src={imageIpfsUrl} alt="" />
+                      <div className="pencil-wrap">
+                        <Icon id="pencil-stroke" />
+                      </div>
+                    </IpfsUploadedImageContainer>
+                  ) : (
+                    <figure className="upload-figure">
+                      <div className="icon-wrap">
+                        <Icon className="upload-icon" id="upload" />
+                      </div>
+                      <figcaption>Document uploaded</figcaption>
+                      <small></small>
+                    </figure>
+                  )}
+                </>
+              ) : (
+                <figure className="upload-figure">
+                  <div className="icon-wrap">
+                    {isUploading ? (
+                      <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
                     ) : (
-                      <Icon className="uploaded-document" id="pencil-stroke" />
+                      <Icon className="upload-icon" id="upload" />
                     )}
-                  </IpfsUploadedImageContainer>
-                ) : (
-                  <figure className="upload-figure">
-                    <Icon className="upload-icon" id="upload" />
-                    <figcaption>Upload {isTypeFileImage ? 'picture' : 'document'}</figcaption>
-                    <small>{`max size is ${IMG_MAX_SIZE}MB`}</small>
-                  </figure>
-                )}
-              </UploadIconContainer>
-            </div>
-          )}
+                  </div>
+                  <figcaption>Upload {isTypeFileImage ? 'picture' : 'document'}</figcaption>
+                  <small>{`max size is ${IMG_MAX_SIZE}MB`}</small>
+                </figure>
+              )}
+            </UploadIconContainer>
+            {isUploadedDocument ? <Icon className="delete-icon" id="delete" /> : null}
+          </div>
         </UploaderFileSelector>
       </div>
     </IPFSUploaderStyled>

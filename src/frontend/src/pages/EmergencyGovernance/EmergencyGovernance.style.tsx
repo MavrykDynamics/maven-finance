@@ -5,6 +5,7 @@ import { MavrykTheme } from '../../styles/interfaces'
 
 export const EmergencyGovernanceCard = styled(Card)<{ theme: MavrykTheme }>`
   padding-top: 28px;
+  position: relative;
 
   p {
     font-weight: 400;
@@ -52,7 +53,7 @@ export const CardContent = styled.div<{ theme: MavrykTheme }>`
 export const CardContentRightSide = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   display: flex;
 
   button {
@@ -85,6 +86,14 @@ export const BGTextWithStatus = styled.div<{ status: boolean; theme: MavrykTheme
 export const CardContentVoiting = styled.div`
   width: 100%;
   padding-left: 40px;
+
+  .voted-label {
+    display: none;
+  }
+
+  .voted-block {
+    padding-top: 0;
+  }
 
   aside {
     margin-top: 33px;

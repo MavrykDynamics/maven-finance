@@ -212,11 +212,11 @@ export const GovernanceView = ({
               <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
             </RightSideSubContent>
           </article>
-          <article>
+          {/* <article>
             <a target="_blank" rel="noopener noreferrer" href={rightSideContent.invoice}>
               <p>Invoice</p>
             </a>
-          </article>
+          </article> */}
           {/*<Table tableData={selectedProposal.invoiceTable} />*/}
         </GovernanceRightContainer>
       ) : null}
