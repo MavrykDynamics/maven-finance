@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { MavrykTheme } from '../../../styles/interfaces'
-import { primaryColor, headerColor } from 'styles'
+import { primaryColor, headerColor, cyanColor } from 'styles'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
@@ -22,15 +22,37 @@ export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
 
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   cursor: pointer;
-  height: 96px;
+  height: 107px;
   width: 100%;
-  border: 2px dashed ${({ theme }) => theme.headerColor};
   background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   border-radius: 10px;
   justify-content: center;
   align-items: center;
   position: relative;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%23503EAAFF' stroke-width='2' stroke-dasharray='10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+
+  &.disabled {
+    cursor: default;
+  }
+
+  &:hover:not(.disabled) {
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%2386D4C9FF' stroke-width='2' stroke-dasharray='10' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+
+    figcaption {
+      color: ${cyanColor};
+    }
+  }
+
+  .delete-icon {
+    position: absolute;
+    fill: ${({ theme }) => theme.headerColor};
+    width: 16px;
+    height: 16px;
+    display: block;
+    top: 16px;
+    right: 16px;
+  }
 
   > div {
     width: 100%;
@@ -52,12 +74,8 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   }
 
   .loading-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
   }
 
   .uploaded-image {
@@ -72,8 +90,8 @@ export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  width: 50px;
-  height: 50px;
+  /* width: 50px;
+  height: 50px; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -90,11 +108,15 @@ export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
 
     small {
       font-weight: 400;
-      padding-top: 2px;
+      padding-top: 4px;
       font-size: 10px;
       line-height: 10px;
       color: ${primaryColor};
     }
+  }
+
+  .icon-wrap {
+    height: 39px;
   }
 
   .upload-icon {
@@ -102,7 +124,6 @@ export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
     width: 24px;
     height: 24px;
     display: block;
-    margin-bottom: 4px;
   }
 
   .pencil-wrap {
