@@ -33,7 +33,9 @@ export const GovernanceTopBarView = ({
         <GovTopBarEmergencyGovText>EMERGENCY GOVERNANCE PROTOCOL ACTIVE</GovTopBarEmergencyGovText>
       ) : (
         <>
-          <GovTopBarPhaseText isCorrectPhase={governancePhase === 'PROPOSAL'}>Proposal</GovTopBarPhaseText>
+          <GovTopBarPhaseText className="first" isCorrectPhase={governancePhase === 'PROPOSAL'}>
+            Proposal
+          </GovTopBarPhaseText>
           <GovTopBarSidewaysArrowIcon>
             <use xlinkHref="/icons/sprites.svg#greater-than" />
           </GovTopBarSidewaysArrowIcon>
@@ -48,7 +50,7 @@ export const GovernanceTopBarView = ({
           <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText>
 
           {timeLeftInPhase >= 0 ? (
-            <div>
+            <div className="right-block">
               {typeof timeLeftInPhase === 'number' ? (
                 <TimeLeftArea>{Math.round(timeLeftInPhase)} days remaining</TimeLeftArea>
               ) : (
@@ -62,7 +64,8 @@ export const GovernanceTopBarView = ({
               icon="man-running"
               text={'Move to next round'}
               loading={loading}
-              kind="actionPrimary"
+              kind="actionSecondary"
+              className="move-to-next"
               onClick={handleMoveToNextRound}
             />
           )}

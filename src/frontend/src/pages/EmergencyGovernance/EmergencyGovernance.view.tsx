@@ -1,5 +1,11 @@
 import * as React from 'react'
 
+// types
+import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.controller'
+
+// components
+import Icon from '../../app/App.components/Icon/Icon.view'
+
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
@@ -31,6 +37,7 @@ type Props = {
   pastProposals: EmergencyGovernancePastProposal[]
   selectedProposal: ProposalRecordType
   voteStatistics: VoteStatistics
+  emergencyGovernanceLedger: EmergencyGovernanceLedgerType[]
 }
 
 export const EmergencyGovernanceView = ({
@@ -46,9 +53,13 @@ export const EmergencyGovernanceView = ({
   handleVotingRoundVote,
   selectedProposal,
   voteStatistics,
+  emergencyGovernanceLedger,
 }: Props) => {
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
+      <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+        <Icon id="question" />
+      </a>
       <CardContent>
         <CardContentLeftSide>
           <h1>{selectedProposal.title}</h1>
@@ -96,6 +107,9 @@ export const EmergencyGovernanceView = ({
         emergencyGovernanceCardActive
       ) : (
         <EmergencyGovernanceCard>
+          <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+            <Icon id="question" />
+          </a>
           <CardContent>
             <CardContentLeftSide>
               <h1>Trigger Emergency Governance Vote</h1>
@@ -123,8 +137,8 @@ export const EmergencyGovernanceView = ({
 
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
-        {pastProposals.map((proposal, index) => {
-          return <EGovHistoryCard pastProposal={proposal} />
+        {emergencyGovernanceLedger.map((emergencyGovernance, index) => {
+          return <EGovHistoryCard emergencyGovernance={emergencyGovernance} />
         })}
       </EmergencyGovernHistory>
     </>
