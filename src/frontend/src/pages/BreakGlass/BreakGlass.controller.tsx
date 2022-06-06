@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
-import { getBreakGlassStorage } from './BreakGlass.actions'
+import { getBreakGlassStorage, getBreakGlassStatus } from './BreakGlass.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -15,11 +15,12 @@ export const BreakGlass = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { emergencyGovernanceStorage } = useSelector((state: State) => state.emergencyGovernance)
-  const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
-
+  const { breakGlassStatus, glassBroken } = useSelector((state: State) => state.breakGlass)
+  console.log('%c ||||| breakGlassStatus', 'color:yellowgreen', breakGlassStatus)
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
+    dispatch(getBreakGlassStatus())
   }, [dispatch])
 
   const handleVoteForProposal = () => {
@@ -28,7 +29,12 @@ export const BreakGlass = () => {
   return (
     <Page>
       <PageHeader page={'break glass'} kind={PRIMARY} loading={loading} />
-      <BreakGlassView contracts={MOCK_CONTRACTS} glassBroken={glassBroken} pauseAllActive={glassBroken} />
+      <BreakGlassView
+        breakGlassStatuses={breakGlassStatus}
+        contracts={MOCK_CONTRACTS}
+        glassBroken={glassBroken}
+        pauseAllActive={glassBroken}
+      />
     </Page>
   )
 }

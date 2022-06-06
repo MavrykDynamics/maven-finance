@@ -8,6 +8,7 @@ export const TextAreaStyled = styled.div`
 
 export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   min-width: 100%;
+  resize: none;
   width: 100%;
   font-family: 'Metropolis', Helvetica, Arial, sans-serif;
   height: 107px;

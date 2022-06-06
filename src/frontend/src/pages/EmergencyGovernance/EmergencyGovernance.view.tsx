@@ -1,4 +1,15 @@
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+
+// actions
+import { getTimestampByLevel } from '../Governance/Governance.actions'
+
+// types
+import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.controller'
+
+// components
+import Icon from '../../app/App.components/Icon/Icon.view'
 
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import { Button } from '../../app/App.components/Button/Button.controller'
@@ -31,6 +42,7 @@ type Props = {
   pastProposals: EmergencyGovernancePastProposal[]
   selectedProposal: ProposalRecordType
   voteStatistics: VoteStatistics
+  emergencyGovernanceLedger: EmergencyGovernanceLedgerType[]
 }
 
 export const EmergencyGovernanceView = ({
@@ -46,13 +58,32 @@ export const EmergencyGovernanceView = ({
   handleVotingRoundVote,
   selectedProposal,
   voteStatistics,
+  emergencyGovernanceLedger,
 }: Props) => {
+  const [votingEnding, setVotingEnding] = useState<string>('')
+
+  const handleGetTimestampByLevel = async (level: number) => {
+    const res = await getTimestampByLevel(level)
+    setVotingEnding(res)
+  }
+
+  useEffect(() => {
+    handleGetTimestampByLevel(selectedProposal?.currentCycleEndLevel ?? 0)
+  }, [selectedProposal?.currentCycleEndLevel])
+
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
+      <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+        <Icon id="question" />
+      </a>
       <CardContent>
         <CardContentLeftSide>
           <h1>{selectedProposal.title}</h1>
-          <b className="voting-ends">Voting ends in 13:31 hours</b>
+          {votingEnding ? (
+            <b className="voting-ends">
+              Voting ends in <Time value={votingEnding} format="H:m" /> hours
+            </b>
+          ) : null}
           <p>{selectedProposal.description}</p>
         </CardContentLeftSide>
         <CardContentRightSide>
@@ -96,6 +127,9 @@ export const EmergencyGovernanceView = ({
         emergencyGovernanceCardActive
       ) : (
         <EmergencyGovernanceCard>
+          <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+            <Icon id="question" />
+          </a>
           <CardContent>
             <CardContentLeftSide>
               <h1>Trigger Emergency Governance Vote</h1>
@@ -123,8 +157,8 @@ export const EmergencyGovernanceView = ({
 
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
-        {pastProposals.map((proposal, index) => {
-          return <EGovHistoryCard pastProposal={proposal} />
+        {emergencyGovernanceLedger.map((emergencyGovernance, index) => {
+          return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
         })}
       </EmergencyGovernHistory>
     </>

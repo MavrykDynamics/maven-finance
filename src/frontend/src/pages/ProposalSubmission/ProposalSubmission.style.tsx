@@ -59,27 +59,6 @@ export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
     margin: 0;
     margin-right: auto;
   }
-
-  .info-link {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    svg {
-      width: 16px;
-      height: 16px;
-      fill: ${({ theme }) => theme.headerColor};
-
-      &:hover {
-        fill: ${({ theme }) => theme.valueColor};
-      }
-    }
-  }
 `
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
