@@ -1,4 +1,9 @@
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+
+// actions
+import { getTimestampByLevel } from '../Governance/Governance.actions'
 
 // types
 import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.controller'
@@ -55,6 +60,17 @@ export const EmergencyGovernanceView = ({
   voteStatistics,
   emergencyGovernanceLedger,
 }: Props) => {
+  const [votingEnding, setVotingEnding] = useState<string>('')
+
+  const handleGetTimestampByLevel = async (level: number) => {
+    const res = await getTimestampByLevel(level)
+    setVotingEnding(res)
+  }
+
+  useEffect(() => {
+    handleGetTimestampByLevel(selectedProposal?.currentCycleEndLevel ?? 0)
+  }, [selectedProposal?.currentCycleEndLevel])
+
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
       <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
@@ -63,7 +79,11 @@ export const EmergencyGovernanceView = ({
       <CardContent>
         <CardContentLeftSide>
           <h1>{selectedProposal.title}</h1>
-          <b className="voting-ends">Voting ends in 13:31 hours</b>
+          {votingEnding ? (
+            <b className="voting-ends">
+              Voting ends in <Time value={votingEnding} format="H:m" /> hours
+            </b>
+          ) : null}
           <p>{selectedProposal.description}</p>
         </CardContentLeftSide>
         <CardContentRightSide>
@@ -138,7 +158,7 @@ export const EmergencyGovernanceView = ({
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
         {emergencyGovernanceLedger.map((emergencyGovernance, index) => {
-          return <EGovHistoryCard emergencyGovernance={emergencyGovernance} />
+          return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
         })}
       </EmergencyGovernHistory>
     </>

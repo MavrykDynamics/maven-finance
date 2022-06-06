@@ -1,13 +1,24 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+
+// actions
+import { getTimestampByLevel } from './Governance.actions'
+
+// view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
-import { EmptyContainer } from '../../app/App.style'
 import { GovernancePhase } from '../../reducers/governance'
 import { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from './Governance.controller'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
+import { Proposals } from './Proposals/Proposals.controller'
+import { VotingArea } from './VotingArea/VotingArea.controller'
+import { calcTimeToBlock } from '../../utils/calcFunctions'
+import { Button } from 'app/App.components/Button/Button.controller'
 
+// styles
 import {
   GovernanceLeftContainer,
   GovernanceRightContainer,
@@ -16,10 +27,7 @@ import {
   RightSideSubContent,
   RightSideSubHeader,
 } from './Governance.style'
-import { Proposals } from './Proposals/Proposals.controller'
-import { VotingArea } from './VotingArea/VotingArea.controller'
-import { calcTimeToBlock } from '../../utils/calcFunctions'
-import { Button } from 'app/App.components/Button/Button.controller'
+import { EmptyContainer } from '../../app/App.style'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -58,6 +66,7 @@ export const GovernanceView = ({
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const [selectedProposalToShow, setSelectedProposalToShow] = useState<number>(Number(selectedProposal?.id || 1))
+  const [votingEnding, setVotingEnding] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const isProposalPhase = governancePhase === 'PROPOSAL'
 
@@ -84,7 +93,6 @@ export const GovernanceView = ({
       <figcaption> No proposals to show</figcaption>
     </EmptyContainer>
   )
-  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
 
   const days = calcTimeToBlock(
     rightSideContent?.currentCycleStartLevel || 0,
@@ -129,6 +137,15 @@ export const GovernanceView = ({
     isVisibleNextProposal,
     isVisibleHistoryProposal,
   ])
+
+  const handleGetTimestampByLevel = async (level: number) => {
+    const res = await getTimestampByLevel(level)
+    setVotingEnding(res)
+  }
+
+  useEffect(() => {
+    handleGetTimestampByLevel(rightSideContent?.currentCycleEndLevel ?? 0)
+  }, [rightSideContent?.currentCycleEndLevel])
 
   return (
     <GovernanceStyled>
@@ -187,7 +204,12 @@ export const GovernanceView = ({
             <h1>{rightSideContent.title}</h1>
             <StatusFlag text={rightSideContent.status} status={rightSideContent.status} />
           </GovRightContainerTitleArea>
-          <RightSideSubContent id="votingDeadline">Voting ending on September 12th, 05:16 CEST</RightSideSubContent>
+          {votingEnding ? (
+            <RightSideSubContent id="votingDeadline">
+              Voting ending on <Time value={votingEnding} format="F d\t\h, H:m" /> CEST
+            </RightSideSubContent>
+          ) : null}
+
           <VotingArea
             ready={ready}
             loading={loading}
