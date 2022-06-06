@@ -105,7 +105,7 @@ describe("Governance tests", async () => {
                 ])
                 .send()
             await updateOperators.confirmation();
-            var stakeOperation = await doormanInstance.methods.stake(MVK(1)).send();
+            var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
             await stakeOperation.confirmation();
             var registerAsSatellite = await delegationInstance.methods
             .registerAsSatellite(
@@ -232,7 +232,7 @@ describe("Governance tests", async () => {
             try{
                 // Initial Values
                 governanceStorage = await governanceInstance.storage();
-                const newConfigValue = 5000;
+                const newConfigValue = 1;
 
                 // Operation
                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send();
