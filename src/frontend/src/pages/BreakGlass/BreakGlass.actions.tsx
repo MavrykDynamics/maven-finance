@@ -4,8 +4,11 @@ import {
   BREAK_GLASS_STORAGE_QUERY,
   BREAK_GLASS_STORAGE_QUERY_NAME,
   BREAK_GLASS_STORAGE_QUERY_VARIABLE,
+  BREAK_GLASS_STATUS_QUERY,
+  BREAK_GLASS_STATUS_QUERY_NAME,
+  BREAK_GLASS_STATUS_QUERY_VARIABLE,
 } from '../../gql/queries'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import storageToTypeConverter, { convertBreakGlassStatusStorageType } from '../../utils/storageToTypeConverter'
 
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
 export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'
@@ -36,5 +39,24 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
   dispatch({
     type: GET_BREAK_GLASS_STORAGE,
     breakGlassStorage: storage,
+  })
+}
+
+export const GET_BREAK_GLASS_STATUS = 'GET_BREAK_GLASS_STATUS'
+export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+  const storage = await fetchFromIndexer(
+    BREAK_GLASS_STATUS_QUERY,
+    BREAK_GLASS_STATUS_QUERY_NAME,
+    BREAK_GLASS_STATUS_QUERY_VARIABLE,
+  )
+
+  const convertedStorage = convertBreakGlassStatusStorageType(storage)
+  console.log('%c ||||| storage', 'color:yellowgreen', storage)
+  console.log('%c ~~ convertedStorage', 'color:yellowgreen', convertedStorage)
+  // const convertedStorage = storageToTypeConverter('breakGlass', storage?.break_glass[0])
+
+  dispatch({
+    type: GET_BREAK_GLASS_STATUS,
+    breakGlassStatus: convertedStorage,
   })
 }
