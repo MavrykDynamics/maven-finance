@@ -18,6 +18,16 @@ import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovPropos
 import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
 import { ProposalStatus, ProposalVote } from '../../utils/TypesAndInterfaces/Governance'
 
+export type EmergencyGovernanceLedgerType = {
+  id: number
+  title: string
+  startTimestamp: string
+  proposerId: string
+  description: string
+  dropped: boolean
+  executed: boolean
+}
+
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
@@ -27,6 +37,8 @@ export const EmergencyGovernance = () => {
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
 
   const selectedProposal = MOCK_PAST_PROPOSAL_LIST.values().next().value
+
+  const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
@@ -111,8 +123,10 @@ export const EmergencyGovernance = () => {
         loading={loading}
         accountPkh={accountPkh}
         pastProposals={MOCK_E_GOV_PAST_PROPOSALS}
+        // pastProposals={pastProposals}
         selectedProposal={selectedProposal}
         voteStatistics={voteStatistics}
+        emergencyGovernanceLedger={emergencyGovernanceLedger}
       />
     </Page>
   )

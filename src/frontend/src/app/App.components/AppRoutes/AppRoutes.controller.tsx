@@ -4,6 +4,7 @@ import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
 import { Satellites } from '../../../pages/Satellites/Satellites.controller'
 import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.controller'
 import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetails.controller'
+import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
 import { Governance } from '../../../pages/Governance/Governance.controller'
 import { BreakGlass } from '../../../pages/BreakGlass/BreakGlass.controller'
 import ProtectedRoute from './ProtectedRoute'
@@ -50,6 +51,9 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/governance">
         <Governance />
+      </Route>
+      <Route exact path="/satellite-governance">
+        <SatelliteGovernance />
       </Route>
       <Route exact path="/proposal-history">
         <Governance />

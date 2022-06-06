@@ -250,11 +250,8 @@
             <path d="M10 17L2 9l8-8"></path>
         </g>
     </symbol>
-    <symbol id="greater-than" viewBox="0 0 24 24">
-        <g fill="none" clip-path="url(#clip0_2010_4141)">
-            <path d="M1.5 21.7222L10.5 11.5L1.5 1.27779"  stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-        </g>
+    <symbol id="greater-than" viewBox="0 0 10 24" >
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.558924 23.6065C0.223935 23.3629 0.149872 22.8938 0.393501 22.5588L8.07268 11.9999L0.393501 1.44107C0.149872 1.10608 0.223935 0.637022 0.558924 0.393394C0.893914 0.149765 1.36298 0.223827 1.6066 0.558817L9.6066 11.5588C9.79787 11.8218 9.79787 12.1781 9.6066 12.4411L1.6066 23.4411C1.36298 23.7761 0.893914 23.8501 0.558924 23.6065Z" />
     </symbol>
     <symbol id="add" viewBox="0 0 24 24">
         <g clip-path="url(#clip0_1510_12508)">
