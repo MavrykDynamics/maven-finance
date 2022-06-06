@@ -1,7 +1,7 @@
 
+from mavryk.types.delegation.storage import DelegationStorage
 from mavryk.types.delegation.parameter.distribute_reward import DistributeRewardParameter
 from dipdup.context import HandlerContext
-from mavryk.types.delegation.storage import DelegationStorage
 from dipdup.models import Transaction
 import mavryk.models as models
 
@@ -13,6 +13,8 @@ async def on_delegation_distribute_reward(
     # Get operation info
     delegation_address      = distribute_reward.data.target_address
     elligible_satellites    = distribute_reward.parameter.eligibleSatellites
+    timestamp               = distribute_reward.data.timestamp
+    reward_amount           = float(distribute_reward.parameter.totalSMvkReward)
 
     # Get and update records
     delegation  = await models.Delegation.get(address = delegation_address)
@@ -32,3 +34,16 @@ async def on_delegation_distribute_reward(
         satellite_rewards.participation_rewards_per_share           = float(rewards_record.participationRewardsPerShare)
         satellite_rewards.satellite_accumulated_reward_per_share    = float(rewards_record.satelliteAccumulatedRewardsPerShare)
         await satellite_rewards.save()
+
+    # Create a stake record
+    doorman         = await models.Doorman.all().first()
+    stake_record    = models.StakeHistoryData(
+        timestamp           = timestamp,
+        type                = models.StakeType.SATELLITE_REWARD,
+        desired_amount      = reward_amount,
+        final_amount        = reward_amount,
+        doorman             = doorman,
+        from_               = user
+        # mvk_loyalty_index   = mli
+    )
+    await stake_record.save()

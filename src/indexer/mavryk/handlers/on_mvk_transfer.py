@@ -11,10 +11,10 @@ async def on_mvk_transfer(
 ) -> None:
 
     # Get transfer batch
-    transaction_batch = transfer.parameter.__root__
-    timestamp = transfer.data.timestamp
-    mvk_address = transfer.data.target_address
-    user_ledger = transfer.data.storage['ledger']
+    transaction_batch   = transfer.parameter.__root__
+    timestamp           = transfer.data.timestamp
+    mvk_address         = transfer.data.target_address
+    user_ledger         = transfer.storage.ledger
 
     for entry in transaction_batch:
         sender_address = entry.from_
@@ -41,11 +41,33 @@ async def on_mvk_transfer(
             await receiver.save()
 
             # Create transfer
-            transfer = models.TransferRecord(
+            transfer_record = models.MVKTransferHistoryData(
                 timestamp=timestamp,
-                token_address=mvk_token,
+                mvk_token=mvk_token,
                 from_=sender,
                 to_=receiver,
                 amount=amount
             )
-            await transfer.save()
+            await transfer_record.save()
+
+            # Check if doorman
+            doorman_sender      = await models.Doorman.get_or_none(address  = sender_address)
+            doorman_receiver    = await models.Doorman.get_or_none(address  = receiver_address)
+            if doorman_sender or doorman_receiver:
+                smvk_total_supply   = 0
+                doorman             = None
+                if doorman_sender:
+                    smvk_total_supply   = float(transfer.storage.ledger[sender_address])
+                    doorman             = doorman_sender
+                else:
+                    smvk_total_supply   = float(transfer.storage.ledger[receiver_address])
+                    doorman             = doorman_receiver
+                smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
+                avg_smvk_per_user   = smvk_total_supply / smvk_users
+                smvk_history_data   = models.SMVKHistoryData(
+                    timestamp           = timestamp,
+                    doorman             = doorman,
+                    smvk_total_supply   = smvk_total_supply,
+                    avg_smvk_by_user    = avg_smvk_per_user
+                )
+                await smvk_history_data.save()

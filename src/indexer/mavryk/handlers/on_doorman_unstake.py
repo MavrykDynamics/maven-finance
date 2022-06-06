@@ -45,13 +45,13 @@ async def on_doorman_unstake(
     #     mli = previous_smvk_total_supply / previous_mvk_total_supply
 
     # Create a stake record
-    stake_record = models.StakeRecord(
+    stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
         type                = models.StakeType.UNSTAKE,
         desired_amount      = desired_amount,
         final_amount        = final_amount,
         doorman             = doorman,
-        from_               = user,
+        from_               = user
         # mvk_loyalty_index   = mli
     )
     await stake_record.save()
