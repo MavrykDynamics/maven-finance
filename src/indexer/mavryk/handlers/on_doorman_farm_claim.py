@@ -39,15 +39,15 @@ async def on_doorman_farm_claim(
     # mli = 0.0
     # if previous_mvk_total_supply > 0.0:
     #     mli = previous_smvk_total_supply / previous_mvk_total_supply
-    
+
     # Create a stake record
-    stake_record = models.StakeRecord(
+    stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
         type                = models.StakeType.FARM_CLAIM,
         desired_amount      = amount,
         final_amount        = amount,
         doorman             = doorman,
-        from_               = user,
+        from_               = user
         # mvk_loyalty_index   = mli
     )
     await stake_record.save()

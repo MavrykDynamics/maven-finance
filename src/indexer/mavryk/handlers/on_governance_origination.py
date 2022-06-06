@@ -55,6 +55,7 @@ async def on_governance_origination(
 
     # Create record
     governance, _  = await models.Governance.get_or_create(address = address)
+    governance.active                                  = True
     governance.address                                 = address
     governance.governance_proxy_address                = governance_proxy_address
     governance.success_reward                          = success_reward

@@ -78,10 +78,6 @@ templates:
     contracts:
       - <farm_contract>
     handlers:
-      # - callback: on_farm_origination
-      #   pattern:
-      #     - type: origination
-      #       originated_contract: <farm_contract>
       - callback: on_farm_set_admin
         pattern:
           - destination: <farm_contract>
@@ -156,10 +152,6 @@ templates:
     contracts:
       - <treasury_contract>
     handlers:
-      # - callback: on_treasury_origination
-      #   pattern:
-      #     - type: origination
-      #       originated_contract: <treasury_contract>
       - callback: on_treasury_set_admin
         pattern:
           - destination: <treasury_contract>
@@ -204,6 +196,10 @@ templates:
         pattern:
           - destination: <treasury_contract>
             entrypoint: togglePauseUnstakeMvk
+      - callback: on_treasury_transfer
+        pattern:
+          - destination: <treasury_contract>
+            entrypoint: transfer
 
 indexes:
   # MVK Token contract indexes
@@ -1065,6 +1061,10 @@ indexes:
         pattern:
           - destination: treasury
             entrypoint: togglePauseUnstakeMvk
+      - callback: on_treasury_transfer
+        pattern:
+          - destination: treasury
+            entrypoint: transfer
   # Treasury Factory contract indexes
   treasury_factory:
     kind: operation
