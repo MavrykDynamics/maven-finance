@@ -162,12 +162,12 @@ block {
                 if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
                 else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
 
+                if s.breakGlassConfig.distributeRewardIsPaused then skip
+                else s.breakGlassConfig.distributeRewardIsPaused := True;
+
             }
         | _ -> skip
     ];
-
-    if s.breakGlassConfig.distributeRewardIsPaused then skip
-    else s.breakGlassConfig.distributeRewardIsPaused := True;
 
 } with (noOperations, s)
 
