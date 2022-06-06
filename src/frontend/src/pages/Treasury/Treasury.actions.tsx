@@ -15,20 +15,23 @@ export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any,
     //   return
     // }
     // TODO: Change address used to that of the Treasury when possible
-    console.log(state?.contractAddresses)
-    const contract = accountPkh
-      ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.treasuryAddress?.address)
-      : await new TezosToolkit(
-          (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-        )?.contract?.at(state?.contractAddresses?.treasuryAddress?.address)
+    // console.log(state?.contractAddresses)
 
-    const storage = await (contract as any).storage()
-    console.log('Printing out Treasury storage:\n', storage)
+    const address = state?.contractAddresses?.treasuryAddress?.address
+    if (address || accountPkh) {
+      const contract = accountPkh
+        ? await state?.wallet?.tezos?.wallet?.at(address)
+        : await new TezosToolkit(
+            (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
+          )?.contract?.at(address)
+      const storage = await (contract as any).storage()
+      console.log('Printing out Treasury storage:\n', storage)
 
-    dispatch({
-      type: GET_TREASURY_STORAGE,
-      treasuryStorage: storage,
-    })
+      dispatch({
+        type: GET_TREASURY_STORAGE,
+        treasuryStorage: storage,
+      })
+    }
   } catch (error) {
     console.log('%c ---- error getTreasuryStorage', 'color:red', error)
   }

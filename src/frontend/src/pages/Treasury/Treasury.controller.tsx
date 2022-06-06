@@ -28,6 +28,7 @@ export const Treasury = () => {
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
   const { councilStorage } = useSelector((state: State) => state.council)
   const { vestingStorage } = useSelector((state: State) => state.vesting)
+  const { treasuryAddress } = useSelector((state: State) => state.contractAddresses)
 
   const itemsForDropDown = [
     { text: 'Development', value: 'development' },
@@ -40,10 +41,10 @@ export const Treasury = () => {
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   useEffect(() => {
-    dispatch(getTreasuryStorage())
-    dispatch(getCouncilStorage())
+    dispatch(getTreasuryStorage(accountPkh))
+    dispatch(getCouncilStorage(accountPkh))
     dispatch(getVestingStorage())
-  }, [dispatch])
+  }, [dispatch, accountPkh, treasuryAddress])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
