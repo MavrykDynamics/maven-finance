@@ -213,3 +213,22 @@ export const startVotingRound = () => async (dispatch: any, getState: any) => {
     })
   }
 }
+
+export const getTimestampByLevel = async (level: number): Promise<string> => {
+  if (level) {
+    try {
+      const result = await fetch(`https://api.ithacanet.tzkt.io/v1/blocks/${level}/`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+        },
+      })
+      const res = await result.json()
+      return res.timestamp
+    } catch (error: any) {
+      console.error('getTimestampByLevel', error)
+    }
+  }
+  return ''
+}

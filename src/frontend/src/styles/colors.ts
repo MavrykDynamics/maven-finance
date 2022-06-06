@@ -25,9 +25,6 @@ export const upColor = '#27AE60';
 export const downColor = '#FF4343';
 export const warningColor = '#FF7A00';
 export const selectedColor = '#aea3ff3d';
-
-
-
 export const backdropColor = '#08062880';
 
 export const darkMode = {
@@ -54,14 +51,14 @@ export const darkMode = {
   placeholderColor: '#7068AA',
   primaryColor: '#7068AA',
   secondaryColor: '#73d7c3',
-  upColor: '#00E205',
-  downColor: '#F90021',
-  warningColor: '#FF7A00',
-  selectedColor: '#aea3ff3d',
+  upColor,
+  downColor,
+  warningColor,
+  selectedColor,
   connectWalletBackgroundColor: '#50508E',
   navLinkBackgroundActive: 'linear-gradient(90deg, #38237c 0%, rgba(80, 80, 142, 0) 100%)',
   boxShadowColor: 'rgba(136, 209, 195, 0.3)',
-};
+}
 
 export const lightMode = {
   backgroundColor: lightColor,
