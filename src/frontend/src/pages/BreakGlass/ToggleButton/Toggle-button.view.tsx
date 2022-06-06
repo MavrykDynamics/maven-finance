@@ -1,33 +1,27 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import { ToggleButtonWrapper, ToggleButtonItem } from './Toggle-button.style';
+import { ToggleButtonWrapper, ToggleButtonItem } from './Toggle-button.style'
 
 type ToggleButtonViewProps = {
-  toggleData: Array<{
-    buttonName: string;
-    buttonId: string;
-  }>;
-};
+  uniqueContracts: string[]
+  selected: string
+  handleSetSelectedToggler: (arg0: string) => void
+}
 
-export const ToggleButton = ({ toggleData }: ToggleButtonViewProps) => {
-  const [selectedToogler, setSelectedToggler] = React.useState<null | string>(
-    toggleData[0].buttonId,
-  );
-
+export const ToggleButton = ({ uniqueContracts, selected, handleSetSelectedToggler }: ToggleButtonViewProps) => {
   return (
     <ToggleButtonWrapper
-      className={`${toggleData.length <= 2 ? 'small-size' : ''} ${
-        toggleData.length > 4 ? 'big-size' : ''
-      }`}
+      className={`${uniqueContracts.length <= 2 ? 'small-size' : ''} ${uniqueContracts.length > 4 ? 'big-size' : ''}`}
     >
-      {toggleData.map(({ buttonName, buttonId }) => (
+      {uniqueContracts.map((contract) => (
         <ToggleButtonItem
-          className={`${selectedToogler === buttonId ? 'selected' : ''} toggle-btn`}
-          onClick={() => setSelectedToggler(buttonId)}
+          key={contract}
+          className={`${selected === contract ? 'selected' : ''} toggle-btn`}
+          onClick={() => handleSetSelectedToggler(contract)}
         >
-          {buttonName}
+          {contract}
         </ToggleButtonItem>
       ))}
     </ToggleButtonWrapper>
-  );
-};
+  )
+}

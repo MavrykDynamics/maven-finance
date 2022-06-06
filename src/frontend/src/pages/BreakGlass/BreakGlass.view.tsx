@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import {
   BGStyled,
   BGTop,
@@ -20,33 +20,30 @@ type BreakGlassViewProps = {
   breakGlassStatuses: Record<string, unknown>[]
 }
 
-// TODO: remove this later, need to find data source for this
-const toggleButtonData = [
-  {
-    buttonName: 'General Contracts',
-    buttonId: 'GC',
-  },
-  {
-    buttonName: 'Treasury',
-    buttonId: 'treasury',
-  },
-  {
-    buttonName: 'Farms',
-    buttonId: 'farms',
-  },
-  {
-    buttonName: 'Oracles',
-    buttonId: 'oracles',
-  },
-]
-
 export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGlassStatuses }: BreakGlassViewProps) => {
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
+  const [selectedContract, setSelectedContract] = useState<string>('')
 
-  const uniqueTypes = useMemo(() => {
-    return Array.from(new Set(breakGlassStatuses.map((key) => key.title)))
+  const uniqueContracts = useMemo(() => {
+    return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.title))) as string[]) : []
   }, [breakGlassStatuses])
+
+  useEffect(() => {
+    if (uniqueContracts?.length) {
+      setSelectedContract(uniqueContracts[0] as string)
+    }
+  }, [breakGlassStatuses])
+
+  const filteredBreakGlassStatuses = useMemo(() => {
+    return breakGlassStatuses
+      ? breakGlassStatuses?.filter((item) => {
+          const title = item.title as string
+
+          return selectedContract === title
+        })
+      : []
+  }, [selectedContract, breakGlassStatuses])
 
   return (
     <BGStyled className={'breakGlassContainer'}>
@@ -78,11 +75,15 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
       </BGTop>
       <BGMiddleWrapper>
         <BGTitle>Contract Status</BGTitle>
-        <ToggleButton toggleData={toggleButtonData} />
+        <ToggleButton
+          selected={selectedContract}
+          handleSetSelectedToggler={setSelectedContract}
+          uniqueContracts={uniqueContracts}
+        />
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
-        {breakGlassStatuses.map((item: Record<string, unknown>, index: number) => (
+        {filteredBreakGlassStatuses.map((item: Record<string, unknown>, index: number) => (
           <ContractCard contract={item} key={`${index}-${item.address}`} />
         ))}
       </BGCardsWrapper>
