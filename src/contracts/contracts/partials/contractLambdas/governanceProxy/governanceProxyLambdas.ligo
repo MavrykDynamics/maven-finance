@@ -175,15 +175,20 @@ block {
       | StakeMvkTreasury (_v)                  -> 31n
       | UnstakeMvkTreasury (_v)                -> 32n
 
+      (* Aggregator Control *)
+      | CreateAggregator (_v)                  -> 33n
+      | TrackAggregator (_v)                   -> 34n
+      | UntrackAggregator (_v)                 -> 35n
+
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 33n
-      | TriggerMvkInflation (_v)               -> 34n
+      | UpdateMvkInflationRate (_v)            -> 36n
+      | TriggerMvkInflation (_v)               -> 37n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 35n
-      | RemoveVestee (_v)                      -> 36n
-      | UpdateVestee (_v)                      -> 37n
-      | ToggleVesteeLock (_v)                  -> 38n
+      | AddVestee (_v)                         -> 38n
+      | RemoveVestee (_v)                      -> 39n
+      | UpdateVestee (_v)                      -> 40n
+      | ToggleVesteeLock (_v)                  -> 41n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -1499,9 +1504,9 @@ block {
                 // find and get createAggregator entrypoint of aggregatorFactory contract
                 const createAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%createAggregator",
-                    aggregatorFactoryAddress) : option(contract(bytes))) of [
+                    aggregatorFactoryAddress) : option(contract(createAggregatorParamsType))) of [
                           Some(contr) -> contr
-                        | None        -> (failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
+                        | None        -> (failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(createAggregatorParamsType))
                     ];
 
                 // create a new aggregator
@@ -1539,10 +1544,10 @@ block {
 
                 // find and get trackAggregator entrypoint of aggregatorFactory contract
                 const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "trackAggregator",
-                    aggregatorFactoryAddress) : option(contract(bytes))) of [
+                    "%trackAggregator",
+                    aggregatorFactoryAddress) : option(contract(trackAggregatorParamsType))) of [
                           Some(contr) -> contr
-                        | None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
+                        | None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(trackAggregatorParamsType))
                     ];
 
                 // track aggregator
@@ -1580,10 +1585,10 @@ block {
 
                 // find and get trackAggregator entrypoint of aggregatorFactory contract
                 const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
-                    "untrackAggregator",
-                    aggregatorFactoryAddress) : option(contract(bytes))) of [
+                    "%untrackAggregator",
+                    aggregatorFactoryAddress) : option(contract(untrackAggregatorParamsType))) of [
                           Some(contr) -> contr
-                        | None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
+                        | None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(untrackAggregatorParamsType))
                     ];
 
                 // untrack aggregator

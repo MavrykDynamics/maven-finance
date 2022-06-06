@@ -207,7 +207,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "suspendSatellite";
+                        governanceType                     = "SUSPEND";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -335,7 +335,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "unsuspendSatellite";
+                        governanceType                     = "UNSUSPEND";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -463,7 +463,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "banSatellite";
+                        governanceType                     = "BAN";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -591,7 +591,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "unbanSatellite";
+                        governanceType                     = "UNBAN";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -727,7 +727,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "removeAllSatelliteOracles";
+                        governanceType                     = "REMOVE_ALL_SATELLITE_ORACLES";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -847,7 +847,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "addOracleToAggregator";
+                        governanceType                     = "ADD_ORACLE_TO_AGGREGATOR";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -967,7 +967,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "removeOracleinAggregator";
+                        governanceType                     = "REMOVE_ORACLE_IN_AGGREGATOR";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -1039,8 +1039,9 @@ function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : govern
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    
-    checkSenderIsAdmin(s); // check that sender is admin
+
+    // check sender is admin or is whitelisted
+    if Tezos.sender = s.admin or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
     
     case governanceSatelliteLambdaAction of [
         | LambdaRegisterAggregator(registerAggregatorParams) -> {
@@ -1056,11 +1057,12 @@ block {
                 ];
 
                 // create new aggregator record
+                const emptyOracleSet : set(address) = set[];
                 const aggregatorRecord : aggregatorRecordType = record [
                     aggregatorPair    = aggregatorPair;
                     status            = "ACTIVE";
                     createdTimestamp  = Tezos.now;
-                    oracles           = (set[] : set(address));
+                    oracles           = emptyOracleSet;
                 ];
 
                 // update aggregator ledger
@@ -1137,7 +1139,7 @@ block {
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
-                        governanceType                     = "updateAggregatorStatus";
+                        governanceType                     = "UPDATE_AGGREGATOR_STATUS";
                         governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
@@ -1352,7 +1354,7 @@ block {
 
 
                                 // Governance: Suspend Satellite
-                                if _governanceSatelliteActionRecord.governanceType = "suspendSatellite" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "SUSPEND" then block {
 
                                     const satelliteToBeSuspended : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeSuspended"] of [
                                         Some(_address) -> _address
@@ -1397,7 +1399,7 @@ block {
 
 
                                 // Governance: Unsuspend Satellite
-                                if _governanceSatelliteActionRecord.governanceType = "unsuspendSatellite" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "UNSUSPEND" then block {
 
                                     const satelliteToBeUnsuspended : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeUnsuspended"] of [
                                          Some(_address) -> _address
@@ -1442,7 +1444,7 @@ block {
 
 
                                 // Governance: Ban Satellite
-                                if _governanceSatelliteActionRecord.governanceType = "banSatellite" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "BAN" then block {
 
                                     const satelliteToBeBanned : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeBanned"] of [
                                          Some(_address) -> _address
@@ -1487,7 +1489,7 @@ block {
 
 
                                 // Governance: Unban Satellite
-                                if _governanceSatelliteActionRecord.governanceType = "unbanSatellite" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "UNBAN" then block {
 
                                     const satelliteToBeUnbanned : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeUnbanned"] of [
                                         Some(_address) -> _address
@@ -1532,7 +1534,7 @@ block {
 
 
                                 // Governance: Add Oracle To Aggregator
-                                if _governanceSatelliteActionRecord.governanceType = "addOracleToAggregator" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "ADD_ORACLE_TO_AGGREGATOR" then block {
 
                                     const oracleAddress : address = case _governanceSatelliteActionRecord.addressMap["oracleAddress"] of [
                                         Some(_address) -> _address
@@ -1585,7 +1587,7 @@ block {
 
 
                                 // Governance: Remove Oracle In Aggregator
-                                if _governanceSatelliteActionRecord.governanceType = "removeOracleInAggregator" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "REMOVE_ORACLE_IN_AGGREGATOR" then block {
 
                                     const oracleAddress : address = case _governanceSatelliteActionRecord.addressMap["oracleAddress"] of [
                                         Some(_address) -> _address
@@ -1610,7 +1612,7 @@ block {
 
 
                                 // Governance: Remove All Satellite Oracles (in aggregators)
-                                if _governanceSatelliteActionRecord.governanceType = "removeAllSatelliteOracles" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "REMOVE_ALL_SATELLITE_ORACLES" then block {
 
                                     const satelliteAddress : address = case _governanceSatelliteActionRecord.addressMap["satelliteAddress"] of [
                                          Some(_address) -> _address
@@ -1639,7 +1641,7 @@ block {
 
 
                                 // Governance: Update Aggregator Status
-                                if _governanceSatelliteActionRecord.governanceType = "updateAggregatorStatus" then block {
+                                if _governanceSatelliteActionRecord.governanceType = "UPDATE_AGGREGATOR_STATUS" then block {
 
                                     const aggregatorAddress : address = case _governanceSatelliteActionRecord.addressMap["aggregatorAddress"] of [
                                          Some(_address) -> _address

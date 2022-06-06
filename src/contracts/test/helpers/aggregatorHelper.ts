@@ -21,6 +21,14 @@ import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods
 
 type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
+    updateWhitelistContracts: (
+      whitelistContractName       : string,
+      whitelistContractAddress    : string
+    ) => ContractMethod<T>;
+    updateGeneralContracts: (
+      generalContractName         : string,
+      generalContractAddress      : string
+    ) => ContractMethod<T>;
 };
 
 type AggregatorContractMethodObject<T extends ContractProvider | Wallet> =
@@ -46,7 +54,6 @@ export const setAggregatorLambdas = async (tezosToolkit: TezosToolkit, contract:
 
     aggregatorLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
         batch.withContractCall(contract.methods.setLambda(name, aggregatorLambdas[index]))
-
     });
 
     const setupAggregatorLambdasOperation = await batch.send()

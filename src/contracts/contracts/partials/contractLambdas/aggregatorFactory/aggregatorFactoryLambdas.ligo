@@ -320,13 +320,23 @@ block {
                   roundPrice                = 0n;
                 ];
 
-                const aggregatorWhitelistContracts : whitelistContractsType = map[
-                    ("aggregatorFactory")  -> (Tezos.self_address : address);
-                ];
+                // get delegation address
                 const delegationAddress : address = case s.generalContracts["delegation"] of [ 
                         Some (_address) -> _address
                     |   None            -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
+
+                // get governance satellite address
+                const governanceSatelliteAddress : address = case s.generalContracts["governanceSatellite"] of [ 
+                        Some (_address) -> _address
+                    |   None            -> failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                ];
+
+                const aggregatorWhitelistContracts : whitelistContractsType = map[
+                    ("aggregatorFactory")   -> (Tezos.self_address : address);
+                    ("governanceSatellite") -> governanceSatelliteAddress;
+                ];
+                
                 const aggregatorGeneralContracts : generalContractsType = map[
                     ("delegation") -> (delegationAddress: address)
                 ];
@@ -385,7 +395,7 @@ block {
                 ];
 
                 // contract origination
-                const aggregatorOrigination: (operation * address) = createAggregatorFunc(
+                const aggregatorOrigination : (operation * address) = createAggregatorFunc(
                     (None: option(key_hash)),
                     0tez,
                     originatedAggregatorStorage
@@ -394,6 +404,25 @@ block {
                 s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
 
                 operations := aggregatorOrigination.0 # operations; 
+
+                // register aggregator operation to governance satellite contract
+                const governanceSatelliteAddress : address = case s.whitelistContracts["governanceSatellite"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                ];
+
+                const registerAggregatorParams : registerAggregatorActionType = record [
+                    aggregatorPair      = (createAggregatorParams.0, createAggregatorParams.1);
+                    aggregatorAddress   = aggregatorOrigination.1
+                ];
+                
+                const registerAggregatorOperation : operation = Tezos.transaction(
+                    registerAggregatorParams,
+                    0tez,
+                    getRegisterAggregatorInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
+                );
+
+                operations := registerAggregatorOperation # operations;
 
             }
         | _ -> skip

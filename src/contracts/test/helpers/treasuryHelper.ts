@@ -1,16 +1,90 @@
-import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  OriginationOperation,
+  TezosToolkit,
+  Wallet
+} from "@taquito/taquito";
 import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { treasuryStorageType } from "../types/treasuryStorageType";
 
+import treasuryLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json';
+import treasuryLambdas from "../../build/lambdas/treasuryLambdas.json";
+import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+import {BigNumber} from "bignumber.js";
+
+
+type TreasuryContractMethods<T extends ContractProvider | Wallet> = {
+    setLambda: (number, string) => ContractMethod<T>;
+    updateWhitelistContracts: (
+      whitelistContractName:string,
+      whitelistContractAddress:string
+    ) => ContractMethod<T>;
+    updateGeneralContracts: (
+      generalContractName:string,
+      generalContractAddress:string
+    ) => ContractMethod<T>;
+    updateWhitelistTokenContracts: (
+      whitelistTokenContractName:string,
+      whitelistTokenContractAddress:string
+    ) => ContractMethod<T>;
+    updateMvkOperators: (
+      updateOperators:  [
+        update_operators : {
+          add_operator : {
+            owner : string,
+            operator : string,
+            token_id: Number
+          } 
+        }
+      ]
+    ) => ContractMethod<T>;
+};
+
+
+type TreasuryContractMethodObject<T extends ContractProvider | Wallet> =
+    Record<string, (...args: any[]) => ContractMethodObject<T>>;
+
+type TreasuryViews = Record<string, (...args: any[]) => ContractView>;
+
+type TreasuryOnChainViews = {
+    decimals: () => OnChainView;
+};
+
+type TreasuryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+    TreasuryContractMethods<T>,
+    TreasuryContractMethodObject<T>,
+    TreasuryViews,
+    TreasuryOnChainViews,
+    treasuryStorageType>;
+
+
+export const setTreasuryLambdas = async (tezosToolkit: TezosToolkit, contract: TreasuryContractAbstraction) => {
+    const batch = tezosToolkit.wallet
+        .batch();
+
+    treasuryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+        batch.withContractCall(contract.methods.setLambda(name, treasuryLambdas[index]))
+
+    });
+
+    const setupTreasuryLambdasOperation = await batch.send()
+    await setupTreasuryLambdasOperation.confirmation()
+};
+
 export class Treasury {
-    contract: Contract;
+    contract: TreasuryContractAbstraction;
     storage: treasuryStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: Contract, tezos: TezosToolkit) {
+    constructor(contract: TreasuryContractAbstraction, tezos: TezosToolkit) {
       this.contract = contract;
       this.tezos = tezos;
     }
@@ -51,16 +125,6 @@ export class Treasury {
         tezos
       );
     }
-  
-    async setAdmin(newAdminAddress: string): Promise<TransactionOperation> {
-        const operation: TransactionOperation = await this.contract.methods
-          .setAdmin(newAdminAddress)
-          .send();
-    
-        await confirmOperation(this.tezos, operation.hash);
-    
-        return operation;
-      }
 
   }
   

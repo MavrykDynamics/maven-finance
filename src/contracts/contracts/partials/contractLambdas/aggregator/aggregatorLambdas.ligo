@@ -138,7 +138,7 @@ block {
                 // if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't add an already present whitelisted oracle")
                 if isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
-                  checkSenderIsAdmin(s);
+                  checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
                   s.oracleAddresses := updatedWhiteListedContract;
                 }
@@ -161,7 +161,7 @@ block {
                 // if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
                 if not isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
-                  checkSenderIsAdmin(s);
+                  checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
                   s.oracleAddresses := updatedWhiteListedContract;
                 }
