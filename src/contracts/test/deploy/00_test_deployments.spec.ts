@@ -1,5 +1,3 @@
-import {BigNumber} from "bignumber.js";
-
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
 import { MVK, Utils, zeroAddress } from "../helpers/Utils";
@@ -8,6 +6,8 @@ import { confirmOperation } from "../../scripts/confirmation";
 const saveContractAddress = require("../../helpers/saveContractAddress")
 const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 import { MichelsonMap } from '@taquito/michelson-encoder'
+import {TezosToolkit} from "@taquito/taquito";
+import {BigNumber} from "bignumber.js";
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -18,66 +18,78 @@ import env from '../../env'
 import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
 
 import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
-import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
-import governanceFinancialLambdas from '../../build/lambdas/governanceFinancialLambdas.json'
-import governanceSatelliteLambdas from '../../build/lambdas/governanceSatelliteLambdas.json'
-import doormanLambdas from '../../build/lambdas/doormanLambdas.json'
-import delegationLambdas from '../../build/lambdas/delegationLambdas.json'
-import breakGlassLambdas from '../../build/lambdas/breakGlassLambdas.json'
-import emergencyGovernanceLambdas from '../../build/lambdas/emergencyGovernanceLambdas.json'
-import councilLambdas from '../../build/lambdas/councilLambdas.json'
-import farmLambdas from '../../build/lambdas/farmLambdas.json'
-import farmFactoryLambdas from '../../build/lambdas/farmFactoryLambdas.json'
-import vestingLambdas from '../../build/lambdas/vestingLambdas.json'
-import treasuryLambdas from '../../build/lambdas/treasuryLambdas.json'
-import treasuryFactoryLambdas from '../../build/lambdas/treasuryFactoryLambdas.json'
+
+
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import { Governance, setGovernanceLambdas } from '../helpers/governanceHelper'
+import { GovernanceFinancial, setGovernanceFinancialLambdas } from '../helpers/governanceFinancialHelper'
+import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../helpers/governanceSatelliteHelper'
+import { GovernanceProxy } from '../helpers/governanceProxyHelper'
+import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../helpers/emergencyGovernanceHelper'
+import { BreakGlass, setBreakGlassLambdas } from '../helpers/breakGlassHelper'
+import { Vesting, setVestingLambdas } from '../helpers/vestingHelper'
+import { Council, setCouncilLambdas } from '../helpers/councilHelper'
+
+import { Doorman, setDoormanLambdas } from '../helpers/doormanHelper'
+import { Delegation, setDelegationLambdas } from '../helpers/delegationHelper'
+
+import { Farm, setFarmLambdas } from "../helpers/farmHelper"
+import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../helpers/farmFactoryHelper"
+
+import { Treasury, setTreasuryLambdas } from '../helpers/treasuryHelper'
+import { TreasuryFactory, 
+  setTreasuryFactoryLambdas, setTreasuryFactoryProductLambdas 
+} from '../helpers/treasuryFactoryHelper'
 
 import {Aggregator, setAggregatorLambdas} from '../helpers/aggregatorHelper'
 import {
   AggregatorFactory,
   setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
 } from '../helpers/aggregatorFactoryHelper'
-import { Doorman, doormanLambdaIndexOf } from '../helpers/doormanHelper'
-import { Delegation } from '../helpers/delegationHelper'
+
 import { MvkToken } from '../helpers/mvkHelper'
-import { Governance } from '../helpers/governanceHelper'
-import { GovernanceFinancial } from '../helpers/governanceFinancialHelper'
-import { GovernanceSatellite } from '../helpers/governanceSatelliteHelper'
-import { GovernanceProxy } from '../helpers/governanceProxyHelper'
-import { BreakGlass } from '../helpers/breakGlassHelper'
-import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
-import { Vesting } from '../helpers/vestingHelper'
-import { Council } from '../helpers/councilHelper'
-import { Farm } from "../helpers/farmHelper";
-import { FarmFactory } from "../helpers/farmFactoryHelper";
-import { LPToken } from "../helpers/testLPHelper";
-import { Treasury } from '../helpers/treasuryHelper'
-import { TreasuryFactory } from '../helpers/treasuryFactoryHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { LPToken } from "../helpers/testLPHelper"
 
 
-import { aggregatorStorage } from '../../storage/aggregatorStorage'
-import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage'
-import { doormanStorage } from '../../storage/doormanStorage'
-import { delegationStorage } from '../../storage/delegationStorage'
-import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
+// ------------------------------------------------------------------------------
+// Contract Storage
+// ------------------------------------------------------------------------------
+
 import { governanceStorage } from '../../storage/governanceStorage'
 import { governanceFinancialStorage } from '../../storage/governanceFinancialStorage'
 import { governanceSatelliteStorage } from '../../storage/governanceSatelliteStorage'
 import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
 import { breakGlassStorage } from '../../storage/breakGlassStorage'
 import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
+
 import { vestingStorage } from '../../storage/vestingStorage'
 import { councilStorage } from '../../storage/councilStorage'
+
+import { doormanStorage } from '../../storage/doormanStorage'
+import { delegationStorage } from '../../storage/delegationStorage'
+
 import { treasuryStorage } from '../../storage/treasuryStorage'
 import { treasuryFactoryStorage } from '../../storage/treasuryFactoryStorage'
+
 import { farmStorage } from "../../storage/farmStorage";
 import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
-import { lpStorage } from "../../storage/testLPTokenStorage";
+
+import { aggregatorStorage } from '../../storage/aggregatorStorage'
+import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage'
+
+import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
-import {TezosToolkit} from "@taquito/taquito";
+import { lpStorage } from "../../storage/testLPTokenStorage";
+
+// ------------------------------------------------------------------------------
+// Contract Deployment Start
+// ------------------------------------------------------------------------------
 
 describe('Contracts Deployment for Tests', async () => {
   
@@ -402,6 +414,9 @@ describe('Contracts Deployment for Tests', async () => {
       "council"               : council.contract.address,
       "aggregatorFactory"     : aggregatorFactory.contract.address
     })
+    governanceSatelliteStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      "aggregatorFactory"     : aggregatorFactory.contract.address
+    })
     governanceSatelliteStorage.mvkTokenAddress     = mvkToken.contract.address
     governanceSatelliteStorage.governanceAddress   = governance.contract.address
     governanceSatellite = await GovernanceSatellite.originate(utils.tezos,governanceSatelliteStorage);
@@ -462,7 +477,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[23])) // updateDoormanMinMvkAmount
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[24])) // updateWhitelistDevelopersSet
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[25])) // setGovernanceProxy
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[26])) // tracreateFarmckFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[26])) // createFarm
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[27])) // trackFarm
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[28])) // untrackFarm
 
@@ -494,405 +509,88 @@ describe('Contracts Deployment for Tests', async () => {
       console.log("Governance Proxy Proxy Lambdas Setup")
 
 
-      // Governance Financial Setup Lambdas
-      const governanceFinancialLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaSetAdmin"                              , governanceFinancialLambdas[0]))  // setAdmin
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaSetGovernance"                         , governanceFinancialLambdas[1]))  // setGovernance
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaUpdateMetadata"                        , governanceFinancialLambdas[2]))  // updateMetadata
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaUpdateConfig"                          , governanceFinancialLambdas[3]))  // updateConfig
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceFinancialLambdas[4]))  // updateGeneralContracts
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"         , governanceFinancialLambdas[5]))  // updateWhitelistTokenContracts
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaRequestTokens"                         , governanceFinancialLambdas[6]))  // requestTokens
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaRequestMint"                           , governanceFinancialLambdas[7]))  // requestMint
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaSetContractBaker"                      , governanceFinancialLambdas[8]))  // setContractBaker
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaDropFinancialRequest"                  , governanceFinancialLambdas[9]))  // dropFinancialRequest
-      .withContractCall(governanceFinancial.contract.methods.setLambda("lambdaVoteForRequest"                        , governanceFinancialLambdas[10])) // voteForRequest
-      const setupGovernanceFinancialLambdasOperation = await governanceFinancialLambdaBatch.send()
-      await setupGovernanceFinancialLambdasOperation.confirmation()
-      console.log("Governance Financial Lambdas Setup")
-
-      // Governance Satellite Setup Lambdas
-      const governanceSatelliteLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaSetAdmin"                              , governanceSatelliteLambdas[0]))  // setAdmin
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaSetGovernance"                         , governanceSatelliteLambdas[1]))  // setGovernance
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateMetadata"                        , governanceSatelliteLambdas[2]))  // updateMetadata
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateConfig"                          , governanceSatelliteLambdas[3]))  // updateConfig
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateWhitelistContracts"              , governanceSatelliteLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceSatelliteLambdas[5]))  // updateGeneralContracts
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaSuspendSatellite"                      , governanceSatelliteLambdas[6]))  // suspendSatellite
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUnsuspendSatellite"                    , governanceSatelliteLambdas[7]))  // unsuspendSatellite
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaBanSatellite"                          , governanceSatelliteLambdas[8]))  // banSatellite
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUnbanSatellite"                        , governanceSatelliteLambdas[9]))  // unbanSatellite
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaRemoveAllSatelliteOracles"             , governanceSatelliteLambdas[10])) // removeAllSatelliteOracles
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaAddOracleToAggregator"                 , governanceSatelliteLambdas[11])) // removeAddOracleToAggregator
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaRemoveOracleInAggregator"              , governanceSatelliteLambdas[12])) // removeRemoveOracleInAggregator
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaRegisterAggregator"                    , governanceSatelliteLambdas[13])) // registerAggregator
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaUpdateAggregatorStatus"                , governanceSatelliteLambdas[14])) // updateAggregatorStatus
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaDropAction"                            , governanceSatelliteLambdas[15])) // dropAction
-      .withContractCall(governanceSatellite.contract.methods.setLambda("lambdaVoteForAction"                         , governanceSatelliteLambdas[16])) // voteForAction
-      const setupGovernanceSatelliteLambdasOperation = await governanceSatelliteLambdaBatch.send()
-      await setupGovernanceSatelliteLambdasOperation.confirmation()
-      console.log("Governance Satellite Lambdas Setup")
 
       // Governance Setup Lambdas
-      const governanceLambdaFirstBatch = await tezos.wallet
-      .batch()
-      .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
-      .withContractCall(governance.contract.methods.setLambda("lambdaPropagateBreakGlass"             , governanceLambdas[1]))  // propagateBreakGlass
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                        , governanceLambdas[2]))  // setAdmin
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernanceProxy"              , governanceLambdas[3]))  // setGovernanceProxy
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                  , governanceLambdas[4]))  // updateMetadata
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                    , governanceLambdas[5]))  // updateConfig
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"          , governanceLambdas[6]))  // updateGeneralContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistDevelopers"       , governanceLambdas[7]))  // updateWhitelistDevelopers
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractAdmin"                , governanceLambdas[8])) // setContractAdmin
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractGovernance"           , governanceLambdas[9])) // setContractGovernance
-      .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[10])) // startNextRound
-      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[11])) // propose
-      const setupGovernanceFirstLambdasOperation = await governanceLambdaFirstBatch.send()
-      await setupGovernanceFirstLambdasOperation.confirmation()
-
-      const governanceLambdaSecondBatch = await tezos.wallet
-      .batch()
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateProposalData"           , governanceLambdas[12])) // updateProposalData
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdatePaymentData"            , governanceLambdas[13])) // updatePaymentData
-      .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[14])) // lockProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[15])) // proposalRoundVote
-      .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[16])) // votingRoundVote
-      .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[17])) // executeProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalPayment"          , governanceLambdas[18])) // processProposalPayment
-      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalSingleData"       , governanceLambdas[19])) // processProposalSingleData
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[20])) // dropProposal
-      const setupGovernanceSecondLambdasOperation = await governanceLambdaSecondBatch.send()
-      await setupGovernanceSecondLambdasOperation.confirmation()
+      await setGovernanceLambdas(tezos, governance.contract)
       console.log("Governance Lambdas Setup")
+
+      // Governance Financial Setup Lambdas
+      await setGovernanceFinancialLambdas(tezos, governanceFinancial.contract)
+      console.log("Governance Financial Lambdas Setup")
+
+      // Governance Satellite Setup Lambdas      
+      await setGovernanceSatelliteLambdas(tezos, governanceSatellite.contract)
+      console.log("Governance Satellite Lambdas Setup")
+
 
 
       // Doorman Setup Lambdas
-      const doormanLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(doorman.contract.methods.setLambda("lambdaSetAdmin"                     , doormanLambdas[doormanLambdaIndexOf("lambdaSetAdmin")]))                  // setAdmin
-      .withContractCall(doorman.contract.methods.setLambda("lambdaSetGovernance"                , doormanLambdas[doormanLambdaIndexOf("lambdaSetGovernance")]))             // setGovernance
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMetadata"               , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateMetadata")]))            // updateMetadata
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMinMvkAmount"           , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateMinMvkAmount")]))        // updateMinMvkAmount
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateWhitelistContracts"     , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateWhitelistContracts")]))  // updateWhitelistContracts
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateGeneralContracts"       , doormanLambdas[doormanLambdaIndexOf("lambdaUpdateGeneralContracts")]))    // updateGeneralContracts
-      .withContractCall(doorman.contract.methods.setLambda("lambdaMigrateFunds"                 , doormanLambdas[doormanLambdaIndexOf("lambdaMigrateFunds")]))              // migrateFunds
-      .withContractCall(doorman.contract.methods.setLambda("lambdaPauseAll"                     , doormanLambdas[doormanLambdaIndexOf("lambdaPauseAll")]))                  // pauseAll
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUnpauseAll"                   , doormanLambdas[doormanLambdaIndexOf("lambdaUnpauseAll")]))                // unpauseAll
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseStake"             , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseStake")]))          // togglePauseStake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseUnstake"           , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseUnstake")]))        // togglePauseUnstake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseCompound"          , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseCompound")]))       // togglePauseCompound
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseFarmClaim"         , doormanLambdas[doormanLambdaIndexOf("lambdaTogglePauseFarmClaim")]))      // togglePauseFarmClaim
-      .withContractCall(doorman.contract.methods.setLambda("lambdaStake"                        , doormanLambdas[doormanLambdaIndexOf("lambdaStake")]))                     // stake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"                      , doormanLambdas[doormanLambdaIndexOf("lambdaUnstake")]))                   // unstake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"                     , doormanLambdas[doormanLambdaIndexOf("lambdaCompound")]))                  // compound
-      .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"                    , doormanLambdas[doormanLambdaIndexOf("lambdaFarmClaim")]))                 // farmClaim
-    
-      const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
-      await setupDoormanLambdasOperation.confirmation()
+      await setDoormanLambdas(tezos, doorman.contract)
       console.log("Doorman Lambdas Setup")
 
+
+
       // Delegation Setup Lambdas
-      const delegationLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(delegation.contract.methods.setLambda("lambdaSetAdmin"                           , delegationLambdas[0]))  // setAdmin
-      .withContractCall(delegation.contract.methods.setLambda("lambdaSetGovernance"                      , delegationLambdas[1]))  // setGovernance
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateMetadata"                     , delegationLambdas[2]))  // updateMetadata
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateConfig"                       , delegationLambdas[3]))  // updateConfig
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , delegationLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , delegationLambdas[5]))  // updateGeneralContracts
-      .withContractCall(delegation.contract.methods.setLambda("lambdaPauseAll"                           , delegationLambdas[6]))  // pauseAll
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUnpauseAll"                         , delegationLambdas[7]))  // unpauseAll
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDelegateToSatellite"     , delegationLambdas[8]))  // togglePauseDelegateToSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUndelegateSatellite"     , delegationLambdas[9]))  // togglePauseUndelegateSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseRegisterSatellite"       , delegationLambdas[10])) // togglePauseRegisterSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUnregisterSatellite"     , delegationLambdas[11])) // togglePauseUnregisterSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUpdateSatellite"         , delegationLambdas[12])) // togglePauseUpdateSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDistributeReward"        , delegationLambdas[13])) // togglePauseDistributeReward
-      .withContractCall(delegation.contract.methods.setLambda("lambdaDelegateToSatellite"                , delegationLambdas[14])) // delegateToSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUndelegateFromSatellite"            , delegationLambdas[15])) // undelegateFromSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaRegisterAsSatellite"                , delegationLambdas[16])) // registerAsSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUnregisterAsSatellite"              , delegationLambdas[17])) // unregisterAsSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteRecord"              , delegationLambdas[18])) // updateSatelliteRecord
-      .withContractCall(delegation.contract.methods.setLambda("lambdaDistributeReward"                   , delegationLambdas[19])) // distributeReward
-      .withContractCall(delegation.contract.methods.setLambda("lambdaOnStakeChange"                      , delegationLambdas[20])) // onStakeChange
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteStatus"              , delegationLambdas[21])) // updateSatelliteStatus
-    
-      const setupDelegationLambdasOperation = await delegationLambdaBatch.send()
-      await setupDelegationLambdasOperation.confirmation()
+      await setDelegationLambdas(tezos, delegation.contract)
       console.log("Delegation Lambdas Setup")
       
+
+
       // Break Glass Setup Lambdas
-      const breakGlassLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaBreakGlass"                , breakGlassLambdas[0]))   // breakGlass
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaPropagateBreakGlass"       , breakGlassLambdas[1]))  // propagateBreakGlass
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAdmin"                  , breakGlassLambdas[2]))   // setAdmin
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetGovernance"             , breakGlassLambdas[3]))  // setGovernance
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateMetadata"            , breakGlassLambdas[4]))   // updateMetadata
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateConfig"              , breakGlassLambdas[5]))   // updateConfig
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateWhitelistContracts"  , breakGlassLambdas[6]))   // updateWhitelistContracts
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateGeneralContracts"    , breakGlassLambdas[7]))   // updateGeneralContracts
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateCouncilMemberInfo"   , breakGlassLambdas[8]))   // updateCouncilMemberInfo
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaAddCouncilMember"          , breakGlassLambdas[9]))   // addCouncilMember
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveCouncilMember"       , breakGlassLambdas[10]))   // removeCouncilMember
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaChangeCouncilMember"       , breakGlassLambdas[11]))   // changeCouncilMember
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaPauseAllEntrypoints"       , breakGlassLambdas[12]))  // pauseAllEntrypoints
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUnpauseAllEntrypoints"     , breakGlassLambdas[13]))  // unpauseAllEntrypoints
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetSingleContractAdmin"    , breakGlassLambdas[14]))  // setSingleContractAdmin
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAllContractsAdmin"      , breakGlassLambdas[15]))  // setAllContractsAdmin
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveBreakGlassControl"   , breakGlassLambdas[16]))  // removeBreakGlassControl
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaFlushAction"               , breakGlassLambdas[17]))  // flushAction
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSignAction"                , breakGlassLambdas[18]))  // signAction
-    
-      const setupBreakGlassLambdasOperation = await breakGlassLambdaBatch.send()
-      await setupBreakGlassLambdasOperation.confirmation()
+      await setBreakGlassLambdas(tezos, breakGlass.contract)
       console.log("Break Glass Lambdas Setup")
 
 
-      // Emergency Governance Setup Lambdas
-      const emergencyGovernanceLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaSetAdmin"                   , emergencyGovernanceLambdas[0]))  // setAdmin
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaSetGovernance"              , emergencyGovernanceLambdas[1]))  // setGovernance
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateMetadata"             , emergencyGovernanceLambdas[2]))  // updateMetadata
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateConfig"               , emergencyGovernanceLambdas[3]))  // updateConfig
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateGeneralContracts"     , emergencyGovernanceLambdas[4]))  // updateGeneralContracts
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaTriggerEmergencyControl"    , emergencyGovernanceLambdas[5]))  // triggerEmergencyControl
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaVoteForEmergencyControl"    , emergencyGovernanceLambdas[6]))  // voteForEmergencyControl
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaDropEmergencyGovernance"    , emergencyGovernanceLambdas[7]))  // dropEmergencyGovernance
 
-      const setupEmergencyGovernanceLambdasOperation = await emergencyGovernanceLambdaBatch.send()
-      await setupEmergencyGovernanceLambdasOperation.confirmation()
+      // Emergency Governance Setup Lambdas
+      await setEmergencyGovernanceLambdas(tezos, emergencyGovernance.contract)
       console.log("Emergency Governance Lambdas Setup")
       
+
+
       // Council Setup Lambdas
-      const councilLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(council.contract.methods.setLambda("lambdaSetAdmin"                               , councilLambdas[0]))  // setAdmin
-      .withContractCall(council.contract.methods.setLambda("lambdaSetGovernance"                          , councilLambdas[1]))  // setGovernance
-      .withContractCall(council.contract.methods.setLambda("lambdaUpdateMetadata"                         , councilLambdas[2]))  // updateMetadata
-      .withContractCall(council.contract.methods.setLambda("lambdaUpdateConfig"                           , councilLambdas[3]))  // updateConfig
-      .withContractCall(council.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , councilLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(council.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , councilLambdas[5]))  // updateGeneralContracts
-      .withContractCall(council.contract.methods.setLambda("lambdaUpdateCouncilMemberInfo"                , councilLambdas[6]))  // updateCouncilMemberInfo
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddMember"                 , councilLambdas[7]))  // councilActionAddMember
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveMember"              , councilLambdas[8]))  // councilActionRemoveMember
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionChangeMember"              , councilLambdas[9]))  // councilActionChangeMember
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionSetBaker"                  , councilLambdas[10]))  // councilActionSetBaker
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateBlocksPerMinute"     , councilLambdas[11]))  // councilActionUpdateBlocksPerMinute
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddVestee"                 , councilLambdas[12])) // councilActionAddVestee
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveVestee"              , councilLambdas[13])) // councilActionRemoveVestee
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateVestee"              , councilLambdas[14])) // councilActionUpdateVestee
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionToggleVesteeLock"          , councilLambdas[15])) // councilActionToggleVesteeLock
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionTransfer"                  , councilLambdas[16])) // councilActionTransfer
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestTokens"             , councilLambdas[17])) // councilActionRequestTokens
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestMint"               , councilLambdas[18])) // councilActionRequestMint
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionSetContractBaker"          , councilLambdas[19])) // councilActionSetContractBaker
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionDropFinancialRequest"      , councilLambdas[20])) // councilActionDropFinancialRequest
-      .withContractCall(council.contract.methods.setLambda("lambdaFlushAction"                            , councilLambdas[21])) // flushAction
-      .withContractCall(council.contract.methods.setLambda("lambdaSignAction"                             , councilLambdas[22])) // signAction
-  
-      const setupCouncilLambdasOperation = await councilLambdaBatch.send()
-      await setupCouncilLambdasOperation.confirmation()
+      await setCouncilLambdas(tezos, council.contract);
       console.log("Council Lambdas Setup")
   
-      // Farm FA12 Setup Lambdas
-      const farmFa12LambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(farm.contract.methods.setLambda("lambdaSetAdmin"                               , farmLambdas[0]))  // setAdmin
-      .withContractCall(farm.contract.methods.setLambda("lambdaSetGovernance"                          , farmLambdas[1]))  // setGovernance
-      .withContractCall(farm.contract.methods.setLambda("lambdaUpdateMetadata"                         , farmLambdas[2]))  // updateMetadata
-      .withContractCall(farm.contract.methods.setLambda("lambdaUpdateConfig"                           , farmLambdas[3]))  // updateConfig
-      .withContractCall(farm.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , farmLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(farm.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , farmLambdas[5]))  // updateGeneralContracts
-      .withContractCall(farm.contract.methods.setLambda("lambdaUpdateBlocksPerMinute"                  , farmLambdas[6]))  // updateBlocksPerMinute
-      .withContractCall(farm.contract.methods.setLambda("lambdaInitFarm"                               , farmLambdas[7]))  // initFarm
-      .withContractCall(farm.contract.methods.setLambda("lambdaCloseFarm"                              , farmLambdas[8]))  // closeFarm
-      .withContractCall(farm.contract.methods.setLambda("lambdaPauseAll"                               , farmLambdas[9]))  // pauseAll
-      .withContractCall(farm.contract.methods.setLambda("lambdaUnpauseAll"                             , farmLambdas[10]))  // unpauseAll
-      .withContractCall(farm.contract.methods.setLambda("lambdaTogglePauseDeposit"                     , farmLambdas[11])) // togglePauseDeposit
-      .withContractCall(farm.contract.methods.setLambda("lambdaTogglePauseWithdraw"                    , farmLambdas[12])) // togglePauseWithdraw
-      .withContractCall(farm.contract.methods.setLambda("lambdaTogglePauseClaim"                       , farmLambdas[13])) // togglePauseClaim
-      .withContractCall(farm.contract.methods.setLambda("lambdaDeposit"                                , farmLambdas[14])) // deposit
-      .withContractCall(farm.contract.methods.setLambda("lambdaWithdraw"                               , farmLambdas[15])) // withdraw
-      .withContractCall(farm.contract.methods.setLambda("lambdaClaim"                                  , farmLambdas[16])) // claim
-      
-      const setupFarmFa12LambdasOperation = await farmFa12LambdaBatch.send()
-      await setupFarmFa12LambdasOperation.confirmation()
-      console.log("Farm FA12 Lambdas Setup")
-
-      // Farm FA2 Setup Lambdas
-      const farmFa2LambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaSetAdmin"                               , farmLambdas[0]))  // setAdmin
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaSetGovernance"                          , farmLambdas[1]))  // setGovernance
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaUpdateMetadata"                         , farmLambdas[2]))  // updateMetadata
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaUpdateConfig"                           , farmLambdas[3]))  // updateConfig
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , farmLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , farmLambdas[5]))  // updateGeneralContracts
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaUpdateBlocksPerMinute"                  , farmLambdas[6]))  // updateBlocksPerMinute
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaInitFarm"                               , farmLambdas[7]))  // initFarm
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaCloseFarm"                              , farmLambdas[8]))  // closeFarm
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaPauseAll"                               , farmLambdas[9]))  // pauseAll
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaUnpauseAll"                             , farmLambdas[10]))  // unpauseAll
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaTogglePauseDeposit"                     , farmLambdas[11])) // togglePauseDeposit
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaTogglePauseWithdraw"                    , farmLambdas[12])) // togglePauseWithdraw
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaTogglePauseClaim"                       , farmLambdas[13])) // togglePauseClaim
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaDeposit"                                , farmLambdas[14])) // deposit
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaWithdraw"                               , farmLambdas[15])) // withdraw
-      .withContractCall(farmFA2.contract.methods.setLambda("lambdaClaim"                                  , farmLambdas[16])) // claim
-      
-      const setupFarmFa2LambdasOperation = await farmFa2LambdaBatch.send()
-      await setupFarmFa2LambdasOperation.confirmation()
-      console.log("Farm FA2 Lambdas Setup")
 
 
-      // Farm Factory Setup Lambdas
-      const farmFactoryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaSetAdmin"                           , farmFactoryLambdas[0]))  // setAdmin
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaSetGovernance"                      , farmFactoryLambdas[1]))  // setGovernance
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , farmFactoryLambdas[2]))  // updateMetadata
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , farmFactoryLambdas[3]))  // updateWhitelistContracts
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , farmFactoryLambdas[4]))  // updateGeneralContracts
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateBlocksPerMinute"              , farmFactoryLambdas[5]))  // updateBlocksPerMinute
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaPauseAll"                           , farmFactoryLambdas[6]))  // pauseAll
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUnpauseAll"                         , farmFactoryLambdas[7]))  // unpauseAll
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTogglePauseCreateFarm"              , farmFactoryLambdas[8]))  // togglePauseCreateFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTogglePauseTrackFarm"               , farmFactoryLambdas[9]))  // togglePauseTrackFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTogglePauseUntrackFarm"             , farmFactoryLambdas[10]))  // togglePauseUntrackFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaCreateFarm"                         , farmFactoryLambdas[11])) // createFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTrackFarm"                          , farmFactoryLambdas[12])) // trackFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUntrackFarm"                        , farmFactoryLambdas[13])) // untrackFarm
-
-      const setupFarmFactoryLambdasOperation = await farmFactoryLambdaBatch.send()
-      await setupFarmFactoryLambdasOperation.confirmation()
-      console.log("Farm Factory Lambdas Setup")
-
-      // Farm Factory Setup Product Lambdas
-      const farmFactoryProductLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaSetAdmin"                    , farmLambdas[0]))  // setAdmin
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaSetGovernance"               , farmLambdas[1]))  // setGovernance
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"              , farmLambdas[2]))  // updateMetadata
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaUpdateConfig"                , farmLambdas[3]))  // updateConfig
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistContracts"    , farmLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaUpdateGeneralContracts"      , farmLambdas[5]))  // updateGeneralContracts
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaUpdateBlocksPerMinute"       , farmLambdas[6]))  // updateBlocksPerMinute
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaInitFarm"                    , farmLambdas[7]))  // initFarm
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaCloseFarm"                   , farmLambdas[8]))  // closeFarm
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaPauseAll"                    , farmLambdas[9]))  // pauseAll
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaUnpauseAll"                  , farmLambdas[10]))  // unpauseAll
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaTogglePauseDeposit"          , farmLambdas[11])) // togglePauseDeposit
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaTogglePauseWithdraw"         , farmLambdas[12])) // togglePauseWithdraw
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaTogglePauseClaim"            , farmLambdas[13])) // togglePauseClaim
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaDeposit"                     , farmLambdas[14])) // deposit
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaWithdraw"                    , farmLambdas[15])) // withdraw
-      .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaClaim"                       , farmLambdas[16])) // claim
-
-      const setupFarmFactoryProductLambdasOperation = await farmFactoryProductLambdaBatch.send()
-      await setupFarmFactoryProductLambdasOperation.confirmation()
-      console.log("Farm Factory Product Lambdas Setup")
-
-
-  
-      // Vesting Setup Lambdas
-      const vestingLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(vesting.contract.methods.setLambda("lambdaSetAdmin"                               , vestingLambdas[0]))  // setAdmin
-      .withContractCall(vesting.contract.methods.setLambda("lambdaSetGovernance"                          , vestingLambdas[1]))  // setGovernance
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateMetadata"                         , vestingLambdas[2]))  // updateMetadata
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , vestingLambdas[3]))  // updateWhitelistContracts
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , vestingLambdas[4]))  // updateGeneralContracts
-      .withContractCall(vesting.contract.methods.setLambda("lambdaAddVestee"                              , vestingLambdas[5]))  // addVestee
-      .withContractCall(vesting.contract.methods.setLambda("lambdaRemoveVestee"                           , vestingLambdas[6]))  // removeVestee
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateVestee"                           , vestingLambdas[7]))  // updateVestee
-      .withContractCall(vesting.contract.methods.setLambda("lambdaToggleVesteeLock"                       , vestingLambdas[8]))  // toggleVesteeLock
-      .withContractCall(vesting.contract.methods.setLambda("lambdaClaim"                                  , vestingLambdas[9]))  // claim
-      
-      const setupVestingLambdasOperation = await vestingLambdaBatch.send()
-      await setupVestingLambdasOperation.confirmation()
+      // Vesting Setup Lambdas      
+      await setVestingLambdas(tezos, vesting.contract);
       console.log("Vesting Lambdas Setup")
 
 
-      // Treasury Setup Lambdas
-      const treasuryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(treasury.contract.methods.setLambda("lambdaSetAdmin"                               , treasuryLambdas[0]))  // setAdmin
-      .withContractCall(treasury.contract.methods.setLambda("lambdaSetGovernance"                          , treasuryLambdas[1]))  // setGovernance
-      .withContractCall(treasury.contract.methods.setLambda("lambdaSetBaker"                               , treasuryLambdas[2]))  // setBaker
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMetadata"                         , treasuryLambdas[3]))  // updateMetadata
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , treasuryLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , treasuryLambdas[5]))  // updateGeneralContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"          , treasuryLambdas[6]))  // updateWhitelistTokenContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaPauseAll"                               , treasuryLambdas[7]))  // pauseAll
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnpauseAll"                             , treasuryLambdas[8]))  // unpauseAll
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseTransfer"                    , treasuryLambdas[9]))  // togglePauseTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseMintMvkAndTransfer"          , treasuryLambdas[10]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseStake"                       , treasuryLambdas[11]))  // togglePauseStake
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstake"                     , treasuryLambdas[12]))  // togglePauseUnstake
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[13]))  // transfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMvkOperators"                     , treasuryLambdas[15]))  // updateMvkOperators
-      .withContractCall(treasury.contract.methods.setLambda("lambdaStakeMvk"                               , treasuryLambdas[16]))  // stakeMvk
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnstakeMvk"                             , treasuryLambdas[17]))  // unstakeMvk
 
-      
-      const setupTreasuryLambdasOperation = await treasuryLambdaBatch.send()
-      await setupTreasuryLambdasOperation.confirmation()
+      // Farm FA12 Setup Lambdas
+      await setFarmLambdas(tezos, farm.contract)
+      console.log("Farm FA12 Lambdas Setup")
+
+      // Farm FA2 Setup Lambdas
+      await setFarmLambdas(tezos, farmFA2.contract)
+      console.log("Farm FA2 Lambdas Setup")
+
+      // Farm Factory Setup Lambdas
+      await setFarmFactoryLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Lambdas Setup")
+
+      // Farm Factory Setup Product Lambdas
+      await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Product Lambdas Setup")
+
+
+
+      // Treasury Setup Lambdas
+      await setTreasuryLambdas(tezos, treasury.contract);
       console.log("Treasury Lambdas Setup")
 
       // Treasury Factory Setup Lambdas
-      const treasuryFactoryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaSetAdmin"                           , treasuryFactoryLambdas[0]))  // setAdmin
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaSetGovernance"                      , treasuryFactoryLambdas[1]))  // setGovernance
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , treasuryFactoryLambdas[2]))  // updateMetadata
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , treasuryFactoryLambdas[3]))  // updateWhitelistContracts
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , treasuryFactoryLambdas[4]))  // updateGeneralContracts
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"      , treasuryFactoryLambdas[5]))  // updateWhitelistTokenContracts
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaPauseAll"                           , treasuryFactoryLambdas[6]))  // pauseAll
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUnpauseAll"                         , treasuryFactoryLambdas[7]))  // unpauseAll
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTogglePauseCreateTreasury"          , treasuryFactoryLambdas[8]))  // togglePauseCreateTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTogglePauseTrackTreasury"           , treasuryFactoryLambdas[9]))  // togglePauseTrackTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTogglePauseUntrackTreasury"         , treasuryFactoryLambdas[10]))  // togglePauseUntrackTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaCreateTreasury"                     , treasuryFactoryLambdas[11])) // createTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTrackTreasury"                      , treasuryFactoryLambdas[12])) // trackTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUntrackTreasury"                    , treasuryFactoryLambdas[13])) // untrackTreasury
-
-      const setupTreasuryFactoryLambdasOperation = await treasuryFactoryLambdaBatch.send()
-      await setupTreasuryFactoryLambdasOperation.confirmation()
+      await setTreasuryFactoryLambdas(tezos, treasuryFactory.contract);
       console.log("Treasury Factory Lambdas Setup")
 
       // Treasury Factory Product Setup Lambdas
-      const treasuryFactoryProductLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaSetAdmin"                     , treasuryLambdas[0]))  // setAdmin
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaSetGovernance"                , treasuryLambdas[1]))  // setGovernance
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaSetBaker"                     , treasuryLambdas[2]))  // setBaker
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"               , treasuryLambdas[3]))  // updateMetadata
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistContracts"     , treasuryLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateGeneralContracts"       , treasuryLambdas[5]))  // updateGeneralContracts
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistTokenContracts", treasuryLambdas[6]))  // updateWhitelistTokenContracts
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaPauseAll"                     , treasuryLambdas[7]))  // pauseAll
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnpauseAll"                   , treasuryLambdas[8]))  // unpauseAll
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseTransfer"          , treasuryLambdas[9]))  // togglePauseTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseMintMvkAndTransfer", treasuryLambdas[10]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseStake"             , treasuryLambdas[11]))  // togglePauseStake
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstake"           , treasuryLambdas[12]))  // togglePauseUnstake
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTransfer"                     , treasuryLambdas[13]))  // transfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaMintMvkAndTransfer"           , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateMvkOperators"           , treasuryLambdas[15]))  // updateMvkOperators
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStakeMvk"                     , treasuryLambdas[16]))  // stakeMvk
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstakeMvk"                   , treasuryLambdas[17]))  // unstakeMvk
-
-      const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
-      await setupTreasuryFactoryProductLambdasOperation.confirmation()
+      await setTreasuryFactoryProductLambdas(tezos, treasuryFactory.contract);
       console.log("Treasury Factory Product Lambdas Setup")
+
+
 
       // Aggregator Setup Lambdas
       await setAggregatorLambdas(tezos, aggregator.contract);
@@ -904,92 +602,24 @@ describe('Contracts Deployment for Tests', async () => {
 
       await setAggregatorFactoryProductLambdas(tezos, aggregatorFactory.contract);
       console.log("Aggregator Factory Product Lambdas Setup")
-    // Set Lambdas End
+    
+      // Set Lambdas End
 
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
+
+    // Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]
+    const aggregatorFactoryContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
+    .withContractCall(aggregatorFactory.contract.methods.updateGeneralContracts("governanceSatellite", governanceSatellite.contract.address))
     
-    console.log("Setup Oracles")
+    const aggregatorFactoryContractsBatchOperation = await aggregatorFactoryContractsBatch.send()
+    await aggregatorFactoryContractsBatchOperation.confirmation()
 
-    const oracleMap = MichelsonMap.fromLiteral({
-      [oracle0.pkh] : true,
-      [oracle1.pkh] : true,
-      [oracle2.pkh] : true,
-//      [oracle3.pkh]: true,
-//      [oracle4.pkh]: true,
-    }) as MichelsonMap<
-        string,
-        boolean
-        >
-
-    const createAggregatorsBatch = await tezos.wallet
-        .batch()
-        .withContractCall(aggregatorFactory.contract.methods.createAggregator(
-            'USD',
-            'BTC',
-            
-            oracleMap,
-
-            new BigNumber(8),             // decimals
-            new BigNumber(2),             // numberBlocksDelay
-            oracleMaintainer.pkh,         // maintainer
-
-            new BigNumber(0),             // minimalTezosAmountDeviationTrigger
-            new BigNumber(5),             // perthousandDeviationTrigger
-            new BigNumber(60),            // percentOracleThreshold
-
-            new BigNumber(2600),          // deviationRewardAmountXtz
-            new BigNumber(5),             // rewardAmountMvk
-            new BigNumber(1300),          // rewardAmountXtz
-            
-            aggregatorFactory.contract.address
-        ))
-        .withContractCall(aggregatorFactory.contract.methods.createAggregator(
-            'USD',
-            'XTZ',
-
-            oracleMap,
-
-            new BigNumber(8),             // decimals
-            new BigNumber(2),             // numberBlocksDelay
-            oracleMaintainer.pkh,         // maintainer
-            
-            new BigNumber(0),             // minimalTezosAmountDeviationTrigger
-            new BigNumber(5),             // perthousandDeviationTrigger
-            new BigNumber(60),            // percentOracleThreshold
-
-            new BigNumber(2600),          // deviationRewardAmountXtz
-            new BigNumber(5),             // rewardAmountMvk
-            new BigNumber(1300),          // rewardAmountXtz
-            
-            aggregatorFactory.contract.address
-        ))
-        .withContractCall(aggregatorFactory.contract.methods.createAggregator(
-            'USD',
-            'DOGE',
-
-            oracleMap,
-
-            new BigNumber(16),            // decimals
-            new BigNumber(2),             // numberBlocksDelay
-            oracleMaintainer.pkh,         // maintainer
-            
-            new BigNumber(0),             // minimalTezosAmountDeviationTrigger
-            new BigNumber(5),             // perthousandDeviationTrigger
-            new BigNumber(60),            // percentOracleThreshold
-            
-            new BigNumber(2600),          // deviationRewardAmountXtz
-            new BigNumber(5),             // rewardAmountMvk
-            new BigNumber(1300),          // rewardAmountXtz
-            
-            aggregatorFactory.contract.address
-        ))
-
-    const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-    await createAggregatorsBatchOperation.confirmation()
-
-    console.log("Aggregators deployed")
+    console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
+    
 
     // MVK Token Contract - set governance contract address
     // MVK Token Contract - set general contract addresses [doorman]
@@ -1126,7 +756,7 @@ describe('Contracts Deployment for Tests', async () => {
 
 
 
-    // Governance Financial Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
+    // Governance Financial Contract - set whitelist token contracts [MockFA2, MockFA12, MVK]
     const governanceFinancialContractsBatch = await tezos.wallet
     .batch()
     .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
@@ -1135,7 +765,7 @@ describe('Contracts Deployment for Tests', async () => {
     const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
     await governanceFinancialContractsBatchOperation.confirmation()
 
-    console.log('Governance Financial Contract - set whitelist token contract addresss [mockFA12, mockFA2, MVK]')
+    console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
 
 
 
@@ -1151,20 +781,25 @@ describe('Contracts Deployment for Tests', async () => {
 
 
 
-    // Treasury Contract - set whitelist contract addresses map [council]
+    // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
     // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
     const treasuryContractsBatch = await tezos.wallet
     .batch()
+
+    // whitelist contracts
     .withContractCall(treasury.contract.methods.updateWhitelistContracts('governanceProxy', governanceProxy.contract.address))
+    .withContractCall(treasury.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+
+    // whitelist token contracts
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
-    .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("AggregatorFactory", aggregatorFactory.contract.address))
+
     const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
     await treasuryContractsBatchOperation.confirmation()
     
-    console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, AggregatorFactory]')
-    console.log('Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]')
+    console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory]')
+    console.log('Treasury Contract - set whitelist token contract addresses map [MockFA12, MockFA2, MVK]')
 
 
 
@@ -1179,6 +814,94 @@ describe('Contracts Deployment for Tests', async () => {
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------
     await saveMVKDecimals(mvkTokenDecimals)
+
+
+
+    //----------------------------
+    // For Oracle/Aggregator test net deployment
+    //----------------------------
+
+//     console.log("Setup Oracles")
+
+//     const oracleMap = MichelsonMap.fromLiteral({
+//       [oracle0.pkh] : true,
+//       [oracle1.pkh] : true,
+//       [oracle2.pkh] : true,
+// //      [oracle3.pkh]: true,
+// //      [oracle4.pkh]: true,
+//     }) as MichelsonMap<
+//         string,
+//         boolean
+//         >
+
+//     const createAggregatorsBatch = await tezos.wallet
+//         .batch()
+//         .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatellite.contract.address))
+//         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+//             'USD',
+//             'BTC',
+            
+//             oracleMap,
+
+//             new BigNumber(8),             // decimals
+//             new BigNumber(2),             // numberBlocksDelay
+//             oracleMaintainer.pkh,         // maintainer
+
+//             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+//             new BigNumber(5),             // perthousandDeviationTrigger
+//             new BigNumber(60),            // percentOracleThreshold
+
+//             new BigNumber(2600),          // deviationRewardAmountXtz
+//             new BigNumber(5),             // rewardAmountMvk
+//             new BigNumber(1300),          // rewardAmountXtz
+            
+//             aggregatorFactory.contract.address
+//         ))
+//         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+//             'USD',
+//             'XTZ',
+
+//             oracleMap,
+
+//             new BigNumber(8),             // decimals
+//             new BigNumber(2),             // numberBlocksDelay
+//             oracleMaintainer.pkh,         // maintainer
+            
+//             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+//             new BigNumber(5),             // perthousandDeviationTrigger
+//             new BigNumber(60),            // percentOracleThreshold
+
+//             new BigNumber(2600),          // deviationRewardAmountXtz
+//             new BigNumber(5),             // rewardAmountMvk
+//             new BigNumber(1300),          // rewardAmountXtz
+            
+//             aggregatorFactory.contract.address
+//         ))
+//         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+//             'USD',
+//             'DOGE',
+
+//             oracleMap,
+
+//             new BigNumber(16),            // decimals
+//             new BigNumber(2),             // numberBlocksDelay
+//             oracleMaintainer.pkh,         // maintainer
+            
+//             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+//             new BigNumber(5),             // perthousandDeviationTrigger
+//             new BigNumber(60),            // percentOracleThreshold
+            
+//             new BigNumber(2600),          // deviationRewardAmountXtz
+//             new BigNumber(5),             // rewardAmountMvk
+//             new BigNumber(1300),          // rewardAmountXtz
+            
+//             aggregatorFactory.contract.address
+//         ))
+
+//     const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+//     await createAggregatorsBatchOperation.confirmation()
+
+//     console.log("Aggregators deployed")
 
   })
 
