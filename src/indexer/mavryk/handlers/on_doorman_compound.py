@@ -1,8 +1,8 @@
 
 from mavryk.types.doorman.parameter.compound import CompoundParameter
-from mavryk.types.doorman.storage import DoormanStorage
-from dipdup.models import Transaction
 from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+from mavryk.types.doorman.storage import DoormanStorage
 import mavryk.models as models
 
 async def on_doorman_compound(
@@ -40,14 +40,24 @@ async def on_doorman_compound(
     # if previous_mvk_total_supply > 0.0:
     #     mli = previous_smvk_total_supply / previous_mvk_total_supply
     
+    # Get doorman info
+    doorman_user    = await models.MavrykUser.get(
+        address = doorman_address
+    )
+    smvk_total_supply   = doorman_user.mvk_balance
+    smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
+    avg_smvk_per_user   = smvk_total_supply / smvk_users
+
     # Create a stake record
-    stake_record = models.StakeRecord(
+    stake_record = models.StakeHistoryData(
         timestamp           = timestamp,
         type                = models.StakeType.COMPOUND,
         desired_amount      = amount,
         final_amount        = amount,
         doorman             = doorman,
         from_               = user,
+        smvk_total_supply   = smvk_total_supply,
+        avg_smvk_per_user   = avg_smvk_per_user
         # mvk_loyalty_index   = mli
     )
     await stake_record.save()

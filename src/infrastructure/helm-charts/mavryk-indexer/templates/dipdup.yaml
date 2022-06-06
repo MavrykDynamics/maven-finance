@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.6
+          image: tezosdynamics/mavryk-indexer:v0.2.7
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.6
+          image: tezosdynamics/mavryk-indexer:v0.2.7
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -182,10 +182,6 @@ data:
         contracts:
           - <farm_contract>
         handlers:
-          # - callback: on_farm_origination
-          #   pattern:
-          #     - type: origination
-          #       originated_contract: <farm_contract>
           - callback: on_farm_set_admin
             pattern:
               - destination: <farm_contract>
@@ -260,10 +256,6 @@ data:
         contracts:
           - <treasury_contract>
         handlers:
-          # - callback: on_treasury_origination
-          #   pattern:
-          #     - type: origination
-          #       originated_contract: <treasury_contract>
           - callback: on_treasury_set_admin
             pattern:
               - destination: <treasury_contract>
@@ -308,6 +300,10 @@ data:
             pattern:
               - destination: <treasury_contract>
                 entrypoint: togglePauseUnstakeMvk
+          - callback: on_treasury_transfer
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: transfer
 
     indexes:
       # MVK Token contract indexes
@@ -1169,6 +1165,10 @@ data:
             pattern:
               - destination: treasury
                 entrypoint: togglePauseUnstakeMvk
+          - callback: on_treasury_transfer
+            pattern:
+              - destination: treasury
+                entrypoint: transfer
       # Treasury Factory contract indexes
       treasury_factory:
         kind: operation

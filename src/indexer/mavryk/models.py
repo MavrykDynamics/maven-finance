@@ -4,10 +4,11 @@ from tortoise import Model, fields
 from enum import IntEnum
 
 class StakeType(IntEnum):
-    STAKE       = 0
-    UNSTAKE     = 1
-    FARM_CLAIM  = 2
-    COMPOUND    = 3
+    STAKE               = 0
+    UNSTAKE             = 1
+    FARM_CLAIM          = 2
+    COMPOUND            = 3
+    SATELLITE_REWARD    = 4
 
 class ActionStatus(IntEnum):
     PENDING     = 0
@@ -218,6 +219,7 @@ class BreakGlass(Model):
 
 class Governance(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    active                          = fields.BooleanField(default=False)
     governance_proxy_address        = fields.CharField(max_length=36, default="")
     success_reward                  = fields.FloatField(default=0)
     cycle_voters_reward             = fields.FloatField(default=0)
@@ -354,30 +356,6 @@ class DelegationRecord(Model):
 
     class Meta:
         table = 'delegation_record'
-
-class TransferRecord(Model):
-    id                              = fields.BigIntField(pk=True)
-    timestamp                       = fields.DatetimeField()
-    token_address                   = fields.ForeignKeyField('models.MVKToken', related_name='transfer_records')
-    from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='transfer_sender')
-    to_                             = fields.ForeignKeyField('models.MavrykUser', related_name='transfer_receiver')
-    amount                          = fields.BigIntField(default=0)
-
-    class Meta:
-        table = 'transfer_record'
-
-class StakeRecord(Model):
-    id                              = fields.BigIntField(pk=True)
-    doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_records')
-    from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='stake_records')
-    timestamp                       = fields.DatetimeField()
-    type                            = fields.IntEnumField(enum_type=StakeType)
-    mvk_loyalty_index               = fields.FloatField(default=0.0)
-    desired_amount                  = fields.BigIntField(default=0)
-    final_amount                    = fields.BigIntField(default=0)
-
-    class Meta:
-        table = 'stake_record'
 
 class CouncilCouncilMember(Model):
     id                              = fields.BigIntField(pk=True)
@@ -651,3 +629,61 @@ class GovernanceFinancialRequestSatelliteSnapshotRecord(Model):
 
     class Meta:
         table = 'governance_financial_request_satellite_snapshot_record'
+
+class MVKTransferHistoryData(Model):
+    id                              = fields.BigIntField(pk=True)
+    timestamp                       = fields.DatetimeField()
+    mvk_token                       = fields.ForeignKeyField('models.MVKToken', related_name='mvk_transfer_history_data')
+    from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_sender')
+    to_                             = fields.ForeignKeyField('models.MavrykUser', related_name='mvk_transfer_receiver')
+    amount                          = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'mvk_transfer_history_data'
+
+class TreasuryTransferHistoryData(Model):
+    id                              = fields.BigIntField(pk=True)
+    timestamp                       = fields.DatetimeField()
+    treasury                        = fields.ForeignKeyField('models.Treasury', related_name='treasury_transfer_history_data')
+    to_                             = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver')
+    type                            = fields.IntEnumField(enum_type=TokenType)
+    token_contract_address          = fields.CharField(max_length=36, default="")
+    token_id                        = fields.SmallIntField(default=0)
+    amount                          = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'treasury_transfer_history_data'
+
+class StakeHistoryData(Model):
+    id                              = fields.BigIntField(pk=True)
+    doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_records')
+    from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='stake_records')
+    timestamp                       = fields.DatetimeField()
+    type                            = fields.IntEnumField(enum_type=StakeType)
+    mvk_loyalty_index               = fields.BigIntField(default=0.0)
+    desired_amount                  = fields.FloatField(default=0.0)
+    final_amount                    = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'stake_history_data'
+
+class SMVKHistoryData(Model):
+    id                              = fields.BigIntField(pk=True)
+    doorman                         = fields.ForeignKeyField('models.Doorman', related_name='smvk_history_data')
+    timestamp                       = fields.DatetimeField()
+    smvk_total_supply               = fields.FloatField(default=0.0)
+    avg_smvk_by_user                = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'smvk_history_data'
+
+class MintHistoryData(Model):
+    id                              = fields.BigIntField(pk=True)
+    mvk_token                       = fields.ForeignKeyField('models.MVKToken', related_name='mint_history_data')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='mint_history_data')
+    timestamp                       = fields.DatetimeField()
+    minted_amount                   = fields.FloatField(default=0.0)
+    mvk_total_supply                = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'mint_history_data'
