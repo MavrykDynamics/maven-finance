@@ -1,16 +1,71 @@
-import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  OriginationOperation,
+  TezosToolkit,
+  Wallet
+} from "@taquito/taquito";
 import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { delegationStorageType } from "../types/delegationStorageType";
 
+import delegationLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/delegation/delegationLambdaIndex.json';
+import delegationLambdas from "../../build/lambdas/delegationLambdas.json";
+import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+
+type DelegationContractMethods<T extends ContractProvider | Wallet> = {
+  setLambda: (number, string) => ContractMethod<T>;
+  updateWhitelistContracts: (
+    whitelistContractName     : string,
+    whitelistContractAddress  : string
+  ) => ContractMethod<T>;
+  updateGeneralContracts: (
+    generalContractName       : string,
+    generalContractAddress    : string
+  ) => ContractMethod<T>;
+};
+
+type DelegationContractMethodObject<T extends ContractProvider | Wallet> =
+  Record<string, (...args: any[]) => ContractMethodObject<T>>;
+
+type DelegationViews = Record<string, (...args: any[]) => ContractView>;
+
+type DelegationOnChainViews = {
+  decimals: () => OnChainView;
+};
+
+type DelegationContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+  DelegationContractMethods<T>,
+  DelegationContractMethodObject<T>,
+  DelegationViews,
+  DelegationOnChainViews,
+  delegationStorageType>;
+
+
+export const setDelegationLambdas = async (tezosToolkit: TezosToolkit, contract: DelegationContractAbstraction) => {
+  const batch = tezosToolkit.wallet
+      .batch();
+
+  delegationLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+      batch.withContractCall(contract.methods.setLambda(name, delegationLambdas[index]))
+  });
+
+  const setupDelegationLambdasOperation = await batch.send()
+  await setupDelegationLambdasOperation.confirmation()
+};
+
 export class Delegation {
-    contract: Contract;
+    contract: DelegationContractAbstraction;
     storage: delegationStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: Contract, tezos: TezosToolkit) {
+    constructor(contract: DelegationContractAbstraction, tezos: TezosToolkit) {
       this.contract = contract;
       this.tezos = tezos;
     }

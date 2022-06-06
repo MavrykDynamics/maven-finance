@@ -27,20 +27,33 @@ import {BigNumber} from "bignumber.js";
 
 type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
+    updateWhitelistContracts: (
+        whitelistContractName     : string,
+        whitelistContractAddress  : string
+    ) => ContractMethod<T>;
+    updateGeneralContracts: (
+        generalContractName       : string,
+        generalContractAddress    : string
+    ) => ContractMethod<T>;
     setProductLambda: (number, string) => ContractMethod<T>;
     createAggregator: (
-        pair1: string,
-        pair2: string,
-        oracleAddresses: MichelsonMap<string, boolean>,
-        decimals: BigNumber,
-        numberBlocksDelay: BigNumber,
-        maintainer: string,
-        minimalTezosAmountDeviationTrigger: BigNumber,
-        perthousandDeviationTrigger: BigNumber,
-        percentOracleThreshold: BigNumber,
-        deviationRewardAmountXTZ: BigNumber,
-        rewardAmountMVK: BigNumber,
-        rewardAmountXTZ: BigNumber,
+        pair1                               : string,
+        pair2                               : string,
+
+        oracleAddresses                     : MichelsonMap<string, boolean>,
+
+        decimals                            : BigNumber,
+        numberBlocksDelay                   : BigNumber,
+        maintainer                          : string,
+
+        minimalTezosAmountDeviationTrigger  : BigNumber,
+        perthousandDeviationTrigger         : BigNumber,
+        percentOracleThreshold              : BigNumber,
+
+        deviationRewardAmountXtz            : BigNumber,
+        rewardAmountStakedMvK               : BigNumber,
+        rewardAmountXtz                     : BigNumber,
+
         owner: string
     ) => ContractMethod<T>;
 };

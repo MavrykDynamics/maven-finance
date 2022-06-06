@@ -17,11 +17,11 @@
   },
   {
     "index": 4,
-    "name": "lambdaUpdateWhitelistTokenContracts"
+    "name": "lambdaUpdateGeneralContracts"
   },
   {
     "index": 5,
-    "name": "lambdaUpdateGeneralContracts"
+    "name": "lambdaUpdateWhitelistTokenContracts"
   },
   {
     "index": 6,

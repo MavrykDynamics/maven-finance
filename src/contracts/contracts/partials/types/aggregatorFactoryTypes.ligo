@@ -66,6 +66,11 @@ type updateAggregatorAdminParamsType is [@layout:comb] record [
   adminAddress: address;
 ];
 
+type registerAggregatorActionType is [@layout:comb] record [
+  aggregatorPair                : string * string;        // e.g. BTC-USD  
+  aggregatorAddress             : address; 
+]
+
 type aggregatorFactoryLambdaActionType is 
     
     // Housekeeping Lambdas

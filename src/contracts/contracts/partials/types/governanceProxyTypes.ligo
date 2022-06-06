@@ -122,8 +122,8 @@ type executeActionParamsType is
 | UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
 | UpdateDoormanMinMvkAmount          of (nat)
 
-| PauseAllInContract                 of (address)
-| UnpauseAllInContract               of (address)
+// | PauseAllInContract                 of (address)
+// | UnpauseAllInContract               of (address)
 // | PauseSingleEntrypointInContract    of pauseSingleEntrypointInContractType
 
 | UpdateWhitelistDevelopersSet       of (address)

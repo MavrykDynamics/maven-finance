@@ -1,16 +1,72 @@
-import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  OriginationOperation,
+  TezosToolkit,
+  Wallet
+} from "@taquito/taquito";
 import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { breakGlassStorageType } from "../types/breakGlassStorageType";
 
+import breakGlassLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/breakGlass/breakGlassLambdaIndex.json';
+import breakGlassLambdas from "../../build/lambdas/breakGlassLambdas.json";
+import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+
+type BreakGlassContractMethods<T extends ContractProvider | Wallet> = {
+    setLambda: (number, string) => ContractMethod<T>;
+    updateWhitelistContracts: (
+      whitelistContractName     : string,
+      whitelistContractAddress  : string
+    ) => ContractMethod<T>;
+    updateGeneralContracts: (
+      generalContractName       : string,
+      generalContractAddress    : string
+    ) => ContractMethod<T>;
+};
+
+type BreakGlassContractMethodObject<T extends ContractProvider | Wallet> =
+    Record<string, (...args: any[]) => ContractMethodObject<T>>;
+
+type BreakGlassViews = Record<string, (...args: any[]) => ContractView>;
+
+type BreakGlassOnChainViews = {
+    decimals: () => OnChainView;
+};
+
+type BreakGlassContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+    BreakGlassContractMethods<T>,
+    BreakGlassContractMethodObject<T>,
+    BreakGlassViews,
+    BreakGlassOnChainViews,
+    breakGlassStorageType>;
+
+
+export const setBreakGlassLambdas = async (tezosToolkit: TezosToolkit, contract: BreakGlassContractAbstraction) => {
+    const batch = tezosToolkit.wallet
+        .batch();
+
+    breakGlassLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+        batch.withContractCall(contract.methods.setLambda(name, breakGlassLambdas[index]))
+
+    });
+
+    const setupBreakGlassLambdasOperation = await batch.send()
+    await setupBreakGlassLambdasOperation.confirmation()
+};
+
 export class BreakGlass {
-    contract: Contract;
+    contract: BreakGlassContractAbstraction;
     storage: breakGlassStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: Contract, tezos: TezosToolkit) {
+    constructor(contract: BreakGlassContractAbstraction, tezos: TezosToolkit) {
       this.contract = contract;
       this.tezos = tezos;
     }

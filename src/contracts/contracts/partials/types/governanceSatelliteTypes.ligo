@@ -60,7 +60,7 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     status                             : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     executed                           : bool;                  // false on creation; set to true when financial request is executed successfully
     
-    governanceType                     : string;                // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR"
+    governanceType                     : string;                // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
     governancePurpose                  : string;
     voters                             : governanceSatelliteVotersMapType; 
 
@@ -96,9 +96,8 @@ type satelliteOracleLedgerType is big_map(address, satelliteOracleRecordType)
 
 
 type aggregatorRecordType is [@layout:comb] record [
-  aggregatorPair     : (string * string);   // e.g. BTC-USD
+  aggregatorPair     : (string * string);   // e.g. BTC , USD
   status             : string;              // ACTIVE / INACTIVE
-  // description        : string;
   createdTimestamp   : timestamp; 
   oracles            : set(address);
 ]
@@ -237,7 +236,7 @@ type governanceSatelliteLambdaActionType is
 | LambdaRemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
   // Aggregator Governance
-| LambdaRegisterAggregator            of registerAggregatorActionType     // callback from governance proxy in creating aggregator contract
+| LambdaRegisterAggregator            of registerAggregatorActionType     // callback from aggregator factory in creating aggregator contract
 | LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
 
   // Governance Actions
