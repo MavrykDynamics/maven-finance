@@ -70,27 +70,27 @@ export const MOCK_TREASURYS = [
         color: TREASURYS_COLORS[4],
       },
       {
-        asset: 'XXX',
+        asset: 'XXX1',
         amount: 1555.48,
         color: TREASURYS_COLORS[5],
       },
       {
-        asset: 'XXX',
+        asset: 'XXX2',
         amount: 1755.48,
         color: TREASURYS_COLORS[6],
       },
       {
-        asset: 'XXX',
+        asset: 'XXX3',
         amount: 1555.48,
         color: TREASURYS_COLORS[7],
       },
       {
-        asset: 'XXX',
+        asset: 'XXX4',
         amount: 1755.48,
         color: TREASURYS_COLORS[8],
       },
       {
-        asset: 'XXX',
+        asset: 'XXX5',
         amount: 1555.48,
         color: TREASURYS_COLORS[9],
       },
