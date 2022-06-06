@@ -132,6 +132,7 @@ export const MenuGrid = styled.div`
   flex-direction: column;
   justify-content: space-evenly;
   width: 100%;
+  margin-bottom: 50px;
 `
 
 export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
