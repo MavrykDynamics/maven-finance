@@ -39,7 +39,7 @@ export const TextAreaView = ({
       )}
       <TextAreaComponent
         name={name}
-        className={status}
+        className={`scroll-block ${status}`}
         placeholder={placeholder}
         value={value}
         onChange={onChange}

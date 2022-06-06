@@ -91,17 +91,17 @@ export default function storageToTypeConverter(contract: string, storage: any): 
 
 function convertToContractAddressesType(storage: any): ContractAddressesState {
   return {
-    farmAddress: { address: storage?.farm[0].address },
-    farmFactoryAddress: { address: storage?.farm_factory[0].address },
-    delegationAddress: { address: storage?.delegation[0].address },
-    doormanAddress: { address: storage?.doorman[0].address },
-    mvkTokenAddress: { address: storage?.mvk_token[0].address },
-    governanceAddress: { address: storage?.governance[0].address },
-    emergencyGovernanceAddress: { address: storage?.emergency_governance[0].address },
-    breakGlassAddress: { address: storage?.break_glass[0].address },
-    councilAddress: { address: storage?.council[0].address },
-    treasuryAddress: { address: storage?.delegation[0].address },
-    vestingAddress: { address: storage?.vesting[0].address },
+    farmAddress: { address: storage?.farm?.[0]?.address },
+    farmFactoryAddress: { address: storage?.farm_factory?.[0]?.address },
+    delegationAddress: { address: storage?.delegation?.[0]?.address },
+    doormanAddress: { address: storage?.doorman?.[0]?.address },
+    mvkTokenAddress: { address: storage?.mvk_token?.[0]?.address },
+    governanceAddress: { address: storage?.governance?.[0]?.address },
+    emergencyGovernanceAddress: { address: storage?.emergency_governance?.[0]?.address },
+    breakGlassAddress: { address: storage?.break_glass?.[0]?.address },
+    councilAddress: { address: storage?.council?.[0]?.address },
+    treasuryAddress: { address: storage?.delegation?.[0]?.address },
+    vestingAddress: { address: storage?.vesting?.[0]?.address },
   }
 }
 
@@ -820,4 +820,87 @@ export function convertCurrentRoundProposalsStorageType(storage: {
     : undefined
   return mapProposalRecordType
 }
+
+export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
+  const convert = [] as Record<string, unknown>[]
+
+  if (storage?.farm?.length ) {
+    storage.farm.forEach((item: any) => {
+      convert.push({
+        title: 'Farms',
+        address: item.address,
+        methods: {
+          claim: item.claim_paused,
+          deposit: item.deposit_paused,
+          withdraw: item.withdraw_paused,
+        },
+      })
+    })
+  }
+
+  if (storage?.farm_factory?.length) {
+    storage.farm_factory.forEach((item: any) => {
+      convert.push({
+        title: 'Farm factory',
+        address: item.address,
+        methods: {
+          'create farm': item.create_farm_paused,
+          'track farm': item.track_farm_paused,
+          'untrack farm': item.untrack_farm_paused,
+        },
+      })
+    })
+  }
+
+  if (storage?.delegation?.length) {
+    storage.delegation.forEach((item: any) => {
+      convert.push({
+        title: 'Delegation',
+        address: item.address,
+        methods: {
+          'delegate to satellite': item.delegate_to_satellite_paused,
+          'distribute reward': item.distribute_reward_paused,
+          'register as satellite': item.register_as_satellite_paused,
+          'undelegate from satellite': item.undelegate_from_satellite_paused,
+          'unregister as satellite': item.unregister_as_satellite_paused,
+          'update satellite record': item.update_satellite_record_paused,
+        },
+      })
+    })
+  }
+  
+  if (storage?.doorman?.length) {
+    storage.doorman.forEach((item: any) => {
+      convert.push({
+        title: 'Doorman',
+        address: item.address,
+        methods: {
+          compound: item.compound_paused,
+          'distribute reward': item.distribute_reward_paused,
+          'farm claimed': item.farm_claimed_paused,
+          unstake: item.unstake_paused,
+        },
+      })
+    })
+  } 
+    
+  if (storage?.treasury?.length) {
+    storage.treasury.forEach((item: any) => {
+      convert.push({
+        title: 'Treasury',
+        address: item.address,
+        methods: {
+          'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
+          'stake mvk': item.stake_mvk_paused,
+          transfer: item.transfer_paused,
+          'unstake mvk': item.unstake_mvk_paused,
+        },
+      })
+    })
+  }
+  
+  return convert
+}
+
+
 

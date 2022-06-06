@@ -17,8 +17,6 @@ export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) =>
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
 
-  console.log('%c ||||| userIsSatellite', 'color:yellowgreen', userIsSatellite)
-
   useEffect(() => {
     dispatch(getDelegationStorage())
   }, [dispatch])

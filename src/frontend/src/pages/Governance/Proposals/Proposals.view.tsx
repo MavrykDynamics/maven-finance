@@ -25,7 +25,6 @@ export const ProposalsView = ({
   const location = useLocation()
 
   useEffect(() => {
-    console.log('%c ||||| firstVisible', 'color:pink', firstVisible)
     if (firstVisible) handleItemSelect(listProposalsArray[0])
   }, [proposalsList, firstVisible])
 
