@@ -2,15 +2,16 @@ import React, { useState } from 'react'
 
 import { ContractCardWrapper, ContractCardTopSection } from './ContractCard.style'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
-import { ContractBreakGlass } from '../mockContracts'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { BGAccordeon } from '../Accordeon/Accordeon.view'
 
 type ContractCardProps = {
   contract: Record<string, unknown>
+  isActive?: Boolean
+  onClick?: () => void
 }
-export const ContractCard = ({ contract }: ContractCardProps) => {
+export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps) => {
   const [isExpanded, setExpanded] = useState(false)
 
   const title = contract.title as string
@@ -20,7 +21,7 @@ export const ContractCard = ({ contract }: ContractCardProps) => {
   const isStatusLive = methods ? Object.keys(methods).some((method) => methods[method]) : false
 
   return (
-    <ContractCardWrapper>
+    <ContractCardWrapper className={isActive ? 'active' : ''} onClick={onClick}>
       <ContractCardTopSection>
         <div className="card-title">
           <div className="truncate-title">{title}</div>

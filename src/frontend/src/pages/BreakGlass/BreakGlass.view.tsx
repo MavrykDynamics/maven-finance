@@ -24,6 +24,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
   const [selectedContract, setSelectedContract] = useState<string>('')
+  const [activeCards, setActiveCards] = React.useState<Array<string>>([])
 
   const uniqueContracts = useMemo(() => {
     return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[]) : []
@@ -85,9 +86,23 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
-        {filteredBreakGlassStatuses.map((item: Record<string, unknown>, index: number) => (
-          <ContractCard contract={item} key={`${index}-${item.address}`} />
-        ))}
+        {filteredBreakGlassStatuses.map((item: Record<string, unknown>, index: number) => {
+          const isCardActive = Boolean(activeCards.find((cardKey) => cardKey === item.title))
+          return (
+            <ContractCard
+              isActive={isCardActive}
+              contract={item}
+              key={index}
+              onClick={() => {
+                if (isCardActive) {
+                  setActiveCards(activeCards.filter((cardKey) => cardKey !== item.title))
+                } else {
+                  setActiveCards([...activeCards, (item.title as string) || ''])
+                }
+              }}
+            />
+          )
+        })}
       </BGCardsWrapper>
     </BGStyled>
   )
