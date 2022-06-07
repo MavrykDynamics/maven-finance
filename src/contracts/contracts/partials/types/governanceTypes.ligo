@@ -80,7 +80,6 @@ type proposalRecordType is [@layout:comb] record [
   
     successReward                     : nat;                     // log of successful proposal reward for voters - may change over time
     executed                          : bool;                    // true / false
-    isSuccessful                      : bool;                    // true / false
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
   
@@ -113,13 +112,12 @@ type proposalLedgerType is big_map (nat, proposalRecordType);
 
 // snapshot will be valid for current cycle only (proposal + voting rounds)
 type snapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
+    totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
     totalVotingPower          : nat;      // log calculated total voting power 
-    currentCycleStartLevel    : nat;      // log of current cycle starting block level
-    currentCycleEndLevel      : nat;      // log of when cycle (proposal + voting) will end
+    cycle                     : nat;      // log of the cycle where the snapshot was taken
 ]
-type snapshotLedgerType is big_map (address, snapshotRecordType);
+type snapshotLedgerType is map (address, snapshotRecordType);
 
 // ------------------------------------------------------------------------------
 // Governance Config Types
@@ -260,6 +258,7 @@ type governanceLambdaActionType is
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceUpdateConfigParamsType
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateWhitelistDevelopers             of (address)
 | LambdaSetContractAdmin                      of setContractAdminType
 | LambdaSetContractGovernance                 of setContractGovernanceType
@@ -294,7 +293,8 @@ type governanceStorage is [@layout:comb] record [
   
     whitelistDevelopers               : whitelistDevelopersType;  
     generalContracts                  : generalContractsType;
-    
+    whitelistContracts                : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
+
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;
     
@@ -303,14 +303,12 @@ type governanceStorage is [@layout:comb] record [
 
     nextProposalId                      : nat;                    // counter of next proposal id
     cycleCounter                        : nat;                    // counter of current cycle 
-    currentRoundHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
+    cycleHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
     timelockProposalId                  : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
 
     snapshotMvkTotalSupply              : nat;                    // snapshot of total MVK supply - for quorum calculation use
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
-
-    
 
 ]

@@ -5,6 +5,7 @@ export type farmStorageType = {
   admin                     : string;
   mvkTokenAddress           : string;
   governanceAddress         : string;
+  name                      : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
   config                    : {
                                 lpToken : {

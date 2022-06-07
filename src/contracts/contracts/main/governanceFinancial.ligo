@@ -40,6 +40,7 @@ type governanceFinancialAction is
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceFinancialUpdateConfigParamsType
     | UpdateGeneralContracts          of updateGeneralContractsParams
+    | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
 
       // Financial Governance Entrypoints
@@ -130,10 +131,13 @@ function checkNoAmount(const _p : unit) : unit is
 
 function checkSenderIsDoormanContract(var s : governanceFinancialStorage) : unit is
 block{
-
-  const doormanAddress : address = case s.generalContracts["doorman"] of [
-        Some(_address) -> _address
-      | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+  const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+  const doormanAddress: address = case generalContractsOptViewDelegation of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   
   if (Tezos.sender = doormanAddress) then skip
@@ -146,9 +150,13 @@ block{
 function checkSenderIsDelegationContract(var s : governanceFinancialStorage) : unit is
 block{
 
-  const delegationAddress : address = case s.generalContracts["delegation"] of [
-        Some(_address) -> _address
-      | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+  const delegationAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
   if (Tezos.sender = delegationAddress) then skip
@@ -172,9 +180,13 @@ block{
 function checkSenderIsCouncilContract(var s : governanceFinancialStorage) : unit is
 block{
 
-  const councilAddress : address = case s.generalContracts["council"] of [
-        Some(_address) -> _address
-      | None           -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
+  const councilAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_COUNCIL_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   
   if (Tezos.sender = councilAddress) then skip
@@ -187,9 +199,13 @@ block{
 function checkSenderIsEmergencyGovernanceContract(var s : governanceFinancialStorage) : unit is
 block{
 
-  const emergencyGovernanceAddress : address = case s.generalContracts["emergencyGovernance"] of [
-        Some(_address) -> _address
-      | None           -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "emergencyGovernance", s.governanceAddress);
+  const emergencyGovernanceAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
   if (Tezos.sender = emergencyGovernanceAddress) then skip
@@ -199,8 +215,15 @@ block{
 
 
 
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+
+
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
+
+
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
@@ -308,7 +331,7 @@ block {
     else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
     var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
-        totalMvkBalance         = stakedMvkBalance; 
+        totalStakedMvkBalance   = stakedMvkBalance; 
         totalDelegatedAmount    = totalDelegatedAmount; 
         totalVotingPower        = totalVotingPower;
       ];
@@ -364,15 +387,15 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : governanceFinancialStorage) : address is
+  s.admin
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _: unit; var s : governanceFinancialStorage) : governanceFinancialConfigType is
   s.config
-
-
-
-(* View: get Governance address *)
-[@view] function getGovernanceAddress(const _: unit; var s : governanceFinancialStorage) : address is
-  s.governanceAddress
 
 
 
@@ -385,6 +408,12 @@ block {
 (* View: get general contracts *)
 [@view] function getGeneralContracts(const _: unit; var s : governanceFinancialStorage) : generalContractsType is
   s.generalContracts
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts (const _: unit; const s: governanceFinancialStorage): whitelistContractsType is 
+    s.whitelistContracts
 
 
 
@@ -545,6 +574,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceFinancialStorage): return is
+block {
+        
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);  
 
 } with response
 
@@ -716,6 +764,7 @@ function main (const action : governanceFinancialAction; const s : governanceFin
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
+        | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
 
           // Financial Governance Entrypoints

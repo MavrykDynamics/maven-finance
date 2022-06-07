@@ -58,6 +58,7 @@ export const governanceStorage: governanceStorageType = {
   config                  : config,
   
   whitelistDevelopers     : [],
+  whitelistContracts      : MichelsonMap.fromLiteral({}),
   generalContracts        : MichelsonMap.fromLiteral({}),
 
   proposalLedger          : MichelsonMap.fromLiteral({}),
@@ -81,7 +82,7 @@ export const governanceStorage: governanceStorageType = {
     cycleTotalVotersReward    : new BigNumber(0),
   },
 
-  currentRoundHighestVotedProposalId : new BigNumber(0),
+  cycleHighestVotedProposalId        : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),
   
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
