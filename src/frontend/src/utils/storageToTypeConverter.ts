@@ -873,23 +873,6 @@ export function convertCurrentRoundProposalsStorageType(storage: {
         })
       }
       
-
-
-      if (storage?.farm?.length ) {
-        storage.farm.forEach((item: any) => {
-          convert.push({
-            title: 'Farms',
-            type: 'Farms',
-            address: item.address,
-            methods: {
-              claim: item.claim_paused,
-              deposit: item.deposit_paused,
-              withdraw: item.withdraw_paused,
-            },
-          })
-        })
-      }
-
       if (storage?.farm_factory?.length) {
         storage.farm_factory.forEach((item: any) => {
           convert.push({
@@ -905,6 +888,20 @@ export function convertCurrentRoundProposalsStorageType(storage: {
         })
       }
 
+      if (storage?.farm?.length ) {
+        storage.farm.forEach((item: any) => {
+          convert.push({
+            title: 'Farms',
+            type: 'Farms',
+            address: item.address,
+            methods: {
+              claim: item.claim_paused,
+              deposit: item.deposit_paused,
+              withdraw: item.withdraw_paused,
+            },
+          })
+        })
+      }
     
       if (storage?.treasury?.length) {
         storage.treasury.forEach((item: any) => {
