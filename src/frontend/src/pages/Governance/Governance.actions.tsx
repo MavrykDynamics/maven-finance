@@ -32,6 +32,8 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
 
+  console.log('%c ~~~~ getGovernanceStorage storage', 'color:red', storage)
+
   const convertedStorage = storageToTypeConverter('governance', storage)
 
   dispatch({

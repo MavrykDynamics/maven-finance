@@ -13,19 +13,14 @@ import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyG
 export const BreakGlass = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { emergencyGovernanceStorage } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStatus, glassBroken } = useSelector((state: State) => state.breakGlass)
-  console.log('%c ||||| breakGlassStatus', 'color:yellowgreen', breakGlassStatus)
+
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
     dispatch(getBreakGlassStatus())
   }, [dispatch])
 
-  const handleVoteForProposal = () => {
-    console.log('Here in Vote for Proposal')
-  }
   return (
     <Page>
       <PageHeader page={'break glass'} kind={PRIMARY} loading={loading} />

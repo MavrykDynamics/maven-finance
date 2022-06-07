@@ -111,6 +111,7 @@ export interface GovernanceStorage {
   financialRequestSnapshotLedger?: any
   financialRequestCounter?: number
   tempFlag: number
+  cycleCounter: number
 }
 
 export interface FinancialRequestRecord {
@@ -152,5 +153,5 @@ export interface FinancialRequestVote {
 
 export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL'
 export type ProposalStatusType = "ACTIVE" | "DROPPED"
-export type CurrentRoundProposalsStorageType = Map<string, ProposalRecordType> | undefined
+export type CurrentRoundProposalsStorageType = ProposalRecordType[]
 

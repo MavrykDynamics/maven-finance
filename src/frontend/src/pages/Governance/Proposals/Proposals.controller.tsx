@@ -5,7 +5,7 @@ import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance
 import { ProposalsView } from './Proposals.view'
 
 type ProposalsProps = {
-  proposalsList: Map<string, ProposalRecordType>
+  proposalsList: ProposalRecordType[]
   handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
   title?: string
