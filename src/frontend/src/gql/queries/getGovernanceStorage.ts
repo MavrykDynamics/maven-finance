@@ -21,7 +21,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       current_blocks_per_timelock_round
       current_blocks_per_voting_round
       current_cycle_total_voters_reward
-      current_round_highest_voted_proposal_id
       cycle_counter
       cycle_voters_reward
       governance_proxy_address
@@ -41,7 +40,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       disapprove_vote_total
       expiration_datetime
       id
-      ready
       request_purpose
       request_type
       requested_datetime

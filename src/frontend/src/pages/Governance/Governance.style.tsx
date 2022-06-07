@@ -7,7 +7,7 @@ export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   width: 100%;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
 `
 
 export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`

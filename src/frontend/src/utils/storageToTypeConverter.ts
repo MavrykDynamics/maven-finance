@@ -581,6 +581,8 @@ function convertToGovernanceStorageType(storage: {
   )
   const currentGovernance = storage?.governance?.[1] || {}
 
+  console.log('%c ||||| currentGovernance', 'color:pink', currentGovernance);
+
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
     address: currentGovernance.address,
@@ -613,6 +615,7 @@ function convertToGovernanceStorageType(storage: {
     startLevel: currentGovernance.start_level,
     tempFlag: currentGovernance.start_level,
     timelockProposalId: currentGovernance.timelock_proposal,
+    cycleCounter: currentGovernance.cycle_counter,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,
@@ -813,10 +816,12 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
 
 export function convertCurrentRoundProposalsStorageType(storage: {
   governance_proposal_record: ProposalRecordType[]
-}): CurrentRoundProposalsStorageType {
+}): Map<string, ProposalRecordType> | undefined {
   const governanceProposalRecord = storage?.governance_proposal_record
   const mapProposalRecordType = governanceProposalRecord.length
-    ? new Map(governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]))
+    ? new Map(
+        governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
+      )
     : undefined
   return mapProposalRecordType
 }

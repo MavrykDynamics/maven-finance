@@ -7,7 +7,7 @@ import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from '.
 
 type ProposalsViewProps = {
   listTitle: string
-  proposalsList: Map<string, ProposalRecordType>
+  proposalsList: ProposalRecordType[]
   handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
@@ -21,26 +21,26 @@ export const ProposalsView = ({
   isProposalPhase,
   firstVisible,
 }: ProposalsViewProps) => {
-  const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
+  // const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
   const location = useLocation()
 
   useEffect(() => {
-    if (firstVisible) handleItemSelect(listProposalsArray[0])
+    if (firstVisible) handleItemSelect(proposalsList[0])
   }, [proposalsList, firstVisible])
 
   useEffect(() => {
     handleItemSelect(undefined)
   }, [location.pathname, proposalsList])
 
-  if (!listProposalsArray.length) {
+  if (!proposalsList.length) {
     return null
   }
 
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {listProposalsArray.length &&
-        listProposalsArray.map((value, index) => {
+      {proposalsList.length &&
+        proposalsList.map((value, index) => {
           return (
             <ProposalListItem
               key={value.id}

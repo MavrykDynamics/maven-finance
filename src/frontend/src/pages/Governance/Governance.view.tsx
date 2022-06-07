@@ -2,9 +2,17 @@ import React, { useRef, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 /* @ts-ignore */
 import Time from 'react-pure-time'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // actions
-import { getTimestampByLevel } from './Governance.actions'
+import {
+  getGovernanceStorage,
+  proposalRoundVote,
+  votingRoundVote,
+  getCurrentRoundProposals,
+  getTimestampByLevel,
+} from './Governance.actions'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -33,16 +41,11 @@ type GovernanceViewProps = {
   ready: boolean
   loading: boolean
   accountPkh: string | undefined
-  ongoingProposals?: CurrentRoundProposalsStorageType
+  ongoingProposals: CurrentRoundProposalsStorageType
   nextProposals: CurrentRoundProposalsStorageType
-  pastProposals?: CurrentRoundProposalsStorageType
-  watingProposals?: CurrentRoundProposalsStorageType
+  pastProposals: CurrentRoundProposalsStorageType
+  watingProposals: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
-  handleProposalRoundVote: (proposalId: number) => void
-  handleVotingRoundVote: (vote: string) => void
-  setVoteStatistics: (voteStatistics: VoteStatistics) => void
-  selectedProposal: ProposalRecordType | undefined
-  voteStatistics: VoteStatistics
   userIsSatellite: boolean
 }
 
@@ -54,27 +57,75 @@ export const GovernanceView = ({
   nextProposals,
   pastProposals,
   governancePhase,
-  handleProposalRoundVote,
-  handleVotingRoundVote,
-  setVoteStatistics,
-  selectedProposal,
-  voteStatistics,
   userIsSatellite,
   watingProposals,
 }: GovernanceViewProps) => {
+  const dispatch = useDispatch()
   const blockRef = useRef<any>(null)
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
-  const [selectedProposalToShow, setSelectedProposalToShow] = useState<number>(Number(selectedProposal?.id || 1))
   const [votingEnding, setVotingEnding] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
-  const isProposalPhase = governancePhase === 'PROPOSAL'
+  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+
+  const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
+    abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
+    againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
+    forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
+    passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
+    unusedVotesMVKTotal:
+      mvkTokenStorage.totalSupply -
+      (rightSideContent?.abstainMvkTotal ?? 0) +
+      (rightSideContent?.downvoteMvkTotal ?? 0) +
+      (rightSideContent?.upvoteMvkTotal ?? 0),
+  })
+
+  const handleProposalRoundVote = (proposalId: number) => {
+    console.log('Here in Proposal round vote', proposalId)
+    //TODO: Adjust for the number of votes / voting power each satellite has
+    setVoteStatistics({
+      ...voteStatistics,
+      passVotesMVKTotal: voteStatistics.passVotesMVKTotal + 1,
+    })
+    dispatch(proposalRoundVote(proposalId))
+  }
+  const handleVotingRoundVote = (vote: string) => {
+    console.log('Here in Vote for Proposal', vote)
+    //TODO: Adjust for the number of votes / voting power each satellite has
+    let voteType
+    switch (vote) {
+      case 'FOR':
+        voteType = 1
+        setVoteStatistics({
+          ...voteStatistics,
+          forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
+        })
+        break
+      case 'AGAINST':
+        voteType = 0
+        setVoteStatistics({
+          ...voteStatistics,
+          againstVotesMVKTotal: voteStatistics.againstVotesMVKTotal + 1,
+        })
+        break
+      case 'ABSTAIN':
+      default:
+        voteType = 2
+        setVoteStatistics({
+          ...voteStatistics,
+          abstainVotesMVKTotal: voteStatistics.abstainVotesMVKTotal + 1,
+        })
+        break
+    }
+    setVoteStatistics({
+      ...voteStatistics,
+      unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
+    })
+    dispatch(votingRoundVote(voteType))
+  }
 
   const _handleItemSelect = (chosenProposal: ProposalRecordType | undefined) => {
     if (chosenProposal) {
-      setSelectedProposalToShow(
-        chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id,
-      )
       setRightSideContent(chosenProposal)
       setVoteStatistics({
         passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
@@ -94,19 +145,15 @@ export const GovernanceView = ({
     </EmptyContainer>
   )
 
-  const days = calcTimeToBlock(
-    rightSideContent?.currentCycleStartLevel || 0,
-    rightSideContent?.currentCycleEndLevel || 0,
-  )
-
   // TODO correct conditions
-  const isVisibleWating = !onProposalHistoryPage && watingProposals !== undefined
+  const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
   const isVisibleOngoingVoiting =
-    !onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'VOTING'
+    !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'VOTING'
   const isVisibleOngoingTimeLock =
-    !onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'TIME_LOCK'
-  const isVisibleNextProposal = !onProposalHistoryPage && nextProposals !== undefined && governancePhase === 'PROPOSAL'
-  const isVisibleHistoryProposal = onProposalHistoryPage && pastProposals !== undefined
+    !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'TIME_LOCK'
+  const isVisibleNextProposal =
+    !onProposalHistoryPage && Boolean(nextProposals?.length) && governancePhase === 'PROPOSAL'
+  const isVisibleHistoryProposal = onProposalHistoryPage && Boolean(pastProposals?.length)
 
   const [visibleLists, setVisibleLists] = useState<Record<string, boolean>>({
     wating: false,
@@ -117,6 +164,7 @@ export const GovernanceView = ({
   })
 
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
+  const someVisible = Object.values(visibleLists).some((item) => item)
 
   useEffect(() => {
     const visibleTypes: Record<string, boolean> = {
@@ -127,6 +175,8 @@ export const GovernanceView = ({
       history: isVisibleHistoryProposal,
     }
     setVisibleLists(visibleTypes)
+
+    console.log('%c ||||| someVisible', 'color:yellowgreen', someVisible)
 
     const firstVisible: string = Object.keys(visibleTypes).find((key: string) => Boolean(visibleTypes[key])) as string
     setFirstVisibleProposal(firstVisible)
@@ -147,57 +197,66 @@ export const GovernanceView = ({
     handleGetTimestampByLevel(rightSideContent?.currentCycleEndLevel ?? 0)
   }, [rightSideContent?.currentCycleEndLevel])
 
+  useEffect(() => {
+    if (!someVisible) {
+      setRightSideContent(undefined)
+    }
+  }, [someVisible])
+
   return (
     <GovernanceStyled>
-      <GovernanceLeftContainer ref={blockRef}>
-        {isVisibleWating && (
-          <Proposals
-            proposalsList={watingProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-            title="Waiting for Execution"
-            type="wating"
-            firstVisible={firstVisibleProposal === 'wating'}
-          />
-        )}
-        {isVisibleOngoingVoiting && (
-          <Proposals
-            proposalsList={ongoingProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-            type="ongoingVoiting"
-            firstVisible={firstVisibleProposal === 'ongoingVoiting'}
-          />
-        )}
-        {isVisibleOngoingTimeLock && (
-          <Proposals
-            proposalsList={ongoingProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-            type="ongoingTimeLock"
-            firstVisible={firstVisibleProposal === 'ongoingTimeLock'}
-          />
-        )}
-        {isVisibleNextProposal && (
-          <Proposals
-            proposalsList={nextProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-            type="next"
-            firstVisible={firstVisibleProposal === 'next'}
-          />
-        )}
-        {isVisibleHistoryProposal && (
-          <Proposals
-            proposalsList={pastProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-            type="history"
-            firstVisible={firstVisibleProposal === 'history'}
-          />
-        )}
-      </GovernanceLeftContainer>
-
+      {someVisible ? (
+        <GovernanceLeftContainer ref={blockRef}>
+          {isVisibleWating && (
+            <Proposals
+              proposalsList={watingProposals}
+              handleItemSelect={_handleItemSelect}
+              selectedProposal={rightSideContent}
+              title="Waiting for Execution"
+              type="wating"
+              firstVisible={firstVisibleProposal === 'wating'}
+            />
+          )}
+          {isVisibleOngoingVoiting && (
+            <Proposals
+              proposalsList={ongoingProposals}
+              handleItemSelect={_handleItemSelect}
+              selectedProposal={rightSideContent}
+              type="ongoingVoiting"
+              firstVisible={firstVisibleProposal === 'ongoingVoiting'}
+            />
+          )}
+          {isVisibleOngoingTimeLock && (
+            <Proposals
+              proposalsList={ongoingProposals}
+              handleItemSelect={_handleItemSelect}
+              selectedProposal={rightSideContent}
+              type="ongoingTimeLock"
+              firstVisible={firstVisibleProposal === 'ongoingTimeLock'}
+            />
+          )}
+          {isVisibleNextProposal && (
+            <Proposals
+              proposalsList={nextProposals}
+              handleItemSelect={_handleItemSelect}
+              selectedProposal={rightSideContent}
+              type="next"
+              firstVisible={firstVisibleProposal === 'next'}
+            />
+          )}
+          {isVisibleHistoryProposal && (
+            <Proposals
+              proposalsList={pastProposals}
+              handleItemSelect={_handleItemSelect}
+              selectedProposal={rightSideContent}
+              type="history"
+              firstVisible={firstVisibleProposal === 'history'}
+            />
+          )}
+        </GovernanceLeftContainer>
+      ) : (
+        emptyContainer
+      )}
       {rightSideContent && rightSideContent.id !== 0 ? (
         <GovernanceRightContainer>
           <GovRightContainerTitleArea>

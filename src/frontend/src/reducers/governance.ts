@@ -73,11 +73,12 @@ const defaultGovernanceStorage: GovernanceStorage = {
   startLevel: 0,
   tempFlag: 0,
   timelockProposalId: 0,
+  cycleCounter: 0,
 }
 const governanceDefaultState: GovernanceState = {
   governanceStorage: getItemFromStorage('GovernanceStorage') || defaultGovernanceStorage,
   governancePhase: 'PROPOSAL',
-  currentRoundProposals: undefined,
+  currentRoundProposals: [],
 }
 
 export function governance(state = governanceDefaultState, action: any): GovernanceState {
