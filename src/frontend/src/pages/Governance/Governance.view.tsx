@@ -14,6 +14,9 @@ import {
   getTimestampByLevel,
 } from './Governance.actions'
 
+// helpers
+import { normalizeProposalStatus } from './Governance.helpers'
+
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
@@ -79,6 +82,8 @@ export const GovernanceView = ({
       (rightSideContent?.downvoteMvkTotal ?? 0) +
       (rightSideContent?.upvoteMvkTotal ?? 0),
   })
+
+  const rightSideContentStatus = normalizeProposalStatus(governancePhase, rightSideContent?.status)
 
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
@@ -261,7 +266,7 @@ export const GovernanceView = ({
         <GovernanceRightContainer>
           <GovRightContainerTitleArea>
             <h1>{rightSideContent.title}</h1>
-            <StatusFlag text={rightSideContent.status} status={rightSideContent.status} />
+            <StatusFlag text={rightSideContentStatus} status={rightSideContentStatus} />
           </GovRightContainerTitleArea>
           {votingEnding ? (
             <RightSideSubContent id="votingDeadline">

@@ -33,6 +33,7 @@ import {
 } from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
+import { ProposalStatus } from './TypesAndInterfaces/Governance'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -581,8 +582,6 @@ function convertToGovernanceStorageType(storage: {
   )
   const currentGovernance = storage?.governance?.[1] || {}
 
-  console.log('%c ||||| currentGovernance', 'color:pink', currentGovernance);
-
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
     address: currentGovernance.address,
@@ -773,15 +772,26 @@ function convertGovernanceSatelliteSnapshotRecordsToInterface(
   return governanceProposalRecords
 }
 
-function convertProposalStatus(statusNumber: number): ProposalStatusType {
-  return statusNumber === 0 ? 'ACTIVE' : 'DROPPED'
+function convertProposalStatus(executed: boolean, locked: boolean, numberSatus: number): ProposalStatus {
+  let status = 'ACTIVE'
+  if (numberSatus === 1) {
+    status = 'DEFEATED'
+  } else {
+    if (executed) {
+      status = 'EXECUTED'
+    } else if (locked) {
+      status = 'LOCKED'
+    }
+  }
+
+  return status as ProposalStatus
 }
 
 export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
-    status: convertProposalStatus(item?.status),
+    status: convertProposalStatus(item.executed, item.locked, item.status),
     title: item.title,
     description: item.description,
     invoice: item.invoice,

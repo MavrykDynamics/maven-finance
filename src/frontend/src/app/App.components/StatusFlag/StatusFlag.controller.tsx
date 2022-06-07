@@ -17,6 +17,7 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
       kind = UP
       break
     case ProposalStatus.DEFEATED:
+    case ProposalStatus.LOCKED:
       kind = DOWN
       break
     case ProposalStatus.ONGOING:
