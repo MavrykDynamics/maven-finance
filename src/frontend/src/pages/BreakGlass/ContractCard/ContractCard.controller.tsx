@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
-import { ContractCardWrapper, ContractCardTopSection } from './ContractCard.style';
-import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller';
-import { ContractBreakGlass } from '../mockContracts';
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance';
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view';
-import { BGAccordeon } from '../Accordeon/Accordeon.view';
+import { ContractCardWrapper, ContractCardTopSection } from './ContractCard.style'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { ContractBreakGlass } from '../mockContracts'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { BGAccordeon } from '../Accordeon/Accordeon.view'
 
 type ContractCardProps = {
-  contract: ContractBreakGlass;
-};
-export const ContractCard = ({ contract }: ContractCardProps) => {
-  const { entrypoints } = contract;
-  const [isExpanded, setExpanded] = useState(false);
+  contract: ContractBreakGlass
+  isActive?: boolean
+  onClick?: () => void
+}
+export const ContractCard = ({ contract, isActive = false, onClick }: ContractCardProps) => {
+  const { entrypoints } = contract
+  const [isExpanded, setExpanded] = useState(false)
 
   return (
-    <ContractCardWrapper key={contract.address}>
+    <ContractCardWrapper key={contract.address} className={isActive ? 'active' : ''} onClick={onClick}>
       <ContractCardTopSection>
         <div className="card-title">
           <div className="truncate-title">{contract.name}</div>
@@ -39,5 +41,5 @@ export const ContractCard = ({ contract }: ContractCardProps) => {
         accordeonClickHandler={() => setExpanded(!isExpanded)}
       />
     </ContractCardWrapper>
-  );
-};
+  )
+}
