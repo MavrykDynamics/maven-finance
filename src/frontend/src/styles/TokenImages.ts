@@ -1,0 +1,18 @@
+export const TokenImages = new Map<string, string>([
+  ['mvk', 'images/tokens/mvk.png'],
+  ['usdm', 'images/tokens/usdm.png'],
+  ['spaceshipToken', 'images/tokens/spaceshipToken.png'],
+  ['Plenty', 'images/tokens/plenty.png'],
+  ['PlentyLP', 'images/tokens/plentyLP.png'],
+  ['hdao', 'images/tokens/hdao.png'],
+  ['kdao', 'images/tokens/kdao.png'],
+  ['kusd', 'images/tokens/kusd.png'],
+  ['usdTZ', 'images/tokens/usdTZ.png'],
+  ['btcTZ', 'images/tokens/btctz.png'],
+  ['ethTZ', 'images/tokens/ethtz.png'],
+  ['tzBtc', 'images/tokens/tzbtc.png'],
+  ['uusd', 'images/tokens/uusd.png'],
+  ['youves', 'images/tokens/you.png'],
+  ['wxtz', 'images/tokens/wxtz.png'],
+  ['unknown', 'images/tokens/kk-unknown-token-gray.png'],
+])
