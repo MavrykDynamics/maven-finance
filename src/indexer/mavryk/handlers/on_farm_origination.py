@@ -12,6 +12,8 @@ async def on_farm_origination(
     farm_address                    = farm_origination.data.originated_contract_address
     admin                           = farm_origination.storage.admin
     governance_address              = farm_origination.storage.governanceAddress
+    creation_timestamp              = farm_origination.data.timestamp
+    name                            = farm_origination.storage.name
     lp_token_address                = farm_origination.storage.config.lpToken.tokenAddress
     lp_token_balance                = int(farm_origination.storage.config.lpToken.tokenBalance)
     lp_token_id                     = int(farm_origination.storage.config.lpToken.tokenId)
@@ -49,6 +51,8 @@ async def on_farm_origination(
         admin       = admin,
         governance  = governance
     )
+    farm.creation_timestamp              = creation_timestamp
+    farm.name                            = name 
     farm.blocks_per_minute               = blocks_per_minute
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite

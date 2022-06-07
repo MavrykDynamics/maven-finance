@@ -32,10 +32,10 @@ contracts:
     address: KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm
     typename: doorman
   farm:
-    address: KT1XN2EMwxoDrAy873z4gX3yRDCPnjAi6Jzm #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
+    address: KT1L7qz1p4bDQc9QfpdMFPe6NEbuWqoPYjxJ #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
     typename: farm
   farm_factory:
-    address: KT1SFQqKBEbaJ7Nfp29qFQcDApkbF8gUH3bX
+    address: KT1Wzw6wCyn6NL87Zbk3BANGzTwXV3Nadsgx
     typename: farm_factory
   delegation:
     address: KT1UYJoRz8BcsXv3SCzSnySVFcuWJQ5eebcb
@@ -56,10 +56,10 @@ contracts:
     address: KT1JZNNKR55c2GqYf2AFbkSb5ZbE48kez5th
     typename: governance_financial
   treasury:
-    address: KT1WxAZbk5QMnTmqPpw2Z9GHWxFh24Q9whDG
+    address: KT1TT97ADiJzSSeyewGbvywqzjLyEdnPxJym
     typename: treasury
   treasury_factory:
-    address: KT1B9YuFnaJ857Rb3Pq3vqrgExKMN15DKSED
+    address: KT1RsWRcTxMSWhq9EpCeHxtZL7nFpLdQ1UXT
     typename: treasury_factory
 
 datasources:
@@ -520,6 +520,10 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: setGovernance
+      - callback: on_farm_factory_update_config
+        pattern:
+          - destination: farm_factory
+            entrypoint: updateConfig
       - callback: on_farm_factory_update_whitelist_contracts
         pattern:
           - destination: farm_factory
@@ -1088,6 +1092,10 @@ indexes:
         pattern:
           - destination: treasury_factory
             entrypoint: setGovernance
+      - callback: on_treasury_factory_update_config
+        pattern:
+          - destination: treasury_factory
+            entrypoint: updateConfig
       - callback: on_treasury_factory_update_general_contracts
         pattern:
           - destination: treasury_factory

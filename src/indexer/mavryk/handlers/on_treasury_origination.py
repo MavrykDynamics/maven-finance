@@ -12,6 +12,8 @@ async def on_treasury_origination(
     # Get operation info
     treasury_address                = treasury_origination.data.originated_contract_address
     admin                           = treasury_origination.storage.admin
+    name                            = treasury_origination.storage.name
+    creation_timestamp              = treasury_origination.data.timestamp
     governance_address              = treasury_origination.storage.governanceAddress
     transfer_paused                 = treasury_origination.storage.breakGlassConfig.transferIsPaused
     mint_mvk_and_transfer_paused    = treasury_origination.storage.breakGlassConfig.mintMvkAndTransferIsPaused
@@ -26,6 +28,8 @@ async def on_treasury_origination(
         address                         = treasury_address,
         admin                           = admin,
         governance                      = governance,
+        creation_timestamp              = creation_timestamp,
+        name                            = name,
         transfer_paused                 = transfer_paused,
         mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused,
         stake_mvk_paused                = stake_mvk_paused,

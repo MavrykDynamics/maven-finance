@@ -18,6 +18,8 @@ async def on_treasury_factory_create_treasury(
     treasury_factory_address        = create_treasury.data.target_address
     admin                           = treasury_origination.storage.admin
     governance_address              = treasury_origination.storage.governanceAddress
+    name                            = treasury_origination.storage.name
+    creation_timestamp              = treasury_origination.data.timestamp
     transfer_paused                 = treasury_origination.storage.breakGlassConfig.transferIsPaused
     mint_mvk_and_transfer_paused    = treasury_origination.storage.breakGlassConfig.mintMvkAndTransferIsPaused
     stake_mvk_paused                = treasury_origination.storage.breakGlassConfig.stakeMvkIsPaused
@@ -49,6 +51,8 @@ async def on_treasury_factory_create_treasury(
         admin                           = admin,
         governance                      = governance
     )
+    treasury.name                            = name
+    treasury.creation_timestamp              = creation_timestamp
     treasury.treasury_factory                = treasury_factory
     treasury.transfer_paused                 = transfer_paused
     treasury.mint_mvk_and_transfer_paused    = mint_mvk_and_transfer_paused
