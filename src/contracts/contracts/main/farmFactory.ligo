@@ -38,6 +38,7 @@ type farmFactoryAction is
     SetAdmin                    of (address)
 |   SetGovernance               of (address)
 |   UpdateMetadata              of updateMetadataType
+|   UpdateConfig                of farmFactoryUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
 |   UpdateBlocksPerMinute       of (nat)
@@ -355,6 +356,25 @@ block {
 
 
 
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var s : farmFactoryStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
+
+} with response
+
+
+
 (*  updateWhitelistContracts entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: farmFactoryStorage): return is
 block {
@@ -644,6 +664,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorage): retu
             SetAdmin (parameters)                   -> setAdmin(parameters, s)
         |   SetGovernance (parameters)              -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)             -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)               -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
         |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)

@@ -332,6 +332,12 @@ block {
 
 
 
+(* View: get name variable *)
+[@view] function getName(const _: unit; var s : treasuryStorage) : string is
+  s.name
+
+
+
 (* View: get break glass config *)
 [@view] function getBreakGlassConfig(const _: unit; var s : treasuryStorage) : treasuryBreakGlassConfigType is
   s.breakGlassConfig

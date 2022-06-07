@@ -444,6 +444,12 @@ block {
 
 
 
+(* View: get name variable *)
+[@view] function getName(const _: unit; var s : farmStorage) : string is
+  s.name
+
+
+
 (*  View: get config *)
 [@view] function getConfig(const _: unit; const s: farmStorage) : farmConfigType is
   s.config

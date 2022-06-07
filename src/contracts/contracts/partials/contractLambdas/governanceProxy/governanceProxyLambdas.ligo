@@ -152,38 +152,40 @@ block {
       | UpdateBreakGlassConfig (_v)            -> 14n
       | UpdateCouncilConfig (_v)               -> 15n
       | UpdateFarmConfig (_v)                  -> 16n
-      | UpdateDoormanMinMvkAmount (_v)         -> 17n
+      | UpdateFarmFactoryConfig (_v)           -> 17n
+      | UpdateTreasuryFactoryConfig (_v)       -> 18n
+      | UpdateDoormanMinMvkAmount (_v)         -> 19n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 18n
-      | SetGovernanceProxy (_v)                -> 19n
+      | UpdateWhitelistDevelopersSet (_v)      -> 20n
+      | SetGovernanceProxy (_v)                -> 21n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 20n
-      | TrackFarm (_v)                         -> 21n
-      | UntrackFarm (_v)                       -> 22n
-      | InitFarm (_v)                          -> 23n
-      | CloseFarm (_v)                         -> 24n
+      | CreateFarm (_v)                        -> 22n
+      | TrackFarm (_v)                         -> 23n
+      | UntrackFarm (_v)                       -> 24n
+      | InitFarm (_v)                          -> 25n
+      | CloseFarm (_v)                         -> 26n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 25n
-      | TrackTreasury (_v)                     -> 26n
-      | UntrackTreasury (_v)                   -> 27n
-      | TransferTreasury (_v)                  -> 28n
-      | MintMvkAndTransferTreasury (_v)        -> 29n
-      | UpdateMvkOperatorsTreasury (_v)        -> 30n
-      | StakeMvkTreasury (_v)                  -> 31n
-      | UnstakeMvkTreasury (_v)                -> 32n
+      | CreateTreasury (_v)                    -> 27n
+      | TrackTreasury (_v)                     -> 28n
+      | UntrackTreasury (_v)                   -> 29n
+      | TransferTreasury (_v)                  -> 30n
+      | MintMvkAndTransferTreasury (_v)        -> 31n
+      | UpdateMvkOperatorsTreasury (_v)        -> 32n
+      | StakeMvkTreasury (_v)                  -> 33n
+      | UnstakeMvkTreasury (_v)                -> 34n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 33n
-      | TriggerMvkInflation (_v)               -> 34n
+      | UpdateMvkInflationRate (_v)            -> 35n
+      | TriggerMvkInflation (_v)               -> 36n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 35n
-      | RemoveVestee (_v)                      -> 36n
-      | UpdateVestee (_v)                      -> 37n
-      | ToggleVesteeLock (_v)                  -> 38n
+      | AddVestee (_v)                         -> 37n
+      | RemoveVestee (_v)                      -> 38n
+      | UpdateVestee (_v)                      -> 39n
+      | ToggleVesteeLock (_v)                  -> 40n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -808,6 +810,106 @@ block {
           );
 
         operations := updateFarmConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateFarmFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateFarmFactoryConfig(params) -> {
+
+        // find and get farm factory contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+        const farmFactoryAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction    = params.updateConfigAction;
+        const updateConfigNewValue  = params.updateConfigNewValue;
+
+        // find and get updateConfig entrypoint of farm factory contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            farmFactoryAddress) : option(contract(nat * farmFactoryUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(nat * farmFactoryUpdateConfigActionType))
+            ];
+
+        // update farm factory config operation
+        const updateFarmFactoryConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateFarmFactoryConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateTreasuryFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateTreasuryFactoryConfig(params) -> {
+
+        // find and get treasury factory contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
+        const treasuryFactoryAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction    = params.updateConfigAction;
+        const updateConfigNewValue  = params.updateConfigNewValue;
+
+        // find and get updateConfig entrypoint of farm factory contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            treasuryFactoryAddress) : option(contract(nat * treasuryFactoryUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(nat * treasuryFactoryUpdateConfigActionType))
+            ];
+
+        // update farm factory config operation
+        const updateTreasuryFactoryConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateTreasuryFactoryConfigOperation # operations;
 
         }
     | _ -> skip

@@ -63,6 +63,30 @@ block {
 
 
 
+(* updateConfig lambda *)
+function lambdaUpdateConfig(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is 
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+
+    case farmFactoryLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : farmFactoryUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : farmFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                    | ConfigFarmNameMaxLength (_v)     -> s.config.farmNameMaxLength         := updateConfigNewValue
+                    | Empty (_v)                       -> skip
+                ];
+            }
+        | _ -> skip
+    ];
+  
+} with (noOperations, s)
+
+
+
 (*  updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
@@ -290,6 +314,9 @@ block{
 
     case farmFactoryLambdaAction of [
         | LambdaCreateFarm(createFarmParams) -> {
+
+                // Check farm name length
+                if String.length(createFarmParams.name) > s.config.farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Add FarmFactory Address to whitelistContracts of created farm
                 const councilAddress : address = case s.whitelistContracts["council"] of [ 

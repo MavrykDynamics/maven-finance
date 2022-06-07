@@ -22,12 +22,28 @@ type createTreasuryType is [@layout:comb] record[
     metadata                : bytes;
 ]
 
+type treasuryFactoryConfigType is [@layout:comb] record [
+    treasuryNameMaxLength   : nat;
+    empty                   : unit;
+] 
+
+type treasuryFactoryUpdateConfigNewValueType is nat
+type treasuryFactoryUpdateConfigActionType is 
+  ConfigTreasuryNameMaxLength of unit
+| Empty                       of unit
+type treasuryFactoryUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: treasuryFactoryUpdateConfigNewValueType; 
+  updateConfigAction: treasuryFactoryUpdateConfigActionType;
+]
+
+
 type treasuryFactoryLambdaActionType is 
 
     // Housekeeping Entrypoints
     LambdaSetAdmin                            of (address)
 |   LambdaSetGovernance                       of (address)
 |   LambdaUpdateMetadata                      of updateMetadataType
+|   LambdaUpdateConfig                        of treasuryFactoryUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts            of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts              of updateGeneralContractsParams
 |   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsParams
@@ -52,6 +68,7 @@ type treasuryFactoryStorage is [@layout:comb] record[
     admin                      : address;
     mvkTokenAddress            : address;
     governanceAddress          : address;
+    config                     : treasuryFactoryConfigType;
     metadata                   : metadata;
 
     trackedTreasuries          : set(address);

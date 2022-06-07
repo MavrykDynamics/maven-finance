@@ -111,6 +111,8 @@ type executeActionParamsType is
 | UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
 | UpdateCouncilConfig                of councilUpdateConfigParamsType
 | UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
+| UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+| UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
 | UpdateDoormanMinMvkAmount          of (nat)
 
 | UpdateWhitelistDevelopersSet       of (address)
