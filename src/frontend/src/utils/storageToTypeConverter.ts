@@ -830,90 +830,98 @@ export function convertCurrentRoundProposalsStorageType(storage: {
   const governanceProposalRecord = storage?.governance_proposal_record
   const mapProposalRecordType = governanceProposalRecord.length
     ? new Map(
-        governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
+      governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
       )
-    : undefined
-  return mapProposalRecordType
-}
+      : undefined
+      return mapProposalRecordType
+    }
 
-export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
-  const convert = [] as Record<string, unknown>[]
+    export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
+      const convert = [] as Record<string, unknown>[]
 
-  if (storage?.farm?.length ) {
-    storage.farm.forEach((item: any) => {
-      convert.push({
-        title: 'Farms',
-        address: item.address,
-        methods: {
-          claim: item.claim_paused,
-          deposit: item.deposit_paused,
-          withdraw: item.withdraw_paused,
-        },
-      })
-    })
-  }
+      if (storage?.doorman?.length) {
+        storage.doorman.forEach((item: any) => {
+          convert.push({
+            title: 'Doorman',
+            type: 'General Contracts',
+            address: item.address,
+            methods: {
+              compound: item.compound_paused,
+              'distribute reward': item.distribute_reward_paused,
+              'farm claimed': item.farm_claimed_paused,
+              unstake: item.unstake_paused,
+            },
+          })
+        })
+      } 
 
-  if (storage?.farm_factory?.length) {
-    storage.farm_factory.forEach((item: any) => {
-      convert.push({
-        title: 'Farm factory',
-        address: item.address,
-        methods: {
-          'create farm': item.create_farm_paused,
-          'track farm': item.track_farm_paused,
-          'untrack farm': item.untrack_farm_paused,
-        },
-      })
-    })
-  }
+      if (storage?.delegation?.length) {
+        storage.delegation.forEach((item: any) => {
+          convert.push({
+            title: 'Delegation',
+            type: "General Contracts",
+            address: item.address,
+            methods: {
+              'delegate to satellite': item.delegate_to_satellite_paused,
+              'distribute reward': item.distribute_reward_paused,
+              'register as satellite': item.register_as_satellite_paused,
+              'undelegate from satellite': item.undelegate_from_satellite_paused,
+              'unregister as satellite': item.unregister_as_satellite_paused,
+              'update satellite record': item.update_satellite_record_paused,
+            },
+          })
+        })
+      }
+      
 
-  if (storage?.delegation?.length) {
-    storage.delegation.forEach((item: any) => {
-      convert.push({
-        title: 'Delegation',
-        address: item.address,
-        methods: {
-          'delegate to satellite': item.delegate_to_satellite_paused,
-          'distribute reward': item.distribute_reward_paused,
-          'register as satellite': item.register_as_satellite_paused,
-          'undelegate from satellite': item.undelegate_from_satellite_paused,
-          'unregister as satellite': item.unregister_as_satellite_paused,
-          'update satellite record': item.update_satellite_record_paused,
-        },
-      })
-    })
-  }
-  
-  if (storage?.doorman?.length) {
-    storage.doorman.forEach((item: any) => {
-      convert.push({
-        title: 'Doorman',
-        address: item.address,
-        methods: {
-          compound: item.compound_paused,
-          'distribute reward': item.distribute_reward_paused,
-          'farm claimed': item.farm_claimed_paused,
-          unstake: item.unstake_paused,
-        },
-      })
-    })
-  } 
+
+      if (storage?.farm?.length ) {
+        storage.farm.forEach((item: any) => {
+          convert.push({
+            title: 'Farms',
+            type: 'Farms',
+            address: item.address,
+            methods: {
+              claim: item.claim_paused,
+              deposit: item.deposit_paused,
+              withdraw: item.withdraw_paused,
+            },
+          })
+        })
+      }
+
+      if (storage?.farm_factory?.length) {
+        storage.farm_factory.forEach((item: any) => {
+          convert.push({
+            title: 'Farm factory',
+            type: 'Farms',
+            address: item.address,
+            methods: {
+              'create farm': item.create_farm_paused,
+              'track farm': item.track_farm_paused,
+              'untrack farm': item.untrack_farm_paused,
+            },
+          })
+        })
+      }
+
     
-  if (storage?.treasury?.length) {
-    storage.treasury.forEach((item: any) => {
-      convert.push({
-        title: 'Treasury',
-        address: item.address,
-        methods: {
-          'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
-          'stake mvk': item.stake_mvk_paused,
-          transfer: item.transfer_paused,
-          'unstake mvk': item.unstake_mvk_paused,
-        },
-      })
-    })
-  }
-  
+      if (storage?.treasury?.length) {
+        storage.treasury.forEach((item: any) => {
+          convert.push({
+            title: 'Treasury',
+            type: 'Treasury',
+            address: item.address,
+            methods: {
+              'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
+              'stake mvk': item.stake_mvk_paused,
+              transfer: item.transfer_paused,
+              'unstake mvk': item.unstake_mvk_paused,
+            },
+          })
+        })
+      }
+      
   return convert
 }
 
