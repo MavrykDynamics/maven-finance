@@ -12,6 +12,9 @@
 // TokenSale Types
 #include "../partials/types/tokenSaleTypes.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type tokenSaleAction is 
@@ -105,20 +108,13 @@ function addToWhitelist (const newUserAddress : address; var whitelistedAddresse
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
 function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------

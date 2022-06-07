@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -141,6 +144,11 @@ function checkNoAmount(const _p : unit) : unit is
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -161,17 +169,6 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
 

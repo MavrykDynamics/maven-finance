@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -187,6 +190,11 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 #include "../partials/generalContractsMethod.ligo"
 
 
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -218,45 +226,6 @@ function checkClaimIsNotPaused(var s : farmStorage) : unit is
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
-block{
-
-    const transferParams: oldTransferType = (from_,(to_,tokenAmount));
-
-    const tokenContract: contract(oldTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND): contract(oldTransferType))
-        ];
-
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: newTransferType = list[
-            record[
-                from_=from_;
-                txs=list[
-                    record[
-                        to_=to_;
-                        token_id=tokenId;
-                        amount=tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(newTransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
-        ];
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
 
 function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
     case tokenStandard of [
