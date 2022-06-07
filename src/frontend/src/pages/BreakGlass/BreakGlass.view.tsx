@@ -26,8 +26,10 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
   const [selectedContract, setSelectedContract] = useState<string>('')
 
   const uniqueContracts = useMemo(() => {
-    return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.title))) as string[]) : []
+    return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[]) : []
   }, [breakGlassStatuses])
+
+  console.log('%c ||||| uniqueContracts', 'color:yellowgreen', uniqueContracts)
 
   useEffect(() => {
     if (uniqueContracts?.length) {
@@ -38,9 +40,9 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
   const filteredBreakGlassStatuses = useMemo(() => {
     return breakGlassStatuses
       ? breakGlassStatuses?.filter((item) => {
-          const title = item.title as string
+          const type = item.type as string
 
-          return selectedContract === title
+          return selectedContract === type
         })
       : []
   }, [selectedContract, breakGlassStatuses])
