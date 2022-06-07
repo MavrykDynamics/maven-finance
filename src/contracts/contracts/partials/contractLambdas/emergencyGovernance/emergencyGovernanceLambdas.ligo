@@ -158,7 +158,7 @@ block {
 
             // check if tez sent is equal to the required fee
             if Tezos.amount =/= s.config.requiredFeeMutez 
-            then failwith(error_TEZ_FEE_UNPAID) 
+            then failwith(error_TEZ_FEE_NOT_PAID) 
             else skip;
             
             const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "taxTreasury", s.governanceAddress);

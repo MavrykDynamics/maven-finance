@@ -13,47 +13,51 @@
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 7,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseCreateTreasury"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseTrackTreasury"
+      "name": "lambdaTogglePauseCreateTreasury"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseUntrackTreasury"
+      "name": "lambdaTogglePauseTrackTreasury"
     },
     {
       "index": 11,
-      "name": "lambdaCreateTreasury"
+      "name": "lambdaTogglePauseUntrackTreasury"
     },
     {
       "index": 12,
-      "name": "lambdaTrackTreasury"
+      "name": "lambdaCreateTreasury"
     },
     {
       "index": 13,
+      "name": "lambdaTrackTreasury"
+    },
+    {
+      "index": 14,
       "name": "lambdaUntrackTreasury"
     }
 ]
-  
+   

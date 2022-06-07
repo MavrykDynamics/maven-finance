@@ -439,7 +439,7 @@ block {
 
                 // check if tez sent is equal to the required fee
                 if Tezos.amount =/= s.config.proposalSubmissionFeeMutez 
-                then failwith(error_TEZ_FEE_UNPAID) 
+                then failwith(error_TEZ_FEE_NOT_PAID) 
                 else skip;
 
                 const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [

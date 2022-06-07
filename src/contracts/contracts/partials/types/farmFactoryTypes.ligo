@@ -41,19 +41,6 @@ type createFarmType is [@layout:comb] record[
     lpToken                 : farmLpToken;
 ]
 
-type farmMetadataType is record[
-    name                     : string;
-    description              : string;
-    version                  : string;
-    liquidityPairToken       : record[
-        tokenAddress         : address;
-        origin               : string;
-        token0               : farmToken;
-        token1               : farmToken;
-    ];
-    authors                  : string;
-]
-
 type farmFactoryBreakGlassConfigType is [@layout:comb] record [
     createFarmIsPaused      : bool;
     trackFarmIsPaused       : bool;
@@ -62,12 +49,21 @@ type farmFactoryBreakGlassConfigType is [@layout:comb] record [
 
 type farmFactoryConfigType is [@layout:comb] record [
     blocksPerMinute         : nat;
-    empty                   : unit;
+    farmNameMaxLength       : nat;
 ] 
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
     metadataHash     : bytes; 
+]
+
+type farmFactoryUpdateConfigNewValueType is nat
+type farmFactoryUpdateConfigActionType is 
+  ConfigFarmNameMaxLength of unit
+| Empty                   of unit
+type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: farmFactoryUpdateConfigNewValueType; 
+  updateConfigAction: farmFactoryUpdateConfigActionType;
 ]
 
 type farmFactoryLambdaActionType is 
@@ -76,6 +72,7 @@ type farmFactoryLambdaActionType is
     LambdaSetAdmin                    of (address)
 |   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
+|   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
 |   LambdaUpdateBlocksPerMinute       of (nat)

@@ -44,6 +44,7 @@ type treasuryFactoryAction is
         SetAdmin                            of (address)
     |   SetGovernance                       of (address)
     |   UpdateMetadata                      of updateMetadataType
+    |   UpdateConfig                        of treasuryFactoryUpdateConfigParamsType
     |   UpdateWhitelistContracts            of updateWhitelistContractsParams
     |   UpdateGeneralContracts              of updateGeneralContractsParams
     |   UpdateWhitelistTokenContracts       of updateWhitelistTokenContractsParams
@@ -349,6 +350,28 @@ block {
 
 
 
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : treasuryFactoryUpdateConfigParamsType; var s : treasuryFactoryStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
+
+} with response
+
+
+
+
+
+
 (* updateWhitelistContracts entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryFactoryStorage): return is
 block {
@@ -638,6 +661,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
             SetAdmin (parameters)                       -> setAdmin(parameters, s)
         |   SetGovernance (parameters)                  -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                   -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistTokenContracts (parameters)  -> updateWhitelistTokenContracts(parameters, s)
