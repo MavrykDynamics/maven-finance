@@ -42,6 +42,7 @@ const toggleButtonData = [
 export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: BreakGlassViewProps) => {
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
+  const [activeCards, setActiveCards] = React.useState<Array<string>>([])
 
   return (
     <BGStyled className={'breakGlassContainer'}>
@@ -77,9 +78,23 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: Break
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
-        {contracts.map((item: ContractBreakGlass, index: number) => (
-          <ContractCard contract={item} key={index} />
-        ))}
+        {contracts.map((item: ContractBreakGlass, index: number) => {
+          const isCardActive = Boolean(activeCards.find((cardKey) => cardKey === item.name))
+          return (
+            <ContractCard
+              isActive={isCardActive}
+              contract={item}
+              key={index}
+              onClick={() => {
+                if (isCardActive) {
+                  setActiveCards(activeCards.filter((cardKey) => cardKey !== item.name))
+                } else {
+                  setActiveCards([...activeCards, item.name])
+                }
+              }}
+            />
+          )
+        })}
       </BGCardsWrapper>
     </BGStyled>
   )

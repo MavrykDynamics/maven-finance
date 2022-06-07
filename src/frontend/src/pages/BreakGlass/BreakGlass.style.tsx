@@ -30,7 +30,7 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
   flex-direction: column;
   width: 31%;
   height: 115px;
-  padding: 0 40px;
+  padding: 0 30px;
 
   .status-indicator-wrapper {
     width: 100%;

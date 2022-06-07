@@ -11,10 +11,16 @@ export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+
+  &:hover,
+  &.active {
+    border: 1px solid #86d4c9;
+    box-shadow: 0px 4px 4px rgba(134, 212, 201, 0.5);
+  }
 `
 
 export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
-  padding: 22px 16px 18px 16px;
+  padding: 22px 16px 18px 30px;
   background-color: ${({ theme }) => theme.containerColor};
   display: grid;
   grid-template-columns: repeat(2, 1fr);
