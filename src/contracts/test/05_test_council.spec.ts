@@ -37,6 +37,7 @@
 //     let mockFa12TokenInstance;
 //     let mockFa2TokenInstance;
 //     let treasuryInstance;
+//     let governanceInstance;
 
 //     let doormanStorage;
 //     let delegationStorage;
@@ -47,6 +48,7 @@
 //     let mockFa12TokenStorage;
 //     let mockFa2TokenStorage;
 //     let treasuryStorage;
+//     let governanceStorage;
     
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -58,25 +60,27 @@
 //         utils = new Utils();
 //         await utils.init(bob.sk);
         
-//         vestingInstance    = await utils.tezos.contract.at(vestingAddress.address);
-//         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
-//         delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
-//         mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
-//         governanceFinancialInstance = await utils.tezos.contract.at(governanceFinancialAddress.address);
-//         councilInstance    = await utils.tezos.contract.at(councilAddress.address);
-//         mockFa12TokenInstance  = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-//         mockFa2TokenInstance   = await utils.tezos.contract.at(mockFa2TokenAddress.address);
-//         treasuryInstance    = await utils.tezos.contract.at(treasuryAddress.address);
+//         vestingInstance                 = await utils.tezos.contract.at(vestingAddress.address);
+//         doormanInstance                 = await utils.tezos.contract.at(doormanAddress.address);
+//         delegationInstance              = await utils.tezos.contract.at(delegationAddress.address);
+//         mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress.address);
+//         governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
+//         councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
+//         mockFa12TokenInstance           = await utils.tezos.contract.at(mockFa12TokenAddress.address);
+//         mockFa2TokenInstance            = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+//         treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
+//         governanceInstance              = await utils.tezos.contract.at(governanceAddress.address);
             
-//         vestingStorage    = await vestingInstance.storage();
-//         doormanStorage    = await doormanInstance.storage();
-//         delegationStorage = await delegationInstance.storage();
-//         mvkTokenStorage   = await mvkTokenInstance.storage();
-//         governanceFinancialStorage = await governanceFinancialInstance.storage();
-//         councilStorage         = await councilInstance.storage();
-//         mockFa12TokenStorage   = await mockFa12TokenInstance.storage();
-//         mockFa2TokenStorage    = await mockFa2TokenInstance.storage();
-//         treasuryStorage    = await treasuryInstance.storage();
+//         vestingStorage                  = await vestingInstance.storage();
+//         doormanStorage                  = await doormanInstance.storage();
+//         delegationStorage               = await delegationInstance.storage();
+//         mvkTokenStorage                 = await mvkTokenInstance.storage();
+//         governanceFinancialStorage      = await governanceFinancialInstance.storage();
+//         councilStorage                  = await councilInstance.storage();
+//         mockFa12TokenStorage            = await mockFa12TokenInstance.storage();
+//         mockFa2TokenStorage             = await mockFa2TokenInstance.storage();
+//         treasuryStorage                 = await treasuryInstance.storage();
+//         governanceStorage               = await governanceInstance.storage();
 
 //         console.log('-- -- -- -- -- Council Tests -- -- -- --')
 //         console.log('Vesting Contract deployed at:', vestingInstance.address);
@@ -84,6 +88,7 @@
 //         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
 //         console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
+//         console.log('Governance Contract deployed at:', governanceAddress.address);
 //         console.log('Council Contract deployed at:', councilInstance.address);
 //         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
 //         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
@@ -475,7 +480,7 @@
 //             try{
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Initial Values
@@ -491,7 +496,7 @@
 
 //                 // Reset general contracts
 //                 await signerFactory(bob.sk);
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -539,7 +544,7 @@
 //             try{
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Initial Values
@@ -552,7 +557,7 @@
 
 //                 // Reset general contracts
 //                 await signerFactory(bob.sk);
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -692,7 +697,7 @@
 //             try{
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Initial Values
@@ -708,7 +713,7 @@
 
 //                 // Reset general contracts
 //                 await signerFactory(bob.sk);
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -785,7 +790,7 @@
 //             try{
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Initial Values
@@ -798,7 +803,7 @@
 
 //                 // Reset general contracts
 //                 await signerFactory(bob.sk);
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -1976,14 +1981,14 @@
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 
 //                 // Reset general contracts
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -2025,14 +2030,14 @@
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 
 //                 // Reset general contracts
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -2135,14 +2140,14 @@
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 
 //                 // Reset general contracts
-//                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -2235,14 +2240,14 @@
 
 //                 // Update general contracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Operation                
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 
 //                 // Update general contracts
-//                 var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);

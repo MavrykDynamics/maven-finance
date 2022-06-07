@@ -21,14 +21,18 @@
     },
     {
       "index": 5,
-      "name": "lambdaTriggerEmergencyControl"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 6,
-      "name": "lambdaVoteForEmergencyControl"
+      "name": "lambdaTriggerEmergencyControl"
     },
     {
       "index": 7,
+      "name": "lambdaVoteForEmergencyControl"
+    },
+    {
+      "index": 8,
       "name": "lambdaDropEmergencyGovernance"
     }
 ]

@@ -7,7 +7,7 @@ type tokenBalance is nat
 
 type depositorRecord is [@layout:comb] record[
     balance                         : tokenBalance;
-    participationMVKPerShare        : nat;
+    participationRewardsPerShare    : nat;
     unclaimedRewards                : tokenBalance;
     claimedRewards                  : tokenBalance;
 ]
@@ -127,6 +127,7 @@ type farmStorage is [@layout:comb] record[
     mvkTokenAddress         : address;
     governanceAddress       : address;
     metadata                : metadata;
+    name                    : string;
     config                  : farmConfigType;
 
     whitelistContracts      : whitelistContractsType;      

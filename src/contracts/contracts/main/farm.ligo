@@ -129,7 +129,7 @@ block {
     |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
-    if Tezos.sender =/= councilAddress then skip
+    if Tezos.sender = councilAddress then skip
     else {
       const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
               Some (_address) -> _address
@@ -270,9 +270,13 @@ function transferReward(const depositor: depositor; const tokenAmount: tokenBala
 block{
 
     // Call farmClaim from the doorman contract
-    const doormanContractAddress: address = case Map.find_opt("doorman", s.generalContracts) of [
-        Some (a) -> a
-    |   None -> (failwith(error_DOORMAN_CONTRACT_NOT_FOUND): address)
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+    const doormanContractAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     
     const doormanContract: contract(farmClaimType) =
@@ -361,7 +365,7 @@ block{
         ];
 
     // Compute depositor reward
-    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
+    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationRewardsPerShare;
     const accumulatedRewardsPerShareEnd: tokenBalance = s.accumulatedRewardsPerShare;
     if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
     const currentMVKPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
@@ -374,9 +378,9 @@ block{
         paid=s.claimedRewards.paid + depositorReward;
     ];
 
-    // Update user's unclaimed rewards and participationMVKPerShare
+    // Update user's unclaimed rewards and participationRewardsPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
-    depositorRecord.participationMVKPerShare := accumulatedRewardsPerShareEnd;
+    depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
     s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
 } with(s)
@@ -433,6 +437,18 @@ block {
 // Views Begin
 //
 // ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : farmStorage) : address is
+  s.admin
+
+
+
+(* View: get name variable *)
+[@view] function getName(const _: unit; var s : farmStorage) : string is
+  s.name
+
+
 
 (*  View: get config *)
 [@view] function getConfig(const _: unit; const s: farmStorage) : farmConfigType is

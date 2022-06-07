@@ -2,6 +2,9 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
@@ -32,6 +35,7 @@ type governanceAction is
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceUpdateConfigParamsType
     | UpdateGeneralContracts          of updateGeneralContractsParams
+    | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateWhitelistDevelopers       of (address)
     | SetContractAdmin                of setContractAdminType
     | SetContractGovernance           of setContractGovernanceType
@@ -104,9 +108,25 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
+
+
 function checkSenderIsAdmin(var s : governanceStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+
+
+function checkSenderIsWhitelistedOrAdmin(var s : governanceStorage) : unit is
+    if (Tezos.sender = s.admin) or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_ALLOWED);
 
 
 
@@ -190,11 +210,6 @@ block{
   else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
 
 } with unit
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -298,11 +313,10 @@ block {
 
     var satelliteSnapshotRecord : snapshotRecordType :=
       record [
-        totalMvkBalance         = 0n;                            // log of satellite's total mvk balance for this cycle
+        totalStakedMvkBalance   = 0n;                            // log of satellite's total mvk balance for this cycle
         totalDelegatedAmount    = 0n;                            // log of satellite's total delegated amount 
         totalVotingPower        = 0n;                            // calculated total voting power based on votingPowerRatio (i.e. self bond percentage)   
-        currentCycleStartLevel  = s.currentCycleInfo.roundStartLevel;      // log of current cycle's starting block level
-        currentCycleEndLevel    = s.currentCycleInfo.cycleEndLevel         // log of when cycle (proposal + voting) will end
+        cycle                   = s.cycleCounter;               // log of current cycle
       ];
 
     case s.snapshotLedger[satelliteAddress] of [
@@ -411,7 +425,7 @@ block {
 function sendRewardsToVoters(var s: governanceStorage): operation is
   block{
     // Get all voting satellite
-    const highestVotedProposalId: nat   = s.currentRoundHighestVotedProposalId;
+    const highestVotedProposalId: nat   = s.cycleHighestVotedProposalId;
     const proposal: proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
       Some (_record) -> _record
     | None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
@@ -474,9 +488,10 @@ function setupProposalRound(var s: governanceStorage): governanceStorage is
 block {
 
     // reset state variables
-    var emptyProposalMap  : map(nat, nat)           := map [];
-    var emptyVotesMap     : map(address, nat)       := map [];
-    var emptyProposerMap  : map(address, set(nat))  := map [];
+    const emptyProposalMap  : map(nat, nat)           = map [];
+    const emptyVotesMap     : map(address, nat)       = map [];
+    const emptyProposerMap  : map(address, set(nat))  = map [];
+    const emptySnapshotMap  : snapshotLedgerType      = map [];
 
     s.currentCycleInfo.round                         := (Proposal : roundType);
     s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
@@ -489,7 +504,13 @@ block {
     s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals
     s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
     s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
-    s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
+    s.cycleHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
+
+    // Empty the satellite snapshot ledger
+    s.snapshotLedger    := emptySnapshotMap;
+
+    // Increase the cycle counter
+    s.cycleCounter      := s.cycleCounter + 1n;
 
     const delegationAddress : address = case s.generalContracts["delegation"] of [
         Some(_address) -> _address
@@ -497,7 +518,7 @@ block {
     ];
 
     // update snapshot MVK total supply
-    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
     s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
         Some (value) -> value
       | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -527,11 +548,10 @@ block {
       else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
       // update satellite snapshot record
-      satelliteSnapshotRecord.totalMvkBalance         := mvkBalance; 
+      satelliteSnapshotRecord.totalStakedMvkBalance   := mvkBalance; 
       satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
       satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
-      satelliteSnapshotRecord.currentCycleStartLevel  := s.currentCycleInfo.roundStartLevel; 
-      satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleInfo.cycleEndLevel; 
+      satelliteSnapshotRecord.cycle                   := s.cycleCounter; 
 
       s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
     }
@@ -552,7 +572,7 @@ block {
     s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
 
     // set the current round highest voted proposal id
-    s.currentRoundHighestVotedProposalId := highestVotedProposalId;
+    s.cycleHighestVotedProposalId := highestVotedProposalId;
 
     // flush current round votes - to prepare for voting round
     const emptyCurrentRoundVotes : map(address, nat) = map[];
@@ -571,8 +591,8 @@ block {
     s.currentCycleInfo.roundStartLevel     := s.currentCycleInfo.roundEndLevel + 1n;
     s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.cycleEndLevel;
 
-    // set timelockProposalId to currentRoundHighestVotedProposalId
-    s.timelockProposalId         := s.currentRoundHighestVotedProposalId;
+    // set timelockProposalId to cycleHighestVotedProposalId
+    s.timelockProposalId         := s.cycleHighestVotedProposalId;
     
 } with (s)
 
@@ -614,6 +634,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : governanceStorage) : address is
+  s.admin
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _: unit; var s : governanceStorage) : governanceConfigType is
   s.config
@@ -627,8 +653,20 @@ block {
 
 
 (* View: get general contracts *)
+[@view] function getGeneralContractOpt(const contractName: string; var s : governanceStorage) : option(address) is
+  Map.find_opt(contractName, s.generalContracts)
+
+
+
+(* View: get general contracts *)
 [@view] function getGeneralContracts(const _: unit; var s : governanceStorage) : generalContractsType is
   s.generalContracts
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const s: governanceStorage): whitelistContractsType is 
+    s.whitelistContracts
 
 
 
@@ -646,7 +684,13 @@ block {
 
 (* View: get a satellite snapshot *)
 [@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
-  Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+  Map.find_opt(satelliteAddress, s.snapshotLedger)
+
+
+
+(* View: get a satellite snapshot ledger *)
+[@view] function getSnapshotLedger(const _: unit; var s : governanceStorage) : snapshotLedgerType is
+  s.snapshotLedger
 
 
 
@@ -669,8 +713,8 @@ block {
 
 
 (* View: get current cycle highest voted proposal id *)
-[@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
-  s.currentRoundHighestVotedProposalId
+[@view] function getCycleHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.cycleHighestVotedProposalId
 
 
 
@@ -862,6 +906,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceStorage): return is
+block {
+        
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);  
 
 } with response
 
@@ -1189,6 +1252,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
+        | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
         | SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
         | SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)

@@ -34,6 +34,10 @@ export const treasuryFactoryStorage: treasuryFactoryStorageType = {
   governanceAddress         : "",
   metadata                  : metadata,
 
+  config                    : {
+    treasuryNameMaxLength   : new BigNumber(100)
+  },
+
   trackedTreasuries         : [],
   breakGlassConfig          : breakGlassConfig,
 

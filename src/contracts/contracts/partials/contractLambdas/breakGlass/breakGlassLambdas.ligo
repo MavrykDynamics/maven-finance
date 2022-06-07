@@ -579,13 +579,13 @@ block {
                 const _checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
 
                 // Check if the admin address is part of the whitelistDeveloper map
-                const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
                     Some (value) -> value
                 |   None -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                const governanceProxyAddress: address = case governanceProxyAddressView of [
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
@@ -649,13 +649,13 @@ block {
         | LambdaSetAllContractsAdmin(newAdminAddress) -> {
 
                 // Check if the admin address is part of the whitelistDeveloper map
-                const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
                     Some (value) -> value
                 |   None -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                const governanceProxyAddress: address = case governanceProxyAddressView of [
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
@@ -1024,7 +1024,14 @@ block {
 
                         checkGlassIsBroken(s);          // check that glass is broken
 
-                        for _contractName -> contractAddress in map s.generalContracts block {
+                        // Get governance general contracts
+                        const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+                        const generalContracts: generalContractsType = case generalContractsView of [
+                            Some (value) -> value
+                        |   None -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
+
+                        for _contractName -> contractAddress in map generalContracts block {
                             case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
                                 Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
                             |   None -> skip
@@ -1039,7 +1046,14 @@ block {
 
                         checkGlassIsBroken(s);          // check that glass is broken
 
-                        for _contractName -> contractAddress in map s.generalContracts block {
+                        // Get governance general contracts
+                        const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+                        const generalContracts: generalContractsType = case generalContractsView of [
+                            Some (value) -> value
+                        |   None -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
+
+                        for _contractName -> contractAddress in map generalContracts block {
                             case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
                                     Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
                                 |   None -> skip
@@ -1087,13 +1101,13 @@ block {
                         // fetch params end ---
 
                         // Check if the admin address is part of the whitelistDeveloper map
-                        const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                        const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                        const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                        const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
                             Some (value) -> value
                         |   None -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
-                        const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                        const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                        const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                        const governanceProxyAddress: address = case governanceProxyAddressView of [
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
@@ -1124,13 +1138,13 @@ block {
                         // fetch params end ---
 
                         // Check if the admin address is part of the whitelistDeveloper map
-                        const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                        const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                        const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                        const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
                             Some (value) -> value
                         |   None -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
-                        const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                        const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                        const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                        const governanceProxyAddress: address = case governanceProxyAddressView of [
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
@@ -1141,12 +1155,29 @@ block {
                         s.admin := newAdminAddress;
 
                         // Set all contracts in generalContracts map to given address
-                        for _contractName -> contractAddress in map s.generalContracts block {
-                            case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                    Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
-                                |   None -> skip
+
+                        // Get governance general contracts
+                        const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+                        const generalContracts: generalContractsType = case generalContractsView of [
+                            Some (value) -> value
+                        |   None -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
+
+                        // Create a set to remove duplicates (generalContracts can have duplicates addresses so this set will contain all contracts only once)
+                        var uniqueContracts: set(address)    := (Set.empty: set(address));
+                        function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
+                            // Add address to the set except self
+                            if generalContract.1 = Tezos.self_address then contractsSet else Set.add(generalContract.1, contractsSet);
+                        uniqueContracts  := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
+
+                        // Iterate over set to call setAdmin entrypoint
+                        function setAdminFold(const operationList: list(operation); const singleContractAddress: address) : list(operation) is
+                            case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
+                                Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
+                            |   None                -> operationList
                             ];
-                        } 
+                        operations  := Set.fold(setAdminFold, uniqueContracts, operations);
+                        
                     } else skip;
 
 
@@ -1159,20 +1190,35 @@ block {
 
                         // Reset all contracts admin to governance proxy contract
                         // Get governance proxy address first
-                        const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                        const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                        const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                        const governanceProxyAddress: address = case governanceProxyAddressView of [
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         s.admin := governanceProxyAddress;
 
-                        for _contractName -> contractAddress in map s.generalContracts block {
-                            case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                    Some(contr) -> operations := Tezos.transaction(governanceProxyAddress, 0tez, contr) # operations
-                                |   None -> skip
+                        // Get governance general contracts
+                        const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+                        const generalContracts: generalContractsType = case generalContractsView of [
+                            Some (value) -> value
+                        |   None -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
+
+                        // Create a set to remove duplicates (generalContracts can have duplicates addresses so this set will contain all contracts only once)
+                        var uniqueContracts: set(address)    := (Set.empty: set(address));
+                        function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
+                            // Add address to the set except self
+                            if generalContract.1 = Tezos.self_address then contractsSet else Set.add(generalContract.1, contractsSet);
+                        uniqueContracts  := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
+
+                        // Iterate over set to call setAdmin entrypoint
+                        function setAdminFold(const operationList: list(operation); const singleContractAddress: address) : list(operation) is
+                            case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
+                                Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
+                            |   None                -> operationList
                             ];
-                        };
+                        operations  := Set.fold(setAdminFold, uniqueContracts, operations);
 
                         // Reset glassBroken
                         s.glassBroken := False;

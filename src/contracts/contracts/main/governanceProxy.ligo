@@ -308,6 +308,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : governanceProxyStorage) : address is
+  s.admin
+
+
+
 (* View: get whitelist contracts *)
 [@view] function getWhitelistContracts(const _: unit; var s : governanceProxyStorage) : whitelistContractsType is
   s.whitelistContracts

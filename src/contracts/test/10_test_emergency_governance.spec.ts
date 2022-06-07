@@ -145,7 +145,7 @@
 //                 assert.strictEqual(newAdmin, alice.pkh);
 //                 assert.strictEqual(currentAdmin, bob.pkh);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -166,7 +166,7 @@
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     });
@@ -193,7 +193,7 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -214,7 +214,7 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -235,7 +235,7 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -257,7 +257,7 @@
 //                 assert.notEqual(newConfigValue, currentConfigValue);
 //                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -278,7 +278,7 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -300,7 +300,7 @@
 //                 assert.notEqual(newConfigValue, currentConfigValue);
 //                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -321,16 +321,16 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
-//         it('Admin should not be able to call the entrypoint and configure the Min sMVK required to trigger if it goes below 0.1MVK', async () => {
+//         it('Admin should not be able to call the entrypoint and configure the Min sMVK required to trigger if it goes below 0.01MVK', async () => {
 //             try{
 //                 // Initial Values
 //                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
 //                 const currentConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
-//                 const newConfigValue = MVK(0.099);
+//                 const newConfigValue = MVK(0.0099);
 
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configMinStakedMvkForTrigger").send()).to.be.rejected;
@@ -343,7 +343,7 @@
 //                 assert.notEqual(newConfigValue, currentConfigValue);
 //                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -357,7 +357,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configMinStakedMvkForTrigger").send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     });
@@ -400,7 +400,7 @@
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -409,7 +409,7 @@
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount : 10})).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -417,7 +417,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("taxTreasury", treasuryAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("taxTreasury", treasuryAddress.address).send();
 //                 await updateOperation.confirmation()
 
 //                 // Initial Values
@@ -448,10 +448,10 @@
 
 //                 // Reset contract
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("taxTreasury", treasuryAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("taxTreasury", treasuryAddress.address).send();
 //                 await updateOperation.confirmation()
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -459,7 +459,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateOperation.confirmation()
 
 //                 // Initial Values
@@ -476,10 +476,10 @@
 
 //                 // Reset contract
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateOperation.confirmation()
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -507,7 +507,7 @@
 //                 assert.strictEqual(emergencyProposal.proposerAddress, alice.pkh);
 //                 assert.strictEqual(emergencyProposal.stakedMvkPercentageRequired.toNumber(), emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -522,7 +522,7 @@
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005})).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -543,7 +543,7 @@
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.dropEmergencyGovernance().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -564,7 +564,7 @@
 //                 assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0)
 //                 assert.equal(emergencyProposal.dropped, true)
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -572,7 +572,7 @@
 //             try{
 //                 await chai.expect(emergencyGovernanceInstance.methods.dropEmergencyGovernance().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -611,7 +611,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateOperation.confirmation()
 
 //                 // Initial Values
@@ -622,10 +622,10 @@
 
 //                 // Reset contract
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateOperation.confirmation()
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -664,7 +664,7 @@
 //                 const updateOperation = await emergencyGovernanceInstance.methods.updateConfig(MVK(0.1),"configMinStakedMvkForTrigger").send();
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -686,7 +686,7 @@
 //                 assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0);
 //                 assert.equal(emergencyProposal.dropped, true);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -701,7 +701,7 @@
 //                 // Final values
 //                 assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -752,7 +752,7 @@
 //                 assert.notStrictEqual(userVote, undefined);
 //                 assert.equal(userVote[0].toNumber(), userSMVKBalance.toNumber());
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -767,7 +767,7 @@
 //                 console.log(emergencyProposal)
 //                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -775,7 +775,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
 //                 await updateOperation.confirmation()
 
 //                 // Initial Values
@@ -807,10 +807,10 @@
 
 //                 // Reset contract
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
 //                 await updateOperation.confirmation()
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -818,7 +818,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send();
 //                 await updateOperation.confirmation()
 
 //                 // Initial Values
@@ -834,10 +834,10 @@
 
 //                 // Reset contract
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send();
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send();
 //                 await updateOperation.confirmation()
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -935,7 +935,7 @@
 //                     }
 //                 }
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     });
@@ -955,7 +955,7 @@
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.dropEmergencyGovernance().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })

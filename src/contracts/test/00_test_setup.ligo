@@ -139,7 +139,7 @@ const storages = {
         currentCycleInfo.roundProposals       = (Map.empty: map(nat, nat));
         currentCycleInfo.roundVotes           = (Map.empty: map(address, nat));
 
-        currentRoundHighestVotedProposalId  = 0n;
+        cycleHighestVotedProposalId  = 0n;
         timelockProposalId                  = 0n;
 
         snapshotMvkTotalSupply         = 0n;
