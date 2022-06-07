@@ -7,6 +7,8 @@ export enum ProposalStatus {
   DISCOVERY = 'DISCOVERY',
   WAITING = 'WAITING',
   DROPPED = 'DROPPED',
+  LOCKED = 'LOCKED',
+  ACTIVE = 'ACTIVE',
 }
 
 export interface GovernanceConfig {
@@ -152,6 +154,6 @@ export interface FinancialRequestVote {
 
 
 export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL'
-export type ProposalStatusType = "ACTIVE" | "DROPPED"
+export type ProposalStatusType = string
 export type CurrentRoundProposalsStorageType = ProposalRecordType[]
 

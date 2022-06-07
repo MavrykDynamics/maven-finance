@@ -1,8 +1,17 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
+// helpers
+import { normalizeProposalStatus } from '../Governance.helpers'
+
+// view
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+
+// style
 import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 
 type ProposalsViewProps = {
@@ -21,7 +30,7 @@ export const ProposalsView = ({
   isProposalPhase,
   firstVisible,
 }: ProposalsViewProps) => {
-  // const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
+  const { governancePhase } = useSelector((state: State) => state.governance)
   const location = useLocation()
 
   useEffect(() => {
@@ -35,6 +44,8 @@ export const ProposalsView = ({
   if (!proposalsList.length) {
     return null
   }
+
+  const contentStatus = normalizeProposalStatus(governancePhase, selectedProposal?.status)
 
   return (
     <ProposalListContainer>
@@ -58,7 +69,7 @@ export const ProposalsView = ({
                   endingText={'voted MVK'}
                 />
               )}
-              <StatusFlag text={value?.status} status={value.status} />
+              <StatusFlag text={contentStatus} status={contentStatus} />
             </ProposalListItem>
           )
         })}
