@@ -3,9 +3,17 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Extra
+
+
+class Config(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    treasuryNameMaxLength: str
+    empty: Dict[str, Any]
 
 
 class BreakGlassConfig(BaseModel):
@@ -24,6 +32,7 @@ class TreasuryFactoryStorage(BaseModel):
     admin: str
     mvkTokenAddress: str
     governanceAddress: str
+    config: Config
     metadata: Dict[str, str]
     trackedTreasuries: List[str]
     breakGlassConfig: BreakGlassConfig

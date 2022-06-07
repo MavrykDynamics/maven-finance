@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.5
+          image: tezosdynamics/mavryk-indexer:v0.2.8
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.5
+          image: tezosdynamics/mavryk-indexer:v0.2.8
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -127,43 +127,43 @@ data:
 
     contracts:
       mvk:
-        address: KT1HVVchMjYZUs1HBwp7Zp4EKebqLsC4SZQm
+        address: KT1JMNii1SQya2hXK4YKeNKzdsY13jKmasCL
         typename: mvk
       governance:
-        address: KT1WxxvZ4ofHGPezKBSoJ5CW3yhKZqpfwcp3
+        address: KT1V7V1hRfjcTxyJeBDjYksngtMQUvtWWwa4
         typename: governance
       doorman:
-        address: KT1GJ3NmTCTSYcfVqNhfMnA1Q7vKDgEsixbs
+        address: KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm
         typename: doorman
       farm:
-        address: KT1TwYNogSQfioeR79Qtne1sqSVeVfY4TxoV #KT1HSVbzssUpuSVvuq4G1bq8TWQmphywWu7d
+        address: KT1L7qz1p4bDQc9QfpdMFPe6NEbuWqoPYjxJ #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
         typename: farm
       farm_factory:
-        address: KT19xF64F4aJ97gjyZ3ifDihRQ1jgVRMfU24
+        address: KT1Wzw6wCyn6NL87Zbk3BANGzTwXV3Nadsgx
         typename: farm_factory
       delegation:
-        address: KT1LBBB89VUpYGoNo3HJi8YRsu6jdXcqpyx2
+        address: KT1UYJoRz8BcsXv3SCzSnySVFcuWJQ5eebcb
         typename: delegation
       vesting:
-        address: KT1H7HY8CasfLb8SfdUZh2o9obbivhzGFKj1
+        address: KT1XYzCK6byh9HUpLP2poHrfBkv6hBLwvieH
         typename: vesting
       emergency_governance:
-        address: KT1EDWxv1v1TEBrmmWxgur84sz5Tz8PCR3Yq
+        address: KT1Mrp2aNC11vTDcXBZykyYpuYfXjGdJ755n
         typename: emergency_governance
       council:
-        address: KT1ArMpZbetnugsAmHsR97jQWkwkYhfC4s57
+        address: KT192JmK3PQKnXfHRDj9LUUAvmPY4unVsXkB
         typename: council
       break_glass:
-        address: KT1JPD2BFkvoSZwhVzSP8umbKJqwWD7igQ3L
+        address: KT1K2J38WHQbdrYgCqD8fW5gGFAaUXbmv3XT
         typename: break_glass
       governance_financial:
-        address: KT1NcGXwFFMmkzgNFb3H9m4vXktDK8RsBXUb
+        address: KT1JZNNKR55c2GqYf2AFbkSb5ZbE48kez5th
         typename: governance_financial
       treasury:
-        address: KT1QMZ2jqRSyqvRTu8RCtDJdhrnBs5ez9uzR
+        address: KT1TT97ADiJzSSeyewGbvywqzjLyEdnPxJym
         typename: treasury
       treasury_factory:
-        address: KT1TGXbDDNyeQRf9xdQD8XPat2KKMCcLm7Ss
+        address: KT1RsWRcTxMSWhq9EpCeHxtZL7nFpLdQ1UXT
         typename: treasury_factory
 
     datasources:
@@ -182,10 +182,6 @@ data:
         contracts:
           - <farm_contract>
         handlers:
-          # - callback: on_farm_origination
-          #   pattern:
-          #     - type: origination
-          #       originated_contract: <farm_contract>
           - callback: on_farm_set_admin
             pattern:
               - destination: <farm_contract>
@@ -260,10 +256,6 @@ data:
         contracts:
           - <treasury_contract>
         handlers:
-          # - callback: on_treasury_origination
-          #   pattern:
-          #     - type: origination
-          #       originated_contract: <treasury_contract>
           - callback: on_treasury_set_admin
             pattern:
               - destination: <treasury_contract>
@@ -308,6 +300,10 @@ data:
             pattern:
               - destination: <treasury_contract>
                 entrypoint: togglePauseUnstakeMvk
+          - callback: on_treasury_transfer
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: transfer
 
     indexes:
       # MVK Token contract indexes
@@ -394,6 +390,10 @@ data:
             pattern:
               - destination: governance
                 entrypoint: updateGeneralContracts
+          - callback: on_governance_update_whitelist_contracts
+            pattern:
+              - destination: governance
+                entrypoint: updateWhitelistContracts
           - callback: on_governance_update_whitelist_developers
             pattern:
               - destination: governance
@@ -624,6 +624,10 @@ data:
             pattern:
               - destination: farm_factory
                 entrypoint: setGovernance
+          - callback: on_farm_factory_update_config
+            pattern:
+              - destination: farm_factory
+                entrypoint: updateConfig
           - callback: on_farm_factory_update_whitelist_contracts
             pattern:
               - destination: farm_factory
@@ -845,6 +849,10 @@ data:
             pattern:
               - destination: emergency_governance
                 entrypoint: updateGeneralContracts
+          - callback: on_emergency_governance_update_whitelist_contracts
+            pattern:
+              - destination: emergency_governance
+                entrypoint: updateWhitelistContracts
           - callback: on_emergency_governance_trigger_emergency_control
             pattern:
               - destination: emergency_governance
@@ -1075,6 +1083,10 @@ data:
             pattern:
               - destination: governance_financial
                 entrypoint: updateGeneralContracts
+          - callback: on_governance_financial_update_whitelist_contracts
+            pattern:
+              - destination: governance_financial
+                entrypoint: updateWhitelistContracts
           - callback: on_governance_financial_update_whitelist_token_contracts
             pattern:
               - destination: governance_financial
@@ -1157,6 +1169,10 @@ data:
             pattern:
               - destination: treasury
                 entrypoint: togglePauseUnstakeMvk
+          - callback: on_treasury_transfer
+            pattern:
+              - destination: treasury
+                entrypoint: transfer
       # Treasury Factory contract indexes
       treasury_factory:
         kind: operation
@@ -1180,6 +1196,10 @@ data:
             pattern:
               - destination: treasury_factory
                 entrypoint: setGovernance
+          - callback: on_treasury_factory_update_config
+            pattern:
+              - destination: treasury_factory
+                entrypoint: updateConfig
           - callback: on_treasury_factory_update_general_contracts
             pattern:
               - destination: treasury_factory

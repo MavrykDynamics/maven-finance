@@ -18,6 +18,8 @@ async def on_farm_factory_create_farm(
     farm_factory_address            = create_farm.data.target_address
     admin                           = farm_origination.storage.admin
     governance_address              = farm_origination.storage.governanceAddress
+    name                            = farm_origination.storage.name
+    creation_timestamp              = farm_origination.data.timestamp
     blocks_per_minute               = int(farm_origination.storage.config.blocksPerMinute)
     force_rewards_from_transfer     = farm_origination.storage.config.forceRewardFromTransfer
     infinite                        = farm_origination.storage.config.infinite
@@ -72,6 +74,8 @@ async def on_farm_factory_create_farm(
         admin       = admin,
         governance  = governance
     )
+    farm.name                            = name
+    farm.creation_timestamp              = creation_timestamp 
     farm.farm_factory                    = farm_factory
     farm.blocks_per_minute               = blocks_per_minute
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
