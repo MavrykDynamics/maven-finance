@@ -16,6 +16,7 @@ spec:
             - name: backup-script
               configMap:
                 name: backup-script
+                defaultMode: 0755
           containers:
             - name: backup
               image: postgres:alpine

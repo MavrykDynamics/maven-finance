@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -13,7 +13,7 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     blocksPerMinute: str
-    empty: Dict[str, Any]
+    farmNameMaxLength: str
 
 
 class BreakGlassConfig(BaseModel):
