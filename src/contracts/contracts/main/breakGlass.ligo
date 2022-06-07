@@ -207,6 +207,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : breakGlassStorage) : address is
+  s.admin
+
+
+
 (* View: get Glass broken variable *)
 [@view] function getGlassBroken(const _: unit; var s : breakGlassStorage) : bool is
   s.glassBroken

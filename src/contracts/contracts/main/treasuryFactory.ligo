@@ -44,6 +44,7 @@ type treasuryFactoryAction is
         SetAdmin                            of (address)
     |   SetGovernance                       of (address)
     |   UpdateMetadata                      of updateMetadataType
+    |   UpdateConfig                        of treasuryFactoryUpdateConfigParamsType
     |   UpdateWhitelistContracts            of updateWhitelistContractsParams
     |   UpdateGeneralContracts              of updateGeneralContractsParams
     |   UpdateWhitelistTokenContracts       of updateWhitelistTokenContractsParams
@@ -56,7 +57,7 @@ type treasuryFactoryAction is
     |   TogglePauseUntrackTreasury          of (unit)
 
         // Treasury Factory Entrypoints
-    |   CreateTreasury                      of bytes
+    |   CreateTreasury                      of createTreasuryType
     |   TrackTreasury                       of address
     |   UntrackTreasury                     of address
 
@@ -210,6 +211,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : treasuryFactoryStorage) : address is
+  s.admin
+
+
+
 (* View: checkTreasuryExists *)
 [@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
@@ -258,14 +265,14 @@ block {
 
 
 
-(* View: get a product lambda *)
-[@view] function getProductLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+(* View: get a treasury lambda *)
+[@view] function getTreasuryLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.treasuryLambdaLedger)
 
 
 
-(* View: get the product lambda ledger *)
-[@view] function getProductLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+(* View: get the treasury lambda ledger *)
+[@view] function getTreasuryLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
   s.treasuryLambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -340,6 +347,28 @@ block {
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
 
 } with response
+
+
+
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : treasuryFactoryUpdateConfigParamsType; var s : treasuryFactoryStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
+
+} with response
+
+
+
 
 
 
@@ -512,7 +541,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createTreasury entrypoint *)
-function createTreasury(const treasuryMetadata: bytes; var s: treasuryFactoryStorage): return is 
+function createTreasury(const createTreasuryParams: createTreasuryType; var s: treasuryFactoryStorage): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateTreasury"] of [
@@ -521,7 +550,7 @@ block{
     ];
 
     // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(treasuryMetadata);
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(createTreasuryParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
@@ -632,6 +661,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
             SetAdmin (parameters)                       -> setAdmin(parameters, s)
         |   SetGovernance (parameters)                  -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                   -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistTokenContracts (parameters)  -> updateWhitelistTokenContracts(parameters, s)

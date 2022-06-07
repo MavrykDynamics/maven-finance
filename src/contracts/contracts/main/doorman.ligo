@@ -135,9 +135,13 @@ block{
 
 function checkSenderIsDelegationContract(var s : doormanStorage) : unit is
 block{
-  const delegationAddress : address = case s.generalContracts["delegation"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+  const delegationAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
@@ -270,15 +274,19 @@ block{
     if userRecord.balance > 0n then {
 
       // Get delegation contract
-      const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
-          Some (_address) -> _address
-        | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+      const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+      const delegationAddress: address = case generalContractsOptView of [
+          Some (_optionContract) -> case _optionContract of [
+                  Some (_contract)    -> _contract
+              |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+              ]
+      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
       
       // -- Satellite rewards -- //
       // Get the user satelliteRewards record
-      const getSatelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
-      const userHasSatelliteRewards: bool = case getSatelliteRewardsOptView of [
+      const satelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
+      const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
         Some (_v) -> True
       | None -> False
       ];
@@ -287,12 +295,12 @@ block{
       var satelliteUnpaidRewards: nat := 0n;
       if userHasSatelliteRewards then
       block{
-        const getSatelliteRewardsOpt: option(satelliteRewards) = case getSatelliteRewardsOptView of [
+        const satelliteRewardsOpt: option(satelliteRewards) = case satelliteRewardsOptView of [
           Some (value) -> value
         | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
         ];
 
-        satelliteUnpaidRewards := case getSatelliteRewardsOpt of [
+        satelliteUnpaidRewards := case satelliteRewardsOpt of [
           Some (_rewards) -> block{
             const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
             const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
@@ -391,6 +399,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : doormanStorage) : address is
+  s.admin
+
+
+
 (*  View: get minMvkAmount *)
 [@view] function getMinMvkAmount(const _: unit; const s: doormanStorage) : nat is
   s.minMvkAmount
@@ -416,25 +430,25 @@ block {
 
 
 (* View: get userStakeBalance *)
-[@view] function getUserStakeBalanceOpt (const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
+[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
   Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
 
 
 
-(*  View: getUnclaimedRewards *)
+(*  View: unclaimedRewards *)
 [@view] function getUnclaimedRewards(const _: unit; const s: doormanStorage) : nat is
   s.unclaimedRewards
 
 
 
-(*  View: getAccumulatedFeesPerShare *)
+(*  View: accumulatedFeesPerShare *)
 [@view] function getAccumulatedFeesPerShare(const _: unit; const s: doormanStorage) : nat is
   s.accumulatedFeesPerShare
 
 
 
-(* View: getStakedBalance *)
-[@view] function getStakedBalance (const userAddress : address; var s : doormanStorage) : nat is
+(* View: stakedBalance *)
+[@view] function getStakedBalance(const userAddress : address; var s : doormanStorage) : nat is
   case s.userStakeBalanceLedger[userAddress] of [
     Some (_val) -> _val.balance
   | None -> 0n

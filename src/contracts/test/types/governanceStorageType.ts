@@ -10,6 +10,7 @@ export type governanceStorageType = {
   config: {};
 
   whitelistDevelopers     : Array<string>;
+  whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>
   generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
   proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
@@ -33,7 +34,7 @@ export type governanceStorageType = {
     cycleTotalVotersReward     : BigNumber;
   };
 
-  currentRoundHighestVotedProposalId : BigNumber;
+  cycleHighestVotedProposalId : BigNumber;
   timelockProposalId                 : BigNumber;
 
   snapshotMvkTotalSupply             : BigNumber;

@@ -135,8 +135,8 @@ block {
                 else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
 
                 // Get Doorman MVK balance
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
-                const doormanBalance: nat = case getBalanceView of [
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
+                const doormanBalance: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
@@ -360,11 +360,15 @@ block {
 
               const mvkTokenAddress : address = s.mvkTokenAddress;
 
-              const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                  | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+              const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+              const delegationAddress: address = case generalContractsOptView of [
+                  Some (_optionContract) -> case _optionContract of [
+                          Some (_contract)    -> _contract
+                      |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                      ]
+              |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
               ];
-                    
+
               // update user's MVK balance (stake) -> decrease user balance in mvk ledger
               const transferParameters: transferType = list[
                 record[
@@ -457,15 +461,15 @@ block {
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Get SMVK Total Supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
-                const stakedMvkTotalSupply: nat = case getBalanceView of [
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
+                const stakedMvkTotalSupply: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
@@ -507,9 +511,13 @@ block {
 
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
@@ -589,15 +597,15 @@ block {
                 // Compound user rewards
                 s := compoundUserRewards(userAddress, s);
 
-                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Get SMVK Total Supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
-                const stakedMvkTotalSupply: nat = case getBalanceView of [
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
+                const stakedMvkTotalSupply: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
@@ -639,9 +647,13 @@ block {
 
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
@@ -713,9 +725,13 @@ block{
                 s := compoundUserRewards(userAddress, s);
                 
                 // Find delegation address
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // update satellite balance if user is delegated to a satellite
@@ -751,9 +767,13 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 const farmAddress: address = Tezos.sender;
 
                 // Check if farm address is known to the farmFactory
-                const farmFactoryAddress: address = case Map.find_opt("farmFactory", s.generalContracts) of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewFarmFactory : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+                const farmFactoryAddress: address = case generalContractsOptViewFarmFactory of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
@@ -764,23 +784,29 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
                 if not checkFarmExists then failwith(error_FARM_CONTRACT_NOT_FOUND) else skip;
 
-                const mvkTotalAndMaximumSupplyView : option (nat * nat) = Tezos.call_view ("getTotalAndMaximumSupply", unit, s.mvkTokenAddress);
-                const mvkTotalAndMaximumSupply: (nat * nat) = case mvkTotalAndMaximumSupplyView of [
-                    Some (totalSupply, maximumSupply) -> (totalSupply, maximumSupply)
-                  | None                              -> (failwith (error_GET_TOTAL_AND_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat * nat)
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
+                const mvkTotalSupply: (nat) = case mvkTotalSupplyView of [
+                    Some (_totalSupply) -> _totalSupply
+                  | None                -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
-                // Set the supplies variables
-                const mvkTotalSupply    : nat = mvkTotalAndMaximumSupply.0;
-                const mvkMaximumSupply  : nat = mvkTotalAndMaximumSupply.1;
+                const mvkMaximumSupplyView : option (nat) = Tezos.call_view ("getMaximumSupply", unit, s.mvkTokenAddress);
+                const mvkMaximumSupply: (nat) = case mvkMaximumSupplyView of [
+                    Some (_totalSupply) -> _totalSupply
+                  | None                -> (failwith (error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
 
                 // Compound user rewards
                 s := compoundUserRewards(delegator, s);
 
                 // Update the delegation balance
-                const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case generalContractsOptViewDelegation of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const updateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (delegator),
@@ -805,9 +831,13 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
 
                 // Get treasury address from name
-                const treasuryAddress: address = case Map.find_opt("farmTreasury", s.generalContracts) of [
-                    Some (v) -> v
-                  | None     -> failwith(error_FARM_TREASURY_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewFarmTreasury : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmTreasury", s.governanceAddress);
+                const treasuryAddress: address = case generalContractsOptViewFarmTreasury of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_FARM_TREASURY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Check if MVK should force the transfer instead of checking the possibility of minting

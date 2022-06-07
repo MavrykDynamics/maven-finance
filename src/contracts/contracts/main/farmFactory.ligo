@@ -38,6 +38,7 @@ type farmFactoryAction is
     SetAdmin                    of (address)
 |   SetGovernance               of (address)
 |   UpdateMetadata              of updateMetadataType
+|   UpdateConfig                of farmFactoryUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
 |   UpdateBlocksPerMinute       of (nat)
@@ -216,6 +217,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : farmFactoryStorage) : address is
+  s.admin
+
+
+
 (* View: checkFarmExists *)
 [@view] function checkFarmExists (const farmContract: address; const s: farmFactoryStorage): bool is 
     Set.mem(farmContract, s.trackedFarms)
@@ -264,14 +271,14 @@ block {
 
 
 
-(* View: get a product lambda *)
-[@view] function getProductLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
+(* View: get a farm lambda *)
+[@view] function farmLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
   Map.find_opt(lambdaName, s.farmLambdaLedger)
 
 
 
-(* View: get the product lambda ledger *)
-[@view] function getProductLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
+(* View: get the farm lambda ledger *)
+[@view] function farmLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
   s.farmLambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -344,6 +351,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var s : farmFactoryStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
 
 } with response
 
@@ -638,6 +664,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorage): retu
             SetAdmin (parameters)                   -> setAdmin(parameters, s)
         |   SetGovernance (parameters)              -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)             -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)               -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
         |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)
