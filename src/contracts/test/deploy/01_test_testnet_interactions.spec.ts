@@ -1380,6 +1380,16 @@ describe("Testnet interactions helper", async () => {
                 console.dir(e, {depth: 5})
             }
         });
+
+        it('Admin updates treasury name max length', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.updateConfig(100, "configTreasuryNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
         
         it('Admin pauses create treasury entrypoint', async () => {
             try{
@@ -1624,6 +1634,16 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await farmFactoryInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates farm name max length', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.updateConfig(100, "configFarmNameMaxLength").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

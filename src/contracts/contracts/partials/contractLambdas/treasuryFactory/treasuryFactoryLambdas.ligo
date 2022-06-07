@@ -63,6 +63,33 @@ block {
 
 
 
+(* updateConfig lambda *)
+function lambdaUpdateConfig(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is 
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+
+    case treasuryFactoryLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : treasuryFactoryUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : treasuryFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                    | ConfigTreasuryNameMaxLength (_v)     -> s.config.treasuryNameMaxLength         := updateConfigNewValue
+                    | Empty (_v)                           -> skip
+                ];
+            }
+        | _ -> skip
+    ];
+  
+} with (noOperations, s)
+
+
+
+
+
+
 (* updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
@@ -278,6 +305,9 @@ block{
 
     case treasuryFactoryLambdaAction of [
         | LambdaCreateTreasury(createTreasuryParams) -> {
+                
+                // Check treasury name length
+                if String.length(createTreasuryParams.name) > s.config.treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Add TreasuryFactory Address and Governance proxy Address to whitelistContracts of created treasury
                 const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);

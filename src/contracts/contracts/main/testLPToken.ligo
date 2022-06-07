@@ -27,6 +27,39 @@ type return is list (operation) * storage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
 
+
+
+(* get: balance View *)
+[@view] function get_balance(const userAndId: address * nat; const store: storage) : nat is
+  case Big_map.find_opt(userAndId.0, store.ledger) of [
+      Some (_v) -> _v.balance
+    | None      -> 0n
+  ]
+
+
+
+(* total_supply View *)
+[@view] function total_supply(const _tokenId: nat; const _store: storage) : nat is
+  _store.totalSupply
+
+
+
+(* all_tokens View *)
+[@view] function all_tokens(const _: unit; const _store: storage) : list(nat) is
+  list[0n]
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId: nat; const store: storage) : token_metadata_info is
+  case Big_map.find_opt(tokenId, store.token_metadata) of [
+    Some (_metadata)  -> _metadata
+  | None              -> record[
+    token_id    = tokenId;
+    token_info  = map[]
+  ]
+  ]
+
 (* Inputs *)
 type transferParams is michelson_pair(address, "from", michelson_pair(address, "to", amt, "value"), "")
 type approveParams is michelson_pair(trusted, "spender", amt, "value")

@@ -1164,11 +1164,11 @@ block {
                         ];
 
                         // Create a set to remove duplicates (generalContracts can have duplicates addresses so this set will contain all contracts only once)
-                        var differentContracts: set(address)    := (Set.empty: set(address));
+                        var uniqueContracts: set(address)    := (Set.empty: set(address));
                         function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
                             // Add address to the set except self
                             if generalContract.1 = Tezos.self_address then contractsSet else Set.add(generalContract.1, contractsSet);
-                        differentContracts  := Map.fold(generalContractsFold, generalContracts, differentContracts);
+                        uniqueContracts  := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
 
                         // Iterate over set to call setAdmin entrypoint
                         function setAdminFold(const operationList: list(operation); const singleContractAddress: address) : list(operation) is
@@ -1176,7 +1176,7 @@ block {
                                 Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
                             |   None                -> operationList
                             ];
-                        operations  := Set.fold(setAdminFold, differentContracts, operations);
+                        operations  := Set.fold(setAdminFold, uniqueContracts, operations);
                         
                     } else skip;
 
@@ -1206,11 +1206,11 @@ block {
                         ];
 
                         // Create a set to remove duplicates (generalContracts can have duplicates addresses so this set will contain all contracts only once)
-                        var differentContracts: set(address)    := (Set.empty: set(address));
+                        var uniqueContracts: set(address)    := (Set.empty: set(address));
                         function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
                             // Add address to the set except self
                             if generalContract.1 = Tezos.self_address then contractsSet else Set.add(generalContract.1, contractsSet);
-                        differentContracts  := Map.fold(generalContractsFold, generalContracts, differentContracts);
+                        uniqueContracts  := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
 
                         // Iterate over set to call setAdmin entrypoint
                         function setAdminFold(const operationList: list(operation); const singleContractAddress: address) : list(operation) is
@@ -1218,7 +1218,7 @@ block {
                                 Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
                             |   None                -> operationList
                             ];
-                        operations  := Set.fold(setAdminFold, differentContracts, operations);
+                        operations  := Set.fold(setAdminFold, uniqueContracts, operations);
 
                         // Reset glassBroken
                         s.glassBroken := False;
