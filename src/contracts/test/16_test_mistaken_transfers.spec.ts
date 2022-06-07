@@ -84,8 +84,8 @@ describe("Mistaken transfers tests", async () => {
         console.log('Alice address: ' + alice.pkh);
 
         // Make treasuryFactory tracks treasury
-        // const trackOperation    = await treasuryFactoryInstance.methods.trackTreasury(treasuryAddress.address).send();
-        // await trackOperation.confirmation();
+        const trackOperation    = await treasuryFactoryInstance.methods.trackTreasury(treasuryAddress.address).send();
+        await trackOperation.confirmation();
     });
 
     beforeEach('storage', async () => {
@@ -120,10 +120,16 @@ describe("Mistaken transfers tests", async () => {
                 
                 // Treasury Transfer Operation
                 const treasuryTransferOperation     = await doormanInstance.methods.treasuryTransfer(
-                    treasuryAddress.address,
-                    tokenAmount,
-                    // mockFa12TokenAddress.address
-                ).send();
+                    [
+                        {
+                            "to_"    : treasuryAddress.address,
+                            "token"  : {
+                                "fa12" : mockFa12TokenAddress.address
+                            },
+                            "amount" : tokenAmount
+                        }
+                    ]
+                    ).send();
                 await treasuryTransferOperation.confirmation();
 
                 // Final values
@@ -143,47 +149,61 @@ describe("Mistaken transfers tests", async () => {
             }
         })
         
-        // it("User should not be able to transfer tokens sent to the doorman to an unknown treasury", async() => {
-        //     try{
-        //         // Initial values
-        //         mockFa12TokenStorage        = await mockFa12TokenInstance.storage()
-        //         const tokenAmount           = 200;
+        it("User should not be able to transfer tokens sent to the doorman to an unknown treasury", async() => {
+            try{
+                // Initial values
+                mockFa12TokenStorage        = await mockFa12TokenInstance.storage()
+                const tokenAmount           = 200;
 
-        //         // Mistake Operation
-        //         const transferOperation     = await mockFa12TokenInstance.methods.transfer(bob.pkh, doormanAddress.address, tokenAmount).send();
-        //         await transferOperation.confirmation();
+                // Mistake Operation
+                const transferOperation     = await mockFa12TokenInstance.methods.transfer(bob.pkh, doormanAddress.address, tokenAmount).send();
+                await transferOperation.confirmation();
                 
-        //         // Treasury Transfer Operation
-        //         await chai.expect(doormanInstance.methods.treasuryTransfer(
-        //             bob.pkh,
-        //             mockFa12TokenAddress.address,
-        //             tokenAmount
-        //         ).send()).to.be.rejected;
-        //     } catch(e) {
-        //         console.dir(e, {depth: 5})
-        //     }
-        // })
+                // Treasury Transfer Operation
+                await chai.expect(doormanInstance.methods.treasuryTransfer(
+                [
+                    {
+                        "to_"    : bob.pkh,
+                        "token"  : {
+                            "fa12" : mockFa12TokenAddress.address
+                        },
+                        "amount" : tokenAmount
+                    }
+                ]
+                ).send()).to.be.rejected;
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
         
-        // it("User should not be able to transfer MVK Tokens sent to the doorman to the treasury", async() => {
-        //     try{
-        //         // Initial values
-        //         mockFa12TokenStorage        = await mockFa12TokenInstance.storage()
-        //         const tokenAmount           = 200;
+        it("User should not be able to transfer MVK Tokens sent to the doorman to the treasury", async() => {
+            try{
+                // Initial values
+                mockFa12TokenStorage        = await mockFa12TokenInstance.storage()
+                const tokenAmount           = 200;
 
-        //         // Mistake Operation
-        //         const transferOperation     = await mockFa12TokenInstance.methods.transfer(bob.pkh, doormanAddress.address, tokenAmount).send();
-        //         await transferOperation.confirmation();
+                // Mistake Operation
+                const transferOperation     = await mockFa12TokenInstance.methods.transfer(bob.pkh, doormanAddress.address, tokenAmount).send();
+                await transferOperation.confirmation();
                 
-        //         // Treasury Transfer Operation
-        //         await chai.expect(doormanInstance.methods.treasuryTransfer(
-        //             bob.pkh,
-        //             mvkTokenAddress.address,
-        //             0,
-        //             tokenAmount
-        //         ).send()).to.be.rejected;
-        //     } catch(e) {
-        //         console.dir(e, {depth: 5})
-        //     }
-        // })
+                // Treasury Transfer Operation
+                await chai.expect(doormanInstance.methods.treasuryTransfer(
+                [
+                    {
+                        "to_"    : bob.pkh,
+                        "token"  : {
+                            "fa2" : {
+                                "tokenContractAddress" : mvkTokenAddress.address,
+                                "tokenId" : 0
+                            }
+                        },
+                        "amount" : tokenAmount
+                    }
+                ]
+                ).send()).to.be.rejected;
+            } catch(e) {
+                console.dir(e, {depth: 5})
+            }
+        })
     })
 });
