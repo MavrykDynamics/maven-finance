@@ -9,7 +9,7 @@
 #include "../partials/generalContractsType.ligo"
 
 // Treasury transfers Type
-#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
+#include "../partials/transferTypes.ligo"
 
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
@@ -118,6 +118,11 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 
 
@@ -295,10 +300,6 @@ case (Tezos.get_entrypoint_opt(
     Some(contr) -> contr
   | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updatePaymentDataType))
 ];
-
-
-
-function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End

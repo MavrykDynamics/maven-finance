@@ -1702,23 +1702,23 @@ block {
                         var _tokenTransferType : tokenType := Tez;
 
                         if  tokenType = "TEZ" then block {
-                        _tokenTransferType      := Tez; 
+                        _tokenTransferType      := (Tez: tokenType); 
                         } else skip;
 
                         if  tokenType = "FA12" then block {
-                        _tokenTransferType      := Fa12(tokenContractAddress); 
+                        _tokenTransferType      := (Fa12(tokenContractAddress): tokenType);
                         } else skip;
 
                         if  tokenType = "FA2" then block {
-                        _tokenTransferType      := Fa2(record [
+                        _tokenTransferType      := (Fa2(record [
                             tokenContractAddress   = tokenContractAddress;
                             tokenId                = tokenId;
-                        ]); 
+                        ]): tokenType); 
                         } else skip;
                         // --- --- ---
 
                         const transferTokenOperation : operation = case _tokenTransferType of [ 
-                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt)
+                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
                             | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                             | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                         ];

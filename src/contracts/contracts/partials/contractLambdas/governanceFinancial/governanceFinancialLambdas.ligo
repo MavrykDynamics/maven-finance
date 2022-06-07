@@ -622,16 +622,16 @@ block {
 
                                 if  _financialRequest.tokenType = "FA12" 
                                 then block {
-                                    _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
+                                    _tokenTransferType := (Fa12(_financialRequest.tokenContractAddress): tokenType);
                                 } 
                                 else skip;
 
                                 if  _financialRequest.tokenType = "FA2" 
                                 then block {
-                                    _tokenTransferType := Fa2(record [
+                                    _tokenTransferType := (Fa2(record [
                                         tokenContractAddress  = _financialRequest.tokenContractAddress;
                                         tokenId               = _financialRequest.tokenId;
-                                    ]); 
+                                    ]): tokenType); 
                                 } 
                                 else skip;
                                 // --- --- ---

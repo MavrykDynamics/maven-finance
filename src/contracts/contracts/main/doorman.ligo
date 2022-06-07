@@ -11,6 +11,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -41,6 +44,7 @@ type doormanAction is
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
+  | TreasuryTransfer            of list(transferDestinationType)
   | MigrateFunds                of (address)
 
     // Pause / Break Glass Entrypoints
@@ -162,6 +166,11 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -598,6 +607,25 @@ block {
 
 
 
+(*  treasuryTransfer entrypoint *)
+function treasuryTransfer(const destinationParams: list(transferDestinationType); var s: doormanStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTreasuryTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTreasuryTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
 (*  migrateFunds entrypoint *)
 function migrateFunds(const destinationAddress: address; var s: doormanStorage): return is
 block {
@@ -872,6 +900,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+      | TreasuryTransfer(parameters)          -> treasuryTransfer(parameters, s)
       | MigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
         // Pause / Break Glass Entrypoints
