@@ -51,15 +51,12 @@ export const Governance = () => {
   }, [dispatch])
 
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
-  const pastroposalsList = MOCK_PAST_PROPOSAL_LIST?.values ? Array.from(MOCK_PAST_PROPOSAL_LIST.values()) : []
+  const mockPastroposalsList = MOCK_PAST_PROPOSAL_LIST?.values ? Array.from(MOCK_PAST_PROPOSAL_LIST.values()) : []
 
-  console.log('%c ||||| currentRoundProposalsList', 'color:yellowgreen', currentRoundProposalsList)
-  console.log('%c ||||| pastroposalsList', 'color:yellowgreen', pastroposalsList)
-
-  // console.log('%c ||||| currentRoundProposals', 'color:yellowgreen', currentRoundProposals)
-  // console.log('%c ~~~~~~~~~ governanceStorage', 'color:blue', governanceStorage)
-
-  // console.log('%c ||||| MOCK_PAST_PROPOSAL_LIST', 'color:yellowgreen', MOCK_PAST_PROPOSAL_LIST)
+  const pastProposalsList = currentRoundProposalsList.filter((item) => {
+    const currentRoundProposal = Boolean(Number(item.currentRoundProposal))
+    return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
+  })
 
   return (
     <Page>
@@ -78,7 +75,7 @@ export const Governance = () => {
         ongoingProposals={currentRoundProposalsList}
         nextProposals={currentRoundProposalsList}
         watingProposals={[]}
-        pastProposals={[]}
+        pastProposals={pastProposalsList}
         governancePhase={governancePhase}
       />
     </Page>

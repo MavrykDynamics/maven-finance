@@ -528,7 +528,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
-      currentRoundProposal: '0',
+      currentRoundProposal: '1',
       roundHighestVotedProposal: '0',
       cycle: 0,
       timelockProposal: '',
