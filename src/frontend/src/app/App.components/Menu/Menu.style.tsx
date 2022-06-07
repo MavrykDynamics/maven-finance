@@ -15,7 +15,7 @@ export const moveDown = keyframes`
 export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   width: 270px;
   transition: all 0.3s;
-  height: 100vh;
+  min-height: 100vh;
   position: sticky;
   top: 0;
   left: 0;
@@ -132,6 +132,7 @@ export const MenuGrid = styled.div`
   flex-direction: column;
   justify-content: space-evenly;
   width: 100%;
+  margin-bottom: 50px;
 `
 
 export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
