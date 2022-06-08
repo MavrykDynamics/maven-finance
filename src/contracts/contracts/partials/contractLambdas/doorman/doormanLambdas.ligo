@@ -119,42 +119,29 @@ block {
 
 
 
-(*  treasuryTransfer lambda *)
-function lambdaTreasuryTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+(*  mistaken lambda *)
+function lambdaMistakenTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
 block {
 
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        | LambdaTreasuryTransfer(destinationParams) -> {
+        | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the given treasury address is tracked by the treasury factory
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-                const treasuryFactoryAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsGovernanceSatelliteContract(s);
 
+                // Get MVK Token address
                 const mvkTokenAddress: address  = s.mvkTokenAddress;
 
+                // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
                   block{
-                    const checkTreasuryExistsView : option (bool) = Tezos.call_view ("checkTreasuryExists", transferParam.to_, treasuryFactoryAddress);
-                    const checkTreasuryExists: bool               = case checkTreasuryExistsView of [
-                        Some (value) -> value
-                      | None         -> (failwith (error_CHECK_TREASURY_EXISTS_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : bool)
-                    ];
-
-                    if not checkTreasuryExists then failwith(error_TREASURY_CONTRACT_NOT_FOUND) else skip;
-                    
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
                         | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_TREASURY_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 

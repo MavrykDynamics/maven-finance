@@ -11,6 +11,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -70,6 +73,7 @@ type governanceProxyAction is
   | UpdateWhitelistContracts        of updateWhitelistContractsParams
   | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
   | UpdateGeneralContracts          of updateGeneralContractsParams
+  | MistakenTransfer                of transferActionType
 
   // Main entrypoints
   | SetProxyLambda                  of setProxyLambdaType
@@ -138,6 +142,22 @@ function checkSenderIsSelf(const _p : unit) : unit is
 function checkSenderIsAdminOrGovernance(var s : governanceProxyStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernanceSatelliteContract(var s : governanceProxyStorage) : unit is
+block{
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+  const governanceSatelliteAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+} with unit
     
 
 
@@ -159,6 +179,11 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -464,6 +489,25 @@ block {
 
 } with response
 
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceProxyStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -562,6 +606,7 @@ function main (const action : governanceProxyAction; const s : governanceProxySt
       | UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
       | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
       | UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
+      | MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
       // Main entrypoints
       | SetProxyLambda(parameters)                -> setProxyLambda(parameters, s)

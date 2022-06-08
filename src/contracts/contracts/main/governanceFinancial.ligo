@@ -45,6 +45,7 @@ type governanceFinancialAction is
     | UpdateGeneralContracts          of updateGeneralContractsParams
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+    | MistakenTransfer                of transferActionType
 
       // Financial Governance Entrypoints
     | RequestTokens                   of requestTokensType
@@ -214,6 +215,22 @@ block{
   if (Tezos.sender = emergencyGovernanceAddress) then skip
   else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
 
+} with unit
+
+
+
+function checkSenderIsGovernanceSatelliteContract(var s : governanceFinancialStorage) : unit is
+block{
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+  const governanceSatelliteAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 } with unit
 
 
@@ -496,7 +513,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
     // init response
@@ -516,7 +533,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaSetGovernance(newGovernanceProxyAddress);
 
     // init response
@@ -535,7 +552,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
     // init response
@@ -554,7 +571,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
@@ -573,7 +590,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
     // init response
@@ -611,11 +628,30 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceFinancialStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance financial lambda action
+    const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceFinancialLambdaAction, s);  
 
 } with response
 
@@ -638,7 +674,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaRequestTokens(requestTokensParams);
 
     // init response
@@ -657,7 +693,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaRequestMint(requestMintParams);
 
     // init response
@@ -676,7 +712,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaSetContractBaker(setContractBakerParams);
 
     // init response
@@ -695,7 +731,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaDropFinancialRequest(requestId);
 
     // init response
@@ -714,7 +750,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init governance lambda action
+    // init governance financial lambda action
     const governanceFinancialLambdaAction : governanceFinancialLambdaActionType = LambdaVoteForRequest(voteForRequest);
 
     // init response
@@ -770,6 +806,7 @@ function main (const action : governanceFinancialAction; const s : governanceFin
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
+        | MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
 
           // Financial Governance Entrypoints
         | RequestTokens(parameters)                   -> requestTokens(parameters, s)
