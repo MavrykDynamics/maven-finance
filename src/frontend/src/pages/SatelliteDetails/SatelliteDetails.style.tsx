@@ -95,6 +95,10 @@ export const SatelliteCardBottomRow = styled.div`
       &.voting-no {
         color: ${downColor};
       }
+
+      &.voting-abstain {
+        color: ${skyColor};
+      }
     }
   }
 

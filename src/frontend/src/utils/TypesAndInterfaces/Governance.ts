@@ -38,7 +38,7 @@ export interface ProposalVote {
   governanceProposalRecordId: number
   round: string
   timestamp: Date
-  vote: string
+  vote: number
   voterId: string
   votingPower: number
 }
@@ -147,7 +147,7 @@ export interface FinancialRequestVote {
   id: string
   governanceFinancialRequestId: string
   timestamp: Date
-  vote: string
+  vote: number
   voterId: string
   votingPower: number
 }

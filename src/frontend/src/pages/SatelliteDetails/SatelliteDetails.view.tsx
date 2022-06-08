@@ -131,17 +131,62 @@ export const SatelliteDetailsView = ({
                   </div>
                 </div>
 
-                {satellite.proposalVotingHistory?.length ? (
+                {satellite.proposalVotingHistory?.length ||
+                satellite.financialRequestsVotes?.length ||
+                satellite.emergencyGovernanceVotes?.length ? (
                   <div>
                     <h4>Voting History:</h4>
                     <div>
-                      {satellite.proposalVotingHistory.map((item) => {
+                      {satellite.proposalVotingHistory?.map((item) => {
                         return (
                           <div className="satellite-voting-history" key={item.id}>
                             <p>Proposal 42 - Adjusting Auction Parameters</p>
                             <span>
-                              Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
-                              on <Time value={item.timestamp} format="M d\t\h, Y" />
+                              Voted{' '}
+                              {item.vote === 1 ? (
+                                <b className="voting-yes">YES </b>
+                              ) : item.vote === 2 ? (
+                                <b className="voting-abstain">ABSTAIN </b>
+                              ) : (
+                                <b className="voting-no">NO </b>
+                              )}
+                              <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
+                            </span>
+                          </div>
+                        )
+                      })}
+                      {satellite.financialRequestsVotes?.map((item) => {
+                        return (
+                          <div className="satellite-voting-history" key={item.id}>
+                            <p>Proposal 42 - Adjusting Auction Parameters</p>
+                            <span>
+                              Voted{' '}
+                              {item.vote === 1 ? (
+                                <b className="voting-yes">YES </b>
+                              ) : item.vote === 2 ? (
+                                <b className="voting-abstain">ABSTAIN </b>
+                              ) : (
+                                <b className="voting-no">NO </b>
+                              )}
+                              <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
+                            </span>
+                          </div>
+                        )
+                      })}
+                      {satellite.emergencyGovernanceVotes?.map((item) => {
+                        return (
+                          <div className="satellite-voting-history" key={item.id}>
+                            <p>Proposal 42 - Adjusting Auction Parameters</p>
+                            <span>
+                              Voted{' '}
+                              {item.vote === 1 ? (
+                                <b className="voting-yes">YES </b>
+                              ) : item.vote === 2 ? (
+                                <b className="voting-abstain">ABSTAIN </b>
+                              ) : (
+                                <b className="voting-no">NO </b>
+                              )}
+                              <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
                             </span>
                           </div>
                         )

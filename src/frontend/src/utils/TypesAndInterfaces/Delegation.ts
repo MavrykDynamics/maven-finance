@@ -81,6 +81,7 @@ export interface SatelliteRecord {
   unregisteredDateTime: Date | null
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
+  emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
 }
 
 export type DelegationConfig = {
