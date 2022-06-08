@@ -50,6 +50,7 @@ type GovernanceViewProps = {
   watingProposals: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
   userIsSatellite: boolean
+  handleOpenModalMoveNextRound: any
 }
 
 export const GovernanceView = ({
@@ -62,6 +63,7 @@ export const GovernanceView = ({
   governancePhase,
   userIsSatellite,
   watingProposals,
+  handleOpenModalMoveNextRound,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
   const blockRef = useRef<any>(null)
@@ -274,15 +276,24 @@ export const GovernanceView = ({
             </RightSideSubContent>
           ) : null}
 
-          <VotingArea
-            ready={ready}
-            loading={loading}
-            accountPkh={accountPkh}
-            handleProposalRoundVote={handleProposalRoundVote}
-            handleVotingRoundVote={handleVotingRoundVote}
-            selectedProposal={rightSideContent}
-            voteStatistics={voteStatistics}
-          />
+          <div className="voting-proposal">
+            <VotingArea
+              ready={ready}
+              loading={loading}
+              accountPkh={accountPkh}
+              handleProposalRoundVote={handleProposalRoundVote}
+              handleVotingRoundVote={handleVotingRoundVote}
+              selectedProposal={rightSideContent}
+              voteStatistics={voteStatistics}
+            />
+            <Button
+              className="execute-proposal"
+              text="Execute Proposal"
+              onClick={handleOpenModalMoveNextRound}
+              kind="actionPrimary"
+              loading={loading}
+            />
+          </div>
           <hr />
           <article>
             <RightSideSubHeader>Details</RightSideSubHeader>

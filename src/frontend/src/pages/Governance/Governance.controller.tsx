@@ -1,7 +1,6 @@
-import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Page } from 'styles'
+import { Page, ModalStyled } from 'styles'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -13,6 +12,7 @@ import { getGovernanceStorage, getCurrentRoundProposals } from './Governance.act
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
 import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { MoveNextRoundModal } from './MoveNextRoundModal/MoveNextRoundModal.controller'
 
 // const
 import { MOCK_PAST_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST, MOCK_EXEC_PROPOSAL_LIST } from './mockProposals'
@@ -31,7 +31,7 @@ export const Governance = () => {
   const { governanceStorage, governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
-
+  const [visibleModal, setVisibleModal] = useState(true)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
@@ -58,16 +58,34 @@ export const Governance = () => {
     return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
   })
 
+  const handleMoveNextRound = () => {}
+  const handleExecuteProposal = () => {}
+  const handleCloseModal = () => {
+    setVisibleModal(false)
+  }
+  const handleOpenModalMoveNextRound = () => {
+    setVisibleModal(true)
+  }
+
   return (
     <Page>
+      {visibleModal ? (
+        <MoveNextRoundModal
+          handleCloseModal={handleCloseModal}
+          handleExecuteProposal={handleExecuteProposal}
+          handleMoveNextRound={handleMoveNextRound}
+        />
+      ) : null}
       <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
       <GovernanceTopBar
         governancePhase={governancePhase}
         timeLeftInPhase={daysLeftOfPeriod}
         isInEmergencyGovernance={false}
         loading={loading}
+        handleOpenModalMoveNextRound={handleOpenModalMoveNextRound}
       />
       <GovernanceView
+        handleOpenModalMoveNextRound={handleOpenModalMoveNextRound}
         ready={ready}
         loading={loading}
         accountPkh={accountPkh}
