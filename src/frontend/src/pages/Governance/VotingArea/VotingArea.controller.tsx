@@ -68,14 +68,14 @@ export const VotingArea = ({
         {true && (
           <VotingButtonsContainer>
             <Button
-              text={'Vote Yay'}
+              text={'Vote YES'}
               onClick={() => handleVotingRoundVote('FOR')}
               type={SUBMIT}
               kind={'votingFor'}
               loading={loading}
             />
             <Button
-              text={'Vote Abstain'}
+              text={'Vote PASS'}
               onClick={() => handleVotingRoundVote('ABSTAIN')}
               type={SUBMIT}
               kind={'votingAbstain'}
