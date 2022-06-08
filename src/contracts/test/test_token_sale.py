@@ -65,55 +65,6 @@ sec_month = 2592000 # 30 days
 blocks_day = 2880
 blocks_month = blocks_day * 30 # 86400 per month
 
-<<<<<<< HEAD
-=======
-# ---- Contract Errors ----
-
-error_ONLY_ADMINISTRATOR_ALLOWED                              = 0
-error_ONLY_SELF_ALLOWED                                       = 1
-error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 2
-
-error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3
-error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4
-
-error_TREASURY_CONTRACT_NOT_FOUND                             = 5
-error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 6
-error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 7
-error_TOKEN_SALE_HAS_NOT_STARTED                              = 8
-error_TOKEN_SALE_HAS_NOT_ENDED                                = 9
-error_TOKEN_SALE_HAS_ENDED                                    = 10
-error_TOKEN_SALE_IS_NOT_PAUSED                                = 11
-error_TOKEN_SALE_IS_PAUSED                                    = 12
-
-error_WHITELIST_SALE_HAS_NOT_STARTED                          = 13
-error_USER_IS_NOT_WHITELISTED                                 = 14
-error_USER_TOKEN_SALE_RECORD_NOT_FOUND                        = 15
-
-error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 16
-error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 17
-error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 18
-
-error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 19
-error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 20
-error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 21
-
-error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 22
-error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 23
-error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 24
-
-error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 25
-error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 26
-error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 27
-error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 28
-error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 29
-
-error_MAX_AMOUNT_CLAIMED_FOR_OPTION_ONE                       = 30
-error_MAX_AMOUNT_CLAIMED_FOR_OPTION_TWO                       = 31
-error_MAX_AMOUNT_CLAIMED_FOR_OPTION_THREE                     = 32
-
-# ---- ---- ----
-
->>>>>>> 658dc6e132ba7d2c4442edbea4c769abb6e629a2
 class TokenSaleContract(TestCase):
     
     @classmethod
@@ -863,7 +814,7 @@ class TokenSaleContract(TestCase):
     # ###
     # # %buyTokens
     # ##
-    def test_90_whitelisted_users_should_be_able_to_buy_tokens_after_token_sale_start(self):
+    def test_900_whitelisted_users_should_be_able_to_buy_tokens_after_token_sale_start(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -907,7 +858,7 @@ class TokenSaleContract(TestCase):
         print('--%buyTokens--')
         print('✅ Whitelisted users should be able to buy tokens after token sale start')
     
-    def test_91_non_whitelisted_users_should_not_be_able_to_buy_tokens_after_token_sale_start(self):
+    def test_901_non_whitelisted_users_should_not_be_able_to_buy_tokens_after_token_sale_start(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -952,7 +903,7 @@ class TokenSaleContract(TestCase):
     
         print('✅ Non-whitelisted users should not be able to buy tokens after token sale start')
 
-    def test_92_whitelisted_users_should_send_the_correct_amount_of_tez_for_the_amount_they_are_buying(self):
+    def test_902_whitelisted_users_should_send_the_correct_amount_of_tez_for_the_amount_they_are_buying(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -999,7 +950,7 @@ class TokenSaleContract(TestCase):
         print('✅ Whitelisted users should send the correct amount of tez for the amount they are buying')
 
 
-    def test_93_whitelisted_users_should_not_be_able_to_buy_tokens_before_token_sale_start(self):
+    def test_903_whitelisted_users_should_not_be_able_to_buy_tokens_before_token_sale_start(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1044,7 +995,7 @@ class TokenSaleContract(TestCase):
     
         print('✅ Whitelisted users should not be able to buy tokens before token sale start')
     
-    def test_94_whitelisted_users_can_only_buy_tokens_above_the_minimum_amount_required_per_option(self):
+    def test_904_whitelisted_users_can_only_buy_tokens_above_the_minimum_amount_required_per_option(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1111,7 +1062,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users can only buy tokens above the minimum amount required per option')
     
-    def test_95_whitelisted_users_can_only_buy_tokens_up_to_the_whitelist_max_amount_per_option_per_wallet(self):
+    def test_905_whitelisted_users_can_only_buy_tokens_up_to_the_whitelist_max_amount_per_option_per_wallet(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1160,7 +1111,7 @@ class TokenSaleContract(TestCase):
         
         print('✅ Whitelisted users can only buy tokens up to the whitelist maximum amount per option per wallet')
 
-    def test_96_whitelisted_users_can_buy_tokens_multiple_times_above_the_min_amount_and_up_to_the_whitelist_max_amount_per_option_per_wallet(self):        
+    def test_906_whitelisted_users_can_buy_tokens_multiple_times_above_the_min_amount_and_up_to_the_whitelist_max_amount_per_option_per_wallet(self):        
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1278,7 +1229,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users can buy tokens multiple times above the min amount per option and up to the whitelist maximum amount per option per wallet')
         
-    def test_97_whitelisted_users_should_not_be_able_to_buy_tokens_if_token_sale_is_paused_or_closed_after_it_has_started(self):        
+    def test_907_whitelisted_users_should_not_be_able_to_buy_tokens_if_token_sale_is_paused_or_closed(self):        
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1435,7 +1386,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users should not be able to buy tokens if token sale is paused or closed after it has started')
 
-    def test_97_whitelisted_users_can_continue_to_buy_tokens_during_public_sale_up_to_the_max_amount_per_option_per_wallet(self):        
+    def test_908_whitelisted_users_can_continue_to_buy_tokens_during_public_sale_up_to_the_max_amount_per_option_per_wallet(self):        
         # Initial values
         init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime       = pytezos.now()
@@ -1534,7 +1485,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users can continue to buy tokens during public sale up to the max amount per option per wallet')
 
-    def test_98_non_whitelisted_users_can_buy_tokens_during_public_sale(self):        
+    def test_909_non_whitelisted_users_can_buy_tokens_during_public_sale(self):        
         # Initial values
         init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime       = pytezos.now()
@@ -1616,7 +1567,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Non-whitelisted users can buy tokens during public sale (above the min amount required per option, and up to the max amount per option per wallet.')
 
-    def test_99_no_users_can_buy_tokens_above_the_overall_option_caps(self):        
+    def test_910_no_users_can_buy_tokens_above_the_overall_option_caps(self):        
         # Initial values
         init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime       = pytezos.now()
@@ -2620,7 +2571,10 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
         self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
 
-        # operations sent to treasury on amount to claim
+        # operations sent to treasury on amount to claim 
+        # - no more operations for option one as it is fully claimed
+        with pytest.raises(KeyError):
+          _ = res.operations[2]
         self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
         self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
 
