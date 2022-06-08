@@ -386,7 +386,7 @@ block {
 function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // break glass check
+    // pause / break glass check
     checkRequestRateUpdateIsNotPaused(s);
 
     checkMaintainership(s);
@@ -447,7 +447,7 @@ block{
 function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // break glass check
+    // pause / break glass check
     checkRequestRateUpdateDeviationIsNotPaused(s);
 
     var operations : list(operation) := nil;
@@ -516,7 +516,7 @@ block{
 function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // break glass check
+    // pause / break glass check
     checkSetObservationCommitIsNotPaused(s);
 
    case aggregatorLambdaAction of [
@@ -551,7 +551,7 @@ block{
 function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // break glass check
+    // pause / break glass check
     checkSetObservationRevealIsNotPaused(s);
 
    case aggregatorLambdaAction of [
@@ -614,7 +614,7 @@ block{
 function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // break glass check
+    // pause / break glass check
     checkWithdrawRewardXtzIsNotPaused(s);
 
     var operations : list(operation) := nil;
@@ -661,7 +661,7 @@ block{
 function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // break glass check
+    // pause / break glass check
     checkWithdrawRewardStakedMvkIsNotPaused(s);
 
     var operations : list(operation) := nil;

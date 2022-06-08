@@ -816,92 +816,94 @@ describe('Contracts Deployment for Tests', async () => {
     await saveMVKDecimals(mvkTokenDecimals)
 
 
-
     //----------------------------
-    // For Oracle/Aggregator test net deployment
+    // For Oracle/Aggregator test net deployment if needed
     //----------------------------
 
-//     console.log("Setup Oracles")
+    if(env.network != "development"){ 
 
-//     const oracleMap = MichelsonMap.fromLiteral({
-//       [oracle0.pkh] : true,
-//       [oracle1.pkh] : true,
-//       [oracle2.pkh] : true,
-// //      [oracle3.pkh]: true,
-// //      [oracle4.pkh]: true,
-//     }) as MichelsonMap<
-//         string,
-//         boolean
-//         >
+        console.log("Setup Oracles")
 
-//     const createAggregatorsBatch = await tezos.wallet
-//         .batch()
-//         .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatellite.contract.address))
-//         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
-//             'USD',
-//             'BTC',
-            
-//             oracleMap,
+        const oracleMap = MichelsonMap.fromLiteral({
+          [oracle0.pkh] : true,
+          [oracle1.pkh] : true,
+          [oracle2.pkh] : true,
+          // [oracle3.pkh]: true,
+          // [oracle4.pkh]: true,
+        }) as MichelsonMap<
+            string,
+            boolean
+            >
 
-//             new BigNumber(8),             // decimals
-//             new BigNumber(2),             // numberBlocksDelay
-//             oracleMaintainer.pkh,         // maintainer
+        const createAggregatorsBatch = await tezos.wallet
+            .batch()
+            .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatellite.contract.address))
+            .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+                'USD',
+                'BTC',
+                
+                oracleMap,
 
-//             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
-//             new BigNumber(5),             // perthousandDeviationTrigger
-//             new BigNumber(60),            // percentOracleThreshold
+                new BigNumber(8),             // decimals
+                new BigNumber(2),             // numberBlocksDelay
+                oracleMaintainer.pkh,         // maintainer
 
-//             new BigNumber(2600),          // deviationRewardAmountXtz
-//             new BigNumber(5),             // rewardAmountMvk
-//             new BigNumber(1300),          // rewardAmountXtz
-            
-//             aggregatorFactory.contract.address
-//         ))
-//         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
-//             'USD',
-//             'XTZ',
+                new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+                new BigNumber(5),             // perthousandDeviationTrigger
+                new BigNumber(60),            // percentOracleThreshold
 
-//             oracleMap,
+                new BigNumber(2600),          // deviationRewardAmountXtz
+                new BigNumber(5),             // rewardAmountMvk
+                new BigNumber(1300),          // rewardAmountXtz
+                
+                aggregatorFactory.contract.address
+            ))
+            .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+                'USD',
+                'XTZ',
 
-//             new BigNumber(8),             // decimals
-//             new BigNumber(2),             // numberBlocksDelay
-//             oracleMaintainer.pkh,         // maintainer
-            
-//             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
-//             new BigNumber(5),             // perthousandDeviationTrigger
-//             new BigNumber(60),            // percentOracleThreshold
+                oracleMap,
 
-//             new BigNumber(2600),          // deviationRewardAmountXtz
-//             new BigNumber(5),             // rewardAmountMvk
-//             new BigNumber(1300),          // rewardAmountXtz
-            
-//             aggregatorFactory.contract.address
-//         ))
-//         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
-//             'USD',
-//             'DOGE',
+                new BigNumber(8),             // decimals
+                new BigNumber(2),             // numberBlocksDelay
+                oracleMaintainer.pkh,         // maintainer
+                
+                new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+                new BigNumber(5),             // perthousandDeviationTrigger
+                new BigNumber(60),            // percentOracleThreshold
 
-//             oracleMap,
+                new BigNumber(2600),          // deviationRewardAmountXtz
+                new BigNumber(5),             // rewardAmountMvk
+                new BigNumber(1300),          // rewardAmountXtz
+                
+                aggregatorFactory.contract.address
+            ))
+            .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+                'USD',
+                'DOGE',
 
-//             new BigNumber(16),            // decimals
-//             new BigNumber(2),             // numberBlocksDelay
-//             oracleMaintainer.pkh,         // maintainer
-            
-//             new BigNumber(0),             // minimalTezosAmountDeviationTrigger
-//             new BigNumber(5),             // perthousandDeviationTrigger
-//             new BigNumber(60),            // percentOracleThreshold
-            
-//             new BigNumber(2600),          // deviationRewardAmountXtz
-//             new BigNumber(5),             // rewardAmountMvk
-//             new BigNumber(1300),          // rewardAmountXtz
-            
-//             aggregatorFactory.contract.address
-//         ))
+                oracleMap,
 
-//     const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-//     await createAggregatorsBatchOperation.confirmation()
+                new BigNumber(16),            // decimals
+                new BigNumber(2),             // numberBlocksDelay
+                oracleMaintainer.pkh,         // maintainer
+                
+                new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+                new BigNumber(5),             // perthousandDeviationTrigger
+                new BigNumber(60),            // percentOracleThreshold
+                
+                new BigNumber(2600),          // deviationRewardAmountXtz
+                new BigNumber(5),             // rewardAmountMvk
+                new BigNumber(1300),          // rewardAmountXtz
+                
+                aggregatorFactory.contract.address
+            ))
 
-//     console.log("Aggregators deployed")
+        const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+        await createAggregatorsBatchOperation.confirmation()
+
+        console.log("Aggregators deployed")
+    }
 
   })
 
