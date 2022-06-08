@@ -35,7 +35,7 @@ export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps)
         </div>
 
         <div className="card-hash-wrapper">
-          <TzAddress tzAddress={address} hasIcon={false} />
+          <TzAddress tzAddress={address} hasIcon />
         </div>
       </ContractCardTopSection>
       <BGAccordeon
