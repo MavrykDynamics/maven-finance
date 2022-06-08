@@ -131,6 +131,7 @@ function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
 
 function convertToDelegationStorageType(storage: any): DelegationStorage {
   const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(storage?.satellite_records)
+
  
   return {
     breakGlassConfig: {
@@ -160,8 +161,8 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
 function convertToSatelliteRecordsInterface(satelliteRecordObject: any): SatelliteRecord[] {
   const satelliteRecords: SatelliteRecord[] = []
   if (Array.isArray(satelliteRecordObject)) {
-    satelliteRecordObject.map((item: any) => {
-      const newSatelliteRecord = convertToSatelliteRecordInterface(item)
+    satelliteRecordObject.map((satelliteRecordFromIndexer: any) => {
+      const newSatelliteRecord = convertToSatelliteRecordInterface({ satelliteRecordFromIndexer })
       satelliteRecords.push(newSatelliteRecord)
       return true
     })
@@ -173,11 +174,9 @@ function convertToSatelliteRecordInterface({
   satelliteRecordFromIndexer,
   userVotingHistoryIndexer,
 }: any): SatelliteRecord {
-  const satelliteRecord = satelliteRecordFromIndexer?.satellite_record?.[0]
+  const satelliteRecord = satelliteRecordFromIndexer
   const userVotingHistory = userVotingHistoryIndexer?.mavryk_user?.[0]
-  console.log('%c ||||| userVotingHistory', 'color:yellowgreen', userVotingHistory)
-  
-  console.log('%c ||||| satelliteRecord', 'color:yellowgreen', satelliteRecord)
+
   const totalDelegatedAmount = satelliteRecord
     ? satelliteRecord.delegation_records.reduce(
         (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,

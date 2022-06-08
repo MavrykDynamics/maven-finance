@@ -27,6 +27,8 @@ export const DELEGATION_STORAGE_QUERY = `
           smvk_balance
           mvk_balance
         }
+        website
+        active
       }
       delegation_records {
         satellite_record_id
