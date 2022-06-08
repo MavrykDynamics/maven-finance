@@ -50,22 +50,24 @@ export const VotingBarView = ({
 
   return (
     <VotingContainer>
-      <QuorumBar width={quorumWidth}>Quorum {quorumWidth}%</QuorumBar>
+      <QuorumBar width={quorumWidth}>
+        Quorum <b>{quorumWidth}%</b>
+      </QuorumBar>
       <VotingBarStyled>
         <Tooltip title={`${voteStatistics.forVotesMVKTotal} Yay votes`}>
           <VotingFor width={forVotesWidth}>
             <CommaNumber value={voteStatistics.forVotesMVKTotal} />
           </VotingFor>
         </Tooltip>
-        <Tooltip title={`${voteStatistics.unusedVotesMVKTotal} Unused votes`}>
-          <NotYetVoted width={unusedVotesWidth}>
-            <CommaNumber value={voteStatistics.unusedVotesMVKTotal} />
-          </NotYetVoted>
-        </Tooltip>
         <Tooltip title={`${voteStatistics.abstainVotesMVKTotal} Abstention votes`}>
           <VotingAbstention width={abstainingVotesWidth}>
             <CommaNumber value={voteStatistics.abstainVotesMVKTotal} />
           </VotingAbstention>
+        </Tooltip>
+        <Tooltip title={`${voteStatistics.unusedVotesMVKTotal} Unused votes`}>
+          <NotYetVoted width={unusedVotesWidth}>
+            <CommaNumber value={voteStatistics.unusedVotesMVKTotal} />
+          </NotYetVoted>
         </Tooltip>
 
         <Tooltip title={`${voteStatistics.againstVotesMVKTotal} Nay votes`}>
