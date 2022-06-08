@@ -21,7 +21,6 @@ type distributeRewardXtzType is [@layout:comb] record [
     reward                      : nat;
 ]
 
-
 type deviationTriggerInfosType is  [@layout:comb] record [
     oracleAddress               : address;
     amount                      : tez;
@@ -54,12 +53,12 @@ type setObservationRevealType is  [@layout:comb] record [
 ];
 
 type aggregatorConfigType is [@layout:comb] record [
+    nameMaxLength                       : nat;
     decimals                            : nat;
     numberBlocksDelay                   : nat;
-    maintainer                          : maintainerType;
 
     minimalTezosAmountDeviationTrigger  : nat;
-    perthousandDeviationTrigger         : nat;
+    perThousandDeviationTrigger         : nat;
     percentOracleThreshold              : nat;
     
     deviationRewardAmountXtz            : nat;
@@ -76,7 +75,6 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
     withdrawRewardStakedMvkIsPaused     : bool;
 ]
 
-type updateConfigParams                 is aggregatorConfigType;
 type setAdminParams                     is address;
 type withdrawRewardXtzParams            is address;
 type withdrawRewardStakedMvkParams      is address;
@@ -89,6 +87,26 @@ type requestRateUpdateParams            is unit;
 type requestRateUpdateDeviationParams   is setObservationCommitType;
 type setObservationCommitParams         is setObservationCommitType;
 type setObservationRevealParams         is setObservationRevealType;
+
+(* updateConfig entrypoint inputs *)
+type aggregatorUpdateConfigNewValueType is nat
+type aggregatorUpdateConfigActionType is 
+  ConfigNameMaxLength             of unit
+| ConfigDecimals                  of unit
+| ConfigNumberBlocksDelay         of unit
+
+| ConfigMinTezosAmountDevTrigger  of unit
+| ConfigPerThousandDevTrigger     of unit
+| ConfigPercentOracleThreshold    of unit
+
+| ConfigDeviationRewardAmountXtz  of unit
+| ConfigRewardAmountStakedMvk     of unit
+| ConfigRewardAmountXtz           of unit
+
+type aggregatorUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue  : aggregatorUpdateConfigNewValueType; 
+  updateConfigAction    : aggregatorUpdateConfigActionType;
+]
 
 
 type transferDestination is [@layout:comb] record[
@@ -133,8 +151,9 @@ type aggregatorLambdaActionType is
     // Housekeeping Entrypoints
   | LambdaSetAdmin                      of setAdminParams
   | LambdaSetGovernance                 of (address)
+  | LambdaSetMaintainer                 of (address)
   | LambdaUpdateMetadata                of updateMetadataType
-  | LambdaUpdateConfig                  of updateConfigParams
+  | LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
   | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
   | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
 
@@ -170,9 +189,11 @@ type aggregatorStorage is [@layout:comb] record [
     
     admin                     : adminType;
     metadata                  : metadataType;
+    name                      : string;
     config                    : aggregatorConfigType;
     breakGlassConfig          : aggregatorBreakGlassConfigType;
 
+    maintainer                : address;
     mvkTokenAddress           : address;
     governanceAddress         : address;
 

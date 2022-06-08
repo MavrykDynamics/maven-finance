@@ -56,11 +56,10 @@ type doormanLambdaActionType is
 
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
+  metadata                  : metadata;
+
   mvkTokenAddress           : address;
   governanceAddress         : address;
-  metadata                  : metadata;
-  
-  minMvkAmount              : nat;
   
   whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
   generalContracts          : generalContractsType;
@@ -69,8 +68,8 @@ type doormanStorage is [@layout:comb] record [
   
   userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
 
+  minMvkAmount              : nat;
   unclaimedRewards          : nat; // current exit fee pool rewards
-
   accumulatedFeesPerShare   : nat;
 
   lambdaLedger              : lambdaLedgerType;

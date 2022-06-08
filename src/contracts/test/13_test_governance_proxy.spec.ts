@@ -2605,10 +2605,6 @@
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
-<<<<<<< HEAD
-
-=======
->>>>>>> 98e53109fdf7adf19ebdf1975d12dd77342727b9
 //                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
 //                 await proposeOperation.confirmation();
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();

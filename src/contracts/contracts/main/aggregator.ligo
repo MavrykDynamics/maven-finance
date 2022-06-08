@@ -27,8 +27,9 @@ type aggegatorAction is
     // Housekeeping Entrypoints
   | SetAdmin                             of setAdminParams
   | SetGovernance                        of (address)
+  | SetMaintainer                        of (address)
   | UpdateMetadata                       of updateMetadataType
-  | UpdateConfig                         of updateConfigParams
+  | UpdateConfig                         of aggregatorUpdateConfigParamsType
   | UpdateWhitelistContracts             of updateWhitelistContractsParams
   | UpdateGeneralContracts               of updateGeneralContractsParams
 
@@ -149,7 +150,7 @@ block {
 
 
 function checkMaintainership(const s: aggregatorStorage): unit is
-  if Tezos.sender =/= s.config.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
+  if Tezos.sender =/= s.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
   else unit
 
 
@@ -669,6 +670,25 @@ block {
 
 
 
+(*  setMaintainer entrypoint *)
+function setMaintainer(const newMaintainerAddress : address; var s : aggregatorStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetMaintainer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetMaintainer(newMaintainerAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
+
+
+
 (*  updateMetadata entrypoint  *)
 function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorStorage): return is
 block{
@@ -689,7 +709,7 @@ block{
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const newConfig: aggregatorConfigType; const s: aggregatorStorage): return is
+function updateConfig(const updateConfigParams: aggregatorUpdateConfigParamsType; const s: aggregatorStorage): return is
 block{
   
   const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -698,7 +718,7 @@ block{
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateConfig(newConfig);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1148,6 +1168,7 @@ function main (const action : aggegatorAction; const s : aggregatorStorage) : re
       // Housekeeping Entrypoints
     | SetAdmin (parameters)                           -> setAdmin(parameters, s)
     | SetGovernance(parameters)                       -> setGovernance(parameters, s) 
+    | SetMaintainer(parameters)                       -> setMaintainer(parameters, s) 
     | UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
     | UpdateConfig (parameters)                       -> updateConfig(parameters, s)
     | UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)

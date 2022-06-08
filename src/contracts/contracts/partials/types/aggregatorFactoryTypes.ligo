@@ -42,9 +42,13 @@ type aggregatorMetadataType is [@layout:comb] record[
 ]
 
 type createAggregatorParamsType is string * string * [@layout:comb] record[
-  oracleAddresses   : oracleAddressesType;
-  aggregatorConfig  : aggregatorConfigType;
-  admin             : adminType;
+  name                    : string;
+  addToGeneralContracts   : bool;
+
+  oracleAddresses         : oracleAddressesType;
+  
+  aggregatorConfig        : aggregatorConfigType;
+  maintainer              : address;
 ];
 
 type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
@@ -105,13 +109,14 @@ type aggregatorFactoryLambdaActionType is
 type aggregatorFactoryStorage is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
-    breakGlassConfig        : aggregatorFactoryBreakGlassConfigType;
 
     mvkTokenAddress         : address;
     governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;
+
+    breakGlassConfig        : aggregatorFactoryBreakGlassConfigType;
     
     trackedAggregators      : trackedAggregatorsType;
 

@@ -44,6 +44,26 @@ block {
 
 
 
+(*  setMaintainer lambda *)
+function lambdaSetMaintainer(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+block {
+    
+    checkNoAmount(Unit);     
+    
+    // allowed: admin (governance proxy in most cases), governance contract, governance satellite contract, aggregator factory contract
+    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s); 
+
+    case aggregatorLambdaAction of [
+        | LambdaSetMaintainer(newMaintainerAddress) -> {
+                s.maintainer := newMaintainerAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
@@ -74,8 +94,24 @@ block{
     checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
-        | LambdaUpdateConfig(newConfig) -> {
-                s.config := newConfig;
+        | LambdaUpdateConfig(updateConfigParams) -> {
+
+                const updateConfigAction    : aggregatorUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : aggregatorUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                      ConfigNameMaxLength (_v)             -> s.config.nameMaxLength                        := updateConfigNewValue
+                    | ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
+                    | ConfigNumberBlocksDelay (_v)         -> s.config.numberBlocksDelay                    := updateConfigNewValue
+                    
+                    | ConfigMinTezosAmountDevTrigger (_v)  -> s.config.minimalTezosAmountDeviationTrigger   := updateConfigNewValue
+                    | ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
+                    | ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
+
+                    | ConfigDeviationRewardAmountXtz (_v)  -> s.config.deviationRewardAmountXtz             := updateConfigNewValue
+                    | ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
+                    | ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
+                ];
             }
         | _ -> skip
     ];
@@ -409,9 +445,9 @@ block{
                             roundPrice=0n;
                         ];
                   if ( // if deviation > or < % deviation trigger
-                    ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
+                    ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
                     or
-                    (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
+                    (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
                     ) then {
                     const receiver : contract (unit) =
                       case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
@@ -470,9 +506,9 @@ block{
                     s.deviationTriggerInfos.amount =/= 0tez
                     and
                     (
-                        ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
+                        ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
                         or
-                        (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
+                        (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
                     )
                 ) then { // -> previous round = deviation trigger
                     const receiver : contract (unit) =
