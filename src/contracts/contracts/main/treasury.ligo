@@ -326,6 +326,18 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : treasuryStorage) : address is
+  s.admin
+
+
+
+(* View: get name variable *)
+[@view] function getName(const _: unit; var s : treasuryStorage) : string is
+  s.name
+
+
+
 (* View: get break glass config *)
 [@view] function getBreakGlassConfig(const _: unit; var s : treasuryStorage) : treasuryBreakGlassConfigType is
   s.breakGlassConfig

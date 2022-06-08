@@ -423,7 +423,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk)
-//                 var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // init values
@@ -445,7 +445,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset generalContracts
-//                 updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+//                 updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -906,7 +906,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk)
-//                 var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Initial values
@@ -914,7 +914,7 @@
 
 //                 // Reset operation
 //                 await signerFactory(bob.sk)
-//                 var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);
@@ -1137,7 +1137,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk)
-//                 var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
 //                 await updateOperation.confirmation();
 
 //                 // Initial values
@@ -1146,7 +1146,7 @@
 
 //                 // Reset operation
 //                 await signerFactory(bob.sk)
-//                 var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+//                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
 //                 console.log(e);

@@ -353,9 +353,12 @@
 //                         throw `packing failed`
 //                         };
 
-//                         const proposalMetadata      = MichelsonMap.fromLiteral({
-//                             "Metadata#1": packedUpdateUpdateWhitelistDevelopersParam
-//                         });
+//                         const proposalMetadata      = [
+//                             {
+//                                 title: "Metadata#1",
+//                                 data: packedUpdateUpdateWhitelistDevelopersParam
+//                             }
+//                         ]
 
 //                         // Start governance rounds
 //                         var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -447,7 +450,7 @@
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
 //                         breakGlassStorage           = await breakGlassInstance.storage();
-//                         const newAdmin              = governanceAddress.address;
+//                         const newAdmin              = governanceProxyAddress.address;
 //                         const targetContract        = councilAddress.address;
 //                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 

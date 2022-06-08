@@ -70,7 +70,6 @@ type proposalRecordType is [@layout:comb] record [
   
     successReward                     : nat;                     // log of successful proposal reward for voters - may change over time
     executed                          : bool;                    // true / false
-    isSuccessful                      : bool;                    // true / false
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
   
@@ -149,7 +148,7 @@ type financialRequestRecordType is [@layout:comb] record [
 type financialRequestLedgerType is big_map (nat, financialRequestRecordType);
 
 type financialRequestSnapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
+    totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
     totalVotingPower          : nat;      // log calculated total voting power 
 ]
@@ -250,6 +249,7 @@ type governanceFinancialLambdaActionType is
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceFinancialUpdateConfigParamsType
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
 
   // Financial Governance Lambdas
@@ -274,6 +274,7 @@ type governanceFinancialStorage is [@layout:comb] record [
     config                              : governanceFinancialConfigType;
 
     whitelistTokenContracts             : whitelistTokenContractsType;
+    whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
     
     // financial governance storage 

@@ -221,6 +221,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : vestingStorage) : address is
+  s.admin
+
+
+
 (* View: get whitelist contracts *)
 [@view] function getWhitelistContracts(const _: unit; var s : vestingStorage) : whitelistContractsType is 
     s.whitelistContracts

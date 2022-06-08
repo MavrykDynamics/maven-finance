@@ -72,6 +72,7 @@ type treasuryStorage is [@layout:comb] record [
     admin                      : address;
     mvkTokenAddress            : address;
     governanceAddress          : address;
+    name                       : string;
     metadata                   : metadata;
     
     breakGlassConfig           : treasuryBreakGlassConfigType;

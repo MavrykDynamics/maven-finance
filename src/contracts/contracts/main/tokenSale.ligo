@@ -133,6 +133,12 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : tokenSaleStorage) : address is
+  s.admin
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _: unit; var s : tokenSaleStorage) : tokenSaleConfigType is
   s.config
@@ -157,19 +163,19 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 
 
 
-(* View: getTokenSaleHasStarted *)
+(* View: tokenSaleHasStarted *)
 [@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorage) : bool is
   s.tokenSaleHasStarted
 
 
 
-(* View: getWhitelistAmountTotal *)
+(* View: whitelistAmountTotal *)
 [@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
   s.whitelistAmountTotal
 
 
 
-(* View: getOverallAmountTotal *)
+(* View: overallAmountTotal *)
 [@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
   s.overallAmountTotal
 

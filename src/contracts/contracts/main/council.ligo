@@ -340,6 +340,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : councilStorage) : address is
+  s.admin
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _: unit; var s : councilStorage) : councilConfigType is
   s.config

@@ -89,15 +89,22 @@ function checkNoAmount(const _p: unit): unit is
 
 
 function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
-  case Map.find_opt("doorman", store.generalContracts) of [
-      Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
-    | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
-  ]
+  block{
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
+  } with(case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> if _contract =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
+            |   None                -> failwith ("DOORMAN_CONTRACT_NOT_FOUND")
+            ]
+    |   None -> failwith ("GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND")
+    ])
 
 
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
+
+
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
@@ -196,6 +203,12 @@ block{
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var store : mvkTokenStorage) : address is
+  store.admin
+
+
+
 (* get: general contracts *)
 [@view] function getGeneralContracts(const _: unit; const store: mvkTokenStorage) : generalContractsType is
   store.generalContracts
@@ -226,30 +239,48 @@ block{
 
 
 
-(* getBalance View *)
-[@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
-  case Big_map.find_opt(user, store.ledger) of [
+(* maximumSupply View *)
+[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+  store.maximumSupply
+
+
+
+(* get: balance View *)
+[@view] function get_balance(const userAndId: owner * nat; const store: mvkTokenStorage) : tokenBalance is
+  case Big_map.find_opt(userAndId.0, store.ledger) of [
       Some (_v) -> _v
     | None      -> 0n
   ]
 
 
 
-(* GetTotalSupply View *)
-[@view] function getTotalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
-  store.totalSupply
+(* total_supply View *)
+[@view] function total_supply(const _tokenId: nat; const _store: mvkTokenStorage) : tokenBalance is
+  _store.totalSupply
 
 
 
-(* GetMaximumSupply View *)
-[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
-  store.maximumSupply
+(* all_tokens View *)
+[@view] function all_tokens(const _: unit; const _store: mvkTokenStorage) : list(nat) is
+  list[0n]
 
 
 
-(* GetTotalAndMaximumSupply View *)
-[@view] function getTotalAndMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance * tokenBalance is
-  (store.totalSupply, store.maximumSupply)
+(* check if operator *)
+[@view] function is_operator(const operator: (owner * operator * nat); const store: mvkTokenStorage) : bool is
+  Big_map.mem(operator, store.operators)
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId: nat; const store: mvkTokenStorage) : tokenMetadataInfo is
+  case Big_map.find_opt(tokenId, store.token_metadata) of [
+    Some (_metadata)  -> _metadata
+  | None              -> record[
+    token_id    = tokenId;
+    token_info  = map[]
+  ]
+  ]
 
 // ------------------------------------------------------------------------------
 //
@@ -352,8 +383,8 @@ block{
             const tokenId: tokenId = destination.token_id;
             const tokenAmount: tokenBalance = destination.amount;
             const receiver: owner = destination.to_;
-            const ownerBalance: tokenBalance = getBalance(owner, accumulator);
-            const receiverBalance: tokenBalance = getBalance(receiver, accumulator);
+            const ownerBalance: tokenBalance = get_balance((owner, 0n), accumulator);
+            const receiverBalance: tokenBalance = get_balance((receiver, 0n), accumulator);
 
             // Validate operator
             checkOperator(owner, tokenId, account.1.operators);
@@ -450,7 +481,7 @@ block {
     else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = get_balance((recipientAddress, 0n), store) + mintedTokens;
 
     // Update mvkTokenStorage
     store.totalSupply := store.totalSupply + mintedTokens;
