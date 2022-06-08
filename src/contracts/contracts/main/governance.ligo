@@ -40,6 +40,7 @@ type governanceAction is
     | UpdateGeneralContracts          of updateGeneralContractsParams
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateWhitelistDevelopers       of (address)
+    | MistakenTransfer                of transferActionType
     | SetContractAdmin                of setContractAdminType
     | SetContractGovernance           of setContractGovernanceType
     
@@ -216,6 +217,21 @@ block{
 
   if (Tezos.sender = emergencyGovernanceAddress) then skip
   else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
+
+} with unit
+
+
+
+function checkSenderIsGovernanceSatelliteContract(var s : governanceStorage) : unit is
+block{
+
+  const governanceSatelliteAddress : address = case s.generalContracts["governanceSatellite"] of [
+        Some(_address) -> _address
+      | None           -> failwith(error_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 
 } with unit
 
@@ -946,6 +962,25 @@ block {
 
 
 
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);  
+
+} with response
+
+
+
 // (*  setContractAdmin entrypoint *)
 function setContractAdmin(const setContractAdminParams: setContractAdminType; var s: governanceStorage): return is
 block {
@@ -1251,6 +1286,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
+        | MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
         | SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
         | SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
 

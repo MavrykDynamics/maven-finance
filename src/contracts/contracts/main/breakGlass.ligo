@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -32,6 +35,7 @@ type breakGlassAction is
     | UpdateConfig                  of breakGlassUpdateConfigParamsType    
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
+    | MistakenTransfer              of transferActionType
     | UpdateCouncilMemberInfo       of councilMemberInfoType
     
     // Internal Control of Council Members
@@ -120,6 +124,22 @@ block{
 
 
 
+function checkSenderIsGovernanceSatelliteContract(var s : breakGlassStorage) : unit is
+block{
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+  const governanceSatelliteAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
       else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -139,6 +159,11 @@ function checkGlassIsBroken(var s : breakGlassStorage) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 
 
@@ -419,6 +444,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: breakGlassStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);  
 
 } with response
 
@@ -728,6 +772,7 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             | UpdateConfig(parameters)              -> updateConfig(parameters, s)
             | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
             | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+            | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
             | UpdateCouncilMemberInfo(parameters)   -> updateCouncilMemberInfo(parameters, s)
 
             // Break Glass Council Actions - Internal Control of Council Members

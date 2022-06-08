@@ -29,34 +29,38 @@
     },
     {
       "index": 7,
-      "name": "lambdaPauseAll"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 8,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseCreateTreasury"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseTrackTreasury"
+      "name": "lambdaTogglePauseCreateTreasury"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseUntrackTreasury"
+      "name": "lambdaTogglePauseTrackTreasury"
     },
     {
       "index": 12,
-      "name": "lambdaCreateTreasury"
+      "name": "lambdaTogglePauseUntrackTreasury"
     },
     {
       "index": 13,
-      "name": "lambdaTrackTreasury"
+      "name": "lambdaCreateTreasury"
     },
     {
       "index": 14,
+      "name": "lambdaTrackTreasury"
+    },
+    {
+      "index": 15,
       "name": "lambdaUntrackTreasury"
     }
 ]
