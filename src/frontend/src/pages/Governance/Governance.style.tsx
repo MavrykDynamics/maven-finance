@@ -27,7 +27,6 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   .voting-proposal {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
   }
 
   article {
@@ -41,7 +40,7 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     border: none;
     height: 1px;
     background-color: ${({ theme }) => theme.cardBorderColor};
-    margin-top: 40px;
+    margin-top: 16px;
     margin-bottom: 40px;
   }
 `
