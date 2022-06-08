@@ -1607,6 +1607,20 @@ block {
 
                                     operations := removeOracleInAggregatorOperation # operations;
 
+                                    // remove aggregator from satellite oracle record
+                                    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
+                                          Some(_record) -> _record
+                                        | None -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
+                                    ];
+                                    
+                                    // check that number of aggregators subscribed is not zero, before subtracting
+                                    if satelliteOracleRecord.aggregatorsSubscribed < 1n then failwith(error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR) else skip;
+                                    satelliteOracleRecord.aggregatorsSubscribed  := abs(satelliteOracleRecord.aggregatorsSubscribed - 1n);
+
+                                    remove aggregatorAddress from map satelliteOracleRecord.aggregatorPairs;
+
+                                    s.satelliteOracleLedger[oracleAddress] := satelliteOracleRecord;
+
                                 } else skip;
 
 
@@ -1619,7 +1633,7 @@ block {
                                        | None -> failwith(error_SATELLITE_NOT_FOUND)
                                     ];
 
-                                    const satelliteOracleRecord : satelliteOracleRecordType = case s.satelliteOracleLedger[satelliteAddress] of [
+                                    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[satelliteAddress] of [
                                           Some(_record) -> _record
                                         | None -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
                                     ];
@@ -1634,7 +1648,13 @@ block {
                                         );
 
                                         operations := removeOracleInAggregatorOperation # operations;
+
+                                        remove aggregatorAddress from map satelliteOracleRecord.aggregatorPairs;
                                     };      
+
+                                    // update satellite oracle record and ledger
+                                    satelliteOracleRecord.aggregatorsSubscribed  := 0n;
+                                    s.satelliteOracleLedger[satelliteAddress] := satelliteOracleRecord;
 
                                 } else skip;
 
