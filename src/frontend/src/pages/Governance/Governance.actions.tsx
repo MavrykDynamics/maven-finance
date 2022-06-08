@@ -232,3 +232,11 @@ export const getTimestampByLevel = async (level: number): Promise<string> => {
   }
   return ''
 }
+
+export const startNextRound = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+}
+
+export const processProposalPayment = (proposalId: number) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+}

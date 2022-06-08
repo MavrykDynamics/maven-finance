@@ -102,11 +102,11 @@ export const VotingArea = ({
           </div>
         )}
 
-        {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && (
+        {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && totalMVKVoted ? (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
           </div>
-        )}
+        ) : null}
       </VotingAreaStyled>
     </>
   )

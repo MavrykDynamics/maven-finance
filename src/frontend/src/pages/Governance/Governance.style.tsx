@@ -20,6 +20,16 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   flex-shrink: 0;
   margin-left: 30px;
 
+  .execute-proposal {
+    width: 194px;
+  }
+
+  .voting-proposal {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
   article {
     margin-bottom: 18px;
     a {
