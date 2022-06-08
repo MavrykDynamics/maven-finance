@@ -101,6 +101,7 @@ export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
     color: ${cyanColor};
     font-size: 12px;
     line-height: 1;
+    font-weight: 600;
 
     * {
       color: ${cyanColor};
