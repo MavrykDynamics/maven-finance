@@ -44,7 +44,8 @@ export const ProposalsView = ({
   if (!proposalsList.length) {
     return null
   }
-
+  console.log('%c ||||| selectedProposal?.status', 'color:yellowgreen', selectedProposal?.status)
+  console.log('%c ||||| governancePhase', 'color:yellowgreen', governancePhase)
   const contentStatus = normalizeProposalStatus(governancePhase, selectedProposal?.status)
 
   return (

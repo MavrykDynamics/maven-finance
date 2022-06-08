@@ -635,6 +635,23 @@ function convertGovernanceFinancialRequestVoteToInterface(
   return financialRequestVotes
 }
 
+
+function convertProposalStatus(executed: boolean, locked: boolean, numberSatus: number): ProposalStatus {
+  let status = 'ACTIVE'
+  if (numberSatus === 1) {
+    status = 'DEFEATED'
+  } else {
+    if (executed) {
+      status = 'EXECUTED'
+    } else if (locked) {
+      status = 'LOCKED'
+    }
+  }
+
+  return status as ProposalStatus
+}
+
+
 function convertGovernanceProposalRecordToInterface(
   governance_proposal_record: {
     abstain_mvk_total: any
@@ -680,6 +697,7 @@ function convertGovernanceProposalRecordToInterface(
     governance_proposal_record.forEach((record) => {
       const newProposalRecord = record as unknown as ProposalRecordType
       newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
+      newProposalRecord.status = convertProposalStatus(record.executed, record.locked, record.status)
       governanceProposalRecords.push(newProposalRecord)
     })
   }
@@ -735,21 +753,6 @@ function convertGovernanceSatelliteSnapshotRecordsToInterface(
     })
   }
   return governanceProposalRecords
-}
-
-function convertProposalStatus(executed: boolean, locked: boolean, numberSatus: number): ProposalStatus {
-  let status = 'ACTIVE'
-  if (numberSatus === 1) {
-    status = 'DEFEATED'
-  } else {
-    if (executed) {
-      status = 'EXECUTED'
-    } else if (locked) {
-      status = 'LOCKED'
-    }
-  }
-
-  return status as ProposalStatus
 }
 
 export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
