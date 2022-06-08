@@ -27,6 +27,7 @@ export type VoteStatistics = {
 export const Governance = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
+
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
