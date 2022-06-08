@@ -290,10 +290,10 @@ type governanceStorage is [@layout:comb] record [
 
     mvkTokenAddress                   : address;
     governanceProxyAddress            : address;     
-  
-    whitelistDevelopers               : whitelistDevelopersType;  
-    generalContracts                  : generalContractsType;
+    
     whitelistContracts                : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
+    generalContracts                  : generalContractsType;
+    whitelistDevelopers               : whitelistDevelopersType;  
 
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;

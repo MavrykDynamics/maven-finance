@@ -78,10 +78,13 @@ type mintParams is (owner * tokenBalance)
 
 type mvkTokenStorage is record [
   admin                   : address;
-  governanceAddress       : address;
-  generalContracts        : generalContractsType;     // map of contract addresses
-  whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
   metadata                : metadata;
+
+  governanceAddress       : address;
+
+  whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+  generalContracts        : generalContractsType;     // map of contract addresses
+  
   token_metadata          : tokenMetadata;
   totalSupply             : tokenBalance;
   maximumSupply           : tokenBalance;

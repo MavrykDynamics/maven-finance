@@ -22,10 +22,9 @@ const breakGlassConfig = {
 const config = {
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
-  maintainer                          : oracleMaintainer.pkh,
   
   minimalTezosAmountDeviationTrigger  : new BigNumber(1),
-  perthousandDeviationTrigger         : new BigNumber(2),
+  perThousandDeviationTrigger         : new BigNumber(2),
   percentOracleThreshold              : new BigNumber(49),
 
   deviationRewardAmountXtz            : new BigNumber(2600),  
@@ -72,6 +71,7 @@ export const aggregatorStorage: aggregatorStorageType = {
   config                    : config,
   breakGlassConfig          : breakGlassConfig,
   
+  maintainer                : oracleMaintainer.pkh,
   mvkTokenAddress           : mvkTokenAddress.address,
   governanceAddress         : governanceAddress.address,
 

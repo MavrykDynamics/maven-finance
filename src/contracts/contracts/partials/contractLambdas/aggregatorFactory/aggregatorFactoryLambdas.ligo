@@ -321,24 +321,32 @@ block {
                 ];
 
                 // get delegation address
-                const delegationAddress : address = case s.generalContracts["delegation"] of [ 
-                        Some (_address) -> _address
-                    |   None            -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get governance satellite address
-                const governanceSatelliteAddress : address = case s.generalContracts["governanceSatellite"] of [ 
-                        Some (_address) -> _address
-                    |   None            -> failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                const governanceSatelliteAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+                const governanceSatelliteAddress: address = case governanceSatelliteAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 const aggregatorWhitelistContracts : whitelistContractsType = map[
                     ("aggregatorFactory")   -> (Tezos.self_address : address);
-                    ("governanceSatellite") -> governanceSatelliteAddress;
+                    ("governanceSatellite") -> (governanceSatelliteAddress : address);
                 ];
                 
                 const aggregatorGeneralContracts : generalContractsType = map[
-                    ("delegation") -> (delegationAddress: address)
+                    ("delegation")          -> (delegationAddress : address)
                 ];
 
                 const aggregatorLambdaLedger : map(string, bytes) = s.aggregatorLambdaLedger;
@@ -364,14 +372,16 @@ block {
                 // new Aggregator Storage declaration
                 const originatedAggregatorStorage : aggregatorStorage = record [
 
-                  admin                     = createAggregatorParams.2.admin;
+                  admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
                   metadata                  = aggregatorMetadata;
+                  name                      = createAggregatorParams.2.name;
                   config                    = createAggregatorParams.2.aggregatorConfig;
                   breakGlassConfig          = aggregatorBreakGlassConfig;
 
                   whitelistContracts        = aggregatorWhitelistContracts;      
                   generalContracts          = aggregatorGeneralContracts;
                   
+                  maintainer                = createAggregatorParams.2.maintainer;
                   mvkTokenAddress           = s.mvkTokenAddress;
                   governanceAddress         = s.governanceAddress;
 
@@ -406,11 +416,6 @@ block {
                 operations := aggregatorOrigination.0 # operations; 
 
                 // register aggregator operation to governance satellite contract
-                const governanceSatelliteAddress : address = case s.whitelistContracts["governanceSatellite"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ];
-
                 const registerAggregatorParams : registerAggregatorActionType = record [
                     aggregatorPair      = (createAggregatorParams.0, createAggregatorParams.1);
                     aggregatorAddress   = aggregatorOrigination.1
@@ -421,6 +426,31 @@ block {
                     0tez,
                     getRegisterAggregatorInGovernanceSatelliteEntrypoint(governanceSatelliteAddress)
                 );
+
+                // Add the aggregator to the governance general contracts map
+                if createAggregatorParams.2.addToGeneralContracts then {
+                    
+                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                        generalContractName    = createAggregatorParams.2.name;
+                        generalContractAddress = aggregatorOrigination.1;
+                    ];
+
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                            Some (contr) -> contr
+                        |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                    ];
+
+                    // updateContractGeneralMap operation
+                    const updateContractGeneralMapOperation : operation = Tezos.transaction(
+                        updateGeneralMapRecord,
+                        0tez, 
+                        updateContractGeneralMapEntrypoint
+                    );
+
+                    operations := updateContractGeneralMapOperation # operations;
+
+                }
+                else skip;
 
                 operations := registerAggregatorOperation # operations;
 
@@ -511,9 +541,14 @@ block{
                 const reward             : nat        = distributeRewardXtzParams.reward;
                 const tokenTransferType  : tokenType  = Tez;
 
-                const treasuryAddress : address = case s.generalContracts["aggregatorTreasury"] of [
-                      Some(_address) -> _address
-                    | None -> failwith(error_TREASURY_CONTRACT_NOT_FOUND)
+                // get aggregator treasury address
+                const aggregatorTreasuryGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorTreasury", s.governanceAddress);
+                const treasuryAddress: address = case aggregatorTreasuryGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TREASURY_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 const transferTokenParams : transferActionType = list[
@@ -555,9 +590,14 @@ block{
                 // check that sender is from a tracked aggregator
                 if checkInTrackedAggregators(Tezos.sender, s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 const distributeRewardStakedMvkOperation : operation = Tezos.transaction(

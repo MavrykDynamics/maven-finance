@@ -124,11 +124,12 @@ type farmLambdaActionType is
 
 type farmStorage is [@layout:comb] record[
     admin                   : address;
-    mvkTokenAddress         : address;
-    governanceAddress       : address;
     metadata                : metadata;
     name                    : string;
     config                  : farmConfigType;
+
+    mvkTokenAddress         : address;
+    governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;

@@ -540,30 +540,7 @@ describe('Contracts Deployment for Tests', async () => {
       console.log("Farm FA2 Lambdas Setup")
 
       // Farm Factory Setup Lambdas
-<<<<<<< HEAD
       await setFarmFactoryLambdas(tezos, farmFactory.contract)
-=======
-      const farmFactoryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaSetAdmin"                           , farmFactoryLambdas[0]))  // setAdmin
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaSetGovernance"                      , farmFactoryLambdas[1]))  // setGovernance
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , farmFactoryLambdas[2]))  // updateMetadata
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateConfig"                       , farmFactoryLambdas[3]))  // updateConfig
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , farmFactoryLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , farmFactoryLambdas[5]))  // updateGeneralContracts
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUpdateBlocksPerMinute"              , farmFactoryLambdas[6]))  // updateBlocksPerMinute
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaPauseAll"                           , farmFactoryLambdas[7]))  // pauseAll
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUnpauseAll"                         , farmFactoryLambdas[8]))  // unpauseAll
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTogglePauseCreateFarm"              , farmFactoryLambdas[9]))  // togglePauseCreateFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTogglePauseTrackFarm"               , farmFactoryLambdas[10]))  // togglePauseTrackFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTogglePauseUntrackFarm"             , farmFactoryLambdas[11]))  // togglePauseUntrackFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaCreateFarm"                         , farmFactoryLambdas[12])) // createFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaTrackFarm"                          , farmFactoryLambdas[13])) // trackFarm
-      .withContractCall(farmFactory.contract.methods.setLambda("lambdaUntrackFarm"                        , farmFactoryLambdas[14])) // untrackFarm
-
-      const setupFarmFactoryLambdasOperation = await farmFactoryLambdaBatch.send()
-      await setupFarmFactoryLambdasOperation.confirmation()
->>>>>>> 98e53109fdf7adf19ebdf1975d12dd77342727b9
       console.log("Farm Factory Lambdas Setup")
 
       // Farm Factory Setup Product Lambdas
@@ -573,7 +550,6 @@ describe('Contracts Deployment for Tests', async () => {
 
 
       // Treasury Setup Lambdas
-<<<<<<< HEAD
       await setTreasuryLambdas(tezos, treasury.contract);
       console.log("Treasury Lambdas Setup")
 
@@ -583,82 +559,6 @@ describe('Contracts Deployment for Tests', async () => {
 
       // Treasury Factory Product Setup Lambdas
       await setTreasuryFactoryProductLambdas(tezos, treasuryFactory.contract);
-=======
-      const treasuryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(treasury.contract.methods.setLambda("lambdaSetAdmin"                               , treasuryLambdas[0]))  // setAdmin
-      .withContractCall(treasury.contract.methods.setLambda("lambdaSetGovernance"                          , treasuryLambdas[1]))  // setGovernance
-      .withContractCall(treasury.contract.methods.setLambda("lambdaSetBaker"                               , treasuryLambdas[2]))  // setBaker
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMetadata"                         , treasuryLambdas[3]))  // updateMetadata
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , treasuryLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , treasuryLambdas[5]))  // updateGeneralContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"          , treasuryLambdas[6]))  // updateWhitelistTokenContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaPauseAll"                               , treasuryLambdas[7]))  // pauseAll
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnpauseAll"                             , treasuryLambdas[8]))  // unpauseAll
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseTransfer"                    , treasuryLambdas[9]))  // togglePauseTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseMintMvkAndTransfer"          , treasuryLambdas[10]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseStakeMvk"                    , treasuryLambdas[11]))  // togglePauseStakeMvk
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstakeMvk"                  , treasuryLambdas[12]))  // togglePauseUnstakeMvk
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[13]))  // transfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMvkOperators"                     , treasuryLambdas[15]))  // updateMvkOperators
-      .withContractCall(treasury.contract.methods.setLambda("lambdaStakeMvk"                               , treasuryLambdas[16]))  // stakeMvk
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnstakeMvk"                             , treasuryLambdas[17]))  // unstakeMvk
-
-      
-      const setupTreasuryLambdasOperation = await treasuryLambdaBatch.send()
-      await setupTreasuryLambdasOperation.confirmation()
-      console.log("Treasury Lambdas Setup")
-
-      // Treasury Factory Setup Lambdas
-      const treasuryFactoryLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaSetAdmin"                           , treasuryFactoryLambdas[0]))  // setAdmin
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaSetGovernance"                      , treasuryFactoryLambdas[1]))  // setGovernance
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , treasuryFactoryLambdas[2]))  // updateMetadata
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateConfig"                       , treasuryFactoryLambdas[3]))  // updateConfig
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , treasuryFactoryLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , treasuryFactoryLambdas[5]))  // updateGeneralContracts
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"      , treasuryFactoryLambdas[6]))  // updateWhitelistTokenContracts
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaPauseAll"                           , treasuryFactoryLambdas[7]))  // pauseAll
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUnpauseAll"                         , treasuryFactoryLambdas[8]))  // unpauseAll
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTogglePauseCreateTreasury"          , treasuryFactoryLambdas[9]))  // togglePauseCreateTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTogglePauseTrackTreasury"           , treasuryFactoryLambdas[10]))  // togglePauseTrackTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTogglePauseUntrackTreasury"         , treasuryFactoryLambdas[11]))  // togglePauseUntrackTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaCreateTreasury"                     , treasuryFactoryLambdas[12])) // createTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaTrackTreasury"                      , treasuryFactoryLambdas[13])) // trackTreasury
-      .withContractCall(treasuryFactory.contract.methods.setLambda("lambdaUntrackTreasury"                    , treasuryFactoryLambdas[14])) // untrackTreasury
-
-      const setupTreasuryFactoryLambdasOperation = await treasuryFactoryLambdaBatch.send()
-      await setupTreasuryFactoryLambdasOperation.confirmation()
-      console.log("Treasury Factory Lambdas Setup")
-
-      // Treasury Factory Product Setup Lambdas
-      const treasuryFactoryProductLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaSetAdmin"                     , treasuryLambdas[0]))  // setAdmin
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaSetGovernance"                , treasuryLambdas[1]))  // setGovernance
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaSetBaker"                     , treasuryLambdas[2]))  // setBaker
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateMetadata"               , treasuryLambdas[3]))  // updateMetadata
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistContracts"     , treasuryLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateGeneralContracts"       , treasuryLambdas[5]))  // updateGeneralContracts
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateWhitelistTokenContracts", treasuryLambdas[6]))  // updateWhitelistTokenContracts
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaPauseAll"                     , treasuryLambdas[7]))  // pauseAll
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnpauseAll"                   , treasuryLambdas[8]))  // unpauseAll
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseTransfer"          , treasuryLambdas[9]))  // togglePauseTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseMintMvkAndTransfer", treasuryLambdas[10]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseStakeMvk"          , treasuryLambdas[11]))  // togglePauseStakeMvk
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstakeMvk"        , treasuryLambdas[12]))  // togglePauseUnstakeMvk
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTransfer"                     , treasuryLambdas[13]))  // transfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaMintMvkAndTransfer"           , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateMvkOperators"           , treasuryLambdas[15]))  // updateMvkOperators
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStakeMvk"                     , treasuryLambdas[16]))  // stakeMvk
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstakeMvk"                   , treasuryLambdas[17]))  // unstakeMvk
-
-      
-      const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
-      await setupTreasuryFactoryProductLambdasOperation.confirmation()
->>>>>>> 98e53109fdf7adf19ebdf1975d12dd77342727b9
       console.log("Treasury Factory Product Lambdas Setup")
 
 
@@ -767,11 +667,7 @@ describe('Contracts Deployment for Tests', async () => {
     .batch()
     .withContractCall(delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
     .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
-<<<<<<< HEAD
     .withContractCall(delegation.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
-    .withContractCall(delegation.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address))
-=======
->>>>>>> 98e53109fdf7adf19ebdf1975d12dd77342727b9
     const delegationContractsBatchOperation = await delegationContractsBatch.send()
     await delegationContractsBatchOperation.confirmation()
     console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
@@ -781,6 +677,8 @@ describe('Contracts Deployment for Tests', async () => {
     // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
     const governanceContractsBatch = await tezos.wallet
     .batch()
+
+    // general contracts
     .withContractCall(governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('doorman', doorman.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('delegation', delegation.contract.address))
@@ -793,9 +691,16 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(governance.contract.methods.updateGeneralContracts('satelliteTreasury', treasury.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactory.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('governanceSatellite', governanceSatellite.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address))
+
+    // whitelist contracts
     .withContractCall(governance.contract.methods.updateWhitelistContracts('farmFactory', farmFactory.contract.address))
     .withContractCall(governance.contract.methods.updateWhitelistContracts('treasuryFactory', treasuryFactory.contract.address))
+    .withContractCall(governance.contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactory.contract.address))
+
+    // governance proxy
     .withContractCall(governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address))
     const governanceContractsBatchOperation = await governanceContractsBatch.send()
     await governanceContractsBatchOperation.confirmation()
@@ -818,20 +723,6 @@ describe('Contracts Deployment for Tests', async () => {
 
 
 
-<<<<<<< HEAD
-    // Emergency Governance Contract - set contract addresses map [breakGlass]
-    const emergencyGovernanceContractsBatch = await tezos.wallet
-    .batch()
-    .withContractCall(emergencyGovernance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address))
-    .withContractCall(emergencyGovernance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address))
-    const emergencyGovernanceContractsBatchOperation = await emergencyGovernanceContractsBatch.send()
-    await emergencyGovernanceContractsBatchOperation.confirmation()
-
-    console.log('Emergency Governance Contract - set general contract addresses map [breakGlass, treasury]')
-
-
-=======
->>>>>>> 98e53109fdf7adf19ebdf1975d12dd77342727b9
 
     // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
     // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]

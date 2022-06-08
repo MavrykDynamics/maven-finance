@@ -211,7 +211,6 @@ describe("Governance Satellite tests", async () => {
 
                 new BigNumber(8),             // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
 
                 new BigNumber(0),             // minimalTezosAmountDeviationTrigger
                 new BigNumber(5),             // perthousandDeviationTrigger
@@ -221,7 +220,7 @@ describe("Governance Satellite tests", async () => {
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                governanceSatelliteAddress.address
+                oracleMaintainer.pkh,         // maintainer
             ))
             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
                 'USD',
@@ -231,7 +230,6 @@ describe("Governance Satellite tests", async () => {
 
                 new BigNumber(8),             // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
                 
                 new BigNumber(0),             // minimalTezosAmountDeviationTrigger
                 new BigNumber(5),             // perthousandDeviationTrigger
@@ -241,7 +239,7 @@ describe("Governance Satellite tests", async () => {
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                governanceSatelliteAddress.address
+                oracleMaintainer.pkh,         // maintainer
             ))
             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
                 'USD',
@@ -251,7 +249,6 @@ describe("Governance Satellite tests", async () => {
 
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
                 
                 new BigNumber(0),             // minimalTezosAmountDeviationTrigger
                 new BigNumber(5),             // perthousandDeviationTrigger
@@ -261,7 +258,7 @@ describe("Governance Satellite tests", async () => {
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                governanceSatelliteAddress.address
+                oracleMaintainer.pkh,         // maintainer
             ))
 
           const createAggregatorsBatchOperation = await createAggregatorsBatch.send()

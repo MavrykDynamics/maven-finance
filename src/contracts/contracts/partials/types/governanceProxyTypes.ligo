@@ -178,10 +178,11 @@ type governanceProxyLambdaActionType is
 
 type governanceProxyStorage is record [
     admin                       : address;
-    governanceAddress           : address;    // separate admin from governance address in event of break glass
     metadata                    : metadata;
 
     mvkTokenAddress             : address;
+    governanceAddress           : address;    // separate admin from governance address in event of break glass
+    
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType; 
     whitelistTokenContracts     : whitelistTokenContractsType;      

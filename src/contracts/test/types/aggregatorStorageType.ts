@@ -10,10 +10,9 @@ export type aggregatorStorageType = {
   config                    : {
     decimals                            : BigNumber;
     numberBlocksDelay                   : BigNumber;
-    maintainer                          : string;
 
     minimalTezosAmountDeviationTrigger  : BigNumber;
-    perthousandDeviationTrigger         : BigNumber;
+    perThousandDeviationTrigger         : BigNumber;
     percentOracleThreshold              : BigNumber;
     
     deviationRewardAmountXtz            : BigNumber;    
@@ -33,6 +32,7 @@ export type aggregatorStorageType = {
   mvkTokenAddress           : string;
   governanceAddress         : string;
 
+  maintainer                : string;
   whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 

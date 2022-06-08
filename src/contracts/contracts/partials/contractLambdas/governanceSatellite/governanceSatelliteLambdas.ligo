@@ -151,10 +151,14 @@ block {
                 const satelliteToBeSuspended  : address = suspendSatelliteParams.satelliteToBeSuspended;
                 const purpose                 : string  = suspendSatelliteParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -186,9 +190,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -280,10 +288,14 @@ block {
                 const satelliteToBeUnsuspended  : address = unsuspendSatelliteParams.satelliteToBeUnsuspended;
                 const purpose                   : string  = unsuspendSatelliteParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -315,9 +327,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -408,10 +424,14 @@ block {
                 const satelliteToBeBanned      : address = banSatelliteParams.satelliteToBeBanned;
                 const purpose                  : string  = banSatelliteParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -443,9 +463,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -536,10 +560,14 @@ block {
                 const satelliteToBeUnbanned    : address = unbanSatelliteParams.satelliteToBeUnbanned;
                 const purpose                  : string  = unbanSatelliteParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -571,9 +599,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -672,10 +704,14 @@ block {
                 const satelliteAddress    : address = removeAllSatelliteOraclesParams.satelliteAddress;
                 const purpose             : string  = removeAllSatelliteOraclesParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -707,9 +743,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -801,10 +841,14 @@ block {
                 const aggregatorAddress  : address = addOracleToAggregatorParams.aggregatorAddress;
                 const purpose            : string  = addOracleToAggregatorParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -827,9 +871,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -921,10 +969,14 @@ block {
                 const aggregatorAddress    : address = removeOracleInAggregatorParams.aggregatorAddress;
                 const purpose              : string  = removeOracleInAggregatorParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -947,9 +999,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -1092,10 +1148,14 @@ block {
                 const status               : string  = updateAggregatorStatusParams.status;
                 const purpose              : string  = updateAggregatorStatusParams.purpose;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -1119,9 +1179,13 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 // get doorman contract address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get staked MVK total supply
@@ -1217,10 +1281,14 @@ block {
                 // init params
                 const dropActionId     : nat     = dropActionParams.dropActionId;
 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -1268,10 +1336,14 @@ block {
     case governanceSatelliteLambdaAction of [
         | LambdaVoteForAction(voteForAction) -> {
                 
-                // check if delegation contract exists
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record

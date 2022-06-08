@@ -268,10 +268,11 @@ type governanceFinancialLambdaActionType is
 type governanceFinancialStorage is [@layout:comb] record [
     
     admin                               : address;
-    mvkTokenAddress                     : address;
-    governanceAddress                   : address;   
     metadata                            : metadata;
     config                              : governanceFinancialConfigType;
+
+    mvkTokenAddress                     : address;
+    governanceAddress                   : address;   
 
     whitelistTokenContracts             : whitelistTokenContractsType;
     whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints

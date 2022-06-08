@@ -46,7 +46,7 @@ type governanceSatelliteAction is
     | RegisterAggregator            of registerAggregatorActionType
     | UpdateAggregatorStatus        of updateAggregatorStatusActionType
 
-      // Governance Actions
+      // Governance Vote Actions
     | DropAction                    of dropActionType
     | VoteForAction                 of voteForActionType
 

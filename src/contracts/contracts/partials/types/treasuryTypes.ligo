@@ -70,16 +70,17 @@ type treasuryLambdaActionType is
 
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;
+    metadata                   : metadata;
+    name                       : string;
+    
     mvkTokenAddress            : address;
     governanceAddress          : address;
-    name                       : string;
-    metadata                   : metadata;
-    
-    breakGlassConfig           : treasuryBreakGlassConfigType;
 
     whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
+    whitelistTokenContracts    : whitelistTokenContractsType;
+
+    breakGlassConfig           : treasuryBreakGlassConfigType;
 
     lambdaLedger               : lambdaLedgerType;
 ]
