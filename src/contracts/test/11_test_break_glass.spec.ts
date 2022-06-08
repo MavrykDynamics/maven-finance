@@ -801,7 +801,7 @@
 //                         var storage:any     = await contract.storage();
 
 //                         // Check admin
-//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
 //                             setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                             await setAdminOperation.confirmation()
 //                         }
@@ -1795,8 +1795,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     const generalContracts  = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.status, "EXECUTED");
@@ -1852,8 +1853,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     const generalContracts  = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.status, "EXECUTED");
@@ -1969,8 +1971,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     var generalContracts    = breakGlassStorage.generalContracts.entries();
+//                     var generalContracts    = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
@@ -1991,7 +1994,8 @@
 
 //                     // reset all contracts admin to breakGlass for future tests
 //                     await signerFactory(bob.sk)
-//                     generalContracts  = await breakGlassStorage.generalContracts.entries();
+//                     governanceStorage       = await governanceInstance.storage();
+//                     generalContracts        = await governanceStorage.generalContracts.entries();
 //                     var setAdminOperation   = await breakGlassInstance.methods.setAdmin(breakGlassAddress.address).send();
 //                     await setAdminOperation.confirmation();
 //                 } catch(e){
@@ -2057,9 +2061,10 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     var nextActionID        = breakGlassStorage.actionCounter;
 
-//                     var generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     var generalContracts  = governanceStorage.generalContracts.entries();
 //                     await signerFactory(bob.sk)
 //                     for (let entry of generalContracts){
 //                         // Get contract storage
@@ -2067,13 +2072,14 @@
 //                         var storage:any     = await contract.storage();
 
 //                         // Check admin
-//                         if(storage.hasOwnProperty('admin')){
+//                         if(storage.hasOwnProperty('admin') && storage.admin!==breakGlassAddress.address && entry[1]!==breakGlassAddress.address){
 //                             var setAdminOperation   = await contract.methods.setAdmin(breakGlassAddress.address).send();
 //                             await setAdminOperation.confirmation();              
 //                         }
 //                     }
 
 //                     // Reset admin to breakGlass contract
+//                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     var setContractAdminOperation = await breakGlassInstance.methods.setAdmin(breakGlassAddress.address).send();
 //                     await setContractAdminOperation.confirmation();
 
@@ -2105,8 +2111,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     generalContracts        = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
@@ -2235,7 +2242,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 
-//                     action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     action              = await breakGlassStorage.actionsLedger.get(flushedAction);
 //                     assert.equal(action.status, "FLUSHED");
 
 //                     // Operation

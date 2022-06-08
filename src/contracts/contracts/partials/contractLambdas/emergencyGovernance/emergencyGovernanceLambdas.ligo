@@ -82,8 +82,8 @@ block {
                     ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
                   | ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
                   | ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
-                  | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 100_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
-                  | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 100_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+                  | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
+                  | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
                   | ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
                   | ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
                 ];
@@ -105,6 +105,23 @@ block {
     case emergencyGovernanceLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage): return is
+block {
+    
+    checkSenderIsAdmin(s);
+    
+    case emergencyGovernanceLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
         | _ -> skip
     ];
@@ -141,21 +158,29 @@ block {
 
             // check if tez sent is equal to the required fee
             if Tezos.amount =/= s.config.requiredFeeMutez 
-            then failwith(error_TEZ_FEE_UNPAID) 
+            then failwith(error_TEZ_FEE_NOT_PAID) 
             else skip;
-
-            const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [
-                  Some(_address) -> _address
-                | None           -> failwith(error_TRIGGER_TAX_TREASURY_CONTRACT_NOT_FOUND)
+            
+            const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "taxTreasury", s.governanceAddress);
+            const treasuryAddress: address = case generalContractsOptViewTax of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_TAX_TREASURY_CONTRACT_NOT_FOUND)
+                    ]
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
             const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
             const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
 
             // check if user has sufficient staked MVK to trigger emergency control
-            const doormanAddress : address = case s.generalContracts["doorman"] of [
-                  Some(_address) -> _address
-                | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+            const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+            const doormanAddress: address = case generalContractsOptViewDoorman of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                    ]
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
             const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -169,8 +194,8 @@ block {
             else skip;
 
             // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
-            const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
-            const stakedMvkTotalSupply: nat = case getBalanceView of [
+            const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+            const stakedMvkTotalSupply: nat = case balanceView of [
                 Some (value) -> value
             | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
             ];
@@ -248,9 +273,13 @@ block {
                 // Check is user already voted
                 if not Map.mem(userAddress, _emergencyGovernance.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 
                 // get user staked MVK Balance
@@ -277,11 +306,14 @@ block {
                 // check if total votes has exceed threshold - if yes, trigger operation to break glass contract
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
 
-                    const breakGlassContractAddress : address = case s.generalContracts["breakGlass"] of [
-                          Some(_address) -> _address
-                        | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
+                    const generalContractsOptViewBreakGlass : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "breakGlass", s.governanceAddress);
+                    const breakGlassContractAddress: address = case generalContractsOptViewBreakGlass of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_BREAK_GLASS_CONTRACT_NOT_FOUND)
+                            ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                     ];
-
                     const governanceContractAddress : address = s.governanceAddress;
 
                     // trigger break glass in break glass contract - set glassbroken to true in breakglass contract to give council members access to protected entrypoints

@@ -59,8 +59,8 @@ block {
                     | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
 
-                const getGlassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
-                const glassBroken: bool = case getGlassBrokenView of [
+                const glassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
+                const glassBroken: bool = case glassBrokenView of [
                       Some (_glassBroken) -> _glassBroken
                     | None -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
@@ -221,11 +221,28 @@ function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceL
 block {
 
     // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsWhitelistedOrAdmin(s);
     
     case governanceLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage): return is
+block {
+    
+    checkSenderIsAdmin(s);
+    
+    case governanceLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
         | _ -> skip
     ];
@@ -331,7 +348,7 @@ block {
         | LambdaStartNextRound(executePastProposal) -> {
                 
                 // Get current variables
-                const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.currentRoundHighestVotedProposalId, s.proposalLedger);
+                const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger);
                 
                 var _highestVoteCounter     : nat := 0n;
                 var highestVotedProposalId  : nat := 0n;
@@ -422,7 +439,7 @@ block {
 
                 // check if tez sent is equal to the required fee
                 if Tezos.amount =/= s.config.proposalSubmissionFeeMutez 
-                then failwith(error_TEZ_FEE_UNPAID) 
+                then failwith(error_TEZ_FEE_NOT_PAID) 
                 else skip;
 
                 const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [
@@ -465,7 +482,7 @@ block {
                 // minimumStakeReqPercentage - 5% -> 500 | snapshotMvkTotalSupply - mu 
                 const minimumMvkRequiredForProposalSubmission = s.config.minimumStakeReqPercentage * s.snapshotMvkTotalSupply / 10_000;
 
-                if satelliteSnapshot.totalMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
+                if satelliteSnapshot.totalStakedMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip; 
 
                 const proposalId          : nat                                     = s.nextProposalId;
@@ -496,7 +513,6 @@ block {
 
                     successReward                       = s.config.successReward;          // log of successful proposal reward for voters - may change over time
                     executed                            = False;                           // boolean: executed set to true if proposal is executed
-                    isSuccessful                        = False;                           // boolean: set to true if proposal is successful (gone from voting round to timelock round)
                     paymentProcessed                    = False;                           // boolean: set to true if proposal payment has been processed 
                     locked                              = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
 
@@ -963,7 +979,7 @@ block {
     if s.currentCycleInfo.round = (Voting : roundType) then skip
     else failwith(error_ONLY_ACCESSIBLE_DURING_VOTING_ROUND);
 
-    if s.currentRoundHighestVotedProposalId = 0n then failwith(error_NO_PROPOSAL_TO_VOTE_FOR)
+    if s.cycleHighestVotedProposalId = 0n then failwith(error_NO_PROPOSAL_TO_VOTE_FOR)
     else skip; 
 
     case governanceLambdaAction of [
@@ -996,11 +1012,11 @@ block {
                 ];
 
                 // check if proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(s.currentRoundHighestVotedProposalId, s.currentCycleInfo.roundProposals);
+                const checkProposalExistsFlag : bool = Map.mem(s.cycleHighestVotedProposalId, s.currentCycleInfo.roundProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
-                var _proposal : proposalRecordType := case s.proposalLedger[s.currentRoundHighestVotedProposalId] of [
+                var _proposal : proposalRecordType := case s.proposalLedger[s.cycleHighestVotedProposalId] of [
                       None            -> failwith(error_PROPOSAL_NOT_FOUND)
                     | Some(_proposal) -> _proposal        
                 ];
@@ -1021,7 +1037,7 @@ block {
                     var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
                     
                     // update proposal with new vote changes
-                    s.proposalLedger[s.currentRoundHighestVotedProposalId] := _proposal;
+                    s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
 
                 } else block {
                     // satellite has already voted - change of vote
@@ -1048,7 +1064,7 @@ block {
                     var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
                     
                     // update proposal with new vote changes
-                    s.proposalLedger[s.currentRoundHighestVotedProposalId] := _proposal;
+                    s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
                     
                 }
 
@@ -1086,7 +1102,7 @@ block {
                     | None -> failwith(error_PROPOSAL_NOT_FOUND)
                 ];
 
-                if proposal.executed = True then failwith(error_PROPOSAL_EXECUTED)
+                if proposal.executed then failwith(error_PROPOSAL_EXECUTED)
                 else skip;
 
                 // verify that proposal is active and has not been dropped
@@ -1103,7 +1119,6 @@ block {
 
                 // update proposal executed and isSucessful boolean to True
                 proposal.executed                      := True;
-                proposal.isSuccessful                  := True;
                 s.proposalLedger[s.timelockProposalId] := proposal;
 
                 // Operation data should be executed in FIFO mode
@@ -1170,16 +1185,16 @@ block {
                 if Tezos.sender =/= proposal.proposerAddress then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
-                // verify that proposal is successful
-                if proposal.isSuccessful = False then failwith(error_PROPOSAL_UNSUCCESSFUL)
-                else skip;
-
                 // verify that payment for proposal has not been processed
                 if proposal.paymentProcessed = True then failwith(error_PROPOSAL_PAYMENTS_PROCESSED)
                 else skip;
 
                 // verify that proposal is active and has not been dropped
                 if proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
+                else skip;
+
+                // verify that proposal has been executed
+                if not proposal.executed then failwith(error_PROPOSAL_NOT_EXECUTED)
                 else skip;
 
                 // check that there is at least one proposal metadata to execute
@@ -1300,7 +1315,6 @@ block {
                 if proposal.proposalMetadataExecutionCounter >= Map.size(proposal.proposalMetadata) then {
                     // update proposal executed and isSucessful boolean to True
                     proposal.executed                      := True;
-                    proposal.isSuccessful                  := True;
 
                     // Send reward to proposer
                     operations  := sendRewardToProposer(s) # operations;

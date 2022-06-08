@@ -56,7 +56,7 @@ const testStartNextRound00 = {
     assert(newStorage.currentCycleInfo.round = (Proposal: roundType));
     assert(Map.size(newStorage.currentCycleInfo.roundProposals) = 0n);
     assert(Map.size(newStorage.currentCycleInfo.roundVotes) = 0n);
-    assert(newStorage.currentRoundHighestVotedProposalId = 0n);
+    assert(newStorage.cycleHighestVotedProposalId = 0n);
     assert(newStorage.currentCycleInfo.cycleEndLevel = newStorage.currentCycleInfo.roundStartLevel + newStorage.currentCycleInfo.blocksPerProposalRound + newStorage.currentCycleInfo.blocksPerVotingRound + newStorage.currentCycleInfo.blocksPerTimelockRound);
     assert(newStorage.currentCycleInfo.roundEndLevel = newStorage.currentCycleInfo.roundStartLevel + newStorage.currentCycleInfo.blocksPerProposalRound);
 } with (unit);

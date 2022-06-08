@@ -120,6 +120,8 @@ type executeActionParamsType is
 | UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
 | UpdateCouncilConfig                of councilUpdateConfigParamsType
 | UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
+| UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+| UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
 | UpdateDoormanMinMvkAmount          of (nat)
 
 // | PauseAllInContract                 of (address)
@@ -135,7 +137,7 @@ type executeActionParamsType is
 | InitFarm                           of (targetFarmInitType)
 | CloseFarm                          of (address)
 
-| CreateTreasury                     of bytes
+| CreateTreasury                     of createTreasuryType
 | TrackTreasury                      of (address)
 | UntrackTreasury                    of (address)
 | TransferTreasury                   of targetTreasuryTransferType

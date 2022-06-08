@@ -32,6 +32,8 @@ type farmTokenPair is [@layout:comb] record [
 ]
 
 type createFarmType is [@layout:comb] record[
+    name                    : string;
+    addToGeneralContracts   : bool;
     forceRewardFromTransfer : bool;
     infinite                : bool;
     plannedRewards          : farmPlannedRewards;
@@ -39,37 +41,29 @@ type createFarmType is [@layout:comb] record[
     lpToken                 : farmLpToken;
 ]
 
-type farmMetadataType is record[
-    name                     : string;
-    description              : string;
-    version                  : string;
-    liquidityPairToken       : record[
-        tokenAddress         : address;
-        origin               : string;
-        token0               : farmToken;
-        token1               : farmToken;
-    ];
-    authors                  : string;
+type farmFactoryBreakGlassConfigType is [@layout:comb] record [
+    createFarmIsPaused      : bool;
+    trackFarmIsPaused       : bool;
+    untrackFarmIsPaused     : bool;
 ]
 
-// type initFarmParamsType is record[
-//     totalBlocks: nat;
-//     currentRewardPerBlock: nat;
-// ]
-
-type farmFactoryBreakGlassConfigType is record [
-    createFarmIsPaused     : bool;
-    trackFarmIsPaused      : bool;
-    untrackFarmIsPaused    : bool;
-]
-
-type farmFactoryConfigType is record [
-    blocksPerMinute        : nat;
-]
+type farmFactoryConfigType is [@layout:comb] record [
+    blocksPerMinute         : nat;
+    farmNameMaxLength       : nat;
+] 
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
     metadataHash     : bytes; 
+]
+
+type farmFactoryUpdateConfigNewValueType is nat
+type farmFactoryUpdateConfigActionType is 
+  ConfigFarmNameMaxLength of unit
+| Empty                   of unit
+type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: farmFactoryUpdateConfigNewValueType; 
+  updateConfigAction: farmFactoryUpdateConfigActionType;
 ]
 
 type farmFactoryLambdaActionType is 
@@ -78,6 +72,7 @@ type farmFactoryLambdaActionType is
     LambdaSetAdmin                    of (address)
 |   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
+|   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
 |   LambdaUpdateBlocksPerMinute       of (nat)
