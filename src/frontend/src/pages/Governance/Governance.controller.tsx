@@ -31,7 +31,7 @@ export const Governance = () => {
   const { governanceStorage, governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
-  const [visibleModal, setVisibleModal] = useState(true)
+  const [visibleModal, setVisibleModal] = useState(false)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
