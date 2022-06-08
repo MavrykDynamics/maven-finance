@@ -24,7 +24,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
   const [selectedContract, setSelectedContract] = useState<string>('')
-  const [activeCards, setActiveCards] = React.useState<Array<string>>([])
+  const [activeCard, setActiveCard] = React.useState<null | string>(null)
 
   const uniqueContracts = useMemo(() => {
     return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[]) : []
@@ -71,7 +71,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
               target="_blank"
               rel="noreferrer"
             >
-              Read documentation here.
+              Read documentation here
             </a>
           </FAQLink>
         </BGInfo>
@@ -80,24 +80,28 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
         <BGTitle>Contract Status</BGTitle>
         <ToggleButton
           selected={selectedContract}
-          handleSetSelectedToggler={setSelectedContract}
+          handleSetSelectedToggler={(tabId: string) => {
+            setSelectedContract(tabId)
+            setActiveCard(null)
+          }}
           uniqueContracts={uniqueContracts}
         />
       </BGMiddleWrapper>
 
       <BGCardsWrapper>
-        {filteredBreakGlassStatuses.map((item: Record<string, unknown>, index: number) => {
-          const isCardActive = Boolean(activeCards.find((cardKey) => cardKey === item.title))
+        {filteredBreakGlassStatuses.map((item: Record<string, unknown>) => {
+          const trimmedTitle = (item.title as string).trim()
+          const isCardActive = activeCard === trimmedTitle
           return (
             <ContractCard
               isActive={isCardActive}
               contract={item}
-              key={index}
+              key={trimmedTitle}
               onClick={() => {
                 if (isCardActive) {
-                  setActiveCards(activeCards.filter((cardKey) => cardKey !== item.title))
+                  setActiveCard(null)
                 } else {
-                  setActiveCards([...activeCards, (item.title as string) || ''])
+                  setActiveCard(trimmedTitle || '')
                 }
               }}
             />
