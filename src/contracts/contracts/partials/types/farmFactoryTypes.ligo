@@ -32,13 +32,13 @@ type farmTokenPair is [@layout:comb] record [
 ]
 
 type createFarmType is [@layout:comb] record[
-    name                    : string;
-    addToGeneralContracts   : bool;
-    forceRewardFromTransfer : bool;
-    infinite                : bool;
-    plannedRewards          : farmPlannedRewards;
-    metadata                : bytes;
-    lpToken                 : farmLpToken;
+    name                     : string;
+    addToGeneralContracts    : bool;
+    forceRewardFromTransfer  : bool;
+    infinite                 : bool;
+    plannedRewards           : farmPlannedRewards;
+    metadata                 : bytes;
+    lpToken                  : farmLpToken;
 ]
 
 type farmFactoryBreakGlassConfigType is [@layout:comb] record [
@@ -97,13 +97,15 @@ type farmFactoryLambdaActionType is
 type farmFactoryStorage is [@layout:comb] record[
     admin                  : address;
     metadata               : metadata;
+    config                 : farmFactoryConfigType;
+
     mvkTokenAddress        : address;
     governanceAddress      : address;
-    config                 : farmFactoryConfigType;
-    breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
     whitelistContracts     : whitelistContractsType;      
     generalContracts       : generalContractsType;
+
+    breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
     trackedFarms           : set(address);
 

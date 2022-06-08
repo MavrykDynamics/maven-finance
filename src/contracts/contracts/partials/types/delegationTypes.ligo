@@ -167,12 +167,12 @@ type distributeRewardsTypes is [@layout:comb] record [
 ]
 
 type delegationStorage is [@layout:comb] record [
-    admin                : address;
-    mvkTokenAddress      : address;
-    governanceAddress    : address;
-    metadata             : metadata;
-    
-    config               : delegationConfigType;
+    admin                   : address;
+    metadata                : metadata;
+    config                  : delegationConfigType;
+
+    mvkTokenAddress         : address;
+    governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;

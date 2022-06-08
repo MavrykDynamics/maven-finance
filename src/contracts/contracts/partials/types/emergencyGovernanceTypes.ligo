@@ -81,10 +81,11 @@ type emergencyGovernanceLambdaActionType is
 
 type emergencyGovernanceStorage is [@layout:comb] record [
     admin                               : address;
-    mvkTokenAddress                     : address;
-    governanceAddress                   : address;
     metadata                            : metadata;
     config                              : emergencyConfigType;
+
+    mvkTokenAddress                     : address;
+    governanceAddress                   : address;
     
     whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
