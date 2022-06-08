@@ -6,7 +6,10 @@ export type farmFactoryStorageType = {
   governanceAddress     : string;
   mvkTokenAddress       : string;
   metadata              : MichelsonMap<MichelsonMapKey, unknown>;
-  config                : BigNumber;
+  config                : {
+    blocksPerMinute     : BigNumber,
+    farmNameMaxLength   : BigNumber
+  };
   breakGlassConfig      : {
     createFarmIsPaused  : boolean;
     trackFarmIsPaused   : boolean;

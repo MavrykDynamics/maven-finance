@@ -84,8 +84,6 @@ block {
                         // check if farm has been initiated
                         checkFarmIsInit(s);
 
-                        checkFarmIsInit(s);
-
                         // update farmStorage
                         s := updateFarm(s);
 
@@ -422,7 +420,7 @@ block{
                 // Prepare new depositor record
                 var depositorRecord: depositorRecord := record[
                     balance                     =0n;
-                    participationMVKPerShare    =s.accumulatedRewardsPerShare;
+                    participationRewardsPerShare    =s.accumulatedRewardsPerShare;
                     unclaimedRewards            =0n;
                     claimedRewards              =0n;
                 ];

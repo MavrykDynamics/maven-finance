@@ -596,7 +596,7 @@
 //                     const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
 //                     const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
 //                     const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//                     const currentRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//                     const cycleHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //                     // Operation
 //                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -612,7 +612,7 @@
 //                     const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
 //                     const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
 //                     const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//                     const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //                     // Assertions
 //                     assert.equal(currentCycleInfoRoundString, "proposal");
@@ -622,7 +622,7 @@
 //                     assert.equal(currentCycleInfoRoundStartLevel, 0);
 //                     assert.equal(currentCycleInfoRoundEndLevel, 0);
 //                     assert.equal(currentCycleInfoCycleEndLevel, 0);
-//                     assert.equal(currentRoundHighestVotedProposalId, 0);
+//                     assert.equal(cycleHighestVotedProposalId, 0);
 
 //                     assert.equal(finalRoundString, "proposal");
 //                     assert.notEqual(finalBlocksPerProposalRound, currentCycleInfoBlocksPerProposalRound);
@@ -631,7 +631,7 @@
 //                     assert.notEqual(finalRoundStartLevel, currentCycleInfoRoundStartLevel);
 //                     assert.notEqual(finalRoundEndLevel, currentCycleInfoRoundEndLevel);
 //                     assert.notEqual(finalCycleEndLevel, currentCycleInfoCycleEndLevel);
-//                     assert.notEqual(finalRoundHighestVotedProposalId, currentRoundHighestVotedProposalId);
+//                     assert.notEqual(finalRoundHighestVotedProposalId, cycleHighestVotedProposalId);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -729,7 +729,7 @@
 //                     governanceStorage = await governanceInstance.storage();
 //                     const finalRound                       = governanceStorage.currentCycleInfo.round
 //                     const finalRoundString                 = Object.keys(finalRound)[0]
-//                     const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //                     // Assertions
 //                     assert.equal(currentCycleInfoRoundString, "proposal");
@@ -845,7 +845,7 @@
 //             //         const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
 //             //         const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
 //             //         const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//             //         const currentRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//             //         const cycleHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //             //         const roundDurationConfig = 1
 
@@ -867,7 +867,7 @@
 //             //         const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
 //             //         const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
 //             //         const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//             //         const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//             //         const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //             //         // Assertions
 //             //         assert.equal(finalRoundString, currentCycleInfoRoundString);
@@ -877,7 +877,7 @@
 //             //         assert.equal(finalRoundStartLevel.toNumber(), currentCycleInfoRoundStartLevel.toNumber());
 //             //         assert.equal(finalRoundEndLevel.toNumber(), currentCycleInfoRoundEndLevel.toNumber());
 //             //         assert.equal(finalCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
-//             //         assert.equal(finalRoundHighestVotedProposalId.toNumber(), currentRoundHighestVotedProposalId.toNumber());
+//             //         assert.equal(finalRoundHighestVotedProposalId.toNumber(), cycleHighestVotedProposalId.toNumber());
 //             //     } catch(e){
 //             //         console.dir(e, {depth: 5})
 //             //     }
@@ -1783,7 +1783,7 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
 //                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
-//                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
+//                     const highestVotedProposal  = governanceStorage.cycleHighestVotedProposalId;
 //                     const timelockProposal      = governanceStorage.timelockProposalId;
 
 //                     // Operation
@@ -1800,7 +1800,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
+//                     const highestVotedProposal  = governanceStorage.cycleHighestVotedProposalId;
 //                     const timelockProposal      = governanceStorage.timelockProposalId;
 
 //                     // Operation
@@ -1824,7 +1824,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
+//                     const highestVotedProposal  = governanceStorage.cycleHighestVotedProposalId;
 //                     const timelockProposal      = governanceStorage.timelockProposalId;
                 
 //                     const startProposalRoundOperation = await governanceInstance.methods.startNextRound(false).send();

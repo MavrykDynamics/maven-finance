@@ -63,6 +63,30 @@ block {
 
 
 
+(* updateConfig lambda *)
+function lambdaUpdateConfig(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is 
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+
+    case farmFactoryLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : farmFactoryUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : farmFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                    | ConfigFarmNameMaxLength (_v)     -> s.config.farmNameMaxLength         := updateConfigNewValue
+                    | Empty (_v)                       -> skip
+                ];
+            }
+        | _ -> skip
+    ];
+  
+} with (noOperations, s)
+
+
+
 (*  updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
@@ -290,6 +314,9 @@ block{
 
     case farmFactoryLambdaAction of [
         | LambdaCreateFarm(createFarmParams) -> {
+
+                // Check farm name length
+                if String.length(createFarmParams.name) > s.config.farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Add FarmFactory Address to whitelistContracts of created farm
                 const councilAddress : address = case s.whitelistContracts["council"] of [ 
@@ -300,15 +327,7 @@ block{
                     ("farmFactory")  -> (Tezos.self_address: address);
                     ("council")      -> (councilAddress: address)
                 ];
-
-                // Add FarmFactory Address to doormanContracts of created farm
-                const doormanAddress : address = case s.generalContracts["doorman"] of [ 
-                        Some (_address) -> _address
-                    |   None            -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
-                ];
-                const farmGeneralContracts : generalContractsType = map[
-                    ("doorman") -> (doormanAddress: address)
-                ];
+                const farmGeneralContracts : generalContractsType = map[];
 
                 // Create needed records for farm contract
                 const farmClaimedRewards : claimedRewards = record[
@@ -359,6 +378,7 @@ block{
                     governanceAddress       = s.governanceAddress;
                     metadata                = farmMetadata;
 
+                    name                    = createFarmParams.name;
                     config                  = farmConfig;
                     
                     whitelistContracts      = farmWhitelistContract;      
@@ -377,7 +397,7 @@ block{
                     lambdaLedger            = farmLambdaLedger;
                 ];
 
-                // Do we want to send tez to the farm contract?
+                // Originate the farm
                 const farmOrigination : (operation * address) = createFarmFunc(
                     (None: option(key_hash)), 
                     0tez,
@@ -385,6 +405,30 @@ block{
                 );
 
                 s.trackedFarms := Set.add(farmOrigination.1, s.trackedFarms);
+
+                // Add the farm to the governance general contracts map
+                if createFarmParams.addToGeneralContracts then {
+                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                        generalContractName    = createFarmParams.name;
+                        generalContractAddress = farmOrigination.1;
+                    ];
+
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                        Some (contr) -> contr
+                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                    ];
+
+                    // updateContractGeneralMap operation
+                    const updateContractGeneralMapOperation : operation = Tezos.transaction(
+                        updateGeneralMapRecord,
+                        0tez, 
+                        updateContractGeneralMapEntrypoint
+                    );
+
+                    operations := updateContractGeneralMapOperation # operations;
+
+                }
+                else skip;
 
                 operations := farmOrigination.0 # operations;
 

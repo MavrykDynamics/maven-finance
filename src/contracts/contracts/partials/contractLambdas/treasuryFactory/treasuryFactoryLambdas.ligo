@@ -63,6 +63,33 @@ block {
 
 
 
+(* updateConfig lambda *)
+function lambdaUpdateConfig(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is 
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+
+    case treasuryFactoryLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : treasuryFactoryUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : treasuryFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                    | ConfigTreasuryNameMaxLength (_v)     -> s.config.treasuryNameMaxLength         := updateConfigNewValue
+                    | Empty (_v)                           -> skip
+                ];
+            }
+        | _ -> skip
+    ];
+  
+} with (noOperations, s)
+
+
+
+
+
+
 (* updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
@@ -277,11 +304,14 @@ block{
     var operations: list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
-        | LambdaCreateTreasury(treasuryMetadata) -> {
+        | LambdaCreateTreasury(createTreasuryParams) -> {
+                
+                // Check treasury name length
+                if String.length(createTreasuryParams.name) > s.config.treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Add TreasuryFactory Address and Governance proxy Address to whitelistContracts of created treasury
-                const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                const governanceProxyAddress: address = case governanceProxyAddressView of [
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
@@ -290,14 +320,7 @@ block{
                     ("governanceProxy") -> (governanceProxyAddress);
                 ];
                 const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
-
-                const delegationAddress: address = case s.generalContracts["delegation"] of [ 
-                    Some (_address) -> _address
-                |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-                const treasuryGeneralContracts : generalContractsType = map[
-                    ("delegation") -> (delegationAddress : address);
-                ];
+                const treasuryGeneralContracts : generalContractsType = map[];
 
                 const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
                     transferIsPaused           = False;
@@ -309,7 +332,7 @@ block{
                 // Prepare Treasury Metadata
                 const treasuryMetadata: metadata = Big_map.literal (list [
                     ("", Bytes.pack("tezos-storage:data"));
-                    ("data", treasuryMetadata)
+                    ("data", createTreasuryParams.metadata)
                 ]);
                 const treasuryLambdaLedger : map(string, bytes) = s.treasuryLambdaLedger;
 
@@ -317,6 +340,7 @@ block{
                     admin                     = s.admin;                         // admin will be the governance contract
                     mvkTokenAddress           = s.mvkTokenAddress;
                     governanceAddress         = s.governanceAddress;
+                    name                      = createTreasuryParams.name;
                     metadata                  = treasuryMetadata;
 
                     breakGlassConfig          = treasuryBreakGlassConfig;
@@ -335,6 +359,30 @@ block{
                 );
 
                 s.trackedTreasuries := Set.add(treasuryOrigination.1, s.trackedTreasuries);
+
+                // Add the treasury to the governance general contracts map
+                if createTreasuryParams.addToGeneralContracts then {
+                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                        generalContractName    = createTreasuryParams.name;
+                        generalContractAddress = treasuryOrigination.1;
+                    ];
+
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                        Some (contr) -> contr
+                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                    ];
+
+                    // updateContractGeneralMap operation
+                    const updateContractGeneralMapOperation : operation = Tezos.transaction(
+                        updateGeneralMapRecord,
+                        0tez, 
+                        updateContractGeneralMapEntrypoint
+                    );
+
+                    operations := updateContractGeneralMapOperation # operations;
+
+                }
+                else skip;
 
                 operations := treasuryOrigination.0 # operations;
 

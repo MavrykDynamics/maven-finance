@@ -348,6 +348,9 @@ block {
                     // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
                     var numberOfClaimMonths : nat := abs(abs(Tezos.now - _vestee.lastClaimedTimestamp) / thirty_days);
 
+                    // first claim month
+                    if _vestee.lastClaimedTimestamp = _vestee.startTimestamp then numberOfClaimMonths   := numberOfClaimMonths + 1n else skip;
+
                     // get total claim amount
                     var totalClaimAmount := _vestee.claimAmountPerMonth * numberOfClaimMonths;
                     if totalClaimAmount > _vestee.totalRemainder then totalClaimAmount := _vestee.totalRemainder
@@ -373,7 +376,7 @@ block {
                     _vestee.monthsClaimed            := monthsClaimed;
 
                     // use vestee start period to calculate next redemption period
-                    _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days) + thirty_days;
+                    _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days);
                     _vestee.lastClaimedTimestamp     := Tezos.now;    // current timestamp
 
                     _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  

@@ -140,9 +140,13 @@ function checkUserIsNotDelegate(const userAddress: address; var s : delegationSt
 
 function checkSenderIsDoormanContract(var s : delegationStorage) : unit is
 block{
-  const doormanAddress : address = case s.generalContracts["doorman"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+  const doormanAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -190,9 +194,13 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
       | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
       ];
 
-      const doormanAddress : address = case s.generalContracts["doorman"] of [
-          Some(_address) -> _address
-        | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+      const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+      const doormanAddress: address = case generalContractsOptView of [
+          Some (_optionContract) -> case _optionContract of [
+                  Some (_contract)    -> _contract
+              |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+              ]
+      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
 
       const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -388,6 +396,12 @@ block {
 // Views Begin
 //
 // ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : delegationStorage) : address is
+  s.admin
+
+
 
 (* View: get Config *)
 [@view] function getConfig(const _: unit; var s : delegationStorage) : delegationConfigType is
