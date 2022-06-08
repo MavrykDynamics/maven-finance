@@ -63,5 +63,9 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     grid-column-start: 1;
     grid-column-end: 3;
     color: ${cyanColor};
+
+    svg {
+      stroke: rgb(134, 212, 201);
+    }
   }
 `
