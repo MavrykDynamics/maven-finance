@@ -30,12 +30,23 @@ export const VotingBarView = ({
   voteStatistics,
   totalCirculatingMVKSupply,
 }: VotingViewProps) => {
+  voteStatistics = {
+    passVotesMVKTotal: 1000,
+    forVotesMVKTotal: 1500,
+    againstVotesMVKTotal: 2000,
+    abstainVotesMVKTotal: 3000,
+    unusedVotesMVKTotal: 20,
+  }
+  totalMVKVoted = 100000
+  totalCirculatingMVKSupply = 500
   const forVotesWidth = (voteStatistics.forVotesMVKTotal / totalCirculatingMVKSupply) * 100
   const againstVotesWidth = (voteStatistics.againstVotesMVKTotal / totalCirculatingMVKSupply) * 100
   const abstainingVotesWidth = (voteStatistics.abstainVotesMVKTotal / totalCirculatingMVKSupply) * 100
   const unusedVotesWidth = ((totalCirculatingMVKSupply - totalMVKVoted) / totalCirculatingMVKSupply) * 100
   const quorum = (totalCirculatingMVKSupply ?? 0) * 0.05,
     quorumWidth = (quorum / (totalCirculatingMVKSupply ?? 1)) * 100
+
+  console.log('%c ||||| unusedVotesWidth', 'color:yellowgreen', unusedVotesWidth)
 
   return (
     <VotingContainer>

@@ -286,13 +286,13 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               voteStatistics={voteStatistics}
             />
-            <Button
+            {/*<Button
               className="execute-proposal"
               text="Execute Proposal"
               onClick={handleOpenModalMoveNextRound}
               kind="actionPrimary"
               loading={loading}
-            />
+          />*/}
           </div>
           <hr />
           <article>

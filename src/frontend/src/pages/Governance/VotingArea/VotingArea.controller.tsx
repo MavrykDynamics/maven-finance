@@ -47,7 +47,8 @@ export const VotingArea = ({
 
   return (
     <>
-      {ready && governancePhase === 'VOTING' && accountPkhIsSatellite ? (
+      {/* {ready && governancePhase === 'VOTING' && accountPkhIsSatellite ? ( */}
+      {true ? (
         <VotingBar
           totalMVKVoted={totalMVKVoted}
           totalCirculatingMVKSupply={mvkTokenStorage.totalSupply}
@@ -63,7 +64,8 @@ export const VotingArea = ({
           </div>
         )}
 
-        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
+        {/* {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && ( */}
+        {true && (
           <VotingButtonsContainer>
             <Button
               text={'Vote Yay'}

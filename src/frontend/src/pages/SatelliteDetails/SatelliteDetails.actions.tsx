@@ -7,6 +7,9 @@ import {
   SATELLITE_RECORDS_QUERY,
   SATELLITE_RECORDS_QUERY_NAME,
   SATELLITE_RECORDS_QUERY_VARIABLES,
+  USER_VOTING_HYSTORY_QUERY,
+  USER_VOTING_HYSTORY_NAME,
+  USER_VOTING_HYSTORY_VARIABLES,
 } from '../../gql/queries/getSatelliteRecords'
 
 export const GET_SATELLITE_BY_ADDRESS = 'GET_SATELLITE_BY_ADDRESS'
@@ -20,7 +23,16 @@ export const getSatelliteByAddress = (satelliteAddress: string) => async (dispat
       SATELLITE_RECORDS_QUERY_VARIABLES(satelliteAddress),
     )
 
-    const satelliteRecord = storageToTypeConverter('satelliteRecord', satelliteRecordFromIndexer?.satellite_record?.[0])
+    const userVotingHistoryIndexer = await fetchFromIndexerWithPromise(
+      USER_VOTING_HYSTORY_QUERY,
+      USER_VOTING_HYSTORY_NAME,
+      USER_VOTING_HYSTORY_VARIABLES(satelliteAddress),
+    )
+
+    const satelliteRecord = storageToTypeConverter('satelliteRecord', {
+      satelliteRecordFromIndexer,
+      userVotingHistoryIndexer,
+    })
     dispatch({
       type: GET_SATELLITE_BY_ADDRESS,
       currentSatellite: satelliteRecord,
