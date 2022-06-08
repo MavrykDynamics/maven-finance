@@ -37,54 +37,58 @@
   },
   {
     "index": 9,
-    "name": "lambdaSetContractAdmin"
+    "name": "lambdaMistakenTransfer"
   },
   {
     "index": 10,
-    "name": "lambdaSetContractGovernance"
+    "name": "lambdaSetContractAdmin"
   },
   {
     "index": 11,
-    "name": "lambdaStartNextRound"
+    "name": "lambdaSetContractGovernance"
   },
   {
     "index": 12,
-    "name": "lambdaPropose"
+    "name": "lambdaStartNextRound"
   },
   {
     "index": 13,
-    "name": "lambdaUpdateProposalData"
+    "name": "lambdaPropose"
   },
   {
     "index": 14,
-    "name": "lambdaUpdatePaymentData"
+    "name": "lambdaUpdateProposalData"
   },
   {
     "index": 15,
-    "name": "lambdaLockProposal"
+    "name": "lambdaUpdatePaymentData"
   },
   {
     "index": 16,
-    "name": "lambdaProposalRoundVote"
+    "name": "lambdaLockProposal"
   },
   {
     "index": 17,
-    "name": "lambdaVotingRoundVote"
+    "name": "lambdaProposalRoundVote"
   },
   {
     "index": 18,
-    "name": "lambdaExecuteProposal"
+    "name": "lambdaVotingRoundVote"
   },
   {
     "index": 19,
-    "name": "lambdaProcessProposalPayment"
+    "name": "lambdaExecuteProposal"
   },
   {
     "index": 20,
-    "name": "lambdaProcessProposalSingleData"
+    "name": "lambdaProcessProposalPayment"
   },
   {
     "index": 21,
+    "name": "lambdaProcessProposalSingleData"
+  },
+  {
+    "index": 22,
      "name": "lambdaDropProposal"
   }
 ]

@@ -25,46 +25,50 @@
     },
     {
       "index": 6,
-      "name": "lambdaUpdateBlocksPerMinute"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 7,
-      "name": "lambdaInitFarm"
+      "name": "lambdaUpdateBlocksPerMinute"
     },
     {
       "index": 8,
-      "name": "lambdaCloseFarm"
+      "name": "lambdaInitFarm"
     },
     {
       "index": 9,
-      "name": "lambdaPauseAll"
+      "name": "lambdaCloseFarm"
     },
     {
       "index": 10,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseDeposit"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 12,
-      "name": "lambdaTogglePauseWithdraw"
+      "name": "lambdaTogglePauseDeposit"
     },
     {
       "index": 13,
-      "name": "lambdaTogglePauseClaim"
+      "name": "lambdaTogglePauseWithdraw"
     },
     {
       "index": 14,
-      "name": "lambdaDeposit"
+      "name": "lambdaTogglePauseClaim"
     },
     {
       "index": 15,
-      "name": "lambdaWithdraw"
+      "name": "lambdaDeposit"
     },
     {
       "index": 16,
+      "name": "lambdaWithdraw"
+    },
+    {
+      "index": 17,
       "name": "lambdaClaim"
     }    
 ]

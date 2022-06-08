@@ -25,166 +25,170 @@
   },
   {
     "index": 6,
-    "name": "executeGovernanceLambdaProxy"
+    "name": "lambdaMistakenTransfer"
   },
   {
     "index": 7,
-    "name": "updateProxyLambda"
+    "name": "executeGovernanceLambdaProxy"
   },
   {
     "index": 8,
-    "name": "setContractAdmin"
+    "name": "updateProxyLambda"
   },
   {
     "index": 9,
-    "name": "setContractGovernance"
+    "name": "setContractAdmin"
   },
   {
     "index": 10,
-    "name": "setContractLambda"
+    "name": "setContractGovernance"
   },
   {
     "index": 11,
-    "name": "setFactoryProductLambda"
+    "name": "setContractLambda"
   },
   {
     "index": 12,
-    "name": "updateContractMetadata"
+    "name": "setFactoryProductLambda"
   },
   {
     "index": 13,
-    "name": "updateContractWhitelistMap"
+    "name": "updateContractMetadata"
   },
   {
     "index": 14,
-    "name": "updateContractGeneralMap"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 15,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 16,
-    "name": "updateGovernanceConfig"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 17,
-    "name": "updateGovernanceFinancialConfig"
+    "name": "updateGovernanceConfig"
   },
   {
     "index": 18,
-    "name": "updateDelegationConfig"
+    "name": "updateGovernanceFinancialConfig"
   },
   {
     "index": 19,
-    "name": "updateEmergencyConfig"
+    "name": "updateDelegationConfig"
   },
   {
     "index": 20,
-    "name": "updateBreakGlassConfig"
+    "name": "updateEmergencyConfig"
   },
   {
     "index": 21,
-    "name": "updateCouncilConfig"
+    "name": "updateBreakGlassConfig"
   },
   {
     "index": 22,
-    "name": "updateFarmConfig"
+    "name": "updateCouncilConfig"
   },
   {
     "index": 23,
-    "name": "updateFarmFactoryConfig"
+    "name": "updateFarmConfig"
   },
   {
     "index": 24,
-    "name": "updateTreasuryFactoryConfig"
+    "name": "updateFarmFactoryConfig"
   },
   {
     "index": 25,
-    "name": "updateDoormanMinMvkAmount"
+    "name": "updateTreasuryFactoryConfig"
   },
   {
     "index": 26,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateDoormanMinMvkAmount"
   },
   {
     "index": 27,
-    "name": "setGovernanceProxy"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 28,
-    "name": "createFarm"
+    "name": "setGovernanceProxy"
   },
   {
     "index": 29,
-    "name": "trackFarm"
+    "name": "createFarm"
   },
   {
     "index": 30,
-    "name": "untrackFarm"
+    "name": "trackFarm"
   },
   {
     "index": 31,
-    "name": "initFarm"
+    "name": "untrackFarm"
   },
   {
     "index": 32,
-    "name": "closeFarm"
+    "name": "initFarm"
   },
   {
     "index": 33,
-    "name": "createTreasury"
+    "name": "closeFarm"
   },
   {
     "index": 34,
-    "name": "trackTreasury"
+    "name": "createTreasury"
   },
   {
     "index": 35,
-    "name": "untrackTreasury"
+    "name": "trackTreasury"
   },
   {
     "index": 36,
-    "name": "transferTreasury"
+    "name": "untrackTreasury"
   },
   {
     "index": 37,
-    "name": "mintMvkAndTransferTreasury"
+    "name": "transferTreasury"
   },
   {
     "index": 38,
-    "name": "updateMvkOperatorsTreasury"
+    "name": "mintMvkAndTransferTreasury"
   },
   {
     "index": 39,
-    "name": "stakeMvkTreasury"
+    "name": "updateMvkOperatorsTreasury"
   },
   {
     "index": 40,
-    "name": "unstakeMvkTreasury"
+    "name": "stakeMvkTreasury"
   },
   {
     "index": 41,
-    "name": "updateMvkInflationRate"
+    "name": "unstakeMvkTreasury"
   },
   {
     "index": 42,
-    "name": "triggerMvkInflation"
+    "name": "updateMvkInflationRate"
   },
   {
     "index": 43,
-    "name": "addVestee"
+    "name": "triggerMvkInflation"
   },
   {
     "index": 44,
-    "name": "removeVestee"
+    "name": "addVestee"
   },
   {
     "index": 45,
-    "name": "updateVestee"
+    "name": "removeVestee"
   },
   {
     "index": 46,
+    "name": "updateVestee"
+  },
+  {
+    "index": 47,
     "name": "toggleVesteeLock"
   }
 ]

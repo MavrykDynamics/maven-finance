@@ -32,6 +32,7 @@ type farmAction is
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
+|   MistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
 |   UpdateBlocksPerMinute       of (nat)
@@ -166,6 +167,22 @@ block {
     };
 
 } with(unit)
+
+
+
+function checkSenderIsGovernanceSatelliteContract(var s : farmStorage) : unit is
+block{
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+  const governanceSatelliteAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+} with unit
 
 
 
@@ -623,6 +640,25 @@ block {
 
 } with response
 
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -909,6 +945,7 @@ function main (const action: farmAction; var s: farmStorage): return is
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
             // Farm Admin Entrypoints
         |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)

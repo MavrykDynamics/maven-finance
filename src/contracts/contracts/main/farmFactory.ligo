@@ -11,6 +11,9 @@
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
@@ -41,6 +44,7 @@ type farmFactoryAction is
 |   UpdateConfig                of farmFactoryUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
+|   MistakenTransfer            of transferActionType
 |   UpdateBlocksPerMinute       of (nat)
 
     // Pause / Break Glass Entrypoints
@@ -128,6 +132,22 @@ block {
 
 
 
+function checkSenderIsGovernanceSatelliteContract(var s : farmFactoryStorage) : unit is
+block{
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+  const governanceSatelliteAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+} with unit
+
+
+
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
@@ -135,6 +155,11 @@ block {
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -413,6 +438,25 @@ block {
 
 
 
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
 (*  UpdateBlocksPerMinute entrypoint *)
 function updateBlocksPerMinute(const newBlocksPerMinute: nat; var s: farmFactoryStorage): return is
 block {
@@ -667,6 +711,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorage): retu
         |   UpdateConfig (parameters)               -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
         |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)
 
             // Pause / Break Glass Entrypoints

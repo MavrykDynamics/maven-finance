@@ -44,7 +44,7 @@ type doormanAction is
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
-  | TreasuryTransfer            of list(transferDestinationType)
+  | MistakenTransfer            of transferActionType
   | MigrateFunds                of (address)
 
     // Pause / Break Glass Entrypoints
@@ -149,6 +149,22 @@ block{
   ];
   if (Tezos.sender = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
+} with unit
+
+
+
+function checkSenderIsGovernanceSatelliteContract(var s : doormanStorage) : unit is
+block{
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+  const governanceSatelliteAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = governanceSatelliteAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 } with unit
 
 
@@ -607,17 +623,17 @@ block {
 
 
 
-(*  treasuryTransfer entrypoint *)
-function treasuryTransfer(const destinationParams: list(transferDestinationType); var s: doormanStorage): return is
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: doormanStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTreasuryTransfer"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaTreasuryTransfer(destinationParams);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -900,7 +916,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-      | TreasuryTransfer(parameters)          -> treasuryTransfer(parameters, s)
+      | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
       | MigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
         // Pause / Break Glass Entrypoints

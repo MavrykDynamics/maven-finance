@@ -33,46 +33,50 @@
     },
     {
       "index": 8,
-      "name": "lambdaUpdateCouncilMemberInfo"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 9,
-      "name": "lambdaAddCouncilMember"
+      "name": "lambdaUpdateCouncilMemberInfo"
     },
     {
       "index": 10,
-      "name": "lambdaRemoveCouncilMember"
+      "name": "lambdaAddCouncilMember"
     },
     {
       "index": 11,
-      "name": "lambdaChangeCouncilMember"
+      "name": "lambdaRemoveCouncilMember"
     },
     {
       "index": 12,
-      "name": "lambdaPauseAllEntrypoints"
+      "name": "lambdaChangeCouncilMember"
     },
     {
       "index": 13,
-      "name": "lambdaUnpauseAllEntrypoints"
+      "name": "lambdaPauseAllEntrypoints"
     },
     {
       "index": 14,
-      "name": "lambdaSetSingleContractAdmin"
+      "name": "lambdaUnpauseAllEntrypoints"
     },
     {
       "index": 15,
-      "name": "lambdaSetAllContractsAdmin"
+      "name": "lambdaSetSingleContractAdmin"
     },
     {
       "index": 16,
-      "name": "lambdaRemoveBreakGlassControl"
+      "name": "lambdaSetAllContractsAdmin"
     },
     {
       "index": 17,
-      "name": "lambdaFlushAction"
+      "name": "lambdaRemoveBreakGlassControl"
     },
     {
       "index": 18,
+      "name": "lambdaFlushAction"
+    },
+    {
+      "index": 19,
       "name": "lambdaSignAction"
     }
 ]

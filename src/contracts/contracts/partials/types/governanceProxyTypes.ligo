@@ -153,6 +153,7 @@ type governanceProxyLambdaActionType is
 | LambdaUpdateWhitelistContracts        of updateWhitelistContractsParams
 | LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsParams
 | LambdaUpdateGeneralContracts          of updateGeneralContractsParams
+| LambdaMistakenTransfer                of transferActionType
 
 // ------------------------------------------------------------------------------
 // Storage

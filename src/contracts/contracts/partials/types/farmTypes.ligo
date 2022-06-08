@@ -100,6 +100,7 @@ type farmLambdaActionType is
 |   LambdaUpdateConfig                of farmUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaMistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
 |   LambdaUpdateBlocksPerMinute       of (nat)
