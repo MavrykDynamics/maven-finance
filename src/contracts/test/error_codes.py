@@ -740,7 +740,7 @@ error_AGGREGATOR_CONTRACT_EXISTS                                                
 error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 546
 
 error_ONLY_AUTHORIZED_ORACLES_ALLOWED                                                                   = 547
-error_NOT_ENOUGH_TEZ_RECEIVED                                                                           = 548
+error_NOT_ALLOW_TO_TRIGGER_DEVIATION_BAN                                                                = 548
 
 error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 549
 error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                            = 550

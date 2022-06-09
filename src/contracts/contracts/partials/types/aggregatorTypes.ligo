@@ -5,6 +5,7 @@ type metadataType is big_map (string, bytes);
 
 type observationCommitsType      is map (address, bytes);
 type observationRevealsType      is map (address, nat);
+type deviationTriggerBanType    is map (address, timestamp);
 
 type pivotedObservationsType     is map (nat, nat);
 type oracleAddressesType         is map (address, bool);
@@ -23,7 +24,7 @@ type distributeRewardXtzType is [@layout:comb] record [
 
 type deviationTriggerInfosType is  [@layout:comb] record [
     oracleAddress               : address;
-    amount                      : tez;
+    amount                      : tez; // should be removed?
     roundPrice                  : nat;
 ];
 
@@ -57,7 +58,7 @@ type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
     numberBlocksDelay                   : nat;
 
-    minimalTezosAmountDeviationTrigger  : nat;
+    deviationTriggerBanTimestamp        : nat;
     perThousandDeviationTrigger         : nat;
     percentOracleThreshold              : nat;
     
@@ -91,17 +92,17 @@ type setObservationRevealParams         is setObservationRevealType;
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
 type aggregatorUpdateConfigActionType is 
-  ConfigNameMaxLength             of unit
-| ConfigDecimals                  of unit
-| ConfigNumberBlocksDelay         of unit
+  ConfigNameMaxLength                 of unit
+| ConfigDecimals                      of unit
+| ConfigNumberBlocksDelay             of unit
 
-| ConfigMinTezosAmountDevTrigger  of unit
-| ConfigPerThousandDevTrigger     of unit
-| ConfigPercentOracleThreshold    of unit
+| ConfigDeviationTriggerTimestamp     of unit
+| ConfigPerThousandDevTrigger         of unit
+| ConfigPercentOracleThreshold        of unit
 
-| ConfigDeviationRewardAmountXtz  of unit
-| ConfigRewardAmountStakedMvk     of unit
-| ConfigRewardAmountXtz           of unit
+| ConfigDeviationRewardAmountXtz      of unit
+| ConfigRewardAmountStakedMvk         of unit
+| ConfigRewardAmountXtz               of unit
 
 type aggregatorUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : aggregatorUpdateConfigNewValueType; 
@@ -211,6 +212,7 @@ type aggregatorStorage is [@layout:comb] record [
 
     observationCommits        : observationCommitsType;
     observationReveals        : observationRevealsType;
+    deviationTriggerBan       : deviationTriggerBanType;
 
     oracleRewardStakedMvk     : oracleRewardStakedMvkType;
     oracleRewardXtz           : oracleRewardXtzType;
