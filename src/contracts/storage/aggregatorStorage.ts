@@ -70,8 +70,7 @@ export const aggregatorStorage: aggregatorStorageType = {
 
   admin                     : bob.pkh,
   metadata                  : metadata,
-  name                      : "",
-
+  name                      : 'name',
   config                    : config,
   breakGlassConfig          : breakGlassConfig,
   
