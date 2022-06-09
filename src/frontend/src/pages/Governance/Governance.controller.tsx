@@ -37,7 +37,6 @@ export const Governance = () => {
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
 
-  console.log('%c ||||| governanceStorage', 'color:yellowgreen', governanceStorage)
   const timeToEndOfPeriod =
     headData?.knownLevel && governanceStorage?.currentRoundEndLevel
       ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)

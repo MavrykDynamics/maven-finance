@@ -183,8 +183,6 @@ export const GovernanceView = ({
     }
     setVisibleLists(visibleTypes)
 
-    console.log('%c ||||| someVisible', 'color:yellowgreen', someVisible)
-
     const firstVisible: string = Object.keys(visibleTypes).find((key: string) => Boolean(visibleTypes[key])) as string
     setFirstVisibleProposal(firstVisible)
   }, [
@@ -209,6 +207,8 @@ export const GovernanceView = ({
       setRightSideContent(undefined)
     }
   }, [someVisible])
+
+  console.log('%c ||||| rightSideContent.executed', 'color:yellowgreen', rightSideContent?.executed)
 
   return (
     <GovernanceStyled>
