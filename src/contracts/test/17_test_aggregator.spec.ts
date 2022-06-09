@@ -908,7 +908,7 @@
 //     const rewardAmountXTZ: BigNumber = new BigNumber(100);
 //     const deviationRewardAmountXTZ: BigNumber = new BigNumber(100);
 //     const rewardAmountMVK: BigNumber = new BigNumber(100);
-//     const minimalTezosAmountDeviationTrigger: BigNumber = new BigNumber(100);
+//     const deviationTriggerBanTimestamp: BigNumber = new BigNumber(100);
 //     const perthousandDeviationTrigger: BigNumber = new BigNumber(100);
 //     const numberBlocksDelay: BigNumber = new BigNumber(2);
 //     const maintainer: string = bob.pkh;
@@ -922,7 +922,7 @@
 //           decimals,
 //           deviationRewardAmountXTZ,
 //           maintainer,
-//           minimalTezosAmountDeviationTrigger,
+//           deviationTriggerBanTimestamp,
 //           numberBlocksDelay,
 //           perthousandDeviationTrigger,
 //           percentOracleThreshold,
@@ -948,7 +948,7 @@
 //           decimals,
 //           deviationRewardAmountXTZ,
 //           maintainer,
-//           minimalTezosAmountDeviationTrigger,
+//           deviationTriggerBanTimestamp,
 //           numberBlocksDelay,
 //           perthousandDeviationTrigger,
 //           percentOracleThreshold,
@@ -965,7 +965,7 @@
 //         assert.deepEqual(storage.config.rewardAmountXtz,rewardAmountXTZ);
 //         assert.deepEqual(storage.config.rewardAmountStakedMvk,rewardAmountMVK);
 //         assert.deepEqual(storage.config.deviationRewardAmountXtz,deviationRewardAmountXTZ);
-//         assert.deepEqual(storage.config.minimalTezosAmountDeviationTrigger,minimalTezosAmountDeviationTrigger);
+//         assert.deepEqual(storage.config.deviationTriggerBanTimestamp,deviationTriggerBanTimestamp);
 //         assert.deepEqual(storage.config.maintainer,maintainer);
 
 //       },
