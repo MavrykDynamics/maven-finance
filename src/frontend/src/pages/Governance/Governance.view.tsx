@@ -51,6 +51,7 @@ type GovernanceViewProps = {
   governancePhase: GovernancePhase
   userIsSatellite: boolean
   handleOpenModalMoveNextRound: any
+  handleExecuteProposal: any
   timeLeftInPhase: Date | number
 }
 
@@ -66,6 +67,7 @@ export const GovernanceView = ({
   watingProposals,
   handleOpenModalMoveNextRound,
   timeLeftInPhase,
+  handleExecuteProposal,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
   const blockRef = useRef<any>(null)
@@ -202,6 +204,11 @@ export const GovernanceView = ({
     const res = await getTimestampByLevel(level)
     setVotingEnding(res)
   }
+  const handleClickExecuteProposal = () => {
+    if (rightSideContent?.id) {
+      handleOpenModalMoveNextRound(rightSideContent.id)
+    }
+  }
 
   useEffect(() => {
     handleGetTimestampByLevel(rightSideContent?.currentCycleEndLevel ?? 0)
@@ -293,7 +300,7 @@ export const GovernanceView = ({
               <Button
                 className="execute-proposal"
                 text="Execute Proposal"
-                onClick={handleOpenModalMoveNextRound}
+                onClick={handleClickExecuteProposal}
                 kind="actionPrimary"
                 loading={loading}
               />

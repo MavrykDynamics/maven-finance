@@ -12,10 +12,12 @@ export const MoveNextRoundModal = ({
   handleMoveNextRound,
   handleExecuteProposal,
   handleCloseModal,
+  proposalId,
 }: {
   handleMoveNextRound: any
   handleExecuteProposal: any
   handleCloseModal: any
+  proposalId: number | null
 }) => {
   return (
     <MoveNextRoundModalstyle>
@@ -30,7 +32,13 @@ export const MoveNextRoundModal = ({
             <p>Do you want to Execute Proposal or move to the next round without execution?</p>
             <div className="btn-group">
               <Button text="Move to the next round" kind="actionSecondary" onClick={handleMoveNextRound} />
-              <Button text="Execute Proposal" kind="actionPrimary" onClick={handleExecuteProposal} />
+              {proposalId ? (
+                <Button
+                  text="Execute Proposal"
+                  kind="actionPrimary"
+                  onClick={() => handleExecuteProposal(proposalId)}
+                />
+              ) : null}
             </div>
           </ModalCardContent>
         </ModalCard>
