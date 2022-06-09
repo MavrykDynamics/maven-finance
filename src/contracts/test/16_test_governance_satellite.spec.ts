@@ -206,9 +206,13 @@ describe("Governance Satellite tests", async () => {
             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
                 'USD',
                 'BTC',
+
+                'USDBTC',
+                true,
                 
                 oracleMap,
 
+                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(8),             // decimals
                 new BigNumber(2),             // numberBlocksDelay
 
@@ -226,8 +230,12 @@ describe("Governance Satellite tests", async () => {
                 'USD',
                 'XTZ',
 
+                'USDXTZ',
+                true,
+
                 oracleMap,
 
+                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(8),             // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
@@ -245,8 +253,12 @@ describe("Governance Satellite tests", async () => {
                 'USD',
                 'DOGE',
 
+                'USDDOGE',
+                true,
+
                 oracleMap,
 
+                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
@@ -265,7 +277,6 @@ describe("Governance Satellite tests", async () => {
           await createAggregatorsBatchOperation.confirmation()
 
           console.log("Aggregators deployed")
-
 
         } catch(e) {
             console.dir(e, {depth: 5})
