@@ -8,6 +8,7 @@ import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
+import { string } from 'yargs';
 
 
 const breakGlassConfig = {
@@ -69,6 +70,8 @@ export const aggregatorStorage: aggregatorStorageType = {
 
   admin                     : bob.pkh,
   metadata                  : metadata,
+  name                      : "",
+
   config                    : config,
   breakGlassConfig          : breakGlassConfig,
   
