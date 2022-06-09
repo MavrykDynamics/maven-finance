@@ -50,7 +50,7 @@ export const setGovernanceSatelliteLambdas = async (tezosToolkit: TezosToolkit, 
   });
 
   const setupGovernanceSatelliteLambdasOperation = await batch.send()
-  await setupGovernanceSatelliteLambdasOperation.confirmation()
+  await confirmOperation(tezosToolkit, setupGovernanceSatelliteLambdasOperation.opHash);
 };
 
 
@@ -102,4 +102,3 @@ export class GovernanceSatellite {
     }
 
   }
-  

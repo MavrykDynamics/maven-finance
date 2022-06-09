@@ -65,7 +65,7 @@ export const setTreasuryFactoryLambdas = async (tezosToolkit: TezosToolkit, cont
 
 
   const op = await batch.send()
-  await op.confirmation()
+  await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setTreasuryFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: TreasuryFactoryContractAbstraction) => {
@@ -79,7 +79,7 @@ export const setTreasuryFactoryProductLambdas = async (tezosToolkit: TezosToolki
 
 
   const op = await batch.send()
-  await op.confirmation()
+  await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export class TreasuryFactory {
@@ -140,4 +140,3 @@ export class TreasuryFactory {
       }
 
   }
-  

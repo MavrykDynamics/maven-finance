@@ -90,7 +90,7 @@ export const setAggregatorFactoryLambdas = async (tezosToolkit: TezosToolkit, co
 
 
     const op = await batch.send()
-    await op.confirmation()
+    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setAggregatorFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorFactoryContractAbstraction) => {
@@ -104,7 +104,7 @@ export const setAggregatorFactoryProductLambdas = async (tezosToolkit: TezosTool
 
 
     const op = await batch.send()
-    await op.confirmation()
+    await confirmOperation(tezosToolkit, op.opHash);
 }
 
 
