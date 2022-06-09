@@ -102,7 +102,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       governance_id
       payment_processed
       pass_vote_count
-      quorum_vote_count
       up_vote_count
       up_vote_mvk_total
       proposal_data {
@@ -171,7 +170,6 @@ export const CURRENT_ROUND_PROPOSALS_QUERY = `
       governance_id
       payment_processed
       pass_vote_count
-      quorum_vote_count
       up_vote_count
       up_vote_mvk_total
       proposal_data {
