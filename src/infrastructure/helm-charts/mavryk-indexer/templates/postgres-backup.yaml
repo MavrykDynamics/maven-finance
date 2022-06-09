@@ -94,7 +94,7 @@ data:
         FILEARR+=($FILE)
     done
 
-    echo 🗑️ Cleaning the past backups
+    echo 🗑️  Cleaning the past backups
 
     COUNTER=1
     for ((i=${#FILEARR[@]}-1; i>=0; i--))

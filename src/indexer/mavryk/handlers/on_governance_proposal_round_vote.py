@@ -17,8 +17,12 @@ async def on_governance_proposal_round_vote(
     voter_address           = proposal_round_vote.data.sender_address
     current_round           = models.GovernanceRoundType.PROPOSAL
     vote                    = models.GovernanceVoteType.YAY
-    storage_voter           = storage_proposal.passVotersMap[voter_address]
-    voting_power            = float(storage_voter.nat)
+    
+    # TODO: Remove this quick fix for future contract version (related to opHash: op4JYAsmrrHEvhzTeLTCV93gNEp8feBLoJsmZZviSvQfj69TFX3)
+    voting_power            = 0
+    if voter_address in storage_proposal.passVotersMap:
+        storage_voter           = storage_proposal.passVotersMap[voter_address]
+        voting_power            = float(storage_voter.nat)
     vote_count              = int(storage_proposal.passVoteCount)
     vote_mvk_total          = float(storage_proposal.passVoteMvkTotal)
 
@@ -44,8 +48,9 @@ async def on_governance_proposal_round_vote(
     )
     if proposal_vote:
         # Get past voted proposal and remove vote from it
-        past_proposal   = await models.GovernanceProposalRecord.get(
-            id  = proposal_round_vote.governance_proposal_record.id
+        past_proposal_record    = await proposal_vote.governance_proposal_record
+        past_proposal           = await models.GovernanceProposalRecord.get(
+            id  = past_proposal_record.id
         )
         past_proposal.pass_vote_count       -= 1
         past_proposal.pass_vote_mvk_total   -= voting_power
