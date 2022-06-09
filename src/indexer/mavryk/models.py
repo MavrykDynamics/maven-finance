@@ -529,7 +529,7 @@ class GovernanceProposalRecord(Model):
     abstain_mvk_total               = fields.FloatField(default=0)
     min_quorum_percentage           = fields.BigIntField(default=0)
     min_quorum_mvk_total            = fields.FloatField(default=0)
-    quorum_vote_count               = fields.BigIntField(default=0)
+    quorum_count                    = fields.BigIntField(default=0)
     quorum_mvk_total                = fields.FloatField(default=0)
     start_datetime                  = fields.DatetimeField()
     cycle                           = fields.BigIntField(default=0)
