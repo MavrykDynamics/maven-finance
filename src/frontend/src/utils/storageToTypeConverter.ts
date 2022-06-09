@@ -800,7 +800,7 @@ export function convertCurrentRoundProposalsStorageType(storage: {
   governance_proposal_record: ProposalRecordType[]
 }): Map<string, ProposalRecordType> | undefined {
   const governanceProposalRecord = storage?.governance_proposal_record
-  const mapProposalRecordType = governanceProposalRecord.length
+  const mapProposalRecordType = governanceProposalRecord?.length
     ? new Map(
       governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
       )
