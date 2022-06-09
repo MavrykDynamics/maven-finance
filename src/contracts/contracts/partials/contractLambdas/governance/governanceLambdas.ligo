@@ -912,9 +912,14 @@ block {
                     s.currentCycleInfo.roundProposals[proposalId] := newPassVoteMvkTotal;
 
                 } else block {
+
+                    // check if satellite already voted for this proposal
+                    case s.currentCycleInfo.roundVotes[Tezos.sender] of [
+                        Some (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else skip
+                    |   None                -> failwith(error_VOTE_NOT_FOUND)
+                    ];
                     
                     // satellite has voted for another proposal
-
                     const newPassVoteMvkTotal : nat = _proposal.passVoteMvkTotal + satelliteSnapshot.totalVotingPower;
 
                     _proposal.passVoteCount               := _proposal.passVoteCount + 1n;
