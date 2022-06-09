@@ -14,12 +14,12 @@ export const BGAccordeon = ({ methods, accordeonClickHandler, accordeonId, isExp
   return (
     <AccordeonWrapper>
       <AccordeonToggler onClick={() => accordeonClickHandler(accordeonId)}>
-        Methods {<Icon className="accordeon-icon" id={isExpanded ? 'arrow-up' : 'arrow-down'} />}
+        Methods {<Icon className={`accordeon-icon ${isExpanded ? '' : 'down'}`} id="accordeon_icon" />}
       </AccordeonToggler>
-      <AccordeonContent className={`${isExpanded ? 'expaned' : ''} scroll-block`}>
+      <AccordeonContent className={`${isExpanded ? 'expaned' : ''}`}>
         {methodsList.map((method: string) => (
           <AccordeonItem key={method} status={methods[method]}>
-            {method}
+            <div className="trunkated_text">{method}</div>
           </AccordeonItem>
         ))}
       </AccordeonContent>
