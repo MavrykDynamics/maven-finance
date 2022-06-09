@@ -58,7 +58,7 @@ export const setFarmLambdas = async (tezosToolkit: TezosToolkit, contract: FarmC
     });
 
     const setupFarmLambdasOperation = await batch.send()
-    await setupFarmLambdasOperation.confirmation()
+    await confirmOperation(tezosToolkit, setupFarmLambdasOperation.opHash);
 };
 
 export class Farm {
@@ -108,4 +108,3 @@ export class Farm {
       );
     }
 }
-  

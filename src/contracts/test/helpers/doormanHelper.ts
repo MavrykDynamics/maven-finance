@@ -58,7 +58,8 @@ export const setDoormanLambdas = async (tezosToolkit: TezosToolkit, contract: Do
   });
 
   const setupDoormanLambdasOperation = await batch.send()
-  await setupDoormanLambdasOperation.confirmation()
+
+  await confirmOperation(tezosToolkit, setupDoormanLambdasOperation.opHash);
 };
 
 export const doormanLambdaIndexOf = (name: string) => {
@@ -119,4 +120,3 @@ export class Doorman {
     }
 
   }
-  

@@ -83,7 +83,7 @@ export const setFarmFactoryLambdas = async (tezosToolkit: TezosToolkit, contract
 
 
   const op = await batch.send()
-  await op.confirmation()
+  await confirmOperation(tezosToolkit, op.opHash);
 }
 
 export const setFarmFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: FarmFactoryContractAbstraction) => {
@@ -97,7 +97,7 @@ export const setFarmFactoryProductLambdas = async (tezosToolkit: TezosToolkit, c
 
 
   const op = await batch.send()
-  await op.confirmation()
+  await confirmOperation(tezosToolkit, op.opHash);
 }
 
 
@@ -148,4 +148,3 @@ export class FarmFactory {
       );
     }
 }
-  

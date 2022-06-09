@@ -58,7 +58,7 @@ export const setEmergencyGovernanceLambdas = async (tezosToolkit: TezosToolkit, 
     });
 
     const setupEmergencyGovernanceLambdasOperation = await batch.send()
-    await setupEmergencyGovernanceLambdasOperation.confirmation()
+    await confirmOperation(tezosToolkit, setupEmergencyGovernanceLambdasOperation.opHash);
 };
 
 
@@ -110,4 +110,3 @@ export class EmergencyGovernance {
     }
 
   }
-  
