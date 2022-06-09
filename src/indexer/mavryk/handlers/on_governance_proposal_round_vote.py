@@ -36,8 +36,8 @@ async def on_governance_proposal_round_vote(
         id          = proposal_id,
         governance  = governance
     )
-    proposal.pass_vote_count    = vote_count
-    proposal.vote_mvk_total     = vote_mvk_total
+    proposal.pass_vote_count        = vote_count
+    proposal.pass_vote_mvk_total    = vote_mvk_total
     await proposal.save()
 
     # Check if user already voted and delete the vote
@@ -49,11 +49,14 @@ async def on_governance_proposal_round_vote(
     if proposal_vote:
         # Get past voted proposal and remove vote from it
         past_proposal_record    = await proposal_vote.governance_proposal_record
+        storage_past_proposal   = proposal_round_vote.storage.proposalLedger[str(past_proposal_record.id)]
+        past_vote_count         = int(storage_past_proposal.passVoteCount)
+        past_vote_mvk_total     = float(storage_past_proposal.passVoteMvkTotal)
         past_proposal           = await models.GovernanceProposalRecord.get(
             id  = past_proposal_record.id
         )
-        past_proposal.pass_vote_count       -= 1
-        past_proposal.pass_vote_mvk_total   -= voting_power
+        past_proposal.pass_vote_count       = past_vote_count
+        past_proposal.pass_vote_mvk_total   = past_vote_mvk_total
         await past_proposal.save()
         await proposal_vote.delete()
     

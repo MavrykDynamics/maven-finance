@@ -19,8 +19,16 @@ async def on_governance_voting_round_vote(
     vote_type               = voting_round_vote.parameter.vote
     storage_voter           = storage_proposal.passVotersMap[voter_address]
     voting_power            = float(storage_voter.nat)
-    vote_count              = int(storage_proposal.passVoteCount)
-    vote_mvk_total          = float(storage_proposal.passVoteMvkTotal)
+    pass_vote_count         = int(storage_proposal.passVoteCount)
+    pass_vote_mvk_total     = float(storage_proposal.passVoteMvkTotal)
+    up_vote_count           = int(storage_proposal.upvoteCount)
+    up_vote_mvk_total       = float(storage_proposal.upvoteMvkTotal)
+    down_vote_count         = int(storage_proposal.downvoteCount)
+    down_vote_mvk_total     = float(storage_proposal.downvoteMvkTotal)
+    abstain_vote_count      = int(storage_proposal.abstainCount)
+    abstain_vote_mvk_total  = float(storage_proposal.abstainMvkTotal)
+    quorum_count            = float(storage_proposal.quorumCount)
+    quorum_mvk_total        = float(storage_proposal.quorumMvkTotal)
 
     # Get vote
     vote        = models.GovernanceVoteType.YAY
@@ -39,8 +47,16 @@ async def on_governance_voting_round_vote(
         id          = proposal_id,
         governance  = governance
     )
-    proposal.pass_vote_count    = vote_count
-    proposal.vote_mvk_total     = vote_mvk_total
+    proposal.pass_vote_count        = pass_vote_count
+    proposal.pass_vote_mvk_total    = pass_vote_mvk_total
+    proposal.up_vote_count          = up_vote_count
+    proposal.up_vote_mvk_total      = up_vote_mvk_total
+    proposal.down_vote_count        = down_vote_count
+    proposal.down_vote_mvk_total    = down_vote_mvk_total
+    proposal.abstain_vote_count     = abstain_vote_count
+    proposal.abstain_vote_mvk_total = abstain_vote_mvk_total
+    proposal.quorum_count           = quorum_count
+    proposal.quorum_mvk_total       = quorum_mvk_total
     await proposal.save()
     
     # Create a new vote
