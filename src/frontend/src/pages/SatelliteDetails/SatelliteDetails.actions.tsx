@@ -31,7 +31,7 @@ export const getSatelliteByAddress = (satelliteAddress: string) => async (dispat
 
     const satelliteRecord = storageToTypeConverter('satelliteRecord', {
       satelliteRecordFromIndexer: satelliteRecordFromIndexer?.satellite_record?.[0],
-      userVotingHistoryIndexer,
+      userVotingHistoryIndexer: userVotingHistoryIndexer?.mavryk_user?.[0],
     })
     dispatch({
       type: GET_SATELLITE_BY_ADDRESS,

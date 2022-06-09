@@ -5,6 +5,8 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../../app/App.components/Button/Button.constants'
 import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
@@ -49,10 +51,22 @@ export const SatelliteListCard = ({
   children = null,
   className = '',
 }: SatelliteListCardViewProps) => {
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
+
+  const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
+    ? satellite.proposalVotingHistory[0].proposalId
+    : null
+
+  const currentlySupportingProposal = proposalLedger?.length
+    ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
+    : null
+
+  console.log('%c ||||| currentlySupportingProposal', 'color:yellowgreen', currentlySupportingProposal)
 
   const delegationButtons = userIsDelegatedToThisSatellite ? (
     <>
@@ -83,8 +97,6 @@ export const SatelliteListCard = ({
       )}
     </>
   )
-
-  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
@@ -144,7 +156,13 @@ export const SatelliteListCard = ({
         </SatelliteCardTopRow>
         <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
       </SatelliteCardInner>
-      {children || <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>}
+      {children ? (
+        children
+      ) : currentlySupportingProposal ? (
+        <SatelliteCardRow>
+          Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
+        </SatelliteCardRow>
+      ) : null}
     </SatelliteCard>
   )
 }
