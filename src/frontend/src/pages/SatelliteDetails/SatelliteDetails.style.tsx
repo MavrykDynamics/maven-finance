@@ -102,6 +102,11 @@ export const SatelliteCardBottomRow = styled.div`
     }
   }
 
+  .satellite-voting-history-info {
+    flex-shrink: 0;
+    padding-left: 16px;
+  }
+
   .satellite-website {
     color: ${tezosColor};
     font-weight: 600;

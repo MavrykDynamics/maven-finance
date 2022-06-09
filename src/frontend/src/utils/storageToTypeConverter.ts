@@ -203,7 +203,7 @@ function convertToSatelliteRecordInterface({
         const newRequestVote: SatelliteProposalVotingHistory = {
           id: vote.id,
           currentRoundVote: vote.current_round_vote,
-          governanceProposalRecordId: vote.governance_proposal_record_id,
+          proposalId: vote.governance_proposal_record_id,
           round: vote.round,
           timestamp: new Date(vote.timestamp),
           vote: vote.vote,
@@ -229,7 +229,7 @@ function convertToSatelliteRecordInterface({
         }) => {
           const newRequestVote: SatelliteFinancialRequestVotingHistory = {
             id: vote.id,
-            governanceFinancialRequestId: vote.governance_financial_request_id,
+            proposalId: vote.governance_financial_request_id,
             timestamp: new Date(vote.timestamp),
             vote: vote.vote,
             voterId: vote.voter_id,
@@ -245,7 +245,7 @@ function convertToSatelliteRecordInterface({
       userVotingHistory.emergency_governance_votes?.forEach(
         (vote: {
           id: any
-          governance_financial_request_id: any
+          emergency_governance_record_id: any
           round: any
           timestamp: string | number | Date
           vote: any
@@ -255,7 +255,7 @@ function convertToSatelliteRecordInterface({
         }) => {
           const newRequestVote: SatelliteFinancialRequestVotingHistory = {
             id: vote.id,
-            governanceFinancialRequestId: vote.governance_financial_request_id,
+            proposalId: vote.emergency_governance_record_id,
             timestamp: new Date(vote.timestamp),
             vote: vote.vote,
             voterId: vote.voter_id,
@@ -721,7 +721,7 @@ function convertGovernanceProposalVoteToInterface(
     const newRequestVote: ProposalVote = {
       id: record.id,
       currentRoundVote: record.current_round_vote,
-      governanceProposalRecordId: record.governance_proposal_record_id,
+      proposalId: record.governance_proposal_record_id,
       round: record.round,
       timestamp: new Date(record.timestamp),
       vote: record.vote,
