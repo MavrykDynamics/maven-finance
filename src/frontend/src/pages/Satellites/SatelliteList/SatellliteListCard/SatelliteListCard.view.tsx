@@ -84,6 +84,8 @@ export const SatelliteListCard = ({
     </>
   )
 
+  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
+
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
       <SatelliteCardInner>
