@@ -45,13 +45,12 @@ export const ProposalsView = ({
     return null
   }
 
-  const contentStatus = normalizeProposalStatus(governancePhase, selectedProposal?.status)
-
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
       {proposalsList.length &&
         proposalsList.map((value, index) => {
+          const contentStatus = normalizeProposalStatus(governancePhase, value?.status)
           return (
             <ProposalListItem
               key={value.id}

@@ -8,7 +8,7 @@ import { State } from '../../reducers'
 import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getGovernanceStorage, getCurrentRoundProposals } from './Governance.actions'
+import { getGovernanceStorage, getCurrentRoundProposals, startNextRound } from './Governance.actions'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
 import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
@@ -61,7 +61,10 @@ export const Governance = () => {
     return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
   })
 
-  const handleMoveNextRound = () => {}
+  const handleMoveNextRound = async () => {
+    await startNextRound(false)
+    console.log('%c ||||| 111111', 'color:yellowgreen', 111111)
+  }
   const handleExecuteProposal = () => {}
   const handleCloseModal = () => {
     setVisibleModal(false)
@@ -85,7 +88,7 @@ export const Governance = () => {
         timeLeftInPhase={daysLeftOfPeriod}
         isInEmergencyGovernance={false}
         loading={loading}
-        handleOpenModalMoveNextRound={handleOpenModalMoveNextRound}
+        handleMoveNextRound={handleMoveNextRound}
       />
       <GovernanceView
         handleOpenModalMoveNextRound={handleOpenModalMoveNextRound}
