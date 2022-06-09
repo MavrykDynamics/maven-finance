@@ -176,49 +176,50 @@ block {
       | UpdateContractWhitelistMap (_v)        -> 7n
       | UpdateContractGeneralMap (_v)          -> 8n
       | UpdateContractWhitelistTokenMap (_v)   -> 9n
+      | UpdateContractName (_v)                -> 10n
       
       (* Update Configs *)    
-      | UpdateGovernanceConfig (_v)            -> 10n
-      | UpdateGovernanceFinancialConfig (_v)   -> 11n
-      | UpdateDelegationConfig (_v)            -> 12n
-      | UpdateEmergencyConfig (_v)             -> 13n
-      | UpdateBreakGlassConfig (_v)            -> 14n
-      | UpdateCouncilConfig (_v)               -> 15n
-      | UpdateFarmConfig (_v)                  -> 16n
-      | UpdateFarmFactoryConfig (_v)           -> 17n
-      | UpdateTreasuryFactoryConfig (_v)       -> 18n
-      | UpdateDoormanMinMvkAmount (_v)         -> 19n
+      | UpdateGovernanceConfig (_v)            -> 11n
+      | UpdateGovernanceFinancialConfig (_v)   -> 12n
+      | UpdateDelegationConfig (_v)            -> 13n
+      | UpdateEmergencyConfig (_v)             -> 14n
+      | UpdateBreakGlassConfig (_v)            -> 15n
+      | UpdateCouncilConfig (_v)               -> 16n
+      | UpdateFarmConfig (_v)                  -> 17n
+      | UpdateFarmFactoryConfig (_v)           -> 18n
+      | UpdateTreasuryFactoryConfig (_v)       -> 19n
+      | UpdateDoormanMinMvkAmount (_v)         -> 20n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 20n
-      | SetGovernanceProxy (_v)                -> 21n
+      | UpdateWhitelistDevelopersSet (_v)      -> 21n
+      | SetGovernanceProxy (_v)                -> 22n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 22n
-      | TrackFarm (_v)                         -> 23n
-      | UntrackFarm (_v)                       -> 24n
-      | InitFarm (_v)                          -> 25n
-      | CloseFarm (_v)                         -> 26n
+      | CreateFarm (_v)                        -> 23n
+      | TrackFarm (_v)                         -> 24n
+      | UntrackFarm (_v)                       -> 25n
+      | InitFarm (_v)                          -> 26n
+      | CloseFarm (_v)                         -> 27n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 27n
-      | TrackTreasury (_v)                     -> 28n
-      | UntrackTreasury (_v)                   -> 29n
-      | TransferTreasury (_v)                  -> 30n
-      | MintMvkAndTransferTreasury (_v)        -> 31n
-      | UpdateMvkOperatorsTreasury (_v)        -> 32n
-      | StakeMvkTreasury (_v)                  -> 33n
-      | UnstakeMvkTreasury (_v)                -> 34n
+      | CreateTreasury (_v)                    -> 28n
+      | TrackTreasury (_v)                     -> 29n
+      | UntrackTreasury (_v)                   -> 30n
+      | TransferTreasury (_v)                  -> 31n
+      | MintMvkAndTransferTreasury (_v)        -> 32n
+      | UpdateMvkOperatorsTreasury (_v)        -> 33n
+      | StakeMvkTreasury (_v)                  -> 34n
+      | UnstakeMvkTreasury (_v)                -> 35n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 35n
-      | TriggerMvkInflation (_v)               -> 36n
+      | UpdateMvkInflationRate (_v)            -> 36n
+      | TriggerMvkInflation (_v)               -> 37n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 37n
-      | RemoveVestee (_v)                      -> 38n
-      | UpdateVestee (_v)                      -> 39n
-      | ToggleVesteeLock (_v)                  -> 40n
+      | AddVestee (_v)                         -> 38n
+      | RemoveVestee (_v)                      -> 39n
+      | UpdateVestee (_v)                      -> 40n
+      | ToggleVesteeLock (_v)                  -> 41n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -561,6 +562,39 @@ block {
             );
 
             operations := updateContractWhitelistTokenMapOperation # operations;
+
+          }
+
+      | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* updateContractName lambda *)
+function updateContractName(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+block {
+    
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+        UpdateContractName(updateContractNameParams) -> {
+
+            // assign params to constants for better code readability
+            const targetContractAddress     : address   = updateContractNameParams.targetContractAddress;
+            const updatedName               : string    = updateContractNameParams.contractName;
+
+            // updateName operation
+            const updateNameOperation : operation = Tezos.transaction(
+              updatedName,
+              0tez, 
+              getUpdateContractNameEntrypoint(targetContractAddress)
+            );
+
+            operations := updateNameOperation # operations;
 
           }
 

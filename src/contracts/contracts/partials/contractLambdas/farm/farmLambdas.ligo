@@ -42,6 +42,46 @@ block {
 
 
 
+(* updateName lambda - update the metadata at a given key *)
+function lambdaUpdateName(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+block {
+
+    checkSenderIsAdmin(s);
+    
+    case farmLambdaAction of [
+        | LambdaUpdateName(updatedName) -> {
+
+                // Get farm factory address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+                const farmFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get the farm factory config
+                const configView : option (farmFactoryConfigType) = Tezos.call_view ("getConfig", unit, farmFactoryAddress);
+                const farmFactoryConfig: farmFactoryConfigType = case configView of [
+                    Some (_config) -> _config
+                |   None -> failwith (error_GET_CONFIG_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // Check get the name config param from the farm factory
+                const farmNameMaxLength: nat    = farmFactoryConfig.farmNameMaxLength;
+
+                // Validate inputs and update the name
+                if String.length(updatedName) > farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {

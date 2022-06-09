@@ -64,6 +64,46 @@ block {
 
 
 
+(* updateName lambda - update the metadata at a given key *)
+function lambdaUpdateName(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+block {
+
+    checkSenderIsAdmin(s);
+    
+    case treasuryLambdaAction of [
+        | LambdaUpdateName(updatedName) -> {
+
+                // Get treasury factory address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
+                const treasuryFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get the treasury factory config
+                const configView : option (treasuryFactoryConfigType) = Tezos.call_view ("getConfig", unit, treasuryFactoryAddress);
+                const treasuryFactoryConfig: treasuryFactoryConfigType = case configView of [
+                    Some (_config) -> _config
+                |   None -> failwith (error_GET_CONFIG_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // Check get the name config param from the treasury factory
+                const treasuryNameMaxLength: nat    = treasuryFactoryConfig.treasuryNameMaxLength;
+
+                // Validate inputs and update the name
+                if String.length(updatedName) > treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (* updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
