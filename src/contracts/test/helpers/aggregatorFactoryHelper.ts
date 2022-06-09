@@ -40,11 +40,14 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         pair1                               : string,
         pair2                               : string,
 
+        name                                : string,
+        addToGeneralContracts               : boolean,
+
         oracleAddresses                     : MichelsonMap<string, boolean>,
 
+        nameMaxLength                       : BigNumber,
         decimals                            : BigNumber,
         numberBlocksDelay                   : BigNumber,
-        maintainer                          : string,
 
         minimalTezosAmountDeviationTrigger  : BigNumber,
         perthousandDeviationTrigger         : BigNumber,
@@ -54,7 +57,8 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         rewardAmountStakedMvK               : BigNumber,
         rewardAmountXtz                     : BigNumber,
 
-        owner: string
+        maintainer                          : string
+
     ) => ContractMethod<T>;
 };
 

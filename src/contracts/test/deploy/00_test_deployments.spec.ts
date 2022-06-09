@@ -767,52 +767,61 @@ describe('Contracts Deployment for Tests', async () => {
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'BTC',
+
+                'USDBTC',
+                true,
                 
                 oracleMap,
 
-                new BigNumber(8),             // decimals
+                new BigNumber(200),           // nameMaxLenth
+                new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
-
+                
                 new BigNumber(0),             // minimalTezosAmountDeviationTrigger
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
-
+                
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                aggregatorFactory.contract.address
+                oracleMaintainer.pkh,         // maintainer
             ))
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'XTZ',
 
+                'USDXTZ',
+                true,
+
                 oracleMap,
 
-                new BigNumber(8),             // decimals
+                new BigNumber(200),           // nameMaxLenth
+                new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
                 
                 new BigNumber(0),             // minimalTezosAmountDeviationTrigger
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
-
+                
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                aggregatorFactory.contract.address
+                oracleMaintainer.pkh,         // maintainer
             ))
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'DOGE',
 
+                'USDDOGE',
+                true,
+
                 oracleMap,
 
+                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
                 
                 new BigNumber(0),             // minimalTezosAmountDeviationTrigger
                 new BigNumber(5),             // perthousandDeviationTrigger
@@ -822,7 +831,7 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                aggregatorFactory.contract.address
+                oracleMaintainer.pkh,         // maintainer
             ))
 
         const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
