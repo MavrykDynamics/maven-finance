@@ -51,6 +51,7 @@ type GovernanceViewProps = {
   governancePhase: GovernancePhase
   userIsSatellite: boolean
   handleOpenModalMoveNextRound: any
+  timeLeftInPhase: Date | number
 }
 
 export const GovernanceView = ({
@@ -64,6 +65,7 @@ export const GovernanceView = ({
   userIsSatellite,
   watingProposals,
   handleOpenModalMoveNextRound,
+  timeLeftInPhase,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
   const blockRef = useRef<any>(null)
@@ -161,6 +163,9 @@ export const GovernanceView = ({
   const isVisibleNextProposal =
     !onProposalHistoryPage && Boolean(nextProposals?.length) && governancePhase === 'PROPOSAL'
   const isVisibleHistoryProposal = onProposalHistoryPage && Boolean(pastProposals?.length)
+  const isExecuted = rightSideContent?.executed
+  const isMinusLeftTime = timeLeftInPhase <= 0
+  const isExecuteProposal = !isExecuted && isMinusLeftTime
 
   const [visibleLists, setVisibleLists] = useState<Record<string, boolean>>({
     wating: false,
@@ -207,8 +212,6 @@ export const GovernanceView = ({
       setRightSideContent(undefined)
     }
   }, [someVisible])
-
-  console.log('%c ||||| rightSideContent.executed', 'color:yellowgreen', rightSideContent?.executed)
 
   return (
     <GovernanceStyled>
@@ -286,13 +289,15 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               voteStatistics={voteStatistics}
             />
-            {/*<Button
-              className="execute-proposal"
-              text="Execute Proposal"
-              onClick={handleOpenModalMoveNextRound}
-              kind="actionPrimary"
-              loading={loading}
-          />*/}
+            {isExecuteProposal ? (
+              <Button
+                className="execute-proposal"
+                text="Execute Proposal"
+                onClick={handleOpenModalMoveNextRound}
+                kind="actionPrimary"
+                loading={loading}
+              />
+            ) : null}
           </div>
           <hr />
           <article>

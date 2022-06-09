@@ -22,6 +22,7 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
 
   .execute-proposal {
     width: 194px;
+    align-self: flex-end;
   }
 
   .voting-proposal {

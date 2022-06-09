@@ -98,6 +98,7 @@ export const Governance = () => {
         watingProposals={[]}
         pastProposals={pastProposalsList}
         governancePhase={governancePhase}
+        timeLeftInPhase={daysLeftOfPeriod}
       />
     </Page>
   )

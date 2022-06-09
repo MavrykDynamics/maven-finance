@@ -7,7 +7,7 @@ import {
   headerColor,
   skyColor,
   subTextColor,
-  tezosColor,
+  infoColor,
   upColor,
 } from 'styles'
 
@@ -108,10 +108,9 @@ export const SatelliteCardBottomRow = styled.div`
   }
 
   .satellite-website {
-    color: ${tezosColor};
-    font-weight: 600;
+    color: ${infoColor};
+    font-weight: 700;
     font-size: 14px;
     line-height: 14px;
-    text-decoration: underline;
   }
 ` // SatelliteCardBottomRow
