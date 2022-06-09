@@ -11,7 +11,7 @@ export type aggregatorStorageType = {
     decimals                            : BigNumber;
     numberBlocksDelay                   : BigNumber;
 
-    minimalTezosAmountDeviationTrigger  : BigNumber;
+    deviationTriggerBanTimestamp        : BigNumber;
     perThousandDeviationTrigger         : BigNumber;
     percentOracleThreshold              : BigNumber;
     

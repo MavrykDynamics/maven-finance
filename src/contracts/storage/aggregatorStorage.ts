@@ -23,7 +23,7 @@ const config = {
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
   
-  minimalTezosAmountDeviationTrigger  : new BigNumber(1),
+  deviationTriggerBanTimestamp        : new BigNumber(86400), // one day
   perThousandDeviationTrigger         : new BigNumber(2),
   percentOracleThreshold              : new BigNumber(49),
 
