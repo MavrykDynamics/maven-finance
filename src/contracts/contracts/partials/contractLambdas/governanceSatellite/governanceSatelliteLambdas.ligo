@@ -198,7 +198,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -333,7 +333,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -467,7 +467,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -601,7 +601,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -743,7 +743,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -869,7 +869,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -995,7 +995,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -1173,7 +1173,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -1759,7 +1759,7 @@ block {
                                     } else skip;
 
                                     // update aggregator status
-                                    aggregatorRecord.status := aggregatorNewStatus;
+                                    aggregatorRecord.status               := aggregatorNewStatus;
                                     s.aggregatorLedger[aggregatorAddress] := aggregatorRecord;
 
                                 } else skip;

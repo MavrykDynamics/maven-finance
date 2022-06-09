@@ -336,6 +336,7 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
 
     aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorStorage.governanceAddress = governance.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -344,7 +345,8 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('aggregatorAddress', aggregator.contract.address)
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
-    aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorFactoryStorage.mvkTokenAddress   = mvkToken.contract.address;
+    aggregatorFactoryStorage.governanceAddress = governance.contract.address;
     aggregatorFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
       "aggregatorTreasury"    : treasury.contract.address,
@@ -361,7 +363,8 @@ describe('Contracts Deployment for Tests', async () => {
       "delegation"            : delegation.contract.address,
       "doorman"               : doorman.contract.address,
       "council"               : council.contract.address,
-      "aggregatorFactory"     : aggregatorFactory.contract.address
+      "aggregatorFactory"     : aggregatorFactory.contract.address,
+      "governance"            : governance.contract.address
     })
     governanceSatelliteStorage.whitelistContracts = MichelsonMap.fromLiteral({
       "aggregatorFactory"     : aggregatorFactory.contract.address
