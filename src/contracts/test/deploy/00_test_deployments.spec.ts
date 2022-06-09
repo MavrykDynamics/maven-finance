@@ -497,24 +497,7 @@ describe('Contracts Deployment for Tests', async () => {
 
 
       // Emergency Governance Setup Lambdas
-<<<<<<< HEAD
       await setEmergencyGovernanceLambdas(tezos, emergencyGovernance.contract)
-=======
-      const emergencyGovernanceLambdaBatch = await tezos.wallet
-      .batch()
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaSetAdmin"                   , emergencyGovernanceLambdas[0]))  // setAdmin
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaSetGovernance"              , emergencyGovernanceLambdas[1]))  // setGovernance
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateMetadata"             , emergencyGovernanceLambdas[2]))  // updateMetadata
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateConfig"               , emergencyGovernanceLambdas[3]))  // updateConfig
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateGeneralContracts"     , emergencyGovernanceLambdas[4]))  // updateGeneralContracts
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaUpdateWhitelistContracts"   , emergencyGovernanceLambdas[5]))  // updateWhitelistContracts
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaTriggerEmergencyControl"    , emergencyGovernanceLambdas[6]))  // triggerEmergencyControl
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaVoteForEmergencyControl"    , emergencyGovernanceLambdas[7]))  // voteForEmergencyControl
-      .withContractCall(emergencyGovernance.contract.methods.setLambda("lambdaDropEmergencyGovernance"    , emergencyGovernanceLambdas[8]))  // dropEmergencyGovernance
-
-      const setupEmergencyGovernanceLambdasOperation = await emergencyGovernanceLambdaBatch.send()
-      await setupEmergencyGovernanceLambdasOperation.confirmation()
->>>>>>> 98e53109fdf7adf19ebdf1975d12dd77342727b9
       console.log("Emergency Governance Lambdas Setup")
       
 
