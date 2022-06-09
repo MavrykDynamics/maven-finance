@@ -96,6 +96,7 @@ type farmLambdaActionType is
   // Housekeeping Entrypoints
     LambdaSetAdmin                    of (address)
 |   LambdaSetGovernance               of (address)
+|   LambdaUpdateName                  of (string)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateConfig                of farmUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams

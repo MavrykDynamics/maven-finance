@@ -280,6 +280,17 @@ case (Tezos.get_entrypoint_opt(
         | None        -> (failwith(error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistTokenContractsParams))
       ];
 
+
+
+// governance proxy lamba helper function to get updateContractName entrypoint
+function getUpdateContractNameEntrypoint(const contractAddress : address) : contract(string) is
+case (Tezos.get_entrypoint_opt(
+      "%updateName",
+      contractAddress) : option(contract(string))) of [
+          Some(contr) -> contr
+        | None        -> (failwith(error_UPDATE_NAME_ENTRYPOINT_NOT_FOUND) : contract(string))
+      ];
+
 // ------------------------------------------------------------------------------
 // Entrypoint Functions End
 // ------------------------------------------------------------------------------

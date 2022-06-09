@@ -21,6 +21,9 @@
 // Farm types
 #include "../partials/types/farmTypes.ligo"
 
+// FarmFactory Types
+#include "../partials/types/farmFactoryTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type farmAction is
@@ -28,6 +31,7 @@ type farmAction is
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
 |   SetGovernance               of (address)
+|   UpdateName                  of (string)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
@@ -566,6 +570,25 @@ block {
 
 
 
+(* updateName entrypoint - update the metadata at a given key *)
+function updateName(const updatedName : string; var s : farmStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateName"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateName(updatedName);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
 (*  updateMetadata Entrypoint - update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmStorage) : return is
 block {
@@ -941,6 +964,7 @@ function main (const action: farmAction; var s: farmStorage): return is
             // Housekeeping Entrypoints
             SetAdmin (parameters)                    -> setAdmin(parameters, s)
         |   SetGovernance (parameters)               -> setGovernance(parameters, s)
+        |   UpdateName (parameters)                  -> updateName(parameters, s)
         |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)

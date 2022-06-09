@@ -248,6 +248,12 @@ block {
 
 
 
+(* View: get config *)
+[@view] function getConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryConfigType is 
+    s.config
+
+
+
 (* View: get tracked treasuries *)
 [@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
     s.trackedTreasuries
