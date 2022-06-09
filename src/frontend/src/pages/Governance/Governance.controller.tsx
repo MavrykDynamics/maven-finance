@@ -36,6 +36,7 @@ export const Governance = () => {
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
+
   const timeToEndOfPeriod =
     headData?.knownLevel && governanceStorage?.currentRoundEndLevel
       ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
@@ -53,8 +54,9 @@ export const Governance = () => {
 
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
   const mockPastroposalsList = MOCK_PAST_PROPOSAL_LIST?.values ? Array.from(MOCK_PAST_PROPOSAL_LIST.values()) : []
+  const proposalLedger = governanceStorage.proposalLedger
 
-  const pastProposalsList = currentRoundProposalsList.filter((item) => {
+  const pastProposalsList = proposalLedger.filter((item: any) => {
     const currentRoundProposal = Boolean(Number(item.currentRoundProposal))
     return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
   })

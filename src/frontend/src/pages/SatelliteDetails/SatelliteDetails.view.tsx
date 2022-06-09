@@ -55,6 +55,8 @@ export const SatelliteDetailsView = ({
   const params: { satelliteId: string } = useParams()
   const { user } = useSelector((state: State) => state.user)
   const { participationMetrics } = useSelector((state: State) => state.delegation)
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
 
@@ -89,6 +91,31 @@ export const SatelliteDetailsView = ({
 
   const isSameId = satellite?.address === params.satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
+
+  const renderVotingHistoryItem = (item: any) => {
+    const filteredProposal = proposalLedger?.length
+      ? proposalLedger.find((proposal: any) => proposal.id === item.proposalId)
+      : null
+
+    return (
+      <div className="satellite-voting-history" key={item.id}>
+        <p>
+          Proposal {item.proposalId} - {filteredProposal?.title}
+        </p>
+        <span className="satellite-voting-history-info">
+          Voted{' '}
+          {item.vote === 1 ? (
+            <b className="voting-yes">YES </b>
+          ) : item.vote === 2 ? (
+            <b className="voting-abstain">ABSTAIN </b>
+          ) : (
+            <b className="voting-no">NO </b>
+          )}
+          <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
+        </span>
+      </div>
+    )
+  }
 
   return (
     <Page>
@@ -137,60 +164,9 @@ export const SatelliteDetailsView = ({
                   <div>
                     <h4>Voting History:</h4>
                     <div>
-                      {satellite.proposalVotingHistory?.map((item) => {
-                        return (
-                          <div className="satellite-voting-history" key={item.id}>
-                            <p>Proposal 42 - Adjusting Auction Parameters</p>
-                            <span>
-                              Voted{' '}
-                              {item.vote === 1 ? (
-                                <b className="voting-yes">YES </b>
-                              ) : item.vote === 2 ? (
-                                <b className="voting-abstain">ABSTAIN </b>
-                              ) : (
-                                <b className="voting-no">NO </b>
-                              )}
-                              <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
-                            </span>
-                          </div>
-                        )
-                      })}
-                      {satellite.financialRequestsVotes?.map((item) => {
-                        return (
-                          <div className="satellite-voting-history" key={item.id}>
-                            <p>Proposal 42 - Adjusting Auction Parameters</p>
-                            <span>
-                              Voted{' '}
-                              {item.vote === 1 ? (
-                                <b className="voting-yes">YES </b>
-                              ) : item.vote === 2 ? (
-                                <b className="voting-abstain">ABSTAIN </b>
-                              ) : (
-                                <b className="voting-no">NO </b>
-                              )}
-                              <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
-                            </span>
-                          </div>
-                        )
-                      })}
-                      {satellite.emergencyGovernanceVotes?.map((item) => {
-                        return (
-                          <div className="satellite-voting-history" key={item.id}>
-                            <p>Proposal 42 - Adjusting Auction Parameters</p>
-                            <span>
-                              Voted{' '}
-                              {item.vote === 1 ? (
-                                <b className="voting-yes">YES </b>
-                              ) : item.vote === 2 ? (
-                                <b className="voting-abstain">ABSTAIN </b>
-                              ) : (
-                                <b className="voting-no">NO </b>
-                              )}
-                              <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
-                            </span>
-                          </div>
-                        )
-                      })}
+                      {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
+                      {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
+                      {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
                     </div>
                   </div>
                 ) : null}
