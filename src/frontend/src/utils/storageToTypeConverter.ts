@@ -159,10 +159,14 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
 }
 
 function convertToSatelliteRecordsInterface(satelliteRecordObject: any): SatelliteRecord[] {
+ 
   const satelliteRecords: SatelliteRecord[] = []
   if (Array.isArray(satelliteRecordObject)) {
     satelliteRecordObject.map((satelliteRecordFromIndexer: any) => {
-      const newSatelliteRecord = convertToSatelliteRecordInterface({ satelliteRecordFromIndexer })
+      const newSatelliteRecord = convertToSatelliteRecordInterface({
+        satelliteRecordFromIndexer,
+        userVotingHistoryIndexer: satelliteRecordFromIndexer?.user,
+      })
       satelliteRecords.push(newSatelliteRecord)
       return true
     })
@@ -175,7 +179,7 @@ function convertToSatelliteRecordInterface({
   userVotingHistoryIndexer,
 }: any): SatelliteRecord {
   const satelliteRecord = satelliteRecordFromIndexer
-  const userVotingHistory = userVotingHistoryIndexer?.mavryk_user?.[0]
+  const userVotingHistory = userVotingHistoryIndexer
 
   const totalDelegatedAmount = satelliteRecord
     ? satelliteRecord.delegation_records.reduce(
