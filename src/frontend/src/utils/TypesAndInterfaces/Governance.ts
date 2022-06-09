@@ -35,7 +35,7 @@ export type votersMapType = Map<string, votingRoundVoteType>
 export interface ProposalVote {
   id: string
   currentRoundVote: string
-  governanceProposalRecordId: number
+  proposalId: number
   round: string
   timestamp: Date
   vote: number
@@ -145,7 +145,7 @@ export interface FinancialRequestRecord {
 
 export interface FinancialRequestVote {
   id: string
-  governanceFinancialRequestId: string
+  proposalId: string
   timestamp: Date
   vote: number
   voterId: string
