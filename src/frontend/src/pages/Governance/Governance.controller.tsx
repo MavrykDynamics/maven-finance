@@ -8,7 +8,7 @@ import { State } from '../../reducers'
 import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getGovernanceStorage, getCurrentRoundProposals, startNextRound } from './Governance.actions'
+import { getGovernanceStorage, getCurrentRoundProposals, startNextRound, executeProposal } from './Governance.actions'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
 import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
@@ -33,6 +33,7 @@ export const Governance = () => {
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
   const [visibleModal, setVisibleModal] = useState(false)
+  const [proposalId, setProposalId] = useState<number | null>(null)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
@@ -61,22 +62,25 @@ export const Governance = () => {
     return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
   })
 
-  const handleMoveNextRound = async () => {
-    await startNextRound(false)
-    console.log('%c ||||| 111111', 'color:yellowgreen', 111111)
+  const handleMoveNextRound = () => {
+    dispatch(startNextRound(false))
   }
-  const handleExecuteProposal = () => {}
+  const handleExecuteProposal = (id: number) => {
+    dispatch(executeProposal(id))
+  }
   const handleCloseModal = () => {
     setVisibleModal(false)
   }
-  const handleOpenModalMoveNextRound = () => {
+  const handleOpenModalMoveNextRound = (id: number) => {
     setVisibleModal(true)
+    setProposalId(id)
   }
-
+  console.log('%c ||||| proposalId', 'color:yellowgreen', proposalId)
   return (
     <Page>
       {visibleModal ? (
         <MoveNextRoundModal
+          proposalId={proposalId}
           handleCloseModal={handleCloseModal}
           handleExecuteProposal={handleExecuteProposal}
           handleMoveNextRound={handleMoveNextRound}
@@ -92,6 +96,7 @@ export const Governance = () => {
       />
       <GovernanceView
         handleOpenModalMoveNextRound={handleOpenModalMoveNextRound}
+        handleExecuteProposal={handleExecuteProposal}
         ready={ready}
         loading={loading}
         accountPkh={accountPkh}
