@@ -233,8 +233,36 @@ export const getTimestampByLevel = async (level: number): Promise<string> => {
   return ''
 }
 
-export const startNextRound = () => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const START_NEXT_ROUND_ERROR = 'START_NEXT_ROUND_ERROR'
+export const startNextRound = (executePastProposal: boolean) => async (dispatch: any, getState: any) => {
+  console.log('%c ||||| executePastProposal', 'color:yellowgreen', executePastProposal)
+  // const state: State = getState()
+  // try {
+  //   const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+  //   console.log('startNextRound contract', contract)
+  //   const transaction = await contract?.methods.startNextRound(executePastProposal).send()
+  //   console.log('startNextRound transaction', transaction)
+
+  //   dispatch({
+  //     type: START_NEXT_ROUND_ERROR,
+  //   })
+  //   dispatch(showToaster(INFO, 'Request Next round start...', 'Please wait 30s'))
+
+  //   const done = await transaction?.confirmation()
+  //   console.log('done', done)
+  //   dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
+
+  //   dispatch({
+  //     type: START_NEXT_ROUND_ERROR,
+  //   })
+  // } catch (error: any) {
+  //   console.error(error)
+  //   dispatch(showToaster(ERROR, 'Error', error.message))
+  //   dispatch({
+  //     type: START_NEXT_ROUND_ERROR,
+  //     error,
+  //   })
+  // }
 }
 
 export const processProposalPayment = (proposalId: number) => async (dispatch: any, getState: any) => {
