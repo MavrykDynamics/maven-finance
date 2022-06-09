@@ -58,7 +58,7 @@ export const setCouncilLambdas = async (tezosToolkit: TezosToolkit, contract: Co
   });
 
   const setupCouncilLambdasOperation = await batch.send()
-  await setupCouncilLambdasOperation.confirmation()
+  await confirmOperation(tezosToolkit, setupCouncilLambdasOperation.opHash);
 };
 
 export class Council {
@@ -109,4 +109,3 @@ export class Council {
     }
 
   }
-  
