@@ -66,8 +66,6 @@ export const SatelliteListCard = ({
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
 
-  console.log('%c ||||| currentlySupportingProposal', 'color:yellowgreen', currentlySupportingProposal)
-
   const delegationButtons = userIsDelegatedToThisSatellite ? (
     <>
       {satellite.active ? (

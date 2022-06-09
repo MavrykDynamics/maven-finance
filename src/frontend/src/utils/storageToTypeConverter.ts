@@ -794,8 +794,6 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
   return convertData
 }
 
-
-
 export function convertCurrentRoundProposalsStorageType(storage: {
   governance_proposal_record: ProposalRecordType[]
 }): Map<string, ProposalRecordType> | undefined {

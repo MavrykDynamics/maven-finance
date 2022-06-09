@@ -84,7 +84,6 @@ export const DELEGATION_STORAGE_QUERY = `
               payment_processed
               proposer_id
               quorum_mvk_total
-              quorum_vote_count
               source_code
               start_datetime
               status
