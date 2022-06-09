@@ -142,8 +142,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaSuspendSatellite(suspendSatelliteParams) -> {
 
@@ -279,8 +277,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaUnsuspendSatellite(unsuspendSatelliteParams) -> {
 
@@ -415,8 +411,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaBanSatellite(banSatelliteParams) -> {
                 
@@ -550,8 +544,6 @@ function lambdaUnbanSatellite(const governanceSatelliteLambdaAction : governance
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    
-    checkSenderIsAdmin(s); // check that sender is admin
     
     case governanceSatelliteLambdaAction of [
         | LambdaUnbanSatellite(unbanSatelliteParams) -> {
@@ -695,8 +687,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
                 
@@ -831,8 +821,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaAddOracleToAggregator(addOracleToAggregatorParams) -> {
                 
@@ -958,8 +946,6 @@ function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : 
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    
-    checkSenderIsAdmin(s); // check that sender is admin
     
     case governanceSatelliteLambdaAction of [
         | LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams) -> {
@@ -1137,8 +1123,6 @@ function lambdaUpdateAggregatorStatus(const governanceSatelliteLambdaAction : go
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    
-    checkSenderIsAdmin(s); // check that sender is admin
     
     case governanceSatelliteLambdaAction of [
         | LambdaUpdateAggregatorStatus(updateAggregatorStatusParams) -> {
