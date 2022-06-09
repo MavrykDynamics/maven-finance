@@ -6,7 +6,7 @@ export type aggregatorStorageType = {
   
   admin                     : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
-  
+  name                      : string;
   config                    : {
     nameMaxLength                       : BigNumber;
     decimals                            : BigNumber;
