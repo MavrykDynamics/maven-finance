@@ -51,9 +51,6 @@ export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: any
   )
 
   const convertedStorage = convertBreakGlassStatusStorageType(storage)
-  console.log('%c ||||| storage', 'color:yellowgreen', storage)
-  console.log('%c ~~ convertedStorage', 'color:yellowgreen', convertedStorage)
-  // const convertedStorage = storageToTypeConverter('breakGlass', storage?.break_glass[0])
 
   dispatch({
     type: GET_BREAK_GLASS_STATUS,

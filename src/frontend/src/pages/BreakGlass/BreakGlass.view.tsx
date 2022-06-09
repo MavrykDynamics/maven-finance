@@ -30,23 +30,18 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
     return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[]) : []
   }, [breakGlassStatuses])
 
-  console.log('%c ||||| uniqueContracts', 'color:yellowgreen', uniqueContracts)
-
   useEffect(() => {
     if (uniqueContracts?.length) {
       setSelectedContract(uniqueContracts[0] as string)
     }
   }, [breakGlassStatuses])
 
-  const filteredBreakGlassStatuses = useMemo(() => {
-    return breakGlassStatuses
-      ? breakGlassStatuses?.filter((item) => {
-          const type = item.type as string
-
-          return selectedContract === type
-        })
-      : []
-  }, [selectedContract, breakGlassStatuses])
+  const filteredBreakGlassStatuses = breakGlassStatuses
+    ? breakGlassStatuses?.filter((item) => {
+        const type = item.type as string
+        return selectedContract === type
+      })
+    : []
 
   return (
     <BGStyled className={'breakGlassContainer'}>
@@ -96,7 +91,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
             <ContractCard
               isActive={isCardActive}
               contract={item}
-              key={trimmedTitle}
+              key={trimmedTitle + item.address}
               onClick={() => {
                 if (isCardActive) {
                   setActiveCard(null)
