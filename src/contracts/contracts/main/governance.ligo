@@ -18,6 +18,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Delegation Type
+#include "../partials/types/delegationTypes.ligo"
+
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
@@ -515,13 +518,6 @@ block {
     const delegationAddress : address = case s.generalContracts["delegation"] of [
         Some(_address) -> _address
       | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-    // update snapshot MVK total supply
-    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
-    s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
-        Some (value) -> value
-      | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // Get active satellites from the delegation contract and loop through them
