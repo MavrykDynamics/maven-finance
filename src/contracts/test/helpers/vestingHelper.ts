@@ -58,7 +58,7 @@ export const setVestingLambdas = async (tezosToolkit: TezosToolkit, contract: Ve
   });
 
   const setupVestingLambdasOperation = await batch.send()
-  await setupVestingLambdasOperation.confirmation()
+  await confirmOperation(tezosToolkit, setupVestingLambdasOperation.opHash);
 };
 
 
@@ -110,4 +110,3 @@ export class Vesting {
     }
 
   }
-  
