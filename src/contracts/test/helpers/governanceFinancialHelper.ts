@@ -61,7 +61,7 @@ export const setGovernanceFinancialLambdas = async (tezosToolkit: TezosToolkit, 
     });
 
     const setupGovernanceFinancialLambdasOperation = await batch.send()
-    await setupGovernanceFinancialLambdasOperation.confirmation()
+    await confirmOperation(tezosToolkit, setupGovernanceFinancialLambdasOperation.opHash);
 };
 
 export class GovernanceFinancial {
@@ -112,4 +112,3 @@ export class GovernanceFinancial {
     }
 
   }
-  

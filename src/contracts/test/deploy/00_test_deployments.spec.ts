@@ -6,7 +6,7 @@ import { confirmOperation } from "../../scripts/confirmation";
 const saveContractAddress = require("../../helpers/saveContractAddress")
 const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 import { MichelsonMap } from '@taquito/michelson-encoder'
-import {TezosToolkit} from "@taquito/taquito";
+import {TezosToolkit, TransactionOperation} from "@taquito/taquito";
 import {BigNumber} from "bignumber.js";
 
 const chai = require('chai')
@@ -396,7 +396,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"         , governanceProxyLambdas[4]))  // updateWhitelistTokenContracts
       .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceProxyLambdas[5]))  // updateGeneralContracts
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
-      await setupGovernanceProxyLambdasOperation.confirmation()
+      await confirmOperation(tezos, setupGovernanceProxyLambdasOperation.opHash)
       console.log("Governance Proxy Lambdas Setup")
 
     // Governance Proxy Setup Proxy Lambdas (external contracts)
@@ -414,7 +414,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[15])) // updateContractWhitelistTokenMap
       
       const setupGovernanceProxyFirstLambdasOperation = await governanceProxyFirstLambdaBatch.send()
-      await setupGovernanceProxyFirstLambdasOperation.confirmation()
+      await confirmOperation(tezos, setupGovernanceProxyFirstLambdasOperation.opHash)
       console.log("GovernanceProxy Proxy Lambdas Setup (1st Batch)")
 
       const governanceProxySecondLambdaBatch = await tezos.wallet
@@ -436,7 +436,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[30])) // untrackFarm
 
       const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
-      await setupGovernanceProxySecondLambdasOperation.confirmation()
+      await confirmOperation(tezos, setupGovernanceProxySecondLambdasOperation.opHash)
       console.log("GovernanceProxy Proxy Lambdas Setup (2nd Batch)")
       
       const governanceProxyThirdLambdaBatch = await tezos.wallet
@@ -462,7 +462,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(38, governanceProxyLambdas[49])) // toggleVesteeLock
 
       const setupGovernanceProxyThirdLambdasOperation = await governanceProxyThirdLambdaBatch.send()
-      await setupGovernanceProxyThirdLambdasOperation.confirmation()
+      await confirmOperation(tezos, setupGovernanceProxyThirdLambdasOperation.opHash)
       console.log("Governance Proxy Proxy Lambdas Setup")
 
 
@@ -573,7 +573,7 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(aggregatorFactory.contract.methods.updateGeneralContracts("governanceSatellite", governanceSatellite.contract.address))
     
     const aggregatorFactoryContractsBatchOperation = await aggregatorFactoryContractsBatch.send()
-    await aggregatorFactoryContractsBatchOperation.confirmation()
+    await confirmOperation(tezos, aggregatorFactoryContractsBatchOperation.opHash)
 
     console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
     
@@ -588,7 +588,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address))
       .withContractCall(mvkToken.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
       const mvkContractsBatchOperation = await mvkContractsBatch.send()
-      await mvkContractsBatchOperation.confirmation()
+      await confirmOperation(tezos, mvkContractsBatchOperation.opHash)
 
     console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
     
@@ -612,8 +612,8 @@ describe('Contracts Deployment for Tests', async () => {
         },
       ])
       .send()
-    await transferToTreasury.confirmation()
-    const updateOperatorsTreasury = await treasury.contract.methods
+    await confirmOperation(tezos, transferToTreasury.hash)
+    const updateOperatorsTreasury = (await treasury.contract.methods
       .updateMvkOperators([
         {
           add_operator: {
@@ -622,8 +622,9 @@ describe('Contracts Deployment for Tests', async () => {
               token_id: 0,
           },
       }])
-      .send()
-    await updateOperatorsTreasury.confirmation()
+      .send()) as TransactionOperation
+
+    await confirmOperation(tezos, updateOperatorsTreasury.hash)
 
     // Farm FA12 Contract - set general contract addresses [doorman]
     // Farm FA12 Contract - set whitelist contract addresses [council] 
@@ -633,17 +634,17 @@ describe('Contracts Deployment for Tests', async () => {
       .batch()
       .withContractCall(farm.contract.methods.updateWhitelistContracts('council', council.contract.address))
       .withContractCall(farmFA2.contract.methods.updateWhitelistContracts('council', council.contract.address))
-      const farmContractsBatchOperation = await farmContractsBatch.send()
-      await farmContractsBatchOperation.confirmation()
-    
+    const farmContractsBatchOperation = await farmContractsBatch.send()
+    await confirmOperation(tezos, farmContractsBatchOperation.opHash)
+
     console.log('Farm FA12 Contract - set whitelist contract addresses [council]')
     console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
     
 
 
     // Farm Factory Contract - set whitelist contract addresses [council]
-    const setCouncilContractAddressInFarmFactoryOperation = await farmFactory.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
-    await setCouncilContractAddressInFarmFactoryOperation.confirmation()
+    const setCouncilContractAddressInFarmFactoryOperation = (await farmFactory.contract.methods.updateWhitelistContracts('council', council.contract.address).send()) as TransactionOperation
+    await confirmOperation(tezos, setCouncilContractAddressInFarmFactoryOperation.hash)
     console.log('Farm Factory Contract - set whitelist contract addresses [council]')
 
 
@@ -655,7 +656,7 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
     .withContractCall(delegation.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
     const delegationContractsBatchOperation = await delegationContractsBatch.send()
-    await delegationContractsBatchOperation.confirmation()
+    await confirmOperation(tezos, delegationContractsBatchOperation.opHash)
     console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
 
 
@@ -689,7 +690,7 @@ describe('Contracts Deployment for Tests', async () => {
     // governance proxy
     .withContractCall(governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address))
     const governanceContractsBatchOperation = await governanceContractsBatch.send()
-    await governanceContractsBatchOperation.confirmation()
+    await confirmOperation(tezos, governanceContractsBatchOperation.opHash)
 
     console.log('Governance Contract - set general contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
     console.log('Governance Contract - set governance proxy address')
@@ -703,7 +704,7 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
     .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
     const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
-    await governanceFinancialContractsBatchOperation.confirmation()
+    await confirmOperation(tezos, governanceFinancialContractsBatchOperation.opHash)
 
     console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
 
@@ -725,7 +726,7 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
 
     const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
-    await treasuryContractsBatchOperation.confirmation()
+    await confirmOperation(tezos, treasuryContractsBatchOperation.opHash)
     
     console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory]')
     console.log('Treasury Contract - set whitelist token contract addresses map [MockFA12, MockFA2, MVK]')
@@ -733,8 +734,8 @@ describe('Contracts Deployment for Tests', async () => {
 
 
     // Vesting Contract - set whitelist contract addresses map [council]
-    const setCouncilContractAddressInVesting = await vesting.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
-    await setCouncilContractAddressInVesting.confirmation()
+    const setCouncilContractAddressInVesting = (await vesting.contract.methods.updateWhitelistContracts('council', council.contract.address).send()) as TransactionOperation
+    await confirmOperation(tezos, setCouncilContractAddressInVesting.hash)
 
     console.log('Vesting Contract - set whitelist contract addresses map [council]')
     
@@ -749,7 +750,7 @@ describe('Contracts Deployment for Tests', async () => {
     // For Oracle/Aggregator test net deployment if needed
     //----------------------------
 
-    if(env.network != "development"){ 
+    if(utils.network != "development"){
 
         console.log("Setup Oracles")
 
@@ -838,7 +839,7 @@ describe('Contracts Deployment for Tests', async () => {
             ))
 
         const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
-        await createAggregatorsBatchOperation.confirmation()
+        await confirmOperation(tezos, createAggregatorsBatchOperation.opHash)
 
         console.log("Aggregators deployed")
     }

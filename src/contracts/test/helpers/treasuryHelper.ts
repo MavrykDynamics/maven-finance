@@ -76,7 +76,7 @@ export const setTreasuryLambdas = async (tezosToolkit: TezosToolkit, contract: T
     });
 
     const setupTreasuryLambdasOperation = await batch.send()
-    await setupTreasuryLambdasOperation.confirmation()
+    await confirmOperation(tezosToolkit, setupTreasuryLambdasOperation.opHash);
 };
 
 export class Treasury {
@@ -127,4 +127,3 @@ export class Treasury {
     }
 
   }
-  
