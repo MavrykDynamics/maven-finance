@@ -142,8 +142,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaSuspendSatellite(suspendSatelliteParams) -> {
 
@@ -200,7 +198,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -279,8 +277,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaUnsuspendSatellite(unsuspendSatelliteParams) -> {
 
@@ -337,7 +333,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -415,8 +411,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaBanSatellite(banSatelliteParams) -> {
                 
@@ -473,7 +467,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -551,8 +545,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaUnbanSatellite(unbanSatelliteParams) -> {
                 
@@ -609,7 +601,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -695,8 +687,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams) -> {
                 
@@ -753,7 +743,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -831,8 +821,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaAddOracleToAggregator(addOracleToAggregatorParams) -> {
                 
@@ -881,7 +869,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -959,8 +947,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams) -> {
                 
@@ -1009,7 +995,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -1138,8 +1124,6 @@ block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
-    checkSenderIsAdmin(s); // check that sender is admin
-    
     case governanceSatelliteLambdaAction of [
         | LambdaUpdateAggregatorStatus(updateAggregatorStatusParams) -> {
                 
@@ -1189,7 +1173,7 @@ block {
                 ];
 
                 // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                       Some (value) -> value
                     | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -1775,7 +1759,7 @@ block {
                                     } else skip;
 
                                     // update aggregator status
-                                    aggregatorRecord.status := aggregatorNewStatus;
+                                    aggregatorRecord.status               := aggregatorNewStatus;
                                     s.aggregatorLedger[aggregatorAddress] := aggregatorRecord;
 
                                 } else skip;

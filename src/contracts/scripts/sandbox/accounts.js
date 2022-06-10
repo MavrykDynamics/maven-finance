@@ -123,22 +123,22 @@ module.exports = {
 //         pk: '',
 //     },
 //     oracleMaintainer: {
-//         pkh: 'tz3RTjXZkXJw3TvNsnKVL478CWYYNjfMRTCZ',
+//         pkh: 'tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe',
 //         sk: '',
 //         pk: '',
 //     },
 //     oracle0: {
-//         pkh: 'tz3MY7GYiud8Y9YVk2MnbftrxYvZVBh4Rbkq',
+//         pkh: 'tz1S3yZiTz316jY4NVVC4HFCgecMvryZ9Kk1',
 //         sk: '',
 //         pk: '',
 //     },
 //     oracle1: {
-//         pkh: 'tz3Z8wLvEiauxuw4QHR4sjWNbDugB68NX8px',
+//         pkh: 'tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk',
 //         sk: '',
 //         pk: '',
 //     },
 //     oracle2: {
-//         pkh: 'tz3N8cUSMpM5zknEzT7EuUCUmqYrv2A8o36P',
+//         pkh: 'tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v',
 //         sk: '',
 //         pk: '',
 //     },
