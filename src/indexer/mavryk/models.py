@@ -82,6 +82,13 @@ class MVKToken(Model):
     class Meta:
         table = 'mvk_token'
 
+class USDMToken(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'usdm_token'
+
 class Doorman(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     admin                           = fields.CharField(max_length=36)
@@ -232,7 +239,6 @@ class Governance(Model):
     quorum_mvk_total                = fields.BigIntField(default=0)
     voting_power_ratio              = fields.SmallIntField(default=0)
     proposal_submission_fee_mutez   = fields.BigIntField(default=0)
-    minimum_stake_req_percentage    = fields.SmallIntField(default=0)
     max_proposal_per_delegate       = fields.SmallIntField(default=0)
     blocks_per_minute               = fields.SmallIntField(default=0)
     blocks_per_proposal_round       = fields.BigIntField(default=0)
@@ -269,6 +275,113 @@ class GovernanceFinancial(Model):
 
     class Meta:
         table = 'governance_financial'
+
+class GovernanceSatellite(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_satellites')
+    voting_power_ratio              = fields.SmallIntField(default=0)
+    gov_sat_approval_percentage     = fields.SmallIntField(default=0)
+    gov_sat_duration_in_days        = fields.SmallIntField(default=0)
+    gov_purpose_max_length          = fields.SmallIntField(default=0)
+    governance_satellite_counter    = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'governance_satellite'
+
+class Aggregator(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36, default='')
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
+    aggregator_factory              = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
+    deviation_trigger_oracle        = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_oracles', index=True)
+    maintener                       = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_mainteners', index=True)
+    creation_timestamp              = fields.DatetimeField(null=True)
+    name                            = fields.CharField(max_length=255, default='')
+    decimals                        = fields.SmallIntField(default=0)
+    number_blocks_delay             = fields.BigIntField(default=0)
+    min_tez_amount_deviation_trigger= fields.BigIntField(default=0)
+    per_thousand_deviation_trigger  = fields.BigIntField(default=0)
+    percent_oracle_threshold        = fields.SmallIntField(default=0)
+    deviation_reward_amount_xtz     = fields.BigIntField(default=0)
+    reward_amount_smvk              = fields.FloatField(default=0.0)
+    reward_amount_xtz               = fields.BigIntField(default=0)
+    request_rate_update_paused      = fields.BooleanField(default=False)
+    request_rate_update_deviation_paused= fields.BooleanField(default=False)
+    set_observation_commit_paused   = fields.BooleanField(default=False)
+    set_observation_reveal_paused   = fields.BooleanField(default=False)
+    withdraw_reward_xtz_paused      = fields.BooleanField(default=False)
+    withdraw_reward_smvk_paused     = fields.BooleanField(default=False)
+    round                           = fields.BigIntField(default=0)
+    round_start_timestamp           = fields.DatetimeField(null=True)
+    switch_block                    = fields.BigIntField(default=0)
+    deviation_trigger_amount        = fields.BigIntField(default=0)
+    deviation_trigger_round_price   = fields.BigIntField(default=0)
+    last_completed_round            = fields.BigIntField(default=0)
+    last_completed_round_price      = fields.BigIntField(default=0)
+    last_completed_round_pct_oracle_response= fields.SmallIntField(default=0)
+    last_completed_round_decimals   = fields.SmallIntField(default=0)
+    last_completed_round_price_timestamp= fields.DatetimeField(null=True)
+
+    class Meta:
+        table = 'aggregator'
+
+class AggregatorFactory(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='aggregator_factories')
+    create_aggregator_paused        = fields.BooleanField(default=False)
+    track_aggregator_paused         = fields.BooleanField(default=False)
+    untrack_aggregator_paused       = fields.BooleanField(default=False)
+    distribute_reward_xtz_paused    = fields.BooleanField(default=False)
+    distribute_reward_smvk_paused   = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'aggregator_factory'
+
+class Vault(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    collateral                      = fields.IntEnumField(enum_type=TokenType, default=TokenType.OTHER)
+    collateral_token_address        = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'vault'
+
+class USDMTokenController(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    collateral_ratio                = fields.SmallIntField(default=0)
+    liquidation_ratio               = fields.SmallIntField(default=0)
+    liquidation_fee                 = fields.FloatField(default=0.0)
+    admin_liquidation_fee           = fields.FloatField(default=0.0)
+    minimum_loan_fee                = fields.FloatField(default=0.0)
+    annual_service_loan_fee         = fields.FloatField(default=0.0)
+    daily_service_loan_fee          = fields.FloatField(default=0.0)
+    blocks_per_minute               = fields.SmallIntField(default=0)
+    decimals                        = fields.SmallIntField(default=0)
+    vault_counter                   = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'usdm_token_controller'
+
+class CFMM(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    cash_token_address              = fields.CharField(max_length=36, default="")
+    cash_token_id                   = fields.SmallIntField(default=0)
+    cash_pool                       = fields.FloatField(default=0.0)
+    lp_token_address                = fields.CharField(max_length=36, default="")
+    lp_tokens_total                 = fields.FloatField(default=0.0)
+    pending_pool_updates            = fields.BigIntField(default=0)
+    token_name                      = fields.CharField(max_length=36, default="")
+    token_address                   = fields.CharField(max_length=36, default="")
+    token_id                        = fields.SmallIntField(default=0.0)
+    token_pool                      = fields.FloatField(default=0.0)
+    last_oracle_update              = fields.BigIntField(default=0)
+    consumer_entrypoint             = fields.CharField(max_length=36, default="")
+
+    class Meta:
+        table = 'cfmm'
 
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
@@ -392,7 +505,7 @@ class CouncilActionRecord(Model):
 
 class CouncilActionRecordSigner(Model):
     id                              = fields.BigIntField(pk=True)
-    council_action_record           = fields.ForeignKeyField('models.CouncilActionRecord', related_name='signers')
+    council_action                  = fields.ForeignKeyField('models.CouncilActionRecord', related_name='signers')
     signer                          = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_signer')
 
     class Meta:
@@ -400,7 +513,7 @@ class CouncilActionRecordSigner(Model):
 
 class CouncilActionRecordParameter(Model):
     id                              = fields.BigIntField(pk=True)
-    council_action_record           = fields.ForeignKeyField('models.CouncilActionRecord', related_name='council_action_record_parameters')
+    council_action                  = fields.ForeignKeyField('models.CouncilActionRecord', related_name='council_action_record_parameters')
     name                            = fields.CharField(max_length=255)
     value                           = fields.CharField(max_length=255)
 
@@ -605,7 +718,7 @@ class GovernanceFinancialRequestRecord(Model):
     key_hash                        = fields.CharField(max_length=255, null=True)
     approve_vote_total              = fields.FloatField(default=0.0)
     disapprove_vote_total           = fields.FloatField(default=0.0)
-    smvk_percentage_for_approval    = fields.BigIntField(default=0)
+    smvk_percentage_for_approval    = fields.SmallIntField(default=0)
     snapshot_smvk_total_supply      = fields.FloatField(default=0.0)
     smvk_required_for_approval      = fields.FloatField(default=0.0)
     expiration_datetime             = fields.DatetimeField()
@@ -628,13 +741,249 @@ class GovernanceFinancialRequestRecordVote(Model):
 class GovernanceFinancialRequestSatelliteSnapshotRecord(Model):
     id                              = fields.BigIntField(pk=True)
     governance_financial_request    = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='snapshot_records')
-    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_satellite_snapshot_records')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_satellite_snapshot_records')
     total_smvk_balance              = fields.FloatField(default=0.0)
     total_delegated_amount          = fields.FloatField(default=0.0)
     total_voting_power              = fields.FloatField(default=0.0)
 
     class Meta:
         table = 'governance_financial_request_satellite_snapshot_record'
+
+class GovernanceSatelliteActionRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite            = fields.ForeignKeyField('models.GovernanceSatellite', related_name='governance_satellite_action_records')
+    initiator                       = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_initiators')
+    governance_type                 = fields.CharField(max_length=255)
+    status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
+    executed                        = fields.BooleanField()
+    governance_purpose              = fields.CharField(max_length=255)
+    yay_vote_total                  = fields.FloatField(default=0.0)
+    nay_vote_total                  = fields.FloatField(default=0.0)
+    pass_vote_total                 = fields.FloatField(default=0.0)
+    snapshot_smvk_total_supply      = fields.FloatField(default=0.0)
+    smvk_percentage_for_approval    = fields.SmallIntField(default=0)
+    smvk_required_for_approval      = fields.FloatField(default=0.0)
+    expiration_datetime             = fields.DatetimeField()
+    requested_datetime              = fields.DatetimeField()
+
+    class Meta:
+        table = 'governance_satellite_action_record'
+
+class GovernanceSatelliteActionRecordVote(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite_action     = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='votes')
+    voter                           = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_actions_votes')
+    timestamp                       = fields.DatetimeField(null=True)
+    vote                            = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
+    voting_power                    = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'governance_satellite_action_record_vote'
+
+class GovernanceSatelliteActionRecordParameter(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite_action     = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='governance_satellite_action_parameters')
+    name                            = fields.CharField(max_length=255)
+    value                           = fields.CharField(max_length=255)
+
+    class Meta:
+        table = 'governance_satellite_action_record_parameter'
+
+class GovernanceSatelliteActionSatelliteSnapshotRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite_action     = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='snapshot_records')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_satellite_snapshot_records')
+    total_smvk_balance              = fields.FloatField(default=0.0)
+    total_delegated_amount          = fields.FloatField(default=0.0)
+    total_voting_power              = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'governance_satellite_action_satellite_snapshot_record'
+
+class GovernanceSatelliteAggregatorRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite            = fields.ForeignKeyField('models.GovernanceSatellite', related_name='governance_satellite_aggregator_records')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_aggregator_record_oracles')
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_aggregator_records')
+    creation_timestamp              = fields.DatetimeField()
+    token_0_symbol                  = fields.CharField(max_length=32)
+    token_1_symbol                  = fields.CharField(max_length=32)
+    active                          = fields.BooleanField(default=True)
+
+    class Meta:
+        table = 'governance_satellite_aggregator_record'
+
+class GovernanceSatelliteSatelliteOracleRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite            = fields.ForeignKeyField('models.GovernanceSatellite', related_name='governance_satellite_satellite_oracle_records')
+    aggregators_subscribed          = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'governance_satellite_satellite_oracle_record'
+
+class GovernanceSatelliteSatelliteOracleAggregatorPairRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite_satellite_oracle_record= fields.ForeignKeyField('models.GovernanceSatelliteSatelliteOracleRecord', related_name='aggregator_pairs')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_aggregator_pair_records')
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_satellite_oracle_aggregator_pair_records')
+    start_timestamp                 = fields.DatetimeField()
+    token_0_symbol                  = fields.CharField(max_length=32)
+    token_1_symbol                  = fields.CharField(max_length=32)
+
+    class Meta:
+        table = 'governance_satellite_satellite_oracle_aggregator_pair_record'
+
+class AggregatorOracleRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='oracle_records')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_records')
+    active                          = fields.BooleanField()
+
+    class Meta:
+        table = 'aggregator_oracle_record'
+
+class AggregatorOracleRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='oracle_records')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_records')
+    active                          = fields.BooleanField()
+
+    class Meta:
+        table = 'aggregator_oracle_record'
+
+class AggregatorObservationCommit(Model):
+    id                              = fields.BigIntField(pk=True)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_commits')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_commits')
+    commit                          = fields.CharField(max_length=500)
+
+    class Meta:
+        table = 'aggregator_observation_commit'
+
+class AggregatorObservationReveal(Model):
+    id                              = fields.BigIntField(pk=True)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_reveals')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_reveals')
+    reveal                          = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'aggregator_observation_reveal'
+
+class AggregatorObservationRewardSMVK(Model):
+    id                              = fields.BigIntField(pk=True)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_rewards_smvk')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_rewards_smvk')
+    smvk                            = fields.FloatField(default=0)
+
+    class Meta:
+        table = 'aggregator_observation_reward_smvk'
+
+class AggregatorObservationRewardXTZ(Model):
+    id                              = fields.BigIntField(pk=True)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_rewards_xtz')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_rewards_xtz')
+    xtz                             = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'aggregator_observation_reward_xtz'
+
+class VaultHandle(Model):
+    id                              = fields.BigIntField(pk=True)
+    vault                           = fields.ForeignKeyField('models.Vault', related_name='vault_handle')
+    vault_owner                     = fields.ForeignKeyField('models.MavrykUser', related_name='vault_owners')
+    internal_id                     = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'vault_handle'
+
+class VaultDepositor(Model):
+    id                              = fields.BigIntField(pk=True)
+    vault                           = fields.ForeignKeyField('models.Vault', related_name='vault_depositors')
+    depositor                       = fields.ForeignKeyField('models.MavrykUser', related_name='vaults_depositor')
+    whitelisted                     = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'vault_depositor'
+
+class USDMTokenControllerVault(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='vaults')
+    vault                           = fields.ForeignKeyField('models.Vault', related_name='usdm_token_controller_vaults')
+    collateral_balance              = fields.FloatField(default=0.0)
+    usdm_outstanding                = fields.FloatField(default=0.0)
+    last_mint_block_leve            = fields.BigIntField(default=0)
+    used                            = fields.BooleanField(default=True)
+
+    class Meta:
+        table = 'usdm_token_controller_vault'
+
+class USDMTokenControllerVaultCollateral(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller_vault     = fields.ForeignKeyField('models.USDMTokenControllerVault', related_name='collaterals')
+    name                            = fields.CharField(max_length=36)
+    balance                         = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'usdm_token_controller_vault'
+
+class USDMTokenControllerTarget(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='targets')
+    name                            = fields.CharField(max_length=36)
+    target_price                    = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'usdm_token_controller_target'
+
+class USDMTokenControllerDrift(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='drifts')
+    name                            = fields.CharField(max_length=36)
+    drift                           = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'usdm_token_controller_drifts'
+
+class USDMTokenControllerLastDriftUpdate(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='last_drift_updates')
+    name                            = fields.CharField(max_length=36)
+    timestamp                       = fields.DatetimeField(null=True)
+
+    class Meta:
+        table = 'usdm_token_controller_last_drift_update'
+
+class USDMTokenControllerCollateralToken(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='collateral_tokens')
+    name                            = fields.CharField(max_length=36)
+    token_name                      = fields.CharField(max_length=36)
+    token_contract_address          = fields.CharField(max_length=36)
+    token_type                      = fields.IntEnumField(enum_type=TokenType)
+    decimals                        = fields.SmallIntField(default=0)
+    oracle_type                     = fields.CharField(max_length=36)
+    oracle_address                  = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'usdm_token_controller_collateral_token'
+
+class USDMTokenControllerPrice(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='prices')
+    name                            = fields.CharField(max_length=36)
+    price                           = fields.FloatField(default=0.0)
+    
+    class Meta:
+        table = 'usdm_token_controller_collateral_token'
+
+class USDMTokenControllerCFMM(Model):
+    id                              = fields.BigIntField(pk=True)
+    usdm_token_controller           = fields.ForeignKeyField('models.USDMTokenController', related_name='cfmms')
+    cfmm                            = fields.ForeignKeyField('models.CFMM', related_name='usdm_token_controller_cfmms')
+    name                            = fields.CharField(max_length=36)
+    
+    class Meta:
+        table = 'usdm_token_controller_cfmm'
 
 class MVKTransferHistoryData(Model):
     id                              = fields.BigIntField(pk=True)
