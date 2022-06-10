@@ -19,7 +19,6 @@ const config = {
 
     votingPowerRatio                    : 10000,
     proposalSubmissionFeeMutez          : 1000000, // 1 tez
-    minimumStakeReqPercentage           : 10,       // 0.01% for testing: change to 10,000 later -> 10%
     maxProposalsPerDelegate             : 20,
 
     newBlockTimeLevel                   : 0,
@@ -85,7 +84,5 @@ export const governanceStorage: governanceStorageType = {
   cycleHighestVotedProposalId        : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),
   
-  snapshotMvkTotalSupply             : new BigNumber(1000000000),
-
   lambdaLedger                       : MichelsonMap.fromLiteral({})
 };
