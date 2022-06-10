@@ -58,7 +58,7 @@ export const setGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract:
     });
 
     const setupGovernanceLambdasOperation = await batch.send()
-    await setupGovernanceLambdasOperation.confirmation()
+    await confirmOperation(tezosToolkit, setupGovernanceLambdasOperation.opHash);
 };
 
 
@@ -110,4 +110,3 @@ export class Governance {
     }
 
   }
-  

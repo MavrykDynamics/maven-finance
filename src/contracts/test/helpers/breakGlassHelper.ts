@@ -58,7 +58,7 @@ export const setBreakGlassLambdas = async (tezosToolkit: TezosToolkit, contract:
     });
 
     const setupBreakGlassLambdasOperation = await batch.send()
-    await setupBreakGlassLambdasOperation.confirmation()
+    await confirmOperation(tezosToolkit, setupBreakGlassLambdasOperation.opHash);
 };
 
 export class BreakGlass {
@@ -109,4 +109,3 @@ export class BreakGlass {
     }
 
   }
-  

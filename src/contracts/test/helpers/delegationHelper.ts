@@ -57,7 +57,7 @@ export const setDelegationLambdas = async (tezosToolkit: TezosToolkit, contract:
   });
 
   const setupDelegationLambdasOperation = await batch.send()
-  await setupDelegationLambdasOperation.confirmation()
+  await confirmOperation(tezosToolkit, setupDelegationLambdasOperation.opHash);
 };
 
 export class Delegation {
@@ -108,4 +108,3 @@ export class Delegation {
     }
 
   }
-  
