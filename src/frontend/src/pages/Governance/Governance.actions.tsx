@@ -267,7 +267,6 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
 export const executeProposal = (proposalId: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
-    console.log('%c ||||| proposalId', 'color:red', proposalId)
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('Execute Proposal contract', contract)
     const transaction = await contract?.methods.processProposalPayment(proposalId).send()

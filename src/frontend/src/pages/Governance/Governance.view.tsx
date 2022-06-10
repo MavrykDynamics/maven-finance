@@ -167,7 +167,7 @@ export const GovernanceView = ({
   const isVisibleHistoryProposal = onProposalHistoryPage && Boolean(pastProposals?.length)
   const isExecuted = rightSideContent?.executed
   const isMinusLeftTime = timeLeftInPhase <= 0
-  const isExecuteProposal = !isExecuted && isMinusLeftTime
+  const isExecuteProposal = !isExecuted && isMinusLeftTime && accountPkh
 
   const [visibleLists, setVisibleLists] = useState<Record<string, boolean>>({
     wating: false,
@@ -219,6 +219,8 @@ export const GovernanceView = ({
       setRightSideContent(undefined)
     }
   }, [someVisible])
+
+  console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
 
   return (
     <GovernanceStyled>

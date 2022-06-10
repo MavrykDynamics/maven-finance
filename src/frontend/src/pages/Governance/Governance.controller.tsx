@@ -75,7 +75,7 @@ export const Governance = () => {
     setVisibleModal(true)
     setProposalId(id)
   }
-  console.log('%c ||||| proposalId', 'color:yellowgreen', proposalId)
+
   return (
     <Page>
       {visibleModal ? (
