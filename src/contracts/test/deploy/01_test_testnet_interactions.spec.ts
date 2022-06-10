@@ -2041,16 +2041,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates minimum stake req pct', async () => {
-            try{
-                // Operation
-                const operation = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin updates max proposal per delegate', async () => {
             try{
                 // Operation

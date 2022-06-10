@@ -196,7 +196,6 @@ block {
                     | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
                     | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                        := updateConfigNewValue
                     | ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
-                    | ConfigMinimumStakeReqPercentage (_v)              -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minimumStakeReqPercentage               := updateConfigNewValue
                     | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
                     | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound                  := updateConfigNewValue
                     | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound                    := updateConfigNewValue
@@ -479,10 +478,15 @@ block {
                 if String.length(newProposal.invoice) > s.config.proposalInvoiceMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(newProposal.sourceCode) > s.config.proposalSourceCodeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // minimumStakeReqPercentage - 5% -> 500 | snapshotMvkTotalSupply - mu 
-                const minimumMvkRequiredForProposalSubmission = s.config.minimumStakeReqPercentage * s.snapshotMvkTotalSupply / 10_000;
+                // check is user has enough smvk to propose 
+                const delegationConfigView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const delegationConfig: delegationConfigType                = case delegationConfigView of [
+                    Some (_config) -> _config
+                |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                const minimumMvkRequiredForProposalSubmission = delegationConfig.minimumStakedMvkBalance;
 
-                if satelliteSnapshot.totalStakedMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
+                if satelliteSnapshot.totalStakedMvkBalance < minimumMvkRequiredForProposalSubmission then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip; 
 
                 const proposalId          : nat                                     = s.nextProposalId;

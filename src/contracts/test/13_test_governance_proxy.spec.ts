@@ -144,13 +144,9 @@
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
 //                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
-//                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumMvkTotal").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
     
 //                 // Register satellites
