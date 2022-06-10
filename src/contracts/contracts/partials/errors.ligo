@@ -755,6 +755,7 @@
 [@inline] const error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                         = 558n;
 [@inline] const error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND                                    = 559n;
 [@inline] const error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND                                    = 560n;
+[@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                         = 560n;
 
 [@inline] const error_WRONG_ROUND_NUMBER                                                                                = 561n;
 [@inline] const error_LAST_ROUND_IS_NOT_COMPLETE                                                                        = 562n;

@@ -6,8 +6,10 @@ export type aggregatorStorageType = {
   
   admin                     : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
+  name                      : string;
   
   config                    : {
+    nameMaxLength                       : BigNumber;
     decimals                            : BigNumber;
     numberBlocksDelay                   : BigNumber;
 
@@ -57,6 +59,7 @@ export type aggregatorStorageType = {
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
   observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
+  deviationTriggerBan       : MichelsonMap<MichelsonMapKey, unknown>;
 
   oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
   oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
