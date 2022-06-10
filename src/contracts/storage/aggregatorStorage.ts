@@ -8,6 +8,7 @@ import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
+import { string } from 'yargs';
 
 
 const breakGlassConfig = {
@@ -20,6 +21,7 @@ const breakGlassConfig = {
 }
 
 const config = {
+  nameMaxLength                       : new BigNumber(200),
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
   
@@ -68,6 +70,7 @@ export const aggregatorStorage: aggregatorStorageType = {
 
   admin                     : bob.pkh,
   metadata                  : metadata,
+  name                      : 'name',
   config                    : config,
   breakGlassConfig          : breakGlassConfig,
   
@@ -89,6 +92,7 @@ export const aggregatorStorage: aggregatorStorageType = {
   
   observationCommits        : MichelsonMap.fromLiteral({}),
   observationReveals        : MichelsonMap.fromLiteral({}),
+  deviationTriggerBan       : MichelsonMap.fromLiteral({}),
 
   oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
   oracleRewardXtz           : MichelsonMap.fromLiteral({}),

@@ -336,6 +336,7 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
 
     aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorStorage.governanceAddress = governance.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -344,7 +345,8 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('aggregatorAddress', aggregator.contract.address)
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
-    aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorFactoryStorage.mvkTokenAddress   = mvkToken.contract.address;
+    aggregatorFactoryStorage.governanceAddress = governance.contract.address;
     aggregatorFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
       "aggregatorTreasury"    : treasury.contract.address,
@@ -361,7 +363,8 @@ describe('Contracts Deployment for Tests', async () => {
       "delegation"            : delegation.contract.address,
       "doorman"               : doorman.contract.address,
       "council"               : council.contract.address,
-      "aggregatorFactory"     : aggregatorFactory.contract.address
+      "aggregatorFactory"     : aggregatorFactory.contract.address,
+      "governance"            : governance.contract.address
     })
     governanceSatelliteStorage.whitelistContracts = MichelsonMap.fromLiteral({
       "aggregatorFactory"     : aggregatorFactory.contract.address
@@ -767,52 +770,61 @@ describe('Contracts Deployment for Tests', async () => {
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'BTC',
+
+                'USDBTC',
+                true,
                 
                 oracleMap,
 
-                new BigNumber(8),             // decimals
+                new BigNumber(200),           // nameMaxLenth
+                new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
-
+                
                 new BigNumber(86400),         // deviationTriggerBanTimestamp
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
-
+                
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                aggregatorFactory.contract.address
+                oracleMaintainer.pkh,         // maintainer
             ))
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'XTZ',
 
+                'USDXTZ',
+                true,
+
                 oracleMap,
 
-                new BigNumber(8),             // decimals
+                new BigNumber(200),           // nameMaxLenth
+                new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
                 
                 new BigNumber(86400),         // deviationTriggerBanTimestamp
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
-
+                
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                aggregatorFactory.contract.address
+                oracleMaintainer.pkh,         // maintainer
             ))
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'DOGE',
 
+                'USDDOGE',
+                true,
+
                 oracleMap,
 
+                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
-                oracleMaintainer.pkh,         // maintainer
                 
                 new BigNumber(86400),         // deviationTriggerBanTimestamp
                 new BigNumber(5),             // perthousandDeviationTrigger
@@ -822,7 +834,7 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
-                aggregatorFactory.contract.address
+                oracleMaintainer.pkh,         // maintainer
             ))
 
         const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
