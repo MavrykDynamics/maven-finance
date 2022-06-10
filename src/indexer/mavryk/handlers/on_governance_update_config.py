@@ -19,6 +19,10 @@ async def on_governance_update_config(
     governance = await models.Governance.get(
         address = governanceAddress
     )
+
+    #TODO: fix config without minSMVK
+    breakpoint()
+
     if updateConfigAction == configBlocksPerProposalRound:
         governance.blocks_per_proposal_round                = int(updatedValue)
     elif updateConfigAction == configBlocksPerTimelockRound:
@@ -33,14 +37,10 @@ async def on_governance_update_config(
         governance.proposal_round_vote_percentage           = int(updatedValue)
     elif updateConfigAction == configMinProposalRoundVotesReq:
         governance.proposal_round_vote_required             = int(updatedValue)
-    elif updateConfigAction == configMinimumStakeReqPercentage:
-        governance.minimum_stake_req_percentage             = int(updatedValue)
     elif updateConfigAction == configMinQuorumMvkTotal:
         governance.quorum_mvk_total                         = float(updatedValue)
     elif updateConfigAction == configMinQuorumPercentage:
         governance.quorum_percentage                        = int(updatedValue)
-    elif updateConfigAction == configMinimumStakeReqPercentage:
-        governance.minimum_stake_req_percentage             = int(updatedValue)
     elif updateConfigAction == configProposalCodeMaxLength:
         governance.proposal_source_code_max_length          = int(updatedValue)
     elif updateConfigAction == configProposalDatTitleMaxLength:

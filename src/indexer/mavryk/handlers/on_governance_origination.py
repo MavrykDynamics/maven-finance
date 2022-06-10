@@ -20,7 +20,6 @@ async def on_governance_origination(
     quorum_mvk_total                        = int(governance_origination.storage.config.minQuorumMvkTotal)
     voting_power_ratio                      = int(governance_origination.storage.config.votingPowerRatio)
     proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMutez)
-    minimum_stake_req_percentage            = int(governance_origination.storage.config.minimumStakeReqPercentage)
     max_proposals_per_delegate              = int(governance_origination.storage.config.maxProposalsPerDelegate)
     blocks_per_minute                       = int(governance_origination.storage.config.blocksPerMinute)
     blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
@@ -66,7 +65,6 @@ async def on_governance_origination(
     governance.quorum_mvk_total                        = quorum_mvk_total
     governance.voting_power_ratio                      = voting_power_ratio
     governance.proposal_submission_fee_mutez           = proposal_submission_fee
-    governance.minimum_stake_req_percentage            = minimum_stake_req_percentage
     governance.max_proposal_per_delegate               = max_proposals_per_delegate
     governance.blocks_per_minute                       = blocks_per_minute
     governance.blocks_per_proposal_round               = blocks_per_Proposal_round
