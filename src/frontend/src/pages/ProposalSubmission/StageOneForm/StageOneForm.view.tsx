@@ -19,6 +19,7 @@ import {
 
 type StageOneFormViewProps = {
   locked: boolean
+  fee: number
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
@@ -27,6 +28,7 @@ type StageOneFormViewProps = {
 }
 export const StageOneFormView = ({
   locked,
+  fee,
   form,
   setForm,
   formInputStatus,
@@ -68,8 +70,7 @@ export const StageOneFormView = ({
         </div>
         <div>
           <label>3- Fee</label>
-          {/* TODO use dy dynamically*/}
-          <FormTitleEntry>1XTZ</FormTitleEntry>
+          <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       <label>4- Enter a description</label>

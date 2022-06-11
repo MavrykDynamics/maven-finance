@@ -23,6 +23,8 @@ type StageOneFormProps = {
 export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  // TODO use from server
+  const fee: number = 0.1
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',
     description: '',
@@ -84,13 +86,14 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
   }
   const handleSubmitProposal = () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) dispatch(submitProposal(form, accountPkh as any))
+    if (formIsValid) dispatch(submitProposal(form, fee, accountPkh as string))
   }
 
   return (
     <StageOneFormView
       locked={locked}
       form={form}
+      fee={fee}
       setForm={setForm}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
