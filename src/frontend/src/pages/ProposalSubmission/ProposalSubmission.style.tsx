@@ -62,10 +62,10 @@ export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 27px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 170px;
   column-gap: 30px;
 `
 export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``
