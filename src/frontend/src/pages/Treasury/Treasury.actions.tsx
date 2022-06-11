@@ -4,34 +4,43 @@ import { TezosToolkit } from '@taquito/taquito'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import {
+  GET_TREASURY_ADDRESSES,
+  TREASURY_STORAGE_QUERY_NAME,
+  TREASURY_STORAGE_QUERY_VARIABLE,
+} from 'gql/queries/getTreasuryStorage'
+import { getTreasuryDataByAddress } from 'utils/api'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
-export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
+export const fillTreasuryStorage = () => async (dispatch: any, getState: any) => {
   try {
-    const state: State = getState()
+    // Get treasury addresses from gql
+    const treasuryAddressesStorage = await fetchFromIndexer(
+      GET_TREASURY_ADDRESSES,
+      TREASURY_STORAGE_QUERY_NAME,
+      TREASURY_STORAGE_QUERY_VARIABLE,
+    )
 
-    // if (!accountPkh) {
-    //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-    //   return
-    // }
-    // TODO: Change address used to that of the Treasury when possible
-    // console.log(state?.contractAddresses)
+    // Parse gql data to understandable data format
+    const convertedStorage = storageToTypeConverter('treasury', treasuryAddressesStorage)
 
-    const address = state?.contractAddresses?.treasuryAddress?.address
-    if (address || accountPkh) {
-      const contract = accountPkh
-        ? await state?.wallet?.tezos?.wallet?.at(address)
-        : await new TezosToolkit(
-            (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-          )?.contract?.at(address)
-      const storage = await (contract as any).storage()
-      console.log('Printing out Treasury storage:\n', storage)
+    // Map addresses to api cals with treasury addresses
+    const getTreasuryCallbacks: Array<() => void> = convertedStorage.treasuryAddresses.map(
+      ({ address }: { address: string }) =>
+        () =>
+          getTreasuryDataByAddress(address),
+    )
 
-      dispatch({
-        type: GET_TREASURY_STORAGE,
-        treasuryStorage: storage,
-      })
-    }
+    // Await promises from upper
+    const theasuryData = await Promise.all(getTreasuryCallbacks.map((fn) => fn()))
+
+    console.log('Printing out fethed treasury data:\n', theasuryData)
+
+    dispatch({
+      type: GET_TREASURY_STORAGE,
+      treasuryStorage: theasuryData,
+    })
   } catch (error) {
     console.log('%c ---- error getTreasuryStorage', 'color:red', error)
   }

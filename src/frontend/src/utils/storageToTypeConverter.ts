@@ -33,6 +33,7 @@ import {
 } from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
+import { TreasuryAddressesType } from 'reducers/treasury';
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -84,9 +85,19 @@ export default function storageToTypeConverter(contract: string, storage: any): 
     case 'satelliteRecord':
       res = convertToSatelliteRecordInterface(storage)
       break
+    case 'treasury':
+      res = convertToTreasuryAddressType(storage)
+      setItemInStorage('TreasuryAddresses', res)
+      break
   }
 
   return res
+}
+
+function convertToTreasuryAddressType(storage: any): TreasuryAddressesType {
+  return {
+    treasuryAddresses: storage?.treasury
+  }
 }
 
 function convertToContractAddressesType(storage: any): ContractAddressesState {
