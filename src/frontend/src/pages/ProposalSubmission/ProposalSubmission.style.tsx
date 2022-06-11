@@ -34,6 +34,10 @@ export const ProposalSubmissionForm = styled(Card)`
     padding-bottom: 9px;
     display: block;
     padding-left: 5px;
+
+    span {
+      text-transform: lowercase;
+    }
   }
 
   .description-textarea {
@@ -48,6 +52,27 @@ export const ProposalSubmissionForm = styled(Card)`
     textarea {
       height: 189px;
     }
+  }
+
+  .step-bytes-title {
+    margin-bottom: 19px;
+    width: 517px;
+  }
+
+  .step-bytes {
+    position: relative;
+
+    article {
+      margin-top: 27px;
+    }
+  }
+
+  .step-plus-bytes {
+    position: absolute;
+    color: ${headerColor};
+    font-size: 24px;
+    right: 0;
+    bottom: -26px;
   }
 `
 

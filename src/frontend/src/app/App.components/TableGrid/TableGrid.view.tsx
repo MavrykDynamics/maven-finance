@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Tooltip } from '@mui/material'
 import styled from 'styled-components'
 import { cyanColor, darkColor } from 'styles'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
+import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 
 // types
 import type { TableListType } from './TableGrid.types'
@@ -17,13 +17,6 @@ type Props = {
   setTableData: (arg0: TableListType) => void
 }
 
-const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props.className }} {...props} />)`
-  & .MuiTooltip-tooltip {
-    background-color: ${cyanColor};
-    color: ${darkColor};
-    margin-bottom: 0 !important;
-  }
-`
 const MAX_ROWS = 10
 const MAX_COLS = 6
 

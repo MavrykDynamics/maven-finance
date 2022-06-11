@@ -15,13 +15,23 @@ type StageTwoFormProps = {
   locked: boolean
   accountPkh?: string
 }
+
+export const PROPOSAL_BYTE = {
+  id: 0,
+  title: '',
+  data: '',
+}
+
 export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
   const dispatch = useDispatch()
+  // TODO use from server
+  const fee: number = 0.1
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: 'Hello There',
     proposalId: 234,
-    proposalBytes: '',
+    proposalBytes: [PROPOSAL_BYTE],
   })
+
   const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
     proposalBytes: false,
   })
@@ -29,16 +39,17 @@ export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
     proposalBytes: '',
   })
 
-  const handleOnBlur = () => {
-    const validityCheckResult = isHexadecimalByteString(form.proposalBytes)
-    setValidForm({ ...validForm, proposalBytes: validityCheckResult })
-    const updatedState = { ...validForm, proposalBytes: validityCheckResult }
-    setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
+  const handleOnBlur = (index: number, text: string, type: string) => {
+    const validityCheckResult = type === 'data' ? isHexadecimalByteString(text) : Boolean(text)
+
+    // setValidForm({ ...validForm, proposalBytes: validityCheckResult })
+    // const updatedState = { ...validForm, proposalBytes: validityCheckResult }
+    // setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
   }
 
   const handleUpdateProposal = () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) dispatch(updateProposal(form, accountPkh as any))
+    if (true || formIsValid) dispatch(updateProposal(form, accountPkh as any))
   }
 
   const handleLockProposal = () => {
@@ -50,6 +61,7 @@ export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
     <StageTwoFormView
       locked={locked}
       form={form}
+      fee={fee}
       setForm={setForm}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
