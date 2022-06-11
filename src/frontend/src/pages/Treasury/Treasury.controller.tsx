@@ -4,7 +4,7 @@ import { State } from 'reducers'
 import { useEffect } from 'react'
 
 // actions
-import { getCouncilStorage, getTreasuryStorage, getVestingStorage } from './Treasury.actions'
+import { getCouncilStorage, fillTreasuryStorage, getVestingStorage } from './Treasury.actions'
 
 // controller
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -41,7 +41,7 @@ export const Treasury = () => {
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   useEffect(() => {
-    dispatch(getTreasuryStorage(accountPkh))
+    dispatch(fillTreasuryStorage())
     dispatch(getCouncilStorage(accountPkh))
     dispatch(getVestingStorage())
   }, [dispatch, accountPkh, treasuryAddress])
