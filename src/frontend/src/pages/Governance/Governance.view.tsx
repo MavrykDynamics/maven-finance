@@ -138,14 +138,19 @@ export const GovernanceView = ({
   const _handleItemSelect = (chosenProposal: ProposalRecordType | undefined) => {
     if (chosenProposal) {
       setRightSideContent(chosenProposal)
-      setVoteStatistics({
-        passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-        forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
-        againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
-        abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
-        //TODO: Correct calculation for unused votes count
-        unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-      })
+      if (chosenProposal.passVoteMvkTotal) {
+        setVoteStatistics({
+          passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+          forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
+          againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
+          abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
+          unusedVotesMVKTotal:
+            mvkTokenStorage.totalSupply -
+            (chosenProposal?.abstainMvkTotal ?? 0) +
+            (chosenProposal?.downvoteMvkTotal ?? 0) +
+            (chosenProposal?.upvoteMvkTotal ?? 0),
+        })
+      }
     }
   }
 
@@ -219,8 +224,6 @@ export const GovernanceView = ({
       setRightSideContent(undefined)
     }
   }, [someVisible])
-
-  console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
 
   return (
     <GovernanceStyled>

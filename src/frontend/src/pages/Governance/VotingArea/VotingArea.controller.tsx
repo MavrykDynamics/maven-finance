@@ -42,8 +42,14 @@ export const VotingArea = ({
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
+
+  // console.log('%c ||||| voteStatistics', 'color:yellowgreen', voteStatistics)
+
   const totalMVKVoted =
-    voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
+    voteStatistics.forVotesMVKTotal ??
+    0 + voteStatistics.abstainVotesMVKTotal ??
+    0 + voteStatistics.againstVotesMVKTotal ??
+    0
 
   return (
     <>

@@ -32,8 +32,6 @@ export const SatelliteDetails = () => {
     dispatch(undelegate(address))
   }
 
-  console.log('%c ||||| currentSatellite', 'color:red', currentSatellite)
-
   return (
     <SatelliteDetailsView
       satellite={currentSatellite}

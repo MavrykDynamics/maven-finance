@@ -73,9 +73,12 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(form.sourceCodeLink)
-        setValidForm({ ...validForm, sourceCodeLink: validityCheckResult })
+        setValidForm({ ...validForm, sourceCodeLink: validityCheckResult, invoiceTable: validityCheckResult })
         updatedState = { ...validForm, invoiceTable: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, sourceCodeLink: updatedState.sourceCodeLink ? 'success' : 'error' })
+        break
+      case 'IPFS':
+        setValidForm({ ...validForm, ipfs: Boolean(e) })
         break
     }
   }

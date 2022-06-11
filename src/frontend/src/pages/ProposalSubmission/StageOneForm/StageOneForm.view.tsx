@@ -14,6 +14,7 @@ import {
   FormHeaderGroup,
   FormTitleAndFeeContainer,
   FormTitleContainer,
+  FormTitleEntry,
 } from '../ProposalSubmission.style'
 
 type StageOneFormViewProps = {
@@ -65,8 +66,13 @@ export const StageOneFormView = ({
             inputStatus={formInputStatus.successMVKReward}
           />
         </div>
+        <div>
+          <label>3- Fee</label>
+          {/* TODO use dy dynamically*/}
+          <FormTitleEntry>1XTZ</FormTitleEntry>
+        </div>
       </FormTitleAndFeeContainer>
-      <label>3- Enter a description</label>
+      <label>4- Enter a description</label>
       <TextArea
         type="text"
         className="description-textarea"
@@ -75,7 +81,7 @@ export const StageOneFormView = ({
         onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
         inputStatus={formInputStatus.description}
       />
-      <label>4- Please add a link to the source code changes (if you have)</label>
+      <label>5- Please add a link to the source code changes (if you have)</label>
       <Input
         type="text"
         value={form.sourceCodeLink}
@@ -87,9 +93,12 @@ export const StageOneFormView = ({
         <IPFSUploader
           typeFile="document"
           imageIpfsUrl={form.ipfs}
-          setIpfsImageUrl={(e: any) => setForm({ ...form, ipfs: e })}
+          setIpfsImageUrl={(e: any) => {
+            setForm({ ...form, ipfs: e })
+            handleOnBlur(e, 'IPFS')
+          }}
           title={'Upload Invoice Document'}
-          listNumber={4}
+          listNumber={6}
         />
       </div>
       <FormButtonContainer>
