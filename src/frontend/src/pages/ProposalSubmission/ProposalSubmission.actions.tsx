@@ -10,7 +10,7 @@ export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
 export const SUBMIT_PROPOSAL_ERROR = 'SUBMIT_PROPOSAL_ERROR'
 export const submitProposal =
-  (form: SubmitProposalForm, accountPkh?: string) => async (dispatch: any, getState: any) => {
+  (form: SubmitProposalForm, amount: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
     const state: State = getState()
     console.log('Got to here in submitProposal')
 
@@ -28,7 +28,9 @@ export const submitProposal =
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
 
-      const transaction = await contract?.methods.propose(form.title, form.description, form.ipfs).send()
+      const transaction = await contract?.methods
+        .propose(form.title, form.description, form.ipfs, form.sourceCodeLink)
+        .send({ amount })
       console.log('transaction', transaction)
 
       dispatch({
