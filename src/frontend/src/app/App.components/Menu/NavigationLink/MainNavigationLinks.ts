@@ -70,12 +70,12 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: '/emergency-governance',
         protectedRoute: true,
       },
-      // {
-      //   id: 47294,
-      //   subTitle: 'Satellite Governance',
-      //   subPath: '/satellite-governance',
-      //   protectedRoute: true,
-      // },
+      {
+        id: 47294,
+        subTitle: 'Satellite Governance',
+        subPath: '/satellite-governance',
+        protectedRoute: true,
+      },
     ],
   },
   {

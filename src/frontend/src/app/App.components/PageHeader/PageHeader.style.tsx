@@ -108,6 +108,8 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'governance':
       case 'proposal submission':
         return '156px'
+      case 'satellite-governance':
+        return '192px'
       default:
         return '172px'
     }
