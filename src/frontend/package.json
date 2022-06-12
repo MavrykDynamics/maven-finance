@@ -44,6 +44,7 @@
     "react-gsap": "^3.2.1",
     "react-helmet": "^6.1.0",
     "react-lottie": "^1.2.3",
+    "react-minimal-pie-chart": "^8.3.0",
     "react-pure-time": "^0.2.7",
     "react-redux": "^7.2.5",
     "react-responsive-masonry": "^2.1.4",
