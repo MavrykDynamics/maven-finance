@@ -92,6 +92,15 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     },
   ],
   [
+    'satellite-governance',
+    {
+      title: 'Satellite Governance',
+      subText: 'Take part in governing satellite behavior and ensuring all are good actors.',
+      foregroundImageSrc: '/images/satellite-governance-header-fg.svg',
+      backgroundImageSrc: '/images/dapp-header-bg.svg',
+    },
+  ],
+  [
     'proposal submission',
     {
       title: 'Governance Proposal Submission',
