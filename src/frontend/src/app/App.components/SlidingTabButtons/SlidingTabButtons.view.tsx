@@ -13,6 +13,7 @@ type SlidingTabButtonViewProps = {
   clicked: boolean
   tabValues: TabItem[]
   loading: boolean
+  className?: string
 }
 
 export const SlidingTabButtonsView = ({
@@ -21,6 +22,7 @@ export const SlidingTabButtonsView = ({
   clickCallback,
   tabValues,
   loading,
+  className = '',
 }: SlidingTabButtonViewProps) => {
   let generalClasses = kind ?? ''
 
@@ -29,7 +31,7 @@ export const SlidingTabButtonsView = ({
     clickCallback(tabId)
   }
   return (
-    <SlidingTabButtonsStyled>
+    <SlidingTabButtonsStyled className={className}>
       {tabValues.map((tabItem, index) => (
         <TabButton
           key={index}
