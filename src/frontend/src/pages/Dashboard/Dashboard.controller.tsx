@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { DashboardStyled } from './Dashboard.style'
-import { getCouncilStorage, getTreasuryStorage, getVestingStorage } from '../Treasury/Treasury.actions'
+import { getCouncilStorage, getVestingStorage } from '../Treasury/Treasury.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
