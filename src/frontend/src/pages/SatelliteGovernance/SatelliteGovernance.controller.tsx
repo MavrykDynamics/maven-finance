@@ -133,7 +133,7 @@ export const SatelliteGovernance = () => {
             <div>
               <h1>Suspend Satellite</h1>
               <p>Please enter a valid tz1 adress of the satellite to take action on</p>
-              <div>
+              <div className="satellite-address">
                 <label>Satellite Address</label>
                 <Input value="" onChange={() => null} onBlur={() => null} inputStatus="" />
               </div>
@@ -142,12 +142,12 @@ export const SatelliteGovernance = () => {
                 <TextArea value="" onChange={() => null} onBlur={() => null} inputStatus="" />
               </div>
             </div>
-            <div>
+            <div className="suspend-satellite-group">
               <Button icon="minus" kind="actionPrimary" text="Suspend Satellite" onClick={() => null} />
             </div>
           </div>
         </AvailableActionsStyle>
-        <SlidingTabButtons onClick={() => null} type={'GovProposalSubmissionForm'} />
+        <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
       </SatelliteGovernanceStyled>
       <SatelliteGovernanceCard
         satelliteGovernanceCard={{

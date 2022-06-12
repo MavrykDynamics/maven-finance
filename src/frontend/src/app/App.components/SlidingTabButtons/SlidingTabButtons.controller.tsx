@@ -17,15 +17,17 @@ export interface TabItem {
   active: boolean
   ref: Ref<any>
 }
+
 type SlidingTabButtonsProps = {
   type: SlidingTabButtonTypes
   icon?: string
+  className?: string
   kind?: SlidingTabButtonStyle
   onClick?: () => void
   loading: boolean
 }
 
-export const SlidingTabButtons = ({ type, kind, onClick, loading }: SlidingTabButtonsProps) => {
+export const SlidingTabButtons = ({ type, kind, onClick, loading, className = '' }: SlidingTabButtonsProps) => {
   const [tabValues, setTabValues] = useState<TabItem[]>([])
   const firstButtonRef = useRef(),
     secondButtonRef = useRef(),
@@ -61,6 +63,7 @@ export const SlidingTabButtons = ({ type, kind, onClick, loading }: SlidingTabBu
   return (
     <SlidingTabButtonsView
       kind={kind}
+      className={className}
       onClick={onClick}
       clicked={clicked}
       clickCallback={clickCallback}
