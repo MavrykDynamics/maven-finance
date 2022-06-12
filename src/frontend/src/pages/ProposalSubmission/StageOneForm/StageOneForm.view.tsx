@@ -1,5 +1,5 @@
-import { Button } from '../../../app/App.components/Button/Button.controller'
 // components
+import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
