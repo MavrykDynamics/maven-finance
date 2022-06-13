@@ -49,7 +49,7 @@
     "compile-emergencyGovernance-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/emergencyGovernance/emergencyGovernanceLambdaIndex.json -c contracts/main/emergencyGovernance.ligo -n emergencyGovernanceLambdas",
     "compile-all-lambdas-1": "yarn compile-governanceProxy-lambdas && yarn compile-governance-lambdas && yarn compile-governanceFinancial-lambdas && yarn compile-doorman-lambdas && yarn compile-delegation-lambdas && yarn compile-breakGlass-lambdas && yarn compile-council-lambdas && yarn compile-emergencyGovernance-lambdas",
     "compile-all-lambdas-2": "yarn compile-farm-lambdas && yarn compile-farmFactory-lambdas && yarn compile-vesting-lambdas && yarn compile-treasury-lambdas && yarn compile-treasuryFactory-lambdas && yarn compile-aggregator-lambdas",
-    "compile-all-lambdas-3": "yarn compile-aggregator-lambdas && yarn compile-aggregatorFactory-lambdas && yarn compile-governanceSatellite-lambdas",
+    "compile-all-lambdas-3": "yarn compile-aggregatorFactory-lambdas && yarn compile-governanceSatellite-lambdas",
 
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
