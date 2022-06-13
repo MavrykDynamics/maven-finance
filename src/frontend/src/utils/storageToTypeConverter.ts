@@ -302,8 +302,6 @@ function convertToSatelliteRecordInterface({
     emergencyGovernanceVotes,
   }
 
-
-
   return newSatelliteRecord
 }
 
