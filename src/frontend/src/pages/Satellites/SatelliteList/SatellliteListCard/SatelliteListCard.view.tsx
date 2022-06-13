@@ -14,6 +14,7 @@ import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.const
 import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 
+// style
 import {
   SatelliteCard,
   SatelliteCardButtons,
@@ -28,6 +29,7 @@ import {
   SatelliteTextGroup,
   SideBySideImageAndText,
 } from './SatelliteListCard.style'
+import { AvatarStyle } from '../../../../app/App.components/Avatar/Avatar.style'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
@@ -103,7 +105,9 @@ export const SatelliteListCard = ({
         <SatelliteCardTopRow>
           <SideBySideImageAndText>
             <SatelliteProfileImageContainer>
-              <SatelliteProfileImage src={satellite.image} />
+              <AvatarStyle>
+                <SatelliteProfileImage src={satellite.image} />
+              </AvatarStyle>
             </SatelliteProfileImageContainer>
             <SatelliteTextGroup>
               <SatelliteMainText>{satellite.name}</SatelliteMainText>
