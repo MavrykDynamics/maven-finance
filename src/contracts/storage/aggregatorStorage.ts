@@ -21,7 +21,6 @@ const breakGlassConfig = {
 }
 
 const config = {
-  nameMaxLength                       : new BigNumber(200),
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
   
@@ -46,12 +45,14 @@ const metadata = MichelsonMap.fromLiteral({
   ).toString('hex'),
 })
 
-const oracleAddresses = MichelsonMap.fromLiteral({
-  [oracleMaintainer.pkh]  : true,
-  [oracle0.pkh]           : true,
-  [oracle1.pkh]           : true,
-  [oracle2.pkh]           : true,
-});
+// const oracleAddresses = MichelsonMap.fromLiteral({
+//   [oracleMaintainer.pkh]  : true,
+//   [oracle0.pkh]           : true,
+//   [oracle1.pkh]           : true,
+//   [oracle2.pkh]           : true,
+// });
+
+const oracleAddresses = MichelsonMap.fromLiteral({});
 
 const deviationTriggerInfos = {
   oracleAddress   : oracleMaintainer.pkh,

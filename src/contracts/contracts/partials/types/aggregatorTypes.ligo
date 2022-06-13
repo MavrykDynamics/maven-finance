@@ -5,7 +5,7 @@ type metadataType is big_map (string, bytes);
 
 type observationCommitsType      is map (address, bytes);
 type observationRevealsType      is map (address, nat);
-type deviationTriggerBanType    is map (address, timestamp);
+type deviationTriggerBanType     is map (address, timestamp);
 
 type pivotedObservationsType     is map (nat, nat);
 type oracleAddressesType         is map (address, bool);
@@ -13,7 +13,7 @@ type oracleRewardStakedMvkType   is map (address, nat);
 type oracleRewardXtzType         is map (address, nat);
 
 // rewards type
-type distributeRewardMvkType is [@layout:comb] record [
+type distributeRewardStakedMvkType is [@layout:comb] record [
     eligibleSatellites          : set(address);
     totalStakedMvkReward        : nat;
 ]
@@ -54,7 +54,6 @@ type setObservationRevealType is  [@layout:comb] record [
 ];
 
 type aggregatorConfigType is [@layout:comb] record [
-    nameMaxLength                       : nat;
     decimals                            : nat;
     numberBlocksDelay                   : nat;
 
@@ -92,8 +91,7 @@ type setObservationRevealParams         is setObservationRevealType;
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
 type aggregatorUpdateConfigActionType is 
-  ConfigNameMaxLength                 of unit
-| ConfigDecimals                      of unit
+  ConfigDecimals                      of unit
 | ConfigNumberBlocksDelay             of unit
 
 | ConfigDeviationTriggerTimestamp     of unit
@@ -153,6 +151,7 @@ type aggregatorLambdaActionType is
   | LambdaSetAdmin                      of setAdminParams
   | LambdaSetGovernance                 of (address)
   | LambdaSetMaintainer                 of (address)
+  | LambdaSetName                       of (string)
   | LambdaUpdateMetadata                of updateMetadataType
   | LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
   | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams

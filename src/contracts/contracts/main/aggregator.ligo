@@ -18,6 +18,9 @@
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
+// Aggregator Factory Types
+#include "../partials/types/aggregatorFactoryTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type aggegatorAction is
@@ -28,6 +31,7 @@ type aggegatorAction is
   | SetAdmin                             of setAdminParams
   | SetGovernance                        of (address)
   | SetMaintainer                        of (address)
+  | SetName                              of (string)
   | UpdateMetadata                       of updateMetadataType
   | UpdateConfig                         of aggregatorUpdateConfigParamsType
   | UpdateWhitelistContracts             of updateWhitelistContractsParams
@@ -178,7 +182,7 @@ function getDeviationTriggerBanOracle(const addressKey: address; const deviation
 
 
 function checkOracleIsNotBanForDeviationTrigger(const s: aggregatorStorage): unit is 
-  if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOW_TO_TRIGGER_DEVIATION_BAN)
+  if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
   else unit
 
 
@@ -242,18 +246,18 @@ case (Tezos.get_entrypoint_opt(
       "%distributeRewardXtz",
       contractAddress) : option(contract(distributeRewardXtzType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardXtzType))
+  | None -> (failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardXtzType))
 ];
 
 
 
 // helper function to get distributeRewardMvk entrypoint in factory contract
-function getDistributeRewardMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardMvkType) is
+function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
 case (Tezos.get_entrypoint_opt(
-      "%distributeRewardMvk",
-      contractAddress) : option(contract(distributeRewardMvkType))) of [
+      "%distributeRewardStakedMvk",
+      contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardMvkType))
+  | None -> (failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
 ];
 
 // ------------------------------------------------------------------------------
@@ -599,19 +603,131 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : aggregatorStorage) : address is
+  s.admin
+
+
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : aggregatorStorage) : aggregatorConfigType is
+  s.config
+
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _: unit; var s : aggregatorStorage) : address is
+  s.governanceAddress
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : aggregatorStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : aggregatorStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get Maintainer address *)
+[@view] function getMaintainerAddress(const _: unit; var s : aggregatorStorage) : address is
+  s.maintainer
+
+
+
+(* View: get oracle addresses *)
+[@view] function getOracleAddresses(const _: unit; var s : aggregatorStorage) : oracleAddressesType is
+  s.oracleAddresses
+
+
+
+(* View: get observation commits *)
+[@view] function getObservationCommits(const _: unit; var s : aggregatorStorage) : observationCommitsType is
+  s.observationCommits
+
+
+
+(* View: get observation reveals *)
+[@view] function getObservationReveals(const _: unit; var s : aggregatorStorage) : observationRevealsType is
+  s.observationReveals
+
+
+
+(* View: get deviation trigger infos *)
+[@view] function getDeviationTriggerInfos(const _: unit; var s : aggregatorStorage) : deviationTriggerInfosType is
+  s.deviationTriggerInfos
+
+
+
+(* View: get deviation trigger ban *)
+[@view] function getDeviationTriggerBan(const _: unit; var s : aggregatorStorage) : deviationTriggerBanType is
+  s.deviationTriggerBan
+
+
+
+(* View: get oracle reward staked MVK *)
+[@view] function getOracleRewardStakedMvk(const _: unit; var s : aggregatorStorage) : oracleRewardStakedMvkType is
+  s.oracleRewardStakedMvk
+
+
+
+(* View: get oracle reward xtz *)
+[@view] function getOracleRewardXtz(const _: unit; var s : aggregatorStorage) : oracleRewardXtzType is
+  s.oracleRewardXtz
+
+
+
 (* View: get last completed round price *)
-[@view] function lastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
+[@view] function getLastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
   const withDecimal : lastCompletedRoundPriceReturnType = record [
-    price= s.lastCompletedRoundPrice.price;
-    percentOracleResponse= s.lastCompletedRoundPrice.percentOracleResponse;
-    round= s.lastCompletedRoundPrice.round;
-    decimals= s.config.decimals;
-    priceDateTime= s.lastCompletedRoundPrice.priceDateTime;
+    price                 = s.lastCompletedRoundPrice.price;
+    percentOracleResponse = s.lastCompletedRoundPrice.percentOracleResponse;
+    round                 = s.lastCompletedRoundPrice.round;
+    decimals              = s.config.decimals;
+    priceDateTime         = s.lastCompletedRoundPrice.priceDateTime;
   ]
 } with (withDecimal)
 
+
+
 (* View: get decimals *)
-[@view] function decimals (const _ : unit ; const s: aggregatorStorage) : nat is s.config.decimals;
+[@view] function getDecimals (const _ : unit ; const s: aggregatorStorage) : nat is s.config.decimals;
+
+
+
+(* View: get round *)
+[@view] function getRound (const _ : unit ; const s: aggregatorStorage) : nat is s.round;
+
+
+
+(* View: get round start *)
+[@view] function getRoundStart (const _ : unit ; const s: aggregatorStorage) : timestamp is s.roundStart;
+
+
+
+(* View: get switchblock *)
+[@view] function getSwitchBlock (const _ : unit ; const s: aggregatorStorage) : nat is s.switchBlock;
+
+
+
+(* View: get name *)
+[@view] function getContractName (const _ : unit ; const s: aggregatorStorage) : string is s.name;
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : aggregatorStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : aggregatorStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -688,6 +804,25 @@ block {
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetMaintainer(newMaintainerAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
+
+
+
+(*  setName entrypoint *)
+function setName(const newContractName : string; var s : aggregatorStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetName(newContractName);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1176,6 +1311,7 @@ function main (const action : aggegatorAction; const s : aggregatorStorage) : re
     | SetAdmin (parameters)                           -> setAdmin(parameters, s)
     | SetGovernance(parameters)                       -> setGovernance(parameters, s) 
     | SetMaintainer(parameters)                       -> setMaintainer(parameters, s) 
+    | SetName(parameters)                             -> setName(parameters, s) 
     | UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
     | UpdateConfig (parameters)                       -> updateConfig(parameters, s)
     | UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)

@@ -259,6 +259,12 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin *)
+[@view] function getAdmin(const _: unit; var s : governanceSatelliteStorage) : address is
+  s.admin
+
+
+
 (* View: get config *)
 [@view] function getConfig(const _: unit; var s : governanceSatelliteStorage) : governanceSatelliteConfigType is
   s.config
@@ -295,8 +301,8 @@ block {
 
 
 
-(* View: get governance satellite counter *)
-[@view] function getGovernanceSatelliteCounter(const _: unit; var s : governanceSatelliteStorage) : nat is
+(* View: get governance satellite action counter *)
+[@view] function getGovernanceSatelliteActionCounter(const _: unit; var s : governanceSatelliteStorage) : nat is
   s.governanceSatelliteCounter
 
 

@@ -45,7 +45,6 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
 
         oracleAddresses                     : MichelsonMap<string, boolean>,
 
-        nameMaxLength                       : BigNumber,
         decimals                            : BigNumber,
         numberBlocksDelay                   : BigNumber,
 

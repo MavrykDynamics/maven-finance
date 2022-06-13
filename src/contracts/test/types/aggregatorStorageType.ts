@@ -9,7 +9,6 @@ export type aggregatorStorageType = {
   name                      : string;
   
   config                    : {
-    nameMaxLength                       : BigNumber;
     decimals                            : BigNumber;
     numberBlocksDelay                   : BigNumber;
 
