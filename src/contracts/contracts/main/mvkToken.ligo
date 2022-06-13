@@ -120,18 +120,21 @@ function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
 
 
 
-function checkSenderIsGovernanceSatelliteContract(var store : mvkTokenStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvkTokenStorage) : unit is
 block{
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", store.governanceAddress);
-  const governanceSatelliteAddress: address = case generalContractsOptView of [
-      Some (_optionContract) -> case _optionContract of [
-              Some (_contract)    -> _contract
-          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
-          ]
-  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
-  if (Tezos.sender = governanceSatelliteAddress) then skip
-    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+  if Tezos.sender = store.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", store.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
 } with unit
 
 
@@ -388,7 +391,7 @@ block {
 function mistakenTransfer(const destinationParams: transferActionType; var store: mvkTokenStorage): return is
 block {
     // Check if the sender is the governanceSatellite contract
-    checkSenderIsGovernanceSatelliteContract(store);
+    checkSenderIsAdminOrGovernanceSatelliteContract(store);
 
     // Operations list
     var operations : list(operation) := nil;

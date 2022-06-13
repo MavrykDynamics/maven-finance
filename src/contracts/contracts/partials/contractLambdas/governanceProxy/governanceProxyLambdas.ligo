@@ -126,7 +126,7 @@ block {
         | LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is the governanceSatellite contract
-                checkSenderIsGovernanceSatelliteContract(s);
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is

@@ -222,17 +222,17 @@ block{
 
 
 
-function checkSenderIsGovernanceSatelliteContract(var s : governanceStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceStorage) : unit is
 block{
-
-  const governanceSatelliteAddress : address = case s.generalContracts["governanceSatellite"] of [
-        Some(_address) -> _address
-      | None           -> failwith(error_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
-
-  if (Tezos.sender = governanceSatelliteAddress) then skip
-    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
-
+  if Tezos.sender = s.admin then skip
+  else {
+    const governanceSatelliteAddress: address = case s.generalContracts["governanceSatellite"] of [
+          Some (_contract)    -> _contract
+        | None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
 } with unit
 
 // ------------------------------------------------------------------------------

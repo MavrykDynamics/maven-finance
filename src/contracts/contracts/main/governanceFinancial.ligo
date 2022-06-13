@@ -219,18 +219,21 @@ block{
 
 
 
-function checkSenderIsGovernanceSatelliteContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceFinancialStorage) : unit is
 block{
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-  const governanceSatelliteAddress: address = case generalContractsOptView of [
-      Some (_optionContract) -> case _optionContract of [
-              Some (_contract)    -> _contract
-          |   None                -> failwith (error_GOVERNANCE_CONTRACT_NOT_FOUND)
-          ]
-  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
-  if (Tezos.sender = governanceSatelliteAddress) then skip
-    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
 } with unit
 
 
