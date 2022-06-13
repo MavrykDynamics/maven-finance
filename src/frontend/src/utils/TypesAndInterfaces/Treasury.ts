@@ -1,17 +1,24 @@
-import { MichelsonMap } from '@taquito/taquito'
 
-export interface TreasuryStorage {
-  admin: string
-  config: {
-    minXtzAmount: number
-    maxXtzAmount: number
-  }
-  whitelistContracts: MichelsonMap<string, unknown>
-  whitelistTokenContracts: MichelsonMap<string, unknown>
-  generalContracts: MichelsonMap<string, unknown>
-  breakGlassConfig: {
-    transferIsPaused: boolean
-    mintAndTransferIsPaused: boolean
-    updateOperatorsIsPaused: boolean
-  }
+
+export type TreasuryType =  {
+  address: string,
+  name: string
+} & FetchedTreasuryType
+
+export type FetchedTreasuryType = {
+  balances: Array<TreasuryBalanceType>,
+  total: number
+}
+
+// export type TreasuryBalanceType = Record<string, unknown>
+export type TreasuryBalanceType = {
+  balance: number
+  contract: string
+  decimals: number
+  is_transferable: boolean
+  name: string
+  network: string
+  symbol: string
+  thumbnail_uri: string
+  token_id: number
 }
