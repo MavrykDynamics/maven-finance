@@ -19,9 +19,13 @@
 #include "../partials/types/aggregatorTypes.ligo"
 
 // Aggregator Factory Types
-#include "../partials/types/aggregatorFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
+
+type aggregatorFactoryConfigType is [@layout:comb] record [
+    nameMaxLength           : nat;
+    empty                   : unit;
+]
 
 type aggegatorAction is
 
