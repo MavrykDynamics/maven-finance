@@ -767,7 +767,6 @@ describe('Contracts Deployment for Tests', async () => {
 
         const createAggregatorsBatch = await tezos.wallet
             .batch()
-            .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatellite.contract.address))
             .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                 'USD',
                 'BTC',

@@ -43,11 +43,5 @@ module.exports = {
       network_id: "*",
       secretKey: bob.sk,
     },
-    ithacanet: {
-      rpc: 'https://ithacanet.smartpy.io/',
-      port: 443,
-      network_id: '*',
-      secretKey: alice.sk,
-    },
   },
 };
