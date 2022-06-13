@@ -924,7 +924,7 @@ class USDMTokenControllerVaultCollateral(Model):
     balance                         = fields.FloatField(default=0.0)
 
     class Meta:
-        table = 'usdm_token_controller_vault'
+        table = 'usdm_token_controller_vault_collateral'
 
 class USDMTokenControllerTarget(Model):
     id                              = fields.BigIntField(pk=True)
@@ -974,7 +974,7 @@ class USDMTokenControllerPrice(Model):
     price                           = fields.FloatField(default=0.0)
     
     class Meta:
-        table = 'usdm_token_controller_collateral_token'
+        table = 'usdm_token_controller_price'
 
 class USDMTokenControllerCFMM(Model):
     id                              = fields.BigIntField(pk=True)
