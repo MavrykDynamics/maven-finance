@@ -35,6 +35,7 @@ type aggregatorFactoryAction is
     | SetAdmin                        of setAdminParams
     | SetGovernance                   of (address)
     | UpdateMetadata                  of updateMetadataType
+    | UpdateConfig                    of aggregatorFactoryUpdateConfigParamsType
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateGeneralContracts          of updateGeneralContractsParams
 
@@ -178,7 +179,7 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%addOracle", aggregatorAddress): option(contract(address))) of [
               Some (c) -> c
-          |   None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND): contract(address))
+          |   None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND): contract(address))
         ];
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
 
@@ -189,31 +190,9 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%removeOracle", aggregatorAddress): option(contract(address))) of [
               Some (c) -> c
-          |   None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND): contract(address))
+          |   None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND): contract(address))
         ];
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
-
-
-
-function updateAggregatorConfigOperation(const aggregatorAddress: address; const newAggregatorConfig: aggregatorConfigType): operation is
-block{
-    const tokenContract: contract(aggregatorConfigType) =
-        case (Tezos.get_entrypoint_opt("%updateConfig", aggregatorAddress): option(contract(aggregatorConfigType))) of [
-              Some (c) -> c
-          |   None -> (failwith(error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND): contract(aggregatorConfigType))
-        ];
-} with (Tezos.transaction(newAggregatorConfig, 0tez, tokenContract))
-
-
-
-function updateAggregatorAdminOperation(const aggregatorAddress: address; const adminAddress: address): operation is
-block{
-    const tokenContract: contract(address) =
-        case (Tezos.get_entrypoint_opt("%updateAdmin", aggregatorAddress): option(contract(address))) of [
-              Some (c) -> c
-          |   None -> (failwith(error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND): contract(address))
-        ];
-} with (Tezos.transaction(adminAddress, 0tez, tokenContract))
 
 
 
@@ -285,13 +264,61 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : aggregatorFactoryStorage) : address is
+  s.admin
+
+
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : aggregatorFactoryStorage) : aggregatorFactoryConfigType is
+  s.config
+
+
+
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _: unit; var s : aggregatorFactoryStorage) : address is
+  s.governanceAddress
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : aggregatorFactoryStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : aggregatorFactoryStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get tracked aggregators *)
+[@view] function getTrackedAggregators(const _: unit; var s : aggregatorFactoryStorage) : trackedAggregatorsType is
+  s.trackedAggregators
+
+
+
 (* View: get aggregator *)
-// [@view] function getAggregator (const pair : string * string ; const s : aggregatorFactoryStorage) : address is block {
-//   const aggregatorAddress : address = case s.trackedAggregators[pair] of [
-//     Some(_address) -> _address
-//     | None -> failwith(error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND)
-//   ];
-// } with (aggregatorAddress)
+[@view] function getAggregator (const pair : string * string ; const s : aggregatorFactoryStorage) : address is block {
+  const aggregatorAddress : address = case s.trackedAggregators[pair] of [
+      Some(_address) -> _address
+    | None -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
+  ];
+} with (aggregatorAddress)
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : aggregatorFactoryStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : aggregatorFactoryStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -377,6 +404,25 @@ block{
 
     // init aggregator lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams: aggregatorFactoryUpdateConfigParamsType; const s: aggregatorFactoryStorage): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
@@ -734,6 +780,7 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
       | SetAdmin (parameters)                         -> setAdmin(parameters, s)
       | SetGovernance (parameters)                    -> setGovernance(parameters, s)
       | UpdateMetadata (parameters)                   -> updateMetadata(parameters, s)
+      | UpdateConfig (parameters)                     -> updateConfig(parameters, s)
       | UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
 

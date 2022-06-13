@@ -26,6 +26,11 @@ type distributeRewardXtzType is [@layout:comb] record [
     reward                : nat;
 ]
 
+type aggregatorFactoryConfigType is [@layout:comb] record [
+    nameMaxLength           : nat;
+    empty                   : unit;
+]
+
 type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
     createAggregatorIsPaused     : bool;
     trackAggregatorIsPaused      : bool;
@@ -75,12 +80,24 @@ type registerAggregatorActionType is [@layout:comb] record [
   aggregatorAddress             : address; 
 ]
 
+(* updateConfig entrypoint inputs *)
+type aggregatorFactoryUpdateConfigNewValueType is nat
+type aggregatorFactoryUpdateConfigActionType is 
+| ConfigNameMaxLength                 of unit
+
+type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue  : aggregatorFactoryUpdateConfigNewValueType; 
+  updateConfigAction    : aggregatorFactoryUpdateConfigActionType;
+]
+
+
 type aggregatorFactoryLambdaActionType is 
     
     // Housekeeping Lambdas
   | LambdaSetAdmin                      of (address)
   | LambdaSetGovernance                 of (address)
   | LambdaUpdateMetadata                of updateMetadataType
+  | LambdaUpdateConfig                  of aggregatorFactoryUpdateConfigParamsType
   | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
   | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
 
@@ -109,6 +126,7 @@ type aggregatorFactoryLambdaActionType is
 type aggregatorFactoryStorage is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
+    config                  : aggregatorFactoryConfigType;
 
     mvkTokenAddress         : address;
     governanceAddress       : address;

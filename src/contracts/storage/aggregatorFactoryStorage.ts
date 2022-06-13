@@ -1,8 +1,15 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 import { zeroAddress } from "test/helpers/Utils";
 
+
 import { bob } from '../scripts/sandbox/accounts'
 import { aggregatorFactoryStorageType } from "../test/types/aggregatorFactoryStorageType";
+
+import { BigNumber } from 'bignumber.js'
+
+const config = {
+  nameMaxLength       : new BigNumber(200),
+}
 
 const breakGlassConfig = {
   createAggregatorIsPaused       : false,
@@ -28,13 +35,15 @@ export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
   
   admin                   : bob.pkh,
   metadata                : metadata,
-  breakGlassConfig        : breakGlassConfig,
-  
+  config                  : config,
+
   mvkTokenAddress         : zeroAddress,
   governanceAddress       : zeroAddress,
 
   generalContracts        : MichelsonMap.fromLiteral({}),
   whitelistContracts      : MichelsonMap.fromLiteral({}),
+
+  breakGlassConfig        : breakGlassConfig,
     
   trackedAggregators      : MichelsonMap.fromLiteral({}),
   

@@ -65,6 +65,30 @@ block{
 
 
 
+(*  updateConfig entrypoint  *)
+function lambdaUpdateConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block{
+
+    checkNoAmount(Unit);  
+    checkSenderIsAdmin(s);
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+
+                const updateConfigAction    : aggregatorFactoryUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : aggregatorFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                    | ConfigNameMaxLength (_v)             -> s.config.nameMaxLength                        := updateConfigNewValue
+                ];
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
 block {
@@ -304,8 +328,8 @@ block {
                 checkSenderIsAdmin(s);
 
                 // createAggregator parameters declaration
-                const observationCommits  : observationCommitsType  = map[];
-                const observationReveals  : observationRevealsType  = map[];
+                const observationCommits   : observationCommitsType   = map[];
+                const observationReveals   : observationRevealsType   = map[];
                 const deviationTriggerBan  : deviationTriggerBanType  = map[];
                 
                 const lastCompletedRoundPrice = record[
@@ -371,40 +395,43 @@ block {
                     withdrawRewardStakedMvkIsPaused     = False;
                 ];
 
+                // check name length
+                const aggregatorName : string = createAggregatorParams.2.name;
+                if String.length(aggregatorName) > s.config.nameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // new Aggregator Storage declaration
                 const originatedAggregatorStorage : aggregatorStorage = record [
 
-                  admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
-                  metadata                  = aggregatorMetadata;
-                  name                      = createAggregatorParams.2.name;
-                  config                    = createAggregatorParams.2.aggregatorConfig;
-                  breakGlassConfig          = aggregatorBreakGlassConfig;
+                    admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
+                    metadata                  = aggregatorMetadata;
+                    name                      = aggregatorName;
+                    config                    = createAggregatorParams.2.aggregatorConfig;
+                    breakGlassConfig          = aggregatorBreakGlassConfig;
 
-                  whitelistContracts        = aggregatorWhitelistContracts;      
-                  generalContracts          = aggregatorGeneralContracts;
-                  
-                  maintainer                = createAggregatorParams.2.maintainer;
-                  mvkTokenAddress           = s.mvkTokenAddress;
-                  governanceAddress         = s.governanceAddress;
+                    maintainer                = createAggregatorParams.2.maintainer;
+                    mvkTokenAddress           = s.mvkTokenAddress;
+                    governanceAddress         = s.governanceAddress;
 
-                  round                     = 0n;
-                  roundStart                = Tezos.now;
-                  switchBlock               = 0n;
+                    whitelistContracts        = aggregatorWhitelistContracts;      
+                    generalContracts          = aggregatorGeneralContracts;
 
-                  oracleAddresses           = createAggregatorParams.2.oracleAddresses;
-                  
-                  deviationTriggerInfos     = deviationTriggerInfos;
-                  lastCompletedRoundPrice   = lastCompletedRoundPrice;
-                  
-                  observationCommits        = observationCommits;
-                  observationReveals        = observationReveals;
-                  deviationTriggerBan       = deviationTriggerBan;
-                  
-                  oracleRewardXtz           = oracleRewardXtz;
-                  oracleRewardStakedMvk     = oracleRewardStakedMvk;      
+                    round                     = 0n;
+                    roundStart                = Tezos.now;
+                    switchBlock               = 0n;
 
-                  lambdaLedger              = aggregatorLambdaLedger;
-                  
+                    oracleAddresses           = createAggregatorParams.2.oracleAddresses;
+                    
+                    deviationTriggerInfos     = deviationTriggerInfos;
+                    lastCompletedRoundPrice   = lastCompletedRoundPrice;
+                    
+                    observationCommits        = observationCommits;
+                    observationReveals        = observationReveals;
+                    deviationTriggerBan       = deviationTriggerBan;
+                    
+                    oracleRewardXtz           = oracleRewardXtz;
+                    oracleRewardStakedMvk     = oracleRewardStakedMvk;      
+
+                    lambdaLedger              = aggregatorLambdaLedger;
                 ];
 
                 // contract origination
@@ -431,10 +458,10 @@ block {
                 );
 
                 // Add the aggregator to the governance general contracts map
-                if createAggregatorParams.2.addToGeneralContracts then {
+                if createAggregatorParams.2.addToGeneralContracts = True then {
                     
                     const updateGeneralMapRecord : updateGeneralContractsParams = record [
-                        generalContractName    = createAggregatorParams.2.name;
+                        generalContractName    = aggregatorName;
                         generalContractAddress = aggregatorOrigination.1;
                     ];
 

@@ -13,58 +13,62 @@
   },
   {
     "index": 3,
-    "name": "lambdaUpdateWhitelistContracts"
+    "name": "lambdaUpdateConfig"
   },
   {
     "index": 4,
-    "name": "lambdaUpdateGeneralContracts"
+    "name": "lambdaUpdateWhitelistContracts"
   },
   {
     "index": 5,
-    "name": "lambdaPauseAll"
+    "name": "lambdaUpdateGeneralContracts"
   },
   {
     "index": 6,
-    "name": "lambdaUnpauseAll"
+    "name": "lambdaPauseAll"
   },
   {
     "index": 7,
-    "name": "lambdaTogglePauseCreateAgg"
+    "name": "lambdaUnpauseAll"
   },
   {
     "index": 8,
-    "name": "lambdaTogglePauseTrackAgg"
+    "name": "lambdaTogglePauseCreateAgg"
   },
   {
     "index": 9,
-    "name": "lambdaTogglePauseUntrackAgg"
+    "name": "lambdaTogglePauseTrackAgg"
   },
   {
     "index": 10,
-    "name": "lambdaTogglePauseDisRewardXtz"
+    "name": "lambdaTogglePauseUntrackAgg"
   },
   {
     "index": 11,
-    "name": "lambdaTogglePauseDisRewardSMvk"
+    "name": "lambdaTogglePauseDisRewardXtz"
   },
   {
     "index": 12,
-    "name": "lambdaCreateAggregator"
+    "name": "lambdaTogglePauseDisRewardSMvk"
   },
   {
     "index": 13,
-    "name": "lambdaTrackAggregator"
+    "name": "lambdaCreateAggregator"
   },
   {
     "index": 14,
-    "name": "lambdaUntrackAggregator"
+    "name": "lambdaTrackAggregator"
   },
   {
     "index": 15,
-    "name": "lambdaDistributeRewardXtz"
+    "name": "lambdaUntrackAggregator"
   },
   {
     "index": 16,
+    "name": "lambdaDistributeRewardXtz"
+  },
+  {
+    "index": 17,
     "name": "lambdaDistributeRewardStakedMvk"
   }
 ]

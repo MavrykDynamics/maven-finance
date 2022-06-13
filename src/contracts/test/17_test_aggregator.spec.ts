@@ -35,6 +35,11 @@
 //     await utils.init(bob.sk);
 
 //     aggregator = await utils.tezos.contract.at(aggregatorAddress.address);
+
+//     const aggregatorStorage = await aggregator.storage();
+//     // console.log(aggregator);
+//     // console.log(aggregatorStorage.oracleAddresses);
+
 //   });
 
 //   describe('AddOracle', () => {
@@ -58,10 +63,13 @@
 //       async () => {
 //         await signerFactory(bob.sk);
 
-//         const op = aggregator.methods.addOracle(bob.pkh);
+//         const op = await aggregator.methods.addOracle(bob.pkh).send();
+//         await op.confirmation();
+
+//         // const op_already_registered = aggregator.methods.addOracle(bob.pkh);
 
 //         // await chai.expect(op.send()).rejects.toThrow("You can't add an already present whitelisted oracle");
-//         await chai.expect(op.send()).to.be.rejectedWith();
+//         // await chai.expect(op_already_registered.send()).to.be.rejectedWith();
 
 //       });
 

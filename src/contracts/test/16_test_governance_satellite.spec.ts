@@ -13,7 +13,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy, susie, oracle0, oracle1, oracle2, oracleMaintainer } from "../scripts/sandbox/accounts";
 
 // import doormanAddress                   from '../deployments/doormanAddress.json';
 // import delegationAddress                from '../deployments/delegationAddress.json';
@@ -25,6 +25,7 @@
 
 
 // import { config } from "yargs";
+// import { aggregatorStorageType } from "./types/aggregatorStorageType";
 
 // describe("Governance Satellite tests", async () => {
 //     var utils: Utils;
@@ -212,7 +213,6 @@
                 
 //                 oracleMap,
 
-//                 new BigNumber(200),           // nameMaxLenth
 //                 new BigNumber(8),             // decimals
 //                 new BigNumber(2),             // numberBlocksDelay
 
@@ -235,7 +235,6 @@
 
 //                 oracleMap,
 
-//                 new BigNumber(200),           // nameMaxLenth
 //                 new BigNumber(8),             // decimals
 //                 new BigNumber(2),             // numberBlocksDelay
                 
@@ -258,7 +257,6 @@
 
 //                 oracleMap,
 
-//                 new BigNumber(200),           // nameMaxLenth
 //                 new BigNumber(16),            // decimals
 //                 new BigNumber(2),             // numberBlocksDelay
                 
@@ -561,7 +559,7 @@
 //                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
     
-//                 // check details of financial request
+//                 // check details of governance satellite action
 //                 assert.equal(governanceAction.initiator,                                 bob.pkh);
 //                 assert.equal(governanceAction.governanceType,                            "SUSPEND");
 //                 assert.equal(governanceAction.status,                                    true);
@@ -672,7 +670,7 @@
 //               const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
   
-//               // check details of financial request
+//               // check details of governance satellite action
 //               assert.equal(governanceAction.initiator,                                 bob.pkh);
 //               assert.equal(governanceAction.governanceType,                            "UNSUSPEND");
 //               assert.equal(governanceAction.status,                                    true);
@@ -781,7 +779,7 @@
 //               const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
   
-//               // check details of financial request
+//               // check details of governance satellite action
 //               assert.equal(governanceAction.initiator,                                 bob.pkh);
 //               assert.equal(governanceAction.governanceType,                            "BAN");
 //               assert.equal(governanceAction.status,                                    true);
@@ -892,7 +890,7 @@
 //             const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
 
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(governanceAction.initiator,                                 bob.pkh);
 //             assert.equal(governanceAction.governanceType,                            "UNBAN");
 //             assert.equal(governanceAction.status,                                    true);
@@ -978,8 +976,8 @@
 //             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
             
 //             // get aggregator contract
-//             const aggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-//             const aggregatorStorage        = await aggregatorInstance.storage();
+//             const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
+//             const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
 //             // check that user is not in aggregator oracleAddresses set
 //             const aggregatorOracles        = await aggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1018,7 +1016,7 @@
 //             const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
 //             const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(governanceAction.initiator,                                 bob.pkh);
 //             assert.equal(governanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
 //             assert.equal(governanceAction.status,                                    true);
@@ -1075,8 +1073,8 @@
 //             const updatedBobSatelliteOracleRecord      = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
 //             const bobUsdBtcOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
 
-//             const updatedAggregatorStorage             = await aggregatorInstance.storage();
-//             const updatedAggregatorOracles             = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
+//             const updatedAggregatorOracles                         = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
             
 //             // check that governance action has been executed
 //             assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
@@ -1117,8 +1115,8 @@
 //             const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
 
 //             // get aggregator contract
-//             const aggregatorInstance       = await utils.tezos.contract.at(usdBtcAggregatorAddress);
-//             const aggregatorStorage        = await aggregatorInstance.storage();
+//             const aggregatorInstance = await utils.tezos.contract.at(usdBtcAggregatorAddress);
+//             const aggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 
 //             // check that user is in aggregator oracleAddresses set (from previous test)
 //             const aggregatorOracles        = await aggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1158,7 +1156,7 @@
 //             const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
 
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(governanceAction.initiator,                                 bob.pkh);
 //             assert.equal(governanceAction.governanceType,                            "REMOVE_ORACLE_IN_AGGREGATOR");
 //             assert.equal(governanceAction.status,                                    true);
@@ -1206,8 +1204,8 @@
 //             const updatedBobSatelliteOracleRecord       = await updatedGovernanceSatelliteStorage.satelliteOracleLedger.get(bob.pkh);
 //             const bobUsdBtcOracleAggregatorRecord       = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdBtcAggregatorAddress);
 
-//             const updatedAggregatorStorage              = await aggregatorInstance.storage();
-//             const updatedAggregatorOracles              = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
+//             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
+//             const updatedAggregatorOracles                         = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
 
 //             // check that governance action has been executed
 //             assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
@@ -1268,9 +1266,9 @@
 //             const usdXtzAggregatorInstance       = await utils.tezos.contract.at(usdXtzAggregatorAddress);
 //             const usdDogeAggregatorInstance      = await utils.tezos.contract.at(usdDogeAggregatorAddress);
             
-//             const usdBtcAggregatorStorage        = await usdBtcAggregatorInstance.storage();
-//             const usdXtzAggregatorStorage        = await usdXtzAggregatorInstance.storage();
-//             const usdDogeAggregatorStorage       = await usdDogeAggregatorInstance.storage();
+//             const usdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
+//             const usdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+//             const usdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
 //             // check that user is not in aggregator oracleAddresses set
 //             const usdBtcAggregatorOracles        = await usdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1316,7 +1314,7 @@
 //             const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount + eveStakeAmount + malloryStakeAmount;
 //             const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(governanceAction.initiator,                                 bob.pkh);
 //             assert.equal(governanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
 //             assert.equal(governanceAction.status,                                    true);
@@ -1363,7 +1361,7 @@
 
 //             const secondGovernanceAction                   = await secondGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(secondActionId);
             
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(secondGovernanceAction.initiator,                                 bob.pkh);
 //             assert.equal(secondGovernanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
 //             assert.equal(secondGovernanceAction.status,                                    true);
@@ -1410,7 +1408,7 @@
 
 //             const thirdGovernanceAction                   = await thirdGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(thirdActionId);
             
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(thirdGovernanceAction.initiator,                                 bob.pkh);
 //             assert.equal(thirdGovernanceAction.governanceType,                            "ADD_ORACLE_TO_AGGREGATOR");
 //             assert.equal(thirdGovernanceAction.status,                                    true);
@@ -1453,9 +1451,9 @@
 //             const bobUsdXtzOracleAggregatorRecord      = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdXtzAggregatorAddress);
 //             const bobUsdDogeOracleAggregatorRecord     = await updatedBobSatelliteOracleRecord.aggregatorPairs.get(usdDogeAggregatorAddress);
 
-//             const updatedUsdBtcAggregatorStorage        = await usdBtcAggregatorInstance.storage();
-//             const updatedUsdXtzAggregatorStorage        = await usdXtzAggregatorInstance.storage();
-//             const updatedUsdDogeAggregatorStorage       = await usdDogeAggregatorInstance.storage();
+//             const updatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
+//             const updatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+//             const updatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
 //             // check that user is not in aggregator oracleAddresses set
 //             const updatedUsdBtcAggregatorOracles        = await updatedUsdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1500,7 +1498,7 @@
 
 //             const fourthGovernanceAction                   = await fourthGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(fourthActionId);
             
-//             // check details of financial request
+//             // check details of governance satellite action
 //             assert.equal(fourthGovernanceAction.initiator,                                 bob.pkh);
 //             assert.equal(fourthGovernanceAction.governanceType,                            "REMOVE_ALL_SATELLITE_ORACLES");
 //             assert.equal(fourthGovernanceAction.status,                                    true);
@@ -1541,9 +1539,9 @@
 //             const finalBobUsdXtzOracleAggregatorRecord      = await finalUpdatedBobSatelliteOracleRecord.aggregatorPairs.get(usdXtzAggregatorAddress);
 //             const finalBobUsdDogeOracleAggregatorRecord     = await finalUpdatedBobSatelliteOracleRecord.aggregatorPairs.get(usdDogeAggregatorAddress);
 
-//             const finalUpdatedUsdBtcAggregatorStorage        = await usdBtcAggregatorInstance.storage();
-//             const finalUpdatedUsdXtzAggregatorStorage        = await usdXtzAggregatorInstance.storage();
-//             const finalUpdatedUsdDogeAggregatorStorage       = await usdDogeAggregatorInstance.storage();
+//             const finalUpdatedUsdBtcAggregatorStorage   : aggregatorStorageType  = await usdBtcAggregatorInstance.storage();
+//             const finalUpdatedUsdXtzAggregatorStorage   : aggregatorStorageType  = await usdXtzAggregatorInstance.storage();
+//             const finalUpdatedUsdDogeAggregatorStorage  : aggregatorStorageType  = await usdDogeAggregatorInstance.storage();
 
 //             // check that user is not in aggregator oracleAddresses set
 //             const finalUpdatedUsdBtcAggregatorOracles        = await finalUpdatedUsdBtcAggregatorStorage.oracleAddresses.get(bob.pkh);
@@ -1629,7 +1627,7 @@
 //                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * governanceSatelliteApprovalPercentage) / (10 ** governanceSatellitePercentageDecimals);
 
     
-//                 // check details of financial request
+//                 // check details of governance satellite action
 //                 assert.equal(governanceAction.initiator,                                 bob.pkh);
 //                 assert.equal(governanceAction.governanceType,                            "UPDATE_AGGREGATOR_STATUS");
 //                 assert.equal(governanceAction.status,                                    true);
@@ -1700,6 +1698,160 @@
 //         });
         
 //     });  // end %updateAggregatorStatus tests
+
+//   describe("permissions tests", async () => {
+
+//         it('Non-satellite should not be able to create any governance action', async () => {
+//             try{        
+
+//                 // some init constants
+//                 governanceSatelliteStorage     = await governanceSatelliteInstance.storage();
+                
+//                 // get aggregator address from pair key
+//                 const pairOne = "USD";
+//                 const pairTwo = "BTC";
+//                 const usdBtcKey = {
+//                     0 : pairOne,
+//                     1 : pairTwo
+//                 }
+//                 const usdBtcAggregatorAddress  = aggregatorFactoryStorage.trackedAggregators.get(usdBtcKey);
+                
+//                 // dummy governance satellite action params
+//                 const actionId                 = governanceSatelliteStorage.governanceSatelliteCounter;
+//                 const oracleAddress            = trudy.pkh;
+//                 const aggregatorAddress        = usdBtcAggregatorAddress;
+//                 const newStatus                = "INACTIVE"
+//                 const purpose                  = "Test Purpose";            
+
+//                 // init non-satellite user
+//                 await signerFactory(trudy.sk);
+
+//                 // fail to create governance action to suspend Satellite
+//                 const failSuspendSatelliteOperation = governanceSatelliteInstance.methods.suspendSatellite(
+//                     bob.pkh,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failSuspendSatelliteOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to unsuspend Satellite
+//                 const failUnsuspendSatelliteOperation = governanceSatelliteInstance.methods.unsuspendSatellite(
+//                     bob.pkh,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failUnsuspendSatelliteOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to ban Satellite
+//                 const failBanSatelliteOperation = governanceSatelliteInstance.methods.banSatellite(
+//                     bob.pkh,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failBanSatelliteOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to unban Satellite
+//                 const failUnbanSatelliteOperation = governanceSatelliteInstance.methods.unbanSatellite(
+//                     bob.pkh,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failUnbanSatelliteOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to add oracle to aggregator
+//                 const failAddOracleToAggregatorOperation = governanceSatelliteInstance.methods.addOracleToAggregator(
+//                         oracleAddress,
+//                         aggregatorAddress,
+//                         purpose
+//                     ).send();
+//                 await chai.expect(failAddOracleToAggregatorOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to remove oracle in aggregator
+//                 const failRemoveOracleInAggregatorOperation = governanceSatelliteInstance.methods.removeOracleInAggregator(
+//                     oracleAddress,
+//                     aggregatorAddress,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failRemoveOracleInAggregatorOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to remove all satellite oracles
+//                 const failRemoveAllSatelliteOraclesOperation = governanceSatelliteInstance.methods.removeAllSatelliteOracles(
+//                     bob.pkh,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failRemoveAllSatelliteOraclesOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to update aggregator status
+//                 const failUpdateAggregatorStatusOperation = governanceSatelliteInstance.methods.updateAggregatorStatus(
+//                     aggregatorAddress,
+//                     newStatus,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failUpdateAggregatorStatusOperation).to.be.eventually.rejected;
+                
+                
+
+//                 // fail to create governance action to register aggregator
+//                 const failRegisterAggregatorOperation = governanceSatelliteInstance.methods.registerAggregator(
+//                     "BTC",
+//                     "USD",
+//                     aggregatorAddress
+//                 ).send();
+//                 await chai.expect(failRegisterAggregatorOperation).to.be.eventually.rejected;
+
+
+
+//                 // Satellite Bob creates a governance action to add oracle to aggregator
+//                 await signerFactory(bob.sk);
+//                 const governanceSatelliteOperation = await governanceSatelliteInstance.methods.addOracleToAggregator(
+//                         oracleAddress,
+//                         aggregatorAddress,
+//                         purpose
+//                     ).send();
+//                 await governanceSatelliteOperation.confirmation();
+
+
+//                 await signerFactory(trudy.sk);
+//                 // fail to create governance action to drop governance action
+//                 const failDropActionOperation = governanceSatelliteInstance.methods.dropAction(
+//                     actionId
+//                 ).send();
+//                 await chai.expect(failDropActionOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to vote for governance action
+//                 const failVoteYayForActionOperation = governanceSatelliteInstance.methods.voteForAction(
+//                     actionId,
+//                     "yay"
+//                 ).send();
+//                 await chai.expect(failVoteYayForActionOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to vote for governance action
+//                 const failVoteNayForActionOperation = governanceSatelliteInstance.methods.voteForAction(
+//                     actionId,
+//                     "nay"
+//                 ).send();
+//                 await chai.expect(failVoteNayForActionOperation).to.be.eventually.rejected;
+
+
+//                 // fail to create governance action to vote for governance action
+//                 const failVotePassForActionOperation = governanceSatelliteInstance.methods.voteForAction(
+//                     actionId,
+//                     "pass"
+//                 ).send();
+//                 await chai.expect(failVotePassForActionOperation).to.be.eventually.rejected;
+
+            
+//             } catch(e){
+//                 console.dir(e, {depth: 5})
+//             } 
+//         });
+        
+//     });  // end permissions tests
     
 
 // });
