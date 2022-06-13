@@ -292,7 +292,7 @@ export const GovernanceView = ({
           ) : null}
 
           <div className="voting-proposal">
-            <VotingArea
+            {/*<VotingArea
               ready={ready}
               loading={loading}
               accountPkh={accountPkh}
@@ -300,7 +300,7 @@ export const GovernanceView = ({
               handleVotingRoundVote={handleVotingRoundVote}
               selectedProposal={rightSideContent}
               voteStatistics={voteStatistics}
-            />
+            />*/}
             {isExecuteProposal ? (
               <Button
                 className="execute-proposal"
