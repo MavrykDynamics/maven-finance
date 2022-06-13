@@ -119,6 +119,42 @@ block {
 
 
 
+(*  mistaken lambda *)
+function lambdaMistakenTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Get MVK Token address
+                const mvkTokenAddress: address  = s.mvkTokenAddress;
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
 (*  migrateFunds lambda *)
 function lambdaMigrateFunds(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
 block {
@@ -878,10 +914,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                   const transferParam: transferActionType = list[
                     record[
                       to_   = Tezos.self_address;
-                      token = Fa2 (record[
+                      token = (Fa2 (record[
                         tokenContractAddress  = mvkTokenAddress;
                         tokenId               = 0n;
-                      ]);
+                      ]): tokenType);
                       amount=transferedToken;
                     ]
                   ];

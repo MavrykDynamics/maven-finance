@@ -29,22 +29,26 @@
   },
   {
     "index": 7,
-     "name": "lambdaRequestTokens"
+    "name": "lambdaMistakenTransfer"
   },
   {
     "index": 8,
-    "name": "lambdaRequestMint"
+     "name": "lambdaRequestTokens"
   },
   {
     "index": 9,
-    "name": "lambdaSetContractBaker"
+    "name": "lambdaRequestMint"
   },
   {
     "index": 10,
-    "name": "lambdaDropFinancialRequest"
+    "name": "lambdaSetContractBaker"
   },
   {
     "index": 11,
+    "name": "lambdaDropFinancialRequest"
+  },
+  {
+    "index": 12,
     "name": "lambdaVoteForRequest"
   }
 ]

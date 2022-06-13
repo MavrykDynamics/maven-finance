@@ -125,6 +125,39 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  mistakenTransfer lambda *)
+function lambdaMistakenTransfer(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorage): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case delegationLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -801,10 +834,10 @@ block {
             const transferParam: transferActionType = list[
                 record[
                 to_=doormanAddress;
-                token=Fa2 (record[
+                token=(Fa2 (record[
                     tokenContractAddress=s.mvkTokenAddress;
                     tokenId=0n;
-                ]);
+                ]): tokenType);
                 amount=totalReward;
                 ]
             ];
