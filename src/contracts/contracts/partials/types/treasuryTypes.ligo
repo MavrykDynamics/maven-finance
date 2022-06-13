@@ -1,11 +1,5 @@
-// FA12 Transfer Types
-#include "../../partials/functionalTypes/fa12TransferTypes.ligo"
-
-// FA2 Transfer Types
-#include "../../partials/functionalTypes/fa2TransferTypes.ligo"
-
 // Treasury Transfer Types
-#include "../../partials/functionalTypes/treasuryTransferTypes.ligo"
+#include "../../partials/transferTypes.ligo"
 
 type metadata is big_map (string, bytes);
 
@@ -44,6 +38,7 @@ type treasuryLambdaActionType is
 | LambdaSetAdmin                       of (address)
 | LambdaSetGovernance                  of (address)
 | LambdaSetBaker                       of option(key_hash)
+| LambdaUpdateName                     of (string)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts         of updateGeneralContractsParams

@@ -21,22 +21,26 @@
     },
     {
       "index": 5,
-      "name": "lambdaAddVestee"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 6,
-      "name": "lambdaRemoveVestee"
+      "name": "lambdaAddVestee"
     },
     {
       "index": 7,
-      "name": "lambdaUpdateVestee"
+      "name": "lambdaRemoveVestee"
     },
     {
       "index": 8,
-      "name": "lambdaToggleVesteeLock"
+      "name": "lambdaUpdateVestee"
     },
     {
       "index": 9,
+      "name": "lambdaToggleVesteeLock"
+    },
+    {
+      "index": 10,
       "name": "lambdaClaim"
     }
 ]

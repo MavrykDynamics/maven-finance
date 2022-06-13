@@ -42,6 +42,46 @@ block {
 
 
 
+(* updateName lambda - update the metadata at a given key *)
+function lambdaUpdateName(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+block {
+
+    checkSenderIsAdmin(s);
+    
+    case farmLambdaAction of [
+        | LambdaUpdateName(updatedName) -> {
+
+                // Get farm factory address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+                const farmFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get the farm factory config
+                const configView : option (farmFactoryConfigType) = Tezos.call_view ("getConfig", unit, farmFactoryAddress);
+                const farmFactoryConfig: farmFactoryConfigType = case configView of [
+                    Some (_config) -> _config
+                |   None -> failwith (error_GET_CONFIG_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // Check get the name config param from the farm factory
+                const farmNameMaxLength: nat    = farmFactoryConfig.farmNameMaxLength;
+
+                // Validate inputs and update the name
+                if String.length(updatedName) > farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
@@ -141,6 +181,42 @@ block {
     ];
 
 } with (noOperations, s)
+
+
+
+(*  mistaken lambda *)
+function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case farmLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Get LP Token address
+                const lpTokenAddress: address  = s.config.lpToken.tokenAddress;
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End

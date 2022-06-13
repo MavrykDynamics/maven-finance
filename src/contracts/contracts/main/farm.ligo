@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -18,6 +21,9 @@
 // Farm types
 #include "../partials/types/farmTypes.ligo"
 
+// FarmFactory Types
+#include "../partials/types/farmFactoryTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type farmAction is
@@ -25,10 +31,12 @@ type farmAction is
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
 |   SetGovernance               of (address)
+|   UpdateName                  of (string)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
+|   MistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
 |   UpdateBlocksPerMinute       of (nat)
@@ -166,6 +174,25 @@ block {
 
 
 
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
+
+
 function checkFarmIsInit(const s: farmStorage): unit is 
   if not s.init then failwith(error_FARM_NOT_INITIATED)
   else unit
@@ -185,6 +212,11 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 
 // ------------------------------------------------------------------------------
@@ -218,45 +250,6 @@ function checkClaimIsNotPaused(var s : farmStorage) : unit is
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
-block{
-
-    const transferParams: oldTransferType = (from_,(to_,tokenAmount));
-
-    const tokenContract: contract(oldTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND): contract(oldTransferType))
-        ];
-
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: newTransferType = list[
-            record[
-                from_=from_;
-                txs=list[
-                    record[
-                        to_=to_;
-                        token_id=tokenId;
-                        amount=tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(newTransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
-        ];
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
 
 function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
     case tokenStandard of [
@@ -580,6 +573,25 @@ block {
 
 
 
+(* updateName entrypoint - update the metadata at a given key *)
+function updateName(const updatedName : string; var s : farmStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateName"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateName(updatedName);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
 (*  updateMetadata Entrypoint - update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmStorage) : return is
 block {
@@ -648,6 +660,25 @@ block {
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
@@ -936,10 +967,12 @@ function main (const action: farmAction; var s: farmStorage): return is
             // Housekeeping Entrypoints
             SetAdmin (parameters)                    -> setAdmin(parameters, s)
         |   SetGovernance (parameters)               -> setGovernance(parameters, s)
+        |   UpdateName (parameters)                  -> updateName(parameters, s)
         |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
             // Farm Admin Entrypoints
         |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)
