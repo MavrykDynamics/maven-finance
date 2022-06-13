@@ -1,5 +1,7 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 
+import { BigNumber } from "bignumber.js";
+
 export type aggregatorFactoryStorageType = {
   
   admin                     : string;
@@ -11,6 +13,9 @@ export type aggregatorFactoryStorageType = {
     distributeRewardXtzIsPaused     : boolean;
     distributeRewardMvkIsPaused     : boolean;
   };
+  config                    : {
+    nameMaxLength                   : BigNumber;
+  }
 
   generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;

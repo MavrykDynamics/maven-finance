@@ -64,6 +64,43 @@ block {
 
 
 
+(*  setName lambda *)
+function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+block {
+    
+    checkNoAmount(Unit);     
+    
+    // allowed: admin (governance proxy in most cases), governance contract, governance satellite contract, aggregator factory contract
+    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s); 
+
+    case aggregatorLambdaAction of [
+        | LambdaSetName(newContractName) -> {
+
+                // get aggregator factory address
+                const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
+                      Some(_address) -> _address
+                    | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+            
+                // get aggregator name max length from factory contract
+                const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);
+                const nameMaxLength : nat = case aggregatorFactoryConfigView of [
+                        Some (_config) -> _config.nameMaxLength
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // set new name on aggregator contract if nameMaxLength is not exceeded
+                if String.length(newContractName) > nameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                s.name := newContractName;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
@@ -100,7 +137,6 @@ block{
                 const updateConfigNewValue  : aggregatorUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                      ConfigNameMaxLength (_v)             -> s.config.nameMaxLength                        := updateConfigNewValue
                     | ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
                     | ConfigNumberBlocksDelay (_v)         -> s.config.numberBlocksDelay                    := updateConfigNewValue
                     
@@ -171,8 +207,8 @@ block {
     case aggregatorLambdaAction of [
         | LambdaAddOracle(oracleAddress) -> {
                 
-                // if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't add an already present whitelisted oracle")
-                if isOracleAddress(oracleAddress, s.oracleAddresses) then skip
+                if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR)
+                // if isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
                   checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
@@ -194,8 +230,8 @@ block {
     case aggregatorLambdaAction of [
         | LambdaRemoveOracle(oracleAddress) -> {
                 
-                // if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
-                if not isOracleAddress(oracleAddress, s.oracleAddresses) then skip
+                if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_NOT_PRESENT_IN_AGGREGATOR)
+                // if not isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
                   checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
@@ -591,11 +627,11 @@ block{
                 const oracleCommit: bytes = getObservationCommit(Tezos.sender, s.observationCommits);
                 const hashedPack: bytes = hasherman(Bytes.pack (params.priceSalted));
                 if (hashedPack =/= oracleCommit)
-                then failwith("This reveal does not match your commitment")
+                then failwith(error_REVEAL_DOES_NOT_MATCH_COMMITMENT)
                 else skip;
 
                 if (params.priceSalted.2 =/= Tezos.sender)
-                then failwith("your tezos address was not present in your hash commit")
+                then failwith(error_TEZOS_ADDRESS_NOT_PRESENT_IN_HASH_COMMIT)
                 else skip;
 
                 const price: nat = params.priceSalted.0;
@@ -702,7 +738,7 @@ block{
                         | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
-                    const distributeRewardMvkParams : distributeRewardMvkType = record [
+                    const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
                         eligibleSatellites     = set[Tezos.sender];
                         totalStakedMvkReward   = reward;
                     ];
@@ -710,7 +746,7 @@ block{
                     const distributeRewardMvkOperation : operation = Tezos.transaction(
                         distributeRewardMvkParams,
                         0tez,
-                        getDistributeRewardMvkInFactoryEntrypoint(factoryAddress)
+                        getDistributeRewardStakedMvkInFactoryEntrypoint(factoryAddress)
                     );
 
                     operations := distributeRewardMvkOperation # operations;

@@ -777,7 +777,6 @@ describe('Contracts Deployment for Tests', async () => {
                 
                 oracleMap,
 
-                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
@@ -800,7 +799,6 @@ describe('Contracts Deployment for Tests', async () => {
 
                 oracleMap,
 
-                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
@@ -823,7 +821,6 @@ describe('Contracts Deployment for Tests', async () => {
 
                 oracleMap,
 
-                new BigNumber(200),           // nameMaxLenth
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
