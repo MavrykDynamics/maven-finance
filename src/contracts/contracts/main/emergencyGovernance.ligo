@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -29,6 +32,7 @@ type emergencyGovernanceAction is
   | UpdateConfig              of emergencyUpdateConfigParamsType    
   | UpdateGeneralContracts    of updateGeneralContractsParams
   | UpdateWhitelistContracts  of updateWhitelistContractsParams
+  | MistakenTransfer          of transferActionType
 
     // Emergency Governance Entrypoints
   | TriggerEmergencyControl   of triggerEmergencyControlType
@@ -127,6 +131,25 @@ block{
 
 
 
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : emergencyGovernanceStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -140,6 +163,11 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -161,17 +189,6 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -400,8 +417,27 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init farmFactory lambda action
+    // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: emergencyGovernanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
@@ -518,6 +554,7 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
       | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+      | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
 
         // Emergency Governance Entrypoints
       | TriggerEmergencyControl(parameters)   -> triggerEmergencyControl(parameters, s)

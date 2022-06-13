@@ -57,6 +57,11 @@ type updateContractWhitelistTokenMapType is [@layout:comb] record [
   tokenContractAddress      : address; 
 ]
 
+type updateContractNameType is [@layout:comb] record [
+  targetContractAddress     : address;
+  contractName              : string;
+]
+
 type targetFarmUpdateConfigParamsType is [@layout:comb] record [
   targetFarmAddress         : address;
   farmConfig                : farmUpdateConfigParamsType;
@@ -103,6 +108,7 @@ type executeActionParamsType is
 | UpdateContractWhitelistMap         of updateContractWhitelistMapType
 | UpdateContractGeneralMap           of updateContractGeneralMapType
 | UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
+| UpdateContractName                 of updateContractNameType
 
 | UpdateGovernanceConfig             of governanceUpdateConfigParamsType
 | UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
@@ -153,6 +159,7 @@ type governanceProxyLambdaActionType is
 | LambdaUpdateWhitelistContracts        of updateWhitelistContractsParams
 | LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsParams
 | LambdaUpdateGeneralContracts          of updateGeneralContractsParams
+| LambdaMistakenTransfer                of transferActionType
 
 // ------------------------------------------------------------------------------
 // Storage

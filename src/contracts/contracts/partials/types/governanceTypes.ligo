@@ -258,6 +258,7 @@ type governanceLambdaActionType is
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateWhitelistDevelopers             of (address)
+| LambdaMistakenTransfer                      of transferActionType
 | LambdaSetContractAdmin                      of setContractAdminType
 | LambdaSetContractGovernance                 of setContractGovernanceType
 

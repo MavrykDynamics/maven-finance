@@ -68,6 +68,7 @@ type emergencyGovernanceLambdaActionType is
 | LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
 | LambdaUpdateGeneralContracts    of updateGeneralContractsParams
 | LambdaUpdateWhitelistContracts  of updateWhitelistContractsParams
+| LambdaMistakenTransfer          of transferActionType
 
   // Emergency Governance Entrypoints
 | LambdaTriggerEmergencyControl   of triggerEmergencyControlType

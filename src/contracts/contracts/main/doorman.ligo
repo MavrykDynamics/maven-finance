@@ -11,6 +11,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -41,6 +44,7 @@ type doormanAction is
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
+  | MistakenTransfer            of transferActionType
   | MigrateFunds                of (address)
 
     // Pause / Break Glass Entrypoints
@@ -149,6 +153,25 @@ block{
 
 
 
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -162,6 +185,11 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -598,6 +626,25 @@ block {
 
 
 
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: doormanStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
 (*  migrateFunds entrypoint *)
 function migrateFunds(const destinationAddress: address; var s: doormanStorage): return is
 block {
@@ -872,6 +919,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+      | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
       | MigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
         // Pause / Break Glass Entrypoints

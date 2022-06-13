@@ -11,6 +11,9 @@
 // General Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -38,6 +41,7 @@ type delegationAction is
     | UpdateConfig                      of delegationUpdateConfigParamsType
     | UpdateWhitelistContracts          of updateWhitelistContractsParams
     | UpdateGeneralContracts            of updateGeneralContractsParams
+    | MistakenTransfer                  of transferActionType
 
       // Pause / Break Glass Entrypoints
     | PauseAll                          of (unit)
@@ -162,6 +166,25 @@ block{
 
 
 
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : delegationStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
   else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -175,6 +198,11 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -600,6 +628,25 @@ block {
 
 } with response
 
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: delegationStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -965,6 +1012,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+        | MistakenTransfer(parameters)                  -> mistakenTransfer(parameters, s)
 
           // Pause / Break Glass Entrypoints
         | PauseAll(_parameters)                         -> pauseAll(s)

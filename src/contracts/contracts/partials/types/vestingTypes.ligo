@@ -60,6 +60,7 @@ type vestingLambdaActionType is
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaMistakenTransfer              of transferActionType
 
   // Internal Vestee Control Entrypoints
 | LambdaAddVestee                     of (addVesteeType)

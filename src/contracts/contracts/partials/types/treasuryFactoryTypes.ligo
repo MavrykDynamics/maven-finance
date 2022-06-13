@@ -47,6 +47,7 @@ type treasuryFactoryLambdaActionType is
 |   LambdaUpdateWhitelistContracts            of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts              of updateGeneralContractsParams
 |   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsParams
+|   LambdaMistakenTransfer                    of transferActionType
 
     // Pause / Break Glass Entrypoints
 |   LambdaPauseAll                            of (unit)
