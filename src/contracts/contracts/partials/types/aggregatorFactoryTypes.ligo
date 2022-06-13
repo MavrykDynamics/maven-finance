@@ -56,15 +56,6 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
   maintainer              : address;
 ];
 
-type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
-const createAggregatorFunc: createAggregatorFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../../compiled/aggregator.tz"
-        ;
-          PAIR } |}
-: createAggregatorFuncType)];
-
 type updateAggregatorConfigParamsType is [@layout:comb] record [
   satelliteAddress: address;
   aggregatorConfig: aggregatorConfigType;

@@ -29,6 +29,16 @@
 
 // ------------------------------------------------------------------------------
 
+
+type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
+const createAggregatorFunc: createAggregatorFuncType =
+[%Michelson ( {| { UNPPAIIR ;
+                  CREATE_CONTRACT
+#include "../compiled/aggregator.tz"
+        ;
+          PAIR } |}
+: createAggregatorFuncType)];
+
 type aggregatorFactoryAction is
     
       // Housekeeping Entrypoints
