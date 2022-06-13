@@ -1,30 +1,61 @@
 // view
+import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
 
 // style
 import { TreasuryViewStyle } from './Treasury.style'
 
 type Props = {
-  treasury: any
+  treasury: TreasuryType
+  isGlobal?: boolean
 }
 
-export default function TreasuryView({ treasury }: Props) {
-  const chartData = treasury.assets.map((item: any) => {
-    return { title: item.asset, value: item.amount, color: item.color, segmentStroke: 15 }
+const TREASURYS_COLORS = [
+  '#0D61FF',
+  '#5F95F2',
+  '#FBB0B4',
+  '#FF8486',
+  '#38237C',
+  '#503EAA',
+  '#8D86EB',
+  '#C0DBFF',
+  '#55D8BA',
+  '#8DD8C7',
+]
+
+const generateRandomColor = () => '#' + ('00000' + Math.floor(Math.random() * Math.pow(16, 6)).toString(16)).slice(-6)
+
+export default function TreasuryView({ treasury, isGlobal = false }: Props) {
+  const chartData = treasury.balances.map((item) => {
+    return {
+      title: item.symbol,
+      value: item.balance, //item.balance < 10 ? 3000 : item.balance,
+      color: generateRandomColor(),
+      segmentStroke: 15,
+    }
   })
+
+  console.log('chartData', chartData)
+
+  const reducedBalance = treasury.balances.reduce((acc, treasuryBalanceObj) => {
+    acc += treasuryBalanceObj.balance
+    return acc
+  }, 0)
+
+  const numberFormatter = new Intl.NumberFormat('en-IN')
 
   return (
     <TreasuryViewStyle>
       <div>
         <header>
-          <h1>{treasury.title}</h1>
-          {treasury.type === 'global' ? <var>$ 38,987,657.329</var> : null}
+          <h1>{treasury.name}</h1>
+          {isGlobal ? <var>$ {numberFormatter.format(Number((reducedBalance * 0.25).toFixed(3)))}</var> : null}
         </header>
         <div>
-          {treasury.type !== 'global' ? (
+          {!isGlobal ? (
             <div className="assets-block assets-block-tvl">
               <p className="asset-name">TVL</p>
-              <p className="asset-value">$ 38,987,657.329</p>
+              <p className="asset-value">$ {numberFormatter.format(Number((reducedBalance * 0.25).toFixed(3)))}</p>
               <div />
             </div>
           ) : null}
@@ -33,14 +64,16 @@ export default function TreasuryView({ treasury }: Props) {
             <h5>Amount</h5>
             <h5 className="right-text">USD Value</h5>
           </div>
-          <div style={{ paddingRight: treasury?.assets?.length > 4 ? 16 : 0 }} className="assets-map scroll-block">
-            {treasury?.assets?.length
-              ? treasury.assets.map((item: any) => {
+          <div style={{ paddingRight: treasury?.balances?.length > 4 ? 16 : 0 }} className="assets-map scroll-block">
+            {treasury?.balances?.length
+              ? treasury.balances.map((balanceValue) => {
                   return (
-                    <div className="assets-block assets-block-map" key={item.asset}>
-                      <p className="asset-name">{item.asset}</p>
-                      <p className="asset-value">{item.amount}</p>
-                      <p className="asset-value right-text">$ {item.amount * 0.25}</p>
+                    <div className="assets-block assets-block-map" key={balanceValue.contract}>
+                      <p className="asset-name">{balanceValue.symbol}</p>
+                      <p className="asset-value">{numberFormatter.format(Number(balanceValue.balance.toFixed(3)))}</p>
+                      <p className="asset-value right-text">
+                        $ {numberFormatter.format(Number((balanceValue.balance * 0.25).toFixed(3)))}
+                      </p>
                     </div>
                   )
                 })
@@ -49,19 +82,21 @@ export default function TreasuryView({ treasury }: Props) {
         </div>
       </div>
       <div>
-        <PieChartView chartData={chartData} differentStrokeWidth={Boolean(treasury.id)} />
+        <PieChartView chartData={chartData} />
       </div>
       <div>
         <div className="asset-lables scroll-block">
-          {treasury?.assets?.length
-            ? treasury.assets.map((item: any) => {
+          {treasury?.balances?.length
+            ? treasury.balances.map((balanceValue) => {
                 return (
                   <div
-                    style={{ background: `linear-gradient(90deg,${item.color} 0%,rgba(255,255,255,0) 100%)` }}
+                    style={{
+                      background: `linear-gradient(90deg,${generateRandomColor()} 0%,rgba(255,255,255,0) 100%)`,
+                    }}
                     className="asset-lable"
-                    key={item.asset}
+                    key={balanceValue.contract}
                   >
-                    <p className="asset-lable-text">{item.asset}</p>
+                    <p className="asset-lable-text">{balanceValue.symbol}</p>
                   </div>
                 )
               })
