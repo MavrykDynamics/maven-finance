@@ -912,14 +912,6 @@
 
 //   describe('updateConfig', () => {
 //     const decimals: BigNumber = new BigNumber(100);
-//     const percentOracleThreshold: BigNumber = new BigNumber(100);
-//     const rewardAmountXTZ: BigNumber = new BigNumber(100);
-//     const deviationRewardAmountXTZ: BigNumber = new BigNumber(100);
-//     const rewardAmountMVK: BigNumber = new BigNumber(100);
-//     const deviationTriggerBanTimestamp: BigNumber = new BigNumber(100);
-//     const perthousandDeviationTrigger: BigNumber = new BigNumber(100);
-//     const numberBlocksDelay: BigNumber = new BigNumber(2);
-//     const maintainer: string = bob.pkh;
 //     it(
 //       'should fail if called by random address',
 //       async () => {
@@ -928,54 +920,30 @@
 
 //         const op = aggregator.methods.updateConfig(
 //           decimals,
-//           deviationRewardAmountXTZ,
-//           maintainer,
-//           deviationTriggerBanTimestamp,
-//           numberBlocksDelay,
-//           perthousandDeviationTrigger,
-//           percentOracleThreshold,
-//           rewardAmountXTZ,
-//           rewardAmountMVK
+//           "configDecimals"
 //         );
 
-//         // await chai.expect(op.send()).rejects.toThrow(
-//         //   'Only owner can do this action'
-//         // );
 //         await chai.expect(op.send()).to.be.rejectedWith();
 //       },
 
 //     );
 
 //     it(
-//       'should update oracle config',
+//       'should update oracle decimals config',
 //       async () => {
 //         await signerFactory(bob.sk);
 
 
 //         const op = aggregator.methods.updateConfig(
-//           decimals,
-//           deviationRewardAmountXTZ,
-//           maintainer,
-//           deviationTriggerBanTimestamp,
-//           numberBlocksDelay,
-//           perthousandDeviationTrigger,
-//           percentOracleThreshold,
-//           rewardAmountXTZ,
-//           rewardAmountMVK
-//         );
+//             decimals,
+//             "configDecimals"
+//           );
 
 //         const tx = await op.send();
 //         await tx.confirmation();
 
 //         const storage: aggregatorStorageType = await aggregator.storage();
 //         assert.deepEqual(storage.config.decimals,decimals);
-//         assert.deepEqual(storage.config.percentOracleThreshold,percentOracleThreshold);
-//         assert.deepEqual(storage.config.rewardAmountXtz,rewardAmountXTZ);
-//         assert.deepEqual(storage.config.rewardAmountStakedMvk,rewardAmountMVK);
-//         assert.deepEqual(storage.config.deviationRewardAmountXtz,deviationRewardAmountXTZ);
-//         assert.deepEqual(storage.config.deviationTriggerBanTimestamp,deviationTriggerBanTimestamp);
-//         assert.deepEqual(storage.config.maintainer,maintainer);
-
 //       },
 
 //     );
