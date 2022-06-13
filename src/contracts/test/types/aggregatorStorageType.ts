@@ -12,10 +12,11 @@ export type aggregatorStorageType = {
     decimals                            : BigNumber;
     numberBlocksDelay                   : BigNumber;
 
-    deviationTriggerBanTimestamp        : BigNumber;
+    deviationTriggerBanDuration         : BigNumber;
     perThousandDeviationTrigger         : BigNumber;
     percentOracleThreshold              : BigNumber;
     
+    requestRateDeviationDepositFee      : BigNumber;
     deviationRewardAmountXtz            : BigNumber;    
     rewardAmountXtz                     : BigNumber;
     rewardAmountStakedMvk               : BigNumber;

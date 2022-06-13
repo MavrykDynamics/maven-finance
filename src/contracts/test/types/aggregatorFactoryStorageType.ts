@@ -14,7 +14,7 @@ export type aggregatorFactoryStorageType = {
     distributeRewardMvkIsPaused     : boolean;
   };
   config                    : {
-    nameMaxLength                   : BigNumber;
+    aggregatorNameMaxLength         : BigNumber;
   }
 
   generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
