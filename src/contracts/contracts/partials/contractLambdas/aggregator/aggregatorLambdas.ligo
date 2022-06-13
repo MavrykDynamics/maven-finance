@@ -74,7 +74,7 @@ block {
     checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s); 
 
     case aggregatorLambdaAction of [
-        | LambdaSetName(newContractName) -> {
+        | LambdaSetName(updatedName) -> {
 
                 // get aggregator factory address
                 const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
@@ -84,14 +84,14 @@ block {
             
                 // get aggregator name max length from factory contract
                 const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);
-                const nameMaxLength : nat = case aggregatorFactoryConfigView of [
-                        Some (_config) -> _config.nameMaxLength
+                const aggregatorNameMaxLength : nat = case aggregatorFactoryConfigView of [
+                        Some (_config) -> _config.aggregatorNameMaxLength
                     |   None -> failwith (error_GET_CONFIG_VIEW_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                 ];
 
                 // set new name on aggregator contract if nameMaxLength is not exceeded
-                if String.length(newContractName) > nameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                s.name := newContractName;
+                if String.length(updatedName) > aggregatorNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                s.name := updatedName;
 
             }
         | _ -> skip
@@ -140,10 +140,11 @@ block{
                     | ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
                     | ConfigNumberBlocksDelay (_v)         -> s.config.numberBlocksDelay                    := updateConfigNewValue
                     
-                    | ConfigDeviationTriggerTimestamp (_v) -> s.config.deviationTriggerBanTimestamp         := updateConfigNewValue
+                    | ConfigDevTriggerBanDuration (_v)     -> s.config.deviationTriggerBanDuration         := updateConfigNewValue
                     | ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
                     | ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
 
+                    | ConfigRequestRateDevDepositFee (_v)  -> s.config.requestRateDeviationDepositFee       := updateConfigNewValue
                     | ConfigDeviationRewardAmountXtz (_v)  -> s.config.deviationRewardAmountXtz             := updateConfigNewValue
                     | ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
                     | ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
@@ -474,16 +475,16 @@ block{
                 if (s.deviationTriggerInfos.amount =/= 0tez) then { // -> previous round = deviation trigger
                   newDeviationTriggerInfos :=
                         record[
-                            oracleAddress=Tezos.sender;
-                            amount=0tez;
-                            roundPrice=0n;
+                            oracleAddress = Tezos.sender;
+                            amount        = 0tez;
+                            roundPrice    = 0n;
                         ];
                   if ( // if deviation > or < % deviation trigger
                     ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) > s.lastCompletedRoundPrice.price)
                     or
                     (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) < s.lastCompletedRoundPrice.price)
                     ) then {
-                        const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanTimestamp)), s.deviationTriggerBan);
+                        const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                         s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                   } else skip;
@@ -515,22 +516,25 @@ block{
     // pause / break glass check
     checkRequestRateUpdateDeviationIsNotPaused(s);
 
-    // var operations : list(operation) := nil;
-
     case aggregatorLambdaAction of [
         | LambdaRequestRateUpdDeviation(params) -> {
 
                 checkIfWhiteListed(s);
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
-                checkOracleIsNotBanForDeviationTrigger(s);
+                checkOracleIsNotBannedForDeviationTrigger(s);
+
+                // check if Tez sent is equal to request rate deposit fee (if any)
+                const requestRateDeviationDepositFee : nat = s.config.requestRateDeviationDepositFee;
+                if requestRateDeviationDepositFee =/= 0n and (requestRateDeviationDepositFee * 1mutez) =/= Tezos.amount then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE) 
+                else if requestRateDeviationDepositFee = 0n and Tezos.amount > (requestRateDeviationDepositFee * 1mutez) then failwith(error_NO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE_REQUIRED)
+                else skip;
                 
                 const newRound: nat = s.round + 1n;
                 const newObservationCommits = map[
                         ((Tezos.sender : address)) -> params.sign];
                 const emptyMapReveals : observationRevealsType = map [];
                 
-
                 if (
                     s.deviationTriggerInfos.amount =/= 0tez
                     and
@@ -541,7 +545,7 @@ block{
                     )
                 ) then { // -> previous round = deviation trigger + deviation NOT trigger
                     
-                    const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanTimestamp)), s.deviationTriggerBan);
+                    const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                     s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                 } else skip;

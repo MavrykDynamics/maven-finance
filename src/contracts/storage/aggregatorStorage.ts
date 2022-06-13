@@ -25,10 +25,11 @@ const config = {
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
   
-  deviationTriggerBanTimestamp        : new BigNumber(86400), // one day
+  deviationTriggerBanDuration        : new BigNumber(86400), // one day
   perThousandDeviationTrigger         : new BigNumber(2),
   percentOracleThreshold              : new BigNumber(49),
 
+  requestRateDeviationDepositFee      : new BigNumber(0),
   deviationRewardAmountXtz            : new BigNumber(2600),  
   rewardAmountStakedMvk               : new BigNumber(1),
   rewardAmountXtz                     : new BigNumber(1),

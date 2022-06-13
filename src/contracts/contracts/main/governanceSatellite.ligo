@@ -301,7 +301,7 @@ block {
 
 
 
-(* View: get governance satellite action counter *)
+(* View: get governance satellite counter *)
 [@view] function getGovernanceSatelliteCounter(const _: unit; var s : governanceSatelliteStorage) : nat is
   s.governanceSatelliteCounter
 

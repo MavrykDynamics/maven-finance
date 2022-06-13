@@ -3,6 +3,11 @@ type maintainerType is address;
 
 type metadataType is big_map (string, bytes);
 
+type aggregatorFactoryConfigType is [@layout:comb] record [
+    aggregatorNameMaxLength   : nat;
+    empty                     : unit;
+]
+
 type observationCommitsType      is map (address, bytes);
 type observationRevealsType      is map (address, nat);
 type deviationTriggerBanType     is map (address, timestamp);
@@ -57,10 +62,11 @@ type aggregatorConfigType is [@layout:comb] record [
     decimals                            : nat;
     numberBlocksDelay                   : nat;
 
-    deviationTriggerBanTimestamp        : nat;
+    deviationTriggerBanDuration         : nat;
     perThousandDeviationTrigger         : nat;
     percentOracleThreshold              : nat;
-    
+
+    requestRateDeviationDepositFee      : nat;
     deviationRewardAmountXtz            : nat;
     rewardAmountStakedMvk               : nat;
     rewardAmountXtz                     : nat;
@@ -94,10 +100,11 @@ type aggregatorUpdateConfigActionType is
   ConfigDecimals                      of unit
 | ConfigNumberBlocksDelay             of unit
 
-| ConfigDeviationTriggerTimestamp     of unit
+| ConfigDevTriggerBanDuration         of unit
 | ConfigPerThousandDevTrigger         of unit
 | ConfigPercentOracleThreshold        of unit
 
+| ConfigRequestRateDevDepositFee      of unit
 | ConfigDeviationRewardAmountXtz      of unit
 | ConfigRewardAmountStakedMvk         of unit
 | ConfigRewardAmountXtz               of unit
