@@ -21,6 +21,7 @@ const breakGlassConfig = {
 }
 
 const config = {
+  nameMaxLength                       : new BigNumber(200),
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
   
