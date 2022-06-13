@@ -194,7 +194,7 @@ block {
         | LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is the governanceSatellite contract
-                checkSenderIsGovernanceSatelliteContract(s);
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Get LP Token address
                 const lpTokenAddress: address  = s.config.lpToken.tokenAddress;
