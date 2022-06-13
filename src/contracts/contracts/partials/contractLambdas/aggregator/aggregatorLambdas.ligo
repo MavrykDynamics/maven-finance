@@ -104,7 +104,7 @@ block{
                     | ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
                     | ConfigNumberBlocksDelay (_v)         -> s.config.numberBlocksDelay                    := updateConfigNewValue
                     
-                    | ConfigMinTezosAmountDevTrigger (_v)  -> s.config.minimalTezosAmountDeviationTrigger   := updateConfigNewValue
+                    | ConfigDeviationTriggerTimestamp (_v) -> s.config.deviationTriggerBanTimestamp         := updateConfigNewValue
                     | ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
                     | ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
 
@@ -427,8 +427,6 @@ block{
 
     checkMaintainership(s);
 
-    var operations : list(operation) := nil;
-
     case aggregatorLambdaAction of [
         | LambdaRequestRateUpdate(_parameters) -> {
                 
@@ -445,17 +443,12 @@ block{
                             roundPrice=0n;
                         ];
                   if ( // if deviation > or < % deviation trigger
-                    ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
+                    ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) > s.lastCompletedRoundPrice.price)
                     or
-                    (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
+                    (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) < s.lastCompletedRoundPrice.price)
                     ) then {
-                    const receiver : contract (unit) =
-                      case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
-                        Some (contract) -> contract
-                      | None  -> (failwith ("Not a contract") : contract (unit))
-                      ];
-                    const operation = Tezos.transaction(Unit, s.deviationTriggerInfos.amount, receiver);
-                    operations := operation # operations;
+                        const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanTimestamp)), s.deviationTriggerBan);
+                        s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                   } else skip;
                 } else skip;
@@ -475,7 +468,7 @@ block{
         | _ -> skip
     ];
 
-} with (operations, s)
+} with (noOperations, s)
 
 
 
@@ -486,7 +479,7 @@ block{
     // pause / break glass check
     checkRequestRateUpdateDeviationIsNotPaused(s);
 
-    var operations : list(operation) := nil;
+    // var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
         | LambdaRequestRateUpdDeviation(params) -> {
@@ -494,7 +487,7 @@ block{
                 checkIfWhiteListed(s);
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
-                checkTezosAmount(s);
+                checkOracleIsNotBanForDeviationTrigger(s);
                 
                 const newRound: nat = s.round + 1n;
                 const newObservationCommits = map[
@@ -506,18 +499,14 @@ block{
                     s.deviationTriggerInfos.amount =/= 0tez
                     and
                     (
-                        ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
+                        ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) > s.lastCompletedRoundPrice.price)
                         or
-                        (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
+                        (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) < s.lastCompletedRoundPrice.price)
                     )
-                ) then { // -> previous round = deviation trigger
-                    const receiver : contract (unit) =
-                      case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
-                            Some (contract) -> contract
-                        | None  -> (failwith ("Not a contract") : contract (unit))
-                      ];
-                    const operation = Tezos.transaction(Unit, s.deviationTriggerInfos.amount, receiver);
-                    operations := operation # operations;
+                ) then { // -> previous round = deviation trigger + deviation NOT trigger
+                    
+                    const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanTimestamp)), s.deviationTriggerBan);
+                    s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                 } else skip;
 
@@ -544,7 +533,7 @@ block{
         | _ -> skip
     ];
 
-} with (operations, s)
+} with (noOperations, s)
 
 
 
