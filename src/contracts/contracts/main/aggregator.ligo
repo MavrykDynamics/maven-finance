@@ -170,9 +170,17 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 
-function checkTezosAmount(const s: aggregatorStorage): unit is
-  if Tezos.amount < (s.config.minimalTezosAmountDeviationTrigger * 1tez) then failwith(error_NOT_ENOUGH_TEZ_RECEIVED)
+function getDeviationTriggerBanOracle(const addressKey: address; const deviationTriggerBan: deviationTriggerBanType) : timestamp is
+  case Map.find_opt(addressKey, deviationTriggerBan) of [
+      Some (v) -> (v)
+    | None -> (Tezos.now)
+  ]
+
+
+function checkOracleIsNotBanForDeviationTrigger(const s: aggregatorStorage): unit is 
+  if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOW_TO_TRIGGER_DEVIATION_BAN)
   else unit
+
 
 
 
@@ -330,7 +338,6 @@ function getObservationsPrice(const addressKey: address; const observationReveal
       Some (v) -> (v)
     | None -> 0n
   ]
-
 
 
 function pivotObservationMap (var m : observationRevealsType) : pivotedObservationsType is block {

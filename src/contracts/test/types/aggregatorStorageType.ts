@@ -13,7 +13,7 @@ export type aggregatorStorageType = {
     decimals                            : BigNumber;
     numberBlocksDelay                   : BigNumber;
 
-    minimalTezosAmountDeviationTrigger  : BigNumber;
+    deviationTriggerBanTimestamp        : BigNumber;
     perThousandDeviationTrigger         : BigNumber;
     percentOracleThreshold              : BigNumber;
     
@@ -59,6 +59,7 @@ export type aggregatorStorageType = {
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
   observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
+  deviationTriggerBan       : MichelsonMap<MichelsonMapKey, unknown>;
 
   oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
   oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
