@@ -73,10 +73,10 @@ class DelegationStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    mvkTokenAddress: str
-    governanceAddress: str
     metadata: Dict[str, str]
     config: Config
+    mvkTokenAddress: str
+    governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig

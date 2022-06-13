@@ -38,7 +38,7 @@ contracts:
     address: KT1Wzw6wCyn6NL87Zbk3BANGzTwXV3Nadsgx
     typename: farm_factory
   delegation:
-    address: KT1UYJoRz8BcsXv3SCzSnySVFcuWJQ5eebcb
+    address: KT1JdrJknoBDz9VcUPzDUXDZi1X7kqt54Kh1 #KT1UYJoRz8BcsXv3SCzSnySVFcuWJQ5eebcb
     typename: delegation
   vesting:
     address: KT1XYzCK6byh9HUpLP2poHrfBkv6hBLwvieH
@@ -56,13 +56,13 @@ contracts:
     address: KT1JZNNKR55c2GqYf2AFbkSb5ZbE48kez5th
     typename: governance_financial
   governance_satellite:
-    address:
+    address: KT1TheT9qvXQP9XBNn58jobwzsbVPcnZo2px
     typename: governance_satellite
   aggregator:
-    address:
+    address: KT1KdXhGaD4En1HgS3gCqTQ8WutqPDG9xAQ7
     typename: aggregator
   aggregator_factory:
-    address:
+    address: KT1HdZXbmP8VNJznoVsu91MMs4tHt2YPzfb4
     typename: aggregator_factory
   treasury:
     address: KT1TT97ADiJzSSeyewGbvywqzjLyEdnPxJym
@@ -1078,6 +1078,10 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: removeOracleInAggregator
+      - callback: on_governance_satellite_register_aggregator
+        pattern:
+          - destination: governance_satellite
+            entrypoint: registerAggregator
       - callback: on_governance_satellite_update_aggregator_status
         pattern:
           - destination: governance_satellite
@@ -1144,30 +1148,30 @@ indexes:
         pattern:
           - destination: aggregator
             entrypoint: unpauseAll
-      - callback: on_aggregator_toggle_pause_req_rate_upd
+      - callback: on_aggregator_toggle_pause_request_rate_update
         pattern:
           - destination: aggregator
-            entrypoint: togglePauseReqRateUpd
-      - callback: on_aggregator_toggle_pause_req_rate_dev
+            entrypoint: togglePauseRequestRateUpdate
+      - callback: on_aggregator_toggle_pause_request_rate_update_dev
         pattern:
           - destination: aggregator
-            entrypoint: togglePauseReqRateDev
-      - callback: on_aggregator_toggle_pause_set_obs_commit
+            entrypoint: togglePauseRequestRateUpdateDev
+      - callback: on_aggregator_toggle_pause_set_observation_commit
         pattern:
           - destination: aggregator
-            entrypoint: togglePauseSetObsCommit
-      - callback: on_aggregator_toggle_pause_set_obs_reveal
+            entrypoint: togglePauseSetObservationCommit
+      - callback: on_aggregator_toggle_pause_set_observation_reveal
         pattern:
           - destination: aggregator
-            entrypoint: togglePauseSetObsReveal
-      - callback: on_aggregator_toggle_pause_reward_xtz
+            entrypoint: togglePauseSetObservationReveal
+      - callback: on_aggregator_toggle_pause_withdraw_reward_xtz
         pattern:
           - destination: aggregator
-            entrypoint: togglePauseRewardXtz
-      - callback: on_aggregator_toggle_pause_reward_smvk
+            entrypoint: togglePauseWithdrawRewardXtz
+      - callback: on_aggregator_toggle_pause_withdraw_reward_smvk
         pattern:
           - destination: aggregator
-            entrypoint: togglePauseRewardSMvk
+            entrypoint: togglePauseWithdrawRewardSMvk
       - callback: on_aggregator_request_rate_update
         pattern:
           - destination: aggregator
@@ -1230,26 +1234,26 @@ indexes:
         pattern:
           - destination: aggregator_factory
             entrypoint: unpauseAll
-      - callback: on_aggregator_factory_toggle_pause_create_agg
+      - callback: on_aggregator_factory_toggle_pause_create_aggregator
         pattern:
           - destination: aggregator_factory
-            entrypoint: togglePauseCreateAgg
-      - callback: on_aggregator_factory_toggle_pause_track_agg
+            entrypoint: togglePauseCreateAggregator
+      - callback: on_aggregator_factory_toggle_pause_track_aggregator
         pattern:
           - destination: aggregator_factory
-            entrypoint: togglePauseTrackAgg
-      - callback: on_aggregator_factory_toggle_pause_untrack_agg
+            entrypoint: togglePauseTrackAggregator
+      - callback: on_aggregator_factory_toggle_pause_untrack_aggregator
         pattern:
           - destination: aggregator_factory
-            entrypoint: togglePauseUntrackAgg
-      - callback: on_aggregator_factory_toggle_pause_dis_reward_xtz
+            entrypoint: togglePauseUntrackAggregator
+      - callback: on_aggregator_factory_toggle_pause_distribute_reward_xtz
         pattern:
           - destination: aggregator_factory
-            entrypoint: togglePauseDisRewardXtz
-      - callback: on_aggregator_factory_toggle_pause_dis_reward_smvk
+            entrypoint: togglePauseDistributeRewardXtz
+      - callback: on_aggregator_factory_toggle_pause_distribute_reward_smvk
         pattern:
           - destination: aggregator_factory
-            entrypoint: togglePauseDisRewardSMvk
+            entrypoint: togglePauseDistributeRewardSMvk
       - callback: on_aggregator_factory_create_aggregator
         pattern:
           - destination: aggregator_factory
