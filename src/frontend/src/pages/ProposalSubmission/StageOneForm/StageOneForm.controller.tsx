@@ -23,8 +23,8 @@ type StageOneFormProps = {
 export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  // TODO use from server
-  const fee: number = 0.1
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { fee, address } = governanceStorage
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',
     description: '',

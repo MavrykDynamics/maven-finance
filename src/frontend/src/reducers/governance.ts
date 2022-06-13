@@ -62,6 +62,7 @@ const defaultgovernanceConfig: GovernanceConfig = {
 const defaultGovernanceStorage: GovernanceStorage = {
   activeSatellitesMap: new MichelsonMap<string, Date>(),
   address: '',
+  fee: 0,
   config: defaultgovernanceConfig,
   currentCycleEndLevel: 0,
   currentRound: '',

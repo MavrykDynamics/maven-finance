@@ -92,6 +92,7 @@ export interface SnapshotRecordType {
 }
 export interface GovernanceStorage {
   address: string
+  fee: number
   config: GovernanceConfig
   whitelistTokenContracts?: MichelsonMap<string, unknown>
   proposalLedger: ProposalRecordType[]
