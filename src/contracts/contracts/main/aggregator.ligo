@@ -20,12 +20,7 @@
 
 // ------------------------------------------------------------------------------
 
-type aggregatorFactoryConfigType is [@layout:comb] record [
-    nameMaxLength           : nat;
-    empty                   : unit;
-]
-
-type aggegatorAction is
+type aggregatorAction is
 
   | Default                              of (unit)
 
@@ -1310,7 +1305,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : aggegatorAction; const s : aggregatorStorage) : return is
+function main (const action : aggregatorAction; const s : aggregatorStorage) : return is
   case action of [
 
     | Default (_parameters)                           -> default(s)
