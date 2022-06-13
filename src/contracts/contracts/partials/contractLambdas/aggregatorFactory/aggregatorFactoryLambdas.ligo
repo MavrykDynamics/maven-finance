@@ -79,7 +79,7 @@ block{
                 const updateConfigNewValue  : aggregatorFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigNameMaxLength (_v)             -> s.config.nameMaxLength                        := updateConfigNewValue
+                    | ConfigAggregatorNameMaxLength (_v)  -> s.config.aggregatorNameMaxLength  := updateConfigNewValue
                 ];
             }
         | _ -> skip
@@ -397,7 +397,7 @@ block {
 
                 // check name length
                 const aggregatorName : string = createAggregatorParams.2.name;
-                if String.length(aggregatorName) > s.config.nameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(aggregatorName) > s.config.aggregatorNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // new Aggregator Storage declaration
                 const originatedAggregatorStorage : aggregatorStorage = record [

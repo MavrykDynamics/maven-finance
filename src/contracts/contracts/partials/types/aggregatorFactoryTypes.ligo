@@ -27,8 +27,8 @@ type distributeRewardXtzType is [@layout:comb] record [
 ]
 
 type aggregatorFactoryConfigType is [@layout:comb] record [
-    nameMaxLength           : nat;
-    empty                   : unit;
+    aggregatorNameMaxLength   : nat;
+    empty                     : unit;
 ]
 
 type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
@@ -83,7 +83,7 @@ type registerAggregatorActionType is [@layout:comb] record [
 (* updateConfig entrypoint inputs *)
 type aggregatorFactoryUpdateConfigNewValueType is nat
 type aggregatorFactoryUpdateConfigActionType is 
-| ConfigNameMaxLength                 of unit
+| ConfigAggregatorNameMaxLength                 of unit
 
 type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : aggregatorFactoryUpdateConfigNewValueType; 

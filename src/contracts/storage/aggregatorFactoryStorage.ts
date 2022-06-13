@@ -8,7 +8,7 @@ import { aggregatorFactoryStorageType } from "../test/types/aggregatorFactorySto
 import { BigNumber } from 'bignumber.js'
 
 const config = {
-  nameMaxLength       : new BigNumber(200),
+  aggregatorNameMaxLength        : new BigNumber(200),
 }
 
 const breakGlassConfig = {

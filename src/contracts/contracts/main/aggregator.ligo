@@ -18,8 +18,6 @@
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
-// Aggregator Factory Types
-
 // ------------------------------------------------------------------------------
 
 type aggregatorFactoryConfigType is [@layout:comb] record [
@@ -185,7 +183,7 @@ function getDeviationTriggerBanOracle(const addressKey: address; const deviation
   ]
 
 
-function checkOracleIsNotBanForDeviationTrigger(const s: aggregatorStorage): unit is 
+function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorage): unit is 
   if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
   else unit
 
@@ -478,9 +476,13 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardStakedMvkType 
       ];
 
     // view call getSatelliteOpt to delegation contract
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-        Some(_address) -> _address
-      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+    const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+    const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+            ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     const satelliteOptView : option(satelliteRecordType) = Tezos.call_view ("getSatelliteOpt", key, delegationAddress);
     const satelliteOpt: satelliteRecordType = case satelliteOptView of [
@@ -512,7 +514,9 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardStakedMvkType 
   };
 } with (newOracleRewardStakedMvk)
 
-function updateRewardsXtz (const s: aggregatorStorage) : oracleRewardStakedMvkType is block {
+
+
+function updateRewardsXtz (const s: aggregatorStorage) : oracleRewardXtzType is block {
   var newOracleRewardXtz: oracleRewardXtzType := s.oracleRewardXtz;
 
   for key -> _value in map s.observationReveals block {

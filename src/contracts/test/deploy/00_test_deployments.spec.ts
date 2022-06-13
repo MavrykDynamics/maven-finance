@@ -780,10 +780,11 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
-                new BigNumber(86400),         // deviationTriggerBanTimestamp
+                new BigNumber(86400),         // deviationTriggerBanDuration
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
                 
+                new BigNumber(0),             // requestRateDeviationDepositFee
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
@@ -802,10 +803,11 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
-                new BigNumber(86400),         // deviationTriggerBanTimestamp
+                new BigNumber(86400),         // deviationTriggerBanDuration
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
                 
+                new BigNumber(0),             // requestRateDeviationDepositFee
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
@@ -824,10 +826,11 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
-                new BigNumber(86400),         // deviationTriggerBanTimestamp
+                new BigNumber(86400),         // deviationTriggerBanDuration
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
                 
+                new BigNumber(0),             // requestRateDeviationDepositFee
                 new BigNumber(2600),          // deviationRewardAmountXtz
                 new BigNumber(5),             // rewardAmountMvk
                 new BigNumber(1300),          // rewardAmountXtz
