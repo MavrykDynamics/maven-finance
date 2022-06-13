@@ -54,6 +54,7 @@ export const SatelliteListCard = ({
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite.totalDelegatedAmount
+  const sMvkBalance = satellite.sMvkBalance
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
@@ -111,7 +112,7 @@ export const SatelliteListCard = ({
           </SideBySideImageAndText>
           <SatelliteTextGroup>
             <SatelliteMainText>
-              <CommaNumber value={totalDelegatedMVK} />
+              <CommaNumber value={sMvkBalance + totalDelegatedMVK} />
             </SatelliteMainText>
             <SatelliteSubText>Delegated MVK</SatelliteSubText>
           </SatelliteTextGroup>
@@ -147,7 +148,7 @@ export const SatelliteListCard = ({
           </SatelliteTextGroup>
           <SatelliteTextGroup>
             <SatelliteMainText>
-              <CommaNumber value={Number(satellite.satelliteFee)} endingText="%" />
+              <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
             </SatelliteMainText>
             <SatelliteSubText>Fee</SatelliteSubText>
           </SatelliteTextGroup>
