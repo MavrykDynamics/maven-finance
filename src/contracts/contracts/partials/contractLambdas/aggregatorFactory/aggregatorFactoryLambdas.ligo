@@ -306,6 +306,8 @@ block {
                 // createAggregator parameters declaration
                 const observationCommits  : observationCommitsType  = map[];
                 const observationReveals  : observationRevealsType  = map[];
+                const deviationTriggerBan  : deviationTriggerBanType  = map[];
+                
                 const lastCompletedRoundPrice = record[
                       round                 = 0n;
                       price                 = 0n;
@@ -396,6 +398,7 @@ block {
                   
                   observationCommits        = observationCommits;
                   observationReveals        = observationReveals;
+                  deviationTriggerBan       = deviationTriggerBan;
                   
                   oracleRewardXtz           = oracleRewardXtz;
                   oracleRewardStakedMvk     = oracleRewardStakedMvk;      

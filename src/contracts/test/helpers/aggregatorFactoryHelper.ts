@@ -49,7 +49,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         decimals                            : BigNumber,
         numberBlocksDelay                   : BigNumber,
 
-        minimalTezosAmountDeviationTrigger  : BigNumber,
+        deviationTriggerBanTimestamp        : BigNumber,
         perthousandDeviationTrigger         : BigNumber,
         percentOracleThreshold              : BigNumber,
 

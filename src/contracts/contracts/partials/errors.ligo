@@ -740,7 +740,7 @@
 [@inline] const error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 546n;
 
 [@inline] const error_ONLY_AUTHORIZED_ORACLES_ALLOWED                                                                   = 547n;
-[@inline] const error_NOT_ENOUGH_TEZ_RECEIVED                                                                           = 548n;
+[@inline] const error_NOT_ALLOW_TO_TRIGGER_DEVIATION_BAN                                                                = 548n;
 
 [@inline] const error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 549n;
 [@inline] const error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                            = 550n;

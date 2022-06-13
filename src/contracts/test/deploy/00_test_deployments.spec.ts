@@ -781,7 +781,7 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
-                new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+                new BigNumber(86400),         // deviationTriggerBanTimestamp
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
                 
@@ -804,7 +804,7 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
-                new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+                new BigNumber(86400),         // deviationTriggerBanTimestamp
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
                 
@@ -827,7 +827,7 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(16),            // decimals
                 new BigNumber(2),             // numberBlocksDelay
                 
-                new BigNumber(0),             // minimalTezosAmountDeviationTrigger
+                new BigNumber(86400),         // deviationTriggerBanTimestamp
                 new BigNumber(5),             // perthousandDeviationTrigger
                 new BigNumber(60),            // percentOracleThreshold
                 
