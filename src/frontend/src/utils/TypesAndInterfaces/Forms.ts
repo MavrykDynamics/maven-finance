@@ -49,7 +49,6 @@ export type ProposalBytesType = {
 
 export type ProposalUpdateForm = {
   title: string
-  proposalId: number
   proposalBytes: ProposalBytesType[]
 }
 export type ValidProposalUpdateForm = {

@@ -50,6 +50,8 @@ export const VotingArea = ({
 
   const totalMVKVoted = isNaN(totalMVKVotedCalculated) ? 0 : totalMVKVotedCalculated
 
+  const dividedPassVoteMvkTotal = totalMVKVoted / 1_000_000_000
+
   return (
     <>
       {ready && governancePhase === 'VOTING' && accountPkhIsSatellite ? (
@@ -63,7 +65,7 @@ export const VotingArea = ({
       <VotingAreaStyled>
         {!ready && governancePhase !== 'TIME_LOCK' && (
           <div className="voted-block">
-            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
             <NoWalletConnectedButton handleConnect={handleConnect} />
           </div>
         )}
@@ -96,7 +98,7 @@ export const VotingArea = ({
 
         {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
           <div className="voted-block">
-            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
             <Button
               text={'Vote for this Proposal'}
               onClick={() => handleProposalRoundVote(Number(selectedProposal.id))}
@@ -109,7 +111,7 @@ export const VotingArea = ({
 
         {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && totalMVKVoted ? (
           <div className="voted-block">
-            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
           </div>
         ) : null}
       </VotingAreaStyled>

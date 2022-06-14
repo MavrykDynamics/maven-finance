@@ -31,6 +31,10 @@ export const PropSubTopBarTimeContainer = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
   flex: 1;
   padding-left: 66px;
+
+  .move-to-next {
+    width: 220px;
+  }
 `
 export const PropSubTopBarTabsText = styled.div<{ theme: MavrykTheme }>`
   color: ${headerColor};

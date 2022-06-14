@@ -68,7 +68,7 @@ export const StageThreeFormView = ({
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Sucess Reward</label>
+          <label>2- Proposal Success Reward</label>
           <FormTitleEntry>{form.proposalId}</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
