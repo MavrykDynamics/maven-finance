@@ -1,21 +1,16 @@
-import { useState } from 'react'
 import { PieChart } from 'react-minimal-pie-chart'
-
-// style
+import { SECTOR_STYLES } from './pieChart.const'
 import { PieChartWrap } from './PieChart.style'
 
-const segmentsStyle = { transition: 'stroke .3s', cursor: 'pointer' }
 export default function PieChartView({ chartData }: { chartData: any }) {
-  const [selected, setSelected] = useState<undefined | number>(1)
-  const [focused, setFocused] = useState<undefined | number>(undefined)
-
   return (
     <PieChartWrap>
       <PieChart
         radius={40}
+        paddingAngle={2}
         lineWidth={30}
         segmentsTabIndex={1}
-        label={(labelProps) => labelProps.dataEntry.percentage.toFixed(2) + '%'}
+        label={(labelProps) => labelProps.dataEntry.labelPersent.toFixed(2) + '%'}
         labelPosition={100 - 30 / 2}
         labelStyle={() => ({
           fontSize: '6px',
@@ -23,7 +18,7 @@ export default function PieChartView({ chartData }: { chartData: any }) {
           fill: '#fff',
         })}
         segmentsStyle={(index) => ({
-          ...segmentsStyle,
+          ...SECTOR_STYLES,
           strokeWidth: chartData[index].segmentStroke,
         })}
         data={chartData}

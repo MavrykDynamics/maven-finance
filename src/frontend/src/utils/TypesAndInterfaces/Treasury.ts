@@ -10,7 +10,6 @@ export type FetchedTreasuryType = {
   total: number
 }
 
-// export type TreasuryBalanceType = Record<string, unknown>
 export type TreasuryBalanceType = {
   balance: number
   contract: string
@@ -20,5 +19,17 @@ export type TreasuryBalanceType = {
   network: string
   symbol: string
   thumbnail_uri: string
+  tokenColor: string
   token_id: number
+}
+
+export type TreasuryChartType = Array<ChartSectorType>
+
+export type ChartSectorType = {
+  title: string
+  value: number
+  color: string
+  labelPersent: number
+  segmentStroke: number
+  groupedSmall: boolean
 }
