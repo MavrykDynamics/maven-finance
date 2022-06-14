@@ -16,6 +16,7 @@ import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 type VotingAreaProps = {
   ready: boolean
   loading: boolean
+  isVisibleHistoryProposal?: boolean
   accountPkh: string | undefined
   handleProposalRoundVote: (proposalId: number) => void
   handleVotingRoundVote: (vote: string) => void
@@ -25,6 +26,7 @@ type VotingAreaProps = {
 export const VotingArea = ({
   ready,
   loading,
+  isVisibleHistoryProposal = false,
   accountPkh,
   handleProposalRoundVote,
   handleVotingRoundVote,
@@ -66,7 +68,7 @@ export const VotingArea = ({
           </div>
         )}
 
-        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
+        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
           <VotingButtonsContainer>
             <Button
               text={'Vote YES'}
@@ -92,7 +94,7 @@ export const VotingArea = ({
           </VotingButtonsContainer>
         )}
 
-        {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && (
+        {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
             <Button

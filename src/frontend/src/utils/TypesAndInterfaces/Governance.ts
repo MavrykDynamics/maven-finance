@@ -8,6 +8,7 @@ export enum ProposalStatus {
   WAITING = 'WAITING',
   DROPPED = 'DROPPED',
   LOCKED = 'LOCKED',
+  UNLOCKED = 'UNLOCKED',
   ACTIVE = 'ACTIVE',
 }
 

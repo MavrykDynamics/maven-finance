@@ -14,9 +14,11 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
   let kind: StatusFlagStyle
   switch (status) {
     case ProposalStatus.EXECUTED:
+    case ProposalStatus.UNLOCKED:
       kind = UP
       break
     case ProposalStatus.DEFEATED:
+    case ProposalStatus.DROPPED:
     case ProposalStatus.LOCKED:
       kind = DOWN
       break
