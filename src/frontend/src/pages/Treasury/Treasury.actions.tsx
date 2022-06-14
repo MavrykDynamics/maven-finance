@@ -16,7 +16,7 @@ import { TREASURYS_COLORS } from 'app/App.components/PieСhart/pieChart.const'
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
 
-export const fillTreasuryStorage = () => async (dispatch: any, getState: any) => {
+export const fillTreasuryStorage = () => async (dispatch: any) => {
   try {
     // Get treasury addresses from gql
     const treasuryAddressesStorage = await fetchFromIndexer(
