@@ -20,6 +20,7 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
     case ProposalStatus.DEFEATED:
     case ProposalStatus.DROPPED:
     case ProposalStatus.LOCKED:
+    case ProposalStatus.TIMELOCK:
       kind = DOWN
       break
     case ProposalStatus.ONGOING:

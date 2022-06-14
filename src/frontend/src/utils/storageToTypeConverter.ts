@@ -701,8 +701,8 @@ function convertGovernanceProposalRecordToInterface(
   const governanceProposalRecords: ProposalRecordType[] = []
   if (Array.isArray(governance_proposal_record)) {
     governance_proposal_record.forEach((record) => {
-      const newProposalRecord = record as unknown as ProposalRecordType
-      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
+      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)      
+      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)      
       governanceProposalRecords.push(newProposalRecord)
     })
   }
