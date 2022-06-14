@@ -307,17 +307,15 @@ export const GovernanceView = ({
           ) : null}
 
           <div className="voting-proposal">
-            {isVotingRound ? (
-              <VotingArea
-                ready={ready}
-                loading={loading}
-                accountPkh={accountPkh}
-                handleProposalRoundVote={handleProposalRoundVote}
-                handleVotingRoundVote={handleVotingRoundVote}
-                selectedProposal={rightSideContent}
-                voteStatistics={voteStatistics}
-              />
-            ) : null}
+            <VotingArea
+              ready={ready}
+              loading={loading}
+              accountPkh={accountPkh}
+              handleProposalRoundVote={handleProposalRoundVote}
+              handleVotingRoundVote={handleVotingRoundVote}
+              selectedProposal={rightSideContent}
+              voteStatistics={voteStatistics}
+            />
 
             {isExecuteProposal ? (
               <Button

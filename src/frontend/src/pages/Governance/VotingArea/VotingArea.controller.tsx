@@ -59,7 +59,7 @@ export const VotingArea = ({
         />
       ) : null}
       <VotingAreaStyled>
-        {!ready && ready && governancePhase !== 'TIME_LOCK' && (
+        {!ready && governancePhase !== 'TIME_LOCK' && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
             <NoWalletConnectedButton handleConnect={handleConnect} />
