@@ -22,7 +22,6 @@ export default function PieChartView({ chartData }: { chartData: any }) {
           strokeWidth: chartData[index].segmentStroke,
         })}
         data={chartData}
-        onClick={() => console.log('click event')}
       />
     </PieChartWrap>
   )
