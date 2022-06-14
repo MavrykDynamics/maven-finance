@@ -86,17 +86,18 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
       <BGCardsWrapper>
         {filteredBreakGlassStatuses.map((item: Record<string, unknown>) => {
           const trimmedTitle = (item.title as string).trim()
-          const isCardActive = activeCard === trimmedTitle
+          const address = (item.address as string).trim()
+          const isCardActive = activeCard === address
           return (
             <ContractCard
               isActive={isCardActive}
               contract={item}
-              key={trimmedTitle + item.address}
+              key={trimmedTitle + address}
               onClick={() => {
                 if (isCardActive) {
                   setActiveCard(null)
                 } else {
-                  setActiveCard(trimmedTitle || '')
+                  setActiveCard(address || '')
                 }
               }}
             />
