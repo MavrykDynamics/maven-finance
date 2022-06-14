@@ -44,11 +44,9 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     const treasuryStorage = convertedStorage.treasuryAddresses.map(
       (treasuryData: Record<string, unknown>, idx: number) => {
         const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
-          .map((token, tokenIdx) => ({
+          .map((token) => ({
             ...token,
             balance: Number(token.balance) / BALANCE_DIVIDER,
-            tokenColor:
-              TREASURYS_COLORS[tokenIdx >= TREASURYS_COLORS.length ? tokenIdx - TREASURYS_COLORS.length : tokenIdx],
           }))
           .sort(
             (asset1, asset2) =>

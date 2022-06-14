@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { TreasuryChartType, TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
 
-import { calcPersent } from './helpers/treasury.utils'
+import { calcPersent, getAssetColor } from './helpers/treasury.utils'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_NUMBER_FORMATTER } from './treasury.const'
 import { HIGHLIGHTED_STROKE_WIDTH, DEFAULT_STROKE_WIDTH } from 'app/App.components/PieСhart/pieChart.const'
 
@@ -30,8 +30,9 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
 
   // need this flag to properly calculate segment value and highlight segment
   let groupedSectorsValue = 0
+  let groupedSectorsColor = null
 
-  const chartData = treasury.balances.reduce<TreasuryChartType>((acc, item) => {
+  const chartData = treasury.balances.reduce<TreasuryChartType>((acc, item, idx) => {
     const tokenPersent = calcPersent(item.balance, reducedBalance)
 
     if (tokenPersent < 10) {
@@ -50,11 +51,11 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
       // if we don't have grouped assets object, create it
       if (!smallValuesAccObj) {
         groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
-
+        groupedSectorsColor = getAssetColor(idx)
         acc.push({
           title: item.symbol,
           value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1.5,
-          color: item.tokenColor,
+          color: groupedSectorsColor,
           segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
           labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
           groupedSmall: true,
@@ -82,7 +83,7 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
     acc.push({
       title: item.symbol,
       value: item.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
-      color: item.tokenColor,
+      color: getAssetColor(idx),
       segmentStroke: hoveredPath === item.symbol ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
       labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
       groupedSmall: false,
@@ -124,7 +125,6 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
                         {TREASURY_NUMBER_FORMATTER.format(Number(balanceValue.balance.toFixed(3)))}
                       </p>
                       <p className="asset-value right-text">
-                        ${' '}
                         {TREASURY_NUMBER_FORMATTER.format(
                           Number((balanceValue.balance * TREASURY_ASSSET_BALANCE_DIVIDER).toFixed(3)),
                         )}
@@ -141,13 +141,15 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
       <div>
         <div className="asset-lables scroll-block">
           {treasury?.balances?.length
-            ? treasury.balances.map((balanceValue) => {
+            ? treasury.balances.map((balanceValue, idx) => {
                 const balanceSum = Number((balanceValue.balance * TREASURY_ASSSET_BALANCE_DIVIDER).toFixed(5))
 
                 return (
                   <div
                     style={{
-                      background: `linear-gradient(90deg,${balanceValue.tokenColor} 0%,rgba(255,255,255,0) 100%)`,
+                      background: `linear-gradient(90deg,${
+                        chartData.find(({ title }) => title === balanceValue.symbol)?.color
+                      } 0%,rgba(255,255,255,0) 100%)`,
                     }}
                     className="asset-lable"
                     onMouseEnter={() => {
