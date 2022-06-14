@@ -15,7 +15,6 @@ import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { MOCK_TREASURYS } from './mockTreasury'
 
 // styles
 import { Page } from 'styles'
@@ -27,7 +26,7 @@ export const Treasury = () => {
   const loading = useSelector((state: State) => state.loading)
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
-  const itemsForDropDown = [{ text: 'Select treasury', value: '' }].concat(
+  const itemsForDropDown = [{ text: 'Choose treasury', value: '' }].concat(
     treasuryStorage.map((treasury) => ({
       text: treasury.name || 'No name treasury',
       value: treasury.address,
@@ -72,7 +71,7 @@ export const Treasury = () => {
       <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
       <TreasuryView treasury={globalTreasuryData} isGlobal />
       <TreasuryActiveStyle>
-        <TreasurySelectStyle>
+        <TreasurySelectStyle isSelectedTreasury={Boolean(chosenDdItem?.value)}>
           <h2>Active Treasuries</h2>
           <DropDown
             clickOnDropDown={handleClickDropdown}
