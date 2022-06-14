@@ -56,6 +56,7 @@ export const ProposalsView = ({
             Boolean(value?.executed),
             Boolean(value?.locked),
           )
+          const dividedPassVoteMvkTotal = value.passVoteMvkTotal / 1_000_000_000
           return (
             <ProposalListItem
               key={value.id}
@@ -67,11 +68,7 @@ export const ProposalsView = ({
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
               {isProposalPhase && (
-                <CommaNumber
-                  className="proposal-voted-mvk"
-                  value={value.passVoteMvkTotal || 0}
-                  endingText={'voted MVK'}
-                />
+                <CommaNumber className="proposal-voted-mvk" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
               )}
               <StatusFlag text={contentStatus} status={contentStatus} />
             </ProposalListItem>
