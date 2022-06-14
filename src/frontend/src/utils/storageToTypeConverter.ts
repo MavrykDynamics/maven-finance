@@ -656,20 +656,6 @@ function convertGovernanceFinancialRequestVoteToInterface(
 }
 
 
-function convertProposalStatus(executed: boolean, locked: boolean, numberSatus: number): ProposalStatus {
-  let status = 'ACTIVE'
-  if (numberSatus === 1) {
-    status = 'DEFEATED'
-  } else {
-    if (executed) {
-      status = 'EXECUTED'
-    } else if (locked) {
-      status = 'LOCKED'
-    }
-  }
-
-  return status as ProposalStatus
-}
 
 
 function convertGovernanceProposalRecordToInterface(
@@ -717,7 +703,6 @@ function convertGovernanceProposalRecordToInterface(
     governance_proposal_record.forEach((record) => {
       const newProposalRecord = record as unknown as ProposalRecordType
       newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
-      newProposalRecord.status = convertProposalStatus(record.executed, record.locked, record.status)
       governanceProposalRecords.push(newProposalRecord)
     })
   }
@@ -779,7 +764,7 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
-    status: convertProposalStatus(item.executed, item.locked, item.status),
+    status: item.status,
     title: item.title,
     description: item.description,
     invoice: item.invoice,

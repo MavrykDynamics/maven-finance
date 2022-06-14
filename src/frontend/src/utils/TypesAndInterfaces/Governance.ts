@@ -46,7 +46,7 @@ export interface ProposalRecordType {
   id: number
 
   proposerId: string
-  status: ProposalStatus // status - "ACTIVE", "DROPPED"
+  status: number
   title: string // title
   description: string // description
   invoice: string // ipfs hash of invoice file

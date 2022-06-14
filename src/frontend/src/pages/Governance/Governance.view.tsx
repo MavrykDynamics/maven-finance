@@ -89,7 +89,12 @@ export const GovernanceView = ({
       (rightSideContent?.upvoteMvkTotal ?? 0),
   })
 
-  const rightSideContentStatus = normalizeProposalStatus(governancePhase, rightSideContent?.status)
+  const rightSideContentStatus = normalizeProposalStatus(
+    governancePhase,
+    rightSideContent?.status ?? 0,
+    Boolean(rightSideContent?.executed),
+    Boolean(rightSideContent?.locked),
+  )
 
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
@@ -317,20 +322,29 @@ export const GovernanceView = ({
             ) : null}
           </div>
           <hr />
-          <article>
-            <RightSideSubHeader>Details</RightSideSubHeader>
-            <RightSideSubContent>{rightSideContent.details}</RightSideSubContent>
-          </article>
-          <article>
-            <RightSideSubHeader>Description</RightSideSubHeader>
-            <RightSideSubContent>{rightSideContent.description}</RightSideSubContent>
-          </article>
-          <article>
-            <RightSideSubHeader>Proposer</RightSideSubHeader>
-            <RightSideSubContent>
-              <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
-            </RightSideSubContent>
-          </article>
+          {rightSideContent.details ? (
+            <article>
+              <RightSideSubHeader>Details</RightSideSubHeader>
+              <RightSideSubContent>{rightSideContent.details}</RightSideSubContent>
+            </article>
+          ) : null}
+
+          {rightSideContent.description ? (
+            <article>
+              <RightSideSubHeader>Description</RightSideSubHeader>
+              <RightSideSubContent>{rightSideContent.description}</RightSideSubContent>
+            </article>
+          ) : null}
+
+          {rightSideContent.proposerId ? (
+            <article>
+              <RightSideSubHeader>Proposer</RightSideSubHeader>
+              <RightSideSubContent>
+                <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
+              </RightSideSubContent>
+            </article>
+          ) : null}
+
           {/* <article>
             <a target="_blank" rel="noopener noreferrer" href={rightSideContent.invoice}>
               <p>Invoice</p>
