@@ -10,6 +10,7 @@ export enum ProposalStatus {
   LOCKED = 'LOCKED',
   UNLOCKED = 'UNLOCKED',
   ACTIVE = 'ACTIVE',
+  TIMELOCK = 'TIMELOCK',
 }
 
 export interface GovernanceConfig {
