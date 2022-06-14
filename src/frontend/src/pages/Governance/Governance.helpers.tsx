@@ -30,13 +30,13 @@ export const normalizeProposalStatus = (
 
     if (isTimeLockRound) {
       if (locked) {
-        status = ProposalStatus.LOCKED
+        status = ProposalStatus.TIMELOCK
       }
     }
 
     if (!isProposalRound && !isVotingRound && !isTimeLockRound) {
       if (numberSatus === 1) {
-        status = ProposalStatus.DEFEATED
+        status = ProposalStatus.DROPPED
       } else {
         if (executed) {
           status = ProposalStatus.EXECUTED
@@ -51,7 +51,7 @@ export const normalizeProposalStatus = (
     } else {
       if (executed) {
         status = ProposalStatus.EXECUTED
-      } else if (locked) {
+      } else {
         status = ProposalStatus.DEFEATED
       }
     }
