@@ -71,6 +71,10 @@ export const EmergencyGovernanceView = ({
     handleGetTimestampByLevel(selectedProposal?.currentCycleEndLevel ?? 0)
   }, [selectedProposal?.currentCycleEndLevel])
 
+  const timeNow = Date.now()
+  const votingTime = new Date(votingEnding).getTime()
+  const isEndedVotingTime = votingTime < timeNow
+
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
       <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
@@ -81,7 +85,7 @@ export const EmergencyGovernanceView = ({
           <h1>{selectedProposal.title}</h1>
           {votingEnding ? (
             <b className="voting-ends">
-              Voting ends in <Time value={votingEnding} format="H:m" /> hours
+              Voting {isEndedVotingTime ? 'ended' : 'ending'} in <Time value={votingEnding} format="H:m" /> hours
             </b>
           ) : null}
           <p>{selectedProposal.description}</p>
