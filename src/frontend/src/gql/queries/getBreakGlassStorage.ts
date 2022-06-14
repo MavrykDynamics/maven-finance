@@ -72,6 +72,12 @@ export const BREAK_GLASS_STATUS_QUERY = `
       address
       unstake_mvk_paused
     }
+    treasury_factory {
+      create_treasury_paused
+      address
+      track_treasury_paused
+      untrack_treasury_paused
+    }
   }
 `
 

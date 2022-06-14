@@ -889,6 +889,21 @@ export function convertCurrentRoundProposalsStorageType(storage: {
           })
         })
       }
+
+      if (storage?.treasury_factory?.length) {
+        storage.treasury_factory.forEach((item: any) => {
+          convert.push({
+            title: 'Treasury Factory',
+            type: 'Treasury',
+            address: item.address,
+            methods: {
+              'create treasury paused': item.create_treasury_paused,
+              'track treasury paused': item.track_treasury_paused,
+              'untrack treasury paused': item.untrack_treasury_paused,
+            },
+          })
+        })
+      }
       
   return convert
 }
