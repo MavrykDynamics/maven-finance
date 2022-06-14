@@ -19,7 +19,6 @@ export type TreasuryBalanceType = {
   network: string
   symbol: string
   thumbnail_uri: string
-  tokenColor: string
   token_id: number
 }
 
