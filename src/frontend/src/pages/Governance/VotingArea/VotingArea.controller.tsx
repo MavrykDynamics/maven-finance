@@ -43,13 +43,10 @@ export const VotingArea = ({
     dispatch(connect({ forcePermission: false }))
   }
 
-  // console.log('%c ||||| voteStatistics', 'color:yellowgreen', voteStatistics)
+  const totalMVKVotedCalculated =
+    voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
 
-  const totalMVKVoted =
-    voteStatistics.forVotesMVKTotal ??
-    0 + voteStatistics.abstainVotesMVKTotal ??
-    0 + voteStatistics.againstVotesMVKTotal ??
-    0
+  const totalMVKVoted = isNaN(totalMVKVotedCalculated) ? 0 : totalMVKVotedCalculated
 
   return (
     <>
