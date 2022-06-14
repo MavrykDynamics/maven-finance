@@ -22,6 +22,7 @@ export type EmergencyGovernanceLedgerType = {
   id: number
   title: string
   startTimestamp: string
+  executedTimestamp: string
   proposerId: string
   description: string
   dropped: boolean

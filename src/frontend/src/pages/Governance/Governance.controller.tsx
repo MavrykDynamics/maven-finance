@@ -29,7 +29,9 @@ export const Governance = () => {
   const loading = useSelector((state: State) => state.loading)
 
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { governanceStorage, governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
+  const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
+    (state: State) => state.governance,
+  )
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
   const [visibleModal, setVisibleModal] = useState(false)
@@ -104,7 +106,7 @@ export const Governance = () => {
         ongoingProposals={currentRoundProposalsList}
         nextProposals={currentRoundProposalsList}
         watingProposals={[]}
-        pastProposals={pastProposalsList}
+        pastProposals={pastProposals}
         governancePhase={governancePhase}
         timeLeftInPhase={daysLeftOfPeriod}
       />

@@ -1,6 +1,8 @@
 import { StageTwoFormView } from './StageTwoForm.view'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 import { useState } from 'react'
+
 import {
   ProposalUpdateForm,
   ProposalUpdateFormInputStatus,
@@ -24,11 +26,11 @@ export const PROPOSAL_BYTE = {
 
 export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
   const dispatch = useDispatch()
-  // TODO use from server
-  const fee: number = 0.1
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { fee, address } = governanceStorage
+  const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: 'Hello There',
-    proposalId: 234,
     proposalBytes: [PROPOSAL_BYTE],
   })
 
@@ -54,7 +56,8 @@ export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
 
   const handleLockProposal = () => {
     console.log('Here in lock proposal')
-    dispatch(lockProposal(form.proposalId, accountPkh as any))
+    // TODO implement
+    dispatch(lockProposal(1, accountPkh as any))
   }
 
   return (
@@ -62,6 +65,7 @@ export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
       locked={locked}
       form={form}
       fee={fee}
+      successReward={successReward}
       setForm={setForm}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}

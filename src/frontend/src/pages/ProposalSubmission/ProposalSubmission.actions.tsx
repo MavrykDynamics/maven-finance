@@ -81,7 +81,8 @@ export const updateProposal =
       console.log('contract', contract)
 
       const transaction = await contract?.methods
-        .addUpdateProposalData(form.proposalId, form.title, form.proposalBytes)
+        // TODO implement
+        .addUpdateProposalData(1, form.title, form.proposalBytes)
         .send()
       console.log('transaction', transaction)
 

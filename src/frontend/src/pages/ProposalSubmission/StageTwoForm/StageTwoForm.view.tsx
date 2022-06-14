@@ -54,6 +54,7 @@ type StageTwoFormViewProps = {
   locked: boolean
   form: ProposalUpdateForm
   fee: number
+  successReward: number
   setForm: (form: ProposalUpdateForm) => void
   formInputStatus: ProposalUpdateFormInputStatus
   handleOnBlur: any
@@ -64,6 +65,7 @@ export const StageTwoFormView = ({
   locked,
   form,
   fee,
+  successReward,
   setForm,
   formInputStatus,
   handleOnBlur,
@@ -114,8 +116,8 @@ export const StageTwoFormView = ({
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Sucess Reward</label>
-          <FormTitleEntry>{form.proposalId} MVK</FormTitleEntry>
+          <label>2- Proposal Success Reward</label>
+          <FormTitleEntry>{successReward}</FormTitleEntry>
         </div>
         <div>
           <label>3- Fee</label>

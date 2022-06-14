@@ -59,6 +59,10 @@ export const ProposalSubmissionForm = styled(Card)`
     width: 517px;
   }
 
+  .source-code-input-wrap {
+    width: 517px;
+  }
+
   .step-bytes {
     position: relative;
 

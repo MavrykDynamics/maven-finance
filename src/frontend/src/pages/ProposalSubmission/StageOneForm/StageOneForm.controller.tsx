@@ -1,5 +1,8 @@
 import { StageOneFormView } from './StageOneForm.view'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRef, useState } from 'react'
+import { State } from 'reducers'
+
 import {
   SubmitProposalFormInputStatus,
   SubmitProposalForm,
@@ -13,9 +16,7 @@ import {
 } from '../../../utils/validatorFunctions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
-import { useDispatch, useSelector } from 'react-redux'
 import { submitProposal } from '../ProposalSubmission.actions'
-import { State } from '../../../reducers'
 
 type StageOneFormProps = {
   locked: boolean
@@ -25,6 +26,7 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const { fee, address } = governanceStorage
+  const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',
     description: '',
@@ -94,6 +96,7 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
       locked={locked}
       form={form}
       fee={fee}
+      successReward={successReward}
       setForm={setForm}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}

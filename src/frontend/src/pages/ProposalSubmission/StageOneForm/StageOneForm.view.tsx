@@ -20,6 +20,7 @@ import {
 type StageOneFormViewProps = {
   locked: boolean
   fee: number
+  successReward: number
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
@@ -29,6 +30,7 @@ type StageOneFormViewProps = {
 export const StageOneFormView = ({
   locked,
   fee,
+  successReward,
   form,
   setForm,
   formInputStatus,
@@ -59,14 +61,8 @@ export const StageOneFormView = ({
           />
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Sucess Reward</label>
-          <Input
-            type="number"
-            value={form.successMVKReward}
-            onChange={(e: any) => setForm({ ...form, successMVKReward: Number(e.target.value) })}
-            onBlur={(e: any) => handleOnBlur(e, 'SUCCESS_MVK_REWARD')}
-            inputStatus={formInputStatus.successMVKReward}
-          />
+          <label>2- Proposal Success Reward</label>
+          <FormTitleEntry>{successReward}</FormTitleEntry>
         </div>
         <div>
           <label>3- Fee</label>
@@ -82,15 +78,17 @@ export const StageOneFormView = ({
         onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
         inputStatus={formInputStatus.description}
       />
-      <label>5- Please add a link to the source code changes (if you have)</label>
-      <Input
-        type="text"
-        value={form.sourceCodeLink}
-        onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
-        onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
-        inputStatus={formInputStatus.sourceCodeLink}
-      />
-      <div className="document-uploader-wrap">
+      <div className="source-code-input-wrap">
+        <label>5- Please add a link to the source code changes (if you have)</label>
+        <Input
+          type="text"
+          value={form.sourceCodeLink}
+          onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
+          onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
+          inputStatus={formInputStatus.sourceCodeLink}
+        />
+      </div>
+      {/* <div className="document-uploader-wrap">
         <IPFSUploader
           typeFile="document"
           imageIpfsUrl={form.ipfs}
@@ -101,7 +99,7 @@ export const StageOneFormView = ({
           title={'Upload Invoice Document'}
           listNumber={6}
         />
-      </div>
+      </div> */}
       <FormButtonContainer>
         <Button icon="auction" kind="actionPrimary" text={'Submit Proposal'} onClick={handleSubmitProposal} />
       </FormButtonContainer>

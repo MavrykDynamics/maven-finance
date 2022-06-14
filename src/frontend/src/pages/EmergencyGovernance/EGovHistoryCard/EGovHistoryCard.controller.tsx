@@ -37,6 +37,12 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
   const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
 
+  console.log('%c ||||| emergencyGovernance', 'color:yellowgreen', emergencyGovernance)
+
+  const currentData = emergencyGovernance.executed
+    ? emergencyGovernance.executedTimestamp
+    : emergencyGovernance.startTimestamp
+
   return (
     <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
       <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
@@ -47,7 +53,7 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
         <EGovHistoryCardTitleTextGroup>
           <h3>Date</h3>
           <p>
-            <Time value={emergencyGovernance.startTimestamp} format="M d\t\h, Y, H:m \U\T\C" />
+            <Time value={currentData} format="M d\t\h, Y, H:m:s \U\T\C" />
           </p>
         </EGovHistoryCardTitleTextGroup>
         <EGovHistoryCardTitleTextGroup>

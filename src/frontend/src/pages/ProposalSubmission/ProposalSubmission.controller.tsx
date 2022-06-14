@@ -11,7 +11,8 @@ export const ProposalSubmission = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { pastProposals, governancePhase } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
-  const locked = pastProposals?.[0]?.locked
+  // TODO change after submit
+  const locked = false
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
