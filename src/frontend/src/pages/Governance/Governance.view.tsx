@@ -77,6 +77,10 @@ export const GovernanceView = ({
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
 
+  const isProposalRound = governancePhase === 'PROPOSAL'
+  const isVotingRound = governancePhase === 'VOTING'
+  const isTimeLockRound = governancePhase === 'TIME_LOCK'
+
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
     abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
     againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
@@ -177,7 +181,8 @@ export const GovernanceView = ({
   const isVisibleHistoryProposal = onProposalHistoryPage && Boolean(pastProposals?.length)
   const isExecuted = rightSideContent?.executed
   const isMinusLeftTime = timeLeftInPhase <= 0
-  const isExecuteProposal = !isExecuted && isMinusLeftTime && accountPkh
+  const isExecuteProposal =
+    !isExecuted && isMinusLeftTime && accountPkh && !isProposalRound && !isVotingRound && !isTimeLockRound
 
   const [visibleLists, setVisibleLists] = useState<Record<string, boolean>>({
     wating: false,
@@ -302,15 +307,18 @@ export const GovernanceView = ({
           ) : null}
 
           <div className="voting-proposal">
-            <VotingArea
-              ready={ready}
-              loading={loading}
-              accountPkh={accountPkh}
-              handleProposalRoundVote={handleProposalRoundVote}
-              handleVotingRoundVote={handleVotingRoundVote}
-              selectedProposal={rightSideContent}
-              voteStatistics={voteStatistics}
-            />
+            {isVotingRound ? (
+              <VotingArea
+                ready={ready}
+                loading={loading}
+                accountPkh={accountPkh}
+                handleProposalRoundVote={handleProposalRoundVote}
+                handleVotingRoundVote={handleVotingRoundVote}
+                selectedProposal={rightSideContent}
+                voteStatistics={voteStatistics}
+              />
+            ) : null}
+
             {isExecuteProposal ? (
               <Button
                 className="execute-proposal"
