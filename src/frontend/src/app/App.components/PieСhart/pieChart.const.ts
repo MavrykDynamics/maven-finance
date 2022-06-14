@@ -7,7 +7,7 @@ export const TREASURYS_COLORS = [
   '#5F95F2',
   '#FBB0B4',
   '#FF8486',
-  '#38237C',
+  '#38435A',
   '#503EAA',
   '#8D86EB',
   '#8DD8C7',

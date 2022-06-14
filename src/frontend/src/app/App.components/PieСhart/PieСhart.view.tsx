@@ -7,7 +7,7 @@ export default function PieChartView({ chartData }: { chartData: any }) {
     <PieChartWrap>
       <PieChart
         radius={40}
-        paddingAngle={2}
+        paddingAngle={0}
         lineWidth={30}
         segmentsTabIndex={1}
         label={(labelProps) => labelProps.dataEntry.labelPersent.toFixed(2) + '%'}

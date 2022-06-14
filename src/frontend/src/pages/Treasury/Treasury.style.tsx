@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../styles/interfaces'
 
 import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor } from 'styles'
 
@@ -48,6 +47,7 @@ export const TreasuryViewStyle = styled(Card)`
 
   .right-text {
     text-align: right;
+    padding-right: 20px;
   }
 
   .asset-name {
@@ -88,7 +88,7 @@ export const TreasuryViewStyle = styled(Card)`
   }
 
   .asset-lables {
-    padding-top: 25px;
+    padding-top: 20px;
     max-height: 248px;
     overflow: auto;
     padding-right: 16px;
@@ -98,7 +98,6 @@ export const TreasuryViewStyle = styled(Card)`
     background: linear-gradient(90deg, #0d61ff 0%, rgba(133, 211, 200, 0) 100%);
     padding-top: 1px;
     padding-bottom: 1px;
-    margin-bottom: 6px;
     border-bottom-left-radius: 6px;
     border-top-left-radius: 6px;
     margin: 11px 0;
@@ -114,6 +113,15 @@ export const TreasuryViewStyle = styled(Card)`
     margin-left: 8px;
     line-height: 40px;
     padding-left: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .asset-persent {
+      font-size: 16px;
+      line-height: 24px;
+      color: ${skyColor};
+    }
   }
 
   .assets-map {
@@ -123,10 +131,10 @@ export const TreasuryViewStyle = styled(Card)`
 ` //TreasuryViewStyle
 
 export const TreasuryActiveStyle = styled.section`` //TreasuryActiveStyle
-export const TreasurySelectStyle = styled(Card)`
+export const TreasurySelectStyle = styled(Card)<{ isSelectedTreasury?: boolean }>`
   display: flex;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-bottom-left-radius: ${({ isSelectedTreasury }) => (isSelectedTreasury ? 0 : '10px')};
+  border-bottom-right-radius: ${({ isSelectedTreasury }) => (isSelectedTreasury ? 0 : '10px')};
   align-items: center;
   margin-top: 20px;
   padding-top: 17px;

@@ -47,13 +47,13 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
             calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance) < 10,
         )
 
-      // if we don't have grouped assets object, init it
+      // if we don't have grouped assets object, create it
       if (!smallValuesAccObj) {
         groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
 
         acc.push({
           title: item.symbol,
-          value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1,
+          value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1.5,
           color: item.tokenColor,
           segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
           labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
@@ -62,13 +62,13 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
 
         return acc
       } else {
-        // if we have grouped assets object and we have one more asset < 10%, just add it's title and balance to exist object, and update it in acc
+        // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
         groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
 
         const newSmallValuesObj = {
           ...smallValuesAccObj,
           title: `${smallValuesAccObj.title}, ${item.symbol}`,
-          value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1,
+          value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1.5,
           labelPersent: calcPersent(groupedSectorsValue, reducedBalance),
           segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
         }
@@ -78,7 +78,7 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
       }
     }
 
-    // if asset if > 10%
+    // if asset is > 10%
     acc.push({
       title: item.symbol,
       value: item.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
@@ -157,7 +157,8 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
                     key={balanceValue.contract}
                   >
                     <p className="asset-lable-text">
-                      {balanceValue.symbol} {calcPersent(balanceSum, reducedBalance).toFixed(3)}%
+                      {balanceValue.symbol}{' '}
+                      <span className="asset-persent">{calcPersent(balanceSum, reducedBalance).toFixed(3)}%</span>
                     </p>
                   </div>
                 )
