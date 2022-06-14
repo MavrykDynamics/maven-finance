@@ -1,6 +1,12 @@
+import React, { useState } from 'react'
+
 // view
-import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
+import { TreasuryChartType, TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
+
+import { calcPersent } from './helpers/treasury.utils'
+import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_NUMBER_FORMATTER } from './treasury.const'
+import { HIGHLIGHTED_STROKE_WIDTH, DEFAULT_STROKE_WIDTH } from 'app/App.components/PieСhart/pieChart.const'
 
 // style
 import { TreasuryViewStyle } from './Treasury.style'
@@ -10,93 +16,149 @@ type Props = {
   isGlobal?: boolean
 }
 
-const TREASURYS_COLORS = [
-  '#0D61FF',
-  '#5F95F2',
-  '#FBB0B4',
-  '#FF8486',
-  '#38237C',
-  '#503EAA',
-  '#8D86EB',
-  '#C0DBFF',
-  '#55D8BA',
-  '#8DD8C7',
-]
-
-const generateRandomColor = () => '#' + ('00000' + Math.floor(Math.random() * Math.pow(16, 6)).toString(16)).slice(-6)
-
 export default function TreasuryView({ treasury, isGlobal = false }: Props) {
-  const chartData = treasury.balances.map((item) => {
-    return {
-      title: item.symbol,
-      value: item.balance, //item.balance < 10 ? 3000 : item.balance,
-      color: generateRandomColor(),
-      segmentStroke: 15,
+  const [hoveredPath, setHoveredPath] = useState<null | string>(null)
+
+  const reducedBalance = Number(
+    (
+      treasury.balances.reduce((acc, treasuryBalanceObj) => {
+        acc += treasuryBalanceObj.balance
+        return acc
+      }, 0) * TREASURY_ASSSET_BALANCE_DIVIDER
+    ).toFixed(3),
+  )
+
+  // need this flag to properly calculate segment value and highlight segment
+  let groupedSectorsValue = 0
+
+  const chartData = treasury.balances.reduce<TreasuryChartType>((acc, item) => {
+    const tokenPersent = calcPersent(item.balance, reducedBalance)
+
+    if (tokenPersent < 10) {
+      const smallValuesAccIdx = acc.findIndex((item) => item.groupedSmall)
+      const smallValuesAccObj = acc?.[smallValuesAccIdx]
+
+      // calculating hover effect on segment
+      const isHoveredPathAsset =
+        hoveredPath &&
+        treasury.balances.find(
+          (item) =>
+            hoveredPath === item.symbol &&
+            calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance) < 10,
+        )
+
+      // if we don't have grouped assets object, init it
+      if (!smallValuesAccObj) {
+        groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
+
+        acc.push({
+          title: item.symbol,
+          value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1,
+          color: item.tokenColor,
+          segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+          labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
+          groupedSmall: true,
+        })
+
+        return acc
+      } else {
+        // if we have grouped assets object and we have one more asset < 10%, just add it's title and balance to exist object, and update it in acc
+        groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
+
+        const newSmallValuesObj = {
+          ...smallValuesAccObj,
+          title: `${smallValuesAccObj.title}, ${item.symbol}`,
+          value: isHoveredPathAsset ? (reducedBalance / 100) * 20 : groupedSectorsValue + (reducedBalance / 100) * 1,
+          labelPersent: calcPersent(groupedSectorsValue, reducedBalance),
+          segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+        }
+
+        acc.splice(smallValuesAccIdx, 1, newSmallValuesObj)
+        return acc
+      }
     }
-  })
 
-  console.log('chartData', chartData)
-
-  const reducedBalance = treasury.balances.reduce((acc, treasuryBalanceObj) => {
-    acc += treasuryBalanceObj.balance
+    // if asset if > 10%
+    acc.push({
+      title: item.symbol,
+      value: item.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
+      color: item.tokenColor,
+      segmentStroke: hoveredPath === item.symbol ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+      labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
+      groupedSmall: false,
+    })
     return acc
-  }, 0)
-
-  const numberFormatter = new Intl.NumberFormat('en-IN')
+  }, [])
 
   return (
     <TreasuryViewStyle>
       <div>
         <header>
           <h1>{treasury.name}</h1>
-          {isGlobal ? <var>$ {numberFormatter.format(Number((reducedBalance * 0.25).toFixed(3)))}</var> : null}
+          {isGlobal ? <var>$ {TREASURY_NUMBER_FORMATTER.format(reducedBalance)}</var> : null}
         </header>
         <div>
           {!isGlobal ? (
             <div className="assets-block assets-block-tvl">
               <p className="asset-name">TVL</p>
-              <p className="asset-value">$ {numberFormatter.format(Number((reducedBalance * 0.25).toFixed(3)))}</p>
+              <p className="asset-value">$ {TREASURY_NUMBER_FORMATTER.format(reducedBalance)}</p>
               <div />
             </div>
           ) : null}
-          <div className="assets-block">
-            <h5>Asset</h5>
-            <h5>Amount</h5>
-            <h5 className="right-text">USD Value</h5>
-          </div>
-          <div style={{ paddingRight: treasury?.balances?.length > 4 ? 16 : 0 }} className="assets-map scroll-block">
-            {treasury?.balances?.length
-              ? treasury.balances.map((balanceValue) => {
+          {treasury?.balances?.length ? (
+            <>
+              <div className="assets-block">
+                <h5>Asset</h5>
+                <h5>Amount</h5>
+                <h5 className="right-text">USD Value</h5>
+              </div>
+              <div
+                style={{ paddingRight: treasury?.balances?.length > 4 ? 16 : 0 }}
+                className="assets-map scroll-block"
+              >
+                {treasury.balances.map((balanceValue) => {
                   return (
                     <div className="assets-block assets-block-map" key={balanceValue.contract}>
                       <p className="asset-name">{balanceValue.symbol}</p>
-                      <p className="asset-value">{numberFormatter.format(Number(balanceValue.balance.toFixed(3)))}</p>
+                      <p className="asset-value">
+                        {TREASURY_NUMBER_FORMATTER.format(Number(balanceValue.balance.toFixed(3)))}
+                      </p>
                       <p className="asset-value right-text">
-                        $ {numberFormatter.format(Number((balanceValue.balance * 0.25).toFixed(3)))}
+                        ${' '}
+                        {TREASURY_NUMBER_FORMATTER.format(
+                          Number((balanceValue.balance * TREASURY_ASSSET_BALANCE_DIVIDER).toFixed(3)),
+                        )}
                       </p>
                     </div>
                   )
-                })
-              : null}
-          </div>
+                })}
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
-      <div>
-        <PieChartView chartData={chartData} />
-      </div>
+      <div>{chartData.length ? <PieChartView chartData={chartData} /> : null}</div>
       <div>
         <div className="asset-lables scroll-block">
           {treasury?.balances?.length
             ? treasury.balances.map((balanceValue) => {
+                const balanceSum = Number((balanceValue.balance * TREASURY_ASSSET_BALANCE_DIVIDER).toFixed(5))
+
                 return (
                   <div
                     style={{
-                      background: `linear-gradient(90deg,${generateRandomColor()} 0%,rgba(255,255,255,0) 100%)`,
+                      background: `linear-gradient(90deg,${balanceValue.tokenColor} 0%,rgba(255,255,255,0) 100%)`,
                     }}
                     className="asset-lable"
+                    onMouseEnter={() => {
+                      setHoveredPath(balanceValue.symbol)
+                    }}
+                    onMouseLeave={() => setHoveredPath(null)}
                     key={balanceValue.contract}
                   >
-                    <p className="asset-lable-text">{balanceValue.symbol}</p>
+                    <p className="asset-lable-text">
+                      {balanceValue.symbol} {calcPersent(balanceSum, reducedBalance).toFixed(3)}%
+                    </p>
                   </div>
                 )
               })

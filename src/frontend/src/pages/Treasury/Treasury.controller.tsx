@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useEffect } from 'react'
@@ -27,14 +27,14 @@ export const Treasury = () => {
   const loading = useSelector((state: State) => state.loading)
   const { treasuryStorage } = useSelector((state: State) => state.treasury)
 
-  const itemsForDropDown = [{ text: 'none', value: '' }].concat(
+  const itemsForDropDown = [{ text: 'Select treasury', value: '' }].concat(
     treasuryStorage.map((treasury) => ({
-      text: treasury.name || 'no name treasury',
+      text: treasury.name || 'No name treasury',
       value: treasury.address,
     })),
   )
 
-  const [ddItems, _] = useState(itemsForDropDown.map((item) => item.text))
+  const ddItems = useMemo(() => itemsForDropDown.map((item) => item.text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
   const [selectedTreasury, setSelectedTreasury] = useState<null | TreasuryType>(null)
@@ -50,8 +50,6 @@ export const Treasury = () => {
   const handleSelect = (item: any) => {
     const foundTreasury = treasuryStorage.find(({ address }) => item.value === address) || null
     setSelectedTreasury(foundTreasury)
-
-    console.log('%c ||||| item', 'color:yellowgreen', item, foundTreasury)
   }
 
   const handleOnClickDropdownItem = (e: any) => {

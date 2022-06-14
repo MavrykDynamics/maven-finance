@@ -1,0 +1,1 @@
+export const calcPersent = (number: number, wholeSum: number) => number / (wholeSum / 100)

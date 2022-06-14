@@ -9,12 +9,13 @@ import { getTreasuryDataByAddress } from 'utils/api'
 import { FetchedTreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
-import treasuryAddress from '../../deployments/treasuryAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
 import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
+import { TREASURYS_COLORS } from 'app/App.components/PieСhart/pieChart.const'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
+
 export const fillTreasuryStorage = () => async (dispatch: any, getState: any) => {
   try {
     // Get treasury addresses from gql
@@ -37,15 +38,15 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: any) =>
     // Await promises from upper
     const fetchedTheasuryData = await Promise.all(getTreasuryCallbacks.map((fn) => fn()))
 
-    console.log('convertedStorage.treasuryAddresses', convertedStorage.treasuryAddresses)
-
     // Map every treasury to combine treasury name, and divide balance by constant
     const BALANCE_DIVIDER = Math.pow(10, 9)
     const treasuryStorage = convertedStorage.treasuryAddresses.map(
       (treasuryData: Record<string, unknown>, idx: number) => {
-        const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances.map((token) => ({
+        const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances.map((token, tokenIdx) => ({
           ...token,
           balance: Number(token.balance) / BALANCE_DIVIDER,
+          tokenColor:
+            TREASURYS_COLORS[tokenIdx >= TREASURYS_COLORS.length ? tokenIdx - TREASURYS_COLORS.length : tokenIdx],
         }))
 
         return {
@@ -54,8 +55,6 @@ export const fillTreasuryStorage = () => async (dispatch: any, getState: any) =>
         }
       },
     )
-
-    console.log('treasuryStorage:', treasuryStorage)
 
     dispatch({
       type: SET_TREASURY_STORAGE,
