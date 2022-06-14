@@ -64,7 +64,7 @@ export const ProposalsView = ({
               selected={selectedProposal ? selectedProposal.id === value.id : value.id === 1}
             >
               <ProposalItemLeftSide>
-                <span>{value.id}</span>
+                <span>{index + 1}</span>
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
               {isProposalPhase && (
