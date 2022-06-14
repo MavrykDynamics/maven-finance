@@ -93,13 +93,6 @@ export const GovernanceView = ({
       (rightSideContent?.upvoteMvkTotal ?? 0),
   })
 
-  const rightSideContentStatus = normalizeProposalStatus(
-    governancePhase,
-    rightSideContent?.status ?? 0,
-    Boolean(rightSideContent?.executed),
-    Boolean(rightSideContent?.locked),
-  )
-
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
     //TODO: Adjust for the number of votes / voting power each satellite has
@@ -191,6 +184,14 @@ export const GovernanceView = ({
     next: false,
     history: false,
   })
+
+  const rightSideContentStatus = normalizeProposalStatus(
+    governancePhase,
+    rightSideContent?.status ?? 0,
+    Boolean(rightSideContent?.executed),
+    Boolean(rightSideContent?.locked),
+    !isVisibleHistoryProposal,
+  )
 
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
   const someVisible = Object.values(visibleLists).some((item) => item)
@@ -315,6 +316,7 @@ export const GovernanceView = ({
               handleVotingRoundVote={handleVotingRoundVote}
               selectedProposal={rightSideContent}
               voteStatistics={voteStatistics}
+              isVisibleHistoryProposal={isVisibleHistoryProposal}
             />
 
             {isExecuteProposal ? (

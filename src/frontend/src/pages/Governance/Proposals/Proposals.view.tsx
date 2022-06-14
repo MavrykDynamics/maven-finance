@@ -55,6 +55,7 @@ export const ProposalsView = ({
             value?.status ?? 0,
             Boolean(value?.executed),
             Boolean(value?.locked),
+            isProposalPhase,
           )
           const dividedPassVoteMvkTotal = value.passVoteMvkTotal / 1_000_000_000
           return (
