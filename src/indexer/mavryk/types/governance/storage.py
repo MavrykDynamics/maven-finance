@@ -221,9 +221,9 @@ class GovernanceStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceProxyAddress: str
-    whitelistDevelopers: List[str]
-    generalContracts: Dict[str, str]
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    whitelistDevelopers: List[str]
     proposalLedger: Dict[str, ProposalLedger]
     snapshotLedger: Dict[str, SnapshotLedger]
     currentCycleInfo: CurrentCycleInfo

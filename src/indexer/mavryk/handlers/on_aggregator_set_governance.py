@@ -8,4 +8,6 @@ async def on_aggregator_set_governance(
     ctx: HandlerContext,
     set_governance: Transaction[SetGovernanceParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

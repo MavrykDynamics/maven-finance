@@ -80,10 +80,10 @@ class GovernanceFinancialStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    mvkTokenAddress: str
-    governanceAddress: str
     metadata: Dict[str, str]
     config: Config
+    mvkTokenAddress: str
+    governanceAddress: str
     whitelistTokenContracts: Dict[str, str]
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]

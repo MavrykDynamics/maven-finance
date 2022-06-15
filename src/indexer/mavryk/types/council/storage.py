@@ -56,13 +56,13 @@ class CouncilStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    mvkTokenAddress: str
-    governanceAddress: str
     metadata: Dict[str, str]
     config: Config
-    councilMembers: Dict[str, CouncilMembers]
+    mvkTokenAddress: str
+    governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
+    councilMembers: Dict[str, CouncilMembers]
     councilActionsLedger: Dict[str, CouncilActionsLedger]
     actionCounter: str
     lambdaLedger: Dict[str, str]

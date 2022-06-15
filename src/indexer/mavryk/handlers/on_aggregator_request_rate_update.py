@@ -8,4 +8,6 @@ async def on_aggregator_request_rate_update(
     ctx: HandlerContext,
     request_rate_update: Transaction[RequestRateUpdateParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

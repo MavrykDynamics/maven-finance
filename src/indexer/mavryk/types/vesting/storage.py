@@ -33,9 +33,9 @@ class VestingStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
+    metadata: Dict[str, str]
     mvkTokenAddress: str
     governanceAddress: str
-    metadata: Dict[str, str]
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     vesteeLedger: Dict[str, VesteeLedger]

@@ -3,9 +3,27 @@ from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
 from dipdup.models import Transaction
 from mavryk.types.governance_satellite.parameter.drop_action import DropActionParameter
 from dipdup.context import HandlerContext
+import mavryk.models as models
 
 async def on_governance_satellite_drop_action(
     ctx: HandlerContext,
     drop_action: Transaction[DropActionParameter, GovernanceSatelliteStorage],
 ) -> None:
-    breakpoint()
+
+    # Get operation info
+    governance_satellite_address    = drop_action.data.target_address
+    action_storage                  = drop_action.storage.governanceSatelliteActionLedger[drop_action.parameter.__root__]
+    action_id                       = int(drop_action.parameter.__root__)
+    status                          = action_storage.status
+    status_type                     = models.GovernanceRecordStatus.ACTIVE
+    if not status:
+        status_type = models.GovernanceRecordStatus.DROPPED
+
+    # Create or update record
+    governance_satellite            = await models.GovernanceSatellite.get(address  = governance_satellite_address)
+    action_record                   = await models.GovernanceSatelliteActionRecord.get(
+        id                      = action_id,
+        governance_satellite    = governance_satellite
+    )
+    action_record.status    = status_type
+    await action_record.save()

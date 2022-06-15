@@ -12,7 +12,7 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    nameMaxLength: str
+    aggregatorNameMaxLength: str
     empty: Dict[str, Any]
 
 
