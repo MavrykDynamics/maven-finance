@@ -460,21 +460,7 @@ function updateRewardsStakedMvk (const s: aggregatorStorage) : oracleRewardStake
   // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
   // and store each satellite respective share in tempSatellitesMap
   // note: may result in slight discrepancies if some oracles do not reveal their price feed data
-  for key -> _value in map s.observationCommits block {
-
-    const emptySatelliteRecord: satelliteRecordType = record[
-          status                = 0n;
-          stakedMvkBalance      = 0n;
-          satelliteFee          = 0n;
-          totalDelegatedAmount  = 0n;
-
-          name                  = "";
-          description           = "";
-          image                 = "";
-          website               = "";
-
-          registeredDateTime    = Tezos.now;
-      ];
+  for oracleAddress -> _value in map s.observationCommits block {
 
     // view call getSatelliteOpt to delegation contract
     const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
@@ -485,10 +471,13 @@ function updateRewardsStakedMvk (const s: aggregatorStorage) : oracleRewardStake
             ]
         |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
-    const satelliteOptView : option(satelliteRecordType) = Tezos.call_view ("getSatelliteOpt", key, delegationAddress);
-    const satelliteOpt: satelliteRecordType = case satelliteOptView of [
-        Some (value) -> value
-      | None -> (emptySatelliteRecord)
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
+    const satelliteOpt : satelliteRecordType = case satelliteOptView of [
+        Some (optionView) -> case optionView of [
+            Some(_satelliteRecord)      -> _satelliteRecord
+          | None                        -> failwith(error_SATELLITE_NOT_FOUND)
+        ]
+      | None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
     // get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
@@ -510,7 +499,7 @@ function updateRewardsStakedMvk (const s: aggregatorStorage) : oracleRewardStake
       else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
       // totalVotingPower storage + total updated
-      tempSatellitesMap := Map.update(key, Some (totalVotingPower), tempSatellitesMap);
+      tempSatellitesMap := Map.update(oracleAddress, Some (totalVotingPower), tempSatellitesMap);
       total             := total + totalVotingPower;
 
     } else skip;
@@ -524,22 +513,22 @@ function updateRewardsStakedMvk (const s: aggregatorStorage) : oracleRewardStake
   const rewardAmountStakedMvk : nat = s.config.rewardAmountStakedMvk;
 
   // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
-  for key -> value in map tempSatellitesMap block {
+  for oracleAddress -> value in map tempSatellitesMap block {
     const newStakedMvkReward = (value / total) * rewardAmountStakedMvk;
-    newOracleRewardStakedMvk := Map.update(key, Some (getRewardAmountStakedMvk(Tezos.sender, s) + newStakedMvkReward), newOracleRewardStakedMvk);
+    newOracleRewardStakedMvk := Map.update(oracleAddress, Some (getRewardAmountStakedMvk(Tezos.sender, s) + newStakedMvkReward), newOracleRewardStakedMvk);
   };
 
 } with (newOracleRewardStakedMvk)
 
 
 
-function updateRewardsXtz (const s: aggregatorStorage) : oracleRewardXtzType is block {
-  var newOracleRewardXtz: oracleRewardXtzType := s.oracleRewardXtz;
+// function updateRewardsXtz (const s: aggregatorStorage) : oracleRewardXtzType is block {
+//   var newOracleRewardXtz: oracleRewardXtzType := s.oracleRewardXtz;
 
-  for key -> _value in map s.observationReveals block {
-    newOracleRewardXtz := Map.update(key, Some (getRewardAmountXtz(key, s) + s.config.rewardAmountXtz), newOracleRewardXtz);
-  };
-} with (newOracleRewardXtz)
+//   for key -> _value in map s.observationReveals block {
+//     newOracleRewardXtz := Map.update(key, Some (getRewardAmountXtz(key, s) + s.config.rewardAmountXtz), newOracleRewardXtz);
+//   };
+// } with (newOracleRewardXtz)
 
 // ------------------------------------------------------------------------------
 // Reward Helper Functions End
