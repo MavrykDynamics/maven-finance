@@ -140,7 +140,7 @@ describe('AggregatorFactory', () => {
 
         const op = await aggregatorFactory.methods.trackAggregator(
             "USD", "test", aggregatorInstance.address
-          ).send();
+          );
         
         await chai.expect(op.send()).to.be.rejectedWith();     
         }
@@ -159,7 +159,10 @@ describe('AggregatorFactory', () => {
         await op.confirmation();
 
         let storageAggregatorFactory = await aggregatorFactory.storage();
-        const trackedAggregator  = await storageAggregatorFactory.trackedAggregators.get("USD", "test");
+        const trackedAggregator  = await storageAggregatorFactory.trackedAggregators.get({
+          0: 'USD',
+          1: 'test',
+        }) as string
         assert.deepEqual(trackedAggregator, aggregatorInstance.address);
 
       }

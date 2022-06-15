@@ -15,6 +15,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Delegation Types
+#include "../partials/types/delegationTypes.ligo"
+
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
@@ -481,7 +484,7 @@ function updateRewardsStakedMvk (const s: aggregatorStorage) : oracleRewardStake
     ];
 
     // get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
-    if (satelliteOpt.status =/= 0n) then {
+    if (satelliteOpt.status = "ACTIVE") then {
 
       // get votingPowerRatio from governance contract
       const governanceConfigView : option (governanceConfigType) = Tezos.call_view ("getConfig", unit, s.governanceAddress);

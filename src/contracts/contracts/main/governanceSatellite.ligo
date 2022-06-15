@@ -15,6 +15,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Delegation Types
+#include "../partials/types/delegationTypes.ligo"
+
 // Governance Satellite Types
 #include "../partials/types/governanceSatelliteTypes.ligo"
 
