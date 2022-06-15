@@ -1405,7 +1405,7 @@ block {
                         _governanceSatelliteActionRecord.yayVoteTotal       := newYayVoteTotal;
                         s.governanceSatelliteActionLedger[actionId]         := _governanceSatelliteActionRecord;
 
-                        // send action operation if total approved votes exceed staked MVK required for approval
+                        // send action operation if total yay votes exceed staked MVK required for approval
                         if newYayVoteTotal > _governanceSatelliteActionRecord.stakedMvkRequiredForApproval then block {
 
 

@@ -937,8 +937,8 @@
 //                     assert.equal(newProposal.upvoteMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.downvoteCount.toNumber(), 0);
 //                     assert.equal(newProposal.downvoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.abstainCount.toNumber(), 0);
-//                     assert.equal(newProposal.abstainMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.passCount.toNumber(), 0);
+//                     assert.equal(newProposal.passMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
 //                     assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
@@ -1030,8 +1030,8 @@
 //                     assert.equal(newProposal.upvoteMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.downvoteCount.toNumber(), 0);
 //                     assert.equal(newProposal.downvoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.abstainCount.toNumber(), 0);
-//                     assert.equal(newProposal.abstainMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.passCount.toNumber(), 0);
+//                     assert.equal(newProposal.passMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
 //                     assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);

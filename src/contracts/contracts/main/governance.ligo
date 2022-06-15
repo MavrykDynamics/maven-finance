@@ -344,9 +344,9 @@ block {
             _proposal.downvoteMvkTotal  := _proposal.downvoteMvkTotal + totalVotingPower;
           }
 
-      | Abstain -> block {
-            _proposal.abstainCount        := _proposal.abstainCount + 1n;    
-            _proposal.abstainMvkTotal     := _proposal.abstainMvkTotal + totalVotingPower;
+      | Pass -> block {
+            _proposal.passCount         := _proposal.passCount + 1n;    
+            _proposal.passMvkTotal      := _proposal.passMvkTotal + totalVotingPower;
           }
       
     ];
@@ -399,19 +399,19 @@ block {
 
       }
 
-      | Abstain -> block {
+      | Pass -> block {
 
-          var abstainCount     : nat := 0n;
-          var abstainMvkTotal  : nat := 0n;
+          var passCount     : nat := 0n;
+          var passMvkTotal  : nat := 0n;
 
-          if _proposal.abstainCount < 1n then abstainCount := 0n
-            else abstainCount := abs(_proposal.abstainCount - 1n);
+          if _proposal.passCount < 1n then passCount := 0n
+            else passCount := abs(_proposal.passCount - 1n);
 
-          if _proposal.abstainMvkTotal < totalVotingPower then abstainMvkTotal := 0n
-            else abstainMvkTotal := abs(_proposal.abstainMvkTotal - totalVotingPower);
+          if _proposal.passMvkTotal < totalVotingPower then passMvkTotal := 0n
+            else passMvkTotal := abs(_proposal.passMvkTotal - totalVotingPower);
 
-          _proposal.abstainCount      := abstainCount;
-          _proposal.abstainMvkTotal   := abstainMvkTotal;
+          _proposal.passCount         := passCount;
+          _proposal.passMvkTotal      := passMvkTotal;
 
       }
       
