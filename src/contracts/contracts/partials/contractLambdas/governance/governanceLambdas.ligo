@@ -383,7 +383,7 @@ block {
                             if Map.size(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
                             else skip;
 
-                            if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal then {
+                            if proposal.yayVoteMvkTotal < proposal.minQuorumMvkTotal then {
                             
                                 // Vote criteria not matched - restart a new proposal round
                                 s := setupProposalRound(s);
@@ -523,10 +523,10 @@ block {
                     minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;   // min vote percentage of total MVK supply required to pass proposal round
                     minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;    // min staked MVK votes required for proposal round to pass
 
-                    upvoteCount                         = 0n;                              // voting round: upvotes count
-                    upvoteMvkTotal                      = 0n;                              // voting round: upvotes MVK total 
-                    downvoteCount                       = 0n;                              // voting round: downvotes count
-                    downvoteMvkTotal                    = 0n;                              // voting round: downvotes MVK total 
+                    yayVoteCount                        = 0n;                              // voting round: yay count
+                    yayVoteMvkTotal                     = 0n;                              // voting round: yay MVK total 
+                    nayVoteCount                        = 0n;                              // voting round: nay count
+                    nayVoteMvkTotal                     = 0n;                              // voting round: nay MVK total 
                     passCount                           = 0n;                              // voting round: pass count
                     passMvkTotal                        = 0n;                              // voting round: pass MVK total 
                     voters                              = emptyVotersMap;                  // voting round ledger

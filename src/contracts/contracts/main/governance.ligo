@@ -334,14 +334,14 @@ block {
     case voteType of [
 
         Yay -> block {
-            _proposal.upvoteCount       := _proposal.upvoteCount + 1n;    
-            _proposal.upvoteMvkTotal    := _proposal.upvoteMvkTotal + totalVotingPower;
+            _proposal.yayVoteCount      := _proposal.yayVoteCount + 1n;    
+            _proposal.yayVoteMvkTotal   := _proposal.yayVoteMvkTotal + totalVotingPower;
             _proposal.quorumMvkTotal    := _proposal.quorumMvkTotal + totalVotingPower;
           }
 
       | Nay -> block {
-            _proposal.downvoteCount     := _proposal.downvoteCount + 1n;    
-            _proposal.downvoteMvkTotal  := _proposal.downvoteMvkTotal + totalVotingPower;
+            _proposal.nayVoteCount      := _proposal.nayVoteCount + 1n;    
+            _proposal.nayVoteMvkTotal   := _proposal.nayVoteMvkTotal + totalVotingPower;
           }
 
       | Pass -> block {
@@ -364,38 +364,38 @@ block {
 
         Yay -> block {
 
-          var upvoteCount     : nat := 0n;
-          var upvoteMvkTotal  : nat := 0n;
+          var yayVoteCount     : nat := 0n;
+          var yayVoteMvkTotal  : nat := 0n;
           var quorumMvkTotal  : nat := 0n;
 
-          if _proposal.upvoteCount < 1n then upvoteCount := 0n
-            else upvoteCount := abs(_proposal.upvoteCount - 1n);
+          if _proposal.yayVoteCount < 1n then yayVoteCount := 0n
+            else yayVoteCount := abs(_proposal.yayVoteCount - 1n);
 
-          if _proposal.upvoteMvkTotal < totalVotingPower then upvoteMvkTotal := 0n
-            else upvoteMvkTotal := abs(_proposal.upvoteMvkTotal - totalVotingPower);
+          if _proposal.yayVoteMvkTotal < totalVotingPower then yayVoteMvkTotal := 0n
+            else yayVoteMvkTotal := abs(_proposal.yayVoteMvkTotal - totalVotingPower);
 
           if _proposal.quorumMvkTotal < totalVotingPower then quorumMvkTotal := 0n
             else quorumMvkTotal := abs(_proposal.quorumMvkTotal - totalVotingPower);              
 
-          _proposal.upvoteCount    := upvoteCount;
-          _proposal.upvoteMvkTotal := upvoteMvkTotal;
-          _proposal.quorumMvkTotal := quorumMvkTotal;
+          _proposal.yayVoteCount    := yayVoteCount;
+          _proposal.yayVoteMvkTotal := yayVoteMvkTotal;
+          _proposal.quorumMvkTotal  := quorumMvkTotal;
 
         }
 
       | Nay -> block {
 
-          var downvoteCount     : nat := 0n;
-          var downvoteMvkTotal  : nat := 0n;
+          var nayVoteCount     : nat := 0n;
+          var nayVoteMvkTotal  : nat := 0n;
 
-          if _proposal.downvoteCount < 1n then downvoteCount := 0n
-            else downvoteCount := abs(_proposal.downvoteCount - 1n);
+          if _proposal.nayVoteCount < 1n then nayVoteCount := 0n
+            else nayVoteCount := abs(_proposal.nayVoteCount - 1n);
 
-          if _proposal.downvoteMvkTotal < totalVotingPower then downvoteMvkTotal := 0n
-            else downvoteMvkTotal := abs(_proposal.downvoteMvkTotal - totalVotingPower);
+          if _proposal.nayVoteMvkTotal < totalVotingPower then nayVoteMvkTotal := 0n
+            else nayVoteMvkTotal := abs(_proposal.nayVoteMvkTotal - totalVotingPower);
 
-          _proposal.downvoteCount     := downvoteCount;
-          _proposal.downvoteMvkTotal  := downvoteMvkTotal;
+          _proposal.nayVoteCount      := nayVoteCount;
+          _proposal.nayVoteMvkTotal   := nayVoteMvkTotal;
 
       }
 
