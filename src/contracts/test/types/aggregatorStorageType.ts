@@ -17,6 +17,8 @@ export type aggregatorStorageType = {
     percentOracleThreshold              : BigNumber;
     
     requestRateDeviationDepositFee      : BigNumber;
+    
+    deviationRewardStakedMvk            : BigNumber;    
     deviationRewardAmountXtz            : BigNumber;    
     rewardAmountXtz                     : BigNumber;
     rewardAmountStakedMvk               : BigNumber;

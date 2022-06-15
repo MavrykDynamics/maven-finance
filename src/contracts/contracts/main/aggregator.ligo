@@ -452,22 +452,28 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
     | None -> 0n
   ]
 
-function updateRewards (const s: aggregatorStorage) : oracleRewardStakedMvkType is block {
+function updateRewardsStakedMvk (const s: aggregatorStorage) : oracleRewardStakedMvkType is block {
 
-  var empty : map(address, nat) := map [];
+  var tempSatellitesMap : map(address, nat) := map [];
   var total: nat := 0n;
-  for key -> _value in map s.observationReveals block {
+
+  // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
+  // and store each satellite respective share in tempSatellitesMap
+  // note: may result in slight discrepancies if some oracles do not reveal their price feed data
+  for key -> _value in map s.observationCommits block {
 
     const emptySatelliteRecord: satelliteRecordType = record[
-          status = 0n;
-          stakedMvkBalance = 0n;
-          satelliteFee = 0n;
+          status                = 0n;
+          stakedMvkBalance      = 0n;
+          satelliteFee          = 0n;
           totalDelegatedAmount  = 0n;
-          name  = "";
-          description = "";
-          image = "";
-          website = "";
-          registeredDateTime = Tezos.now;
+
+          name                  = "";
+          description           = "";
+          image                 = "";
+          website               = "";
+
+          registeredDateTime    = Tezos.now;
       ];
 
     // view call getSatelliteOpt to delegation contract
@@ -485,28 +491,44 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardStakedMvkType 
       | None -> (emptySatelliteRecord)
     ];
 
+    // get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
     if (satelliteOpt.status =/= 0n) then {
-    // totalVotingPower calcultation
-    const votingPowerRatio = 10000n;
-    const maxTotalVotingPower = abs(satelliteOpt.stakedMvkBalance * 10000 / votingPowerRatio);
-    const mvkBalanceAndTotalDelegatedAmount = satelliteOpt.stakedMvkBalance + satelliteOpt.totalDelegatedAmount; 
-    var totalVotingPower : nat := 0n;
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
-    // totalVotingPower storage + total updated
-    empty := Map.update(key, Some (totalVotingPower), empty);
-    total := total + totalVotingPower;
+      // get votingPowerRatio from governance contract
+      const governanceConfigView : option (governanceConfigType) = Tezos.call_view ("getConfig", unit, s.governanceAddress);
+      const votingPowerRatio : nat = case governanceConfigView of [
+            Some(_config) -> _config.votingPowerRatio
+          | None -> failwith(error_GET_CONFIG_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      ];
+
+      // totalVotingPower calculation
+      const maxTotalVotingPower = abs(satelliteOpt.stakedMvkBalance * 10000 / votingPowerRatio);
+      const mvkBalanceAndTotalDelegatedAmount = satelliteOpt.stakedMvkBalance + satelliteOpt.totalDelegatedAmount; 
+      
+      var totalVotingPower : nat := 0n;
+      if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
+      else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+
+      // totalVotingPower storage + total updated
+      tempSatellitesMap := Map.update(key, Some (totalVotingPower), tempSatellitesMap);
+      total             := total + totalVotingPower;
+
     } else skip;
 
-
   };
+
+  // get oracle reward staked mvk map (i.e. satellite addresses to reward amount they can claim)
   var newOracleRewardStakedMvk: oracleRewardStakedMvkType := s.oracleRewardStakedMvk;
 
-  for key -> value in map empty block {
-    const reward = (value / total);
-    newOracleRewardStakedMvk := Map.update(key, Some (getRewardAmountStakedMvk(Tezos.sender, s) + reward), newOracleRewardStakedMvk);
+  // get reward amount staked mvk
+  const rewardAmountStakedMvk : nat = s.config.rewardAmountStakedMvk;
+
+  // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
+  for key -> value in map tempSatellitesMap block {
+    const newStakedMvkReward = (value / total) * rewardAmountStakedMvk;
+    newOracleRewardStakedMvk := Map.update(key, Some (getRewardAmountStakedMvk(Tezos.sender, s) + newStakedMvkReward), newOracleRewardStakedMvk);
   };
+
 } with (newOracleRewardStakedMvk)
 
 

@@ -350,7 +350,7 @@ describe('Contracts Deployment for Tests', async () => {
     aggregatorFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
       "aggregatorTreasury"    : treasury.contract.address,
-    })
+    });
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
       aggregatorFactoryStorage
@@ -567,6 +567,7 @@ describe('Contracts Deployment for Tests', async () => {
     //----------------------------
 
     // Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]
+    // Aggregator Factory Contract - set general contract addresses [governanceSatellite]
     const aggregatorFactoryContractsBatch = await tezos.wallet
     .batch()
     .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
@@ -576,6 +577,14 @@ describe('Contracts Deployment for Tests', async () => {
     await confirmOperation(tezos, aggregatorFactoryContractsBatchOperation.opHash)
 
     console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
+
+    // Aggregator Contract - set whitelist contract addresses [aggregatorFactory]
+    const aggregatorContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(aggregator.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+    
+    const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
+    await confirmOperation(tezos, aggregatorContractsBatchOperation.opHash)
     
 
     // MVK Token Contract - set governance contract address
@@ -673,9 +682,10 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(governance.contract.methods.updateGeneralContracts('council', council.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('vesting', vesting.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address))
-    .withContractCall(governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('farmTreasury', treasury.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('satelliteTreasury', treasury.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorTreasury', treasury.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address))
     .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactory.contract.address))
@@ -784,8 +794,10 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(60),            // percentOracleThreshold
                 
                 new BigNumber(0),             // requestRateDeviationDepositFee
+
+                new BigNumber(10000000),      // deviationRewardStakedMvk
                 new BigNumber(2600),          // deviationRewardAmountXtz
-                new BigNumber(5),             // rewardAmountMvk
+                new BigNumber(10000000),      // rewardAmountStakedMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
                 oracleMaintainer.pkh,         // maintainer
@@ -807,8 +819,10 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(60),            // percentOracleThreshold
                 
                 new BigNumber(0),             // requestRateDeviationDepositFee
+                
+                new BigNumber(10000000),      // deviationRewardStakedMvk
                 new BigNumber(2600),          // deviationRewardAmountXtz
-                new BigNumber(5),             // rewardAmountMvk
+                new BigNumber(10000000),      // rewardAmountStakedMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
                 oracleMaintainer.pkh,         // maintainer
@@ -830,8 +844,10 @@ describe('Contracts Deployment for Tests', async () => {
                 new BigNumber(60),            // percentOracleThreshold
                 
                 new BigNumber(0),             // requestRateDeviationDepositFee
+                
+                new BigNumber(10000000),      // deviationRewardStakedMvk
                 new BigNumber(2600),          // deviationRewardAmountXtz
-                new BigNumber(5),             // rewardAmountMvk
+                new BigNumber(10000000),      // rewardAmountStakedMvk
                 new BigNumber(1300),          // rewardAmountXtz
                 
                 oracleMaintainer.pkh,         // maintainer
