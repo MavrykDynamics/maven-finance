@@ -14,9 +14,10 @@ class Config(BaseModel):
 
     decimals: str
     numberBlocksDelay: str
-    deviationTriggerBanTimestamp: str
+    deviationTriggerBanDuration: str
     perThousandDeviationTrigger: str
     percentOracleThreshold: str
+    requestRateDeviationDepositFee: str
     deviationRewardAmountXtz: str
     rewardAmountStakedMvk: str
     rewardAmountXtz: str

@@ -8,4 +8,6 @@ async def on_aggregator_pause_all(
     ctx: HandlerContext,
     pause_all: Transaction[PauseAllParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

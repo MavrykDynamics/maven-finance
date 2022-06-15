@@ -31,12 +31,12 @@ class FarmFactoryStorage(BaseModel):
 
     admin: str
     metadata: Dict[str, str]
+    config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    config: Config
-    breakGlassConfig: BreakGlassConfig
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
+    breakGlassConfig: BreakGlassConfig
     trackedFarms: List[str]
     lambdaLedger: Dict[str, str]
     farmLambdaLedger: Dict[str, str]

@@ -1,5 +1,3 @@
-from pickle import NONE
-from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
 from tortoise import Model, fields
 from enum import IntEnum
 
@@ -15,6 +13,11 @@ class ActionStatus(IntEnum):
     FLUSHED     = 1
     EXECUTED    = 2
 
+class SatelliteStatus(IntEnum):
+    ACTIVE      = 0
+    SUSPENDED   = 1
+    BANNED      = 2
+
 class GovernanceRoundType(IntEnum):
     PROPOSAL    = 0
     VOTING      = 1
@@ -27,7 +30,7 @@ class GovernanceRecordStatus(IntEnum):
 class GovernanceVoteType(IntEnum):
     NAY         = 0
     YAY         = 1
-    ABSTAIN     = 2
+    PASS        = 2
 
 class TokenType(IntEnum):
     XTZ         = 0
@@ -278,6 +281,7 @@ class GovernanceFinancial(Model):
 
 class GovernanceSatellite(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36, default='')
     governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_satellites')
     voting_power_ratio              = fields.SmallIntField(default=0)
     gov_sat_approval_percentage     = fields.SmallIntField(default=0)
@@ -293,13 +297,16 @@ class Aggregator(Model):
     admin                           = fields.CharField(max_length=36, default='')
     governance                      = fields.ForeignKeyField('models.Governance', related_name='aggregators', null=True)
     aggregator_factory              = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
-    deviation_trigger_oracle        = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_oracles', index=True)
-    maintener                       = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_mainteners', index=True)
+    deviation_trigger_oracle        = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_oracles', index=True, null=True)
+    maintainer                      = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_maintainer', index=True, null=True)
+    deviation_trigger_amount        = fields.BigIntField(default=0)
+    deviation_trigger_round_price   = fields.BigIntField(default=0)
     creation_timestamp              = fields.DatetimeField(null=True)
     name                            = fields.CharField(max_length=255, default='')
     decimals                        = fields.SmallIntField(default=0)
     number_blocks_delay             = fields.BigIntField(default=0)
-    min_tez_amount_deviation_trigger= fields.BigIntField(default=0)
+    deviation_trigger_ban_duration  = fields.BigIntField(default=0)
+    request_rate_deviation_deposit_fee= fields.FloatField(default=0.0)
     per_thousand_deviation_trigger  = fields.BigIntField(default=0)
     percent_oracle_threshold        = fields.SmallIntField(default=0)
     deviation_reward_amount_xtz     = fields.BigIntField(default=0)
@@ -314,8 +321,6 @@ class Aggregator(Model):
     round                           = fields.BigIntField(default=0)
     round_start_timestamp           = fields.DatetimeField(null=True)
     switch_block                    = fields.BigIntField(default=0)
-    deviation_trigger_amount        = fields.BigIntField(default=0)
-    deviation_trigger_round_price   = fields.BigIntField(default=0)
     last_completed_round            = fields.BigIntField(default=0)
     last_completed_round_price      = fields.BigIntField(default=0)
     last_completed_round_pct_oracle_response= fields.SmallIntField(default=0)
@@ -457,7 +462,7 @@ class SatelliteRecord(Model):
     id                              = fields.BigIntField(pk=True, default=0)
     user                            = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_record')
     delegation                      = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
-    active                          = fields.BooleanField(default=True)
+    status                          = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
     fee                             = fields.SmallIntField(default=0)
     name                            = fields.CharField(max_length=255, default="")
     description                     = fields.CharField(max_length=255, default="")
@@ -764,7 +769,7 @@ class GovernanceSatelliteActionRecord(Model):
     smvk_percentage_for_approval    = fields.SmallIntField(default=0)
     smvk_required_for_approval      = fields.FloatField(default=0.0)
     expiration_datetime             = fields.DatetimeField()
-    requested_datetime              = fields.DatetimeField()
+    start_datetime                  = fields.DatetimeField()
 
     class Meta:
         table = 'governance_satellite_action_record'
@@ -803,19 +808,27 @@ class GovernanceSatelliteActionSatelliteSnapshotRecord(Model):
 class GovernanceSatelliteAggregatorRecord(Model):
     id                              = fields.BigIntField(pk=True)
     governance_satellite            = fields.ForeignKeyField('models.GovernanceSatellite', related_name='governance_satellite_aggregator_records')
-    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_aggregator_record_oracles')
     aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_aggregator_records')
-    creation_timestamp              = fields.DatetimeField()
-    token_0_symbol                  = fields.CharField(max_length=32)
-    token_1_symbol                  = fields.CharField(max_length=32)
+    creation_timestamp              = fields.DatetimeField(null=True)
+    token_0_symbol                  = fields.CharField(max_length=32, default="")
+    token_1_symbol                  = fields.CharField(max_length=32, default="")
     active                          = fields.BooleanField(default=True)
 
     class Meta:
         table = 'governance_satellite_aggregator_record'
 
+class GovernanceSatelliteAggregatorRecordOracle(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_satellite_aggregator = fields.ForeignKeyField('models.GovernanceSatelliteAggregatorRecord', related_name='governance_satellite_aggregator_record_oracles')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_aggregator_record_oracles')
+
+    class Meta:
+        table = 'governance_satellite_aggregator_record_oracle'
+
 class GovernanceSatelliteSatelliteOracleRecord(Model):
     id                              = fields.BigIntField(pk=True)
     governance_satellite            = fields.ForeignKeyField('models.GovernanceSatellite', related_name='governance_satellite_satellite_oracle_records')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_records')
     aggregators_subscribed          = fields.BigIntField(default=0)
 
     class Meta:

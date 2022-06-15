@@ -19,14 +19,14 @@ class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configDeviationRewardAmountXtz: Dict[str, Any]
+    configDevTriggerBanDuration: Dict[str, Any]
 
 
 class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configDeviationTriggerTimestamp: Dict[str, Any]
+    configDeviationRewardAmountXtz: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):
@@ -54,10 +54,17 @@ class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRewardAmountStakedMvk: Dict[str, Any]
+    configRequestRateDevDepositFee: Dict[str, Any]
 
 
 class UpdateConfigActionItem7(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configRewardAmountStakedMvk: Dict[str, Any]
+
+
+class UpdateConfigActionItem8(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -78,4 +85,5 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem5,
         UpdateConfigActionItem6,
         UpdateConfigActionItem7,
+        UpdateConfigActionItem8,
     ]

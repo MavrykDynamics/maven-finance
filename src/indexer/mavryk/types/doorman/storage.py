@@ -34,14 +34,14 @@ class DoormanStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
+    metadata: Dict[str, str]
     mvkTokenAddress: str
     governanceAddress: str
-    metadata: Dict[str, str]
-    minMvkAmount: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]
+    minMvkAmount: str
     unclaimedRewards: str
     accumulatedFeesPerShare: str
     lambdaLedger: Dict[str, str]
