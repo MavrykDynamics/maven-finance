@@ -8,4 +8,6 @@ async def on_aggregator_update_general_contracts(
     ctx: HandlerContext,
     update_general_contracts: Transaction[UpdateGeneralContractsParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

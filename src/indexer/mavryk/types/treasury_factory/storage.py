@@ -30,14 +30,14 @@ class TreasuryFactoryStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
+    metadata: Dict[str, str]
+    config: Config
     mvkTokenAddress: str
     governanceAddress: str
-    config: Config
-    metadata: Dict[str, str]
     trackedTreasuries: List[str]
     breakGlassConfig: BreakGlassConfig
     whitelistContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, str]
     generalContracts: Dict[str, str]
+    whitelistTokenContracts: Dict[str, str]
     lambdaLedger: Dict[str, str]
     treasuryLambdaLedger: Dict[str, str]

@@ -1,7 +1,7 @@
 
 from mavryk.types.governance.storage import GovernanceStorage
 from dipdup.models import Transaction
-from mavryk.types.governance.parameter.voting_round_vote import VotingRoundVoteParameter, VoteItem as abstain, VoteItem1 as nay, VoteItem2 as yay
+from mavryk.types.governance.parameter.voting_round_vote import VotingRoundVoteParameter, VoteItem as pass_, VoteItem1 as nay, VoteItem2 as yay
 from dipdup.context import HandlerContext
 import mavryk.models as models
 
@@ -32,8 +32,8 @@ async def on_governance_voting_round_vote(
 
     # Get vote
     vote        = models.GovernanceVoteType.YAY
-    if type(vote_type) == abstain:
-        vote    = models.GovernanceVoteType.ABSTAIN
+    if type(vote_type) == pass_:
+        vote    = models.GovernanceVoteType.PASS
     elif type(vote_type) == nay:
         vote    = models.GovernanceVoteType.NAY
 

@@ -8,4 +8,6 @@ async def on_aggregator_toggle_pause_withdraw_reward_smvk(
     ctx: HandlerContext,
     toggle_pause_withdraw_reward_s_mvk: Transaction[TogglePauseWithdrawRewardSMvkParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

@@ -8,4 +8,6 @@ async def on_aggregator_toggle_pause_request_rate_update(
     ctx: HandlerContext,
     toggle_pause_request_rate_update: Transaction[TogglePauseRequestRateUpdateParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

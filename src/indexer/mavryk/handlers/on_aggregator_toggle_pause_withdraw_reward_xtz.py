@@ -8,4 +8,6 @@ async def on_aggregator_toggle_pause_withdraw_reward_xtz(
     ctx: HandlerContext,
     toggle_pause_withdraw_reward_xtz: Transaction[TogglePauseWithdrawRewardXtzParameter, AggregatorStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()
