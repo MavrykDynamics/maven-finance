@@ -12,6 +12,20 @@ type aggregatorFactoryConfigType is [@layout:comb] record [
     empty                     : unit;
 ]
 
+type satelliteRecordType is [@layout:comb] record [
+    status                : string;     // ACTIVE / SUSPENDED / BANNED
+    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
+    satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
+    totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
+    
+    name                  : string;     // string for name
+    description           : string;     // string for description
+    image                 : string;     // ipfs hash
+    website               : string;     // satellite website if it has one
+    
+    registeredDateTime    : timestamp;  
+]
+
 type governanceConfigType is [@layout:comb] record [
     
     successReward                       : nat;  // incentive reward for successful proposal

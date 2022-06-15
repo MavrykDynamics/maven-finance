@@ -492,17 +492,12 @@ block{
                   } else skip;
                 } else skip;
 
-                // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
-                // const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), updateRewardsXtz(s));
-
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := emptyMapCommit;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
-                // s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
-                // s.oracleRewardXtz         := newOracleRewardXtz;
             }
         | _ -> skip
     ];
@@ -577,12 +572,16 @@ block{
 
                 // if deviation reward xtz is not 0, then increment oracle xtz rewards
                 if deviationRewardXtz =/= 0n then {
-                    
-                    const newOracleRewardXtz  = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + deviationRewardXtz), updateRewardsXtz(s));
-                    s.oracleRewardXtz         := newOracleRewardXtz;
+
+                    var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
+                          Some (_amount) -> (_amount) 
+                        | None -> 0n 
+                    ];
+                    s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + deviationRewardXtz;
 
                 } else skip;
 
+                // update storage 
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
                 s.observationReveals      := emptyMapReveals;
@@ -668,17 +667,10 @@ block{
                 var percentOracleResponse := numberOfObservationForRound * 100n / oracleWhiteListedSize;
 
                 // set rewards for oracles
-                // const rewardAmountStakedMvk  : nat = s.config.rewardAmountStakedMvk;
-                const rewardAmountXtz        : nat = s.config.rewardAmountXtz;
-
-                // var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.sender] of [
-                //           Some (_amount) -> (_amount) 
-                //         | None -> 0n 
-                //     ];
-                // s.oracleRewardStakedMvk[Tezos.sender]   := currentOracleStakedMvkRewards + rewardAmountStakedMvk;
                 const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
-                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
+                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;    
 
+                const rewardAmountXtz        : nat = s.config.rewardAmountXtz;
                 var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
                           Some (_amount) -> (_amount) 
                         | None -> 0n 
@@ -701,9 +693,6 @@ block{
 
                 s.observationReveals        := observationsDataUpdated;
                 s.lastCompletedRoundPrice   := newLastCompletedRoundPrice;
-
-                // s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
-                // s.oracleRewardXtz         := newOracleRewardXtz;
 
             }
         | _ -> skip
