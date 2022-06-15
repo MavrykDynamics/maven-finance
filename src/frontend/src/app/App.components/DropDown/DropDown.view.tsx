@@ -8,7 +8,6 @@ import Icon from '../Icon/Icon.view'
 
 type DropDownViewProps = {
   icon?: string
-  id?: string
   placeholder: string
   name?: string
   value?: string
@@ -26,7 +25,6 @@ type DropDownViewProps = {
 
 export const DropDownView = ({
   icon,
-  id,
   placeholder,
   name,
   value,
@@ -42,7 +40,7 @@ export const DropDownView = ({
   items,
 }: DropDownViewProps) => {
   return (
-    <DropDownStyled id={id}>
+    <DropDownStyled>
       <DropDownMenu
         onClick={() => {
           onClick()
