@@ -332,7 +332,7 @@
 //                 const newConfigValue = MVK(2);
 
 //                 // Operation
-//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configminQuorumStakedMvkTotal").send();
+//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumStakedMvkTotal").send();
 //                 await updateConfigOperation.confirmation();
 
 //                 // Final values

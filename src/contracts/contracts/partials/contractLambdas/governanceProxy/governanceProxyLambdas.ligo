@@ -1644,10 +1644,14 @@ block {
       
       CreateAggregator(createAggregatorParams) -> {
 
-                // find and get aggregatorFactory contract address from the generalContracts map
-                const aggregatorFactoryAddress : address = case s.generalContracts["aggregatorFactory"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                // find and get aggregatorFactory contract address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+                const aggregatorFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // find and get createAggregator entrypoint of aggregatorFactory contract
@@ -1685,10 +1689,14 @@ block {
       
       TrackAggregator(trackAggregatorParams) -> {
 
-                // find and get aggregatorFactory contract address from the generalContracts map
-                const aggregatorFactoryAddress : address = case s.generalContracts["aggregatorFactory"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                // find and get aggregatorFactory contract address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+                const aggregatorFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // find and get trackAggregator entrypoint of aggregatorFactory contract
@@ -1726,10 +1734,14 @@ block {
       
       UntrackAggregator(untrackAggregatorParams) -> {
 
-                // find and get aggregatorFactory contract address from the generalContracts map
-                const aggregatorFactoryAddress : address = case s.generalContracts["aggregatorFactory"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                // find and get aggregatorFactory contract address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+                const aggregatorFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // find and get trackAggregator entrypoint of aggregatorFactory contract

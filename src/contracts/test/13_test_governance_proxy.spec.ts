@@ -148,7 +148,7 @@
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configminQuorumStakedMvkTotal").send();
+//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumStakedMvkTotal").send();
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
