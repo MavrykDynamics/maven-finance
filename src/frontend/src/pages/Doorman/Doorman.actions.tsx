@@ -2,7 +2,7 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { State } from 'reducers'
 
-import { fetchFromIndexer } from '../../gql/fetchGraphQL'
+import { fetchFromIndexer } from 'gql/fetchGraphQL'
 import {
   DOORMAN_STORAGE_QUERY,
   DOORMAN_STORAGE_QUERY_NAME,
@@ -10,15 +10,21 @@ import {
   MVK_TOKEN_STORAGE_QUERY,
   MVK_TOKEN_STORAGE_QUERY_NAME,
   MVK_TOKEN_STORAGE_QUERY_VARIABLE,
+  USER_DOORMAN_REWARDS_QUERY,
+  USER_DOORMAN_REWARDS_QUERY_NAME,
+  USER_DOORMAN_REWARDS_QUERY_VARIABLES,
   USER_INFO_QUERY,
   USER_INFO_QUERY_NAME,
   USER_INFO_QUERY_VARIABLES,
-} from '../../gql/queries'
-import { calcWithoutPrecision } from '../../utils/calcFunctions'
+  USER_SATELLITE_REWARDS_QUERY,
+  USER_SATELLITE_REWARDS_QUERY_NAME,
+  USER_SATELLITE_REWARDS_QUERY_VARIABLES,
+} from 'gql/queries'
+import { calcUsersDoormanRewards, calcUsersSatelliteRewards, calcWithoutPrecision } from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { UserData } from '../../utils/TypesAndInterfaces/User'
+import { UserData, UserDoormanRewardsData, UserSatelliteRewardsData } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
@@ -336,23 +342,66 @@ export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
-    const userInfoFromIndexer = await fetchFromIndexer(
-      USER_INFO_QUERY,
-      USER_INFO_QUERY_NAME,
-      USER_INFO_QUERY_VARIABLES(accountPkh),
-    )
-    const userInfoData = userInfoFromIndexer?.mavryk_user[0]
+    const userInfoFromIndexer = fetchFromIndexer(
+        USER_INFO_QUERY,
+        USER_INFO_QUERY_NAME,
+        USER_INFO_QUERY_VARIABLES(accountPkh),
+      ),
+      userDoormanRewardsFromIndexer = fetchFromIndexer(
+        USER_DOORMAN_REWARDS_QUERY,
+        USER_DOORMAN_REWARDS_QUERY_NAME,
+        USER_DOORMAN_REWARDS_QUERY_VARIABLES(accountPkh),
+      ),
+      userSatelliteRewardsFromIndexer = fetchFromIndexer(
+        USER_SATELLITE_REWARDS_QUERY,
+        USER_SATELLITE_REWARDS_QUERY_NAME,
+        USER_SATELLITE_REWARDS_QUERY_VARIABLES(accountPkh),
+      )
+    const [userInfoAfterPromise, userDoormanRewardsAfterPromise, userSatelliteRewardsAfterPromise] = await Promise.all([
+      userInfoFromIndexer,
+      userDoormanRewardsFromIndexer,
+      userSatelliteRewardsFromIndexer,
+    ])
+
+    const userInfoData = userInfoAfterPromise.mavryk_user[0]
     const userIsDelegatedToSatellite = userInfoData?.delegation_records.length > 0
+
+    const userDoormanRewardsData: UserDoormanRewardsData = {
+      generalAccumulatedFeesPerShare: userDoormanRewardsAfterPromise.doorman[0]?.accumulated_fees_per_share || 0,
+      generalUnclaimedRewards: userDoormanRewardsAfterPromise.doorman[0]?.unclaimed_rewards || 0,
+      myParticipationFeesPerShare:
+        userDoormanRewardsAfterPromise.doorman[0]?.stake_accounts[0]?.participation_fees_per_share || 0,
+      myAvailableDoormanRewards: 0,
+    }
+    const userSatelliteRewardsData: UserSatelliteRewardsData = {
+      unpaid: userSatelliteRewardsAfterPromise.satellite_rewards_record[0]?.unpaid || 0,
+      paid: userSatelliteRewardsAfterPromise.satellite_rewards_record[0]?.paid || 0,
+      participationRewardsPerShare:
+        userSatelliteRewardsAfterPromise.satellite_rewards_record[0]?.participation_rewards_per_share || 0,
+      satelliteAccumulatedRewardPerShare:
+        userSatelliteRewardsAfterPromise.satellite_rewards_record[0]?.reference
+          ?.satellite_accumulated_reward_per_share || 0,
+      myAvailableSatelliteRewards: 0,
+    }
+
     const userInfo: UserData = {
       myAddress: userInfoData?.address,
       myMvkTokenBalance: calcWithoutPrecision(userInfoData?.mvk_balance),
       mySMvkTokenBalance: calcWithoutPrecision(userInfoData?.smvk_balance),
-      participationFeesPerShare: calcWithoutPrecision(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
         ? userInfoData?.delegation_records[0].satellite_record?.user_id
         : '',
+      myDoormanRewardsData: userDoormanRewardsData,
+      myFarmRewardsData: state.user.user.myFarmRewardsData,
+      mySatelliteRewardsData: userSatelliteRewardsData,
     }
+
+    userInfo.myDoormanRewardsData = calcUsersDoormanRewards(userInfo)
+    userInfo.mySatelliteRewardsData = calcUsersSatelliteRewards(userInfo)
+    console.log('%c res getUserData()', 'color:orange', userInfo)
+
     setItemInStorage('UserData', userInfo)
+
     dispatch({
       type: GET_USER_DATA,
       userData: userInfo,
