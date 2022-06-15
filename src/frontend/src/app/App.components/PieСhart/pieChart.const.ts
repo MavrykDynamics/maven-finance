@@ -2,16 +2,16 @@
 export const SECTOR_STYLES = { transition: 'stroke .3s', cursor: 'pointer' }
 
 export const TREASURYS_COLORS = [
-  '#C0DBFF',
-  '#55D8BA',
-  '#5F95F2',
-  '#FBB0B4',
-  '#FF8486',
-  '#38435A',
-  '#503EAA',
-  '#8D86EB',
-  '#8DD8C7',
   '#0D61FF',
+  '#503EAA',
+  '#55D8BA',
+  '#FF8486',
+  '#5F95F2',
+  '#38237C',
+  '#FBB0B4',
+  '#88D1C3',
+  '#8D86EB',
+  '#C0DBFF',
 ]
 
 export const DEFAULT_STROKE_WIDTH = 18

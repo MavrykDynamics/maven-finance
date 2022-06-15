@@ -95,7 +95,7 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
         })
         return acc
       }, [])
-    : [{ title: '', value: 1, color: getAssetColor(0) }]
+    : [{ title: '', value: 1, color: '#ccc' }]
 
   return (
     <TreasuryViewStyle>
