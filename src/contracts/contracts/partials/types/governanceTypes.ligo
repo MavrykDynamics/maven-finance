@@ -57,12 +57,12 @@ type passVotersMapType is map (address, proposalRoundVoteType)
 type voteForProposalChoiceType is 
   Yay     of unit
 | Nay     of unit
-| Abstain     of unit
+| Pass    of unit
 type votingRoundVoteType is [@layout:comb] record [
   vote  : voteForProposalChoiceType;
-  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %abstain become entrypoints.
+  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
-type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
+type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is pass * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundRecordType)
 
 type proposalRecordType is [@layout:comb] record [
@@ -94,8 +94,8 @@ type proposalRecordType is [@layout:comb] record [
     upvoteMvkTotal                    : nat;                     // voting round: upvotes MVK total
     downvoteCount                     : nat;                     // voting round: downvotes count - number of satellites
     downvoteMvkTotal                  : nat;                     // voting round: downvotes MVK total
-    abstainCount                      : nat;                     // voting round: abstain count - number of satellites
-    abstainMvkTotal                   : nat;                     // voting round: abstain MVK total
+    passCount                         : nat;                     // voting round: pass count - number of satellites
+    passMvkTotal                      : nat;                     // voting round: pass MVK total
     voters                            : votersMapType;           // voting round ledger
   
     minQuorumPercentage               : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time

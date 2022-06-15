@@ -527,8 +527,8 @@ block {
                     upvoteMvkTotal                      = 0n;                              // voting round: upvotes MVK total 
                     downvoteCount                       = 0n;                              // voting round: downvotes count
                     downvoteMvkTotal                    = 0n;                              // voting round: downvotes MVK total 
-                    abstainCount                        = 0n;                              // voting round: abstain count
-                    abstainMvkTotal                     = 0n;                              // voting round: abstain MVK total 
+                    passCount                           = 0n;                              // voting round: pass count
+                    passMvkTotal                        = 0n;                              // voting round: pass MVK total 
                     voters                              = emptyVotersMap;                  // voting round ledger
 
                     minQuorumPercentage                 = s.config.minQuorumPercentage;    // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
@@ -1031,7 +1031,7 @@ block {
                 else skip;
 
                 // note: currentCycleInfo.roundVotes change in the use of nat from proposal round (from proposal id to vote type)
-                //  i.e. (satelliteAddress, voteType - Yay | Nay | Abstain)
+                //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
                 const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentCycleInfo.roundVotes);
                 if checkIfSatelliteHasVotedFlag = False then block {
                     // satellite has not voted - add new vote
