@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
-import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, trudy, oracle0, oracle1, oracle2, oracleMaintainer } from "../../scripts/sandbox/accounts";
 
 import doormanAddress from '../../deployments/doormanAddress.json';
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
@@ -31,6 +31,7 @@ import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.jso
 import farmAddress from '../../deployments/farmAddress.json';
 import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
 import aggregatorAddress from '../../deployments/aggregatorAddress.json';
+import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
 
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 import { config } from "yargs";
@@ -56,6 +57,7 @@ describe("Testnet interactions helper", async () => {
     let lpTokenInstance;
     let governanceSatelliteInstance;
     let aggregatorInstance;
+    let aggregatorFactoryInstance;
 
     let doormanStorage;
     let delegationStorage;
@@ -74,6 +76,7 @@ describe("Testnet interactions helper", async () => {
     let lpTokenStorage;
     let governanceSatelliteStorage;
     let aggregatorStorage;
+    let aggregatorFactoryStorage;
 
     let createdTreasuryAddress;
     const treasuryMetadataBase = Buffer.from(
@@ -109,6 +112,8 @@ describe("Testnet interactions helper", async () => {
             'ascii',
         ).toString('hex')
 
+    let createdAggregatorAddress;
+
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -137,6 +142,7 @@ describe("Testnet interactions helper", async () => {
             lpTokenInstance                 = await utils.tezos.contract.at(lpTokenAddress.address);
             governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
+            aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
     
             doormanStorage                  = await doormanInstance.storage();
             delegationStorage               = await delegationInstance.storage();
@@ -155,6 +161,7 @@ describe("Testnet interactions helper", async () => {
             lpTokenStorage                  = await lpTokenInstance.storage();
             governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
             aggregatorStorage               = await aggregatorInstance.storage();
+            aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
     
             console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
             console.log('Doorman Contract deployed at:', doormanInstance.address);
@@ -170,6 +177,7 @@ describe("Testnet interactions helper", async () => {
             console.log('LP Token Contract deployed at:', lpTokenAddress.address);
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteAddress.address);
             console.log('Aggregator Contract deployed at:', aggregatorAddress.address);
+            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
         } catch(e){
             console.log(e)
         }
@@ -1948,6 +1956,201 @@ describe("Testnet interactions helper", async () => {
     //     });
     // })
 
+    // describe("AGGREGATOR FACTORY", async () => {
+    //     beforeEach("Set signer to admin", async () => {
+    //         await signerFactory(bob.sk)
+    //     });
+
+    //     it('Admin sets admin', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.setAdmin(bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+
+    //     it('Admin sets governance', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+
+    //     it('Admin updates aggregator name max length', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.updateConfig(500, "configAggregatorNameMaxLength").send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+
+    //     it('Admin updates whitelist contracts', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+
+    //     it('Admin updates general contracts', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin pauses create aggregator', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.togglePauseCreateAggregator().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin pauses track aggregator', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.togglePauseTrackAggregator().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin pauses untrack aggregator', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.togglePauseUntrackAggregator().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin pauses distribute reward xtz', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.togglePauseDistributeRewardXtz().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin pauses distribute reward smvk', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.togglePauseDistributeRewardSMvk().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin pauses all entrypoints', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.pauseAll().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin unpauses all entrypoints', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.unpauseAll().send();
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin creates an aggregator', async () => {
+    //         try{
+    //             // Operation
+    //             const oracleMap = MichelsonMap.fromLiteral({
+    //                 [oracle0.pkh] : true,
+    //                 [oracle1.pkh] : true,
+    //                 [oracle2.pkh] : true,
+    //                 // [oracle3.pkh]: true,
+    //                 // [oracle4.pkh]: true,
+    //             }) as MichelsonMap<
+    //                 string,
+    //                 boolean
+    //                 >
+    //             const operation = await aggregatorFactoryInstance.methods.createAggregator(
+    //                 'USD',
+    //                 'BTC',
+    
+    //                 'USDBTC',
+    //                 true,
+                    
+    //                 oracleMap,
+    
+    //                 new BigNumber(16),            // decimals
+    //                 new BigNumber(2),             // numberBlocksDelay
+                    
+    //                 new BigNumber(86400),         // deviationTriggerBanDuration
+    //                 new BigNumber(5),             // perthousandDeviationTrigger
+    //                 new BigNumber(60),            // percentOracleThreshold
+                    
+    //                 new BigNumber(0),             // requestRateDeviationDepositFee
+    
+    //                 new BigNumber(10000000),      // deviationRewardStakedMvk
+    //                 new BigNumber(2600),          // deviationRewardAmountXtz
+    //                 new BigNumber(10000000),      // rewardAmountStakedMvk
+    //                 new BigNumber(1300),          // rewardAmountXtz
+                    
+    //                 oracleMaintainer.pkh          // maintainer
+    //             ).send()
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin untracks an aggregator', async () => {
+    //         try{
+    //             // Operation
+    //             aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+    //             createdAggregatorAddress    = await aggregatorFactoryStorage.trackedAggregators.get({
+    //               0: 'USD',
+    //               1: 'BTC',
+    //             }) as string;
+    //             const operation             = await aggregatorFactoryInstance.methods.untrackAggregator('USD', 'BTC').send()
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+        
+    //     it('Admin tracks an aggregator', async () => {
+    //         try{
+    //             // Operation
+    //             const operation = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'BTC', createdAggregatorAddress).send()
+    //             await operation.confirmation();
+    //         } catch(e){
+    //             console.dir(e, {depth: 5})
+    //         }
+    //     });
+    // })
+
     // describe("GOVERNANCE", async () => {
     //     beforeEach("Set signer to admin", async () => {
     //         await signerFactory(bob.sk)
@@ -2026,7 +2229,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin updates min quorum mvk total', async () => {
     //         try{
     //             // Operation
-    //             const operation = await governanceInstance.methods.updateConfig(1, "configminQuorumStakedMvkTotal").send();
+    //             const operation = await governanceInstance.methods.updateConfig(1, "configMinQuorumStakedMvkTotal").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -2501,246 +2704,23 @@ describe("Testnet interactions helper", async () => {
     //     });
     // });
 
-    describe("GOVERNANCE SATELLITE", async () => {
-        beforeEach("Set signer to admin", async () => {
-            await signerFactory(bob.sk)
-        });
+    // describe("GOVERNANCE SATELLITE", async () => {
 
-        it('Admin sets admin', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.setAdmin(bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
+    //     before("Register another satellite for testing purposes", async () => {
+    //         // Operation
+    //         await signerFactory(alice.sk)
+    //         const operation = await delegationInstance.methods
+    //         .registerAsSatellite(
+    //             "Alice Satellite", 
+    //             "This is the description", 
+    //             "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
+    //             "https://mavryk.finance/", 
+    //             1000
+    //         ).send();
+    //         await operation.confirmation();
+    //         await signerFactory(bob.sk)
+    //     })
 
-        it('Admin sets governance', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.setGovernance(governanceAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates approval percentage', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configApprovalPercentage").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates satellite duration in days', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configSatelliteDurationInDays").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates purpose max length', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.updateConfig(500, "configPurposeMaxLength").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates voting power ratio', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configVotingPowerRatio").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates whitelist contracts', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates general contracts', async () => {
-            try{
-                // Operation
-                const operation = await governanceSatelliteInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin suspends a satellite', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.suspendSatellite(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin unsuspends a satellite', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin bans a satellite', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.banSatellite(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin unbans a satellite', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.unbanSatellite(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin registers an aggregator', async () => {
-            try{
-                // Operation
-                const operation              = await governanceSatelliteInstance.methods.registerAggregator("MVK", "USDM", aggregatorAddress.address).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates an aggregator status', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin adds an oracle to an aggregator', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address,"For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin removes all satellite oracles', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.removeAllSatelliteOracles(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin drops an action', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin removes an oracle in an aggregator', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                var actionId                = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address,"For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId).send();
-                await operation.confirmation();
-                
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                actionId                    = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.removeOracleInAggregator(aggregatorAddress.address, "For tests purposes", alice.pkh).send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-    })
-
-    // describe("EMERGENCY GOVERNANCE", async () => {
     //     beforeEach("Set signer to admin", async () => {
     //         await signerFactory(bob.sk)
     //     });
@@ -2748,7 +2728,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin sets admin', async () => {
     //         try{
     //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.setAdmin(bob.pkh).send();
+    //             const operation = await governanceSatelliteInstance.methods.setAdmin(bob.pkh).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -2758,207 +2738,47 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin sets governance', async () => {
     //         try{
     //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.setGovernance(governanceAddress.address).send();
+    //             const operation = await governanceSatelliteInstance.methods.setGovernance(governanceAddress.address).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin updates vote expiry days', async () => {
+    //     it('Admin updates approval percentage', async () => {
     //         try{
     //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configVoteExpiryDays").send();
+    //             const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configApprovalPercentage").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin updates required fee mutez to trigger emergency', async () => {
+    //     it('Admin updates satellite duration in days', async () => {
     //         try{
     //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMutez").send();
+    //             const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configSatelliteDurationInDays").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin updates SMVK percentage required', async () => {
+    //     it('Admin updates purpose max length', async () => {
     //         try{
     //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(0, "configStakedMvkPercentRequired").send();
+    //             const operation = await governanceSatelliteInstance.methods.updateConfig(500, "configPurposeMaxLength").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin updates minimum SMVK for voting', async () => {
+    //     it('Admin updates voting power ratio', async () => {
     //         try{
     //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForVoting").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates minimum SMVK to trigger', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForTrigger").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates proposal title max length', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(500, "configProposalTitleMaxLength").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates proposal description max length', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateConfig(500, "configProposalDescMaxLength").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates general contracts', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin triggers emergency governance', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin drops emergency governance', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin votes for emergency governance', async () => {
-    //         try{
-    //             // Operation
-    //             var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
-    //             await operation.confirmation();
-
-    //             // Operation
-    //             operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-    // })
-
-    // describe("BREAK GLASS", async () => {
-    //     beforeEach("Set signer to admin", async () => {
-    //         await signerFactory(bob.sk)
-    //     });
-
-    //     it('Admin sets admin', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.setAdmin(bob.pkh).send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin sets governance', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.setGovernance(governanceAddress.address).send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates threshold', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateConfig(0, "configThreshold").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates action expiry days', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateConfig(1, "configActionExpiryDays").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates name max length', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilNameMaxLength").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates website max length', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilWebsiteMaxLength").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates image max length', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilImageMaxLength").send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin updates general contracts', async () => {
-    //         try{
-    //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+    //             const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configVotingPowerRatio").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
@@ -2968,137 +2788,536 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin updates whitelist contracts', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+    //             const operation = await governanceSatelliteInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin updates its council member info', async () => {
+    //     it('Admin updates general contracts', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+    //             const operation = await governanceSatelliteInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin adds a new council member', async () => {
+    //     it('Admin suspends a satellite', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.addCouncilMember(trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.suspendSatellite(alice.pkh, "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin removes a council member', async () => {
+    //     it('Admin unsuspends a satellite', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.removeCouncilMember(alice.pkh).send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin changes a council member', async () => {
+    //     it('Admin bans a satellite', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.changeCouncilMember(alice.pkh, trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.banSatellite(alice.pkh, "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin propagate break glass', async () => {
+    //     it('Admin unbans a satellite', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.propagateBreakGlass().send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.unbanSatellite(alice.pkh, "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin sets single contract admin', async () => {
+    //     it('Admin registers an aggregator', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+    //             const operation              = await governanceSatelliteInstance.methods.registerAggregator("MVK", "USDM", aggregatorAddress.address).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin sets all contracts admin', async () => {
+    //     it('Admin updates an aggregator status', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.setAllContractsAdmin(bob.pkh).send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin pauses all entrypoint', async () => {
+    //     it('Admin adds an oracle to an aggregator', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address,"For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin unpauses all entrypoint', async () => {
+    //     it('Admin removes all satellite oracles', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.removeAllSatelliteOracles(alice.pkh, "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin removes break glass control', async () => {
+    //     it('Admin drops an action', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
 
-    //     it('Admin flushes an action', async () => {
+    //     it('Admin removes an oracle in an aggregator', async () => {
     //         try{
     //             // Operation
-    //             const operation = await breakGlassInstance.methods.flushAction(1).send();
-    //             await operation.confirmation();
-    //         } catch(e){
-    //             console.dir(e, {depth: 5})
-    //         }
-    //     });
-
-    //     it('Admin signs an action', async () => {
-    //         try{
-    //             // Operation
-    //             breakGlassStorage   = await breakGlassInstance.storage();
-    //             const recordId      = breakGlassStorage.actionCounter
-    //             var operation = await breakGlassInstance.methods.flushAction(1).send();
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             var actionId                = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
     //             await operation.confirmation();
 
-    //             await signerFactory(alice.sk)
-    //             operation = await breakGlassInstance.methods.signAction(recordId).send();
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+    //             await operation.confirmation();
+                
+    //             governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+    //             actionId                    = governanceSatelliteStorage.governanceSatelliteCounter
+    //             var operation               = await governanceSatelliteInstance.methods.removeOracleInAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
+    //             await operation.confirmation();
+
+    //             operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
     //         }
     //     });
     // })
+
+    describe("EMERGENCY GOVERNANCE", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates vote expiry days', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configVoteExpiryDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates required fee mutez to trigger emergency', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMutez").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates SMVK percentage required', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(0, "configStakedMvkPercentRequired").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates minimum SMVK for voting', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForVoting").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates minimum SMVK to trigger', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForTrigger").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates proposal title max length', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(500, "configProposalTitleMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates proposal description max length', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(500, "configProposalDescMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin triggers emergency governance', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops emergency governance', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin votes for emergency governance', async () => {
+            try{
+                // Operation
+                var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
+                await operation.confirmation();
+
+                // Operation
+                operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("BREAK GLASS", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates threshold', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(0, "configThreshold").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates action expiry days', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(1, "configActionExpiryDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates name max length', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates website max length', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilWebsiteMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates image max length', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilImageMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates its council member info', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds a new council member', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.addCouncilMember(trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes a council member', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.removeCouncilMember(alice.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin changes a council member', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.changeCouncilMember(alice.pkh, trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin propagate break glass', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.propagateBreakGlass().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets single contract admin', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets all contracts admin', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setAllContractsAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unpauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes break glass control', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin flushes an action', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.flushAction(1).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin signs an action', async () => {
+            try{
+                // Operation
+                breakGlassStorage   = await breakGlassInstance.storage();
+                const recordId      = breakGlassStorage.actionCounter
+                var operation = await breakGlassInstance.methods.flushAction(1).send();
+                await operation.confirmation();
+
+                await signerFactory(alice.sk)
+                operation = await breakGlassInstance.methods.signAction(recordId).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
 });

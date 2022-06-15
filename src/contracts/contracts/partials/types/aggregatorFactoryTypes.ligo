@@ -74,7 +74,8 @@ type registerAggregatorActionType is [@layout:comb] record [
 (* updateConfig entrypoint inputs *)
 type aggregatorFactoryUpdateConfigNewValueType is nat
 type aggregatorFactoryUpdateConfigActionType is 
-| ConfigAggregatorNameMaxLength                 of unit
+| ConfigAggregatorNameMaxLength   of unit
+| Empty                           of unit
 
 type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : aggregatorFactoryUpdateConfigNewValueType; 

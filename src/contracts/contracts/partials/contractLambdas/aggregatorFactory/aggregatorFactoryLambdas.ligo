@@ -80,6 +80,7 @@ block{
 
                 case updateConfigAction of [
                     | ConfigAggregatorNameMaxLength (_v)  -> s.config.aggregatorNameMaxLength  := updateConfigNewValue
+                    | Empty (_v)                          -> skip
                 ];
             }
         | _ -> skip
@@ -152,6 +153,12 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then skip
                 else s.breakGlassConfig.untrackAggregatorIsPaused := True;
 
+                if s.breakGlassConfig.distributeRewardMvkIsPaused then skip
+                else s.breakGlassConfig.distributeRewardMvkIsPaused := True;
+
+                if s.breakGlassConfig.distributeRewardXtzIsPaused then skip
+                else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
+
                 for _key -> aggregatorAddress in map s.trackedAggregators
                 block {
                     case (Tezos.get_entrypoint_opt("%pauseAll", aggregatorAddress): option(contract(unit))) of [
@@ -187,6 +194,12 @@ block {
                 else skip;
 
                 if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.distributeRewardMvkIsPaused then s.breakGlassConfig.distributeRewardMvkIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
                 else skip;
 
                 for _key -> aggregatorAddress in map s.trackedAggregators
