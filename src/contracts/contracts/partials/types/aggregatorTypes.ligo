@@ -3,10 +3,48 @@ type maintainerType is address;
 
 type metadataType is big_map (string, bytes);
 
+// ------------------------------------------------------------------------------
+// Reference to types in other contracts
+// ------------------------------------------------------------------------------
+
 type aggregatorFactoryConfigType is [@layout:comb] record [
     aggregatorNameMaxLength   : nat;
     empty                     : unit;
 ]
+
+type governanceConfigType is [@layout:comb] record [
+    
+    successReward                       : nat;  // incentive reward for successful proposal
+    cycleVotersReward                   : nat;  // Reward sent then split to all voters at the end of a voting round
+
+    minProposalRoundVotePercentage      : nat;  // percentage of staked MVK votes required to pass proposal round
+    minProposalRoundVotesRequired       : nat;  // amount of staked MVK votes required to pass proposal round
+
+    minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in MVK)
+    minQuorumMvkTotal                   : nat;  // minimum quorum in MVK
+
+    votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
+    proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
+    minimumStakeReqPercentage           : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
+    maxProposalsPerDelegate             : nat;  // number of active proposals delegate can have at any given time
+
+    blocksPerMinute                     : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
+
+    blocksPerProposalRound              : nat;  // to determine duration of proposal round
+    blocksPerVotingRound                : nat;  // to determine duration of voting round
+    blocksPerTimelockRound              : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+
+    proposalMetadataTitleMaxLength      : nat;
+    proposalTitleMaxLength              : nat;
+    proposalDescriptionMaxLength        : nat;
+    proposalInvoiceMaxLength            : nat;
+    proposalSourceCodeMaxLength         : nat;
+    
+]
+
+// ------------------------------------------------------------------------------
+// Contract Specific types
+// ------------------------------------------------------------------------------
 
 type observationCommitsType      is map (address, bytes);
 type observationRevealsType      is map (address, nat);
@@ -67,6 +105,8 @@ type aggregatorConfigType is [@layout:comb] record [
     percentOracleThreshold              : nat;
 
     requestRateDeviationDepositFee      : nat;
+
+    deviationRewardStakedMvk            : nat;
     deviationRewardAmountXtz            : nat;
     rewardAmountStakedMvk               : nat;
     rewardAmountXtz                     : nat;
@@ -105,6 +145,8 @@ type aggregatorUpdateConfigActionType is
 | ConfigPercentOracleThreshold        of unit
 
 | ConfigRequestRateDevDepositFee      of unit
+
+| ConfigDeviationRewardStakedMvk      of unit
 | ConfigDeviationRewardAmountXtz      of unit
 | ConfigRewardAmountStakedMvk         of unit
 | ConfigRewardAmountXtz               of unit

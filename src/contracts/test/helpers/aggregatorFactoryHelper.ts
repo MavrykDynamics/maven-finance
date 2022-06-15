@@ -53,6 +53,8 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         percentOracleThreshold              : BigNumber,
 
         requestRateDeviationDepositFee      : BigNumber,
+        
+        deviationRewardStakedMvk            : BigNumber,
         deviationRewardAmountXtz            : BigNumber,
         rewardAmountStakedMvK               : BigNumber,
         rewardAmountXtz                     : BigNumber,
