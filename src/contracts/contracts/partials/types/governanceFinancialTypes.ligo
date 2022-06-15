@@ -8,25 +8,6 @@ type requestIdType is nat;
 type metadata is big_map (string, bytes);
 
 // ------------------------------------------------------------------------------
-// Satellite Types
-// ------------------------------------------------------------------------------
-
-
-type satelliteRecordType is [@layout:comb] record [
-    status                : nat;        // active: 1; inactive: 0; 
-    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
-    satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
-    totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
-    
-    name                  : string;     // string for name
-    description           : string;     // string for description
-    image                 : string;     // ipfs hash
-    website               : string;     // satellite website if it has one
-    
-    registeredDateTime    : timestamp;  
-]
-
-// ------------------------------------------------------------------------------
 // Financial Request Types
 // ------------------------------------------------------------------------------
 

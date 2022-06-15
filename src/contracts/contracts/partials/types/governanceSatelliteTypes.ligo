@@ -3,26 +3,6 @@ type metadataType is big_map (string, bytes)
 type lambdaLedgerType is map(string, bytes)
 
 // ------------------------------------------------------------------------------
-// Satellite Types
-// ------------------------------------------------------------------------------
-
-
-type satelliteRecordType is [@layout:comb] record [
-    status                : string;     // ACTIVE / SUSPENDED / BANNED
-    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
-    satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
-    totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
-    
-    name                  : string;     // string for name
-    description           : string;     // string for description
-    image                 : string;     // ipfs hash
-    website               : string;     // satellite website if it has one
-    
-    registeredDateTime    : timestamp;  
-]
-
-
-// ------------------------------------------------------------------------------
 // Config Types
 // ------------------------------------------------------------------------------
 
