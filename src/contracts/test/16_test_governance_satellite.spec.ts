@@ -570,8 +570,8 @@
 //                 assert.equal(governanceAction.status,                                    true);
 //                 assert.equal(governanceAction.executed,                                  false);
 //                 assert.equal(governanceAction.governancePurpose,                         purpose);
-//                 assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//                 assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//                 assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//                 assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //                 assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -622,8 +622,8 @@
 //                 const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 
 //                 // check that governance action has been executed
-//                 assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//                 assert.equal(updatedGovernanceAction.nayVoteTotal,            MVK(100));
+//                 assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//                 assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
 //                 assert.equal(updatedGovernanceAction.status,                  true);
 //                 assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -681,8 +681,8 @@
 //               assert.equal(governanceAction.status,                                    true);
 //               assert.equal(governanceAction.executed,                                  false);
 //               assert.equal(governanceAction.governancePurpose,                         purpose);
-//               assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//               assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//               assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//               assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //               assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //               assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //               assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -727,8 +727,8 @@
 //               const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 
 //               // check that governance action has been executed
-//               assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//               assert.equal(updatedGovernanceAction.nayVoteTotal,            0);
+//               assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//               assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            0);
 //               assert.equal(updatedGovernanceAction.status,                  true);
 //               assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -790,8 +790,8 @@
 //               assert.equal(governanceAction.status,                                    true);
 //               assert.equal(governanceAction.executed,                                  false);
 //               assert.equal(governanceAction.governancePurpose,                         purpose);
-//               assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//               assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//               assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//               assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //               assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //               assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //               assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -842,8 +842,8 @@
 //               const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 
 //               // check that governance action has been executed
-//               assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//               assert.equal(updatedGovernanceAction.nayVoteTotal,            MVK(100));
+//               assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//               assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
 //               assert.equal(updatedGovernanceAction.status,                  true);
 //               assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -901,8 +901,8 @@
 //             assert.equal(governanceAction.status,                                    true);
 //             assert.equal(governanceAction.executed,                                  false);
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
-//             assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -947,8 +947,8 @@
 //             const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 
 //             // check that governance action has been executed
-//             assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//             assert.equal(updatedGovernanceAction.nayVoteTotal,            0);
+//             assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//             assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            0);
 //             assert.equal(updatedGovernanceAction.status,                  true);
 //             assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -1027,8 +1027,8 @@
 //             assert.equal(governanceAction.status,                                    true);
 //             assert.equal(governanceAction.executed,                                  false);
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
-//             assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1082,8 +1082,8 @@
 //             const updatedAggregatorOracles                         = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
             
 //             // check that governance action has been executed
-//             assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//             assert.equal(updatedGovernanceAction.nayVoteTotal,            MVK(100));
+//             assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//             assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
 //             assert.equal(updatedGovernanceAction.status,                  true);
 //             assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -1167,8 +1167,8 @@
 //             assert.equal(governanceAction.status,                                    true);
 //             assert.equal(governanceAction.executed,                                  false);
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
-//             assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1213,8 +1213,8 @@
 //             const updatedAggregatorOracles                         = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
 
 //             // check that governance action has been executed
-//             assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//             assert.equal(updatedGovernanceAction.nayVoteTotal,            0);
+//             assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//             assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            0);
 //             assert.equal(updatedGovernanceAction.status,                  true);
 //             assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -1325,8 +1325,8 @@
 //             assert.equal(governanceAction.status,                                    true);
 //             assert.equal(governanceAction.executed,                                  false);
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
-//             assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1372,8 +1372,8 @@
 //             assert.equal(secondGovernanceAction.status,                                    true);
 //             assert.equal(secondGovernanceAction.executed,                                  false);
 //             assert.equal(secondGovernanceAction.governancePurpose,                         purpose);
-//             assert.equal(secondGovernanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(secondGovernanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(secondGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(secondGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(secondGovernanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(secondGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(secondGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1419,8 +1419,8 @@
 //             assert.equal(thirdGovernanceAction.status,                                    true);
 //             assert.equal(thirdGovernanceAction.executed,                                  false);
 //             assert.equal(thirdGovernanceAction.governancePurpose,                         purpose);
-//             assert.equal(thirdGovernanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(thirdGovernanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(thirdGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(thirdGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(thirdGovernanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(thirdGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(thirdGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1466,8 +1466,8 @@
 //             const updatedUsdDogeAggregatorOracles       = await updatedUsdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
             
 //             // check that governance action has been executed
-//             assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//             assert.equal(updatedGovernanceAction.nayVoteTotal,            MVK(100));
+//             assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//             assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
 //             assert.equal(updatedGovernanceAction.status,                  true);
 //             assert.equal(updatedGovernanceAction.executed,                true);
 
@@ -1509,8 +1509,8 @@
 //             assert.equal(fourthGovernanceAction.status,                                    true);
 //             assert.equal(fourthGovernanceAction.executed,                                  false);
 //             assert.equal(fourthGovernanceAction.governancePurpose,                         purposeRemove);
-//             assert.equal(fourthGovernanceAction.yayVoteTotal.toNumber(),                   0);
-//             assert.equal(fourthGovernanceAction.nayVoteTotal.toNumber(),                   0);
+//             assert.equal(fourthGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//             assert.equal(fourthGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(fourthGovernanceAction.passVoteTotal.toNumber(),                  0);
 //             assert.equal(fourthGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(fourthGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1554,8 +1554,8 @@
 //             const finalUpdatedUsdDogeAggregatorOracles       = await finalUpdatedUsdDogeAggregatorStorage.oracleAddresses.get(bob.pkh);
             
 //             // check that governance action has been executed
-//             assert.equal(finalUpdatedGovernanceAction.yayVoteTotal,            MVK(300));
-//             assert.equal(finalUpdatedGovernanceAction.nayVoteTotal,            MVK(100));
+//             assert.equal(finalUpdatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//             assert.equal(finalUpdatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
 //             assert.equal(finalUpdatedGovernanceAction.status,                  true);
 //             assert.equal(finalUpdatedGovernanceAction.executed,                true);
 
@@ -1638,8 +1638,8 @@
 //                 assert.equal(governanceAction.status,                                    true);
 //                 assert.equal(governanceAction.executed,                                  false);
 //                 assert.equal(governanceAction.governancePurpose,                         purpose);
-//                 assert.equal(governanceAction.yayVoteTotal.toNumber(),                   0);
-//                 assert.equal(governanceAction.nayVoteTotal.toNumber(),                   0);
+//                 assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
+//                 assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
 //                 assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
 //                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
@@ -1689,8 +1689,8 @@
 //                 const updatedAggregatorRecord                      = await updatedGovernanceSatelliteStorage.aggregatorLedger.get(usdBtcAggregatorAddress);
 
 //                 // check that governance action has been executed
-//                 assert.equal(updatedGovernanceAction.yayVoteTotal,            MVK(300));
-//                 assert.equal(updatedGovernanceAction.nayVoteTotal,            MVK(100));
+//                 assert.equal(updatedGovernanceAction.yayVoteStakedMvkTotal,            MVK(300));
+//                 assert.equal(updatedGovernanceAction.nayVoteStakedMvkTotal,            MVK(100));
 //                 assert.equal(updatedGovernanceAction.status,                  true);
 //                 assert.equal(updatedGovernanceAction.executed,                true);
 

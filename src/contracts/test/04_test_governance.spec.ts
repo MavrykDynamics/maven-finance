@@ -298,12 +298,12 @@
 //                     const newConfigValue = MVK(2);
 
 //                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumMvkTotal").send();
+//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.minQuorumMvkTotal;
+//                     const updateConfigValue = governanceStorage.config.minQuorumStakedMvkTotal;
 
 //                     // Assertions
 //                     assert.equal(updateConfigValue, newConfigValue);
@@ -908,7 +908,7 @@
 //                     const successReward = governanceStorage.config.successReward
 //                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-//                     const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
+//                     const minQuorumStakedMvkTotal = governanceStorage.config.minQuorumStakedMvkTotal
 //                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                     const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
 //                     const cycleCounter = governanceStorage.cycleCounter
@@ -929,20 +929,20 @@
 //                     assert.equal(newProposal.successReward.toNumber(), successReward.toNumber());
 //                     assert.equal(newProposal.executed, false);
 //                     assert.equal(newProposal.locked, false);
-//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.passVoteMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
 //                     assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
 //                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.yayVoteMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.nayVoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.passCount.toNumber(), 0);
-//                     assert.equal(newProposal.passMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-//                     assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
+//                     assert.equal(newProposal.minQuorumStakedMvkTotal.toNumber(), minQuorumStakedMvkTotal.toNumber());
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
-//                     assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
 //                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //                 } catch(e){
@@ -998,7 +998,7 @@
 //                     const successReward = governanceStorage.config.successReward
 //                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-//                     const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
+//                     const minQuorumStakedMvkTotal = governanceStorage.config.minQuorumStakedMvkTotal
 //                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                     const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
 //                     const cycleCounter = governanceStorage.cycleCounter
@@ -1022,20 +1022,20 @@
 //                     assert.equal(newProposal.successReward.toNumber(), successReward.toNumber());
 //                     assert.equal(newProposal.executed, false);
 //                     assert.equal(newProposal.locked, false);
-//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.passVoteMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
 //                     assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
 //                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.yayVoteMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.nayVoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.passCount.toNumber(), 0);
-//                     assert.equal(newProposal.passMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-//                     assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
+//                     assert.equal(newProposal.minQuorumStakedMvkTotal.toNumber(), minQuorumStakedMvkTotal.toNumber());
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
-//                     assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
 //                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //                 } catch(e){
@@ -1457,14 +1457,14 @@
 //                     const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
 //                     const roundVoter = await roundVoters.get(eve.pkh);
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoteCount = await proposal.passVoteCount;
-//                     const passVoters = await proposal.passVotersMap;
-//                     const passVoter = await passVoters.get(eve.pkh);
+//                     const proposalVoteCount = await proposal.proposalVoteCount;
+//                     const proposalVoters = await proposal.proposalVotersMap;
+//                     const proposalVoter = await proposalVoters.get(eve.pkh);
 
 //                     // Assertions
 //                     assert.notStrictEqual(roundVoter, undefined)
-//                     assert.notStrictEqual(passVoter, undefined)
-//                     assert.notEqual(passVoteCount.toNumber(), 0)
+//                     assert.notStrictEqual(proposalVoter, undefined)
+//                     assert.notEqual(proposalVoteCount.toNumber(), 0)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1485,7 +1485,7 @@
 //                     const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
 //                     const roundVoter = await roundVoters.get(bob.pkh);
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoters = await proposal.passVotersMap;
+//                     const passVoters = await proposal.proposalVotersMap;
 //                     const passVoter = await passVoters.get(bob.pkh);
 
 //                     // Assertions
@@ -1535,7 +1535,7 @@
 //                     const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
 //                     const roundVoter = await roundVoters.get(mallory.pkh);
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoters = await proposal.passVotersMap;
+//                     const passVoters = await proposal.proposalVotersMap;
 //                     const passVoter = await passVoters.get(mallory.pkh);
 
 //                     // Assertions
@@ -1580,9 +1580,9 @@
 //                     const roundVoters           = await governanceStorage.currentCycleInfo.roundVotes;
 //                     const roundVoter            = await roundVoters.get(eve.pkh);
 //                     const previousProposal = await governanceStorage.proposalLedger.get(roundVoter);
-//                     const previousPassVoteCount = await previousProposal.passVoteCount;
-//                     const previousPassVoters = await previousProposal.passVotersMap;
-//                     const previousPassVoter = await previousPassVoters.get(eve.pkh);
+//                     const previousProposalVoteCount = await previousProposal.proposalVoteCount;
+//                     const previousProposalVoters = await previousProposal.proposalVotersMap;
+//                     const previousProposalVoter = await previousProposalVoters.get(eve.pkh);
 
 //                     // Add data to proposal for later execution
 //                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
@@ -1619,22 +1619,22 @@
 //                     const finalRoundVoters = await governanceStorage.currentCycleInfo.roundVotes;
 //                     const finalRoundVoter = await finalRoundVoters.get(eve.pkh);
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoteCount = await proposal.passVoteCount;
-//                     const passVoters = await proposal.passVotersMap;
-//                     const passVoter = await passVoters.get(eve.pkh);
+//                     const proposalVoteCount = await proposal.proposalVoteCount;
+//                     const proposalVoters = await proposal.proposalVotersMap;
+//                     const proposalVoter = await proposalVoters.get(eve.pkh);
 
 //                     const oldProposal = await governanceStorage.proposalLedger.get(roundVoter);
-//                     const oldPassVoteCount = await oldProposal.passVoteCount;
-//                     const oldPassVoters = await oldProposal.passVotersMap;
-//                     const oldPassVoter = await oldPassVoters.get(eve.pkh);
+//                     const oldProposalVoteCount = await oldProposal.proposalVoteCount;
+//                     const oldProposalVoters = await oldProposal.proposalVotersMap;
+//                     const oldProposalVoter = await oldProposalVoters.get(eve.pkh);
 
 //                     // Assertions
 //                     assert.notEqual(finalRoundVoter.toNumber(), roundVoter.toNumber())
-//                     assert.notStrictEqual(passVoter, undefined)
-//                     assert.notEqual(passVoteCount.toNumber(), 0)
-//                     assert.notStrictEqual(previousPassVoter, undefined)
-//                     assert.strictEqual(oldPassVoter, undefined)
-//                     assert.strictEqual(previousPassVoteCount.toNumber(), oldPassVoteCount.toNumber() + 1)
+//                     assert.notStrictEqual(proposalVoter, undefined)
+//                     assert.notEqual(proposalVoteCount.toNumber(), 0)
+//                     assert.notStrictEqual(previousProposalVoter, undefined)
+//                     assert.strictEqual(oldProposalVoter, undefined)
+//                     assert.strictEqual(previousProposalVoteCount.toNumber(), oldProposalVoteCount.toNumber() + 1)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2282,7 +2282,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configminQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
 //                     await updateConfigOperation.confirmation();
@@ -2424,7 +2424,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configminQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
 //                     await updateConfigOperation.confirmation();
@@ -2724,7 +2724,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configminQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
 //                     await updateConfigOperation.confirmation();

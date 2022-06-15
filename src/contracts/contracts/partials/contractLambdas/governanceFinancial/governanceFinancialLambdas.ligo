@@ -218,9 +218,9 @@ block {
                     voters               = emptyFinancialRequestVotersMap;
                     keyHash              = keyHash;
 
-                    yayVoteTotal         = 0n;
-                    nayVoteTotal         = 0n;
-                    passVoteTotal        = 0n;
+                    yayVoteStakedMvkTotal              = 0n;
+                    nayVoteStakedMvkTotal              = 0n;
+                    passVoteStakedMvkTotal             = 0n;
 
                     snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
                     stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
@@ -328,9 +328,9 @@ block {
                         voters               = emptyFinancialRequestVotersMap;
                         keyHash              = keyHash;
 
-                        yayVoteTotal         = 0n;
-                        nayVoteTotal         = 0n;
-                        passVoteTotal        = 0n;
+                        yayVoteStakedMvkTotal              = 0n;
+                        nayVoteStakedMvkTotal              = 0n;
+                        passVoteStakedMvkTotal             = 0n;
 
                         snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
@@ -434,9 +434,9 @@ block {
                         voters               = emptyFinancialRequestVotersMap;
                         keyHash              = setContractBakerParams.keyHash;
 
-                        yayVoteTotal         = 0n;
-                        nayVoteTotal         = 0n;
-                        passVoteTotal        = 0n;
+                        yayVoteStakedMvkTotal              = 0n;
+                        nayVoteStakedMvkTotal              = 0n;
+                        passVoteStakedMvkTotal             = 0n;
 
                         snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
@@ -572,17 +572,17 @@ block {
                     
                     Some (_voteRecord) -> case _voteRecord.vote of [
 
-                        Yay(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.yayVoteTotal 
+                        Yay(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.yayVoteStakedMvkTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _financialRequest.yayVoteTotal := abs(_financialRequest.yayVoteTotal - _voteRecord.totalVotingPower)
+                                        else _financialRequest.yayVoteStakedMvkTotal := abs(_financialRequest.yayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
 
-                    | Nay(_v) -> if _voteRecord.totalVotingPower > _financialRequest.nayVoteTotal 
+                    | Nay(_v) -> if _voteRecord.totalVotingPower > _financialRequest.nayVoteStakedMvkTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _financialRequest.nayVoteTotal := abs(_financialRequest.nayVoteTotal - _voteRecord.totalVotingPower)
+                                        else _financialRequest.nayVoteStakedMvkTotal := abs(_financialRequest.nayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
 
-                    | Pass(_v) -> if _voteRecord.totalVotingPower > _financialRequest.passVoteTotal 
+                    | Pass(_v) -> if _voteRecord.totalVotingPower > _financialRequest.passVoteStakedMvkTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _financialRequest.passVoteTotal := abs(_financialRequest.passVoteTotal - _voteRecord.totalVotingPower)                    
+                                        else _financialRequest.passVoteStakedMvkTotal := abs(_financialRequest.passVoteStakedMvkTotal - _voteRecord.totalVotingPower)                    
 
                     ]
 
@@ -603,13 +603,13 @@ block {
 
                     Yay(_v) -> block {
 
-                        const newYayVoteTotal : nat = _financialRequest.yayVoteTotal + totalVotingPower;
+                        const newYayVoteStakedMvkTotal : nat = _financialRequest.yayVoteStakedMvkTotal + totalVotingPower;
 
-                        _financialRequest.yayVoteTotal                  := newYayVoteTotal;
+                        _financialRequest.yayVoteStakedMvkTotal                  := newYayVoteStakedMvkTotal;
                         s.financialRequestLedger[financialRequestId]    := _financialRequest;
 
                         // send request to treasury if total yay votes exceed staked MVK required for approval
-                        if newYayVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
+                        if newYayVoteStakedMvkTotal > _financialRequest.stakedMvkRequiredForApproval then block {
 
                             const treasuryAddress : address = _financialRequest.treasuryAddress;
 
@@ -706,14 +706,14 @@ block {
                     }
 
                 | Nay(_v) -> block {
-                        const newNayVoteTotal : nat                     = _financialRequest.nayVoteTotal + totalVotingPower;
-                        _financialRequest.nayVoteTotal                  := newNayVoteTotal;
+                        const newNayVoteStakedMvkTotal : nat            = _financialRequest.nayVoteStakedMvkTotal + totalVotingPower;
+                        _financialRequest.nayVoteStakedMvkTotal         := newNayVoteStakedMvkTotal;
                         s.financialRequestLedger[financialRequestId]    := _financialRequest;
                     }
 
                 | Pass(_v) -> block {
-                        const newPassVoteTotal : nat                    = _financialRequest.passVoteTotal + totalVotingPower;
-                        _financialRequest.passVoteTotal                 := newPassVoteTotal;
+                        const newProposalVoteStakedMvkTotal : nat       = _financialRequest.passVoteStakedMvkTotal + totalVotingPower;
+                        _financialRequest.passVoteStakedMvkTotal        := newProposalVoteStakedMvkTotal;
                         s.financialRequestLedger[financialRequestId]    := _financialRequest;
                     }
                 ];
