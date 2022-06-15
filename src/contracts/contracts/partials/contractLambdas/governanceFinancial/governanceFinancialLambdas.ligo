@@ -218,8 +218,9 @@ block {
                     voters               = emptyFinancialRequestVotersMap;
                     keyHash              = keyHash;
 
-                    approveVoteTotal     = 0n;
-                    disapproveVoteTotal  = 0n;
+                    yayVoteTotal         = 0n;
+                    nayVoteTotal         = 0n;
+                    passVoteTotal        = 0n;
 
                     snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
                     stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
@@ -327,8 +328,9 @@ block {
                         voters               = emptyFinancialRequestVotersMap;
                         keyHash              = keyHash;
 
-                        approveVoteTotal     = 0n;
-                        disapproveVoteTotal  = 0n;
+                        yayVoteTotal         = 0n;
+                        nayVoteTotal         = 0n;
+                        passVoteTotal        = 0n;
 
                         snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
@@ -432,8 +434,9 @@ block {
                         voters               = emptyFinancialRequestVotersMap;
                         keyHash              = setContractBakerParams.keyHash;
 
-                        approveVoteTotal     = 0n;
-                        disapproveVoteTotal  = 0n;
+                        yayVoteTotal         = 0n;
+                        nayVoteTotal         = 0n;
+                        passVoteTotal        = 0n;
 
                         snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
@@ -569,13 +572,17 @@ block {
                     
                     Some (_voteRecord) -> case _voteRecord.vote of [
 
-                        Approve(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.approveVoteTotal 
+                        Yay(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.yayVoteTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _financialRequest.approveVoteTotal := abs(_financialRequest.approveVoteTotal - _voteRecord.totalVotingPower)
+                                        else _financialRequest.yayVoteTotal := abs(_financialRequest.yayVoteTotal - _voteRecord.totalVotingPower)
 
-                    | Disapprove(_v) -> if _voteRecord.totalVotingPower > _financialRequest.disapproveVoteTotal 
+                    | Nay(_v) -> if _voteRecord.totalVotingPower > _financialRequest.nayVoteTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _financialRequest.disapproveVoteTotal := abs(_financialRequest.disapproveVoteTotal - _voteRecord.totalVotingPower)
+                                        else _financialRequest.nayVoteTotal := abs(_financialRequest.nayVoteTotal - _voteRecord.totalVotingPower)
+
+                    | Pass(_v) -> if _voteRecord.totalVotingPower > _financialRequest.passVoteTotal 
+                                        then failwith(error_CALCULATION_ERROR) 
+                                        else _financialRequest.passVoteTotal := abs(_financialRequest.passVoteTotal - _voteRecord.totalVotingPower)                    
 
                     ]
 
@@ -594,15 +601,15 @@ block {
                 // Satellite cast vote and send request to Treasury if enough votes have been gathered
                 case voteType of [
 
-                    Approve(_v) -> block {
+                    Yay(_v) -> block {
 
-                        const newApproveVoteTotal : nat = _financialRequest.approveVoteTotal + totalVotingPower;
+                        const newYayVoteTotal : nat = _financialRequest.yayVoteTotal + totalVotingPower;
 
-                        _financialRequest.approveVoteTotal           := newApproveVoteTotal;
-                        s.financialRequestLedger[financialRequestId] := _financialRequest;
+                        _financialRequest.yayVoteTotal                  := newYayVoteTotal;
+                        s.financialRequestLedger[financialRequestId]    := _financialRequest;
 
-                        // send request to treasury if total approved votes exceed staked MVK required for approval
-                        if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
+                        // send request to treasury if total yay votes exceed staked MVK required for approval
+                        if newYayVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
 
                             const treasuryAddress : address = _financialRequest.treasuryAddress;
 
@@ -698,10 +705,16 @@ block {
 
                     }
 
-                | Disapprove(_v) -> block {
-                        const newDisapproveVoteTotal : nat            = _financialRequest.disapproveVoteTotal + totalVotingPower;
-                        _financialRequest.disapproveVoteTotal        := newDisapproveVoteTotal;
-                        s.financialRequestLedger[financialRequestId] := _financialRequest;
+                | Nay(_v) -> block {
+                        const newNayVoteTotal : nat                     = _financialRequest.nayVoteTotal + totalVotingPower;
+                        _financialRequest.nayVoteTotal                  := newNayVoteTotal;
+                        s.financialRequestLedger[financialRequestId]    := _financialRequest;
+                    }
+
+                | Pass(_v) -> block {
+                        const newPassVoteTotal : nat                    = _financialRequest.passVoteTotal + totalVotingPower;
+                        _financialRequest.passVoteTotal                 := newPassVoteTotal;
+                        s.financialRequestLedger[financialRequestId]    := _financialRequest;
                     }
                 ];
 

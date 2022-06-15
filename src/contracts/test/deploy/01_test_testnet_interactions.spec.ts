@@ -1330,7 +1330,7 @@ describe("Testnet interactions helper", async () => {
     //             councilStorage              = await councilInstance.storage()
     //             governanceFinancialStorage  = await governanceFinancialInstance.storage()
     //             const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 2
-    //             const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "approve").send()
+    //             const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "yay").send()
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})

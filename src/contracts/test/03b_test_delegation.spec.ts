@@ -547,7 +547,7 @@
 //                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("nay").send();
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(mallory.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("abstain").send();
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("pass").send();
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
