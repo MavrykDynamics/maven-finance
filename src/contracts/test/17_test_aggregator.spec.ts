@@ -159,6 +159,7 @@ describe('Aggregator Tests', async () => {
     
     if(satelliteMap.get(bob.pkh) === undefined){
 
+        await signerFactory(bob.sk);
         var updateOperators = await mvkTokenInstance.methods
             .update_operators([
             {
@@ -176,6 +177,22 @@ describe('Aggregator Tests', async () => {
         await bobStakeAmountOperation.confirmation();                        
         const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
         await bobRegisterAsSatelliteOperation.confirmation();
+
+        // Bob transfers 150 MVK tokens to Oracle Maintainer
+        const bobTransferMvkToOracleMaintainerOperation = await mvkTokenInstance.methods.transfer([
+            {
+                from_: bob.pkh,
+                txs: [
+                    {
+                        to_: oracleMaintainer.pkh,
+                        token_id: 0,
+                        amount: MVK(150)
+                    }
+                ]
+            }
+        ]).send();
+        await bobTransferMvkToOracleMaintainerOperation.confirmation();
+
     }
 
 
@@ -249,6 +266,30 @@ describe('Aggregator Tests', async () => {
         const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "700").send();
         await malloryRegisterAsSatelliteOperation.confirmation();
     }
+
+
+    if(satelliteMap.get(oracleMaintainer.pkh) === undefined){
+
+      // Oracle Maintainer stakes 100 MVK tokens and registers as a satellite 
+      await signerFactory(oracleMaintainer.sk);
+      updateOperators = await mvkTokenInstance.methods
+          .update_operators([
+          {
+              add_operator: {
+                  owner: oracleMaintainer.pkh,
+                  operator: doormanAddress.address,
+                  token_id: 0,
+              },
+          },
+          ])
+          .send()
+      await updateOperators.confirmation(); 
+      const oracleMaintainerStakeAmount                  = MVK(100);
+      const oracleMaintainerStakeAmountOperation         = await doormanInstance.methods.stake(oracleMaintainerStakeAmount).send();
+      await oracleMaintainerStakeAmountOperation.confirmation();                        
+      const oracleMaintainerRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Oracle Maintainer", "New Satellite Description - Oracle Maintainer", "https://image.url", "https://image.url", "700").send();
+      await oracleMaintainerRegisterAsSatelliteOperation.confirmation();
+  }
 
     // Setup funds in Treasury for transfer later
     // ------------------------------------------------------------------
@@ -646,6 +687,8 @@ describe('Aggregator Tests', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
+        console.log(beforeStorage);
+
         const op = aggregator.methods.setObservationReveal(round, price, salt, bob.pkh);
 
         const tx = await op.send();
@@ -1004,13 +1047,30 @@ describe('Aggregator Tests', async () => {
             
             await signerFactory(bob.sk);
             
+            const delegationStorage = await delegationInstance.storage();
+            console.log(delegationStorage);
+
             const beforeStorage: aggregatorStorageType = await aggregator.storage();
+
+            const rewardAmountXtz           = beforeStorage.config.rewardAmountXtz;
+            const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountXtz;
+            const deviationRewardAmountXtz  = beforeStorage.config.deviationRewardAmountXtz;
+            const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk;
+
+            console.log(rewardAmountXtz);
+            console.log(rewardAmountStakedMvk);
+            console.log(deviationRewardAmountXtz);
+            console.log(deviationRewardStakedMvk);
+
             const beforeBobRewardXtz           = await beforeStorage.oracleRewardXtz.get(bob.pkh);
             const beforeEveRewardXtz           = await beforeStorage.oracleRewardXtz.get(eve.pkh);
             const beforeMalloryRewardXtz       = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
             const beforeMaintainerRewardXtz    = await beforeStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
 
             const beforeBobRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
+            const beforeEveRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
+            const beforeMalloryRewardStakedMvk   = await beforeStorage.oracleRewardStakedMvk.get(mallory.pkh);
+
             const beforeBobTezBalance          = await utils.tezos.tz.getBalance(bob.pkh);
 
             console.log(beforeBobRewardXtz);
@@ -1019,6 +1079,9 @@ describe('Aggregator Tests', async () => {
             console.log(beforeMaintainerRewardXtz);
 
             console.log(beforeBobRewardStakedMvk);
+            console.log(beforeEveRewardStakedMvk);
+            console.log(beforeMalloryRewardStakedMvk);
+
             console.log(beforeBobTezBalance);
 
             const op = aggregator.methods.withdrawRewardXtz(bob.pkh);
