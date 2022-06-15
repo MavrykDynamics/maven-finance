@@ -54,8 +54,6 @@ export const Doorman = () => {
       <ExitFeeModal />
       <PageHeader page={'doorman'} kind={PRIMARY} loading={false} />
       <StakeUnstakeView
-        myMvkTokenBalance={user?.myMvkTokenBalance}
-        userStakeBalance={user?.mySMvkTokenBalance}
         stakeCallback={stakeCallback}
         unstakeCallback={unstakeCallback}
         loading={false}

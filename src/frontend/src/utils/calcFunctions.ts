@@ -1,4 +1,10 @@
 import { PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
+import {
+  UserData,
+  UserDoormanRewardsData,
+  UserFarmRewardsData,
+  UserSatelliteRewardsData,
+} from './TypesAndInterfaces/User'
 
 /**
  * Calculates the MVK Loyalty Index (MLI) per the function in the litepaper
@@ -35,4 +41,42 @@ export function calcWithoutPrecision(amount: string): number {
 export function calcWithoutMu(amount: string): number {
   const numberMu = parseFloat(amount) || 0
   return numberMu > 0 ? numberMu / 1000000 : 0
+}
+
+export function calcUsersDoormanRewards(userInfo: UserData): UserDoormanRewardsData {
+  const { myMvkTokenBalance, mySMvkTokenBalance, myDoormanRewardsData } = userInfo
+  let usersAvailableDoormanRewards = 0
+  /*
+     TODO: For Tristan - Doorman rewards calculation
+   */
+
+  myDoormanRewardsData.myAvailableDoormanRewards = calcWithoutPrecision(String(usersAvailableDoormanRewards))
+  return myDoormanRewardsData
+}
+
+export function calcUsersFarmRewards(userInfo: UserData): UserFarmRewardsData[] {
+  const { myMvkTokenBalance, mySMvkTokenBalance, myFarmRewardsData } = userInfo
+  const newFarmRewardsData: UserFarmRewardsData[] = []
+  myFarmRewardsData.forEach((farmAccount) => {
+    let usersAvailableFarmRewards = 0
+    /*
+       TODO: For Tristan - Farm rewards calculation
+     */
+
+    farmAccount.myAvailableFarmRewards = usersAvailableFarmRewards
+    newFarmRewardsData.push(farmAccount)
+  })
+
+  return newFarmRewardsData
+}
+
+export function calcUsersSatelliteRewards(userInfo: UserData): UserSatelliteRewardsData {
+  const { myMvkTokenBalance, mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
+  let usersAvailableSatelliteRewards = 0
+  /*
+     TODO: For Tristan - Satellite rewards calculation
+   */
+
+  mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(String(usersAvailableSatelliteRewards))
+  return mySatelliteRewardsData
 }
