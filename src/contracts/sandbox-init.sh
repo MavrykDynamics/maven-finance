@@ -26,6 +26,8 @@ docker exec -it mavryk-sandbox tezos-client import secret key david unencrypted:
 docker exec -it mavryk-sandbox tezos-client import secret key susie unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP
 docker exec -it mavryk-sandbox tezos-client import secret key ivan unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf
 docker exec -it mavryk-sandbox tezos-client import secret key astronaut unencrypted:edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
+docker exec -it mavryk-sandbox tezos-client import secret key gagarine unencrypted:edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz
+docker exec -it mavryk-sandbox tezos-client import secret key armstrong unencrypted:edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
 
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to eve --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to mallory --burn-cap 0.06425
@@ -36,5 +38,7 @@ docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to david --
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to susie --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to ivan --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to astronaut --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to gagarine --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to armstrong --burn-cap 0.06425
 
 docker exec -it mavryk-sandbox tezos-client list known addresses
