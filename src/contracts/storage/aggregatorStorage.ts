@@ -1,5 +1,4 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
 
 const { bob, oracleMaintainer, oracle0, oracle1, oracle2 } = require('../scripts/sandbox/accounts')
@@ -30,9 +29,11 @@ const config = {
   percentOracleThreshold              : new BigNumber(49),
 
   requestRateDeviationDepositFee      : new BigNumber(0),
+  
+  deviationRewardStakedMvk            : new BigNumber(10000000), // 0.01 MVK
   deviationRewardAmountXtz            : new BigNumber(2600),  
-  rewardAmountStakedMvk               : new BigNumber(1),
-  rewardAmountXtz                     : new BigNumber(1),
+  rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
+  rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
 }
 
 const metadata = MichelsonMap.fromLiteral({

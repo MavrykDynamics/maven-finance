@@ -145,6 +145,8 @@ block{
                     | ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
 
                     | ConfigRequestRateDevDepositFee (_v)  -> s.config.requestRateDeviationDepositFee       := updateConfigNewValue
+                    
+                    | ConfigDeviationRewardStakedMvk (_v)  -> s.config.deviationRewardStakedMvk             := updateConfigNewValue
                     | ConfigDeviationRewardAmountXtz (_v)  -> s.config.deviationRewardAmountXtz             := updateConfigNewValue
                     | ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
                     | ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
@@ -490,8 +492,8 @@ block{
                   } else skip;
                 } else skip;
 
-                const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewards(s);
-                const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), updateRewardsXtz(s));
+                // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
+                // const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), updateRewardsXtz(s));
 
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
@@ -499,8 +501,8 @@ block{
                 s.observationCommits      := emptyMapCommit;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
-                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
-                s.oracleRewardXtz         := newOracleRewardXtz;
+                // s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
+                // s.oracleRewardXtz         := newOracleRewardXtz;
             }
         | _ -> skip
     ];
@@ -530,10 +532,12 @@ block{
                 else if requestRateDeviationDepositFee = 0n and Tezos.amount > (requestRateDeviationDepositFee * 1mutez) then failwith(error_NO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE_REQUIRED)
                 else skip;
                 
+                // init new round, new empty map reveals, and set new observation commit of sender
                 const newRound: nat = s.round + 1n;
-                const newObservationCommits = map[
-                        ((Tezos.sender : address)) -> params.sign];
                 const emptyMapReveals : observationRevealsType = map [];
+                const newObservationCommits = map[
+                    ((Tezos.sender : address)) -> params.sign
+                ];
                 
                 if (
                     s.deviationTriggerInfos.amount =/= 0tez
@@ -556,9 +560,28 @@ block{
                           amount        = Tezos.amount;
                           roundPrice    = s.lastCompletedRoundPrice.price;
                       ];
-                
-                const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewards(s);
-                const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), updateRewardsXtz(s));
+
+                const deviationRewardStakedMvk  : nat = s.config.deviationRewardStakedMvk;
+                const deviationRewardXtz        : nat = s.config.deviationRewardAmountXtz;
+
+                // if deviation reward staked MVK is not 0, then increment oracle staked MVK rewards
+                if deviationRewardStakedMvk =/= 0n then {
+
+                    var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.sender] of [
+                          Some (_amount) -> (_amount) 
+                        | None -> 0n 
+                    ];
+                    s.oracleRewardStakedMvk[Tezos.sender]   := currentOracleStakedMvkRewards + deviationRewardStakedMvk;
+                    
+                } else skip;
+
+                // if deviation reward xtz is not 0, then increment oracle xtz rewards
+                if deviationRewardXtz =/= 0n then {
+                    
+                    const newOracleRewardXtz  = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + deviationRewardXtz), updateRewardsXtz(s));
+                    s.oracleRewardXtz         := newOracleRewardXtz;
+
+                } else skip;
 
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
@@ -566,8 +589,6 @@ block{
                 s.observationCommits      := newObservationCommits;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
-                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
-                s.oracleRewardXtz         := newOracleRewardXtz;
 
             }
         | _ -> skip
@@ -592,17 +613,18 @@ block{
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredCommit(s);
                 
-                const observationsDataUpdated: observationCommitsType = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
-                const numberOfObservationForRound: nat = Map.size (observationsDataUpdated);
+                const observationsDataUpdated      : observationCommitsType  = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
+                const numberOfObservationForRound  : nat                     = Map.size (observationsDataUpdated);
+                
                 var percentOracleResponse := numberOfObservationForRound * 100n / Map.size (s.oracleAddresses);
-                var newSwitchBlock: nat := s.switchBlock;
+                var newSwitchBlock : nat := s.switchBlock;
 
                 if ((percentOracleResponse >= s.config.percentOracleThreshold) and s.switchBlock = 0n) then {
                   newSwitchBlock := Tezos.level + s.config.numberBlocksDelay;
                 } else skip;
 
                 s.observationCommits  := observationsDataUpdated;
-                s.switchBlock          := newSwitchBlock;
+                s.switchBlock         := newSwitchBlock;
 
             }
         | _ -> skip
@@ -626,7 +648,6 @@ block{
                 checkIfTimeToReveal(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
-
                 
                 const oracleCommit: bytes = getObservationCommit(Tezos.sender, s.observationCommits);
                 const hashedPack: bytes = hasherman(Bytes.pack (params.priceSalted));
@@ -646,18 +667,43 @@ block{
                 var newLastCompletedRoundPrice := s.lastCompletedRoundPrice;
                 var percentOracleResponse := numberOfObservationForRound * 100n / oracleWhiteListedSize;
 
+                // set rewards for oracles
+                // const rewardAmountStakedMvk  : nat = s.config.rewardAmountStakedMvk;
+                const rewardAmountXtz        : nat = s.config.rewardAmountXtz;
+
+                // var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.sender] of [
+                //           Some (_amount) -> (_amount) 
+                //         | None -> 0n 
+                //     ];
+                // s.oracleRewardStakedMvk[Tezos.sender]   := currentOracleStakedMvkRewards + rewardAmountStakedMvk;
+                const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
+                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
+
+                var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
+                          Some (_amount) -> (_amount) 
+                        | None -> 0n 
+                    ];
+                s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + rewardAmountXtz;
+
+                // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
+                // const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.rewardAmountXtz), updateRewardsXtz(s));
+
+                // set new completed round price once percentOracleThreshold is reached
                 if (percentOracleResponse >= s.config.percentOracleThreshold) then {
                   const median: nat = getMedianFromMap(pivotObservationMap(observationsDataUpdated), numberOfObservationForRound);
                   newLastCompletedRoundPrice := record [
-                    round= s.round;
-                    price= median;
-                    percentOracleResponse= percentOracleResponse;
-                    priceDateTime= Tezos.now;
+                    round                 = s.round;
+                    price                 = median;
+                    percentOracleResponse = percentOracleResponse;
+                    priceDateTime         = Tezos.now;
                   ];
                 } else skip;
 
                 s.observationReveals        := observationsDataUpdated;
                 s.lastCompletedRoundPrice   := newLastCompletedRoundPrice;
+
+                // s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
+                // s.oracleRewardXtz         := newOracleRewardXtz;
 
             }
         | _ -> skip
@@ -685,19 +731,19 @@ block{
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        | LambdaWithdrawRewardXtz(_receiver) -> {
+        | LambdaWithdrawRewardXtz(oracleAddress) -> {
                 
-                const reward : nat = getRewardAmountXtz(Tezos.sender, s);
+                const reward : nat = getRewardAmountXtz(oracleAddress, s);
 
                 if (reward > 0n) then {
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                        Some(_address) -> _address
+                          Some(_address) -> _address
                         | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
                     const distributeRewardXtzParams : distributeRewardXtzType = record [
-                        recipient = Tezos.sender;
+                        recipient = oracleAddress;
                         reward    = reward;
                     ];
 
@@ -710,7 +756,7 @@ block{
                     operations := distributeRewardXtzOperation # operations;
                     
                     // update oracle xtz rewards to zero
-                    const newOracleRewardXtz = Map.update(Tezos.sender, Some (0n), s.oracleRewardXtz);
+                    const newOracleRewardXtz = Map.update(oracleAddress, Some (0n), s.oracleRewardXtz);
                     s.oracleRewardXtz := newOracleRewardXtz;
 
                 } else skip;
@@ -732,9 +778,10 @@ block{
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        | LambdaWithdrawRewardStakedMvk(_receiver) -> {
+        | LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
                 
-                const reward = getRewardAmountStakedMvk(Tezos.sender, s) * s.config.rewardAmountStakedMvk;
+                const reward = getRewardAmountStakedMvk(oracleAddress, s);
+
                 if (reward > 0n) then {
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
@@ -743,7 +790,7 @@ block{
                     ];
                     
                     const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
-                        eligibleSatellites     = set[Tezos.sender];
+                        eligibleSatellites     = set[oracleAddress];
                         totalStakedMvkReward   = reward;
                     ];
 
@@ -756,7 +803,7 @@ block{
                     operations := distributeRewardMvkOperation # operations;
 
                     // update oracle mvk rewards to zero
-                    const newOracleRewardStakedMvk = Map.update(Tezos.sender, Some (0n), s.oracleRewardStakedMvk);
+                    const newOracleRewardStakedMvk = Map.update(oracleAddress, Some (0n), s.oracleRewardStakedMvk);
                     s.oracleRewardStakedMvk := newOracleRewardStakedMvk;
 
                 } else skip;

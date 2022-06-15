@@ -1,16 +1,23 @@
-import {createHash} from "crypto";
+import { createHash } from "crypto";
 
 const chai = require("chai");
+import { MichelsonMap } from "@taquito/taquito";
 const { InMemorySigner } = require("@taquito/signer");
 const chaiAsPromised = require('chai-as-promised');
 
 import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils } from "./helpers/Utils";
+import { MVK, Utils, zeroAddress } from "./helpers/Utils";
 import BigNumber from 'bignumber.js';
 import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
 import { bob, alice, eve, mallory, david, trudy, susie, oracleMaintainer} from "../scripts/sandbox/accounts";
-import aggregatorAddress from '../deployments/aggregatorAddress.json';
+import doormanAddress            from '../deployments/doormanAddress.json';
+import aggregatorAddress         from '../deployments/aggregatorAddress.json';
+import delegationAddress         from '../deployments/delegationAddress.json';
+import mvkTokenAddress           from '../deployments/mvkTokenAddress.json';
+import aggregatorFactoryAddress  from '../deployments/aggregatorFactoryAddress.json';
 import { aggregatorStorageType } from './types/aggregatorStorageType';
+import treasuryAddress   from '../deployments/treasuryAddress.json';
+
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -19,10 +26,21 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('Aggregator', async () => {
+describe('Aggregator Tests', async () => {
   const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
-  var utils: Utils;
-  let aggregator;
+  var utils: Utils
+  let aggregator
+  let doormanInstance
+  let mvkTokenInstance
+  let delegationInstance
+  let aggregatorFactoryInstance
+  let treasuryInstance
+
+  let doormanStorage
+  let mvkTokenStorage
+  let delegationStorage
+  let aggregatorFactoryStorage
+  let treasuryStorage;
 
   const signerFactory = async (pk) => {
     await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -30,15 +48,24 @@ describe('Aggregator', async () => {
   };
 
   before("setup", async () => {
-    console.log('-- -- -- -- -- Aggregator Tests -- -- -- --')
+    
     utils = new Utils();
     await utils.init(bob.sk);
 
     aggregator = await utils.tezos.contract.at(aggregatorAddress.address);
-
     const aggregatorStorage = await aggregator.storage();
-    // console.log(aggregator);
-    // console.log(aggregatorStorage.oracleAddresses);
+
+    doormanInstance                 = await utils.tezos.contract.at(doormanAddress.address);
+    doormanStorage                  = await doormanInstance.storage();
+
+    delegationInstance              = await utils.tezos.contract.at(delegationAddress.address);
+    delegationStorage               = await delegationInstance.storage();
+
+    mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress.address);
+    mvkTokenStorage                 = await mvkTokenInstance.storage();
+
+    treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
+    treasuryStorage                 = await treasuryInstance.storage();
 
     // setup oracles for test
     if(aggregatorStorage.oracleAddresses.get(bob.pkh) === undefined){
@@ -61,6 +88,176 @@ describe('Aggregator', async () => {
       await addMaintainerOracle.confirmation();
     }
 
+    // -----------------------------------------------
+    // set up second aggregator for tests with non-zero request rate deviation fees
+    // -----------------------------------------------
+
+    aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+    aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+
+    const oracleMap = MichelsonMap.fromLiteral({
+      [bob.pkh]              : true,
+      [eve.pkh]              : true,
+      [mallory.pkh]          : true,
+      [oracleMaintainer.pkh] : true,
+    });
+
+    // Setup second aggregator
+    const createAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
+        'USD',
+        'DOGE',
+
+        'USDBTC',
+        true,
+        
+        oracleMap,
+
+        new BigNumber(8),             // decimals
+        new BigNumber(2),             // numberBlocksDelay
+
+        new BigNumber(86400),         // deviationTriggerBanTimestamp
+        new BigNumber(5),             // perthousandDeviationTrigger
+        new BigNumber(60),            // percentOracleThreshold
+
+        new BigNumber(0),             // requestRateDeviationDepositFee 
+
+        new BigNumber(10000000),      // deviationRewardStakedMvk
+        new BigNumber(2600),          // deviationRewardAmountXtz
+        new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+        new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
+        
+        oracleMaintainer.pkh,         // maintainer
+
+    ).send();
+    await createAggregatorOperation.confirmation();
+
+    // Track original aggregator
+    const trackAggregatorOperation = await aggregatorFactoryInstance.methods.trackAggregator(
+        "USD", "test", aggregator.address
+      ).send();
+    await trackAggregatorOperation.confirmation();
+
+    console.log('-- -- -- -- -- Aggregator Tests -- -- -- --')
+    console.log('Doorman Contract deployed at:'               , doormanInstance.address);
+    console.log('Delegation Contract deployed at:'            , delegationInstance.address);
+    console.log('MVK Token Contract deployed at:'             , mvkTokenInstance.address);
+    console.log('Treasury Contract deployed at:'              , treasuryInstance.address);
+    console.log('Aggregator Contract deployed at:'            , aggregator.address);
+    console.log('Aggregator Factory Contract deployed at:'    , aggregatorFactoryInstance.address);
+    
+    console.log('Bob address: '               + bob.pkh);
+    console.log('Alice address: '             + alice.pkh);
+    console.log('Eve address: '               + eve.pkh);
+    console.log('Mallory address: '           + mallory.pkh);
+    console.log('Oracle Maintainer address: ' + oracleMaintainer.pkh);
+
+    // Setup governance satellites for action snapshot later
+    // ------------------------------------------------------------------
+
+    // Bob stakes 100 MVK tokens and registers as a satellite
+    const satelliteMap = await delegationStorage.satelliteLedger;
+    
+    if(satelliteMap.get(bob.pkh) === undefined){
+
+        var updateOperators = await mvkTokenInstance.methods
+            .update_operators([
+            {
+                add_operator: {
+                    owner: bob.pkh,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            },
+            ])
+            .send()
+        await updateOperators.confirmation();  
+        const bobStakeAmount                  = MVK(100);
+        const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
+        await bobStakeAmountOperation.confirmation();                        
+        const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
+        await bobRegisterAsSatelliteOperation.confirmation();
+    }
+
+
+    if(satelliteMap.get(alice.pkh) === undefined){
+
+        // Alice stakes 100 MVK tokens and registers as a satellite 
+        await signerFactory(alice.sk);
+        updateOperators = await mvkTokenInstance.methods
+            .update_operators([
+            {
+                add_operator: {
+                    owner: alice.pkh,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            },
+            ])
+            .send()
+        await updateOperators.confirmation(); 
+        const aliceStakeAmount                  = MVK(100);
+        const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
+        await aliceStakeAmountOperation.confirmation();                        
+        const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "700").send();
+        await aliceRegisterAsSatelliteOperation.confirmation();
+    }
+
+
+    if(satelliteMap.get(eve.pkh) === undefined){
+
+        // Eve stakes 100 MVK tokens and registers as a satellite 
+        await signerFactory(eve.sk);
+        updateOperators = await mvkTokenInstance.methods
+            .update_operators([
+            {
+                add_operator: {
+                    owner: eve.pkh,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            },
+            ])
+            .send()
+        await updateOperators.confirmation(); 
+        const eveStakeAmount                  = MVK(100);
+        const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
+        await eveStakeAmountOperation.confirmation();                        
+        const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Eve", "New Satellite Description - Eve", "https://image.url", "https://image.url", "700").send();
+        await eveRegisterAsSatelliteOperation.confirmation();
+    }
+
+
+    if(satelliteMap.get(mallory.pkh) === undefined){
+
+        // Mallory stakes 100 MVK tokens and registers as a satellite 
+        await signerFactory(mallory.sk);
+        updateOperators = await mvkTokenInstance.methods
+            .update_operators([
+            {
+                add_operator: {
+                    owner: mallory.pkh,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            },
+            ])
+            .send()
+        await updateOperators.confirmation(); 
+        const malloryStakeAmount                  = MVK(100);
+        const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
+        await malloryStakeAmountOperation.confirmation();                        
+        const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "700").send();
+        await malloryRegisterAsSatelliteOperation.confirmation();
+    }
+
+    // Setup funds in Treasury for transfer later
+    // ------------------------------------------------------------------
+
+    // Alice transfers 250 XTZ to Treasury
+    await signerFactory(alice.sk)
+    const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryInstance.address, amount: 250});
+    await aliceTransferTezToTreasuryOperation.confirmation();
+  
   });
 
   describe('AddOracle', () => {
@@ -532,6 +729,9 @@ describe('Aggregator', async () => {
         assert.deepEqual(storage.lastCompletedRoundPrice.round,storage.round);
         assert.deepEqual(storage.lastCompletedRoundPrice.price,price);
 
+        const bobRewardXtz           = await storage.oracleRewardXtz.get(bob.pkh);
+        console.log(bobRewardXtz);
+
       },
 
     );
@@ -708,7 +908,6 @@ describe('Aggregator', async () => {
       async () => {
         await signerFactory(eve.sk);
 
-
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
@@ -730,7 +929,6 @@ describe('Aggregator', async () => {
       'should set observation reveal as mallory',
       async () => {
         await signerFactory(mallory.sk);
-
 
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
@@ -791,141 +989,65 @@ describe('Aggregator', async () => {
         
         await chai.expect(op.send()).to.be.rejectedWith();
 
-        // const tx = await op.send({ amount: 1 });
-        // await tx.confirmation();
-
-        // const storage: aggregatorStorageType = await aggregator.storage();
-        // const BalanceMallory = await utils.tezos.tz.getBalance(
-        //   mallory.pkh
-        // );
-        // const BalanceEve = await utils.tezos.tz.getBalance(
-        //     eve.pkh
-        //   );
-        // assert.deepEqual(storage.round,roundId.plus(1));
-        // assert.deepEqual(storage.lastCompletedRoundPrice.price,new BigNumber(200));
-        // assert.deepEqual(BalanceMallory,previousBalanceMallory.plus(2600 + 1));
-        // assert.deepEqual(BalanceEve,previousBalanceEve.plus(1));
-
       },
 
     );
 
-    // it(
-    //   'should set observation commit as eve',
-    //   async () => {
-    //     await signerFactory(eve.sk);
-
-    //     const beforeStorage: aggregatorStorageType = await aggregator.storage();
-    //     const round = beforeStorage.round;
-    //     const price = new BigNumber(200);
-    //     const data: MichelsonData = {
-    //       prim: 'Pair',
-    //       args: [
-    //         { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-    //         { string: eve.pkh },
-    //       ],
-    //     };
-    //     const type: MichelsonType = {
-    //       prim: 'pair',
-    //       args: [
-    //         { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-    //         { prim: 'address' },
-    //       ],
-    //     };
-    //     const priceCodec = packDataBytes(data, type);
-    //     const hash = createHash('sha256')
-    //         .update(priceCodec.bytes, 'hex')
-    //         .digest('hex');
-    //     const op = aggregator.methods.setObservationCommit(round, hash);
-    //     const tx = await op.send();
-    //     await tx.confirmation();
-
-    //     const storage: aggregatorStorageType = await aggregator.storage();
-    //     assert.deepEqual(storage.observationCommits?.has(eve.pkh),true);
-    //     assert.deepEqual(storage.observationCommits?.get(eve.pkh),hash);
-    //   },
-
-    // );
-
-    // it(
-    //   'should wait 2min',
-    //   async () => {
-    //     await wait(2 * 60 * 1000);
-    //   },
-    // );
-
-    // it(
-    //   'should set observation reveal as eve',
-    //   async () => {
-    //     await signerFactory(eve.sk);
-
-
-    //     const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-    //     const round = beforeStorage.round;
-    //     const price = new BigNumber(200);
-
-    //     const op = aggregator.methods.setObservationReveal(round, price, salt,eve.pkh);
-
-    //     const tx = await op.send();
-    //     await tx.confirmation();
-
-    //     const storage: aggregatorStorageType = await aggregator.storage();
-    //     assert.deepEqual(storage.observationReveals?.has(eve.pkh),true);
-    //     assert.deepEqual(storage.observationReveals?.get(eve.pkh),price);
-    //   },
-
-    // );
-
-    // it(
-    //   'should set observation reveal as david',
-    //   async () => {
-    //     await signerFactory(david.sk);
-
-
-    //     const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
-    //     const round = beforeStorage.round;
-    //     const price = new BigNumber(200);
-
-    //     const op = aggregator.methods.setObservationReveal(round, price, salt,david.pkh);
-
-    //     const tx = await op.send();
-    //     await tx.confirmation();
-
-    //     const storage: aggregatorStorageType = await aggregator.storage();
-    //     assert.deepEqual(storage.observationReveals?.has(david.pkh),true);
-    //     assert.deepEqual(storage.observationReveals?.get(david.pkh),price);
-    //   },
-
-    // );
-
-    // it.skip(
-    //   'should requestRateUpdate + give not back the tezos amount',
-    //   async () => {
-    //     await signerFactory(bob.sk);
-
-    //     const previousBalancedavid = await utils.tezos.tz.getBalance(
-    //       david.pkh
-    //     );
-
-    //     const previousStorage: aggregatorStorageType = await aggregator.storage();
-    //     const previousRound = previousStorage.round;
-
-    //     const op = aggregator.methods.requestRateUpdate();
-    //     const tx = await op.send();
-    //     await tx.confirmation();
-
-    //     const storage: aggregatorStorageType = await aggregator.storage();
-    //     const Balancedavid = await utils.tezos.tz.getBalance(
-    //       david.pkh
-    //     );
-    //     assert.deepEqual(storage.round,previousRound.plus(1));
-    //     assert.deepEqual(Balancedavid,previousBalancedavid);
-    //   },
-
-    // );
   });
+
+
+
+  describe('withdrawRewardXtz', () => {
+
+      it('oracle should be able to withdraw reward xtz', async () => {
+          try{
+            
+            await signerFactory(bob.sk);
+            
+            const beforeStorage: aggregatorStorageType = await aggregator.storage();
+            const beforeBobRewardXtz           = await beforeStorage.oracleRewardXtz.get(bob.pkh);
+            const beforeEveRewardXtz           = await beforeStorage.oracleRewardXtz.get(eve.pkh);
+            const beforeMalloryRewardXtz       = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
+            const beforeMaintainerRewardXtz    = await beforeStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
+
+            const beforeBobRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
+            const beforeBobTezBalance          = await utils.tezos.tz.getBalance(bob.pkh);
+
+            console.log(beforeBobRewardXtz);
+            console.log(beforeEveRewardXtz);
+            console.log(beforeMalloryRewardXtz);
+            console.log(beforeMaintainerRewardXtz);
+
+            console.log(beforeBobRewardStakedMvk);
+            console.log(beforeBobTezBalance);
+
+            const op = aggregator.methods.withdrawRewardXtz(bob.pkh);
+            
+            const tx = await op.send();
+            await tx.confirmation();
+
+            const storage: aggregatorStorageType = await aggregator.storage();
+            const bobRewardXtz        = await storage.oracleRewardXtz.get(bob.pkh);
+            const bobRewardStakedMvk  = await storage.oracleRewardStakedMvk.get(bob.pkh);
+            const bobTezBalance       = await utils.tezos.tz.getBalance(bob.pkh);
+            
+            console.log('---------------')
+            console.log('-----after-----')
+            console.log('---------------')
+
+            console.log(bobRewardXtz);
+            console.log(bobRewardStakedMvk);
+            console.log(bobTezBalance);
+
+
+          } catch(e){
+              console.dir(e, {depth: 5})
+          }
+      });
+
+  });
+
+
 
   describe('updateConfig', () => {
     
@@ -1107,5 +1229,108 @@ describe('Aggregator', async () => {
 
       );
     });
+
+    describe('setGovernance', () => {
+      it(
+        'should fail if called by random address',
+        async () => {
+          await signerFactory(david.sk);
+  
+          const op = aggregator.methods.setGovernance(
+            bob.pkh
+          );
+  
+          await chai.expect(op.send()).to.be.rejectedWith();
+        },
+  
+      );
+  
+      it(
+        'should update contract governance',
+        async () => {
+          await signerFactory(bob.sk);
+  
+          const op = aggregator.methods.setGovernance(
+            bob.pkh
+          );
+  
+          const tx = await op.send();
+          await tx.confirmation();
+  
+          const storage: aggregatorStorageType = await aggregator.storage();
+          assert.deepEqual(storage.governanceAddress,bob.pkh);
+          },
+  
+        );
+      });
+
+    
+      describe('setMaintainer', () => {
+        it(
+          'should fail if called by random address',
+          async () => {
+            await signerFactory(david.sk);
+    
+            const op = aggregator.methods.setMaintainer(
+              bob.pkh
+            );
+    
+            await chai.expect(op.send()).to.be.rejectedWith();
+          },
+    
+        );
+    
+        it(
+          'should update contract maintainer',
+          async () => {
+            await signerFactory(bob.sk);
+    
+            const op = aggregator.methods.setMaintainer(
+              bob.pkh
+            );
+    
+            const tx = await op.send();
+            await tx.confirmation();
+    
+            const storage: aggregatorStorageType = await aggregator.storage();
+            assert.deepEqual(storage.governanceAddress,bob.pkh);
+            },
+    
+          );
+        });
+
+        describe('setName', () => {
+          it(
+            'should fail if called by random address',
+            async () => {
+              await signerFactory(david.sk);
+      
+              const op = aggregator.methods.setName(
+                "newName"
+              );
+      
+              await chai.expect(op.send()).to.be.rejectedWith();
+            },
+      
+          );
+      
+          it(
+            'should update contract name',
+            async () => {
+              await signerFactory(bob.sk);
+      
+              const op = aggregator.methods.setName(
+                "newName"
+              );
+      
+              const tx = await op.send();
+              await tx.confirmation();
+      
+              const storage: aggregatorStorageType = await aggregator.storage();
+              assert.deepEqual(storage.governanceAddress,bob.pkh);
+              },
+      
+            );
+          });
 
 });
