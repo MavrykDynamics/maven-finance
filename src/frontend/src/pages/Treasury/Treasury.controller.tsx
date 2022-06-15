@@ -28,7 +28,7 @@ export const Treasury = () => {
 
   const itemsForDropDown = [{ text: 'Choose treasury', value: '' }].concat(
     treasuryStorage.map((treasury) => ({
-      text: treasury.name || 'No name treasury',
+      text: treasury.name,
       value: treasury.address,
     })),
   )
@@ -44,6 +44,9 @@ export const Treasury = () => {
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
+    if (!ddIsOpen) {
+      document.getElementById('treasury-select')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
   }
 
   const handleSelect = (item: any) => {
@@ -74,6 +77,7 @@ export const Treasury = () => {
         <TreasurySelectStyle isSelectedTreasury={Boolean(chosenDdItem?.value)}>
           <h2>Active Treasuries</h2>
           <DropDown
+            id="treasury-select"
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
             onChange={handleSelect}

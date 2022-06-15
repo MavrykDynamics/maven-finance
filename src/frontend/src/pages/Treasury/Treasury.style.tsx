@@ -8,6 +8,10 @@ export const TreasuryViewStyle = styled(Card)`
   gap: 50px;
   padding-bottom: 33px;
 
+  .content-wrapper {
+    max-width: 480px;
+  }
+
   header {
     display: flex;
     display: flex;
@@ -18,6 +22,10 @@ export const TreasuryViewStyle = styled(Card)`
 
     h1 {
       margin: 0;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
@@ -28,6 +36,7 @@ export const TreasuryViewStyle = styled(Card)`
     font-size: 18px;
     line-height: 18px;
     padding-bottom: 13px;
+    white-space: nowrap;
   }
 
   .assets-block {

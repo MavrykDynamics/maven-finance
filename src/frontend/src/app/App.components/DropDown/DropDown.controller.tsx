@@ -7,6 +7,7 @@ type DropDownProps = {
   icon?: string
   placeholder: string
   name?: string
+  id?: string
   value?: string
   onChange: any
   onBlur: any
@@ -24,6 +25,7 @@ export const DropDown = ({
   icon,
   placeholder,
   name,
+  id,
   value,
   onChange,
   onBlur,
@@ -39,6 +41,7 @@ export const DropDown = ({
   return (
     <DropDownView
       type={type}
+      id={id}
       icon={icon}
       name={name}
       placeholder={placeholder}

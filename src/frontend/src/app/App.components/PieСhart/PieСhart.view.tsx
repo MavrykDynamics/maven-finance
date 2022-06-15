@@ -10,7 +10,15 @@ export default function PieChartView({ chartData }: { chartData: any }) {
         paddingAngle={0}
         lineWidth={30}
         segmentsTabIndex={1}
-        label={(labelProps) => labelProps.dataEntry.labelPersent.toFixed(2) + '%'}
+        label={(labelProps) => {
+          const labelPersent = labelProps.dataEntry.labelPersent
+          const shownPersent = labelPersent
+            ? labelPersent.toFixed(2) < 1
+              ? '< 1%'
+              : `${labelPersent.toFixed(2)}%`
+            : ''
+          return shownPersent
+        }}
         labelPosition={100 - 30 / 2}
         labelStyle={() => ({
           fontSize: '6px',
