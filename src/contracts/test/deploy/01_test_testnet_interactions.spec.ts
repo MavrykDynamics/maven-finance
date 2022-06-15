@@ -2026,7 +2026,7 @@ describe("Testnet interactions helper", async () => {
     //     it('Admin updates min quorum mvk total', async () => {
     //         try{
     //             // Operation
-    //             const operation = await governanceInstance.methods.updateConfig(1, "configMinQuorumMvkTotal").send();
+    //             const operation = await governanceInstance.methods.updateConfig(1, "configminQuorumStakedMvkTotal").send();
     //             await operation.confirmation();
     //         } catch(e){
     //             console.dir(e, {depth: 5})
