@@ -40,6 +40,8 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     const fetchedTheasuryData = await Promise.all(getTreasuryCallbacks.map((fn) => fn()))
 
     // Map every treasury to combine treasury name, and divide balance by constant
+    console.log('fetchedTheasuryData', fetchedTheasuryData)
+
     const BALANCE_DIVIDER = Math.pow(10, 9)
     const treasuryStorage = convertedStorage.treasuryAddresses.map(
       (treasuryData: Record<string, unknown>, idx: number) => {
@@ -55,6 +57,16 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
 
         return {
           ...treasuryData,
+
+          name:
+            treasuryData.name ||
+            // @ts-ignore
+            `Treasury ${treasuryData.address.toString().slice(0, 7)}...${treasuryData.address.slice(
+              // @ts-ignore
+              treasuryData.address.length - 4,
+              // @ts-ignore
+              treasuryData.address.length,
+            )}`,
           balances: tresuryTokensWithValidBalances,
         }
       },
