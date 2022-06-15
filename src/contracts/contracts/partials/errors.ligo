@@ -931,7 +931,6 @@
 // ------------------------------------------------------------------------------
 
 [@inline] const error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                                           = 651n;
-[@inline] const error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 652n;
 
 // CONTRACT SPECIFIC ERRORS
 [@inline] const error_ONLY_INITIATOR_CAN_DROP_ACTION                                                                    = 653n;

@@ -2282,7 +2282,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configminQuorumStakedMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
 //                     await updateConfigOperation.confirmation();
@@ -2424,7 +2424,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configminQuorumStakedMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
 //                     await updateConfigOperation.confirmation();
@@ -2724,7 +2724,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configminQuorumStakedMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumStakedMvkTotal").send();
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
 //                     await updateConfigOperation.confirmation();
