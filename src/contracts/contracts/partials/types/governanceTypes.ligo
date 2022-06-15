@@ -90,10 +90,10 @@ type proposalRecordType is [@layout:comb] record [
     minProposalRoundVotePercentage    : nat;          // min vote percentage of total MVK supply required to pass proposal round
     minProposalRoundVotesRequired     : nat;          // min staked MVK votes required for proposal round to pass
   
-    upvoteCount                       : nat;                     // voting round: upvotes count - number of satellites
-    upvoteMvkTotal                    : nat;                     // voting round: upvotes MVK total
-    downvoteCount                     : nat;                     // voting round: downvotes count - number of satellites
-    downvoteMvkTotal                  : nat;                     // voting round: downvotes MVK total
+    yayVoteCount                      : nat;                     // voting round: yay count - number of satellites
+    yayVoteMvkTotal                   : nat;                     // voting round: yay MVK total
+    nayVoteCount                      : nat;                     // voting round: nay count - number of satellites
+    nayVoteMvkTotal                   : nat;                     // voting round: nay MVK total
     passCount                         : nat;                     // voting round: pass count - number of satellites
     passMvkTotal                      : nat;                     // voting round: pass MVK total
     voters                            : votersMapType;           // voting round ledger
