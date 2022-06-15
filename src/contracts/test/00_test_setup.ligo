@@ -93,7 +93,7 @@ const storages = {
             minProposalRoundVotesRequired   = 10000n;
 
             minQuorumPercentage         = 1000n;
-            minQuorumMvkTotal           = 10000n;
+            minQuorumStakedMvkTotal     = 10000n;
             
             votingPowerRatio            = 10000n;
             proposalSubmissionFee       = 10000000n;

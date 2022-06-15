@@ -60,9 +60,9 @@ type financialRequestRecordType is [@layout:comb] record [
     voters                  : financialRequestVotersMapType; 
     keyHash                 : option(key_hash);
 
-    yayVoteTotal            : nat;
-    nayVoteTotal            : nat;
-    passVoteTotal           : nat;
+    yayVoteStakedMvkTotal   : nat;
+    nayVoteStakedMvkTotal   : nat;
+    passVoteStakedMvkTotal  : nat;
 
     snapshotStakedMvkTotalSupply       : nat;
     stakedMvkPercentageForApproval     : nat; 

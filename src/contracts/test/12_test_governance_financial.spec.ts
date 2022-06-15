@@ -495,8 +495,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -527,8 +527,8 @@
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -734,8 +734,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal.toNumber(),               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal.toNumber(),            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval.toNumber(), 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -767,8 +767,8 @@
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
     
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -1229,8 +1229,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -1259,8 +1259,8 @@
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -1377,8 +1377,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -1651,8 +1651,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -1683,8 +1683,8 @@
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -1782,8 +1782,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -1806,8 +1806,8 @@
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 var updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 var updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal, bobStakeAmount)
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal, 0)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal, bobStakeAmount)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, 0)
 
 //                 // change vote and nay financial request
 //                 const bobDisyayFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "nay").send();
@@ -1816,8 +1816,8 @@
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal, 0)
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal, bobStakeAmount)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal, 0)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, bobStakeAmount)
 
 //                 // change vote and nay financial request again
 //                 const bobDisyayFinancialRequestOperationAgain = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "nay").send();
@@ -1826,8 +1826,8 @@
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal, 0)
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal, bobStakeAmount)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal, 0)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, bobStakeAmount)
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
@@ -1921,8 +1921,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -2107,8 +2107,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
                 
@@ -2140,8 +2140,8 @@
 //                 const councilMockFa12Ledger                            = await mockFa12TokenStorage.ledger.get(councilContractAddress);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -2245,8 +2245,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
                 
@@ -2278,8 +2278,8 @@
 //                 const councilMockFa2Ledger                             = await mockFa2TokenStorage.ledger.get(councilAddress.address);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -2385,8 +2385,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
                 
@@ -2416,8 +2416,8 @@
 //                 const councilTezBalance                                = await utils.tezos.tz.getBalance(councilContractAddress);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -2515,8 +2515,8 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.yayVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.nayVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -2547,8 +2547,8 @@
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
