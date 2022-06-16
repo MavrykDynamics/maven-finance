@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
 // view
 import { TreasuryChartType, TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
@@ -19,83 +19,89 @@ type Props = {
 export default function TreasuryView({ treasury, isGlobal = false }: Props) {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
 
-  const reducedBalance = Number(
-    (
-      treasury.balances.reduce((acc, treasuryBalanceObj) => {
-        acc += treasuryBalanceObj.balance
-        return acc
-      }, 0) * TREASURY_ASSSET_BALANCE_DIVIDER
-    ).toFixed(3),
+  const reducedBalance = useMemo(
+    () =>
+      Number(
+        (
+          treasury.balances.reduce((acc, treasuryBalanceObj) => {
+            acc += treasuryBalanceObj.balance
+            return acc
+          }, 0) * TREASURY_ASSSET_BALANCE_DIVIDER
+        ).toFixed(3),
+      ),
+    [treasury.balances],
   )
 
-  // need this flag to properly calculate segment value and highlight segment
-  let groupedSectorsValue = 0
-  let groupedSectorsColor = null
+  const chartData = useMemo(() => {
+    // need this flag to properly calculate segment value and highlight segment
+    let groupedSectorsValue = 0
+    let groupedSectorsColor = null
 
-  const chartData = treasury.balances.length
-    ? treasury.balances.reduce<TreasuryChartType>((acc, item, idx) => {
-        const tokenPersent = calcPersent(item.balance, reducedBalance)
+    return treasury.balances.length
+      ? treasury.balances.reduce<TreasuryChartType>((acc, item, idx) => {
+          const tokenPersent = calcPersent(item.balance, reducedBalance)
 
-        if (tokenPersent < 10) {
-          const smallValuesAccIdx = acc.findIndex((item) => item.groupedSmall)
-          const smallValuesAccObj = acc?.[smallValuesAccIdx]
+          if (tokenPersent < 10) {
+            const smallValuesAccIdx = acc.findIndex((item) => item.groupedSmall)
+            const smallValuesAccObj = acc?.[smallValuesAccIdx]
 
-          // calculating hover effect on segment
-          const isHoveredPathAsset =
-            hoveredPath &&
-            treasury.balances.find(
-              (item) =>
-                hoveredPath === item.symbol &&
-                calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance) < 10,
-            )
+            // calculating hover effect on segment
+            const isHoveredPathAsset =
+              hoveredPath &&
+              treasury.balances.find(
+                (item) =>
+                  hoveredPath === item.symbol &&
+                  calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance) < 10,
+              )
 
-          // if we don't have grouped assets object, create it
-          if (!smallValuesAccObj) {
-            groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
-            groupedSectorsColor = getAssetColor(idx)
-            acc.push({
-              title: item.symbol,
-              value: isHoveredPathAsset
-                ? (reducedBalance / 100) * 20
-                : groupedSectorsValue + (reducedBalance / 100) * 1.5,
-              color: groupedSectorsColor,
-              segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-              labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
-              groupedSmall: true,
-            })
+            // if we don't have grouped assets object, create it
+            if (!smallValuesAccObj) {
+              groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
+              groupedSectorsColor = getAssetColor(idx)
+              acc.push({
+                title: item.symbol,
+                value: isHoveredPathAsset
+                  ? (reducedBalance / 100) * 20
+                  : groupedSectorsValue + (reducedBalance / 100) * 1.5,
+                color: groupedSectorsColor,
+                segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+                labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
+                groupedSmall: true,
+              })
 
-            return acc
-          } else {
-            // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
-            groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
+              return acc
+            } else {
+              // if we have grouped assets object and we have one more asset < 10%, just update it's title and balance in the acc
+              groupedSectorsValue += item.balance * TREASURY_ASSSET_BALANCE_DIVIDER
 
-            const newSmallValuesObj = {
-              ...smallValuesAccObj,
-              title: `${smallValuesAccObj.title}, ${item.symbol}`,
-              value: isHoveredPathAsset
-                ? (reducedBalance / 100) * 20
-                : groupedSectorsValue + (reducedBalance / 100) * 1.5,
-              labelPersent: calcPersent(groupedSectorsValue, reducedBalance),
-              segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+              const newSmallValuesObj = {
+                ...smallValuesAccObj,
+                title: `${smallValuesAccObj.title}, ${item.symbol}`,
+                value: isHoveredPathAsset
+                  ? (reducedBalance / 100) * 20
+                  : groupedSectorsValue + (reducedBalance / 100) * 1.5,
+                labelPersent: calcPersent(groupedSectorsValue, reducedBalance),
+                segmentStroke: isHoveredPathAsset ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+              }
+
+              acc.splice(smallValuesAccIdx, 1, newSmallValuesObj)
+              return acc
             }
-
-            acc.splice(smallValuesAccIdx, 1, newSmallValuesObj)
-            return acc
           }
-        }
 
-        // if asset is > 10%
-        acc.push({
-          title: item.symbol,
-          value: item.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
-          color: getAssetColor(idx),
-          segmentStroke: hoveredPath === item.symbol ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
-          labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
-          groupedSmall: false,
-        })
-        return acc
-      }, [])
-    : [{ title: '', value: 1, color: '#ccc' }]
+          // if asset is > 10%
+          acc.push({
+            title: item.symbol,
+            value: item.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
+            color: getAssetColor(idx),
+            segmentStroke: hoveredPath === item.symbol ? HIGHLIGHTED_STROKE_WIDTH : DEFAULT_STROKE_WIDTH,
+            labelPersent: calcPersent(item.balance * TREASURY_ASSSET_BALANCE_DIVIDER, reducedBalance),
+            groupedSmall: false,
+          })
+          return acc
+        }, [])
+      : [{ title: '', value: 1, color: '#ccc' }]
+  }, [hoveredPath, reducedBalance, treasury.balances])
 
   return (
     <TreasuryViewStyle>
@@ -142,7 +148,7 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
       </div>
       <div>
         <div className="asset-lables scroll-block">
-          {treasury.balances.map((balanceValue, idx) => {
+          {treasury.balances.map((balanceValue) => {
             const balanceSum = Number((balanceValue.balance * TREASURY_ASSSET_BALANCE_DIVIDER).toFixed(5))
 
             return (
@@ -161,7 +167,7 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
                 key={balanceValue.contract}
               >
                 <p className="asset-lable-text">
-                  {balanceValue.symbol}{' '}
+                  {balanceValue.symbol}
                   <span className="asset-persent">{calcPersent(balanceSum, reducedBalance).toFixed(3)}%</span>
                 </p>
               </div>

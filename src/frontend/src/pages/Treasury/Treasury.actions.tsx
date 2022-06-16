@@ -6,13 +6,13 @@ import {
   TREASURY_STORAGE_QUERY_VARIABLE,
 } from 'gql/queries/getTreasuryStorage'
 import { getTreasuryDataByAddress } from 'utils/api'
-import { FetchedTreasuryType } from 'utils/TypesAndInterfaces/Treasury'
+import { FetchedTreasuryType, TreasuryGQLType } from 'utils/TypesAndInterfaces/Treasury'
 
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
 import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { TREASURYS_COLORS } from 'app/App.components/PieСhart/pieChart.const'
-import { TREASURY_ASSSET_BALANCE_DIVIDER } from './treasury.const'
+import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_BALANCE_DIVIDER } from './treasury.const'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const SET_TREASURY_STORAGE = 'SET_TREASURY_STORAGE'
@@ -40,37 +40,29 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     const fetchedTheasuryData = await Promise.all(getTreasuryCallbacks.map((fn) => fn()))
 
     // Map every treasury to combine treasury name, and divide balance by constant
-    console.log('fetchedTheasuryData', fetchedTheasuryData)
 
-    const BALANCE_DIVIDER = Math.pow(10, 9)
-    const treasuryStorage = convertedStorage.treasuryAddresses.map(
-      (treasuryData: Record<string, unknown>, idx: number) => {
-        const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
-          .map((token) => ({
-            ...token,
-            balance: Number(token.balance) / BALANCE_DIVIDER,
-          }))
-          .sort(
-            (asset1, asset2) =>
-              asset2.balance * TREASURY_ASSSET_BALANCE_DIVIDER - asset1.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
-          )
+    const treasuryStorage = convertedStorage.treasuryAddresses.map((treasuryData: TreasuryGQLType, idx: number) => {
+      const tresuryTokensWithValidBalances = fetchedTheasuryData[idx].balances
+        .map((token) => ({
+          ...token,
+          balance: Number(token.balance) / TREASURY_BALANCE_DIVIDER,
+        }))
+        .sort(
+          (asset1, asset2) =>
+            asset2.balance * TREASURY_ASSSET_BALANCE_DIVIDER - asset1.balance * TREASURY_ASSSET_BALANCE_DIVIDER,
+        )
 
-        return {
-          ...treasuryData,
-
-          name:
-            treasuryData.name ||
-            // @ts-ignore
-            `Treasury ${treasuryData.address.toString().slice(0, 7)}...${treasuryData.address.slice(
-              // @ts-ignore
-              treasuryData.address.length - 4,
-              // @ts-ignore
-              treasuryData.address.length,
-            )}`,
-          balances: tresuryTokensWithValidBalances,
-        }
-      },
-    )
+      return {
+        ...treasuryData,
+        name:
+          treasuryData.name ||
+          `Treasury ${treasuryData.address.slice(0, 7)}...${treasuryData.address.slice(
+            treasuryData.address.length - 4,
+            treasuryData.address.length,
+          )}`,
+        balances: tresuryTokensWithValidBalances,
+      }
+    })
 
     dispatch({
       type: SET_TREASURY_STORAGE,

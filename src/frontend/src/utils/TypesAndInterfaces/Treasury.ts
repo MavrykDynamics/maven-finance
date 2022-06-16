@@ -1,9 +1,10 @@
 
-
-export type TreasuryType =  {
+export type TreasuryGQLType =  {
   address: string,
   name: string
-} & FetchedTreasuryType
+}
+
+export type TreasuryType = TreasuryGQLType & FetchedTreasuryType
 
 export type FetchedTreasuryType = {
   balances: Array<TreasuryBalanceType>,
