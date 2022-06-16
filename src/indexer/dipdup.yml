@@ -59,7 +59,7 @@ contracts:
     address: KT1D3UC58yYa4qjXQQEtgVSvEywDDmAxTPm2
     typename: governance_satellite
   aggregator:
-    address: KT1NV3eHYYjNzHBS4hgZKDJ7FEmZMHQBCc2f
+    address: KT1KNfd4vGVpqvAMGJQinAg8rwsNp1bfEojn
     typename: aggregator
   aggregator_factory:
     address: KT1DKxSph1a33EDAFe6M9gAigi7LvbtrQbYY
