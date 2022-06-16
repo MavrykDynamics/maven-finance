@@ -8,6 +8,4 @@ async def on_aggregator_add_oracle(
     ctx: HandlerContext,
     add_oracle: Transaction[AddOracleParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

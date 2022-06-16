@@ -33,38 +33,45 @@ class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configNumberBlocksDelay: Dict[str, Any]
+    configDeviationRewardStakedMvk: Dict[str, Any]
 
 
 class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configPerThousandDevTrigger: Dict[str, Any]
+    configNumberBlocksDelay: Dict[str, Any]
 
 
 class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configPercentOracleThreshold: Dict[str, Any]
+    configPerThousandDevTrigger: Dict[str, Any]
 
 
 class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRequestRateDevDepositFee: Dict[str, Any]
+    configPercentOracleThreshold: Dict[str, Any]
 
 
 class UpdateConfigActionItem7(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRewardAmountStakedMvk: Dict[str, Any]
+    configRequestRateDevDepositFee: Dict[str, Any]
 
 
 class UpdateConfigActionItem8(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configRewardAmountStakedMvk: Dict[str, Any]
+
+
+class UpdateConfigActionItem9(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -86,4 +93,5 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem6,
         UpdateConfigActionItem7,
         UpdateConfigActionItem8,
+        UpdateConfigActionItem9,
     ]

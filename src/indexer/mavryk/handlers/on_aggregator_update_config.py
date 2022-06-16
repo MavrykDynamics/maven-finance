@@ -8,6 +8,4 @@ async def on_aggregator_update_config(
     ctx: HandlerContext,
     update_config: Transaction[UpdateConfigParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

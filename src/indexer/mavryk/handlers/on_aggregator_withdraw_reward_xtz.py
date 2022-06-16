@@ -8,6 +8,4 @@ async def on_aggregator_withdraw_reward_xtz(
     ctx: HandlerContext,
     withdraw_reward_xtz: Transaction[WithdrawRewardXtzParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

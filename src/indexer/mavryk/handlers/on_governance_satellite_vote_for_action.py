@@ -18,9 +18,9 @@ async def on_governance_satellite_vote_for_action(
     voter_storage                   = action_storage.voters[voter_address]
     total_voting_power              = float(voter_storage.totalVotingPower)
     timestamp                       = vote_for_action.data.timestamp
-    yay_vote_total                  = float(action_storage.yayVoteTotal)
-    nay_vote_total                  = float(action_storage.nayVoteTotal)
-    pass_vote_total                 = float(action_storage.passVoteTotal)
+    yay_vote_smvk_total             = float(action_storage.yayVoteStakedMvkTotal)
+    nay_vote_smvk_total             = float(action_storage.nayVoteStakedMvkTotal)
+    pass_vote_smvk_total            = float(action_storage.passVoteStakedMvkTotal)
     executed                        = action_storage.executed
     action_id                       = int(vote_for_action.parameter.actionId)
     vote                            = vote_for_action.parameter.vote
@@ -40,10 +40,10 @@ async def on_governance_satellite_vote_for_action(
         governance_satellite    = governance_satellite,
         id                      = action_id
     )
-    action_record.yay_vote_total    = yay_vote_total
-    action_record.nay_vote_total    = nay_vote_total
-    action_record.pass_vote_total   = pass_vote_total
-    action_record.executed          = executed
+    action_record.yay_vote_smvk_total   = yay_vote_smvk_total
+    action_record.nay_vote_smvk_total   = nay_vote_smvk_total
+    action_record.pass_vote_smvk_total  = pass_vote_smvk_total
+    action_record.executed              = executed
     await action_record.save()
 
     voter, _                = await models.MavrykUser.get_or_create(address = voter_address)

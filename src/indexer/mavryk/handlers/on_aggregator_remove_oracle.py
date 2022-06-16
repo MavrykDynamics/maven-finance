@@ -8,6 +8,4 @@ async def on_aggregator_remove_oracle(
     ctx: HandlerContext,
     remove_oracle: Transaction[RemoveOracleParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

@@ -18,6 +18,7 @@ class Config(BaseModel):
     perThousandDeviationTrigger: str
     percentOracleThreshold: str
     requestRateDeviationDepositFee: str
+    deviationRewardStakedMvk: str
     deviationRewardAmountXtz: str
     rewardAmountStakedMvk: str
     rewardAmountXtz: str

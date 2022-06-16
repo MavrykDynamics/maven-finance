@@ -8,6 +8,4 @@ async def on_aggregator_set_maintainer(
     ctx: HandlerContext,
     set_maintainer: Transaction[SetMaintainerParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

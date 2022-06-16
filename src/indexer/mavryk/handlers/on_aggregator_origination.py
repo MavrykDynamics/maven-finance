@@ -10,8 +10,6 @@ async def on_aggregator_origination(
     aggregator_origination: Origination[AggregatorStorage],
 ) -> None:
 
-    breakpoint()
-
     # Get operation info
     address                                     = aggregator_origination.data.originated_contract_address
     admin                                       = aggregator_origination.storage.admin
@@ -22,8 +20,8 @@ async def on_aggregator_origination(
     maintainer_address                          = aggregator_origination.storage.maintainer
     creation_timestamp                          = aggregator_origination.data.timestamp
     name                                        = aggregator_origination.storage.name
-    decimals                                    = int(aggregator_origination.storage.decimals)
-    number_blocks_delay                         = int(aggregator_origination.storage.numberBlocksDelay)
+    decimals                                    = int(aggregator_origination.storage.config.decimals)
+    number_blocks_delay                         = int(aggregator_origination.storage.config.numberBlocksDelay)
     deviation_trigger_ban_duration              = int(aggregator_origination.storage.config.deviationTriggerBanDuration)
     per_thousand_deviation_trigger              = int(aggregator_origination.storage.config.perThousandDeviationTrigger)
     percent_oracle_threshold                    = int(aggregator_origination.storage.config.percentOracleThreshold)
@@ -43,13 +41,12 @@ async def on_aggregator_origination(
     last_completed_round                        = int(aggregator_origination.storage.lastCompletedRoundPrice.round)
     last_completed_round_price                  = float(aggregator_origination.storage.lastCompletedRoundPrice.price)
     last_completed_round_pct_oracle_response    = int(aggregator_origination.storage.lastCompletedRoundPrice.percentOracleResponse)
-    last_completed_round_decimals               = int(aggregator_origination.storage.lastCompletedRoundPrice.decimals)
     last_completed_round_price_timestamp        = parser.parse(aggregator_origination.storage.lastCompletedRoundPrice.priceDateTime)
-    
+
     # Get or create governance record
     governance, _                   = await models.Governance.get_or_create(address = governance_address)
     await governance.save();
-    maintainer, _                   = await models.MavrykUser.get_or_create(address = maintener_address)
+    maintainer, _                   = await models.MavrykUser.get_or_create(address = maintainer_address)
     await maintainer.save()
     deviation_trigger_oracle, _     = await models.MavrykUser.get_or_create(address = deviation_trigger_oracle_address)
     await deviation_trigger_oracle.save()
@@ -86,7 +83,6 @@ async def on_aggregator_origination(
         last_completed_round                        = last_completed_round,
         last_completed_round_price                  = last_completed_round_price,
         last_completed_round_pct_oracle_response    = last_completed_round_pct_oracle_response,
-        last_completed_round_decimals               = last_completed_round_decimals,
         last_completed_round_price_timestamp        = last_completed_round_price_timestamp
     )
 

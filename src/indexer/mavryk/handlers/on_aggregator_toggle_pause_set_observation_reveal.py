@@ -8,6 +8,4 @@ async def on_aggregator_toggle_pause_set_observation_reveal(
     ctx: HandlerContext,
     toggle_pause_set_observation_reveal: Transaction[TogglePauseSetObservationRevealParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

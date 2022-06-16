@@ -61,14 +61,14 @@ class UpdateConfigActionItem7(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinQuorumMvkTotal: Dict[str, Any]
+    configMinQuorumPercentage: Dict[str, Any]
 
 
 class UpdateConfigActionItem8(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinQuorumPercentage: Dict[str, Any]
+    configMinQuorumStakedMvkTotal: Dict[str, Any]
 
 
 class UpdateConfigActionItem9(BaseModel):

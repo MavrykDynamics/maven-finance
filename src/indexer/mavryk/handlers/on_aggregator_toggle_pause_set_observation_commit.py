@@ -8,6 +8,4 @@ async def on_aggregator_toggle_pause_set_observation_commit(
     ctx: HandlerContext,
     toggle_pause_set_observation_commit: Transaction[TogglePauseSetObservationCommitParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

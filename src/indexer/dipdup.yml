@@ -23,52 +23,52 @@ advanced:
 
 contracts:
   mvk:
-    address: KT1QnHRoKBDEiCLx5hzPKbVThpSbEV8khZ19
+    address: KT1KFsPe5xskwsXGAyUJtaFnpywh2aQ3t5Um
     typename: mvk
   governance:
-    address: KT19w68Y8qHXxx1ko4nB8AsLJagZLHP7tyM7
+    address: KT1VQxcsocKw14JnnrbiKjmVS8oJ9iDapVt2
     typename: governance
   doorman:
-    address: KT1KqEFio8uFoiMGvMGAn36HxQNdRW6AW6kW
+    address: KT1NPgQZUGxmPp9r7D2ZvCGidmqrmWJBpdsu
     typename: doorman
   farm:
-    address: KT1VizuDxjSQTQujdy6ac1iU8tQpbcWappoP #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
+    address: KT19UGFYo2LjJtmbrhXxjgUi6CvgXehP1HkZ #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
     typename: farm
   farm_factory:
-    address: KT1XcbvCcw1Jb2VRbXGvbu4XnJHS54UUaNRq
+    address: KT1PTfqBTGrRaBbNSQcwngvA2aWSpyN2C4dW
     typename: farm_factory
   delegation:
-    address: KT1CVKzGDggNK9p2BTVjvWeckBBgcrrsfgac
+    address: KT1DYDMans97GVoFWmg31H5BzxikyEmhpxaW
     typename: delegation
   vesting:
-    address: KT1FM87QdMa8rjkmS3BvzpA4CmHDYnTYz4Yr
+    address: KT1Bbd73ccpFNUzt35UywziSakE7SqzfARiY
     typename: vesting
   emergency_governance:
-    address: KT1M9go2dPSFK12oRykvWM5HimFAA93iK3oY
+    address: KT1H12WLZ9EA8YnJcmPVtxuZN39oAzk6Mfkw
     typename: emergency_governance
   council:
-    address: KT1HpRCmzS8YT74pTR3RYs7hERe8ceQpTBkg
+    address: KT1HW8CHca2ehknnxFW8pzui47kReH1kMxbA
     typename: council
   break_glass:
-    address: KT1TE3sWzbxr44J6LvWDcmkhKJS7w64BQZhi
+    address: KT1VB2iHBXriF8NbaKAnN5j321yhsBEQhPay
     typename: break_glass
   governance_financial:
-    address: KT1ViAF1Bn31ramAkaya6kL5FMJFcUnkDdC7
+    address: KT1GT16zSJN2t2ft9tsiJ9uA49Ngvktu3Yus
     typename: governance_financial
   governance_satellite:
-    address: KT1MtKywL7cpGXCp1pMPF7LTrL1YedqEhi3g
+    address: KT1D3UC58yYa4qjXQQEtgVSvEywDDmAxTPm2
     typename: governance_satellite
   aggregator:
-    address: KT1FQEQZ2KSN5hFm3nEECSibjGSENvHAMcps
+    address: KT1NV3eHYYjNzHBS4hgZKDJ7FEmZMHQBCc2f
     typename: aggregator
   aggregator_factory:
-    address: KT1WpSjKQ9Q1cTC4qeXNFq5akJEMsvMxzv9D
+    address: KT1DKxSph1a33EDAFe6M9gAigi7LvbtrQbYY
     typename: aggregator_factory
   treasury:
-    address: KT1FTw7B8TNfKFRE2aXnPD3qw9eAmSP5JGYz
+    address: KT1GG6rfr4XcHiGs8Ltc9m8kt4EV2qub9ARa
     typename: treasury
   treasury_factory:
-    address: KT1EJQdDwPdnh7rzV7Pm2RKjPZi35MSu6dzr
+    address: KT1ND2MF36nQnpAK6SjwwRHa4XbLWgLsT91S
     typename: treasury_factory
 
 datasources:
@@ -209,6 +209,104 @@ templates:
         pattern:
           - destination: <treasury_contract>
             entrypoint: transfer
+  # Template for aggregator factory
+  aggregator_template:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - <aggregator_contract>
+    handlers:
+      - callback: on_aggregator_set_admin
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: setAdmin
+      - callback: on_aggregator_set_governance
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: setGovernance
+      - callback: on_aggregator_set_maintainer
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: setMaintainer
+      - callback: on_aggregator_update_config
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: updateConfig
+      - callback: on_aggregator_update_whitelist_contracts
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: updateWhitelistContracts
+      - callback: on_aggregator_update_general_contracts
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: updateGeneralContracts
+      - callback: on_aggregator_add_oracle
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: addOracle
+      - callback: on_aggregator_remove_oracle
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: removeOracle
+      - callback: on_aggregator_pause_all
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: pauseAll
+      - callback: on_aggregator_unpause_all
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: unpauseAll
+      - callback: on_aggregator_toggle_pause_request_rate_update
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: togglePauseRequestRateUpdate
+      - callback: on_aggregator_toggle_pause_request_rate_update_dev
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: togglePauseRequestRateUpdateDev
+      - callback: on_aggregator_toggle_pause_set_observation_commit
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: togglePauseSetObservationCommit
+      - callback: on_aggregator_toggle_pause_set_observation_reveal
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: togglePauseSetObservationReveal
+      - callback: on_aggregator_toggle_pause_withdraw_reward_xtz
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: togglePauseWithdrawRewardXtz
+      - callback: on_aggregator_toggle_pause_withdraw_reward_smvk
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: togglePauseWithdrawRewardSMvk
+      - callback: on_aggregator_request_rate_update
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: requestRateUpdate
+      - callback: on_aggregator_request_rate_update_deviation
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: requestRateUpdateDeviation
+      - callback: on_aggregator_request_set_observation_commit
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: setObservationCommit
+      - callback: on_aggregator_request_set_observation_reveal
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: setObservationReveal
+      - callback: on_aggregator_withdraw_reward_xtz
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: withdrawRewardXtz
+      - callback: on_aggregator_withdraw_reward_staked_mvk
+        pattern:
+          - destination: <aggregator_contract>
+            entrypoint: withdrawRewardStakedMvk
 
 indexes:
   # MVK Token contract indexes
@@ -1262,6 +1360,9 @@ indexes:
         pattern:
           - destination: aggregator_factory
             entrypoint: createAggregator
+          - source: aggregator_factory
+            type: origination
+            similar_to: aggregator
       - callback: on_aggregator_factory_track_aggregator
         pattern:
           - destination: aggregator_factory
