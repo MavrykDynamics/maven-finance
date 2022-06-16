@@ -10,6 +10,7 @@ module.exports = {
     eve: {
         pkh: "tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1",
         sk: "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH"
+    },
     mallory: {
         pkh: "tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n",
         sk: "edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB",
