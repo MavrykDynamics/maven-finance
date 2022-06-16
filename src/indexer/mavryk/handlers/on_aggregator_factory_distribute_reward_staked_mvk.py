@@ -8,4 +8,6 @@ async def on_aggregator_factory_distribute_reward_staked_mvk(
     ctx: HandlerContext,
     distribute_reward_staked_mvk: Transaction[DistributeRewardStakedMvkParameter, AggregatorFactoryStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

@@ -22,14 +22,20 @@ async def on_doorman_farm_claim(
     accumulated_fees_per_share      = float(farm_claim.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _ = await models.MavrykUser.get_or_create(
+    user, _             = await models.MavrykUser.get_or_create(
         address=sender_address
     )
-    user.doorman                        = doorman
-    amount                              = smvk_balance - user.smvk_balance
-    user.smvk_balance                   = smvk_balance
-    user.participation_fees_per_share   = participation_fees_per_share
+    amount                          = smvk_balance - user.smvk_balance
+    user.smvk_balance               = smvk_balance
     await user.save()
+    
+    stake_account, _    = await models.DoormanStakeAccount.get_or_create(
+        user    = user,
+        doorman = doorman
+    )
+    stake_account.participation_fees_per_share  = participation_fees_per_share
+    stake_account.smvk_balance                  = smvk_balance
+    await stake_account.save()
 
     # Calculate the MLI
     # TODO: IS IT OK?

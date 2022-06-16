@@ -8,6 +8,4 @@ async def on_aggregator_request_set_observation_reveal(
     ctx: HandlerContext,
     set_observation_reveal: Transaction[SetObservationRevealParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

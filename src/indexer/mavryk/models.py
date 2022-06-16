@@ -239,7 +239,7 @@ class Governance(Model):
     proposal_round_vote_percentage  = fields.SmallIntField(default=0)
     proposal_round_vote_required    = fields.BigIntField(default=0)
     quorum_percentage               = fields.SmallIntField(default=0)
-    quorum_mvk_total                = fields.BigIntField(default=0)
+    quorum_smvk_total               = fields.BigIntField(default=0)
     voting_power_ratio              = fields.SmallIntField(default=0)
     proposal_submission_fee_mutez   = fields.BigIntField(default=0)
     max_proposal_per_delegate       = fields.SmallIntField(default=0)
@@ -299,6 +299,8 @@ class Aggregator(Model):
     aggregator_factory              = fields.ForeignKeyField('models.AggregatorFactory', related_name='aggregators', null=True)
     deviation_trigger_oracle        = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_oracles', index=True, null=True)
     maintainer                      = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_maintainer', index=True, null=True)
+    token_0_symbol                  = fields.CharField(max_length=32, default='')
+    token_1_symbol                  = fields.CharField(max_length=32, default='')
     deviation_trigger_amount        = fields.BigIntField(default=0)
     deviation_trigger_round_price   = fields.BigIntField(default=0)
     creation_timestamp              = fields.DatetimeField(null=True)
@@ -324,7 +326,6 @@ class Aggregator(Model):
     last_completed_round            = fields.BigIntField(default=0)
     last_completed_round_price      = fields.BigIntField(default=0)
     last_completed_round_pct_oracle_response= fields.SmallIntField(default=0)
-    last_completed_round_decimals   = fields.SmallIntField(default=0)
     last_completed_round_price_timestamp= fields.DatetimeField(null=True)
 
     class Meta:
@@ -390,10 +391,8 @@ class CFMM(Model):
 
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    mvk_balance                     = fields.BigIntField(default=0)
-    smvk_balance                    = fields.BigIntField(default=0)
-    participation_fees_per_share    = fields.FloatField(default=0)
-    doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
+    mvk_balance                     = fields.FloatField(default=0)
+    smvk_balance                    = fields.FloatField(default=0)
 
     class Meta:
         table = 'mavryk_user'
@@ -432,6 +431,16 @@ class MavrykUserOperator(Model):
 
     class Meta:
         table = 'mavryk_user_operator'
+
+class DoormanStakeAccount(Model):
+    id                              = fields.BigIntField(pk=True, default=0)
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='doorman_stake_account', index=True)
+    doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
+    participation_fees_per_share    = fields.FloatField(default=0)
+    smvk_balance                    = fields.FloatField(default=0)
+
+    class Meta:
+        table = 'doorman_stake_account'
 
 class FarmAccount(Model):
     id                              = fields.BigIntField(pk=True, default=0)
@@ -635,20 +644,20 @@ class GovernanceProposalRecord(Model):
     locked                          = fields.BooleanField(default=False)
     payment_processed               = fields.BooleanField(default=False)
     success_reward                  = fields.FloatField(default=0)
-    pass_vote_count                 = fields.BigIntField(default=0)
-    pass_vote_mvk_total             = fields.FloatField(default=0)
+    proposal_vote_count             = fields.BigIntField(default=0)
+    proposal_vote_smvk_total        = fields.FloatField(default=0)
     min_proposal_round_vote_pct     = fields.BigIntField(default=0)
     min_proposal_round_vote_req     = fields.BigIntField(default=0)
-    up_vote_count                   = fields.BigIntField(default=0)
-    up_vote_mvk_total               = fields.FloatField(default=0)
-    down_vote_count                 = fields.BigIntField(default=0)
-    down_vote_mvk_total             = fields.FloatField(default=0)
-    abstain_vote_count              = fields.BigIntField(default=0)
-    abstain_mvk_total               = fields.FloatField(default=0)
+    yay_vote_count                  = fields.BigIntField(default=0)
+    yay_vote_smvk_total             = fields.FloatField(default=0)
+    nay_vote_count                  = fields.BigIntField(default=0)
+    nay_vote_smvk_total             = fields.FloatField(default=0)
+    pass_vote_count                 = fields.BigIntField(default=0)
+    pass_vote_smvk_total            = fields.FloatField(default=0)
     min_quorum_percentage           = fields.BigIntField(default=0)
-    min_quorum_mvk_total            = fields.FloatField(default=0)
+    min_quorum_smvk_total           = fields.FloatField(default=0)
     quorum_count                    = fields.BigIntField(default=0)
-    quorum_mvk_total                = fields.FloatField(default=0)
+    quorum_smvk_total               = fields.FloatField(default=0)
     start_datetime                  = fields.DatetimeField()
     cycle                           = fields.BigIntField(default=0)
     current_cycle_start_level       = fields.BigIntField(default=0)
@@ -721,8 +730,9 @@ class GovernanceFinancialRequestRecord(Model):
     token_type                      = fields.CharField(max_length=12)
     request_purpose                 = fields.CharField(max_length=255)
     key_hash                        = fields.CharField(max_length=255, null=True)
-    approve_vote_total              = fields.FloatField(default=0.0)
-    disapprove_vote_total           = fields.FloatField(default=0.0)
+    yay_vote_smvk_total             = fields.FloatField(default=0.0)
+    nay_vote_smvk_total             = fields.FloatField(default=0.0)
+    pass_vote_smvk_total            = fields.FloatField(default=0.0)
     smvk_percentage_for_approval    = fields.SmallIntField(default=0)
     snapshot_smvk_total_supply      = fields.FloatField(default=0.0)
     smvk_required_for_approval      = fields.FloatField(default=0.0)
@@ -762,9 +772,9 @@ class GovernanceSatelliteActionRecord(Model):
     status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
     executed                        = fields.BooleanField()
     governance_purpose              = fields.CharField(max_length=255)
-    yay_vote_total                  = fields.FloatField(default=0.0)
-    nay_vote_total                  = fields.FloatField(default=0.0)
-    pass_vote_total                 = fields.FloatField(default=0.0)
+    yay_vote_smvk_total             = fields.FloatField(default=0.0)
+    nay_vote_smvk_total             = fields.FloatField(default=0.0)
+    pass_vote_smvk_total            = fields.FloatField(default=0.0)
     snapshot_smvk_total_supply      = fields.FloatField(default=0.0)
     smvk_percentage_for_approval    = fields.SmallIntField(default=0)
     smvk_required_for_approval      = fields.FloatField(default=0.0)

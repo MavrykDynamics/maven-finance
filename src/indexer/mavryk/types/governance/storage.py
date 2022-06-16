@@ -17,7 +17,7 @@ class Config(BaseModel):
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
     minQuorumPercentage: str
-    minQuorumMvkTotal: str
+    minQuorumStakedMvkTotal: str
     votingPowerRatio: str
     proposalSubmissionFeeMutez: str
     minimumStakeReqPercentage: str
@@ -87,7 +87,7 @@ class PaymentMetadatum(BaseModel):
     transaction: Transaction
 
 
-class PassVotersMap(BaseModel):
+class ProposalVotersMap(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -99,14 +99,14 @@ class OrItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    abstain: Dict[str, Any]
+    nay: Dict[str, Any]
 
 
 class OrItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    nay: Dict[str, Any]
+    pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
 class OrItem2(BaseModel):
@@ -142,22 +142,22 @@ class ProposalLedger(BaseModel):
     executed: bool
     paymentProcessed: bool
     locked: bool
-    passVoteCount: str
-    passVoteMvkTotal: str
-    passVotersMap: Dict[str, PassVotersMap]
+    proposalVoteCount: str
+    proposalVoteStakedMvkTotal: str
+    proposalVotersMap: Dict[str, ProposalVotersMap]
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
-    upvoteCount: str
-    upvoteMvkTotal: str
-    downvoteCount: str
-    downvoteMvkTotal: str
-    abstainCount: str
-    abstainMvkTotal: str
+    yayVoteCount: str
+    yayVoteStakedMvkTotal: str
+    nayVoteCount: str
+    nayVoteStakedMvkTotal: str
+    passVoteCount: str
+    passVoteStakedMvkTotal: str
     voters: Dict[str, Voters]
     minQuorumPercentage: str
-    minQuorumMvkTotal: str
+    minQuorumStakedMvkTotal: str
     quorumCount: str
-    quorumMvkTotal: str
+    quorumStakedMvkTotal: str
     startDateTime: str
     cycle: str
     currentCycleStartLevel: str

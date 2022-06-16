@@ -8,4 +8,6 @@ async def on_aggregator_factory_distribute_reward_xtz(
     ctx: HandlerContext,
     distribute_reward_xtz: Transaction[DistributeRewardXtzParameter, AggregatorFactoryStorage],
 ) -> None:
-    ...
+
+    # Get operation info
+    breakpoint()

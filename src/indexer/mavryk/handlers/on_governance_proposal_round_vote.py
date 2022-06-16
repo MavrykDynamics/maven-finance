@@ -20,11 +20,11 @@ async def on_governance_proposal_round_vote(
     
     # TODO: Remove this quick fix for future contract version (related to opHash: op4JYAsmrrHEvhzTeLTCV93gNEp8feBLoJsmZZviSvQfj69TFX3)
     voting_power            = 0
-    if voter_address in storage_proposal.passVotersMap:
-        storage_voter           = storage_proposal.passVotersMap[voter_address]
+    if voter_address in storage_proposal.proposalVotersMap:
+        storage_voter           = storage_proposal.proposalVotersMap[voter_address]
         voting_power            = float(storage_voter.nat)
-    vote_count              = int(storage_proposal.passVoteCount)
-    vote_mvk_total          = float(storage_proposal.passVoteMvkTotal)
+    vote_count              = int(storage_proposal.proposalVoteCount)
+    vote_smvk_total         = float(storage_proposal.proposalVoteStakedMvkTotal)
 
     # Create and update records
     governance  = await models.Governance.get(address   = governance_address)
@@ -36,8 +36,8 @@ async def on_governance_proposal_round_vote(
         id          = proposal_id,
         governance  = governance
     )
-    proposal.pass_vote_count        = vote_count
-    proposal.pass_vote_mvk_total    = vote_mvk_total
+    proposal.proposal_vote_count        = vote_count
+    proposal.proposal_vote_smvk_total   = vote_smvk_total
     await proposal.save()
 
     # Check if user already voted and delete the vote
@@ -50,13 +50,13 @@ async def on_governance_proposal_round_vote(
         # Get past voted proposal and remove vote from it
         past_proposal_record    = await proposal_vote.governance_proposal_record
         storage_past_proposal   = proposal_round_vote.storage.proposalLedger[str(past_proposal_record.id)]
-        past_vote_count         = int(storage_past_proposal.passVoteCount)
-        past_vote_mvk_total     = float(storage_past_proposal.passVoteMvkTotal)
+        past_vote_count         = int(storage_past_proposal.proposalVoteCount)
+        past_vote_smvk_total    = float(storage_past_proposal.proposalVoteStakedMvkTotal)
         past_proposal           = await models.GovernanceProposalRecord.get(
             id  = past_proposal_record.id
         )
-        past_proposal.pass_vote_count       = past_vote_count
-        past_proposal.pass_vote_mvk_total   = past_vote_mvk_total
+        past_proposal.pass_vote_count           = past_vote_count
+        past_proposal.proposal_vote_smvk_total  = past_vote_smvk_total
         await past_proposal.save()
         await proposal_vote.delete()
     

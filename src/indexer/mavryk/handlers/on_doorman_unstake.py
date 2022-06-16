@@ -28,14 +28,20 @@ async def on_doorman_unstake(
     accumulated_fees_per_share              = float(unstake.storage.accumulatedFeesPerShare)
 
     # Get or create the interacting user
-    user, _ = await models.MavrykUser.get_or_create(
+    user, _             = await models.MavrykUser.get_or_create(
         address=initiator_address
     )
-    user.doorman                            = doorman
     user.mvk_balance                        = mvk_balance
     user.smvk_balance                       = smvk_balance
-    user.participation_fees_per_share       = participation_fees_per_share
     await user.save()
+    
+    stake_account, _    = await models.DoormanStakeAccount.get_or_create(
+        user    = user,
+        doorman = doorman
+    )
+    stake_account.participation_fees_per_share  = participation_fees_per_share
+    stake_account.smvk_balance                  = smvk_balance
+    await stake_account.save()
 
     # Calculate the new MLI
     # previous_mvk_total_supply   = float(transfer.storage.totalSupply) - final_amount

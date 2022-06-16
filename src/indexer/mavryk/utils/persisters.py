@@ -220,8 +220,9 @@ async def persist_financial_request(action):
             token_type                      = requestRecordStorage.tokenType
             key_hash                        = requestRecordStorage.keyHash
             request_purpose                 = requestRecordStorage.requestPurpose
-            approve_vote_total              = float(requestRecordStorage.approveVoteTotal)
-            disapprove_vote_total           = float(requestRecordStorage.disapproveVoteTotal)
+            yay_vote_smvk_total             = float(requestRecordStorage.yayVoteStakedMvkTotal)
+            nay_vote_smvk_total             = float(requestRecordStorage.nayVoteStakedMvkTotal)
+            pass_vote_smvk_total            = float(requestRecordStorage.passVoteStakedMvkTotal)
             smvk_percentage_for_approval    = int(requestRecordStorage.stakedMvkPercentageForApproval)
             snapshot_smvk_total_supply      = float(requestRecordStorage.snapshotStakedMvkTotalSupply)
             smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
@@ -252,8 +253,9 @@ async def persist_financial_request(action):
                 token_name                      = token_name,
                 token_id                        = token_id,
                 request_purpose                 = request_purpose,
-                approve_vote_total              = approve_vote_total,
-                disapprove_vote_total           = disapprove_vote_total,
+                yay_vote_smvk_total             = yay_vote_smvk_total,
+                nay_vote_smvk_total             = nay_vote_smvk_total,
+                pass_vote_smvk_total            = pass_vote_smvk_total,
                 smvk_percentage_for_approval    = smvk_percentage_for_approval,
                 snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_required_for_approval      = smvk_required_for_approval,
@@ -304,9 +306,9 @@ async def persist_governance_satellite_action(action):
             if not status:
                 statusType  = models.GovernanceRecordStatus.DROPPED
             executed                        = action_record_storage.executed
-            yay_vote_total                  = float(action_record_storage.yayVoteTotal)
-            nay_vote_total                  = float(action_record_storage.nayVoteTotal)
-            pass_vote_total                 = float(action_record_storage.passVoteTotal)
+            yay_vote_smvk_total             = float(action_record_storage.yayVoteStakedMvkTotal)
+            nay_vote_smvk_total             = float(action_record_storage.nayVoteStakedMvkTotal)
+            pass_vote_smvk_total            = float(action_record_storage.passVoteStakedMvkTotal)
             snapshot_smvk_total_supply      = float(action_record_storage.snapshotStakedMvkTotalSupply)
             smvk_pct_for_approval           = int(action_record_storage.stakedMvkPercentageForApproval)
             smvk_required_for_approval      = float(action_record_storage.stakedMvkRequiredForApproval)
@@ -327,9 +329,9 @@ async def persist_governance_satellite_action(action):
                 status                          = statusType,
                 executed                        = executed,
                 governance_purpose              = action_purpose,
-                yay_vote_total                  = yay_vote_total,
-                nay_vote_total                  = nay_vote_total,
-                pass_vote_total                 = pass_vote_total,
+                yay_vote_smvk_total             = yay_vote_smvk_total,
+                nay_vote_smvk_total             = nay_vote_smvk_total,
+                pass_vote_smvk_total            = pass_vote_smvk_total,
                 snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_percentage_for_approval    = smvk_pct_for_approval,
                 smvk_required_for_approval      = smvk_required_for_approval,
