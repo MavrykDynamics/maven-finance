@@ -17,10 +17,6 @@ type untrackAggregatorParamsType is [@layout:comb] record [
 
 
 // rewards type
-type distributeRewardStakedMvkType is [@layout:comb] record [
-    eligibleSatellites    : set(address);
-    totalStakedMvkReward  : nat;
-]
 type distributeRewardXtzType is [@layout:comb] record [
     recipient             : address;
     reward                : nat;
@@ -109,7 +105,7 @@ type aggregatorFactoryLambdaActionType is
 
     // Aggregator Lambdas
   | LambdaDistributeRewardXtz           of distributeRewardXtzType
-  | LambdaDistributeRewardStakedMvk     of distributeRewardStakedMvkType
+  | LambdaDistributeRewardStakedMvk     of distributeRewardTypes
 
 // ------------------------------------------------------------------------------
 // Storage
