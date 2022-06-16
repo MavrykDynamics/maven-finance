@@ -350,16 +350,14 @@ export const GovernanceView = ({
             </article>
           ) : null}
 
-          {rightSideContent.sourceCode ? (
-            <article>
-              <RightSideSubHeader>Source Code</RightSideSubHeader>
-              <RightSideSubContent>{rightSideContent.sourceCode}</RightSideSubContent>
-            </article>
-          ) : null}
+          <article>
+            <RightSideSubHeader>Source Code</RightSideSubHeader>
+            <RightSideSubContent>{rightSideContent.sourceCode || 'No link to source code given'}</RightSideSubContent>
+          </article>
 
-          {rightSideContent.proposalData?.length ? (
-            <article>
-              <RightSideSubHeader>Meta-Data</RightSideSubHeader>
+          <article>
+            <RightSideSubHeader>Meta-Data</RightSideSubHeader>
+            {rightSideContent.proposalData?.length ? (
               <ol className="proposal-list">
                 {rightSideContent.proposalData.map((item: ProposalDataType, i: number) => {
                   const unique = `proposalDataItem${item.id}`
@@ -387,12 +385,14 @@ export const GovernanceView = ({
                   )
                 })}
               </ol>
-            </article>
-          ) : null}
+            ) : (
+              <RightSideSubContent>No proposal meta-data given</RightSideSubContent>
+            )}
+          </article>
 
-          {rightSideContent.proposalPayments?.length ? (
-            <article className="payment-data">
-              <RightSideSubHeader>Payment Data</RightSideSubHeader>
+          <article className="payment-data">
+            <RightSideSubHeader>Payment Data</RightSideSubHeader>
+            {rightSideContent.proposalPayments?.length ? (
               <TableGridWrap>
                 <div className="table-wrap">
                   <table>
@@ -417,8 +417,10 @@ export const GovernanceView = ({
                   </table>
                 </div>
               </TableGridWrap>
-            </article>
-          ) : null}
+            ) : (
+              <RightSideSubContent>No payment data given</RightSideSubContent>
+            )}
+          </article>
 
           {rightSideContent.proposerId ? (
             <article>

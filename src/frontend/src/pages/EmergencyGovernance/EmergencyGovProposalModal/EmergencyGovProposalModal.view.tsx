@@ -7,7 +7,11 @@ import {
   EmergencyGovProposalModalContent,
   ModalFormContentContainer,
 } from './EmergencyGovProposalModal.style'
-import { FormTitleAndFeeContainer, FormTitleContainer } from '../../ProposalSubmission/ProposalSubmission.style'
+import {
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+} from '../../ProposalSubmission/ProposalSubmission.style'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
@@ -18,6 +22,7 @@ type EmergencyGovProposalModalViewProps = {
   submitEmergencyGovProposalCallback: (form: any) => void
   cancelCallback: () => void
   form: any
+  fee: number
   formInputStatus: any
   setForm: (form: any) => void
   handleOnBlur: (e: any, formField: string) => void
@@ -29,6 +34,7 @@ export const EmergencyGovProposalModalView = ({
   submitEmergencyGovProposalCallback,
   cancelCallback,
   form,
+  fee,
   formInputStatus,
   setForm,
   handleOnBlur,
@@ -46,10 +52,10 @@ export const EmergencyGovProposalModalView = ({
             </ModalClose>
             <ModalCardContent style={{ width: '750px' }}>
               <EmergencyGovProposalModalContent>
-                <h1>Emergency Governance Proposal</h1>
+                <h1>Trigger Emergency Governance Vote & Break Glass</h1>
                 <ModalFormContentContainer>
                   <FormTitleAndFeeContainer>
-                    <FormTitleContainer>
+                    <FormTitleContainer style={{ width: '510px' }}>
                       <label>1- Title</label>
                       <Input
                         type="text"
@@ -59,7 +65,7 @@ export const EmergencyGovProposalModalView = ({
                         inputStatus={formInputStatus.title}
                       />
                     </FormTitleContainer>
-                    <div>
+                    {/* <div>
                       <label>2- Enter MVK amount to trigger Break Glass</label>
                       <Input
                         type="number"
@@ -70,17 +76,21 @@ export const EmergencyGovProposalModalView = ({
                         onBlur={(e: any) => handleOnBlur(e, 'MVK_TRIGGER_AMOUNT')}
                         inputStatus={formInputStatus.amountMVKtoTriggerBreakGlass}
                       />
+                    </div> */}
+                    <div>
+                      <label>2 - Fee</label>
+                      <FormTitleEntry>{fee}XTZ</FormTitleEntry>
                     </div>
                   </FormTitleAndFeeContainer>
 
-                  <label>3- Enter your description</label>
+                  <label>3 - Enter your description</label>
                   <TextArea
                     value={form.description}
                     onChange={(e: any) => setForm({ ...form, description: e.target.value })}
                     onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
                     inputStatus={formInputStatus.description}
                   />
-                  <div className="upload-wrap">
+                  {/* <div className="upload-wrap">
                     <IPFSUploader
                       typeFile="image"
                       imageIpfsUrl={form.screenshots}
@@ -88,7 +98,7 @@ export const EmergencyGovProposalModalView = ({
                       title={'Add pdf of screenshots (if relevant)'}
                       listNumber={4}
                     />
-                  </div>
+                  </div> */}
                 </ModalFormContentContainer>
                 <EmergencyGovProposalModalButtons>
                   <Button
@@ -99,7 +109,7 @@ export const EmergencyGovProposalModalView = ({
                     onClick={cancelCallback}
                   />
                   <Button
-                    text="Proceed"
+                    text="Trigger Vote"
                     kind="actionPrimary"
                     icon="auction"
                     loading={loading}
@@ -113,15 +123,4 @@ export const EmergencyGovProposalModalView = ({
       )}
     </ModalStyled>
   )
-}
-
-EmergencyGovProposalModalView.propTypes = {
-  loading: PropTypes.bool,
-  showing: PropTypes.bool.isRequired,
-  cancelCallback: PropTypes.func.isRequired,
-  submitEmergencyGovProposalCallback: PropTypes.func.isRequired,
-}
-
-EmergencyGovProposalModalView.defaultProps = {
-  loading: false,
 }
