@@ -1,5 +1,5 @@
 import { GovernancePhase } from '../../reducers/governance'
-import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
+import { ProposalStatus, TokenStandardType, PaymentType } from '../../utils/TypesAndInterfaces/Governance'
 
 export const normalizeProposalStatus = (
   governancePhase: GovernancePhase,
@@ -57,4 +57,8 @@ export const normalizeProposalStatus = (
     }
   }
   return status
+}
+
+export const normalizeTokenStandart = (standatd: TokenStandardType, address: string, token_id: string): PaymentType => {
+  return standatd === 2 && address && token_id ? 'MVK' : 'XTZ'
 }

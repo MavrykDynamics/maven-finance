@@ -761,6 +761,8 @@ function convertGovernanceSatelliteSnapshotRecordsToInterface(
 }
 
 export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
+
+
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
@@ -790,6 +792,8 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     roundHighestVotedProposal: item.round_highest_voted_proposal,
     cycle: item.cycle,
     proposalData: item.proposal_data,
+    proposalPayments: item.proposal_payments,
+    governanceId: item.governance_id,
     details: item.details,
     invoiceTable: item.invoice_table,
   }

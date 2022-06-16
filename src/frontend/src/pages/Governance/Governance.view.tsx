@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // types
-import type { ProposalDataType } from '../../utils/TypesAndInterfaces/Governance'
+import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
 
 // actions
 import {
@@ -18,7 +18,7 @@ import {
 } from './Governance.actions'
 
 // helpers
-import { normalizeProposalStatus } from './Governance.helpers'
+import { normalizeProposalStatus, normalizeTokenStandart } from './Governance.helpers'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -398,12 +398,48 @@ export const GovernanceView = ({
             </article>
           ) : null}
 
+          {rightSideContent.proposalPayments?.length ? (
+            <article>
+              <RightSideSubHeader>Payment Data</RightSideSubHeader>
+              <table>
+                <tr>
+                  <th>Address</th>
+                  <th>Title</th>
+                  <th>Amount</th>
+                  <th>Payment Type (XTZ/MVK)</th>
+                </tr>
+                {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
+                  return (
+                    <tr key={item.id}>
+                      <td>
+                        <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
+                      </td>
+                      <td>{item.title}</td>
+                      <td>{item.token_amount}</td>
+                      <td>{normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)}</td>
+                    </tr>
+                  )
+                })}
+              </table>
+            </article>
+          ) : null}
+
           {rightSideContent.proposerId ? (
             <article>
               <RightSideSubHeader>Proposer</RightSideSubHeader>
               <RightSideSubContent>
                 <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
               </RightSideSubContent>
+            </article>
+          ) : null}
+
+          {rightSideContent.governanceId ? (
+            <article>
+              <h4>Governance Info</h4>
+              <div>
+                <p>Governance Contract</p>
+                <TzAddress tzAddress={rightSideContent.governanceId} hasIcon={false} isBold={true} />
+              </div>
             </article>
           ) : null}
 
