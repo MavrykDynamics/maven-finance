@@ -40,7 +40,7 @@ const metadata = MichelsonMap.fromLiteral({
   '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
   data: Buffer.from(
     JSON.stringify({
-      name: 'MAVRYK Council Contract',
+      name: 'MAVRYK Aggregator Contract',
       version: 'v1.0.0',
       authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
     }),
