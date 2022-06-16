@@ -773,6 +773,7 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     executed: item.executed,
     locked: item.locked,
     timelockProposal: item.timelock_proposal,
+    sourceCode: item.source_code,
     passVoteMvkTotal: item.pass_vote_mvk_total,
     upvoteMvkTotal: item.up_vote_mvk_total,
     downvoteMvkTotal: item.down_vote_count,

@@ -240,6 +240,8 @@ export const GovernanceView = ({
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
 
+  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
+
   return (
     <GovernanceStyled>
       {someVisible ? (
@@ -341,6 +343,13 @@ export const GovernanceView = ({
             <article>
               <RightSideSubHeader>Description</RightSideSubHeader>
               <RightSideSubContent>{rightSideContent.description}</RightSideSubContent>
+            </article>
+          ) : null}
+
+          {rightSideContent.sourceCode ? (
+            <article>
+              <RightSideSubHeader>Source Code</RightSideSubHeader>
+              <RightSideSubContent>{rightSideContent.sourceCode}</RightSideSubContent>
             </article>
           ) : null}
 
