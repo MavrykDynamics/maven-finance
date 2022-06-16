@@ -785,7 +785,7 @@ describe('Contracts Deployment for Tests', async () => {
                   new BigNumber(0),             // requestRateDeviationDepositFee
   
                   new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(2600),          // deviationRewardAmountXtz
+                  new BigNumber(0),             // deviationRewardAmountXtz
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
@@ -810,7 +810,7 @@ describe('Contracts Deployment for Tests', async () => {
                   new BigNumber(0),             // requestRateDeviationDepositFee
                   
                   new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(2600),          // deviationRewardAmountXtz
+                  new BigNumber(0),             // deviationRewardAmountXtz
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   
@@ -835,7 +835,7 @@ describe('Contracts Deployment for Tests', async () => {
                   new BigNumber(0),             // requestRateDeviationDepositFee
                   
                   new BigNumber(10000000),      // deviationRewardStakedMvk
-                  new BigNumber(2600),          // deviationRewardAmountXtz
+                  new BigNumber(0),             // deviationRewardAmountXtz
                   new BigNumber(10000000),      // rewardAmountStakedMvk
                   new BigNumber(1300),          // rewardAmountXtz
                   

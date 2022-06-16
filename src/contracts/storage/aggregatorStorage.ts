@@ -30,8 +30,8 @@ const config = {
 
   requestRateDeviationDepositFee      : new BigNumber(0),
   
-  deviationRewardStakedMvk            : new BigNumber(10000000), // 0.01 MVK
-  deviationRewardAmountXtz            : new BigNumber(2600),  
+  deviationRewardStakedMvk            : new BigNumber(15000000), // 0.02 MVK
+  deviationRewardAmountXtz            : new BigNumber(0),  
   rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
   rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
 }

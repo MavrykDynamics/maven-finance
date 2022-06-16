@@ -221,8 +221,10 @@
 //                 new BigNumber(60),            // percentOracleThreshold
 
 //                 new BigNumber(0),             // requestRateDeviationDepositFee 
-//                 new BigNumber(2600),          // deviationRewardAmountXtz
-//                 new BigNumber(5),             // rewardAmountStakedMvk
+
+//                 new BigNumber(10000000),      // deviationRewardStakedMvk
+//                 new BigNumber(0),             // deviationRewardAmountXtz
+//                 new BigNumber(10000000),      // rewardAmountStakedMvk
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
 //                 oracleMaintainer.pkh,         // maintainer
@@ -244,8 +246,10 @@
 //                 new BigNumber(60),            // percentOracleThreshold
 
 //                 new BigNumber(0),             // requestRateDeviationDepositFee 
-//                 new BigNumber(2600),          // deviationRewardAmountXtz
-//                 new BigNumber(5),             // rewardAmountStakedMvk
+
+//                 new BigNumber(10000000),      // deviationRewardStakedMvk
+//                 new BigNumber(0),             // deviationRewardAmountXtz
+//                 new BigNumber(10000000),      // rewardAmountStakedMvk
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
 //                 oracleMaintainer.pkh,         // maintainer
