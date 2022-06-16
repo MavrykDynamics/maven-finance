@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cyanColor, skyColor } from 'styles'
+import { Card, cyanColor, skyColor, royalPurpleColor } from 'styles'
 
 import { MavrykTheme } from '../../styles/interfaces'
 
@@ -19,6 +19,20 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   margin-top: 0;
   flex-shrink: 0;
   margin-left: 30px;
+  position: relative;
+  padding-bottom: 55px;
+
+  &::after {
+    position: absolute;
+    content: '';
+    width: 44px;
+    height: 3px;
+    border-radius: 10px;
+    bottom: 42px;
+    left: 50%;
+    background-color: ${royalPurpleColor};
+    transform: translateX(-50%);
+  }
 
   .byte,
   .hide {

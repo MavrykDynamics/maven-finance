@@ -47,10 +47,27 @@ export interface ProposalVote {
 
 export interface ProposalDataType {
   bytes: string
-  governanceProposalRecordId: number
+  governance_proposal_record_id: number
   id: number
-  recordInternalId: number
+  record_internal_id: number
   title: string
+}
+
+
+
+export type TokenStandardType =  0 | 1 | 2 | 3
+export type PaymentType =  "XTZ" | "MVK"
+
+export interface ProposalPaymentType {
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
+  to__id: string
+  token_address: string
+  token_amount: string
+  token_id: string
+  token_standard: 0 | 1 | 2 | 3
 }
 
 export interface ProposalRecordType {
@@ -86,6 +103,8 @@ export interface ProposalRecordType {
   roundHighestVotedProposal: string
   cycle: number
   proposalData?: ProposalDataType[]
+  proposalPayments?: ProposalPaymentType[]
+  governanceId?: string
   //To possibly add:
   details: string
   invoiceTable: string
