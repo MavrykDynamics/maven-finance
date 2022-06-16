@@ -789,6 +789,7 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     currentCycleEndLevel: item.current_cycle_end_level,
     roundHighestVotedProposal: item.round_highest_voted_proposal,
     cycle: item.cycle,
+    proposalData: item.proposal_data,
     details: item.details,
     invoiceTable: item.invoice_table,
   }
