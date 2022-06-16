@@ -18,7 +18,7 @@ import {
 } from './Governance.actions'
 
 // helpers
-import { normalizeProposalStatus, normalizeTokenStandart } from './Governance.helpers'
+import { normalizeProposalStatus, normalizeTokenStandart, getShortByte } from './Governance.helpers'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -42,6 +42,7 @@ import {
   RightSideSubHeader,
 } from './Governance.style'
 import { EmptyContainer } from '../../app/App.style'
+import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -56,14 +57,6 @@ type GovernanceViewProps = {
   handleOpenModalMoveNextRound: any
   handleExecuteProposal: any
   timeLeftInPhase: Date | number
-}
-
-const getShortByte = (byte: string): string => {
-  const shortBype = byte.length
-    ? [byte.substring(0, 27), byte.length > 27 ? '...' : '', byte.length > 27 ? byte.substring(byte.length - 12) : '']
-    : []
-
-  return shortBype.join('')
 }
 
 export const GovernanceView = ({
@@ -367,27 +360,26 @@ export const GovernanceView = ({
           {rightSideContent.proposalData?.length ? (
             <article>
               <RightSideSubHeader>Meta-Data</RightSideSubHeader>
-              <ol>
+              <ol className="proposal-list">
                 {rightSideContent.proposalData.map((item: ProposalDataType, i: number) => {
                   const unique = `proposalDataItem${item.id}`
                   return (
                     <li key={item.id}>
                       <div>
                         <div>
-                          <b>Title:</b>
-                          <span>{item.title}</span>
+                          <b className="proposal-list-title">Title: </b>
+                          <span className="proposal-list-title-valie">{item.title}</span>
                         </div>
                         <div>
-                          <b>Bytes:</b>
-                          <span>
+                          <b className="proposal-list-title">Bytes: </b>
+                          <span className="proposal-list-bites">
                             <input type="checkbox" className="byte-input" id={unique} />
-                            <span className="byte">{item.bytes} </span>
-                            <span className="short-byte">{getShortByte(item.bytes)} </span>
-
-                            <label className="byte-label" htmlFor={unique}>
-                              <span className="hide">hide</span>
-                              <span className="see-all">see all</span>
-                            </label>
+                            <span className="byte">
+                              {item.bytes} <label htmlFor={unique}>hide</label>
+                            </span>
+                            <span className="short-byte">
+                              {getShortByte(item.bytes)} <label htmlFor={unique}>see all</label>
+                            </span>
                           </span>
                         </div>
                       </div>
@@ -399,28 +391,32 @@ export const GovernanceView = ({
           ) : null}
 
           {rightSideContent.proposalPayments?.length ? (
-            <article>
+            <article className="payment-data">
               <RightSideSubHeader>Payment Data</RightSideSubHeader>
-              <table>
-                <tr>
-                  <th>Address</th>
-                  <th>Title</th>
-                  <th>Amount</th>
-                  <th>Payment Type (XTZ/MVK)</th>
-                </tr>
-                {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
-                  return (
-                    <tr key={item.id}>
-                      <td>
-                        <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
-                      </td>
-                      <td>{item.title}</td>
-                      <td>{item.token_amount}</td>
-                      <td>{normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)}</td>
+              <TableGridWrap>
+                <div className="table-wrap">
+                  <table>
+                    <tr>
+                      <td>Address</td>
+                      <td>Title</td>
+                      <td>Amount</td>
+                      <td>Payment Type (XTZ/MVK)</td>
                     </tr>
-                  )
-                })}
-              </table>
+                    {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
+                      return (
+                        <tr key={item.id}>
+                          <td>
+                            <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
+                          </td>
+                          <td>{item.title}</td>
+                          <td>{item.token_amount}</td>
+                          <td>{normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)}</td>
+                        </tr>
+                      )
+                    })}
+                  </table>
+                </div>
+              </TableGridWrap>
             </article>
           ) : null}
 
@@ -436,7 +432,7 @@ export const GovernanceView = ({
           {rightSideContent.governanceId ? (
             <article>
               <h4>Governance Info</h4>
-              <div>
+              <div className="governance-contract">
                 <p>Governance Contract</p>
                 <TzAddress tzAddress={rightSideContent.governanceId} hasIcon={false} isBold={true} />
               </div>

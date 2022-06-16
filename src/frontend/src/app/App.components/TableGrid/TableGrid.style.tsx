@@ -36,16 +36,20 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     }
   }
 
+  td,
   input {
     color: ${cyanColor};
-    background-color: transparent;
-    width: 100%;
-    text-align: center;
-    height: 100%;
     padding-left: 8px;
     padding-right: 8px;
-    border: none;
     font-size: 14px;
+    text-align: center;
+  }
+
+  input {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 
   button {
@@ -67,6 +71,8 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:first-child {
       td {
         border-top: none;
+        font-weight: 700;
+        color: ${headerColor};
 
         &:first-child {
           border-top-left-radius: 10px;
