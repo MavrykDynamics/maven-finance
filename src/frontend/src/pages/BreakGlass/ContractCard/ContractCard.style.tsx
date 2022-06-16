@@ -39,6 +39,7 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     font-size: 24px;
     color: ${headerColor};
     width: 180px;
+    padding-right: 10px;
 
     .truncate-title {
       white-space: nowrap;
