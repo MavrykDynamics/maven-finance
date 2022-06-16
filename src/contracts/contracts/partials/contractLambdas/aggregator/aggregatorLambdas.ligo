@@ -667,8 +667,7 @@ block{
                 var percentOracleResponse := numberOfObservationForRound * 100n / oracleWhiteListedSize;
 
                 // set rewards for oracles
-                const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
-                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;    
+                s := updateRewardsStakedMvk(Tezos.sender, s);
 
                 const rewardAmountXtz        : nat = s.config.rewardAmountXtz;
                 var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
@@ -677,6 +676,9 @@ block{
                     ];
                 s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + rewardAmountXtz;
 
+                // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(Tezos.sender, s);
+                // s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;    
+                
                 // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
                 // const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.rewardAmountXtz), updateRewardsXtz(s));
 

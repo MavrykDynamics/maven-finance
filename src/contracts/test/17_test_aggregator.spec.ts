@@ -122,8 +122,8 @@ describe('Aggregator Tests', async () => {
         new BigNumber(0),             // requestRateDeviationDepositFee 
 
         new BigNumber(10000000),      // deviationRewardStakedMvk
-        new BigNumber(2600),          // deviationRewardAmountXtz
-        new BigNumber(10000000),      // rewardAmountMvk ~ 0.01 MVK
+        new BigNumber(0),             // deviationRewardAmountXtz
+        new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK
         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
         
         oracleMaintainer.pkh,         // maintainer
@@ -687,8 +687,6 @@ describe('Aggregator Tests', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        console.log(beforeStorage);
-
         const op = aggregator.methods.setObservationReveal(round, price, salt, bob.pkh);
 
         const tx = await op.send();
@@ -771,9 +769,6 @@ describe('Aggregator Tests', async () => {
         assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
         assert.deepEqual(storage.lastCompletedRoundPrice.round,storage.round);
         assert.deepEqual(storage.lastCompletedRoundPrice.price,price);
-
-        const bobRewardXtz           = await storage.oracleRewardXtz.get(bob.pkh);
-        console.log(bobRewardXtz);
 
       },
 
@@ -1048,24 +1043,22 @@ describe('Aggregator Tests', async () => {
             await signerFactory(bob.sk);
             
             const delegationStorage = await delegationInstance.storage();
-            console.log(delegationStorage);
 
             const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
-            const rewardAmountXtz           = beforeStorage.config.rewardAmountXtz;
-            const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountXtz;
-            const deviationRewardAmountXtz  = beforeStorage.config.deviationRewardAmountXtz;
-            const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk;
+            const rewardAmountXtz           = beforeStorage.config.rewardAmountXtz.toNumber();
+            const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
+            const deviationRewardAmountXtz  = beforeStorage.config.deviationRewardAmountXtz.toNumber();
+            const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
-            console.log(rewardAmountXtz);
-            console.log(rewardAmountStakedMvk);
-            console.log(deviationRewardAmountXtz);
-            console.log(deviationRewardStakedMvk);
+            console.log("rewardAmountXtz: "          + rewardAmountXtz);
+            console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
+            console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
+            console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
 
             const beforeBobRewardXtz           = await beforeStorage.oracleRewardXtz.get(bob.pkh);
             const beforeEveRewardXtz           = await beforeStorage.oracleRewardXtz.get(eve.pkh);
             const beforeMalloryRewardXtz       = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
-            const beforeMaintainerRewardXtz    = await beforeStorage.oracleRewardXtz.get(oracleMaintainer.pkh);
 
             const beforeBobRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
             const beforeEveRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
@@ -1073,10 +1066,17 @@ describe('Aggregator Tests', async () => {
 
             const beforeBobTezBalance          = await utils.tezos.tz.getBalance(bob.pkh);
 
-            console.log(beforeBobRewardXtz);
-            console.log(beforeEveRewardXtz);
-            console.log(beforeMalloryRewardXtz);
-            console.log(beforeMaintainerRewardXtz);
+            console.log(beforeBobRewardStakedMvk);
+            console.log(beforeEveRewardStakedMvk);
+            console.log(beforeMalloryRewardStakedMvk);
+
+            assert.equal(beforeBobRewardXtz, rewardAmountXtz);      // 1300 - one reveal
+            assert.equal(beforeEveRewardXtz, rewardAmountXtz * 2);  // 2600 - two reveals
+            assert.equal(beforeMalloryRewardXtz, (rewardAmountXtz * 2) + deviationRewardAmountXtz); // 2600 - two reveals, one req rate upd dev (0)
+
+            assert.equal(beforeBobRewardStakedMvk, rewardAmountStakedMvk);      // 10,000,000 - one reveal
+            assert.equal(beforeEveRewardStakedMvk, rewardAmountStakedMvk * 2);  // 20,000,000 - two reveals
+            assert.equal(beforeMalloryRewardStakedMvk, (rewardAmountStakedMvk * 2) + deviationRewardStakedMvk); // 30,000,000 - two reveals, one req rate upd dev (10,000,000)
 
             console.log(beforeBobRewardStakedMvk);
             console.log(beforeEveRewardStakedMvk);
@@ -1122,6 +1122,8 @@ describe('Aggregator Tests', async () => {
     const percentOracleThreshold        : BigNumber = new BigNumber(100);
 
     const requestRateDevDepositFee      : BigNumber = new BigNumber(100);
+    
+    const deviationRewardStakedMvk      : BigNumber = new BigNumber(100);
     const deviationRewardAmountXtz      : BigNumber = new BigNumber(100);
     const rewardAmountXtz               : BigNumber = new BigNumber(100);
     const rewardAmountStakedMvk         : BigNumber = new BigNumber(100);
@@ -1164,6 +1166,13 @@ describe('Aggregator Tests', async () => {
           requestRateDevDepositFee, "configRequestRateDevDepositFee"
         );
         await chai.expect(test_update_config_requestRateDevDepositFee_op.send()).to.be.rejectedWith();
+
+
+
+        const test_update_config_deviationRewardStakedMvk_op = aggregator.methods.updateConfig(
+          deviationRewardStakedMvk, "configDeviationRewardStakedMvk"
+        );
+        await chai.expect(test_update_config_deviationRewardStakedMvk_op.send()).to.be.rejectedWith();
 
         const test_update_config_deviationRewardAmountXtz_op = aggregator.methods.updateConfig(
           deviationRewardAmountXtz, "configDeviationRewardAmountXtz"
@@ -1222,6 +1231,12 @@ describe('Aggregator Tests', async () => {
           requestRateDevDepositFee, "configRequestRateDevDepositFee"
         ).send();
         await test_update_config_requestRateDevDepositFee_op.confirmation();
+
+
+        const test_update_config_deviationRewardStakedMvk_op = await aggregator.methods.updateConfig(
+          deviationRewardAmountXtz, "configDeviationRewardStakedMvk"
+        ).send();
+        await test_update_config_deviationRewardStakedMvk_op.confirmation();
 
         const test_update_config_deviationRewardAmountXtz_op = await aggregator.methods.updateConfig(
           deviationRewardAmountXtz, "configDeviationRewardAmountXtz"
