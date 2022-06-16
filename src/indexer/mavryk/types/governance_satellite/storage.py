@@ -79,9 +79,9 @@ class GovernanceSatelliteActionLedger(BaseModel):
     addressMap: Dict[str, str]
     stringMap: Dict[str, str]
     natMap: Dict[str, str]
-    yayVoteTotal: str
-    nayVoteTotal: str
-    passVoteTotal: str
+    yayVoteStakedMvkTotal: str
+    nayVoteStakedMvkTotal: str
+    passVoteStakedMvkTotal: str
     snapshotStakedMvkTotalSupply: str
     stakedMvkPercentageForApproval: str
     stakedMvkRequiredForApproval: str

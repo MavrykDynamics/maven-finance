@@ -8,6 +8,4 @@ async def on_aggregator_set_admin(
     ctx: HandlerContext,
     set_admin: Transaction[SetAdminParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...

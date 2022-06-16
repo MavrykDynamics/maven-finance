@@ -8,6 +8,4 @@ async def on_aggregator_request_set_observation_commit(
     ctx: HandlerContext,
     set_observation_commit: Transaction[SetObservationCommitParameter, AggregatorStorage],
 ) -> None:
-
-    # Get operation info
-    breakpoint()
+    ...
