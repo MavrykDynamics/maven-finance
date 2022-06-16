@@ -780,9 +780,9 @@ block{
                         | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
-                    const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
+                    const distributeRewardMvkParams : distributeRewardTypes = record [
                         eligibleSatellites     = set[oracleAddress];
-                        totalStakedMvkReward   = reward;
+                        totalSMvkReward        = reward;
                     ];
 
                     const distributeRewardMvkOperation : operation = Tezos.transaction(

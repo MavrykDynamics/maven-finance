@@ -252,12 +252,12 @@ case (Tezos.get_entrypoint_opt(
 
 
 // helper function to get distributeRewardMvk entrypoint in factory contract
-function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
+function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardTypes) is
 case (Tezos.get_entrypoint_opt(
       "%distributeRewardStakedMvk",
-      contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
+      contractAddress) : option(contract(distributeRewardTypes))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
+  | None -> (failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(distributeRewardTypes))
 ];
 
 // ------------------------------------------------------------------------------

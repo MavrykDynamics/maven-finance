@@ -56,10 +56,6 @@ type oracleRewardStakedMvkType   is map (address, nat);
 type oracleRewardXtzType         is map (address, nat);
 
 // rewards type
-type distributeRewardStakedMvkType is [@layout:comb] record [
-    eligibleSatellites          : set(address);
-    totalStakedMvkReward        : nat;
-]
 type distributeRewardXtzType is [@layout:comb] record [
     recipient                   : address;
     reward                      : nat;

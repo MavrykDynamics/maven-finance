@@ -161,10 +161,6 @@ type delegationLambdaActionType is
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
-type distributeRewardsTypes is [@layout:comb] record [
-    eligibleSatellites    : set(address);
-    totalSMvkReward       : nat;
-]
 
 type delegationStorage is [@layout:comb] record [
     admin                   : address;
