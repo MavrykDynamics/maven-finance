@@ -5,6 +5,9 @@ import Time from 'react-pure-time'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
+// types
+import type { ProposalDataType } from '../../utils/TypesAndInterfaces/Governance'
+
 // actions
 import {
   getGovernanceStorage,
@@ -53,6 +56,14 @@ type GovernanceViewProps = {
   handleOpenModalMoveNextRound: any
   handleExecuteProposal: any
   timeLeftInPhase: Date | number
+}
+
+const getShortByte = (byte: string): string => {
+  const shortBype = byte.length
+    ? [byte.substring(0, 27), byte.length > 27 ? '...' : '', byte.length > 27 ? byte.substring(byte.length - 12) : '']
+    : []
+
+  return shortBype.join('')
 }
 
 export const GovernanceView = ({
@@ -350,6 +361,40 @@ export const GovernanceView = ({
             <article>
               <RightSideSubHeader>Source Code</RightSideSubHeader>
               <RightSideSubContent>{rightSideContent.sourceCode}</RightSideSubContent>
+            </article>
+          ) : null}
+
+          {rightSideContent.proposalData?.length ? (
+            <article>
+              <RightSideSubHeader>Meta-Data</RightSideSubHeader>
+              <ol>
+                {rightSideContent.proposalData.map((item: ProposalDataType, i: number) => {
+                  const unique = `proposalDataItem${item.id}`
+                  return (
+                    <li key={item.id}>
+                      <div>
+                        <div>
+                          <b>Title:</b>
+                          <span>{item.title}</span>
+                        </div>
+                        <div>
+                          <b>Bytes:</b>
+                          <span>
+                            <input type="checkbox" className="byte-input" id={unique} />
+                            <span className="byte">{item.bytes} </span>
+                            <span className="short-byte">{getShortByte(item.bytes)} </span>
+
+                            <label className="byte-label" htmlFor={unique}>
+                              <span className="hide">hide</span>
+                              <span className="see-all">see all</span>
+                            </label>
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
             </article>
           ) : null}
 

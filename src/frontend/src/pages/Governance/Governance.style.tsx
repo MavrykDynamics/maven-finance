@@ -20,6 +20,27 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   flex-shrink: 0;
   margin-left: 30px;
 
+  .byte,
+  .hide {
+    display: none;
+  }
+
+  .byte-input {
+    visibility: hidden;
+
+    &:checked {
+      & ~ .short-byte,
+      & ~ label .see-all {
+        display: none;
+      }
+
+      & ~ .byte,
+      & ~ label .hide {
+        display: block;
+      }
+    }
+  }
+
   .execute-proposal {
     width: 194px;
     align-self: flex-end;
@@ -34,6 +55,11 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     margin-bottom: 18px;
     a {
       text-decoration: underline;
+    }
+    li {
+      &::marker {
+        color: ${skyColor};
+      }
     }
   }
 

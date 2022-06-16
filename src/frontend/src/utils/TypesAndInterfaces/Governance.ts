@@ -44,6 +44,15 @@ export interface ProposalVote {
   voterId: string
   votingPower: number
 }
+
+export interface ProposalDataType {
+  bytes: string
+  governanceProposalRecordId: number
+  id: number
+  recordInternalId: number
+  title: string
+}
+
 export interface ProposalRecordType {
   id: number
 
@@ -76,7 +85,7 @@ export interface ProposalRecordType {
 
   roundHighestVotedProposal: string
   cycle: number
-
+  proposalData?: ProposalDataType[]
   //To possibly add:
   details: string
   invoiceTable: string
