@@ -62,3 +62,17 @@ export const normalizeProposalStatus = (
 export const normalizeTokenStandart = (standatd: TokenStandardType, address: string, token_id: string): PaymentType => {
   return standatd === 2 && address && token_id ? 'MVK' : 'XTZ'
 }
+
+const BEFORE_DIGIT = 24
+const AFTER_DIGIT = 12
+export const getShortByte = (byte: string): string => {
+  const shortBype = byte.length
+    ? [
+        byte.substring(0, BEFORE_DIGIT),
+        byte.length > BEFORE_DIGIT ? '...' : '',
+        byte.length > BEFORE_DIGIT ? byte.substring(byte.length - AFTER_DIGIT) : '',
+      ]
+    : []
+
+  return shortBype.join('')
+}
