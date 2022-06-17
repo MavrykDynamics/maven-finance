@@ -38,6 +38,8 @@ type StageThreeFormViewProps = {
   handleOnBlur: (e: any, formField: string) => void
   handleSubmitFinancialRequestData: () => void
   setTableJson: (input: string) => void
+  fee: number
+  successReward: number
 }
 export const StageThreeFormView = ({
   tableData,
@@ -49,6 +51,8 @@ export const StageThreeFormView = ({
   handleOnBlur,
   setTableJson,
   handleSubmitFinancialRequestData,
+  fee,
+  successReward,
 }: StageThreeFormViewProps) => {
   return (
     <SubmissionStyled>
@@ -69,7 +73,11 @@ export const StageThreeFormView = ({
         </FormTitleContainer>
         <div>
           <label>2- Proposal Success Reward</label>
-          <FormTitleEntry>{form.proposalId}</FormTitleEntry>
+          <FormTitleEntry>{successReward}</FormTitleEntry>
+        </div>
+        <div>
+          <label>3- Fee</label>
+          <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       <label>3- Enter Proposal Bytes Data</label>
