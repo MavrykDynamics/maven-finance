@@ -123,9 +123,9 @@ describe('Aggregator Tests', async () => {
 
         new BigNumber(10000000),      // deviationRewardStakedMvk
         new BigNumber(0),             // deviationRewardAmountXtz
-        new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK
-        new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
-        
+        new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK 
+        new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
+         
         oracleMaintainer.pkh,         // maintainer
 
     ).send();
@@ -298,6 +298,20 @@ describe('Aggregator Tests', async () => {
     await signerFactory(alice.sk)
     const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryInstance.address, amount: 250});
     await aliceTransferTezToTreasuryOperation.confirmation();
+
+
+
+    // Set XTZ Reward to be higher for tests (from 0.0013 xtz to 1 xtz)
+    // ------------------------------------------------------------------
+
+    // Bob sets reward amount to be 1 tez
+    await signerFactory(bob.sk)
+    const rewardAmountXtz = 1000000; // 1 tez
+    const set_xtz_reward_amount_op = await aggregator.methods.updateConfig(
+      rewardAmountXtz, "configRewardAmountXtz"
+    ).send();
+    await set_xtz_reward_amount_op.confirmation();
+
   
   });
 
@@ -752,7 +766,6 @@ describe('Aggregator Tests', async () => {
       async () => {
         await signerFactory(mallory.sk);
 
-
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
@@ -1037,14 +1050,18 @@ describe('Aggregator Tests', async () => {
 
   describe('withdrawRewardXtz', () => {
 
-      it('oracle should be able to withdraw reward xtz', async () => {
+      it('oracles should be able to withdraw reward xtz', async () => {
           try{
             
             await signerFactory(bob.sk);
-            
-            const delegationStorage = await delegationInstance.storage();
 
             const beforeStorage: aggregatorStorageType = await aggregator.storage();
+
+            const bobStakedMvk = 100;
+            const eveStakedMvk = 100;
+            const malloryStakedMvk = 100;
+            const totalStakedMvkThreeCommits = bobStakedMvk + eveStakedMvk + malloryStakedMvk;
+            const totalStakedMvkTwoCommits = eveStakedMvk + malloryStakedMvk;
 
             const rewardAmountXtz           = beforeStorage.config.rewardAmountXtz.toNumber();
             const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
@@ -1056,51 +1073,92 @@ describe('Aggregator Tests', async () => {
             console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
             console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
 
-            const beforeBobRewardXtz           = await beforeStorage.oracleRewardXtz.get(bob.pkh);
-            const beforeEveRewardXtz           = await beforeStorage.oracleRewardXtz.get(eve.pkh);
-            const beforeMalloryRewardXtz       = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
+            const beforeBobRewardXtz            = await beforeStorage.oracleRewardXtz.get(bob.pkh);
+            const beforeEveRewardXtz            = await beforeStorage.oracleRewardXtz.get(eve.pkh);
+            const beforeMalloryRewardXtz        = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
 
-            const beforeBobRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
-            const beforeEveRewardStakedMvk     = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
-            const beforeMalloryRewardStakedMvk   = await beforeStorage.oracleRewardStakedMvk.get(mallory.pkh);
+            const beforeBobRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
+            const beforeEveRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
+            const beforeMalloryRewardStakedMvk  = await beforeStorage.oracleRewardStakedMvk.get(mallory.pkh);
 
-            const beforeBobTezBalance          = await utils.tezos.tz.getBalance(bob.pkh);
+            // percent oracle threshold is 49% so even two oracles reveals will be successful
+            const singleRewardSMvkWithThreeCommits = Math.trunc((bobStakedMvk / totalStakedMvkThreeCommits) * rewardAmountStakedMvk);
+            const singleRewardSMvkWithTwoCommits   = Math.trunc((bobStakedMvk / totalStakedMvkTwoCommits) * rewardAmountStakedMvk);
+
+            const beforeBobTezBalance           = await utils.tezos.tz.getBalance(bob.pkh);
+            const beforeEveTezBalance           = await utils.tezos.tz.getBalance(eve.pkh);
+            const beforeMalloryTezBalance       = await utils.tezos.tz.getBalance(mallory.pkh);
+
+            const bobTezRewardAmount            = rewardAmountXtz;
+            const eveTezRewardAmount            = rewardAmountXtz * 2;
+            const malloryTezRewardAmount        = (rewardAmountXtz * 2) + deviationRewardAmountXtz;
+
+            const bobTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits;
+            const eveTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
+            const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits + deviationRewardStakedMvk;
 
             console.log(beforeBobRewardStakedMvk);
             console.log(beforeEveRewardStakedMvk);
             console.log(beforeMalloryRewardStakedMvk);
-
-            assert.equal(beforeBobRewardXtz, rewardAmountXtz);      // 1300 - one reveal
-            assert.equal(beforeEveRewardXtz, rewardAmountXtz * 2);  // 2600 - two reveals
-            assert.equal(beforeMalloryRewardXtz, (rewardAmountXtz * 2) + deviationRewardAmountXtz); // 2600 - two reveals, one req rate upd dev (0)
-
-            assert.equal(beforeBobRewardStakedMvk, rewardAmountStakedMvk);      // 10,000,000 - one reveal
-            assert.equal(beforeEveRewardStakedMvk, rewardAmountStakedMvk * 2);  // 20,000,000 - two reveals
-            assert.equal(beforeMalloryRewardStakedMvk, (rewardAmountStakedMvk * 2) + deviationRewardStakedMvk); // 30,000,000 - two reveals, one req rate upd dev (10,000,000)
-
-            console.log(beforeBobRewardStakedMvk);
-            console.log(beforeEveRewardStakedMvk);
-            console.log(beforeMalloryRewardStakedMvk);
-
             console.log(beforeBobTezBalance);
 
-            const op = aggregator.methods.withdrawRewardXtz(bob.pkh);
+            // check that xtz reward amounts are correct
+            assert.equal(beforeBobRewardXtz, bobTezRewardAmount);         // 1000000 - one reveal
+            assert.equal(beforeEveRewardXtz, eveTezRewardAmount);         // 2000000 - two reveals
+            assert.equal(beforeMalloryRewardXtz, malloryTezRewardAmount); // 2000000 - two reveals, one req rate upd dev (0)
+
+            // check that staked mvk reward amounts are correct
+            assert.equal(beforeBobRewardStakedMvk, bobTotalStakedMvkReward);          // 3,333,333 - one reveal
+            assert.equal(beforeEveRewardStakedMvk, eveTotalStakedMvkReward);          // 8,333,333 - one reveal with two commits, one reveal with three commits
+            assert.equal(beforeMalloryRewardStakedMvk, malloryTotalStakedMvkReward);  // 21,333,333 -  one reveal with two commits, one reveal with three commits, one req rate upd dev
+
+            // estimate bob withdraw reward operation and then execute operation 
+            await signerFactory(bob.sk);
+            const estimate_bob_withdraw_reward_xtz       = await utils.tezos.estimate.transfer(aggregator.methods.withdrawRewardXtz(bob.pkh).toTransferParams());
+            const bob_withdraw_reward_xtz_total_gas_cost = 100 + estimate_bob_withdraw_reward_xtz.totalCost; // base fee mutez + total cost
             
-            const tx = await op.send();
-            await tx.confirmation();
+            const bob_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(bob.pkh).send();
+            await bob_withdraw_reward_xtz_op.confirmation();
+
+            // estimate eve withdraw reward operation and then execute operation 
+            await signerFactory(eve.sk);
+            const estimate_eve_withdraw_reward_xtz       = await utils.tezos.estimate.transfer(aggregator.methods.withdrawRewardXtz(eve.pkh).toTransferParams());
+            const eve_withdraw_reward_xtz_total_gas_cost = 100 + estimate_eve_withdraw_reward_xtz.totalCost; // base fee mutez + total cost
+            
+            const eve_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(eve.pkh).send();
+            await eve_withdraw_reward_xtz_op.confirmation();
+
+            // estimate mallory withdraw reward operation and then execute operation 
+            const estimate_mallory_withdraw_reward_xtz       = await utils.tezos.estimate.transfer(aggregator.methods.withdrawRewardXtz(mallory.pkh).toTransferParams());
+            const mallory_withdraw_reward_xtz_total_gas_cost = 100 + estimate_mallory_withdraw_reward_xtz.totalCost; // base fee mutez + total cost
+            
+            const mallory_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(mallory.pkh).send();
+            await mallory_withdraw_reward_xtz_op.confirmation();
 
             const storage: aggregatorStorageType = await aggregator.storage();
             const bobRewardXtz        = await storage.oracleRewardXtz.get(bob.pkh);
             const bobRewardStakedMvk  = await storage.oracleRewardStakedMvk.get(bob.pkh);
+            
             const bobTezBalance       = await utils.tezos.tz.getBalance(bob.pkh);
+            const eveTezBalance       = await utils.tezos.tz.getBalance(eve.pkh);
+            const malloryTezBalance   = await utils.tezos.tz.getBalance(mallory.pkh);
             
             console.log('---------------')
             console.log('-----after-----')
             console.log('---------------')
 
+            assert.equal(bobTezBalance, beforeBobTezBalance.toNumber() + bobTezRewardAmount - bob_withdraw_reward_xtz_total_gas_cost);      
+            assert.equal(eveTezBalance, beforeEveTezBalance.toNumber() + eveTezRewardAmount - eve_withdraw_reward_xtz_total_gas_cost);      
+            assert.equal(malloryTezBalance, beforeMalloryTezBalance.toNumber() + malloryTezRewardAmount - mallory_withdraw_reward_xtz_total_gas_cost);      
+
             console.log(bobRewardXtz);
             console.log(bobRewardStakedMvk);
             console.log(bobTezBalance);
+
+            console.log('-----total gas costs-----')
+            console.log(bob_withdraw_reward_xtz_total_gas_cost)
+            console.log(eve_withdraw_reward_xtz_total_gas_cost)
+            console.log(mallory_withdraw_reward_xtz_total_gas_cost)
 
 
           } catch(e){
