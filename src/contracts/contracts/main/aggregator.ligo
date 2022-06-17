@@ -72,6 +72,7 @@ type return is list (operation) * aggregatorStorage
 // aggregator contract methods lambdas
 type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggregatorStorage) -> return
 
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
 
 // ------------------------------------------------------------------------------
 //
@@ -455,6 +456,8 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
     | None -> 0n
   ]
 
+
+
 function updateRewardsStakedMvk (const senderAddress : address; var s: aggregatorStorage) : aggregatorStorage is block {
 
   var tempSatellitesMap : map(address, nat) := map [];
@@ -519,39 +522,17 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
       Some(_value) -> _value
     | None -> failwith(error_SATELLITE_NOT_FOUND)
   ];
-  const newStakedMvkRewardShare = (senderShare / total) * rewardAmountStakedMvk;
+  const newStakedMvkRewardShare = ((senderShare * fixedPointAccuracy) / total) * rewardAmountStakedMvk;
+  const newStakedMvkRewardAmount = newStakedMvkRewardShare / fixedPointAccuracy;
 
   var senderRewardStakedMvk : nat := case s.oracleRewardStakedMvk[senderAddress] of [
       Some(_value) -> _value
     | None -> 0n
   ];
-  senderRewardStakedMvk := senderRewardStakedMvk + newStakedMvkRewardShare; 
+  senderRewardStakedMvk := senderRewardStakedMvk + newStakedMvkRewardAmount; 
   s.oracleRewardStakedMvk[senderAddress] := senderRewardStakedMvk;
 
-  // get oracle reward staked mvk map (i.e. satellite addresses to reward amount they can claim)
-  // var newOracleRewardStakedMvk: oracleRewardStakedMvkType := s.oracleRewardStakedMvk;
-
-  // newOracleRewardStakedMvk := Map.update(senderAddress, Some (getRewardAmountStakedMvk(senderAddress, s) + newStakedMvkReward), newOracleRewardStakedMvk);
-
-  // increment satellites' staked mvk reward amounts based on their share of total voting power (among other satellites for this observation reveal)
-  // for oracleAddress -> value in map tempSatellitesMap block {
-  //   if oracleAddress = senderAddress then {
-  //     const newStakedMvkReward = (value / total) * rewardAmountStakedMvk;
-  //     newOracleRewardStakedMvk := Map.update(oracleAddress, Some (getRewardAmountStakedMvk(senderAddress, s) + newStakedMvkReward), newOracleRewardStakedMvk);
-  //   } else skip;
-  // };
-
 } with (s)
-
-
-
-// function updateRewardsXtz (const s: aggregatorStorage) : oracleRewardXtzType is block {
-//   var newOracleRewardXtz: oracleRewardXtzType := s.oracleRewardXtz;
-
-//   for key -> _value in map s.observationReveals block {
-//     newOracleRewardXtz := Map.update(key, Some (getRewardAmountXtz(key, s) + s.config.rewardAmountXtz), newOracleRewardXtz);
-//   };
-// } with (newOracleRewardXtz)
 
 // ------------------------------------------------------------------------------
 // Reward Helper Functions End

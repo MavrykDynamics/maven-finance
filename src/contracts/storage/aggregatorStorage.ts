@@ -9,7 +9,6 @@ import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
 import { string } from 'yargs';
 
-
 const breakGlassConfig = {
   requestRateUpdateIsPaused           : false,
   requestRateUpdateDeviationIsPaused  : false,
@@ -30,7 +29,7 @@ const config = {
 
   requestRateDeviationDepositFee      : new BigNumber(0),
   
-  deviationRewardStakedMvk            : new BigNumber(15000000), // 0.02 MVK
+  deviationRewardStakedMvk            : new BigNumber(15000000), // 0.015 MVK
   deviationRewardAmountXtz            : new BigNumber(0),  
   rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
   rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
@@ -100,6 +99,12 @@ export const aggregatorStorage: aggregatorStorageType = {
 
   oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
   oracleRewardXtz           : MichelsonMap.fromLiteral({}),
+
+  share : new BigNumber(0),
+  total : new BigNumber(0),
+  reward : new BigNumber(0),
+  rewardTwo : new BigNumber(0),
+  rewardThree : new BigNumber(0),
 
   lambdaLedger              : MichelsonMap.fromLiteral({}),
 
