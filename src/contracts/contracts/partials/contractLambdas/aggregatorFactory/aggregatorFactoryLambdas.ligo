@@ -390,15 +390,6 @@ block {
 
                 const aggregatorLambdaLedger : map(string, bytes) = s.aggregatorLambdaLedger;
 
-                const aggregatorMetadataPlain : aggregatorMetadataType = record[
-                    name                    = "MAVRYK Aggregator";
-                    description             = "MAVRYK Aggregator Contract";
-                    version                 =  "v1.0.0";
-                    authors                 = "MAVRYK Dev Team <contact@mavryk.finance>";
-                ];
-                const aggregatorMetadata : metadataType = Big_map.literal (list [
-                    ("", Bytes.pack(aggregatorMetadataPlain));
-                ]);
                 const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
                     requestRateUpdateIsPaused           = False;
                     requestRateUpdateDeviationIsPaused  = False;
@@ -407,6 +398,12 @@ block {
                     withdrawRewardXtzIsPaused           = False;
                     withdrawRewardStakedMvkIsPaused     = False;
                 ];
+
+                // Prepare Aggregator Metadata
+                const aggregatorMetadata: metadataType = Big_map.literal (list [
+                    ("", Bytes.pack("tezos-storage:data"));
+                    ("data", createAggregatorParams.2.metadata);
+                ]); 
 
                 // check name length
                 const aggregatorName : string = createAggregatorParams.2.name;

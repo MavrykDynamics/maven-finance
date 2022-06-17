@@ -1,8 +1,9 @@
-// import delegationAddress from '../deployments/delegationAddress.json';
-// import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+// import { MichelsonMap } from '@taquito/michelson-encoder';
 // import assert from "assert";
 // import BigNumber from 'bignumber.js';
-// import { MichelsonMap } from '@taquito/michelson-encoder';
+
+// import delegationAddress from '../deployments/delegationAddress.json';
+// import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 
 // const chai = require("chai");
 // const chaiAsPromised = require('chai-as-promised');
@@ -23,6 +24,15 @@
 //   let aggregatorFactory
 
 //   let aggregatorStorage
+
+//   const aggregatorMetadataBase = Buffer.from(
+//         JSON.stringify({
+//             name: 'MAVRYK Aggregator Contract',
+//             version: 'v1.0.0',
+//             authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//         }),
+//         'ascii',
+//         ).toString('hex')
   
 
 //   const signerFactory = async (pk) => {
@@ -74,6 +84,7 @@
 //         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
         
 //         oracleMaintainer.pkh,         // maintainer
+//         aggregatorMetadataBase        // metadata
 //       );
 
 //     await chai.expect(op.send()).to.be.rejectedWith();
@@ -112,6 +123,7 @@
 //         new BigNumber(1300),          // rewardAmountXtz ~ 0.0013 tez
         
 //         oracleMaintainer.pkh,         // maintainer
+//         aggregatorMetadataBase        // metadata
 //       );
 
 //         const tx = await op.send();
