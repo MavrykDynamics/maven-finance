@@ -105,7 +105,7 @@ type aggregatorFactoryLambdaActionType is
 
     // Aggregator Lambdas
   | LambdaDistributeRewardXtz           of distributeRewardXtzType
-  | LambdaDistributeRewardStakedMvk     of distributeRewardTypes
+  | LambdaDistributeRewardStakedMvk     of distributeRewardStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage
