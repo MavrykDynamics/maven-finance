@@ -59,10 +59,10 @@ contracts:
     address: KT1D3UC58yYa4qjXQQEtgVSvEywDDmAxTPm2
     typename: governance_satellite
   aggregator:
-    address: KT1KNfd4vGVpqvAMGJQinAg8rwsNp1bfEojn
+    address: KT1B2qDqFf4f2gKvt6oNkJSdwsN1vQLbAmNp
     typename: aggregator
   aggregator_factory:
-    address: KT1DKxSph1a33EDAFe6M9gAigi7LvbtrQbYY
+    address: KT1Lth7ZsjvT7hHvfcn2CRkqe1mbYSAgcVic
     typename: aggregator_factory
   treasury:
     address: KT1GG6rfr4XcHiGs8Ltc9m8kt4EV2qub9ARa
@@ -291,11 +291,11 @@ templates:
         pattern:
           - destination: <aggregator_contract>
             entrypoint: requestRateUpdateDeviation
-      - callback: on_aggregator_request_set_observation_commit
+      - callback: on_aggregator_set_observation_commit
         pattern:
           - destination: <aggregator_contract>
             entrypoint: setObservationCommit
-      - callback: on_aggregator_request_set_observation_reveal
+      - callback: on_aggregator_set_observation_reveal
         pattern:
           - destination: <aggregator_contract>
             entrypoint: setObservationReveal
@@ -1282,11 +1282,11 @@ indexes:
         pattern:
           - destination: aggregator
             entrypoint: requestRateUpdateDeviation
-      - callback: on_aggregator_request_set_observation_commit
+      - callback: on_aggregator_set_observation_commit
         pattern:
           - destination: aggregator
             entrypoint: setObservationCommit
-      - callback: on_aggregator_request_set_observation_reveal
+      - callback: on_aggregator_set_observation_reveal
         pattern:
           - destination: aggregator
             entrypoint: setObservationReveal
@@ -1371,14 +1371,6 @@ indexes:
         pattern:
           - destination: aggregator_factory
             entrypoint: untrackAggregator
-      - callback: on_aggregator_factory_distribute_reward_xtz
-        pattern:
-          - destination: aggregator_factory
-            entrypoint: distributeRewardXtz
-      - callback: on_aggregator_factory_distribute_reward_staked_mvk
-        pattern:
-          - destination: aggregator_factory
-            entrypoint: distributeRewardStakedMvk
   # Treasury contract indexes
   treasury:
     kind: operation

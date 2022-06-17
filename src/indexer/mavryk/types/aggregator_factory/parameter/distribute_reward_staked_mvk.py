@@ -13,4 +13,4 @@ class DistributeRewardStakedMvkParameter(BaseModel):
         extra = Extra.forbid
 
     eligibleSatellites: List[str]
-    totalStakedMvkReward: str
+    totalSMvkReward: str
