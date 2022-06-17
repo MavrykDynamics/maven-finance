@@ -311,7 +311,8 @@ class Aggregator(Model):
     request_rate_deviation_deposit_fee= fields.FloatField(default=0.0)
     per_thousand_deviation_trigger  = fields.BigIntField(default=0)
     percent_oracle_threshold        = fields.SmallIntField(default=0)
-    deviation_reward_amount_xtz     = fields.BigIntField(default=0)
+    deviation_reward_amount_xtz     = fields.FloatField(default=0)
+    deviation_reward_amount_smvk    = fields.FloatField(default=0)
     reward_amount_smvk              = fields.FloatField(default=0.0)
     reward_amount_xtz               = fields.BigIntField(default=0)
     request_rate_update_paused      = fields.BooleanField(default=False)
@@ -860,25 +861,25 @@ class AggregatorOracleRecord(Model):
     id                              = fields.BigIntField(pk=True)
     aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='oracle_records')
     oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_records')
-    active                          = fields.BooleanField()
+    active                          = fields.BooleanField(default=True)
 
     class Meta:
         table = 'aggregator_oracle_record'
 
-class AggregatorOracleRecord(Model):
+class AggregatorDeviationTriggerBan(Model):
     id                              = fields.BigIntField(pk=True)
-    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='oracle_records')
-    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_records')
-    active                          = fields.BooleanField()
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='deviation_trigger_bans')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_bans')
+    timestamp                       = fields.DatetimeField()
 
     class Meta:
-        table = 'aggregator_oracle_record'
+        table = 'aggregator_deviation_trigger_ban'
 
 class AggregatorObservationCommit(Model):
     id                              = fields.BigIntField(pk=True)
     aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_commits')
     oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_commits')
-    commit                          = fields.CharField(max_length=500)
+    commit                          = fields.CharField(max_length=500, default="")
 
     class Meta:
         table = 'aggregator_observation_commit'
@@ -892,20 +893,20 @@ class AggregatorObservationReveal(Model):
     class Meta:
         table = 'aggregator_observation_reveal'
 
-class AggregatorObservationRewardSMVK(Model):
+class AggregatorOracleRewardSMVK(Model):
     id                              = fields.BigIntField(pk=True)
-    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_rewards_smvk')
-    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_rewards_smvk')
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='oracle_rewards_smvk')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_rewards_smvk')
     smvk                            = fields.FloatField(default=0)
 
     class Meta:
         table = 'aggregator_observation_reward_smvk'
 
-class AggregatorObservationRewardXTZ(Model):
+class AggregatorOracleRewardXTZ(Model):
     id                              = fields.BigIntField(pk=True)
-    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='observation_rewards_xtz')
-    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_observation_rewards_xtz')
-    xtz                             = fields.BigIntField(default=0)
+    aggregator                      = fields.ForeignKeyField('models.Aggregator', related_name='oracle_rewards_xtz')
+    oracle                          = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_oracle_rewards_xtz')
+    xtz                             = fields.FloatField(default=0)
 
     class Meta:
         table = 'aggregator_observation_reward_xtz'

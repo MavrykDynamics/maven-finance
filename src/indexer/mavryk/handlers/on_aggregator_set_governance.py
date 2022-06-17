@@ -13,7 +13,7 @@ async def on_aggregator_set_governance(
     
     # Get operation info
     target_contract = set_governance.data.target_address
-    contract        = await models.AggregatorFactory.get(address = target_contract)
+    contract        = await models.Aggregator.get(address = target_contract)
 
     # Persist new admin
     await persist_governance(set_governance, contract)

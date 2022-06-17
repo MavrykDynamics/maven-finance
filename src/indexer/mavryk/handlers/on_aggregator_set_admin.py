@@ -13,7 +13,7 @@ async def on_aggregator_set_admin(
     
     # Get operation info
     target_contract = set_admin.data.target_address
-    contract        = await models.AggregatorFactory.get(address = target_contract)
+    contract        = await models.Aggregator.get(address = target_contract)
 
     # Persist new admin
     await persist_admin(set_admin, contract)
