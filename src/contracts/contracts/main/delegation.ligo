@@ -57,7 +57,7 @@ type delegationAction is
     | RegisterAsSatellite               of newSatelliteRecordType
     | UnregisterAsSatellite             of (address)
     | UpdateSatelliteRecord             of updateSatelliteRecordType
-    | DistributeReward                  of distributeRewardTypes
+    | DistributeReward                  of distributeRewardStakedMvkType
 
       // General Entrypoints
     | OnStakeChange                     of onStakeChangeParams
@@ -872,7 +872,7 @@ block {
 
 
 (* distributeReward entrypoint *)
-function distributeReward(const distributeRewardParams: distributeRewardTypes; var s: delegationStorage) : return is
+function distributeReward(const distributeRewardParams: distributeRewardStakedMvkType; var s: delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeReward"] of [
