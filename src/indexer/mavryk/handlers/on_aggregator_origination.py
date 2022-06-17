@@ -27,6 +27,7 @@ async def on_aggregator_origination(
     percent_oracle_threshold                    = int(aggregator_origination.storage.config.percentOracleThreshold)
     request_rate_deviation_deposit_fee          = float(aggregator_origination.storage.config.requestRateDeviationDepositFee)
     deviation_reward_amount_xtz                 = int(aggregator_origination.storage.config.deviationRewardAmountXtz)
+    deviation_reward_amount_smvk                = int(aggregator_origination.storage.config.deviationRewardStakedMvk)
     reward_amount_smvk                          = float(aggregator_origination.storage.config.rewardAmountStakedMvk)
     reward_amount_xtz                           = int(aggregator_origination.storage.config.rewardAmountXtz)
     request_rate_update_paused                  = aggregator_origination.storage.breakGlassConfig.requestRateUpdateIsPaused
@@ -69,6 +70,7 @@ async def on_aggregator_origination(
         per_thousand_deviation_trigger              = per_thousand_deviation_trigger,
         percent_oracle_threshold                    = percent_oracle_threshold,
         deviation_reward_amount_xtz                 = deviation_reward_amount_xtz,
+        deviation_reward_amount_smvk                = deviation_reward_amount_smvk,
         reward_amount_smvk                          = reward_amount_smvk,
         reward_amount_xtz                           = reward_amount_xtz,
         request_rate_update_paused                  = request_rate_update_paused,
