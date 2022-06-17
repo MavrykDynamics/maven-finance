@@ -26,8 +26,11 @@ async def on_mvk_mint(
     await user.save()
 
     # Create record
-    mvk_token           = await models.MVKToken.get(address = mvk_token_address)
-    mint_history_data   = models.MintHistoryData(
+    mvk_token               = await models.MVKToken.get(address = mvk_token_address)
+    mvk_token.total_supply  = total_supply
+    await mvk_token.save()
+    
+    mint_history_data       = models.MintHistoryData(
         mvk_token           = mvk_token,
         timestamp           = timestamp,
         user                = user,

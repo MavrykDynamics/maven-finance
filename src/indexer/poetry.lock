@@ -253,7 +253,7 @@ http = ["httpx"]
 
 [[package]]
 name = "dipdup"
-version = "5.1.3"
+version = "5.1.7"
 description = "Python SDK for developing indexers of Tezos smart contracts inspired by The Graph"
 category = "main"
 optional = false
@@ -909,7 +909,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.4"
-content-hash = "63e0bc62ebeecd291db435a017859e8fc99ea7ea8c628d1b504eb93e2e6f0326"
+content-hash = "b8ce143b3964969adb8867eb045b74eb42e2c54f1c970d13acc8dc933ac1ceaf"
 
 [metadata.files]
 aiohttp = [
@@ -1103,8 +1103,8 @@ datamodel-code-generator = [
     {file = "datamodel_code_generator-0.12.3-py3-none-any.whl", hash = "sha256:cd667c030ae925d1577fbc28869ee2e7c390ee375788f3ba6c28ed7598b86060"},
 ]
 dipdup = [
-    {file = "dipdup-5.1.3-py3-none-any.whl", hash = "sha256:f97174a93b64bde44fb6f958f1328368154f77915f76d1f2ac15976332ed1848"},
-    {file = "dipdup-5.1.3.tar.gz", hash = "sha256:6f185e4ec6faa7dbc7dffae507d138c2aa768a0c2d1cdaa5596241d050ea6b64"},
+    {file = "dipdup-5.1.7-py3-none-any.whl", hash = "sha256:0cea4ce77b61c47a5e0814a08ecdab9317770a4512e2e4cf0803a1715bc1b9b4"},
+    {file = "dipdup-5.1.7.tar.gz", hash = "sha256:a4503e789184fb51c09de15bd214e423b5c5bcc004489dc62f2e24ab5082585d"},
 ]
 dnspython = [
     {file = "dnspython-2.2.1-py3-none-any.whl", hash = "sha256:a851e51367fb93e9e1361732c1d60dab63eff98712e503ea7d92e6eccb109b4f"},
