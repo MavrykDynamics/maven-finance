@@ -50,6 +50,7 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
   
   aggregatorConfig        : aggregatorConfigType;
   maintainer              : address;
+  metadata                : bytes;
 ];
 
 type updateAggregatorConfigParamsType is [@layout:comb] record [

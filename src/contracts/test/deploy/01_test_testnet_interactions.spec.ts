@@ -120,6 +120,14 @@ describe("Testnet interactions helper", async () => {
         ).toString('hex')
 
     let createdAggregatorAddress;
+    const aggregatorMetadataBase = Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Aggregator Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex')
 
     
     const signerFactory = async (pk) => {
@@ -2124,7 +2132,8 @@ describe("Testnet interactions helper", async () => {
                     new BigNumber(10000000),      // rewardAmountStakedMvk
                     new BigNumber(1300),          // rewardAmountXtz
                     
-                    oracleMaintainer.pkh          // maintainer
+                    oracleMaintainer.pkh,         // maintainer
+                    aggregatorMetadataBase        // metadata
                 ).send()
                 await operation.confirmation();
             } catch(e){
