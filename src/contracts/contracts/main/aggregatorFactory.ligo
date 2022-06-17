@@ -68,7 +68,7 @@ type aggregatorFactoryAction is
 
       // Aggregator Entrypoints
     | DistributeRewardXtz             of distributeRewardXtzType
-    | DistributeRewardStakedMvk       of distributeRewardTypes
+    | DistributeRewardStakedMvk       of distributeRewardStakedMvkType
 
       // Lambda Entrypoints
     | SetLambda                       of setLambdaType
@@ -221,12 +221,12 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 
 
 // helper function to get distributeReward entrypoint in delegation contract
-function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardTypes) is
+function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
 case (Tezos.get_entrypoint_opt(
       "%distributeReward",
-      contractAddress) : option(contract(distributeRewardTypes))) of [
+      contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardTypes))
+  | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
 ];
 
 
@@ -716,7 +716,7 @@ block {
 
 
 (*  distributeRewardStakedMvk entrypoint  *)
-function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distributeRewardTypes; var s: aggregatorFactoryStorage): return is
+function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distributeRewardStakedMvkType; var s: aggregatorFactoryStorage): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeRewardStakedMvk"] of [

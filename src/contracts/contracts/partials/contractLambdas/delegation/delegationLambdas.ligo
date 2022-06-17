@@ -777,7 +777,7 @@ block {
                 
             // Get variables from parameters
             const eligibleSatellites: set(address) = distributeRewardParams.eligibleSatellites;
-            const totalReward: nat = distributeRewardParams.totalSMvkReward;
+            const totalReward: nat = distributeRewardParams.totalStakedMvkReward;
 
             // Send the rewards from the treasury to the doorman contract
             const generalContractsOptViewSatelliteTreasury : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "satelliteTreasury", s.governanceAddress);

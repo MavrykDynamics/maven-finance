@@ -108,9 +108,9 @@ type delegateToSatelliteType is [@layout:comb] record [
     satelliteAddress : address;
 ]
 
-type distributeRewardTypes is [@layout:comb] record [
+type distributeRewardStakedMvkType is [@layout:comb] record [
     eligibleSatellites    : set(address);
-    totalSMvkReward       : nat;
+    totalStakedMvkReward  : nat;
 ]
 
 type updateSatelliteStatusParamsType is [@layout:comb] record [
@@ -152,7 +152,7 @@ type delegationLambdaActionType is
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
 | LambdaUnregisterAsSatellite                 of (address)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
-| LambdaDistributeReward                      of distributeRewardTypes
+| LambdaDistributeReward                      of distributeRewardStakedMvkType
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
