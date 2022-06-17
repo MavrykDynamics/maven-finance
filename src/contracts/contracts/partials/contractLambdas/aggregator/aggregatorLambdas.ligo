@@ -648,8 +648,8 @@ block{
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
                 
-                const oracleCommit: bytes = getObservationCommit(Tezos.sender, s.observationCommits);
-                const hashedPack: bytes = hasherman(Bytes.pack (params.priceSalted));
+                const oracleCommit  : bytes = getObservationCommit(Tezos.sender, s.observationCommits);
+                const hashedPack    : bytes = hasherman(Bytes.pack (params.priceSalted));
                 if (hashedPack =/= oracleCommit)
                 then failwith(error_REVEAL_DOES_NOT_MATCH_COMMITMENT)
                 else skip;
@@ -658,31 +658,31 @@ block{
                 then failwith(error_TEZOS_ADDRESS_NOT_PRESENT_IN_HASH_COMMIT)
                 else skip;
 
-                const price: nat = params.priceSalted.0;
-                const observationsDataUpdated: observationRevealsType = Map.update(( Tezos.sender ), Some( price ), s.observationReveals);
-                const oracleWhiteListedSize: nat = Map.size (s.oracleAddresses);
-                const numberOfObservationForRound: nat = Map.size (observationsDataUpdated);
+                // get price
+                const price                        : nat = params.priceSalted.0;
 
-                var newLastCompletedRoundPrice := s.lastCompletedRoundPrice;
-                var percentOracleResponse := numberOfObservationForRound * 100n / oracleWhiteListedSize;
-
+                // update observation reveals map
+                const observationsDataUpdated      : observationRevealsType = Map.update(( Tezos.sender ), Some( price ), s.observationReveals);
+                
                 // set rewards for oracles
+                // set staked MVK reward
                 s := updateRewardsStakedMvk(Tezos.sender, s);
 
+                // set xtz reward
                 const rewardAmountXtz        : nat = s.config.rewardAmountXtz;
-                var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
+                var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.sender] of [
                           Some (_amount) -> (_amount) 
                         | None -> 0n 
                     ];
                 s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + rewardAmountXtz;
 
-                // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(Tezos.sender, s);
-                // s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;    
-                
-                // const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewardsStakedMvk(s);
-                // const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.rewardAmountXtz), updateRewardsXtz(s));
-
                 // set new completed round price once percentOracleThreshold is reached
+                const oracleWhiteListedSize        : nat = Map.size (s.oracleAddresses);
+                const numberOfObservationForRound  : nat = Map.size (observationsDataUpdated);
+                
+                var newLastCompletedRoundPrice  := s.lastCompletedRoundPrice;
+                var percentOracleResponse       := numberOfObservationForRound * 100n / oracleWhiteListedSize;
+
                 if (percentOracleResponse >= s.config.percentOracleThreshold) then {
                   const median: nat = getMedianFromMap(pivotObservationMap(observationsDataUpdated), numberOfObservationForRound);
                   newLastCompletedRoundPrice := record [

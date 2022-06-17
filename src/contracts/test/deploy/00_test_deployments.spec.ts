@@ -847,6 +847,7 @@ describe('Contracts Deployment for Tests', async () => {
   
           console.log("Aggregators deployed")
       }
+
     } catch(e){
       console.dir(e, {depth: 5})
     }

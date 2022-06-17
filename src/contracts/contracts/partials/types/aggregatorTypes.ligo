@@ -247,6 +247,12 @@ type aggregatorStorage is [@layout:comb] record [
 
     oracleRewardStakedMvk     : oracleRewardStakedMvkType;
     oracleRewardXtz           : oracleRewardXtzType;
+
+    share : nat;
+    total : nat;
+    reward : nat;
+    rewardTwo:nat;
+    rewardThree:nat;
     
     lambdaLedger              : lambdaLedgerType;
 ];
