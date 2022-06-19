@@ -34,12 +34,12 @@ export default function TableGrid({ tableData, setTableData }: Props) {
   const [openDrop, setOpenDrop] = useState('')
 
   const isMaxRows = MAX_ROWS <= tableData.length
-  const isMaxCols = MAX_COLS <= tableData[0].length
 
   const handleChangeData = (value: string, i: number, j: number) => {
     const cloneTable = [...tableData]
     cloneTable[i][j] = value
     setTableData(cloneTable)
+    setOpenDrop('')
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number) => {
@@ -48,14 +48,14 @@ export default function TableGrid({ tableData, setTableData }: Props) {
   }
 
   const handleAddRow = () => {
+    setOpenDrop('')
     const newFillRow = ['', '', '', PAYMENTS_TYPES[0]]
     setTableData([...tableData, newFillRow])
   }
 
-  const handleDeleteColumn = (j: number) => {
-    const newTable = tableData.map((item) => {
-      return item.filter((_, i) => i !== j)
-    })
+  const handleDeleteRow = (i: number) => {
+    setOpenDrop('')
+    const newTable = tableData.filter((_, index) => index !== i)
     setTableData(newTable)
   }
 
@@ -74,10 +74,8 @@ export default function TableGrid({ tableData, setTableData }: Props) {
           {tableData.map((row, i) => (
             <tr key={i}>
               {row.map((colValue, j) => {
-                const isLastRow = tableData[0].length > 1 && tableData.length === i + 1
                 const isFirstRow = i === 0
                 const isLastColumn = !isFirstRow && j === 3
-
                 const isOpen = openDrop === `${i}-${j}`
 
                 return (
@@ -85,7 +83,7 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                     {isFirstRow ? (
                       colValue
                     ) : !isLastColumn ? (
-                      <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
+                      <input onFocus={() => setOpenDrop('')} value={colValue} onChange={(e) => handleChange(e, i, j)} />
                     ) : (
                       <div className="table-drop">
                         <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
@@ -108,10 +106,10 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                       </div>
                     )}
 
-                    {isLastRow ? (
+                    {isLastColumn && tableData.length > 2 ? (
                       <div className="delete-button-wrap">
-                        <StyledTooltip placement="top" title="Delete column">
-                          <button onClick={() => handleDeleteColumn(j)} className="delete-button">
+                        <StyledTooltip placement="top" title="Delete row">
+                          <button onClick={() => handleDeleteRow(i)} className="delete-button">
                             <Icon id="delete" />
                           </button>
                         </StyledTooltip>
