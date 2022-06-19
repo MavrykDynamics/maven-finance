@@ -10,7 +10,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     border-collapse: collapse;
   }
 
+  tr:hover {
+    .delete-button {
+      display: block;
+    }
+  }
+
   td {
+    position: relative;
     background-color: ${darkColor};
     height: 40px;
     border: 1px solid ${royalPurpleColor};
@@ -119,14 +126,20 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   }
 
   .delete-button-wrap {
-    height: 0;
-    width: 100%;
+    height: 100%;
+    width: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .delete-button {
-    width: 100%;
-
+    width: 40px;
     margin-top: 0;
+    position: absolute;
+    right: -34px;
+    transform: translateY(-50%);
+    top: 50%;
     display: none;
 
     svg {
