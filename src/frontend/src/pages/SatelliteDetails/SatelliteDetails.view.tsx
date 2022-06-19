@@ -1,36 +1,18 @@
 import * as React from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
-
-import { Button } from 'app/App.components/Button/Button.controller'
-import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Loader } from 'app/App.components/Loader/Loader.view'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
-import {
-  SatelliteCard,
-  SatelliteCardRow,
-  SatelliteCardTopRow,
-  SatelliteMainText,
-  SatelliteProfileImage,
-  SatelliteProfileImageContainer,
-  SatelliteSubText,
-  SatelliteTextGroup,
-  SideBySideImageAndText,
-} from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
 import { SatelliteListCard } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.view'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { DOWN } from '../../app/App.components/StatusFlag/StatusFlag.constants'
-import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
 // style
@@ -41,7 +23,7 @@ type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (address: string) => void
-  undelegateCallback: (address: string) => void
+  undelegateCallback: () => void
   userStakedBalanceInSatellite: number
 }
 
@@ -133,7 +115,7 @@ export const SatelliteDetailsView = ({
               undelegateCallback={undelegateCallback}
               userStakedBalance={myDelegatedMVK}
               satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-              isDetaisPage
+              isDetailsPage
             >
               <SatelliteCardBottomRow>
                 <div className="descr satellite-info-block">
