@@ -23,9 +23,12 @@ type StageThreeFormProps = {
   locked: boolean
   accountPkh?: string
 }
+
+export const PAYMENTS_TYPES = ['XTZ', 'MVK']
+
 const INIT_TABLE_DATA = [
   ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)'],
-  ['', '', '', ''],
+  ['', '', '', PAYMENTS_TYPES[0]],
 ]
 
 export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {

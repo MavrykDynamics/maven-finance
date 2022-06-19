@@ -137,4 +137,31 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
       display: inline-block;
     }
   }
+
+  .table-drop {
+    position: relative;
+  }
+
+  .table-drop-btn-cur {
+    color: inherit;
+    font-size: inherit;
+    position: relative;
+
+    & + div {
+      top: 16px;
+      z-index: 2;
+    }
+
+    &::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 4px 4px 0 4px;
+      border-color: ${cyanColor} transparent transparent transparent;
+      position: absolute;
+      right: -16px;
+      top: 6px;
+    }
+  }
 ` //TableGridWrap
