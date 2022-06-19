@@ -546,9 +546,6 @@ function convertGovernanceRound(round: number): GovernanceRoundType {
   return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : 'TIME_LOCK'
 }
 
-function convertActualFee(feeMutez: number): number {
-  return feeMutez / 1_000_0000
-}
 
 function convertToGovernanceStorageType(storage: {
   governance: any
@@ -565,11 +562,13 @@ function convertToGovernanceStorageType(storage: {
   )
 
   const currentGovernance = storage?.governance?.[1] || {}
-
+console.log('%c ||||| currentGovernance.proposal_submission_fee_mutez', 'color:yellowgreen', currentGovernance.proposal_submission_fee_mutez);
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
     address: currentGovernance.address,
-    fee: currentGovernance.proposal_submission_fee_mutez ? convertActualFee(Number(currentGovernance.proposal_submission_fee_mutez)) : 0,
+    fee: currentGovernance.proposal_submission_fee_mutez
+      ? calcWithoutMu(currentGovernance.proposal_submission_fee_mutez)
+      : 0,
     config: {
       successReward: currentGovernance.success_reward,
       minQuorumPercentage: currentGovernance.min_quorum_percentage,
