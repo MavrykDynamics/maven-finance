@@ -38,8 +38,8 @@ export const Satellites = () => {
     dispatch(delegate(satelliteAddress))
   }
 
-  const undelegateCallback = (satelliteAddress: string) => {
-    dispatch(undelegate(satelliteAddress))
+  const undelegateCallback = () => {
+    dispatch(undelegate())
   }
   return (
     <Page>
