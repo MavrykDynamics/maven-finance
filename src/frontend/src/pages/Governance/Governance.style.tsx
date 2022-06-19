@@ -13,7 +13,7 @@ export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
 export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   width: calc(50% - 30px);
-  padding: 28px 27px;
+  padding: 28px 30px;
   border-radius: 10px;
   height: min-content;
   margin-top: 0;

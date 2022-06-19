@@ -26,10 +26,20 @@ export const submitProposal =
 
     try {
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-      console.log('contract', contract)
+      console.log('submitProposal contract', contract)
+
+      const proposalName = form.title
+      const proposalDesc = form.description
+      const proposalIpfs = form.ipfs
+      const proposalSourceCode = form.sourceCodeLink
+      console.log('%c ||||| .propose -> proposalName', 'color:yellowgreen', proposalName)
+      console.log('%c ||||| .propose -> proposalDesc', 'color:yellowgreen', proposalDesc)
+      console.log('%c ||||| .propose -> proposalIpfs', 'color:yellowgreen', proposalIpfs)
+      console.log('%c ||||| .propose -> proposalSourceCode', 'color:yellowgreen', proposalSourceCode)
+      console.log('%c ||||| .send -> amount', 'color:yellowgreen', amount)
 
       const transaction = await contract?.methods
-        .propose(form.title, form.description, form.ipfs, form.sourceCodeLink)
+        .propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode)
         .send({ amount })
       console.log('transaction', transaction)
 
