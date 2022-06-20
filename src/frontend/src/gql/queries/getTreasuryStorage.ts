@@ -1,7 +1,8 @@
-export const GET_TREASURY_ADDRESSES = `
+export const GET_TREASURY_DATA = `
   query getTreasuryAddresses {
     treasury {
-      address
+      address,
+      name
     }
   }
 `

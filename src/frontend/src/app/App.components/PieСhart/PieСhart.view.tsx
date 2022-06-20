@@ -1,46 +1,24 @@
-import { useState } from 'react'
 import { PieChart } from 'react-minimal-pie-chart'
-
-// style
+import { SECTOR_STYLES } from './pieChart.const'
 import { PieChartWrap } from './PieChart.style'
-import { tezosColor, royalPurpleColor, skyColor } from 'styles'
 
-const defaultStroke = 15
-
-const dataMock = [
-  { title: 'One', value: 15, color: tezosColor, segmentStroke: 15 },
-  { title: 'Two', value: 25, color: '#8DD8C7', segmentStroke: 19 },
-  { title: 'Three', value: 40, color: royalPurpleColor, segmentStroke: 15 },
-  { title: 'Three', value: 20, color: skyColor, segmentStroke: 19 },
-]
-
-const dataMockSameStrokeWidth = [
-  { title: 'One', value: 15, color: tezosColor, segmentStroke: defaultStroke },
-  { title: 'Two', value: 50, color: '#8DD8C7', segmentStroke: defaultStroke },
-  { title: 'Three', value: 40, color: royalPurpleColor, segmentStroke: defaultStroke },
-  { title: 'Three', value: 20, color: skyColor, segmentStroke: defaultStroke },
-]
-
-const segmentsStyle = { transition: 'stroke .3s', cursor: 'pointer' }
-export default function PieChartView({
-  differentStrokeWidth,
-  chartData,
-}: {
-  differentStrokeWidth?: boolean
-  chartData: any
-}) {
-  const [selected, setSelected] = useState<undefined | number>(1)
-  const [focused, setFocused] = useState<undefined | number>(undefined)
-
-  const dataToUse = differentStrokeWidth ? chartData : dataMock
-
+export default function PieChartView({ chartData }: { chartData: any }) {
   return (
     <PieChartWrap>
       <PieChart
         radius={40}
+        paddingAngle={0}
         lineWidth={30}
         segmentsTabIndex={1}
-        label={(labelProps) => Math.round(labelProps.dataEntry.percentage) + '%'}
+        label={(labelProps) => {
+          const labelPersent = labelProps.dataEntry.labelPersent
+          const shownPersent = labelPersent
+            ? labelPersent.toFixed(2) < 1
+              ? '< 1%'
+              : `${labelPersent.toFixed(2)}%`
+            : ''
+          return shownPersent
+        }}
         labelPosition={100 - 30 / 2}
         labelStyle={() => ({
           fontSize: '6px',
@@ -48,11 +26,10 @@ export default function PieChartView({
           fill: '#fff',
         })}
         segmentsStyle={(index) => ({
-          ...segmentsStyle,
-          strokeWidth: dataToUse[index].segmentStroke,
+          ...SECTOR_STYLES,
+          strokeWidth: chartData[index].segmentStroke,
         })}
-        data={dataToUse}
-        onClick={() => console.log('click event')}
+        data={chartData}
       />
     </PieChartWrap>
   )
