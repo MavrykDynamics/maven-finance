@@ -25,9 +25,9 @@ async def on_governance_satellite_vote_for_action(
     action_id                       = int(vote_for_action.parameter.actionId)
     vote                            = vote_for_action.parameter.vote
     vote_type                       = models.GovernanceVoteType.YAY
-    if vote == nay:
+    if type(vote) == nay:
         vote_type   = models.GovernanceVoteType.NAY
-    elif vote == pass_:
+    elif type(vote) == pass_:
         vote_type   = models.GovernanceVoteType.PASS
 
     # Votes execution results
