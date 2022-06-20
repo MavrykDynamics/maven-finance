@@ -117,7 +117,7 @@ export const StageTwoFormView = ({
         </FormTitleContainer>
         <div>
           <label>2- Proposal Success Reward</label>
-          <FormTitleEntry>{successReward}</FormTitleEntry>
+          <FormTitleEntry>{successReward} MVK</FormTitleEntry>
         </div>
         <div>
           <label>3- Fee</label>

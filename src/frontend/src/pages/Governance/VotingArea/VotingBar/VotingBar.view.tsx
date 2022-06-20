@@ -53,7 +53,7 @@ export const VotingBarView = ({
   return (
     <VotingContainer>
       <QuorumBar width={quorumWidth}>
-        Quorum <b>{quorumWidth}%</b>
+        Quorum <b>{quorumWidth.toFixed(0)}%</b>
       </QuorumBar>
       <VotingBarStyled>
         <Tooltip title={`${voteStatistics.forVotesMVKTotal} Yay votes`}>
