@@ -19,6 +19,7 @@ import {
 
 // helpers
 import { normalizeProposalStatus, normalizeTokenStandart, getShortByte } from './Governance.helpers'
+import { calcWithoutPrecision, calcWithoutMu } from '../../utils/calcFunctions'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -86,16 +87,26 @@ export const GovernanceView = ({
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
-    abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-    againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-    forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-    passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
-    unusedVotesMVKTotal:
-      mvkTokenStorage.totalSupply -
-      (rightSideContent?.abstainMvkTotal ?? 0) +
-      (rightSideContent?.downvoteMvkTotal ?? 0) +
-      (rightSideContent?.upvoteMvkTotal ?? 0),
+    abstainVotesMVKTotal: 0,
+    againstVotesMVKTotal: 0,
+    forVotesMVKTotal: 0,
+    passVotesMVKTotal: 0,
+    unusedVotesMVKTotal: 0,
   })
+
+  useEffect(() => {
+    setVoteStatistics({
+      abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
+      againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
+      forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
+      passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
+      unusedVotesMVKTotal:
+        mvkTokenStorage.totalSupply -
+        (rightSideContent?.abstainMvkTotal ?? 0) +
+        (rightSideContent?.downvoteMvkTotal ?? 0) +
+        (rightSideContent?.upvoteMvkTotal ?? 0),
+    })
+  }, [mvkTokenStorage.totalSupply, rightSideContent])
 
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
@@ -403,14 +414,21 @@ export const GovernanceView = ({
                       <td>Payment Type (XTZ/MVK)</td>
                     </tr>
                     {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
+                      const paymentType = normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)
+
+                      const amount =
+                        paymentType === 'MVK'
+                          ? calcWithoutPrecision(item.token_amount)
+                          : calcWithoutMu(item.token_amount)
+
                       return (
                         <tr key={item.id}>
                           <td>
                             <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
                           </td>
                           <td>{item.title}</td>
-                          <td>{item.token_amount}</td>
-                          <td>{normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)}</td>
+                          <td>{amount}</td>
+                          <td>{paymentType}</td>
                         </tr>
                       )
                     })}
