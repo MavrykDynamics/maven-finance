@@ -24,7 +24,7 @@ async def on_governance_financial_vote_for_request(
 
     # Process vote
     vote_type           = models.GovernanceVoteType.YAY
-    if vote == disapprove:
+    if type(vote) == disapprove:
         vote_type       = models.GovernanceVoteType.NAY
 
     # Create and update records

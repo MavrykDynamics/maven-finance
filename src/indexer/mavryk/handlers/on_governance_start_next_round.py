@@ -28,17 +28,17 @@ async def on_governance_start_next_round(
     satellite_snapshots                 = start_next_round.storage.snapshotLedger
 
     # Current round
-    current_round = models.GovernanceRoundType.PROPOSAL
-    if current_round == proposal:
-        current_round = models.GovernanceRoundType.PROPOSAL
-    elif current_round == timelock:
-        current_round = models.GovernanceRoundType.TIMELOCK
-    elif current_round == voting:
-        current_round = models.GovernanceRoundType.VOTING
+    current_round_type = models.GovernanceRoundType.PROPOSAL
+    if type(current_round) == proposal:
+        current_round_type = models.GovernanceRoundType.PROPOSAL
+    elif type(current_round) == timelock:
+        current_round_type = models.GovernanceRoundType.TIMELOCK
+    elif type(current_round) == voting:
+        current_round_type = models.GovernanceRoundType.VOTING
 
     # Update record
     governance  = await models.Governance.get(address   = governance_address)
-    governance.current_round                            = current_round
+    governance.current_round                            = current_round_type
     governance.current_blocks_per_proposal_round        = current_blocks_proposal_round
     governance.current_blocks_per_voting_round          = current_block_voting_round
     governance.current_blocks_per_timelock_round        = current_block_timelock_round

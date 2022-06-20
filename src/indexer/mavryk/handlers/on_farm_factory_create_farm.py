@@ -1,9 +1,9 @@
 
-from mavryk.types.farm_factory.parameter.create_farm import CreateFarmParameter, TokenStandardItem as fa12, TokenStandardItem1 as fa2
+from mavryk.types.farm_factory.parameter.create_farm import CreateFarmParameter
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 from mavryk.types.farm_factory.storage import FarmFactoryStorage
-from mavryk.types.farm.storage import FarmStorage
+from mavryk.types.farm.storage import FarmStorage, TokenStandardItem as fa12, TokenStandardItem1 as fa2
 from dipdup.models import Origination
 import mavryk.models as models
 
@@ -43,9 +43,9 @@ async def on_farm_factory_create_farm(
 
     # Token standard
     lp_token_standard_type  = models.TokenType.OTHER
-    if lp_token_standard == fa2:
+    if type(lp_token_standard) == fa2:
         lp_token_standard_type  = models.TokenType.FA2
-    elif lp_token_standard == fa12:
+    elif type(lp_token_standard) == fa12:
         lp_token_standard_type  = models.TokenType.FA12
 
     # Create a contract and index it
