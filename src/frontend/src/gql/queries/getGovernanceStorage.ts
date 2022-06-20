@@ -33,6 +33,7 @@ export const GOVERNANCE_STORAGE_QUERY = `
       quorum_mvk_total
       quorum_percentage
       timelock_proposal_id
+      cycle_highest_voted_proposal_id
     }
     governance_financial_request_record {
       approve_vote_total

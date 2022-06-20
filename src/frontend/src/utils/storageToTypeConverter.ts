@@ -560,7 +560,7 @@ function convertToGovernanceStorageType(storage: {
   )
 
   const currentGovernance = storage?.governance?.[1] || {}
-console.log('%c ||||| currentGovernance.proposal_submission_fee_mutez', 'color:yellowgreen', currentGovernance.proposal_submission_fee_mutez);
+
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
     address: currentGovernance.address,
@@ -595,8 +595,9 @@ console.log('%c ||||| currentGovernance.proposal_submission_fee_mutez', 'color:y
     snapshotLedger: satelliteSnapshotLedger,
     startLevel: currentGovernance.start_level,
     tempFlag: currentGovernance.start_level,
-    timelockProposalId: currentGovernance.timelock_proposal,
+    timelockProposalId: currentGovernance.timelock_proposal_id,
     cycleCounter: currentGovernance.cycle_counter,
+    cycleHighestVotedProposalId: currentGovernance.cycle_highest_voted_proposal_id,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,
@@ -793,6 +794,7 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     governanceId: item.governance_id,
     details: item.details,
     invoiceTable: item.invoice_table,
+    paymentProcessed: item.payment_processed,
   }
   // @ts-ignore
   return convertData

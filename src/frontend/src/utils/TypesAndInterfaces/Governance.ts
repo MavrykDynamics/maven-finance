@@ -72,7 +72,7 @@ export interface ProposalPaymentType {
 
 export interface ProposalRecordType {
   id: number
-
+  paymentProcessed?: boolean
   proposerId: string
   status: number
   title: string // title
@@ -145,6 +145,7 @@ export interface GovernanceStorage {
   financialRequestCounter?: number
   tempFlag: number
   cycleCounter: number
+  cycleHighestVotedProposalId: number
 }
 
 export interface FinancialRequestRecord {

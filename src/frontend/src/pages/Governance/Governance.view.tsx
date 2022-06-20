@@ -18,7 +18,12 @@ import {
 } from './Governance.actions'
 
 // helpers
-import { normalizeProposalStatus, normalizeTokenStandart, getShortByte } from './Governance.helpers'
+import {
+  normalizeProposalStatus,
+  normalizeTokenStandart,
+  getShortByte,
+  getProposalStatusInfo,
+} from './Governance.helpers'
 import { calcWithoutPrecision, calcWithoutMu } from '../../utils/calcFunctions'
 
 // view
@@ -81,6 +86,7 @@ export const GovernanceView = ({
   const [votingEnding, setVotingEnding] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  const { governanceStorage } = useSelector((state: State) => state.governance)
 
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isVotingRound = governancePhase === 'VOTING'
@@ -200,13 +206,26 @@ export const GovernanceView = ({
     history: false,
   })
 
-  const rightSideContentStatus = normalizeProposalStatus(
+  const statusInfo = getProposalStatusInfo(
     governancePhase,
-    rightSideContent?.status ?? 0,
-    Boolean(rightSideContent?.executed),
-    Boolean(rightSideContent?.locked),
-    !isVisibleHistoryProposal,
+    rightSideContent,
+    governanceStorage.timelockProposalId,
+    !onProposalHistoryPage,
+    governanceStorage.getProposalStatusInfo,
+    governanceStorage.cycleCounter,
   )
+
+  // const rightSideContentStatus = normalizeProposalStatus(
+  //   governancePhase,
+  //   rightSideContent?.status ?? 0,
+  //   Boolean(rightSideContent?.executed),
+  //   Boolean(rightSideContent?.locked),
+  //   !isVisibleHistoryProposal,
+  // )
+
+  const rightSideContentStatus = statusInfo.statusFlag
+
+  console.log('%c ||||| statusInfo', 'color:green', statusInfo)
 
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
   const someVisible = Object.values(visibleLists).some((item) => item)
