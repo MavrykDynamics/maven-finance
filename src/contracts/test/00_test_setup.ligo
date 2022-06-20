@@ -93,11 +93,11 @@ const storages = {
             minProposalRoundVotesRequired   = 10000n;
 
             minQuorumPercentage         = 1000n;
-            minQuorumStakedMvkTotal     = 10000n;
+            minYayVotePercentage        = 5100n;
             
             votingPowerRatio            = 10000n;
             proposalSubmissionFee       = 10000000n;
-            maxProposalsPerDelegate     = 20n;
+            maxProposalsPerSatellite    = 20n;
             
             newBlockTimeLevel           = 0n;
             newBlocksPerMinute          = 0n;
