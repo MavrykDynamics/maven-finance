@@ -82,6 +82,7 @@ type proposalRecordType is [@layout:comb] record [
   
     minQuorumPercentage               : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
     minQuorumStakedMvkTotal           : nat;                     // log of min quorum in MVK - capture state at this point
+    minYayVotePercentage              : nat;                     // log of min yay votes percentage - capture state at this point
     quorumCount                       : nat;                     // log of turnout for voting round - number of satellites who voted
     quorumStakedMvkTotal              : nat;                     // log of total positive votes in MVK 
     startDateTime                     : timestamp;               // log of when the proposal was proposed
@@ -113,12 +114,12 @@ type governanceConfigType is [@layout:comb] record [
     minProposalRoundVotePercentage      : nat;  // percentage of staked MVK votes required to pass proposal round
     minProposalRoundVotesRequired       : nat;  // amount of staked MVK votes required to pass proposal round
 
-    minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in MVK)
-    minQuorumStakedMvkTotal             : nat;  // minimum quorum in MVK
+    minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in SMVK)
+    minYayVotePercentage                : nat;  // minimum yay percentage to be achieved from the quorum SMVK
 
     votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
     proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
-    maxProposalsPerDelegate             : nat;  // number of active proposals delegate can have at any given time
+    maxProposalsPerSatellite            : nat;  // number of active proposals a satellite can make
 
     blocksPerMinute                     : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
 
@@ -142,10 +143,10 @@ type governanceUpdateConfigActionType is
 | ConfigMinProposalRoundVotePct     of unit
 | ConfigMinProposalRoundVotesReq    of unit
 | ConfigMinQuorumPercentage         of unit
-| ConfigMinQuorumStakedMvkTotal     of unit
+| ConfigMinYayVotePercentage        of unit
 | ConfigVotingPowerRatio            of unit
 | ConfigProposeFeeMutez             of unit
-| ConfigMaxProposalsPerDelegate     of unit
+| ConfigMaxProposalsPerSatellite    of unit
 | ConfigBlocksPerProposalRound      of unit
 | ConfigBlocksPerVotingRound        of unit
 | ConfigBlocksPerTimelockRound      of unit
@@ -184,7 +185,8 @@ type currentCycleInfoType is [@layout:comb] record[
     roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
     roundProposers              : map(address, set(nat));  // proposer, 
     roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    cycleTotalVotersReward      : nat;
+    cycleTotalVotersReward      : nat;                     // reward given to all voters (will be split by the number of voters this cycle)
+    minQuorumStakedMvkTotal     : nat;                     // quorum to reach in order to reach the timelock round
 ];
 
 // ------------------------------------------------------------------------------
@@ -282,12 +284,12 @@ type governanceStorage is [@layout:comb] record [
     // current round state variables - will be flushed periodically
     currentCycleInfo                  : currentCycleInfoType;
 
-    nextProposalId                      : nat;                    // counter of next proposal id
-    cycleCounter                        : nat;                    // counter of current cycle 
-    cycleHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
-    timelockProposalId                  : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
+    nextProposalId                    : nat;                    // counter of next proposal id
+    cycleCounter                      : nat;                    // counter of current cycle 
+    cycleHighestVotedProposalId       : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
+    timelockProposalId                : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
 
     // lambda storage
-    lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
+    lambdaLedger                      : lambdaLedgerType;             // governance contract lambdas
 
 ]

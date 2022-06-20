@@ -193,10 +193,10 @@ block {
                     | ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minProposalRoundVotePercentage := updateConfigNewValue
                     | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
                     | ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage                     := updateConfigNewValue
-                    | ConfigMinQuorumStakedMvkTotal (_v)                -> s.config.minQuorumStakedMvkTotal                 := updateConfigNewValue
+                    | ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage                    := updateConfigNewValue
                     | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                        := updateConfigNewValue
                     | ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
-                    | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
+                    | ConfigMaxProposalsPerSatellite (_v)               -> s.config.maxProposalsPerSatellite                := updateConfigNewValue
                     | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound                  := updateConfigNewValue
                     | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound                    := updateConfigNewValue
                     | ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound                  := updateConfigNewValue
@@ -415,7 +415,10 @@ block {
                             if Map.size(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
                             else skip;
 
-                            if proposal.yayVoteStakedMvkTotal < proposal.minQuorumStakedMvkTotal then {
+                            // Calculate quorum and yay votes
+                            const yayVotesRequired: nat = proposal.quorumStakedMvkTotal * s.config.minYayVotePercentage / 10000n;
+
+                            if proposal.quorumStakedMvkTotal < proposal.minQuorumStakedMvkTotal or proposal.yayVoteStakedMvkTotal < yayVotesRequired then {
                             
                                 // Vote criteria not matched - restart a new proposal round
                                 s := setupProposalRound(s);
@@ -533,7 +536,7 @@ block {
                     | None              -> Set.empty
                 ];
 
-                if Set.cardinal(proposerProposals) < s.config.maxProposalsPerDelegate then skip
+                if Set.cardinal(proposerProposals) < s.config.maxProposalsPerSatellite then skip
                 else failwith(error_MAX_PROPOSAL_REACHED);
 
                 var newProposalRecord : proposalRecordType := record [
@@ -569,7 +572,8 @@ block {
                     voters                              = emptyVotersMap;                  // voting round ledger
 
                     minQuorumPercentage                 = s.config.minQuorumPercentage;    // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-                    minQuorumStakedMvkTotal             = s.config.minQuorumStakedMvkTotal;// log of min quorum in MVK - capture state at this point     
+                    minQuorumStakedMvkTotal             = s.currentCycleInfo.minQuorumStakedMvkTotal;// log of min quorum in MVK
+                    minYayVotePercentage                = s.config.minYayVotePercentage;   // log of min yay votes percentage - capture state at this point
                     quorumCount                         = 0n;                              // log of turnout for voting round - number of satellites who voted
                     quorumStakedMvkTotal                = 0n;                              // log of total positive votes in MVK  
                     startDateTime                       = Tezos.now;                       // log of when the proposal was proposed

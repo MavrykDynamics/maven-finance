@@ -332,12 +332,12 @@
 //                 const newConfigValue = MVK(2);
 
 //                 // Operation
-//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumStakedMvkTotal").send();
+//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinYayVotePercentage").send();
 //                 await updateConfigOperation.confirmation();
 
 //                 // Final values
 //                 governanceStorage = await governanceInstance.storage();
-//                 const updateConfigValue = governanceStorage.config.minQuorumStakedMvkTotal;
+//                 const updateConfigValue = governanceStorage.config.minYayVotePercentage;
 
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
@@ -540,7 +540,7 @@
 //                 const successReward = governanceStorage.config.successReward
 //                 const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                 const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-//                 const minQuorumStakedMvkTotal = governanceStorage.config.minQuorumStakedMvkTotal
+//                 const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
 //                 const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                 const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
 //                 const cycleCounter = governanceStorage.cycleCounter
@@ -577,7 +577,7 @@
 //                 assert.equal(newProposal.passVoteCount.toNumber(), 0);
 //                 assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
 //                 assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-//                 assert.equal(newProposal.minQuorumStakedMvkTotal.toNumber(), minQuorumStakedMvkTotal.toNumber());
+//                 assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
 //                 assert.equal(newProposal.quorumCount.toNumber(), 0);
 //                 assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
 //                 assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
