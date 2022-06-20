@@ -34,9 +34,6 @@ import {
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { TreasuryType } from './TypesAndInterfaces/Treasury'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
-import { ProposalStatus } from './TypesAndInterfaces/Governance'
-import { TreasuryAddressesType } from 'reducers/treasury';
-
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
