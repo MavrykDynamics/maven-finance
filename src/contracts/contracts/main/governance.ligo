@@ -356,7 +356,6 @@ block {
         Yay -> block {
             _proposal.yayVoteCount            := _proposal.yayVoteCount + 1n;    
             _proposal.yayVoteStakedMvkTotal   := _proposal.yayVoteStakedMvkTotal + totalVotingPower;
-            _proposal.quorumStakedMvkTotal    := _proposal.quorumStakedMvkTotal + totalVotingPower;
           }
 
       | Nay -> block {
@@ -371,7 +370,8 @@ block {
       
     ];
 
-    _proposal.quorumCount := _proposal.quorumCount + 1n;
+    _proposal.quorumStakedMvkTotal    := _proposal.quorumStakedMvkTotal + totalVotingPower;
+    _proposal.quorumCount             := _proposal.quorumCount + 1n;
 
 } with _proposal
 
@@ -386,20 +386,15 @@ block {
 
           var yayVoteCount            : nat := 0n;
           var yayVoteStakedMvkTotal   : nat := 0n;
-          var quorumStakedMvkTotal    : nat := 0n;
 
           if _proposal.yayVoteCount < 1n then yayVoteCount := 0n
             else yayVoteCount := abs(_proposal.yayVoteCount - 1n);
 
           if _proposal.yayVoteStakedMvkTotal < totalVotingPower then yayVoteStakedMvkTotal := 0n
-            else yayVoteStakedMvkTotal := abs(_proposal.yayVoteStakedMvkTotal - totalVotingPower);
-
-          if _proposal.quorumStakedMvkTotal < totalVotingPower then quorumStakedMvkTotal := 0n
-            else quorumStakedMvkTotal := abs(_proposal.quorumStakedMvkTotal - totalVotingPower);              
+            else yayVoteStakedMvkTotal := abs(_proposal.yayVoteStakedMvkTotal - totalVotingPower);          
 
           _proposal.yayVoteCount          := yayVoteCount;
           _proposal.yayVoteStakedMvkTotal := yayVoteStakedMvkTotal;
-          _proposal.quorumStakedMvkTotal  := quorumStakedMvkTotal;
 
         }
 
@@ -436,6 +431,18 @@ block {
       }
       
     ];
+
+    var quorumCount             : nat := 0n;
+    var quorumStakedMvkTotal    : nat := 0n;
+
+    if _proposal.quorumCount < 1n then quorumCount := 0n
+      else quorumCount := abs(_proposal.quorumCount - 1n);
+
+    if _proposal.quorumStakedMvkTotal < totalVotingPower then quorumStakedMvkTotal := 0n
+      else quorumStakedMvkTotal := abs(_proposal.quorumStakedMvkTotal - totalVotingPower);          
+
+    _proposal.quorumCount           := quorumCount;
+    _proposal.quorumStakedMvkTotal  := quorumStakedMvkTotal;  
 
 } with _proposal
 
@@ -513,6 +520,19 @@ block {
     const emptyProposerMap  : map(address, set(nat))  = map [];
     const emptySnapshotMap  : snapshotLedgerType      = map [];
 
+    // Get SMVK Total Supply
+    const doormanAddress : address   = case s.generalContracts["doorman"] of [
+        Some(_address) -> _address
+      | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+    ];
+    const balanceView : option (nat)    = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+    const smvkTotalSupply: nat = case balanceView of [
+        Some (value) -> value
+      | None -> failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND)
+    ];
+    const minQuorumStakedMvkTotal: nat  = smvkTotalSupply * s.config.minQuorumPercentage / 10000n ;
+
+    // Setup current round info
     s.currentCycleInfo.round                         := (Proposal : roundType);
     s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
     s.currentCycleInfo.blocksPerVotingRound          := s.config.blocksPerVotingRound;
@@ -521,6 +541,7 @@ block {
     s.currentCycleInfo.roundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleInfo.cycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
+    s.currentCycleInfo.minQuorumStakedMvkTotal       := minQuorumStakedMvkTotal;
     s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals
     s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
     s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters

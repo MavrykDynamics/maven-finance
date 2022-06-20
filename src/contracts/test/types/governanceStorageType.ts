@@ -32,6 +32,7 @@ export type governanceStorageType = {
     roundProposers             : MichelsonMap<MichelsonMapKey, unknown>;
     roundVotes                 : MichelsonMap<MichelsonMapKey, unknown>;
     cycleTotalVotersReward     : BigNumber;
+    minQuorumStakedMvkTotal    : BigNumber;
   };
 
   cycleHighestVotedProposalId : BigNumber;
