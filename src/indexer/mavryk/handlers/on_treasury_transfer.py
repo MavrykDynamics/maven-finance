@@ -25,14 +25,14 @@ async def on_treasury_transfer(
         token_type              = models.TokenType.OTHER
         token_contract_address  = ""
         token_id                = 0
-        if token == fa12:
+        if type(token) == fa12:
             token_type              = models.TokenType.FA12
             token_contract_address  = fa12.fa12
-        elif token == fa2:
+        elif type(token) == fa2:
             token_type              = models.TokenType.FA2
             token_contract_address  = fa2.fa2.tokenContractAddress
             token_id                = int(fa2.fa2.tokenId)
-        elif token == tez:
+        elif type(token) == tez:
             token_type              = models.TokenType.XTZ
 
         receiver, _             = await models.MavrykUser.get_or_create(address = receiver_address)

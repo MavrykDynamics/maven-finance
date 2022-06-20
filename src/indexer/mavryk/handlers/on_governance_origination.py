@@ -46,11 +46,11 @@ async def on_governance_origination(
 
     # Current round
     governance_round_type = models.GovernanceRoundType.PROPOSAL
-    if current_round == proposal:
+    if type(current_round) == proposal:
         governance_round_type = models.GovernanceRoundType.PROPOSAL
-    elif current_round == timelock:
+    elif type(current_round) == timelock:
         governance_round_type = models.GovernanceRoundType.TIMELOCK
-    elif current_round == voting:
+    elif type(current_round) == voting:
         governance_round_type = models.GovernanceRoundType.VOTING
 
     # Create record

@@ -21,9 +21,10 @@ async def on_treasury_origination(
     unstake_mvk_paused              = treasury_origination.storage.breakGlassConfig.unstakeMvkIsPaused
 
     # Create record
-    governance          = await models.Governance.get(
+    governance, _                   = await models.Governance.get_or_create(
         address = governance_address
     )
+    await governance.save()
     treasury            = models.Treasury(
         address                         = treasury_address,
         admin                           = admin,

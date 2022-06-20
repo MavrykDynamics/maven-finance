@@ -26,14 +26,14 @@ async def on_governance_update_payment_data(
     token_address       = ""
     token_id            = 0
     token_standard      = models.TokenType.OTHER
-    if token == fa12:
+    if type(token) == fa12:
         token_standard  = models.TokenType.FA12
         token_address   = token.fa12
-    elif token == fa2:
+    elif type(token) == fa2:
         token_standard  = models.TokenType.FA2
         token_address   = token.fa2.tokenContractAddress
         token_id        = int(token.fa2.tokenId)
-    elif token == tez:
+    elif type(token) == tez:
         token_standard  = models.TokenType.TEZ
 
     # Update or create record

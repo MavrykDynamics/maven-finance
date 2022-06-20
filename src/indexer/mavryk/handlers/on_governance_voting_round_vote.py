@@ -32,9 +32,9 @@ async def on_governance_voting_round_vote(
 
     # Get vote
     vote        = models.GovernanceVoteType.YAY
-    if vote_type == abstain:
+    if type(vote_type) == abstain:
         vote    = models.GovernanceVoteType.ABSTAIN
-    elif vote_type == nay:
+    elif type(vote_type) == nay:
         vote    = models.GovernanceVoteType.NAY
 
     # Create and update records
