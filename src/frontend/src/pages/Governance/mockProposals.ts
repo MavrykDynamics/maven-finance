@@ -35,7 +35,7 @@ export const MOCK_ONGOING_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.ONGOING,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -80,7 +80,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -125,7 +125,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
       currentRoundProposal: '0',
@@ -169,7 +169,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -214,7 +214,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -259,7 +259,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -303,7 +303,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -347,7 +347,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -392,7 +392,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -435,7 +435,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -478,7 +478,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -524,11 +524,11 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.EXECUTED,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
-      currentRoundProposal: '0',
+      currentRoundProposal: '1',
       roundHighestVotedProposal: '0',
       cycle: 0,
       timelockProposal: '',
@@ -568,7 +568,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.EXECUTED,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,
@@ -585,7 +585,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
 
       proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
-      status: ProposalStatus.EXECUTED,
+      status: 1,
       title: 'Retroactive Proxy Contract',
 
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44822368000000000000000000)',
@@ -630,7 +630,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
 
       proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
-      status: ProposalStatus.EXECUTED,
+      status: 1,
 
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44822368000000000000000000)',
       description:
@@ -674,7 +674,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
 
       proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
-      status: ProposalStatus.DEFEATED,
+      status: 1,
 
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
@@ -719,7 +719,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
 
       proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
-      status: ProposalStatus.DEFEATED,
+      status: 1,
 
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
@@ -763,7 +763,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
 
       proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
-      status: ProposalStatus.EXECUTED,
+      status: 1,
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
         'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old..',
@@ -835,7 +835,7 @@ export const MOCK_EXEC_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.WAITING,
+      status: 1,
 
       minProposalRoundVoteRequirement: 0,
       minProposalRoundVotePercentage: 0,

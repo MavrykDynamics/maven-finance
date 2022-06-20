@@ -11,10 +11,16 @@ export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+
+  &:hover,
+  &.active {
+    border: 1px solid ${cyanColor};
+    box-shadow: 0px 4px 4px rgba(134, 212, 201, 0.5);
+  }
 `
 
 export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
-  padding: 22px 16px 18px 16px;
+  padding: 22px 16px 18px 30px;
   background-color: ${({ theme }) => theme.containerColor};
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -32,7 +38,8 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     font-weight: 600;
     font-size: 24px;
     color: ${headerColor};
-    width: 150px;
+    width: 180px;
+    padding-right: 10px;
 
     .truncate-title {
       white-space: nowrap;
@@ -57,5 +64,9 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     grid-column-start: 1;
     grid-column-end: 3;
     color: ${cyanColor};
+
+    svg {
+      stroke: rgb(134, 212, 201);
+    }
   }
 `

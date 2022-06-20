@@ -34,6 +34,10 @@ export const ProposalSubmissionForm = styled(Card)`
     padding-bottom: 9px;
     display: block;
     padding-left: 5px;
+
+    span {
+      text-transform: lowercase;
+    }
   }
 
   .description-textarea {
@@ -49,6 +53,31 @@ export const ProposalSubmissionForm = styled(Card)`
       height: 189px;
     }
   }
+
+  .step-bytes-title {
+    margin-bottom: 19px;
+    width: 517px;
+  }
+
+  .source-code-input-wrap {
+    width: 517px;
+  }
+
+  .step-bytes {
+    position: relative;
+
+    article {
+      margin-top: 27px;
+    }
+  }
+
+  .step-plus-bytes {
+    position: absolute;
+    color: ${headerColor};
+    font-size: 24px;
+    right: 0;
+    bottom: -26px;
+  }
 `
 
 export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
@@ -62,10 +91,10 @@ export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 27px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 170px;
   column-gap: 30px;
 `
 export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``

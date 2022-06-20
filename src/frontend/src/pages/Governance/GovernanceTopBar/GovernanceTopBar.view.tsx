@@ -1,5 +1,6 @@
 import * as React from 'react'
-
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GovernancePhase } from '../../../reducers/governance'
 
@@ -25,6 +26,7 @@ export const GovernanceTopBarView = ({
   isInEmergencyGovernance,
   handleMoveToNextRound,
 }: GovernanceTopBarViewProps) => {
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const isInExecution =
     governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'
   return (
@@ -66,6 +68,7 @@ export const GovernanceTopBarView = ({
               loading={loading}
               kind="actionSecondary"
               className="move-to-next"
+              disabled={!accountPkh}
               onClick={handleMoveToNextRound}
             />
           )}

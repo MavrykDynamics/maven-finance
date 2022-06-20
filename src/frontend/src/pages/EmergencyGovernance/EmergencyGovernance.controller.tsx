@@ -22,6 +22,7 @@ export type EmergencyGovernanceLedgerType = {
   id: number
   title: string
   startTimestamp: string
+  executedTimestamp: string
   proposerId: string
   description: string
   dropped: boolean
@@ -40,7 +41,7 @@ export const EmergencyGovernance = () => {
 
   const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger
 
-  console.log('%c ||||| emergencyGovernanceLedger', 'color:pink', emergencyGovernanceLedger)
+  console.log('%c ||||| emergencyGovernanceLedger', 'color:yellowgreen', emergencyGovernanceLedger)
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())

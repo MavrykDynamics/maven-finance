@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { subTextColor, upColor } from 'styles'
+import { subTextColor, upColor, skyColor } from 'styles'
 
 import { MavrykTheme } from '../../../../styles/interfaces'
 
@@ -33,6 +33,11 @@ export const QuorumBar = styled.div<{ width: number; theme: MavrykTheme }>`
   color: ${({ theme }) => theme.headerColor};
   font-weight: 400;
   font-size: 12px;
+
+  b {
+    font-weight: 700;
+    font-size: 14px;
+  }
 `
 export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
   z-index: 20;
@@ -77,8 +82,8 @@ export const VotingAgainst = styled.div<{ width: number; theme: MavrykTheme }>`
 `
 export const VotingAbstention = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
-  background-color: ${({ theme }) => theme.infoColor};
-  color: ${({ theme }) => theme.infoColor};
+  background-color: ${skyColor};
+  color: ${skyColor};
 `
 export const NotYetVoted = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;

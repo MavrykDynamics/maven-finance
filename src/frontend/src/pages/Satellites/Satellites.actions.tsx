@@ -2,11 +2,7 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
-import {
-  DELEGATION_STORAGE_QUERY,
-  DELEGATION_STORAGE_QUERY_NAME,
-  DELEGATION_STORAGE_QUERY_VARIABLE,
-} from '../../gql/queries'
+import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 
@@ -22,64 +18,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     )
 
     const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer?.delegation[0])
-    // const storage = await getContractStorage(delegationAddress.address)
-    // const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'satelliteLedger')
-    // const delegateLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'delegateLedger')
-    //
-    // const satelliteLedger: SatelliteRecord[] = []
-    //
-    // satelliteLedgerBigMap.forEach((element: any) => {
-    //   const satelliteFee =
-    //       Number(element.value?.satelliteFee) > 0
-    //         ? (Number(element.value?.satelliteFee) / PRECISION_NUMBER).toFixed(2)
-    //         : 0,
-    //     mvkBalance =
-    //       Number(element.value?.mvkBalance) > 0 ? (Number(element.value?.mvkBalance) / PRECISION_NUMBER).toFixed(2) : 0,
-    //     totalDelegatedAmount =
-    //       Number(element.value?.totalDelegatedAmount) > 0
-    //         ? (Number(element.value?.totalDelegatedAmount) / PRECISION_NUMBER).toFixed(2)
-    //         : 0
-    //
-    //   const newSatellite: SatelliteRecord = {
-    //     address: element.key,
-    //     name: element.value?.name,
-    //     image: element.value?.image,
-    //     description: element.value?.description,
-    //     satelliteFee: String(satelliteFee),
-    //     active: element.value?.status === '1',
-    //     mvkBalance: String(mvkBalance),
-    //     totalDelegatedAmount: String(totalDelegatedAmount),
-    //     registeredDateTime: new Date(element.value?.registeredDateTime),
-    //     unregisteredDateTime: new Date(element.value?.unregisteredDateTime),
-    //   }
-    //
-    //   satelliteLedger.push(newSatellite)
-    // })
-    //
-    // const delegationLedger: DelegationLedger = new MichelsonMap<string, DelegateRecord>()
-    // delegateLedgerBigMap.forEach((element: any) => {
-    //   const keyAddress = element.key
-    //   const newDelegateRecord: DelegateRecord = {
-    //     satelliteAddress: element.value?.satelliteAddress,
-    //     delegatedDateTime: new Date(element.value?.delegatedDateTime),
-    //   }
-    //   delegationLedger.set(keyAddress, newDelegateRecord)
-    // })
-    // const delegationConfig: DelegationConfig = {
-    //   maxSatellites: storage?.config.maxSatellites,
-    //   delegationRatio: storage?.config.delegationRatio,
-    //   minimumStakedMvkBalance:
-    //     Number(storage?.config.minimumStakedMvkBalance) > 0
-    //       ? Number(storage?.config.minimumStakedMvkBalance) / PRECISION_NUMBER
-    //       : 0,
-    // }
-    // const delegationStorage: DelegationStorage = {
-    //   admin: storage?.admin,
-    //   satelliteLedger: satelliteLedger,
-    //   config: delegationConfig,
-    //   delegateLedger: delegationLedger,
-    //   breakGlassConfig: storage?.breakGlassConfig,
-    // }
 
     dispatch({
       type: GET_DELEGATION_STORAGE,
@@ -112,10 +50,20 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
     return
   }
 
+  if (state.user.user.myMvkTokenBalance === 0 && state.user.user.mySMvkTokenBalance === 0) {
+    dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please buy MVK and stake it'))
+    return
+  }
+
+  if (state.user.user.mySMvkTokenBalance === 0) {
+    dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please stake your MVK'))
+    return
+  }
+
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
+    const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh, satelliteAddress).send()
     console.log('transaction', transaction)
 
     dispatch({
@@ -149,7 +97,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
 export const UNDELEGATE_REQUEST = 'UNSTAKE_REQUEST'
 export const UNDELEGATE_RESULT = 'UNSTAKE_RESULT'
 export const UNDELEGATE_ERROR = 'UNSTAKE_ERROR'
-export const undelegate = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
+export const undelegate = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -165,7 +113,7 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.undelegateFromSatellite(satelliteAddress).send()
+    const transaction = await contract?.methods.undelegateFromSatellite(state.wallet.accountPkh).send()
     console.log('transaction', transaction)
 
     dispatch({

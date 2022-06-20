@@ -1,27 +1,20 @@
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
-import React, { useEffect } from 'react'
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import Select from 'react-select'
 
 import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 import { State } from '../../../reducers'
 import { darkMode, lightMode } from '../../../styles'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-import {
-  SatelliteListEmptyContainer,
-  SatelliteListStyled,
-  SatelliteSearchFilter,
-  SelectContainer,
-} from './SatelliteList.style'
+import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter } from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
 
 type SatelliteListViewProps = {
   loading: boolean
   satellitesList: SatelliteRecord[]
   delegateCallback: (satelliteAddress: string) => void
-  undelegateCallback: (satelliteAddress: string) => void
+  undelegateCallback: () => void
   handleSearch: (e: any) => void
   handleSelect: (selectedOption: any) => void
   userStakedBalance: number

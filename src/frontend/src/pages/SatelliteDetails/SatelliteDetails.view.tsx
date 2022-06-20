@@ -1,36 +1,18 @@
 import * as React from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
-
-import { Button } from 'app/App.components/Button/Button.controller'
-import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Loader } from 'app/App.components/Loader/Loader.view'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
-import {
-  SatelliteCard,
-  SatelliteCardRow,
-  SatelliteCardTopRow,
-  SatelliteMainText,
-  SatelliteProfileImage,
-  SatelliteProfileImageContainer,
-  SatelliteSubText,
-  SatelliteTextGroup,
-  SideBySideImageAndText,
-} from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
 import { SatelliteListCard } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.view'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { DOWN } from '../../app/App.components/StatusFlag/StatusFlag.constants'
-import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
 // style
@@ -41,7 +23,7 @@ type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (address: string) => void
-  undelegateCallback: (address: string) => void
+  undelegateCallback: () => void
   userStakedBalanceInSatellite: number
 }
 
@@ -55,6 +37,8 @@ export const SatelliteDetailsView = ({
   const params: { satelliteId: string } = useParams()
   const { user } = useSelector((state: State) => state.user)
   const { participationMetrics } = useSelector((state: State) => state.delegation)
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
 
@@ -90,6 +74,31 @@ export const SatelliteDetailsView = ({
   const isSameId = satellite?.address === params.satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
+  const renderVotingHistoryItem = (item: any) => {
+    const filteredProposal = proposalLedger?.length
+      ? proposalLedger.find((proposal: any) => proposal.id === item.proposalId)
+      : null
+
+    return (
+      <div className="satellite-voting-history" key={item.id}>
+        <p>
+          Proposal {item.proposalId} - {filteredProposal?.title}
+        </p>
+        <span className="satellite-voting-history-info">
+          Voted{' '}
+          {item.vote === 1 ? (
+            <b className="voting-yes">YES </b>
+          ) : item.vote === 2 ? (
+            <b className="voting-abstain">ABSTAIN </b>
+          ) : (
+            <b className="voting-no">NO </b>
+          )}
+          <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
+        </span>
+      </div>
+    )
+  }
+
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
@@ -106,7 +115,7 @@ export const SatelliteDetailsView = ({
               undelegateCallback={undelegateCallback}
               userStakedBalance={myDelegatedMVK}
               satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-              isDetaisPage
+              isDetailsPage
             >
               <SatelliteCardBottomRow>
                 <div className="descr satellite-info-block">
@@ -131,21 +140,15 @@ export const SatelliteDetailsView = ({
                   </div>
                 </div>
 
-                {satellite.proposalVotingHistory?.length ? (
+                {satellite.proposalVotingHistory?.length ||
+                satellite.financialRequestsVotes?.length ||
+                satellite.emergencyGovernanceVotes?.length ? (
                   <div>
                     <h4>Voting History:</h4>
                     <div>
-                      {satellite.proposalVotingHistory.map((item) => {
-                        return (
-                          <div className="satellite-voting-history" key={item.id}>
-                            <p>Proposal 42 - Adjusting Auction Parameters</p>
-                            <span>
-                              Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
-                              on <Time value={item.timestamp} format="M d\t\h, Y" />
-                            </span>
-                          </div>
-                        )
-                      })}
+                      {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
+                      {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
+                      {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
                     </div>
                   </div>
                 ) : null}

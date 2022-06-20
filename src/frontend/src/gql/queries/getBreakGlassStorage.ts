@@ -35,3 +35,52 @@ export const BREAK_GLASS_STORAGE_QUERY = `
 
 export const BREAK_GLASS_STORAGE_QUERY_NAME = 'GetBreakGlassStorageQuery'
 export const BREAK_GLASS_STORAGE_QUERY_VARIABLE = {}
+
+export const BREAK_GLASS_STATUS_QUERY = `
+  query GetBreakGlassStatusQuery {
+    farm {
+      address
+      claim_paused
+      deposit_paused
+      withdraw_paused
+    }
+    farm_factory {
+      create_farm_paused
+      track_farm_paused
+      untrack_farm_paused
+      address
+    }
+    delegation {
+      delegate_to_satellite_paused
+      distribute_reward_paused
+      register_as_satellite_paused
+      undelegate_from_satellite_paused
+      unregister_as_satellite_paused
+      update_satellite_record_paused
+      address
+    }
+    doorman {
+      address
+      compound_paused
+      farm_claimed_paused
+      unstake_paused
+    }
+    treasury {
+      mint_mvk_and_transfer_paused
+      stake_mvk_paused
+      transfer_paused
+      address
+      unstake_mvk_paused
+    }
+    treasury_factory {
+      create_treasury_paused
+      address
+      track_treasury_paused
+      untrack_treasury_paused
+    }
+  }
+`
+
+export const BREAK_GLASS_STATUS_QUERY_NAME = 'GetBreakGlassStatusQuery'
+export const BREAK_GLASS_STATUS_QUERY_VARIABLE = {}
+

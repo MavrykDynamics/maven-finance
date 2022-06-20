@@ -7,6 +7,10 @@ export enum ProposalStatus {
   DISCOVERY = 'DISCOVERY',
   WAITING = 'WAITING',
   DROPPED = 'DROPPED',
+  LOCKED = 'LOCKED',
+  UNLOCKED = 'UNLOCKED',
+  ACTIVE = 'ACTIVE',
+  TIMELOCK = 'TIMELOCK',
 }
 
 export interface GovernanceConfig {
@@ -33,18 +37,44 @@ export type votersMapType = Map<string, votingRoundVoteType>
 export interface ProposalVote {
   id: string
   currentRoundVote: string
-  governanceProposalRecordId: number
+  proposalId: number
   round: string
   timestamp: Date
-  vote: string
+  vote: number
   voterId: string
   votingPower: number
 }
+
+export interface ProposalDataType {
+  bytes: string
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
+}
+
+
+
+export type TokenStandardType =  0 | 1 | 2 | 3
+export type PaymentType =  "XTZ" | "MVK"
+
+export interface ProposalPaymentType {
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
+  to__id: string
+  token_address: string
+  token_amount: string
+  token_id: string
+  token_standard: 0 | 1 | 2 | 3
+}
+
 export interface ProposalRecordType {
   id: number
 
   proposerId: string
-  status: ProposalStatus // status - "ACTIVE", "DROPPED"
+  status: number
   title: string // title
   description: string // description
   invoice: string // ipfs hash of invoice file
@@ -53,7 +83,7 @@ export interface ProposalRecordType {
   executed: boolean // true / false
   locked: boolean // true / false   For updating of the proposal metadata
   timelockProposal: any
-
+  sourceCode?: string
   passVoteMvkTotal: number // proposal round pass vote total mvk from satellites who voted pass
   upvoteMvkTotal: number // voting round: upvotes MVK total
   downvoteMvkTotal: number // voting round: downvotes MVK total
@@ -72,7 +102,9 @@ export interface ProposalRecordType {
 
   roundHighestVotedProposal: string
   cycle: number
-
+  proposalData?: ProposalDataType[]
+  proposalPayments?: ProposalPaymentType[]
+  governanceId?: string
   //To possibly add:
   details: string
   invoiceTable: string
@@ -90,6 +122,7 @@ export interface SnapshotRecordType {
 }
 export interface GovernanceStorage {
   address: string
+  fee: number
   config: GovernanceConfig
   whitelistTokenContracts?: MichelsonMap<string, unknown>
   proposalLedger: ProposalRecordType[]
@@ -111,6 +144,7 @@ export interface GovernanceStorage {
   financialRequestSnapshotLedger?: any
   financialRequestCounter?: number
   tempFlag: number
+  cycleCounter: number
 }
 
 export interface FinancialRequestRecord {
@@ -142,15 +176,15 @@ export interface FinancialRequestRecord {
 
 export interface FinancialRequestVote {
   id: string
-  governanceFinancialRequestId: string
+  proposalId: string
   timestamp: Date
-  vote: string
+  vote: number
   voterId: string
   votingPower: number
 }
 
 
 export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL'
-export type ProposalStatusType = "ACTIVE" | "DROPPED"
-export type CurrentRoundProposalsStorageType = Map<string, ProposalRecordType> | undefined
+export type ProposalStatusType = string
+export type CurrentRoundProposalsStorageType = ProposalRecordType[]
 

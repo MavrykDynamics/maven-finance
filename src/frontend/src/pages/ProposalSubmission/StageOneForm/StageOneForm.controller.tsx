@@ -1,5 +1,8 @@
 import { StageOneFormView } from './StageOneForm.view'
+import { useDispatch, useSelector } from 'react-redux'
 import { useRef, useState } from 'react'
+import { State } from 'reducers'
+
 import {
   SubmitProposalFormInputStatus,
   SubmitProposalForm,
@@ -13,9 +16,7 @@ import {
 } from '../../../utils/validatorFunctions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
-import { useDispatch, useSelector } from 'react-redux'
 import { submitProposal } from '../ProposalSubmission.actions'
-import { State } from '../../../reducers'
 
 type StageOneFormProps = {
   locked: boolean
@@ -23,6 +24,9 @@ type StageOneFormProps = {
 export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { fee, address } = governanceStorage
+  const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',
     description: '',
@@ -34,9 +38,9 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const [validForm, setValidForm] = useState<ValidSubmitProposalForm>({
     title: false,
     description: false,
-    ipfs: false,
-    successMVKReward: false,
-    invoiceTable: false,
+    ipfs: true,
+    successMVKReward: true,
+    invoiceTable: true,
     sourceCodeLink: false,
   })
   const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>({
@@ -73,21 +77,26 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
         break
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(form.sourceCodeLink)
-        setValidForm({ ...validForm, sourceCodeLink: validityCheckResult })
+        setValidForm({ ...validForm, sourceCodeLink: validityCheckResult, invoiceTable: validityCheckResult })
         updatedState = { ...validForm, invoiceTable: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, sourceCodeLink: updatedState.sourceCodeLink ? 'success' : 'error' })
+        break
+      case 'IPFS':
+        setValidForm({ ...validForm, ipfs: Boolean(e) })
         break
     }
   }
   const handleSubmitProposal = () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) dispatch(submitProposal(form, accountPkh as any))
+    if (formIsValid) dispatch(submitProposal(form, fee, accountPkh as string))
   }
 
   return (
     <StageOneFormView
       locked={locked}
       form={form}
+      fee={fee}
+      successReward={successReward}
       setForm={setForm}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}

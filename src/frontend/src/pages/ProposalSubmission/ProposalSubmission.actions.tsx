@@ -10,7 +10,7 @@ export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
 export const SUBMIT_PROPOSAL_ERROR = 'SUBMIT_PROPOSAL_ERROR'
 export const submitProposal =
-  (form: SubmitProposalForm, accountPkh?: string) => async (dispatch: any, getState: any) => {
+  (form: SubmitProposalForm, amount: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
     const state: State = getState()
     console.log('Got to here in submitProposal')
 
@@ -26,9 +26,21 @@ export const submitProposal =
 
     try {
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-      console.log('contract', contract)
+      console.log('submitProposal contract', contract)
 
-      const transaction = await contract?.methods.propose(form.title, form.description, form.ipfs).send()
+      const proposalName = form.title
+      const proposalDesc = form.description
+      const proposalIpfs = form.ipfs
+      const proposalSourceCode = form.sourceCodeLink
+      console.log('%c ||||| .propose -> proposalName', 'color:yellowgreen', proposalName)
+      console.log('%c ||||| .propose -> proposalDesc', 'color:yellowgreen', proposalDesc)
+      console.log('%c ||||| .propose -> proposalIpfs', 'color:yellowgreen', proposalIpfs)
+      console.log('%c ||||| .propose -> proposalSourceCode', 'color:yellowgreen', proposalSourceCode)
+      console.log('%c ||||| .send -> amount', 'color:yellowgreen', amount)
+
+      const transaction = await contract?.methods
+        .propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode)
+        .send({ amount })
       console.log('transaction', transaction)
 
       dispatch({
@@ -79,7 +91,8 @@ export const updateProposal =
       console.log('contract', contract)
 
       const transaction = await contract?.methods
-        .addUpdateProposalData(form.proposalId, form.title, form.proposalBytes)
+        // TODO implement
+        .addUpdateProposalData(1, form.title, form.proposalBytes)
         .send()
       console.log('transaction', transaction)
 

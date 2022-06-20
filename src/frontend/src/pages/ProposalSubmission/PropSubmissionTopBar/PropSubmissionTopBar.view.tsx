@@ -1,10 +1,31 @@
 import * as React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
+import {
+  getGovernanceStorage,
+  getCurrentRoundProposals,
+  startNextRound,
+  executeProposal,
+} from '../../Governance/Governance.actions'
+
+import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { GovernancePhase } from '../../../reducers/governance'
-//prettier-ignore
-import { CurrentPhaseContainer, PropSubmissionTopBarStyled, PropSubTopBarEmergencyGovText, PropSubTopBarPhaseText, PropSubTopBarTabsContainer, PropSubTopBarTabsText, PropSubTopBarTimeContainer, PropSubTopBarValueText, TimeLeftArea, TimeLeftAreaWrap } from './PropSubmissionTopBar.style'
+
+import {
+  CurrentPhaseContainer,
+  PropSubmissionTopBarStyled,
+  PropSubTopBarEmergencyGovText,
+  PropSubTopBarPhaseText,
+  PropSubTopBarTabsContainer,
+  PropSubTopBarTabsText,
+  PropSubTopBarTimeContainer,
+  PropSubTopBarValueText,
+  TimeLeftArea,
+  TimeLeftAreaWrap,
+} from './PropSubmissionTopBar.style'
 
 export type PropSubmissionTopBarViewProps = {
   loading: boolean
@@ -20,6 +41,12 @@ export const PropSubmissionTopBarView = ({
   isInEmergencyGovernance,
   handleTabChange,
 }: PropSubmissionTopBarViewProps) => {
+  const dispatch = useDispatch()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+
+  const handleMoveNextRound = () => {
+    dispatch(startNextRound(false))
+  }
   const isInExecution =
     governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'
   return (
@@ -41,16 +68,27 @@ export const PropSubmissionTopBarView = ({
                 {governancePhase.substring(1).toLocaleLowerCase()}
               </PropSubTopBarValueText>
             </CurrentPhaseContainer>
-
-            <TimeLeftAreaWrap>
-              {typeof timeLeftInPhase === 'number' ? (
-                <TimeLeftArea>{Math.ceil(timeLeftInPhase)} days remaining</TimeLeftArea>
-              ) : (
-                <TimeLeftArea>
-                  Ends {timeLeftInPhase.toLocaleDateString('en-GB')} at {timeLeftInPhase.toLocaleTimeString('en-GB')}
-                </TimeLeftArea>
-              )}
-            </TimeLeftAreaWrap>
+            {timeLeftInPhase >= 0 ? (
+              <TimeLeftAreaWrap>
+                {typeof timeLeftInPhase === 'number' ? (
+                  <TimeLeftArea>{Math.ceil(timeLeftInPhase)} days remaining</TimeLeftArea>
+                ) : (
+                  <TimeLeftArea>
+                    Ends {timeLeftInPhase.toLocaleDateString('en-GB')} at {timeLeftInPhase.toLocaleTimeString('en-GB')}
+                  </TimeLeftArea>
+                )}
+              </TimeLeftAreaWrap>
+            ) : (
+              <Button
+                icon="man-running"
+                text={'Move to next round'}
+                loading={loading}
+                kind="actionSecondary"
+                className="move-to-next"
+                disabled={!accountPkh}
+                onClick={handleMoveNextRound}
+              />
+            )}
           </PropSubTopBarTimeContainer>
         </>
       )}

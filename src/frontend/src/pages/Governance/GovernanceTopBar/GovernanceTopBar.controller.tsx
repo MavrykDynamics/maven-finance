@@ -6,16 +6,17 @@ export type GovernanceTopBarProps = {
   governancePhase: GovernancePhase
   timeLeftInPhase: Date | number
   isInEmergencyGovernance: boolean
+  handleMoveNextRound: any
 }
 export const GovernanceTopBar = ({
   loading,
   governancePhase,
   timeLeftInPhase,
   isInEmergencyGovernance,
+  handleMoveNextRound,
 }: GovernanceTopBarProps) => {
   const handleMoveToNextRound = () => {
-    // TODO: Implement function and dispatch action
-    console.log('Here in move to next round')
+    handleMoveNextRound()
   }
   return (
     <GovernanceTopBarView
