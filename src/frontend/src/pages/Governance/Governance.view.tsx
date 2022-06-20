@@ -244,7 +244,7 @@ export const GovernanceView = ({
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
 
-  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
+  // console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
 
   return (
     <GovernanceStyled>

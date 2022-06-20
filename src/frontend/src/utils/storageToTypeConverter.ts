@@ -570,7 +570,7 @@ console.log('%c ||||| currentGovernance.proposal_submission_fee_mutez', 'color:y
       ? calcWithoutMu(currentGovernance.proposal_submission_fee_mutez)
       : 0,
     config: {
-      successReward: currentGovernance.success_reward,
+      successReward: calcWithoutPrecision(currentGovernance.success_reward),
       minQuorumPercentage: currentGovernance.min_quorum_percentage,
       minQuorumMvkTotal: currentGovernance.min_quorum_mvk_total,
       votingPowerRatio: currentGovernance.voting_power_ratio,
