@@ -64,7 +64,7 @@ export const IPFSUploaderView = ({
   const isUploadedImage = imageIpfsUrl && isTypeFileImage && !isUploading
 
   const handleChange = (e: any) => {
-    const fileSize = e.target.files[0].size / 1024 / 1024 // in MiB
+    const fileSize = e.target?.files?.[0]?.size / 1024 / 1024 // in MiB
     if (fileSize <= IMG_MAX_SIZE) {
       handleUpload(e.target.files[0])
     } else {

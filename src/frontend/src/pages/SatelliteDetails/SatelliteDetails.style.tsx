@@ -7,7 +7,7 @@ import {
   headerColor,
   skyColor,
   subTextColor,
-  tezosColor,
+  infoColor,
   upColor,
 } from 'styles'
 
@@ -95,14 +95,22 @@ export const SatelliteCardBottomRow = styled.div`
       &.voting-no {
         color: ${downColor};
       }
+
+      &.voting-abstain {
+        color: ${skyColor};
+      }
     }
   }
 
+  .satellite-voting-history-info {
+    flex-shrink: 0;
+    padding-left: 16px;
+  }
+
   .satellite-website {
-    color: ${tezosColor};
-    font-weight: 600;
+    color: ${infoColor};
+    font-weight: 700;
     font-size: 14px;
     line-height: 14px;
-    text-decoration: underline;
   }
 ` // SatelliteCardBottomRow

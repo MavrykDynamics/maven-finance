@@ -41,10 +41,15 @@ export type SubmitProposalFormInputStatus = {
   sourceCodeLink: InputStatusType
 }
 
+export type ProposalBytesType = {
+  id: number
+  title: string
+  data: string
+}
+
 export type ProposalUpdateForm = {
   title: string
-  proposalId: number
-  proposalBytes: string
+  proposalBytes: ProposalBytesType[]
 }
 export type ValidProposalUpdateForm = {
   proposalBytes: boolean | undefined

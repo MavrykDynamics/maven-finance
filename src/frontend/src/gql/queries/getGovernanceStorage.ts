@@ -21,7 +21,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       current_blocks_per_timelock_round
       current_blocks_per_voting_round
       current_cycle_total_voters_reward
-      current_round_highest_voted_proposal_id
       cycle_counter
       cycle_voters_reward
       governance_proxy_address
@@ -41,7 +40,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       disapprove_vote_total
       expiration_datetime
       id
-      ready
       request_purpose
       request_type
       requested_datetime
@@ -104,7 +102,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       governance_id
       payment_processed
       pass_vote_count
-      quorum_vote_count
       up_vote_count
       up_vote_mvk_total
       proposal_data {
@@ -173,7 +170,6 @@ export const CURRENT_ROUND_PROPOSALS_QUERY = `
       governance_id
       payment_processed
       pass_vote_count
-      quorum_vote_count
       up_vote_count
       up_vote_mvk_total
       proposal_data {

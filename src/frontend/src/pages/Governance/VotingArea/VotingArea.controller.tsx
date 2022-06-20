@@ -16,6 +16,7 @@ import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 type VotingAreaProps = {
   ready: boolean
   loading: boolean
+  isVisibleHistoryProposal?: boolean
   accountPkh: string | undefined
   handleProposalRoundVote: (proposalId: number) => void
   handleVotingRoundVote: (vote: string) => void
@@ -25,6 +26,7 @@ type VotingAreaProps = {
 export const VotingArea = ({
   ready,
   loading,
+  isVisibleHistoryProposal = false,
   accountPkh,
   handleProposalRoundVote,
   handleVotingRoundVote,
@@ -42,8 +44,13 @@ export const VotingArea = ({
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
-  const totalMVKVoted =
+
+  const totalMVKVotedCalculated =
     voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
+
+  const totalMVKVoted = isNaN(totalMVKVotedCalculated) ? 0 : totalMVKVotedCalculated
+
+  const dividedPassVoteMvkTotal = totalMVKVoted / 1_000_000_000
 
   return (
     <>
@@ -56,24 +63,24 @@ export const VotingArea = ({
         />
       ) : null}
       <VotingAreaStyled>
-        {!ready && ready && governancePhase !== 'TIME_LOCK' && (
+        {!ready && governancePhase !== 'TIME_LOCK' && (
           <div className="voted-block">
-            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
             <NoWalletConnectedButton handleConnect={handleConnect} />
           </div>
         )}
 
-        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
+        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
           <VotingButtonsContainer>
             <Button
-              text={'Vote Yay'}
+              text={'Vote YES'}
               onClick={() => handleVotingRoundVote('FOR')}
               type={SUBMIT}
               kind={'votingFor'}
               loading={loading}
             />
             <Button
-              text={'Vote Abstain'}
+              text={'Vote PASS'}
               onClick={() => handleVotingRoundVote('ABSTAIN')}
               type={SUBMIT}
               kind={'votingAbstain'}
@@ -89,9 +96,9 @@ export const VotingArea = ({
           </VotingButtonsContainer>
         )}
 
-        {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && (
+        {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
           <div className="voted-block">
-            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
             <Button
               text={'Vote for this Proposal'}
               onClick={() => handleProposalRoundVote(Number(selectedProposal.id))}
@@ -102,11 +109,11 @@ export const VotingArea = ({
           </div>
         )}
 
-        {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && (
+        {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && totalMVKVoted ? (
           <div className="voted-block">
-            <CommaNumber className="voted-label" value={totalMVKVoted} endingText={'voted MVK'} />
+            <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
           </div>
-        )}
+        ) : null}
       </VotingAreaStyled>
     </>
   )

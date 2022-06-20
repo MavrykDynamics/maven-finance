@@ -11,7 +11,3 @@ type StatusFlagViewProps = {
 export const StatusFlagView = ({ kind, text }: StatusFlagViewProps) => {
   return <StatusFlagStyled className={kind}>{text}</StatusFlagStyled>
 }
-StatusFlagView.defaultProps = {
-  kind: PRIMARY,
-  text: 'ONGOING',
-}

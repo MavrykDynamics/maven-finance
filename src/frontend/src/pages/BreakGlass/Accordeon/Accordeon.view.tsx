@@ -5,21 +5,24 @@ import { AccordeonWrapper, AccordeonItem, AccordeonToggler, AccordeonContent } f
 type AccordeonViewProps = {
   accordeonId: string
   isExpanded: boolean
-  accordeonData: Array<{ name: string; status: string }>
+  methods: Record<string, boolean>
   accordeonClickHandler: (accId: string) => void
 }
 
-export const BGAccordeon = ({ accordeonData, accordeonClickHandler, accordeonId, isExpanded }: AccordeonViewProps) => (
-  <AccordeonWrapper>
-    <AccordeonToggler onClick={() => accordeonClickHandler(accordeonId)}>
-      Methods {<Icon className="accordeon-icon" id={isExpanded ? 'arrow-up' : 'arrow-down'} />}
-    </AccordeonToggler>
-    <AccordeonContent className={`${isExpanded ? 'expaned' : ''} scroll-block`}>
-      {accordeonData.map(({ name, status }) => (
-        <AccordeonItem key={name} status={status === 'LIVE'}>
-          {name}
-        </AccordeonItem>
-      ))}
-    </AccordeonContent>
-  </AccordeonWrapper>
-)
+export const BGAccordeon = ({ methods, accordeonClickHandler, accordeonId, isExpanded }: AccordeonViewProps) => {
+  const methodsList = methods ? Object.keys(methods) : []
+  return (
+    <AccordeonWrapper>
+      <AccordeonToggler onClick={() => accordeonClickHandler(accordeonId)}>
+        Methods {<Icon className={`accordeon-icon ${isExpanded ? '' : 'down'}`} id="accordeon_icon" />}
+      </AccordeonToggler>
+      <AccordeonContent className={`${isExpanded ? 'expaned' : ''}`}>
+        {methodsList.map((method: string) => (
+          <AccordeonItem key={method} status={methods[method]}>
+            <div className="trunkated_text">{method}</div>
+          </AccordeonItem>
+        ))}
+      </AccordeonContent>
+    </AccordeonWrapper>
+  )
+}

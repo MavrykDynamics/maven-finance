@@ -17,8 +17,6 @@ export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) =>
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
 
-  console.log('%c ||||| userIsSatellite', 'color:yellowgreen', userIsSatellite)
-
   useEffect(() => {
     dispatch(getDelegationStorage())
   }, [dispatch])
@@ -40,5 +38,5 @@ export function checkIfUserIsSatellite(accountPkh?: string, satelliteLedger?: Sa
 
 function getTotalDelegatedMVK(satelliteLedger: SatelliteRecord[]): number {
   if (!satelliteLedger) return 0
-  return satelliteLedger.reduce((sum, current) => sum + Number(current.totalDelegatedAmount), 0)
+  return satelliteLedger.reduce((sum, current) => sum + Number(current.totalDelegatedAmount + current.sMvkBalance), 0)
 }
