@@ -9,7 +9,7 @@
 #include "../partials/generalContractsType.ligo"
 
 // Treasury transfers Type
-#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
+#include "../partials/transferTypes.ligo"
 
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
@@ -18,7 +18,7 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Delegation Types
+// Delegation Type
 #include "../partials/types/delegationTypes.ligo"
 
 // Governance Type
@@ -40,6 +40,7 @@ type governanceAction is
     | UpdateGeneralContracts          of updateGeneralContractsParams
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateWhitelistDevelopers       of (address)
+    | MistakenTransfer                of transferActionType
     | SetContractAdmin                of setContractAdminType
     | SetContractGovernance           of setContractGovernanceType
     
@@ -118,6 +119,11 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 
 
@@ -214,6 +220,21 @@ block{
 
 } with unit
 
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const governanceSatelliteAddress: address = case s.generalContracts["governanceSatellite"] of [
+          Some (_contract)    -> _contract
+        | None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -295,10 +316,6 @@ case (Tezos.get_entrypoint_opt(
     Some(contr) -> contr
   | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updatePaymentDataType))
 ];
-
-
-
-function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -518,13 +535,6 @@ block {
     const delegationAddress : address = case s.generalContracts["delegation"] of [
         Some(_address) -> _address
       | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-    // update snapshot MVK total supply
-    const mvkTotalSupplyView : option (nat) = Tezos.call_view ("total_supply", 0n, s.mvkTokenAddress);
-    s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
-        Some (value) -> value
-      | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // Get active satellites from the delegation contract and loop through them
@@ -952,6 +962,25 @@ block {
 
 
 
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);  
+
+} with response
+
+
+
 // (*  setContractAdmin entrypoint *)
 function setContractAdmin(const setContractAdminParams: setContractAdminType; var s: governanceStorage): return is
 block {
@@ -1257,6 +1286,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
+        | MistakenTransfer(parameters)                -> mistakenTransfer(parameters, s)
         | SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
         | SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
 

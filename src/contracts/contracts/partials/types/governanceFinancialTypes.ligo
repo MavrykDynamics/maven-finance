@@ -154,6 +154,7 @@ type governanceFinancialLambdaActionType is
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
+| LambdaMistakenTransfer                      of transferActionType
 
   // Financial Governance Lambdas
 | LambdaRequestTokens                         of requestTokensType

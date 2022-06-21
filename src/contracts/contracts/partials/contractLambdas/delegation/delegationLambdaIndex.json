@@ -25,62 +25,66 @@
     },
     {
       "index": 6,
-      "name": "lambdaPauseAll"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 7,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseDelegateToSatellite"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseUndelegateSatellite"
+      "name": "lambdaTogglePauseDelegateToSatellite"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseRegisterSatellite"
+      "name": "lambdaTogglePauseUndelegateSatellite"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseUnregisterSatellite"
+      "name": "lambdaTogglePauseRegisterSatellite"
     },
     {
       "index": 12,
-      "name": "lambdaTogglePauseUpdateSatellite"
+      "name": "lambdaTogglePauseUnregisterSatellite"
     },
     {
       "index": 13,
-      "name": "lambdaTogglePauseDistributeReward"
+      "name": "lambdaTogglePauseUpdateSatellite"
     },
     {
       "index": 14,
-      "name": "lambdaDelegateToSatellite"
+      "name": "lambdaTogglePauseDistributeReward"
     },
     {
       "index": 15,
-      "name": "lambdaUndelegateFromSatellite"
+      "name": "lambdaDelegateToSatellite"
     },
     {
       "index": 16,
-       "name": "lambdaRegisterAsSatellite"
+      "name": "lambdaUndelegateFromSatellite"
     },
     {
       "index": 17,
-       "name": "lambdaUnregisterAsSatellite"
+       "name": "lambdaRegisterAsSatellite"
     },
     {
       "index": 18,
-      "name": "lambdaUpdateSatelliteRecord"
+       "name": "lambdaUnregisterAsSatellite"
     },
     {
       "index": 19,
-       "name": "lambdaDistributeReward"
+      "name": "lambdaUpdateSatelliteRecord"
     },
     {
       "index": 20,
+       "name": "lambdaDistributeReward"
+    },
+    {
+      "index": 21,
       "name": "lambdaOnStakeChange"
     },
     {

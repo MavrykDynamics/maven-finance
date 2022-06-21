@@ -1,18 +1,15 @@
 module.exports = {
     alice: {
-        pkh: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb",
-        sk: "edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq",
-        pk: "edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn"
+        pkh: "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
+        sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz"
     },
     bob: {
         pkh: "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD",
         sk: "edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq",
-        pk: "edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D"
     },
     eve: {
-        pkh: "tz1PrFSuTikuSWfZkACrXpmaS4RuKmEcZMSP",
-        sk: "edsk3QbYXUV92sMoLyMtUSHr4ymkVBWMWUsiG9Z2DuPhvFNPHrKM5B",
-        pk: "edpktfEyF8ivHSWSLaEmgnxaUqjDuCZ4HVqjHvgWiVvw8Xs82DLJyB"
+        pkh: "tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1",
+        sk: "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH"
     },
     mallory: {
         pkh: "tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n",
