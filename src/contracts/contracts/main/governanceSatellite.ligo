@@ -762,9 +762,12 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : governanceSatelliteAction; const s : governanceSatelliteStorage) : return is 
-    case action of [
-        
+function main (const action : governanceSatelliteAction; const s : governanceSatelliteStorage) : return is
+    block{
+        checkNoAmount(Unit);
+    }
+    with (
+      case action of [
           // Housekeeping Actions
         | SetAdmin(parameters)                      -> setAdmin(parameters, s)
         | SetGovernance(parameters)                 -> setGovernance(parameters, s)
@@ -794,5 +797,5 @@ function main (const action : governanceSatelliteAction; const s : governanceSat
 
           // Lambda Entrypoints
         | SetLambda(parameters)                       -> setLambda(parameters, s)
-
-    ]
+      ]
+    )

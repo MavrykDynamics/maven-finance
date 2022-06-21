@@ -25,13 +25,27 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
+type doormanConfigType is [@layout:comb] record [
+    minMvkAmount     : nat;
+    empty            : unit
+];
+
+type doormanUpdateConfigNewValueType is nat
+type doormanUpdateConfigActionType is 
+  ConfigMinMvkAmount          of unit
+| Empty                       of unit
+type doormanUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: doormanUpdateConfigNewValueType; 
+  updateConfigAction: doormanUpdateConfigActionType;
+]
+
 type doormanLambdaActionType is 
 
   // Housekeeping Lambdas
   LambdaSetAdmin                    of address
 | LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata              of updateMetadataType
-| LambdaUpdateMinMvkAmount          of (nat)
+| LambdaUpdateConfig                of doormanUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts      of updateGeneralContractsParams
 | LambdaMistakenTransfer            of transferActionType
@@ -58,6 +72,7 @@ type doormanLambdaActionType is
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
   metadata                  : metadata;
+  config                    : doormanConfigType;
 
   mvkTokenAddress           : address;
   governanceAddress         : address;
@@ -69,7 +84,6 @@ type doormanStorage is [@layout:comb] record [
   
   userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
 
-  minMvkAmount              : nat;
   unclaimedRewards          : nat; // current exit fee pool rewards
   accumulatedFeesPerShare   : nat;
 

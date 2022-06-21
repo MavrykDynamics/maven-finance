@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
     
-    checkNoAmount(Unit);   
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s); 
 
     case aggregatorLambdaAction of [
@@ -104,7 +104,8 @@ block {
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
-
+    
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s); 
 
     case aggregatorLambdaAction of [
@@ -206,6 +207,8 @@ block {
 (*  addOracle entrypoint  *)
 function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block {
+    
+    checkNoAmount(Unit);
 
     case aggregatorLambdaAction of [
         | LambdaAddOracle(oracleAddress) -> {
@@ -229,6 +232,8 @@ block {
 (*  removeOracle entrypoint  *)
 function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block {
+    
+    checkNoAmount(Unit);
 
     case aggregatorLambdaAction of [
         | LambdaRemoveOracle(oracleAddress) -> {
@@ -261,7 +266,8 @@ block {
 function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
     
-    checkSenderIsAdminOrGovernanceSatelliteOrGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdminOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -297,7 +303,8 @@ block {
 function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsAdminOrGovernanceSatelliteOrGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdminOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -333,7 +340,8 @@ block {
 function lambdaTogglePauseReqRateUpd(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaTogglePauseReqRateUpd(_parameters) -> {
@@ -353,7 +361,8 @@ block {
 function lambdaTogglePauseReqRateUpdDev(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaTogglePauseReqRateUpdDev(_parameters) -> {
@@ -373,7 +382,8 @@ block {
 function lambdaTogglePauseSetObsCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaTogglePauseSetObsCommit(_parameters) -> {
@@ -393,7 +403,8 @@ block {
 function lambdaTogglePauseSetObsReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaTogglePauseSetObsReveal(_parameters) -> {
@@ -413,7 +424,8 @@ block {
 function lambdaTogglePauseRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaTogglePauseRewardXtz(_parameters) -> {
@@ -433,7 +445,8 @@ block {
 function lambdaTogglePauseRewardSMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceOrFactory(s);
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaTogglePauseRewardSMvk(_parameters) -> {
@@ -464,6 +477,7 @@ block{
     // pause / break glass check
     checkRequestRateUpdateIsNotPaused(s);
 
+    checkNoAmount(Unit);
     checkMaintainership(s);
 
     case aggregatorLambdaAction of [
@@ -602,7 +616,9 @@ block{
     // pause / break glass check
     checkSetObservationCommitIsNotPaused(s);
 
-   case aggregatorLambdaAction of [
+    checkNoAmount(Unit);
+
+    case aggregatorLambdaAction of [
         | LambdaSetObservationCommit(params) -> {
 
                 checkSenderIsOracle(s);
@@ -641,7 +657,9 @@ block{
     // pause / break glass check
     checkSetObservationRevealIsNotPaused(s);
 
-   case aggregatorLambdaAction of [
+    checkNoAmount(Unit);
+
+    case aggregatorLambdaAction of [
         | LambdaSetObservationReveal(params) -> {
 
                 checkSenderIsOracle(s);
@@ -724,6 +742,8 @@ block{
     // pause / break glass check
     checkWithdrawRewardXtzIsNotPaused(s);
 
+    checkNoAmount(Unit);
+
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
@@ -774,6 +794,8 @@ block{
     // pause / break glass check
     checkWithdrawRewardStakedMvkIsNotPaused(s);
 
+    checkNoAmount(Unit);
+    
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [

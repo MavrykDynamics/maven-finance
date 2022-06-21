@@ -7,7 +7,9 @@ export type doormanStorageType = {
   governanceAddress         : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
-  minMvkAmount              : BigNumber;
+  config                    : {
+    minMvkAmount  : BigNumber
+  } ;
 
   whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;

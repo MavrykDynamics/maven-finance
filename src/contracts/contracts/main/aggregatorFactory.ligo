@@ -783,36 +783,40 @@ block{
 
 (* main entrypoint *)
 function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorage) : return is
+    block{
+        checkNoAmount(Unit);
+    }
+    with(
+      case action of [
 
-    case action of [
+          // Housekeeping Entrypoints
+        | SetAdmin (parameters)                         -> setAdmin(parameters, s)
+        | SetGovernance (parameters)                    -> setGovernance(parameters, s)
+        | UpdateMetadata (parameters)                   -> updateMetadata(parameters, s)
+        | UpdateConfig (parameters)                     -> updateConfig(parameters, s)
+        | UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
 
-        // Housekeeping Entrypoints
-      | SetAdmin (parameters)                         -> setAdmin(parameters, s)
-      | SetGovernance (parameters)                    -> setGovernance(parameters, s)
-      | UpdateMetadata (parameters)                   -> updateMetadata(parameters, s)
-      | UpdateConfig (parameters)                     -> updateConfig(parameters, s)
-      | UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
-      | UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
+          // Pause / Break Glass Entrypoints
+        | PauseAll (_parameters)                        -> pauseAll(s)
+        | UnpauseAll (_parameters)                      -> unpauseAll(s)
+        | TogglePauseCreateAggregator (_parameters)     -> togglePauseCreateAggregator(s)
+        | TogglePauseTrackAggregator (_parameters)      -> togglePauseTrackAggregator(s)
+        | TogglePauseUntrackAggregator (_parameters)    -> togglePauseUntrackAggregator(s)
+        | TogglePauseDistributeRewardXtz (_parameters)  -> togglePauseDistributeRewardXtz(s)
+        | TogglePauseDistributeRewardSMvk (_parameters) -> togglePauseDistributeRewardSMvk(s)
 
-        // Pause / Break Glass Entrypoints
-      | PauseAll (_parameters)                        -> pauseAll(s)
-      | UnpauseAll (_parameters)                      -> unpauseAll(s)
-      | TogglePauseCreateAggregator (_parameters)     -> togglePauseCreateAggregator(s)
-      | TogglePauseTrackAggregator (_parameters)      -> togglePauseTrackAggregator(s)
-      | TogglePauseUntrackAggregator (_parameters)    -> togglePauseUntrackAggregator(s)
-      | TogglePauseDistributeRewardXtz (_parameters)  -> togglePauseDistributeRewardXtz(s)
-      | TogglePauseDistributeRewardSMvk (_parameters) -> togglePauseDistributeRewardSMvk(s)
+          // Aggregator Factory Entrypoints  
+        | CreateAggregator (parameters)                 -> createAggregator(parameters, s)
+        | TrackAggregator (parameters)                  -> trackAggregator(parameters, s)
+        | UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
 
-        // Aggregator Factory Entrypoints  
-      | CreateAggregator (parameters)                 -> createAggregator(parameters, s)
-      | TrackAggregator (parameters)                  -> trackAggregator(parameters, s)
-      | UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
+          // Aggregator Entrypoints
+        | DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
+        | DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
 
-        // Aggregator Entrypoints
-      | DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
-      | DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
-
-        // Lambda Entrypoints
-      | SetLambda (parameters)                        -> setLambda(parameters, s)
-      | SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
-    ]
+          // Lambda Entrypoints
+        | SetLambda (parameters)                        -> setLambda(parameters, s)
+        | SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
+      ]
+    )

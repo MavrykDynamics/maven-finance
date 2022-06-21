@@ -393,7 +393,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates min MVK amount', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.updateMinMvkAmount(new BigNumber(MVK(0.01))).send();
+                const operation = await doormanInstance.methods.updateConfig(new BigNumber(MVK(0.01)), "configMinMvkAmount").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
