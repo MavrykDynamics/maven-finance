@@ -50,15 +50,25 @@ type GovernanceContractAbstraction<T extends ContractProvider | Wallet = any> = 
 
 
 export const setGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceContractAbstraction) => {
-    const batch = tezosToolkit.wallet
-        .batch();
 
-    governanceLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-        batch.withContractCall(contract.methods.setLambda(name, governanceLambdas[index]))
-    });
+    const lambdasPerBatch = 10;
 
-    const setupGovernanceLambdasOperation = await batch.send()
-    await confirmOperation(tezosToolkit, setupGovernanceLambdasOperation.opHash);
+    const lambdasCount = governanceLambdas.length;
+    const batchesCount = (lambdasCount % lambdasPerBatch) + 1;
+
+    for(let i = 0; i < batchesCount; i++) {
+      
+      const batch = tezosToolkit.wallet.batch();
+
+      governanceLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {  
+        if( (i * lambdasPerBatch) + index < (lambdasPerBatch * (i + 1))){
+          batch.withContractCall(contract.methods.setLambda(name, governanceLambdas[index]))
+        }
+      });
+
+      const setupGovernanceLambdasOperation = await batch.send()
+      await confirmOperation(tezosToolkit, setupGovernanceLambdasOperation.opHash);
+    }
 };
 
 

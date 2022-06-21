@@ -466,7 +466,6 @@ describe('Aggregator Tests', async () => {
 
         assert.deepEqual(storage.round,previousRound.plus(1));
         assert.deepEqual(storage.switchBlock,new BigNumber(0));
-        assert.deepEqual(storage.deviationTriggerInfos.amount,new BigNumber(0));
         assert.deepEqual(storage.deviationTriggerInfos.roundPrice,
           new BigNumber(0)
         );
