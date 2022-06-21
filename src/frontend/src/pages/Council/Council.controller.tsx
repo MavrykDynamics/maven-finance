@@ -55,14 +55,13 @@ export const Council = () => {
       <CouncilStyled>
         <h1>Pending Signature</h1>
         <article className="pending">
-          <div>
+          <div className="pending-items">
             <CouncilPendingView />
             <CouncilPendingView />
             <CouncilPendingView />
           </div>
-          <div>
-            <CouncilPendingReviewView />
-          </div>
+
+          <CouncilPendingReviewView />
         </article>
         <article>
           <div>
