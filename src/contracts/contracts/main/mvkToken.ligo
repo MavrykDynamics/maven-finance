@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
@@ -24,6 +27,7 @@ type action is
 | SetGovernance             of address
 | UpdateWhitelistContracts  of updateWhitelistContractsParams
 | UpdateGeneralContracts    of updateGeneralContractsParams
+| MistakenTransfer          of transferActionType
 
   // FA2 Entrypoints
 | AssertMetadata            of assertMetadataParams
@@ -67,23 +71,38 @@ const one_year       : int              = one_day * 365;
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
+//
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : mvkTokenStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith("ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED");
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(const store: mvkTokenStorage): unit is
-  if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+  if Tezos.sender =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
 function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
+  if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
   else unit
 
 
@@ -93,11 +112,30 @@ function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
   } with(case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
-                Some (_contract)    -> if _contract =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
-            |   None                -> failwith ("DOORMAN_CONTRACT_NOT_FOUND")
+                Some (_contract)    -> if _contract =/= Tezos.sender then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
+            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
             ]
-    |   None -> failwith ("GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND")
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ])
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvkTokenStorage) : unit is
+block{
+  if Tezos.sender = store.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", store.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
 
 
 
@@ -108,6 +146,11 @@ function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -342,6 +385,31 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var store: mvkTokenStorage): return is
+block {
+    // Check if the sender is the governanceSatellite contract
+    checkSenderIsAdminOrGovernanceSatelliteContract(store);
+
+    // Operations list
+    var operations : list(operation) := nil;
+
+    // Create transfer operations
+    function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+      block{
+        // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+        const transferTokenOperation : operation = case transferParam.token of [
+            | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+            | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+            | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+        ];
+      } with(transferTokenOperation # operationList);
+    
+    operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+} with (operations, store)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -477,7 +545,7 @@ block {
 
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
-    if tempTotalSupply > store.maximumSupply then failwith("MAXIMUM_SUPPLY_EXCEEDED") 
+    if tempTotalSupply > store.maximumSupply then failwith(error_MAXIMUM_SUPPLY_EXCEEDED) 
     else skip;
 
     // Update sender's balance
@@ -506,7 +574,7 @@ block {
     checkSenderIsAdmin(store);
 
     // Update the inflation rate
-    if newInflationRate > 2000n then failwith("INFLATION_RATE_TOO_HIGH")
+    if newInflationRate > 2000n then failwith(error_INFLATION_RATE_TOO_HIGH)
     else store.inflationRate  := newInflationRate
 
 } with (noOperations, store)
@@ -531,7 +599,7 @@ block {
       // Update the next change date
       store.nextInflationTimestamp  := Tezos.now + one_year;
     }
-    else failwith("CANNOT_TRIGGER_INFLATION_NOW");
+    else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
 
 } with (noOperations, store)
 
@@ -562,6 +630,7 @@ function main (const action : action; const store : mvkTokenStorage) : return is
       | SetGovernance (params)              -> setGovernance(params, store)
       | UpdateWhitelistContracts (params)   -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params)     -> updateGeneralContracts(params, store)
+      | MistakenTransfer (params)           -> mistakenTransfer(params, store)
 
         // FA2 Entrypoints
       | AssertMetadata (params)             -> assertMetadata(params, store)

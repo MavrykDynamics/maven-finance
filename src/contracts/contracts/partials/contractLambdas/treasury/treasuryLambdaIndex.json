@@ -13,62 +13,66 @@
     },
     {
       "index": 3,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaUpdateName"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 7,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 8,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseTransfer"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseMintMvkAndTransfer"
+      "name": "lambdaTogglePauseTransfer"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseStakeMvk"
+      "name": "lambdaTogglePauseMintMvkAndTransfer"
     },
     {
       "index": 12,
-      "name": "lambdaTogglePauseUnstakeMvk"
+      "name": "lambdaTogglePauseStakeMvk"
     },
     {
       "index": 13,
-      "name": "lambdaTransfer"
+      "name": "lambdaTogglePauseUnstakeMvk"
     },
     {
       "index": 14,
-      "name": "lambdaMintMvkAndTransfer"
+      "name": "lambdaTransfer"
     },
     {
       "index": 15,
-      "name": "lambdaUpdateMvkOperators"
+      "name": "lambdaMintMvkAndTransfer"
     },
     {
       "index": 16,
-      "name": "lambdaStakeMvk"
+      "name": "lambdaUpdateMvkOperators"
     },
     {
       "index": 17,
+      "name": "lambdaStakeMvk"
+    },
+    {
+      "index": 18,
       "name": "lambdaUnstakeMvk"
     }
 ]

@@ -97,7 +97,6 @@ const storages = {
             
             votingPowerRatio            = 10000n;
             proposalSubmissionFee       = 10000000n;
-            minimumStakeReqPercentage   = 10n;
             maxProposalsPerDelegate     = 20n;
             
             newBlockTimeLevel           = 0n;
@@ -142,7 +141,6 @@ const storages = {
         cycleHighestVotedProposalId  = 0n;
         timelockProposalId                  = 0n;
 
-        snapshotMvkTotalSupply         = 0n;
         snapshotStakedMvkTotalSupply   = 0n;
 
         financialRequestLedger             = (Big_map.empty: financialRequestLedgerType);

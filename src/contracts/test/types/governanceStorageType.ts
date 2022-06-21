@@ -37,8 +37,6 @@ export type governanceStorageType = {
   cycleHighestVotedProposalId : BigNumber;
   timelockProposalId                 : BigNumber;
 
-  snapshotMvkTotalSupply             : BigNumber;
-
   lambdaLedger                       : MichelsonMap<MichelsonMapKey, unknown>;
   
 };

@@ -75,6 +75,7 @@ type farmFactoryLambdaActionType is
 |   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaMistakenTransfer            of transferActionType
 |   LambdaUpdateBlocksPerMinute       of (nat)
 
     // Pause / Break Glass Entrypoints

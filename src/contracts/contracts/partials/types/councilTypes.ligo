@@ -89,9 +89,6 @@ type transfer is [@layout:comb] record[
   from_: address;
   txs: list(transferDestination);
 ]
-type fa2TransferType is list(transfer)
-type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
-
 type councilActionTransferType is [@layout:comb] record [
     receiverAddress       : address;       // receiver address
     tokenContractAddress  : address;       // token contract address

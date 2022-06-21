@@ -11,6 +11,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 // Functional Types 
 // ------------------------------------------------------------------------------
@@ -29,6 +32,9 @@
 // Treasury Types
 #include "../partials/types/treasuryTypes.ligo"
 
+// TreasuryFactory Types
+#include "../partials/types/treasuryFactoryTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type treasuryAction is 
@@ -39,6 +45,7 @@ type treasuryAction is
     | SetAdmin                       of (address)
     | SetGovernance                  of (address)
     | SetBaker                       of option(key_hash)
+    | UpdateName                     of (string)
     | UpdateMetadata                 of updateMetadataType
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
@@ -163,6 +170,11 @@ function checkNoAmount(const _p : unit) : unit is
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
 
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -228,53 +240,6 @@ function mintTokens(
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
-
-
-
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenContractAddress: address): operation is
-    block{
-        const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
-
-        const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
-                Some (c) -> c
-              | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND): contract(fa12TransferType))
-            ];
-    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: fa2TransferType = list[
-            record[
-                from_ = from_;
-                txs = list[
-                    record[
-                        to_      = to_;
-                        token_id = tokenId;
-                        amount   = tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
-             Some (c) -> c
-           | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(fa2TransferType))
-        ];
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -437,6 +402,25 @@ block {
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetBaker(keyHash);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateName entrypoint - update the metadata at a given key *)
+function updateName(const updatedName : string; var s : treasuryStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateName"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateName(updatedName);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -791,6 +775,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
         | SetGovernance(parameters)                     -> setGovernance(parameters, s)
         | SetBaker(parameters)                          -> setBaker(parameters, s)
+        | UpdateName(parameters)                        -> updateName(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)

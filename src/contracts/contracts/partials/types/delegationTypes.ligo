@@ -133,6 +133,7 @@ type delegationLambdaActionType is
 | LambdaUpdateConfig                          of delegationUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaMistakenTransfer                      of transferActionType
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                              of (unit)

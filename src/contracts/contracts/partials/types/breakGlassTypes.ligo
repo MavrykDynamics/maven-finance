@@ -93,11 +93,12 @@ type breakGlassLambdaActionType is
 
     // Housekeeping Entrypoints - Glass Broken Not Required
 | LambdaSetAdmin                      of (address)
-| LambdaSetGovernance               of (address)
+| LambdaSetGovernance                 of (address)
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaMistakenTransfer              of transferActionType
 | LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
 
     // Internal Control of Council Members
