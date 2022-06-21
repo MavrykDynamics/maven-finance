@@ -468,9 +468,6 @@ block{
 
     case aggregatorLambdaAction of [
         | LambdaRequestRateUpdate(_parameters) -> {
-
-                // check if last round is completed here? (e.g. from request rate update deviation)
-                // checkIfLastRoundCompleted(s)
                 
                 const newRound: nat = s.round + 1n;
                 const emptyMapCommit : observationCommitsType = map [];
