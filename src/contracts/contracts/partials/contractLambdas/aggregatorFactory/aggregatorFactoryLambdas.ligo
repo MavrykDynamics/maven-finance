@@ -355,7 +355,6 @@ block {
                 const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
                 const deviationTriggerInfos  : deviationTriggerInfosType  = record[
                   oracleAddress             = Tezos.sender;
-                  amount                    = 0tez;
                   roundPrice                = 0n;
                 ];
 
