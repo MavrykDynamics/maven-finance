@@ -92,6 +92,15 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     },
   ],
   [
+    'council',
+    {
+      title: 'Mavryk Council',
+      subText: 'Responsible to performs operations to develop the Mavryk Finance ecosystem',
+      foregroundImageSrc: '/images/gov-main-header-fg.svg',
+      backgroundImageSrc: '/images/dapp-header-bg.svg',
+    },
+  ],
+  [
     'satellite-governance',
     {
       title: 'Satellite Governance',
