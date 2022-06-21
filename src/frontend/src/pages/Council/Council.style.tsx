@@ -16,8 +16,8 @@ export const CouncilStyled = styled.section`
   }
 
   h1 {
-    margin-top: 30px;
-    margin-bottom: 20px;
+    margin-top: 29px;
+    margin-bottom: 11px;
   }
 
   .council-details {
@@ -30,11 +30,17 @@ export const CouncilStyled = styled.section`
     flex-shrink: 0;
 
     h1 {
-      margin-top: 23px;
+      margin-top: 22px;
+      margin-bottom: 9px;
     }
   }
 
   .council-actions {
     width: 100%;
+  }
+
+  .past-actions {
+    margin-top: 9px;
+    margin-bottom: 9px;
   }
 `

@@ -5,10 +5,12 @@ export const CouncilPastActionStyled = styled(Card)`
   margin: 0;
   margin-bottom: 10px;
   display: grid;
-  grid-template-columns: 160px 220px auto 70px;
+  grid-template-columns: 190px 250px auto 70px;
   align-items: center;
   padding-top: 17px;
-  padding-block: 17px;
+  padding-block: 18px;
+  padding-left: 39px;
+  padding-right: 28px;
 
   p {
     font-weight: 400;
@@ -16,7 +18,7 @@ export const CouncilPastActionStyled = styled(Card)`
     line-height: 21px;
     color: ${skyColor};
     margin-top: 0;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
   h4 {

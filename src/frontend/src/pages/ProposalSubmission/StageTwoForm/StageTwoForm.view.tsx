@@ -162,13 +162,6 @@ export const StageTwoFormView = ({
 
       <FormButtonContainer>
         <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          onClick={handleLockProposal}
-          kind="actionSecondary"
-        />
-        <Button
           icon="bytes"
           className="bytes"
           text="Submit Bytes"
