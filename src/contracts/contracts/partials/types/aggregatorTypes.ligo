@@ -43,17 +43,10 @@ type governanceConfigType is [@layout:comb] record [
 ]
 
 // ------------------------------------------------------------------------------
-// Contract Specific types
+// Contract Specific Action Parameter types
 // ------------------------------------------------------------------------------
 
-type observationCommitsType      is map (address, bytes);
-type observationRevealsType      is map (address, nat);
-type deviationTriggerBanType     is map (address, timestamp);
-
 type pivotedObservationsType     is map (nat, nat);
-type oracleAddressesType         is map (address, bool);
-type oracleRewardStakedMvkType   is map (address, nat);
-type oracleRewardXtzType         is map (address, nat);
 
 // rewards type
 type distributeRewardXtzType is [@layout:comb] record [
@@ -92,30 +85,6 @@ type setObservationRevealType is  [@layout:comb] record [
     priceSalted   : nat * string * address;
 ];
 
-type aggregatorConfigType is [@layout:comb] record [
-    decimals                            : nat;
-    numberBlocksDelay                   : nat;
-
-    deviationTriggerBanDuration         : nat;
-    perThousandDeviationTrigger         : nat;
-    percentOracleThreshold              : nat;
-
-    requestRateDeviationDepositFee      : nat;
-
-    deviationRewardStakedMvk            : nat;
-    deviationRewardAmountXtz            : nat;
-    rewardAmountStakedMvk               : nat;
-    rewardAmountXtz                     : nat;
-];
-
-type aggregatorBreakGlassConfigType is [@layout:comb] record [
-    requestRateUpdateIsPaused           : bool;
-    requestRateUpdateDeviationIsPaused  : bool;
-    setObservationCommitIsPaused        : bool;
-    setObservationRevealIsPaused        : bool;
-    withdrawRewardXtzIsPaused           : bool;
-    withdrawRewardStakedMvkIsPaused     : bool;
-]
 
 type setAdminParams                     is address;
 type withdrawRewardXtzParams            is address;
@@ -152,7 +121,6 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : aggregatorUpdateConfigActionType;
 ]
 
-
 type transferDestination is [@layout:comb] record[
   to_       : address;
   token_id  : nat;
@@ -175,7 +143,49 @@ type setLambdaType is [@layout:comb] record [
     name                  : string;
     func_bytes            : bytes;
 ]
+
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+type observationCommitsType      is map (address, bytes);
+type observationRevealsType      is map (address, nat);
+type deviationTriggerBanType     is map (address, timestamp);
+
+type oracleAddressesType         is map (address, bool);
+type oracleRewardStakedMvkType   is map (address, nat);
+type oracleRewardXtzType         is map (address, nat);
+
+type aggregatorConfigType is [@layout:comb] record [
+    decimals                            : nat;
+    numberBlocksDelay                   : nat;
+
+    deviationTriggerBanDuration         : nat;
+    perThousandDeviationTrigger         : nat;
+    percentOracleThreshold              : nat;
+
+    requestRateDeviationDepositFee      : nat;
+
+    deviationRewardStakedMvk            : nat;
+    deviationRewardAmountXtz            : nat;
+    rewardAmountStakedMvk               : nat;
+    rewardAmountXtz                     : nat;
+];
+
+type aggregatorBreakGlassConfigType is [@layout:comb] record [
+    requestRateUpdateIsPaused           : bool;
+    requestRateUpdateDeviationIsPaused  : bool;
+    setObservationCommitIsPaused        : bool;
+    setObservationRevealIsPaused        : bool;
+    withdrawRewardXtzIsPaused           : bool;
+    withdrawRewardStakedMvkIsPaused     : bool;
+]
+
 type lambdaLedgerType is map(string, bytes)
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
 
 type aggregatorLambdaActionType is 
 
@@ -247,12 +257,6 @@ type aggregatorStorage is [@layout:comb] record [
 
     oracleRewardStakedMvk     : oracleRewardStakedMvkType;
     oracleRewardXtz           : oracleRewardXtzType;
-
-    share : nat;
-    total : nat;
-    reward : nat;
-    rewardTwo:nat;
-    rewardThree:nat;
     
     lambdaLedger              : lambdaLedgerType;
 ];

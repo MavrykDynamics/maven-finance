@@ -28,11 +28,11 @@ type aggregatorFactoryConfigType is [@layout:comb] record [
 ]
 
 type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
-    createAggregatorIsPaused     : bool;
-    trackAggregatorIsPaused      : bool;
-    untrackAggregatorIsPaused    : bool;
-    distributeRewardXtzIsPaused  : bool;
-    distributeRewardMvkIsPaused  : bool;
+    createAggregatorIsPaused            : bool;
+    trackAggregatorIsPaused             : bool;
+    untrackAggregatorIsPaused           : bool;
+    distributeRewardXtzIsPaused         : bool;
+    distributeRewardStakedMvkIsPaused   : bool;
 ]
 
 type aggregatorMetadataType is [@layout:comb] record[

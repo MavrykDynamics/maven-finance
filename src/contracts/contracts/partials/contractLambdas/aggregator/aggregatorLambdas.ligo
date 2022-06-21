@@ -50,8 +50,8 @@ block {
     
     checkNoAmount(Unit);     
     
-    // allowed: admin (governance proxy in most cases), governance contract, governance satellite contract, aggregator factory contract
-    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s); 
+    // allowed: admin (governance proxy in most cases), governance satellite contract
+    checkSenderIsAdminOrGovernanceSatellite(s); 
 
     case aggregatorLambdaAction of [
         | LambdaSetMaintainer(newMaintainerAddress) -> {
@@ -70,8 +70,8 @@ block {
     
     checkNoAmount(Unit);     
     
-    // allowed: admin (governance proxy in most cases), governance contract, governance satellite contract, aggregator factory contract
-    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s); 
+    // allowed: admin (governance proxy in most cases), governance satellite contract
+    checkSenderIsAdminOrGovernanceSatellite(s); 
 
     case aggregatorLambdaAction of [
         | LambdaSetName(updatedName) -> {
@@ -213,7 +213,7 @@ block {
                 if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR)
                 // if isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
-                  checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
+                  checkSenderIsAdminOrGovernanceSatellite(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
                   s.oracleAddresses := updatedWhiteListedContract;
                 }
@@ -236,7 +236,7 @@ block {
                 if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_NOT_PRESENT_IN_AGGREGATOR)
                 // if not isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
-                  checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
+                  checkSenderIsAdminOrGovernanceSatellite(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
                   s.oracleAddresses := updatedWhiteListedContract;
                 }
@@ -261,7 +261,7 @@ block {
 function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
     
-    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
+    checkSenderIsAdminOrGovernanceSatelliteOrGovernanceOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -297,7 +297,7 @@ block {
 function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
 block {
 
-    checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(s);
+    checkSenderIsAdminOrGovernanceSatelliteOrGovernanceOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -468,6 +468,9 @@ block{
 
     case aggregatorLambdaAction of [
         | LambdaRequestRateUpdate(_parameters) -> {
+
+                // check if last round is completed here? (e.g. from request rate update deviation)
+                // checkIfLastRoundCompleted(s)
                 
                 const newRound: nat = s.round + 1n;
                 const emptyMapCommit : observationCommitsType = map [];
@@ -516,7 +519,7 @@ block{
     case aggregatorLambdaAction of [
         | LambdaRequestRateUpdDeviation(params) -> {
 
-                checkIfWhiteListed(s);
+                checkSenderIsOracle(s);
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
                 checkOracleIsNotBannedForDeviationTrigger(s);
@@ -607,21 +610,24 @@ block{
    case aggregatorLambdaAction of [
         | LambdaSetObservationCommit(params) -> {
 
-                checkIfWhiteListed(s);
+                checkSenderIsOracle(s);
                 checkIfTimeToCommit(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredCommit(s);
                 
-                const observationsDataUpdated      : observationCommitsType  = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
-                const numberOfObservationForRound  : nat                     = Map.size (observationsDataUpdated);
+                // get number of observations 
+                const observationsDataUpdated       : observationCommitsType  = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
+                const numberOfObservationsForRound  : nat                     = Map.size (observationsDataUpdated);
                 
-                var percentOracleResponse := numberOfObservationForRound * 100n / Map.size (s.oracleAddresses);
+                var percentOracleResponse := numberOfObservationsForRound * 100n / Map.size (s.oracleAddresses);
                 var newSwitchBlock : nat := s.switchBlock;
 
+                // update switchBlock from zero if sufficient oracles have committed 
                 if ((percentOracleResponse >= s.config.percentOracleThreshold) and s.switchBlock = 0n) then {
                   newSwitchBlock := Tezos.level + s.config.numberBlocksDelay;
                 } else skip;
 
+                // update new observation commits and switch block
                 s.observationCommits  := observationsDataUpdated;
                 s.switchBlock         := newSwitchBlock;
 
@@ -643,13 +649,15 @@ block{
    case aggregatorLambdaAction of [
         | LambdaSetObservationReveal(params) -> {
 
-                checkIfWhiteListed(s);
+                checkSenderIsOracle(s);
                 checkIfTimeToReveal(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
                 
+                // fetch oracle commit and compare it with bytes of price salted 
                 const oracleCommit  : bytes = getObservationCommit(Tezos.sender, s.observationCommits);
                 const hashedPack    : bytes = hasherman(Bytes.pack (params.priceSalted));
+
                 if (hashedPack =/= oracleCommit)
                 then failwith(error_REVEAL_DOES_NOT_MATCH_COMMITMENT)
                 else skip;
@@ -665,6 +673,8 @@ block{
                 const observationsDataUpdated      : observationRevealsType = Map.update(( Tezos.sender ), Some( price ), s.observationReveals);
                 
                 // set rewards for oracles
+                // -----------------------------------------
+
                 // set staked MVK reward
                 s := updateRewardsStakedMvk(Tezos.sender, s);
 
@@ -723,6 +733,9 @@ block{
 
     case aggregatorLambdaAction of [
         | LambdaWithdrawRewardXtz(oracleAddress) -> {
+
+                // check if oracle address is present in aggregator
+                if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
                 
                 const reward : nat = getRewardAmountXtz(oracleAddress, s);
 
@@ -771,18 +784,21 @@ block{
     case aggregatorLambdaAction of [
         | LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
                 
+                // check if oracle address is present in aggregator
+                if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+
                 const reward = getRewardAmountStakedMvk(oracleAddress, s);
 
                 if (reward > 0n) then {
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                        Some(_address) -> _address
+                          Some(_address) -> _address
                         | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
                     const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
                         eligibleSatellites     = set[oracleAddress];
-                        totalStakedMvkReward        = reward;
+                        totalStakedMvkReward   = reward;
                     ];
 
                     const distributeRewardMvkOperation : operation = Tezos.transaction(

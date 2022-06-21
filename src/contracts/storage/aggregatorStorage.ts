@@ -100,12 +100,6 @@ export const aggregatorStorage: aggregatorStorageType = {
   oracleRewardStakedMvk     : MichelsonMap.fromLiteral({}),
   oracleRewardXtz           : MichelsonMap.fromLiteral({}),
 
-  share : new BigNumber(0),
-  total : new BigNumber(0),
-  reward : new BigNumber(0),
-  rewardTwo : new BigNumber(0),
-  rewardThree : new BigNumber(0),
-
   lambdaLedger              : MichelsonMap.fromLiteral({}),
 
 }

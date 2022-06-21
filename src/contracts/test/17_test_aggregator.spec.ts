@@ -28,6 +28,7 @@ function wait(ms: number) {
 
 describe('Aggregator Tests', async () => {
   const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
+
   var utils: Utils
   let aggregator
   let doormanInstance
@@ -102,12 +103,21 @@ describe('Aggregator Tests', async () => {
       [oracleMaintainer.pkh] : true,
     });
 
+    const aggregatorMetadataBase = Buffer.from(
+      JSON.stringify({
+          name: 'MAVRYK Aggregator Contract',
+          version: 'v1.0.0',
+          authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+      }),
+      'ascii',
+      ).toString('hex')
+
     // Setup second aggregator
     const createAggregatorOperation = await aggregatorFactoryInstance.methods.createAggregator(
         'USD',
         'DOGE',
 
-        'USDBTC',
+        'USDDOGE',
         true,
         
         oracleMap,
@@ -127,6 +137,7 @@ describe('Aggregator Tests', async () => {
         new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
          
         oracleMaintainer.pkh,         // maintainer
+        aggregatorMetadataBase        // metadata bytes
 
     ).send();
     await createAggregatorOperation.confirmation();
@@ -175,7 +186,7 @@ describe('Aggregator Tests', async () => {
         const bobStakeAmount                  = MVK(100);
         const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
         await bobStakeAmountOperation.confirmation();                        
-        const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
+        const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "1000").send();
         await bobRegisterAsSatelliteOperation.confirmation();
 
         // Bob transfers 150 MVK tokens to Oracle Maintainer
@@ -215,7 +226,7 @@ describe('Aggregator Tests', async () => {
         const aliceStakeAmount                  = MVK(100);
         const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
         await aliceStakeAmountOperation.confirmation();                        
-        const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "700").send();
+        const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "1000").send();
         await aliceRegisterAsSatelliteOperation.confirmation();
     }
 
@@ -239,7 +250,7 @@ describe('Aggregator Tests', async () => {
         const eveStakeAmount                  = MVK(100);
         const eveStakeAmountOperation         = await doormanInstance.methods.stake(eveStakeAmount).send();
         await eveStakeAmountOperation.confirmation();                        
-        const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Eve", "New Satellite Description - Eve", "https://image.url", "https://image.url", "700").send();
+        const eveRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Eve", "New Satellite Description - Eve", "https://image.url", "https://image.url", "1000").send();
         await eveRegisterAsSatelliteOperation.confirmation();
     }
 
@@ -263,7 +274,7 @@ describe('Aggregator Tests', async () => {
         const malloryStakeAmount                  = MVK(100);
         const malloryStakeAmountOperation         = await doormanInstance.methods.stake(malloryStakeAmount).send();
         await malloryStakeAmountOperation.confirmation();                        
-        const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "700").send();
+        const malloryRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Mallory", "New Satellite Description - Mallory", "https://image.url", "https://image.url", "1000").send();
         await malloryRegisterAsSatelliteOperation.confirmation();
     }
 
@@ -287,7 +298,7 @@ describe('Aggregator Tests', async () => {
       const oracleMaintainerStakeAmount                  = MVK(100);
       const oracleMaintainerStakeAmountOperation         = await doormanInstance.methods.stake(oracleMaintainerStakeAmount).send();
       await oracleMaintainerStakeAmountOperation.confirmation();                        
-      const oracleMaintainerRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Oracle Maintainer", "New Satellite Description - Oracle Maintainer", "https://image.url", "https://image.url", "700").send();
+      const oracleMaintainerRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Oracle Maintainer", "New Satellite Description - Oracle Maintainer", "https://image.url", "https://image.url", "1000").send();
       await oracleMaintainerRegisterAsSatelliteOperation.confirmation();
   }
 
@@ -299,6 +310,20 @@ describe('Aggregator Tests', async () => {
     const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryInstance.address, amount: 250});
     await aliceTransferTezToTreasuryOperation.confirmation();
 
+    // Alice transfers 100 MVK Tokens to Treasury
+    const aliceTransferMvkTokensToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+        {
+            from_: alice.pkh,
+            txs: [
+                {
+                    to_: treasuryInstance.address,
+                    token_id: 0,
+                    amount: MVK(100)
+                }
+            ]
+        }
+    ]).send();
+    await aliceTransferMvkTokensToTreasuryOperation.confirmation();
 
 
     // Set XTZ Reward to be higher for tests (from 0.0013 xtz to 1 xtz)
@@ -311,7 +336,6 @@ describe('Aggregator Tests', async () => {
       rewardAmountXtz, "configRewardAmountXtz"
     ).send();
     await set_xtz_reward_amount_op.confirmation();
-
   
   });
 
@@ -1057,33 +1081,20 @@ describe('Aggregator Tests', async () => {
 
             const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
-            const bobStakedMvk = 100;
-            const eveStakedMvk = 100;
-            const malloryStakedMvk = 100;
-            const totalStakedMvkThreeCommits = bobStakedMvk + eveStakedMvk + malloryStakedMvk;
-            const totalStakedMvkTwoCommits = eveStakedMvk + malloryStakedMvk;
-
             const rewardAmountXtz           = beforeStorage.config.rewardAmountXtz.toNumber();
             const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
             const deviationRewardAmountXtz  = beforeStorage.config.deviationRewardAmountXtz.toNumber();
             const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
 
-            console.log("rewardAmountXtz: "          + rewardAmountXtz);
-            console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
-            console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
-            console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
+            // For reference if needed:
+            // console.log("rewardAmountXtz: "          + rewardAmountXtz);
+            // console.log("rewardAmountStakedMvk:"     + rewardAmountStakedMvk);
+            // console.log("deviationRewardAmountXtz: " + deviationRewardAmountXtz);
+            // console.log("deviationRewardStakedMvk: " + deviationRewardStakedMvk);
 
             const beforeBobRewardXtz            = await beforeStorage.oracleRewardXtz.get(bob.pkh);
             const beforeEveRewardXtz            = await beforeStorage.oracleRewardXtz.get(eve.pkh);
             const beforeMalloryRewardXtz        = await beforeStorage.oracleRewardXtz.get(mallory.pkh);
-
-            const beforeBobRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
-            const beforeEveRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
-            const beforeMalloryRewardStakedMvk  = await beforeStorage.oracleRewardStakedMvk.get(mallory.pkh);
-
-            // percent oracle threshold is 49% so even two oracles reveals will be successful
-            const singleRewardSMvkWithThreeCommits = Math.trunc((bobStakedMvk / totalStakedMvkThreeCommits) * rewardAmountStakedMvk);
-            const singleRewardSMvkWithTwoCommits   = Math.trunc((bobStakedMvk / totalStakedMvkTwoCommits) * rewardAmountStakedMvk);
 
             const beforeBobTezBalance           = await utils.tezos.tz.getBalance(bob.pkh);
             const beforeEveTezBalance           = await utils.tezos.tz.getBalance(eve.pkh);
@@ -1093,77 +1104,140 @@ describe('Aggregator Tests', async () => {
             const eveTezRewardAmount            = rewardAmountXtz * 2;
             const malloryTezRewardAmount        = (rewardAmountXtz * 2) + deviationRewardAmountXtz;
 
-            const bobTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits;
-            const eveTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
-            const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits + deviationRewardStakedMvk;
-
-            console.log(beforeBobRewardStakedMvk);
-            console.log(beforeEveRewardStakedMvk);
-            console.log(beforeMalloryRewardStakedMvk);
-            console.log(beforeBobTezBalance);
-
             // check that xtz reward amounts are correct
             assert.equal(beforeBobRewardXtz, bobTezRewardAmount);         // 1000000 - one reveal
             assert.equal(beforeEveRewardXtz, eveTezRewardAmount);         // 2000000 - two reveals
             assert.equal(beforeMalloryRewardXtz, malloryTezRewardAmount); // 2000000 - two reveals, one req rate upd dev (0)
 
-            // check that staked mvk reward amounts are correct
-            assert.equal(beforeBobRewardStakedMvk, bobTotalStakedMvkReward);          // 3,333,333 - one reveal
-            assert.equal(beforeEveRewardStakedMvk, eveTotalStakedMvkReward);          // 8,333,333 - one reveal with two commits, one reveal with three commits
-            assert.equal(beforeMalloryRewardStakedMvk, malloryTotalStakedMvkReward);  // 21,333,333 -  one reveal with two commits, one reveal with three commits, one req rate upd dev
-
-            // estimate bob withdraw reward operation and then execute operation 
-            await signerFactory(bob.sk);
-            const estimate_bob_withdraw_reward_xtz       = await utils.tezos.estimate.transfer(aggregator.methods.withdrawRewardXtz(bob.pkh).toTransferParams());
-            const bob_withdraw_reward_xtz_total_gas_cost = 100 + estimate_bob_withdraw_reward_xtz.totalCost; // base fee mutez + total cost
+            // use alice to withdraw reward to the oracles and pay the gas cost for easier testing
+            await signerFactory(alice.sk);
             
             const bob_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(bob.pkh).send();
             await bob_withdraw_reward_xtz_op.confirmation();
-
-            // estimate eve withdraw reward operation and then execute operation 
-            await signerFactory(eve.sk);
-            const estimate_eve_withdraw_reward_xtz       = await utils.tezos.estimate.transfer(aggregator.methods.withdrawRewardXtz(eve.pkh).toTransferParams());
-            const eve_withdraw_reward_xtz_total_gas_cost = 100 + estimate_eve_withdraw_reward_xtz.totalCost; // base fee mutez + total cost
             
             const eve_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(eve.pkh).send();
             await eve_withdraw_reward_xtz_op.confirmation();
-
-            // estimate mallory withdraw reward operation and then execute operation 
-            const estimate_mallory_withdraw_reward_xtz       = await utils.tezos.estimate.transfer(aggregator.methods.withdrawRewardXtz(mallory.pkh).toTransferParams());
-            const mallory_withdraw_reward_xtz_total_gas_cost = 100 + estimate_mallory_withdraw_reward_xtz.totalCost; // base fee mutez + total cost
             
             const mallory_withdraw_reward_xtz_op = await aggregator.methods.withdrawRewardXtz(mallory.pkh).send();
             await mallory_withdraw_reward_xtz_op.confirmation();
 
             const storage: aggregatorStorageType = await aggregator.storage();
-            const bobRewardXtz        = await storage.oracleRewardXtz.get(bob.pkh);
-            const bobRewardStakedMvk  = await storage.oracleRewardStakedMvk.get(bob.pkh);
-            
+
+            // get updated satellite oracle rewards for xtz
+            const resetBobRewardXtz        = await storage.oracleRewardXtz.get(bob.pkh);
+            const resetEveRewardXtz        = await storage.oracleRewardXtz.get(eve.pkh);
+            const resetMalloryRewardXtz    = await storage.oracleRewardXtz.get(mallory.pkh);
+
+            // check that reward xtz is now reset to zero after claiming
+            assert.equal(resetBobRewardXtz, 0);
+            assert.equal(resetEveRewardXtz, 0);
+            assert.equal(resetMalloryRewardXtz, 0);
+
+            // get updated xtz balance of satellites
             const bobTezBalance       = await utils.tezos.tz.getBalance(bob.pkh);
             const eveTezBalance       = await utils.tezos.tz.getBalance(eve.pkh);
             const malloryTezBalance   = await utils.tezos.tz.getBalance(mallory.pkh);
-            
-            console.log('---------------')
-            console.log('-----after-----')
-            console.log('---------------')
 
-            assert.equal(bobTezBalance, beforeBobTezBalance.toNumber() + bobTezRewardAmount - bob_withdraw_reward_xtz_total_gas_cost);      
-            assert.equal(eveTezBalance, beforeEveTezBalance.toNumber() + eveTezRewardAmount - eve_withdraw_reward_xtz_total_gas_cost);      
-            assert.equal(malloryTezBalance, beforeMalloryTezBalance.toNumber() + malloryTezRewardAmount - mallory_withdraw_reward_xtz_total_gas_cost);      
-
-            console.log(bobRewardXtz);
-            console.log(bobRewardStakedMvk);
-            console.log(bobTezBalance);
-
-            console.log('-----total gas costs-----')
-            console.log(bob_withdraw_reward_xtz_total_gas_cost)
-            console.log(eve_withdraw_reward_xtz_total_gas_cost)
-            console.log(mallory_withdraw_reward_xtz_total_gas_cost)
-
+            // check that tez balance has been updated by the right amount
+            assert.equal(bobTezBalance, beforeBobTezBalance.toNumber() + bobTezRewardAmount);      
+            assert.equal(eveTezBalance, beforeEveTezBalance.toNumber() + eveTezRewardAmount);      
+            assert.equal(malloryTezBalance, beforeMalloryTezBalance.toNumber() + malloryTezRewardAmount);      
 
           } catch(e){
               console.dir(e, {depth: 5})
           }
+      });
+
+      it('oracles should be able to withdraw reward - staked MVK', async () => {
+        try{
+          
+          await signerFactory(bob.sk);
+
+          const beforeStorage: aggregatorStorageType = await aggregator.storage();
+          const beforeDelegationStorage = await delegationInstance.storage();
+
+          const satelliteFee     = 1000; // set when bob, eve, mallory registered as satellites in before setup
+
+          const bobStakedMvk     = 100;
+          const eveStakedMvk     = 100;
+          const malloryStakedMvk = 100;
+          const totalStakedMvkThreeCommits = bobStakedMvk + eveStakedMvk + malloryStakedMvk;
+          const totalStakedMvkTwoCommits = eveStakedMvk + malloryStakedMvk;
+
+          const rewardAmountStakedMvk     = beforeStorage.config.rewardAmountStakedMvk.toNumber();
+          const deviationRewardStakedMvk  = beforeStorage.config.deviationRewardStakedMvk.toNumber();
+
+          // satellite oracle rewards in staked MVK
+          const beforeBobRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(bob.pkh);
+          const beforeEveRewardStakedMvk      = await beforeStorage.oracleRewardStakedMvk.get(eve.pkh);
+          const beforeMalloryRewardStakedMvk  = await beforeStorage.oracleRewardStakedMvk.get(mallory.pkh);
+
+          // satellite rewards balance before withdrawing rewards
+          const beforeBobRewardsLedger     = await beforeDelegationStorage.satelliteRewardsLedger.get(bob.pkh);
+          const beforeEveRewardsLedger     = await beforeDelegationStorage.satelliteRewardsLedger.get(eve.pkh);
+          const beforeMalloryRewardsLedger = await beforeDelegationStorage.satelliteRewardsLedger.get(mallory.pkh);
+
+          // check that unpaid rewards is equal to 0 before satellite oracle withdraws sMVK rewards
+          assert.equal(beforeBobRewardsLedger.unpaid.toNumber(), 0);
+          assert.equal(beforeEveRewardsLedger.unpaid.toNumber(), 0);
+          assert.equal(beforeMalloryRewardsLedger.unpaid.toNumber(), 0);
+
+          // percent oracle threshold is 49% so even two oracles reveals will be successful
+          // - N.B. rewards are a fixed amount (e.g. 5 sMVK) divided by the number of satellite oracles that participated in the commit/reveal
+          const singleRewardSMvkWithThreeCommits = Math.trunc((bobStakedMvk / totalStakedMvkThreeCommits) * rewardAmountStakedMvk);
+          const singleRewardSMvkWithTwoCommits   = Math.trunc((bobStakedMvk / totalStakedMvkTwoCommits) * rewardAmountStakedMvk);
+
+          // calculate satellite staked MVK rewards based on number of commits/reveals and request rate update deviation (also assuming one commit is followed by one reveal)
+          const bobTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits;
+          const eveTotalStakedMvkReward       = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits;
+          const malloryTotalStakedMvkReward   = singleRewardSMvkWithThreeCommits + singleRewardSMvkWithTwoCommits + deviationRewardStakedMvk;
+
+          // check that staked mvk reward amounts are correct
+          assert.equal(beforeBobRewardStakedMvk, bobTotalStakedMvkReward);          // 3,333,333 - one reveal
+          assert.equal(beforeEveRewardStakedMvk, eveTotalStakedMvkReward);          // 8,333,333 - one reveal with two commits, one reveal with three commits
+          assert.equal(beforeMalloryRewardStakedMvk, malloryTotalStakedMvkReward);  // 21,333,333 -  one reveal with two commits, one reveal with three commits, one req rate upd dev
+
+          await signerFactory(bob.sk);
+          const bob_withdraw_reward_staked_mvk_op = await aggregator.methods.withdrawRewardStakedMvk(bob.pkh).send();
+          await bob_withdraw_reward_staked_mvk_op.confirmation();
+
+          const eve_withdraw_reward_staked_mvk_op = await aggregator.methods.withdrawRewardStakedMvk(eve.pkh).send();
+          await eve_withdraw_reward_staked_mvk_op.confirmation();
+
+          const mallory_withdraw_reward_staked_mvk_op = await aggregator.methods.withdrawRewardStakedMvk(mallory.pkh).send();
+          await mallory_withdraw_reward_staked_mvk_op.confirmation();
+
+          const storage: aggregatorStorageType = await aggregator.storage();
+          const delegationStorage = await delegationInstance.storage();
+
+          // get updated satellite rewards ledger
+          const bobRewardsLedger      = await delegationStorage.satelliteRewardsLedger.get(bob.pkh);
+          const eveRewardsLedger      = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+          const malloryRewardsLedger  = await delegationStorage.satelliteRewardsLedger.get(mallory.pkh);
+
+          // get updated satellite oracle rewards for staked MVK (should be reset to zero)
+          const resetBobRewardStakedMvk        = await storage.oracleRewardStakedMvk.get(bob.pkh);
+          const resetEveRewardStakedMvk        = await storage.oracleRewardStakedMvk.get(eve.pkh);
+          const resetMalloryRewardStakedMvk    = await storage.oracleRewardStakedMvk.get(mallory.pkh);
+
+          // check that reward staked MVK is now reset to zero after claiming
+          assert.equal(resetBobRewardStakedMvk, 0);
+          assert.equal(resetEveRewardStakedMvk, 0);
+          assert.equal(resetMalloryRewardStakedMvk, 0);
+
+          // calculate satellite's staked MVK rewards from fees (the remainder will be for the satellite's delegates)
+          const finalBobStakedMvkRewardsAfterFees     = satelliteFee * bobTotalStakedMvkReward / 10000;
+          const finalEveStakedMvkRewardsAfterFees     = satelliteFee * eveTotalStakedMvkReward / 10000;
+          const finalMalloryStakedMvkRewardsAfterFees = satelliteFee * malloryTotalStakedMvkReward / 10000;
+
+          // check that satellite's unpaid staked mvk rewards have increased by the right amount
+          assert.equal(bobRewardsLedger.unpaid.toNumber(), beforeBobRewardsLedger.unpaid.toNumber() + Math.trunc(finalBobStakedMvkRewardsAfterFees));
+          assert.equal(eveRewardsLedger.unpaid.toNumber(), beforeEveRewardsLedger.unpaid.toNumber() + Math.trunc(finalEveStakedMvkRewardsAfterFees));
+          assert.equal(malloryRewardsLedger.unpaid.toNumber(), beforeMalloryRewardsLedger.unpaid.toNumber() + Math.trunc(finalMalloryStakedMvkRewardsAfterFees));
+          
+        } catch(e){
+            console.dir(e, {depth: 5})
+        }
       });
 
   });

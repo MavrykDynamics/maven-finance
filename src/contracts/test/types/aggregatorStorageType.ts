@@ -66,12 +66,6 @@ export type aggregatorStorageType = {
   oracleRewardStakedMvk     : MichelsonMap<MichelsonMapKey, unknown>;
   oracleRewardXtz           : MichelsonMap<MichelsonMapKey, unknown>;
 
-  share : BigNumber;
-  total : BigNumber;
-  reward : BigNumber;
-  rewardTwo : BigNumber;
-  rewardThree : BigNumber;
-
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 
 };
