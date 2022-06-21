@@ -48,9 +48,9 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     stringMap                          : stringMapType;
     natMap                             : natMapType;
 
-    yayVoteStakedMvkTotal              : nat;
-    nayVoteStakedMvkTotal              : nat;
-    passVoteStakedMvkTotal             : nat;
+    yayVoteTotal              : nat;
+    nayVoteTotal              : nat;
+    passVoteTotal             : nat;
 
     snapshotStakedMvkTotalSupply       : nat;
     stakedMvkPercentageForApproval     : nat; 
