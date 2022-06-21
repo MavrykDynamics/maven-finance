@@ -56,7 +56,6 @@ type distributeRewardXtzType is [@layout:comb] record [
 
 type deviationTriggerInfosType is  [@layout:comb] record [
     oracleAddress               : address;
-    amount                      : tez; // should be removed?
     roundPrice                  : nat;
 ];
 

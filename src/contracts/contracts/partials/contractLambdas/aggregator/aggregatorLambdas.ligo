@@ -477,11 +477,10 @@ block{
                 const emptyMapReveals : observationRevealsType = map [];
                 
                 var newDeviationTriggerInfos: deviationTriggerInfosType := s.deviationTriggerInfos;
-                if (s.deviationTriggerInfos.amount =/= 0tez) then { // -> previous round = deviation trigger
+                if (s.deviationTriggerInfos.roundPrice =/= 0n) then { // -> previous round = deviation trigger
                   newDeviationTriggerInfos :=
                         record[
                             oracleAddress = Tezos.sender;
-                            amount        = 0tez;
                             roundPrice    = 0n;
                         ];
                   if ( // if deviation > or < % deviation trigger
@@ -538,7 +537,7 @@ block{
                 ];
                 
                 if (
-                    s.deviationTriggerInfos.amount =/= 0tez
+                    s.deviationTriggerInfos.roundPrice =/= 0n
                     and
                     (
                         ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perThousandDeviationTrigger) / (1000n * 2n) > s.lastCompletedRoundPrice.price)
@@ -555,7 +554,6 @@ block{
                 const newDeviationTriggerInfos: deviationTriggerInfosType =
                       record[
                           oracleAddress = Tezos.sender;
-                          amount        = Tezos.amount;
                           roundPrice    = s.lastCompletedRoundPrice.price;
                       ];
 

@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -337,12 +340,6 @@ function checkIfTimeToCommit(const s: aggregatorStorage): unit is
 
 function checkIfTimeToReveal(const s: aggregatorStorage): unit is
   if (s.switchBlock = 0n or Tezos.level <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
-  else unit
-
-
-
-function checkEnoughXtzInTheContract(const amountToSend: tez; const s: aggregatorStorage): unit is
-  if (Tezos.balance + s.deviationTriggerInfos.amount) < amountToSend then failwith(error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW)
   else unit
 
 
