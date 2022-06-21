@@ -416,9 +416,9 @@ block {
                             else skip;
 
                             // Calculate quorum and yay votes
-                            const yayVotesRequired: nat = proposal.quorumStakedMvkTotal * s.config.minYayVotePercentage / 10000n;
+                            const yayVotesRequired: nat = (proposal.quorumStakedMvkTotal * proposal.minYayVotePercentage) / 10000n;
 
-                            if proposal.quorumStakedMvkTotal < proposal.minQuorumStakedMvkTotal or proposal.yayVoteStakedMvkTotal < yayVotesRequired then {
+                            if proposal.quorumStakedMvkTotal < proposal.minQuorumStakedMvkTotal or proposal.yayVoteStakedMvkTotal < yayVotesRequired or proposal.yayVoteStakedMvkTotal < proposal.nayVoteStakedMvkTotal then {
                             
                                 // Vote criteria not matched - restart a new proposal round
                                 s := setupProposalRound(s);
