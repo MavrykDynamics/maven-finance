@@ -82,7 +82,7 @@ export const Council = () => {
               </DropdownWrap>
               <CouncilFormAddVestee />
             </DropdownCard>
-            <h1>My Past Council Actions</h1>
+            <h1 className="past-actions">My Past Council Actions</h1>
             <CouncilPastActionView />
             <CouncilPastActionView />
             <CouncilPastActionView />

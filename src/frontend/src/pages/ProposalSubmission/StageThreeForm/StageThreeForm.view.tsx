@@ -87,6 +87,14 @@ export const StageThreeFormView = ({
       {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
         <Button
+          icon="lock"
+          className="lock"
+          text={'Lock Proposal'}
+          //onClick={handleLockProposal}
+          onClick={() => null}
+          kind="actionSecondary"
+        />
+        <Button
           icon="financial"
           className="financial"
           kind="actionPrimary"

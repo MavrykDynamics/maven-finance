@@ -6,7 +6,7 @@ export const CouncilMemberStyled = styled(Card)`
   display: flex;
   align-items: center;
   padding: 12px 28px;
-  margin-bottom: 10px;
+  margin-bottom: 9px;
 
   figcaption {
     width: calc(100% - 70px);
@@ -35,7 +35,7 @@ export const CouncilMemberStyled = styled(Card)`
     width: 50px;
     height: 50px;
     flex-shrink: 0;
-    margin-right: 24px;
+    margin-right: 20px;
 
     img {
       width: 100%;
