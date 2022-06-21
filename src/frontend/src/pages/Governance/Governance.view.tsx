@@ -186,8 +186,14 @@ export const GovernanceView = ({
 
   // TODO correct conditions
   const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
+
   const isVisibleOngoingVoiting =
-    !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'VOTING'
+    !onProposalHistoryPage &&
+    Boolean(ongoingProposals?.length) &&
+    governancePhase === 'VOTING' &&
+    Boolean(ongoingProposals[0]?.currentRoundProposal) &&
+    Boolean(ongoingProposals[0].id === governanceStorage.cycleHighestVotedProposalId)
+
   const isVisibleOngoingTimeLock =
     !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'TIME_LOCK'
   const isVisibleNextProposal =
@@ -211,7 +217,7 @@ export const GovernanceView = ({
     rightSideContent,
     governanceStorage.timelockProposalId,
     !onProposalHistoryPage,
-    governanceStorage.getProposalStatusInfo,
+    governanceStorage.cycleHighestVotedProposalId,
     governanceStorage.cycleCounter,
   )
 

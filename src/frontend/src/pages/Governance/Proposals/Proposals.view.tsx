@@ -55,7 +55,7 @@ export const ProposalsView = ({
             proposal,
             governanceStorage.timelockProposalId,
             isProposalPhase,
-            governanceStorage.getProposalStatusInfo,
+            governanceStorage.cycleHighestVotedProposalId,
             governanceStorage.cycleCounter,
           )
 
