@@ -55,14 +55,19 @@ export const Governance = () => {
     dispatch(getDelegationStorage())
   }, [dispatch])
 
+  // const mockPastroposalsList = MOCK_PAST_PROPOSAL_LIST?.values ? Array.from(MOCK_PAST_PROPOSAL_LIST.values()) : []
+  // const proposalLedger = governanceStorage.proposalLedger
+  // const pastProposalsList = proposalLedger.filter((item: any) => {
+  //   const currentRoundProposal = Boolean(Number(item.currentRoundProposal))
+  //   return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
+  // })
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
-  const mockPastroposalsList = MOCK_PAST_PROPOSAL_LIST?.values ? Array.from(MOCK_PAST_PROPOSAL_LIST.values()) : []
-  const proposalLedger = governanceStorage.proposalLedger
+  const isProposalRound = governancePhase === 'PROPOSAL'
+  const ongoingProposals = currentRoundProposalsList.length ? [currentRoundProposalsList[0]] : []
 
-  const pastProposalsList = proposalLedger.filter((item: any) => {
-    const currentRoundProposal = Boolean(Number(item.currentRoundProposal))
-    return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
-  })
+  const watingProposals = currentRoundProposalsList.filter(
+    (item) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
+  )
 
   const handleMoveNextRound = () => {
     dispatch(startNextRound(false))
@@ -103,9 +108,9 @@ export const Governance = () => {
         loading={loading}
         accountPkh={accountPkh}
         userIsSatellite={userIsSatellite}
-        ongoingProposals={currentRoundProposalsList}
+        ongoingProposals={ongoingProposals}
         nextProposals={currentRoundProposalsList}
-        watingProposals={[]}
+        watingProposals={watingProposals}
         pastProposals={pastProposals}
         governancePhase={governancePhase}
         timeLeftInPhase={daysLeftOfPeriod}
