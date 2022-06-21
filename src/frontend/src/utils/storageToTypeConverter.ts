@@ -784,7 +784,7 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     minQuorumPercentage: item.min_quorum_percentage,
     minQuorumMvkTotal: item.min_quorum_mvk_total,
     quorumMvkTotal: item.quorum_mvk_total,
-    currentRoundProposal: item.quorum_mvk_total,
+    currentRoundProposal: item.current_round_proposal,
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,
     roundHighestVotedProposal: item.round_highest_voted_proposal,

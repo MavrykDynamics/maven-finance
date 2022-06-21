@@ -41,8 +41,6 @@ export const VotingBarView = ({
   // totalMVKVoted = 100000
   // totalCirculatingMVKSupply = 500
 
-  console.log('%c ||||| voteStatistics', 'color:yellowgreen', voteStatistics)
-
   const forVotesWidth = (voteStatistics.forVotesMVKTotal / totalCirculatingMVKSupply) * 100
   const againstVotesWidth = (voteStatistics.againstVotesMVKTotal / totalCirculatingMVKSupply) * 100
   const abstainingVotesWidth = (voteStatistics.abstainVotesMVKTotal / totalCirculatingMVKSupply) * 100
