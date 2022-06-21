@@ -12,11 +12,11 @@ const config = {
 }
 
 const breakGlassConfig = {
-  createAggregatorIsPaused       : false,
-  trackAggregatorIsPaused        : false,
-  untrackAggregatorIsPaused      : false,
-  distributeRewardXtzIsPaused    : false,
-  distributeRewardMvkIsPaused    : false,
+  createAggregatorIsPaused              : false,
+  trackAggregatorIsPaused               : false,
+  untrackAggregatorIsPaused             : false,
+  distributeRewardXtzIsPaused           : false,
+  distributeRewardStakedMvkIsPaused     : false,
 }
 
 const metadata = MichelsonMap.fromLiteral({

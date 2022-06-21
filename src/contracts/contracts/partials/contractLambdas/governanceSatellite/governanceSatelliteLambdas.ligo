@@ -221,9 +221,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -355,9 +355,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -489,9 +489,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -623,9 +623,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -765,9 +765,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -891,9 +891,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -1017,9 +1017,9 @@ block {
                         stringMap                          = emptyStringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -1195,9 +1195,9 @@ block {
                         stringMap                          = stringMap;
                         natMap                             = emptyNatMap;
 
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
 
                         snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
@@ -1371,17 +1371,17 @@ block {
                     
                     Some (_voteRecord) -> case _voteRecord.vote of [
 
-                          Yay(_v) ->  if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.yayVoteStakedMvkTotal 
+                          Yay(_v) ->  if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.yayVoteTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _governanceSatelliteActionRecord.yayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.yayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                        else _governanceSatelliteActionRecord.yayVoteTotal := abs(_governanceSatelliteActionRecord.yayVoteTotal - _voteRecord.totalVotingPower)
 
-                        | Nay(_v) -> if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.nayVoteStakedMvkTotal 
+                        | Nay(_v) -> if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.nayVoteTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _governanceSatelliteActionRecord.nayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.nayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                        else _governanceSatelliteActionRecord.nayVoteTotal := abs(_governanceSatelliteActionRecord.nayVoteTotal - _voteRecord.totalVotingPower)
 
-                        | Pass(_v) -> if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.passVoteStakedMvkTotal 
+                        | Pass(_v) -> if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.passVoteTotal 
                                         then failwith(error_CALCULATION_ERROR) 
-                                        else _governanceSatelliteActionRecord.passVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.passVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                        else _governanceSatelliteActionRecord.passVoteTotal := abs(_governanceSatelliteActionRecord.passVoteTotal - _voteRecord.totalVotingPower)
                     ]
                     | None -> skip
                 ];
@@ -1400,13 +1400,13 @@ block {
 
                     Yay(_v) -> block {
 
-                        const newYayVoteStakedMvkTotal : nat = _governanceSatelliteActionRecord.yayVoteStakedMvkTotal + totalVotingPower;
+                        const newYayVoteTotal : nat = _governanceSatelliteActionRecord.yayVoteTotal + totalVotingPower;
 
-                        _governanceSatelliteActionRecord.yayVoteStakedMvkTotal       := newYayVoteStakedMvkTotal;
+                        _governanceSatelliteActionRecord.yayVoteTotal       := newYayVoteTotal;
                         s.governanceSatelliteActionLedger[actionId]         := _governanceSatelliteActionRecord;
 
                         // send action operation if total yay votes exceed staked MVK required for approval
-                        if newYayVoteStakedMvkTotal > _governanceSatelliteActionRecord.stakedMvkRequiredForApproval then block {
+                        if newYayVoteTotal > _governanceSatelliteActionRecord.stakedMvkRequiredForApproval then block {
 
 
                                 // Governance: Suspend Satellite
@@ -1771,15 +1771,15 @@ block {
                     }
 
                     | Nay(_v) -> block {
-                        const newNayVoteStakedMvkTotal : nat                        = _governanceSatelliteActionRecord.nayVoteStakedMvkTotal + totalVotingPower;
-                        _governanceSatelliteActionRecord.nayVoteStakedMvkTotal      := newNayVoteStakedMvkTotal;
-                        s.governanceSatelliteActionLedger[actionId]                 := _governanceSatelliteActionRecord;
+                        const newNayVoteTotal : nat                       = _governanceSatelliteActionRecord.nayVoteTotal + totalVotingPower;
+                        _governanceSatelliteActionRecord.nayVoteTotal    := newNayVoteTotal;
+                        s.governanceSatelliteActionLedger[actionId]      := _governanceSatelliteActionRecord;
                     }
 
                     | Pass(_v) -> block {
-                        const newProposalVoteStakedMvkTotal : nat                   = _governanceSatelliteActionRecord.passVoteStakedMvkTotal + totalVotingPower;
-                        _governanceSatelliteActionRecord.passVoteStakedMvkTotal     := newProposalVoteStakedMvkTotal;
-                        s.governanceSatelliteActionLedger[actionId]                 := _governanceSatelliteActionRecord;
+                        const newPassVoteTotal : nat                          = _governanceSatelliteActionRecord.passVoteTotal + totalVotingPower;
+                        _governanceSatelliteActionRecord.passVoteTotal       := newPassVoteTotal;
+                        s.governanceSatelliteActionLedger[actionId]          := _governanceSatelliteActionRecord;
                     }
                 ];
 

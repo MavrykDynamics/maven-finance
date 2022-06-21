@@ -647,15 +647,16 @@ describe('Contracts Deployment for Tests', async () => {
   
   
   
-      // Delegation Contract - set whitelist contract addresses [treasury, governance]
+      // Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]
       const delegationContractsBatch = await tezos.wallet
       .batch()
       .withContractCall(delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
       .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
       .withContractCall(delegation.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
+      .withContractCall(delegation.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
       const delegationContractsBatchOperation = await delegationContractsBatch.send()
       await confirmOperation(tezos, delegationContractsBatchOperation.opHash)
-      console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
+      console.log('Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]')
   
   
   
@@ -763,6 +764,15 @@ describe('Contracts Deployment for Tests', async () => {
               string,
               boolean
               >
+
+            const aggregatorMetadataBase = Buffer.from(
+                JSON.stringify({
+                    name: 'MAVRYK Aggregator Contract',
+                    version: 'v1.0.0',
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                }),
+                'ascii',
+                ).toString('hex')
   
           const createAggregatorsBatch = await tezos.wallet
               .batch()
@@ -790,6 +800,8 @@ describe('Contracts Deployment for Tests', async () => {
                   new BigNumber(1300),          // rewardAmountXtz
                   
                   oracleMaintainer.pkh,         // maintainer
+                  aggregatorMetadataBase       // metadata bytes
+
               ))
               .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                   'USD',
@@ -815,6 +827,8 @@ describe('Contracts Deployment for Tests', async () => {
                   new BigNumber(1300),          // rewardAmountXtz
                   
                   oracleMaintainer.pkh,         // maintainer
+                  aggregatorMetadataBase        // metadata bytes
+
               ))
               .withContractCall(aggregatorFactory.contract.methods.createAggregator(
                   'USD',
@@ -840,6 +854,8 @@ describe('Contracts Deployment for Tests', async () => {
                   new BigNumber(1300),          // rewardAmountXtz
                   
                   oracleMaintainer.pkh,         // maintainer
+                  aggregatorMetadataBase        // metadata bytes
+                  
               ))
   
           const createAggregatorsBatchOperation = await createAggregatorsBatch.send()

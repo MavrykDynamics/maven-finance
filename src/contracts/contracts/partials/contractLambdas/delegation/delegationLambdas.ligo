@@ -841,8 +841,8 @@ block {
                     if satelliteFee > rewardPerSatellite then failwith(error_SATELLITE_FEE_EXCEEDS_TOTAL_REWARD) else skip;
 
                     // Update satellite record
-                    const satelliteVotingPower: nat                                 = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
-                    satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
+                    const satelliteTotalStakedMvk: nat                               = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
+                    satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteTotalStakedMvk);
                     satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFeeReward;
                     s.satelliteRewardsLedger[satelliteAddress]                      := satelliteRewardsRecord;
                 }
