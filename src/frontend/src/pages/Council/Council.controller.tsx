@@ -13,6 +13,7 @@ import { CouncilPendingReviewView } from './CouncilPending/CouncilPendingReview.
 import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
 import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
+import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 
 // styles
 import { Page } from 'styles'
@@ -79,6 +80,7 @@ export const Council = () => {
                   clickOnItem={(e) => handleOnClickDropdownItem(e)}
                 />
               </DropdownWrap>
+              <CouncilFormAddVestee />
             </DropdownCard>
             <h1>My Past Council Actions</h1>
             <CouncilPastActionView />
