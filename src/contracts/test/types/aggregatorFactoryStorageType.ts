@@ -7,11 +7,11 @@ export type aggregatorFactoryStorageType = {
   admin                     : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
   breakGlassConfig          : {
-    createAggregatorIsPaused        : boolean;
-    trackAggregatorIsPaused         : boolean;
-    untrackAggregatorIsPaused       : boolean;
-    distributeRewardXtzIsPaused     : boolean;
-    distributeRewardMvkIsPaused     : boolean;
+    createAggregatorIsPaused              : boolean;
+    trackAggregatorIsPaused               : boolean;
+    untrackAggregatorIsPaused             : boolean;
+    distributeRewardXtzIsPaused           : boolean;
+    distributeRewardStakedMvkIsPaused     : boolean;
   };
   config                    : {
     aggregatorNameMaxLength         : BigNumber;

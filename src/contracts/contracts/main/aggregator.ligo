@@ -131,7 +131,48 @@ block {
 
 
 
-function checkSenderIsGovernanceSatelliteOrGovernanceOrFactory(const s: aggregatorStorage): unit is
+function checkSenderIsAdminOrGovernanceSatellite(const s: aggregatorStorage): unit is
+block {
+
+    // First check because a aggregator without a factory should still be accessible
+    if Tezos.sender = s.admin then skip
+    else{
+        const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
+                Some (_address) -> _address
+            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
+        ];
+
+        if Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
+    };
+
+} with(unit)
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorage): unit is
+block {
+
+    // First check because a aggregator without a factory should still be accessible
+    if Tezos.sender = s.admin then skip
+    else {
+        const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
+                Some (_address) -> _address
+            |   None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND): address)
+        ];
+
+        const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
+                Some (_address) -> _address
+            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
+        ];
+
+        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+    };
+
+} with(unit)
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteOrGovernanceOrFactory(const s: aggregatorStorage): unit is
 block {
 
     // First check because a aggregator without a factory should still be accessible
@@ -147,7 +188,7 @@ block {
             |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
         ];
 
-        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -160,7 +201,7 @@ function checkMaintainership(const s: aggregatorStorage): unit is
 
 
 
-function checkIfWhiteListed(const s: aggregatorStorage): unit is
+function checkSenderIsOracle(const s: aggregatorStorage): unit is
   if not Map.mem(Tezos.sender, s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
   else unit
 
@@ -460,6 +501,7 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
 
 function updateRewardsStakedMvk (const senderAddress : address; var s: aggregatorStorage) : aggregatorStorage is block {
 
+  // init params
   var tempSatellitesMap : map(address, nat) := map [];
   var total: nat := 0n;
 
@@ -482,7 +524,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
 
   // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
   // and store each satellite respective share in tempSatellitesMap
-  // note: may result in slight discrepancies if some oracles do not reveal their price feed data
+  // N.B.: may result in slight discrepancies if some oracles do not reveal their price feed data
   for oracleAddress -> _value in map s.observationCommits block {
 
     // view call getSatelliteOpt to delegation contract
@@ -853,7 +895,7 @@ block {
 function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -936,7 +978,7 @@ block {
 function addOracle(const oracleAddress: address; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracle"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracle"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -955,7 +997,7 @@ block{
 function removeOracle(const oracleAddress: address; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveOracle"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveOracle"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -982,7 +1024,7 @@ block{
 function pauseAll(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1001,7 +1043,7 @@ block{
 function unpauseAll(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1020,7 +1062,7 @@ block{
 function togglePauseRequestRateUpdate(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpd"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpd"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1039,7 +1081,7 @@ block{
 function togglePauseRequestRateUpdateDev(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpdDev"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpdDev"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1058,7 +1100,7 @@ block{
 function togglePauseSetObservationCommit(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsCommit"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsCommit"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1077,7 +1119,7 @@ block{
 function togglePauseSetObservationReveal(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsReveal"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsReveal"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1095,7 +1137,7 @@ block{
 function togglePauseWithdrawRewardXtz(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardXtz"] of [
+   const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardXtz"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1114,7 +1156,7 @@ block{
 function togglePauseWithdrawRewardSMvk(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardSMvk"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardSMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1141,7 +1183,7 @@ block{
 function requestRateUpdate(const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdate"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdate"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1160,7 +1202,7 @@ block{
 function requestRateUpdateDeviation(const params: setObservationCommitType; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdateDeviation"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdateDeviation"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1179,7 +1221,7 @@ block{
 function setObservationCommit(const params: setObservationCommitType; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationCommit"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationCommit"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1198,7 +1240,7 @@ block{
 function setObservationReveal(const params: setObservationRevealType; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationReveal"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationReveal"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1225,7 +1267,7 @@ block{
 function withdrawRewardXtz(const receiver: address; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardXtz"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardXtz"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1243,7 +1285,7 @@ block{
 function withdrawRewardStakedMvk(const receiver: address; const s: aggregatorStorage): return is
 block{
   
-  const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardStakedMvk"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardStakedMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];

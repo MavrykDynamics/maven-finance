@@ -153,8 +153,8 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then skip
                 else s.breakGlassConfig.untrackAggregatorIsPaused := True;
 
-                if s.breakGlassConfig.distributeRewardMvkIsPaused then skip
-                else s.breakGlassConfig.distributeRewardMvkIsPaused := True;
+                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then skip
+                else s.breakGlassConfig.distributeRewardStakedMvkIsPaused := True;
 
                 if s.breakGlassConfig.distributeRewardXtzIsPaused then skip
                 else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
@@ -196,7 +196,7 @@ block {
                 if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.distributeRewardMvkIsPaused then s.breakGlassConfig.distributeRewardMvkIsPaused := False
+                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then s.breakGlassConfig.distributeRewardStakedMvkIsPaused := False
                 else skip;
 
                 if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
@@ -306,8 +306,8 @@ block {
     case aggregatorFactoryLambdaAction of [
         | LambdaTogglePauseDisRewardSMvk(_parameters) -> {
                 
-                if s.breakGlassConfig.distributeRewardMvkIsPaused then s.breakGlassConfig.distributeRewardMvkIsPaused := False
-                else s.breakGlassConfig.distributeRewardMvkIsPaused := True;
+                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then s.breakGlassConfig.distributeRewardStakedMvkIsPaused := False
+                else s.breakGlassConfig.distributeRewardStakedMvkIsPaused := True;
 
             }
         | _ -> skip
@@ -620,7 +620,7 @@ function lambdaDistributeRewardStakedMvk(const aggregatorFactoryLambdaAction : a
 block{
 
     // Break glass check
-    checkDistributeRewardMvkIsNotPaused(s);
+    checkDistributeRewardStakedMvkIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
@@ -640,8 +640,13 @@ block{
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                const rewardParams : distributeRewardStakedMvkType = record [
+                    eligibleSatellites   = distributeRewardStakedMvkParams.eligibleSatellites;
+                    totalStakedMvkReward = distributeRewardStakedMvkParams.totalStakedMvkReward;
+                ];
+
                 const distributeRewardStakedMvkOperation : operation = Tezos.transaction(
-                    distributeRewardStakedMvkParams,
+                    rewardParams,
                     0tez,
                     getDistributeRewardInDelegationEntrypoint(delegationAddress)
                 );

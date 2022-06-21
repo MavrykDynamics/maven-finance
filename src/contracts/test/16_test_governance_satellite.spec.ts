@@ -201,6 +201,15 @@
 
 //             const oracleMap = MichelsonMap.fromLiteral({});
 
+//             const aggregatorMetadataBase = Buffer.from(
+//                 JSON.stringify({
+//                     name: 'MAVRYK Aggregator Contract',
+//                     version: 'v1.0.0',
+//                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//                 }),
+//                 'ascii',
+//                 ).toString('hex')
+
 //             // Setup Aggregators
 //             const createAggregatorsBatch = await utils.tezos.wallet
 //             .batch()
@@ -228,6 +237,7 @@
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
 //                 oracleMaintainer.pkh,         // maintainer
+//                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
 //                 'USD',
@@ -253,6 +263,7 @@
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
 //                 oracleMaintainer.pkh,         // maintainer
+//                 aggregatorMetadataBase        // metadata bytes
 //             ))
 //             .withContractCall(aggregatorFactoryInstance.methods.createAggregator(
 //                 'USD',
@@ -272,12 +283,13 @@
                     
 //                 new BigNumber(0),             // requestRateDeviationDepositFee 
 
-                // new BigNumber(10000000),      // deviationRewardStakedMvk
+//                 new BigNumber(10000000),      // deviationRewardStakedMvk
 //                 new BigNumber(2600),          // deviationRewardAmountXtz
 //                 new BigNumber(10000000),      // rewardAmountStakedMvk
 //                 new BigNumber(1300),          // rewardAmountXtz
                 
 //                 oracleMaintainer.pkh,         // maintainer
+//                 aggregatorMetadataBase        // metadata bytes
 //             ))
 
 //           const createAggregatorsBatchOperation = await createAggregatorsBatch.send()

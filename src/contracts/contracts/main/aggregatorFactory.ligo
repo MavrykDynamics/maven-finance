@@ -173,8 +173,8 @@ function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorage) :
     if s.breakGlassConfig.distributeRewardXtzIsPaused then failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
-function checkDistributeRewardMvkIsNotPaused(var s : aggregatorFactoryStorage) : unit is
-    if s.breakGlassConfig.distributeRewardMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+    if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------

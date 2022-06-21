@@ -59,7 +59,8 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
         rewardAmountStakedMvK               : BigNumber,
         rewardAmountXtz                     : BigNumber,
 
-        maintainer                          : string
+        maintainer                          : string,
+        metadataBytes                       : string
 
     ) => ContractMethod<T>;
 };
