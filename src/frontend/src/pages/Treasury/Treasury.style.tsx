@@ -98,7 +98,7 @@ export const TreasuryViewStyle = styled(Card)`
 
   .asset-lables {
     padding-top: 20px;
-    max-height: 248px;
+    max-height: 242px;
     overflow: auto;
     padding-right: 16px;
   }
