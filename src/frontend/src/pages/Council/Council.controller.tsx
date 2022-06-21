@@ -63,8 +63,8 @@ export const Council = () => {
 
           <CouncilPendingReviewView />
         </article>
-        <article>
-          <div>
+        <article className="council-details">
+          <div className="council-actions">
             <DropdownCard className="pending-dropdown">
               <DropdownWrap>
                 <h2>Available Actions</h2>
@@ -87,7 +87,7 @@ export const Council = () => {
             <CouncilPastActionView />
             <CouncilPastActionView />
           </div>
-          <div>
+          <aside className="council-members">
             <h1>Council Members</h1>
             <CouncilMemberView />
             <CouncilMemberView />
@@ -95,7 +95,7 @@ export const Council = () => {
             <CouncilMemberView />
             <CouncilMemberView />
             <CouncilMemberView />
-          </div>
+          </aside>
         </article>
       </CouncilStyled>
     </Page>

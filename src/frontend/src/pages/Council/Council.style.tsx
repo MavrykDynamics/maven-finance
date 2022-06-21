@@ -19,4 +19,22 @@ export const CouncilStyled = styled.section`
     margin-top: 30px;
     margin-bottom: 20px;
   }
+
+  .council-details {
+    display: flex;
+  }
+
+  .council-members {
+    width: 309px;
+    margin-left: 30px;
+    flex-shrink: 0;
+
+    h1 {
+      margin-top: 23px;
+    }
+  }
+
+  .council-actions {
+    width: 100%;
+  }
 `
