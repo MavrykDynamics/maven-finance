@@ -650,10 +650,13 @@ describe('Contracts Deployment for Tests', async () => {
       // Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]
       const delegationContractsBatch = await tezos.wallet
       .batch()
+
+      // whitelist contracts
       .withContractCall(delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
       .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
       .withContractCall(delegation.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
       .withContractCall(delegation.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+
       const delegationContractsBatchOperation = await delegationContractsBatch.send()
       await confirmOperation(tezos, delegationContractsBatchOperation.opHash)
       console.log('Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]')
@@ -700,17 +703,19 @@ describe('Contracts Deployment for Tests', async () => {
       // Governance Financial Contract - set whitelist token contracts [MockFA2, MockFA12, MVK]
       const governanceFinancialContractsBatch = await tezos.wallet
       .batch()
+
+      // whitelist token contracts
       .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
       .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
       .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
+
       const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
       await confirmOperation(tezos, governanceFinancialContractsBatchOperation.opHash)
   
       console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
   
-  
-  
-  
+
+      
       // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
       // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
       const treasuryContractsBatch = await tezos.wallet

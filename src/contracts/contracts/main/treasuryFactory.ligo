@@ -11,6 +11,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -48,6 +51,7 @@ type treasuryFactoryAction is
     |   UpdateWhitelistContracts            of updateWhitelistContractsParams
     |   UpdateGeneralContracts              of updateGeneralContractsParams
     |   UpdateWhitelistTokenContracts       of updateWhitelistTokenContractsParams
+    |   MistakenTransfer                    of transferActionType
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                            of (unit)
@@ -113,6 +117,25 @@ function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
 
 
 
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : treasuryFactoryStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
+
+
 function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
   else unit
@@ -131,6 +154,11 @@ function checkNoAmount(const _p: unit): unit is
 
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -220,6 +248,12 @@ block {
 (* View: checkTreasuryExists *)
 [@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
+
+
+
+(* View: get config *)
+[@view] function getConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryConfigType is 
+    s.config
 
 
 
@@ -421,6 +455,25 @@ block {
 
     // init treasuryFactory lambda action
     const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: treasuryFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasuryFactory lambda action
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
@@ -665,6 +718,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
         |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistTokenContracts (parameters)  -> updateWhitelistTokenContracts(parameters, s)
+        |   MistakenTransfer (parameters)               -> mistakenTransfer(parameters, s)
         
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                      -> pauseAll(s)

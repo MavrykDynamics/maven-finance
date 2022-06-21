@@ -25,14 +25,18 @@
     },
     {
       "index": 6,
-      "name": "lambdaTriggerEmergencyControl"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 7,
-      "name": "lambdaVoteForEmergencyControl"
+      "name": "lambdaTriggerEmergencyControl"
     },
     {
       "index": 8,
+      "name": "lambdaVoteForEmergencyControl"
+    },
+    {
+      "index": 9,
       "name": "lambdaDropEmergencyGovernance"
     }
 ]

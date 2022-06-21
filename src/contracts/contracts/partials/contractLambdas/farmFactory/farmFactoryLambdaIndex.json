@@ -25,38 +25,42 @@
     },
     {
       "index": 6,
-      "name": "lambdaUpdateBlocksPerMinute"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 7,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateBlocksPerMinute"
     },
     {
       "index": 8,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseCreateFarm"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseTrackFarm"
+      "name": "lambdaTogglePauseCreateFarm"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseUntrackFarm"
+      "name": "lambdaTogglePauseTrackFarm"
     },
     {
       "index": 12,
-      "name": "lambdaCreateFarm"
+      "name": "lambdaTogglePauseUntrackFarm"
     },
     {
       "index": 13,
-      "name": "lambdaTrackFarm"
+      "name": "lambdaCreateFarm"
     },
     {
       "index": 14,
+      "name": "lambdaTrackFarm"
+    },
+    {
+      "index": 15,
       "name": "lambdaUntrackFarm"
     }
 ]

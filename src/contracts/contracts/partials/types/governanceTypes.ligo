@@ -118,7 +118,6 @@ type governanceConfigType is [@layout:comb] record [
 
     votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
     proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
-    minimumStakeReqPercentage           : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
     maxProposalsPerDelegate             : nat;  // number of active proposals delegate can have at any given time
 
     blocksPerMinute                     : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
@@ -146,7 +145,6 @@ type governanceUpdateConfigActionType is
 | ConfigMinQuorumStakedMvkTotal     of unit
 | ConfigVotingPowerRatio            of unit
 | ConfigProposeFeeMutez             of unit
-| ConfigMinimumStakeReqPercentage   of unit
 | ConfigMaxProposalsPerDelegate     of unit
 | ConfigBlocksPerProposalRound      of unit
 | ConfigBlocksPerVotingRound        of unit
@@ -242,6 +240,7 @@ type governanceLambdaActionType is
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateWhitelistDevelopers             of (address)
+| LambdaMistakenTransfer                      of transferActionType
 | LambdaSetContractAdmin                      of setContractAdminType
 | LambdaSetContractGovernance                 of setContractGovernanceType
 
@@ -287,8 +286,6 @@ type governanceStorage is [@layout:comb] record [
     cycleCounter                        : nat;                    // counter of current cycle 
     cycleHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
     timelockProposalId                  : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
-
-    snapshotMvkTotalSupply              : nat;                    // snapshot of total MVK supply - for quorum calculation use
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
