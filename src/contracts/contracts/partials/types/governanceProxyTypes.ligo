@@ -67,6 +67,11 @@ type targetFarmUpdateConfigParamsType is [@layout:comb] record [
   farmConfig                : farmUpdateConfigParamsType;
 ]
 
+type targetAggregatorUpdateConfigParamsType is [@layout:comb] record [
+  targetAggregatorAddress   : address;
+  aggregatorConfig          : aggregatorUpdateConfigParamsType;
+]
+
 type targetFarmInitType is [@layout:comb] record [
   targetFarmAddress         : address;
   farmConfig                : initFarmParamsType;
@@ -121,14 +126,17 @@ type executeActionParamsType is
 
 | UpdateGovernanceConfig             of governanceUpdateConfigParamsType
 | UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
+| UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
 | UpdateDelegationConfig             of delegationUpdateConfigParamsType
 | UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
 | UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
 | UpdateCouncilConfig                of councilUpdateConfigParamsType
 | UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
 | UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+| UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
+| UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
 | UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
-| UpdateDoormanMinMvkAmount          of (nat)
+| UpdateDoormanConfig                of doormanUpdateConfigParamsType
 
 // | PauseAllInContract                 of (address)
 // | UnpauseAllInContract               of (address)

@@ -29,7 +29,9 @@ export const doormanStorage: doormanStorageType = {
   governanceAddress         : "",
   metadata                  : metadata,
 
-  minMvkAmount              : new BigNumber(MVK(1)),
+  config                    : {
+    minMvkAmount  :new BigNumber(MVK(1))
+  },
 
   whitelistContracts        : MichelsonMap.fromLiteral({}),
   generalContracts          : MichelsonMap.fromLiteral({}),

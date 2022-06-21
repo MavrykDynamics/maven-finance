@@ -12,7 +12,6 @@
 function lambdaSetAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is
 block {
     
-    checkNoAmount(Unit);    // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
     case aggregatorFactoryLambdaAction of [
@@ -30,7 +29,6 @@ block {
 function lambdaSetGovernance(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is
 block {
     
-    checkNoAmount(Unit);     // entrypoint should not receive any tez amount
     checkSenderIsAllowed(s);
 
     case aggregatorFactoryLambdaAction of [
@@ -69,7 +67,6 @@ block{
 function lambdaUpdateConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
 block{
 
-    checkNoAmount(Unit);  
     checkSenderIsAdmin(s);
 
     case aggregatorFactoryLambdaAction of [
@@ -358,16 +355,6 @@ block {
                   roundPrice                = 0n;
                 ];
 
-                // get delegation address
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
                 // get governance satellite address
                 const governanceSatelliteAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
                 const governanceSatelliteAddress: address = case governanceSatelliteAddressGeneralContractsOptView of [
@@ -383,9 +370,7 @@ block {
                     ("governanceSatellite") -> (governanceSatelliteAddress : address);
                 ];
                 
-                const aggregatorGeneralContracts : generalContractsType = map[
-                    ("delegation")          -> (delegationAddress : address)
-                ];
+                const aggregatorGeneralContracts : generalContractsType = map[];
 
                 const aggregatorLambdaLedger : map(string, bytes) = s.aggregatorLambdaLedger;
 

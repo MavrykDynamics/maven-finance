@@ -41,7 +41,7 @@ type doormanAction is
     SetAdmin                    of (address)
   | SetGovernance               of (address)
   | UpdateMetadata              of updateMetadataType
-  | UpdateMinMvkAmount          of (nat)
+  | UpdateConfig                of doormanUpdateConfigParamsType
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
   | MistakenTransfer            of transferActionType
@@ -433,9 +433,9 @@ block {
 
 
 
-(*  View: get minMvkAmount *)
-[@view] function getMinMvkAmount(const _: unit; const s: doormanStorage) : nat is
-  s.minMvkAmount
+(*  View: get config *)
+[@view] function getConfig(const _: unit; const s: doormanStorage) : doormanConfigType is
+  s.config
 
 
 
@@ -569,20 +569,20 @@ block {
 
 
 
-(*  updateMinMvkAmount entrypoint *)
-function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : doormanUpdateConfigParamsType; var s : doormanStorage) : return is 
 block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMinMvkAmount"] of [
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateMinMvkAmount(newMinMvkAmount);
+    // init delegation lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
 
 } with response
 
@@ -916,7 +916,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
         SetAdmin(parameters)                  -> setAdmin(parameters, s)
       | SetGovernance(parameters)             -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-      | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
+      | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
       | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
