@@ -530,7 +530,7 @@ block {
         Some (value) -> value
       | None -> failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND)
     ];
-    const minQuorumStakedMvkTotal: nat  = smvkTotalSupply * s.config.minQuorumPercentage / 10000n ;
+    const minQuorumStakedMvkTotal: nat  = (smvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
 
     // Setup current round info
     s.currentCycleInfo.round                         := (Proposal : roundType);
@@ -545,7 +545,7 @@ block {
     s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals
     s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
     s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
-    s.cycleHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
+    s.cycleHighestVotedProposalId                    := 0n;                  // flush proposal id voted through - reset to 0 
 
     // Empty the satellite snapshot ledger
     s.snapshotLedger    := emptySnapshotMap;
