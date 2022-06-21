@@ -1,6 +1,8 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
+import { Card, royalPurpleColor, headerColor } from 'styles'
+
 export const DropDownStyled = styled.div`
   width: 100%;
   min-width: 226px;
@@ -108,5 +110,37 @@ export const DropdownContainer = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.headerColor};
     flex-shrink: 0;
     margin-right: 16px;
+  }
+`
+
+export const DropdownWrap = styled.div`
+  display: flex;
+  padding: 16px 30px;
+  align-items: center;
+
+  h2 {
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 22px;
+    color: ${headerColor};
+
+    & + div {
+      width: 450px;
+      margin-right: 0;
+    }
+  }
+`
+
+export const DropdownCard = styled(Card)`
+  padding: 0;
+  margin: 0;
+
+  &.pending-dropdown {
+    margin-bottom: 30px;
+  }
+
+  &.satellite-governance-dropdown {
+    margin-bottom: 30px;
+    margin-top: 30px;
   }
 `

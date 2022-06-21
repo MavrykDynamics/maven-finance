@@ -17,6 +17,7 @@ import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 // styles
 import { Page } from 'styles'
 import { CouncilStyled } from './Council.style'
+import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
 
 export const Council = () => {
   const dispatch = useDispatch()
@@ -53,7 +54,7 @@ export const Council = () => {
       <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
       <CouncilStyled>
         <h1>Pending Signature</h1>
-        <article className="panding">
+        <article className="pending">
           <div>
             <CouncilPendingView />
             <CouncilPendingView />
@@ -65,19 +66,21 @@ export const Council = () => {
         </article>
         <article>
           <div>
-            <div className="dropdown-block">
-              <h2>Available Actions</h2>
-              <DropDown
-                clickOnDropDown={handleClickDropdown}
-                placeholder={ddItems[0]}
-                onChange={handleSelect}
-                isOpen={ddIsOpen}
-                itemSelected={chosenDdItem?.text}
-                items={ddItems}
-                onBlur={() => {}}
-                clickOnItem={(e) => handleOnClickDropdownItem(e)}
-              />
-            </div>
+            <DropdownCard className="pending-dropdown">
+              <DropdownWrap>
+                <h2>Available Actions</h2>
+                <DropDown
+                  clickOnDropDown={handleClickDropdown}
+                  placeholder={ddItems[0]}
+                  onChange={handleSelect}
+                  isOpen={ddIsOpen}
+                  itemSelected={chosenDdItem?.text}
+                  items={ddItems}
+                  onBlur={() => {}}
+                  clickOnItem={(e) => handleOnClickDropdownItem(e)}
+                />
+              </DropdownWrap>
+            </DropdownCard>
             <h1>My Past Council Actions</h1>
             <CouncilPastActionView />
             <CouncilPastActionView />
