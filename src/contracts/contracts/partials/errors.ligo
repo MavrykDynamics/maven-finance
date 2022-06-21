@@ -800,6 +800,9 @@
 [@inline] const error_AGGREGATOR_CONTRACT_EXISTS                                                                        = 573n;
 [@inline] const error_ONLY_AUTHORIZED_ORACLES_ALLOWED                                                                   = 574n;
 [@inline] const error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN                                                              = 575n;
+[@inline] const error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED                                                        = 575n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                 = 575n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED   = 575n;
 
 // CONTRACT SPECIFIC ERRORS
 [@inline] const error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR                                                                = 576n;
@@ -815,6 +818,8 @@
 [@inline] const error_ORACLE_DID_NOT_ANSWER                                                                             = 586n;
 [@inline] const error_REVEAL_DOES_NOT_MATCH_COMMITMENT                                                                  = 587n;
 [@inline] const error_TEZOS_ADDRESS_NOT_PRESENT_IN_HASH_COMMIT                                                          = 588n;
+[@inline] const error_NO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE_REQUIRED                                                    = 588n;
+[@inline] const error_TEZOS_SENT_IS_NOT_EQUAL_TO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE                                     = 588n;
 
 // ENTRYPOINTS PAUSED ERRORS
 [@inline] const error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 589n;

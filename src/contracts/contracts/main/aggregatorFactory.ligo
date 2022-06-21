@@ -11,8 +11,8 @@
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
-// Treasury transfers Type
-#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -20,9 +20,6 @@
 
 // Delegation Types
 #include "../partials/types/delegationTypes.ligo"
-
-// Treasury Transfer Types
-#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
 
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
