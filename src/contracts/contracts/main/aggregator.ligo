@@ -21,6 +21,9 @@
 // Delegation Types
 #include "../partials/types/delegationTypes.ligo"
 
+// Governance Types
+#include "../partials/types/governanceTypes.ligo"
+
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
