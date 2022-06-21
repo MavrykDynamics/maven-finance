@@ -27,7 +27,7 @@ import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.j
 import { Governance, setGovernanceLambdas } from '../helpers/governanceHelper'
 import { GovernanceFinancial, setGovernanceFinancialLambdas } from '../helpers/governanceFinancialHelper'
 import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../helpers/governanceSatelliteHelper'
-import { GovernanceProxy } from '../helpers/governanceProxyHelper'
+import { GovernanceProxy, setGovernanceProxyContractLambdas, setGovernanceProxyContractProxyLambdas } from '../helpers/governanceProxyHelper'
 import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../helpers/emergencyGovernanceHelper'
 import { BreakGlass, setBreakGlassLambdas } from '../helpers/breakGlassHelper'
 import { Vesting, setVestingLambdas } from '../helpers/vestingHelper'
@@ -376,182 +376,111 @@ describe('Contracts Deployment for Tests', async () => {
   
       await signerFactory(bob.sk);
   
-      // Governance Proxy Setup Lambdas
-      const governanceProxyLambdaBatch = await tezos.wallet
-        .batch()
-        .withContractCall(governanceProxy.contract.methods.setLambda("lambdaSetAdmin"                              , governanceProxyLambdas[0]))  // setAdmin
-        .withContractCall(governanceProxy.contract.methods.setLambda("lambdaSetGovernance"                         , governanceProxyLambdas[1]))  // setGovernance
-        .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateMetadata"                        , governanceProxyLambdas[2]))  // updateMetadata
-        .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistContracts"              , governanceProxyLambdas[3]))  // updateWhitelistContracts
-        .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"         , governanceProxyLambdas[4]))  // updateWhitelistTokenContracts
-        .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceProxyLambdas[5]))  // updateGeneralContracts
-        const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
-        await confirmOperation(tezos, setupGovernanceProxyLambdasOperation.opHash)
-        console.log("Governance Proxy Lambdas Setup")
-  
-      // Governance Proxy Setup Proxy Lambdas (external contracts)
-        const governanceProxyFirstLambdaBatch = await tezos.wallet
-        .batch()
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(0, governanceProxyLambdas[6])) // executeGovernanceLambdaProxy
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(1, governanceProxyLambdas[7])) // updateProxyLambda
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(2, governanceProxyLambdas[8])) // setContractAdmin
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(3, governanceProxyLambdas[9])) // setContractGovernance
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(4, governanceProxyLambdas[10])) // setContractLambda
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(5, governanceProxyLambdas[11])) // setFactoryProductLambda
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(6, governanceProxyLambdas[12])) // updateContractMetadata
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[13])) // updateContractWhitelistMap
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[14])) // updateContractGeneralMap
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[15])) // updateContractWhitelistTokenMap
-        
-        const setupGovernanceProxyFirstLambdasOperation = await governanceProxyFirstLambdaBatch.send()
-        await confirmOperation(tezos, setupGovernanceProxyFirstLambdasOperation.opHash)
-        console.log("GovernanceProxy Proxy Lambdas Setup (1st Batch)")
-  
-        const governanceProxySecondLambdaBatch = await tezos.wallet
-        .batch()
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(10, governanceProxyLambdas[16])) // updateGovernanceConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[17])) // updateGovernanceFinancialConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[18])) // updateDelegationConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[19])) // updateEmergencyConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[20])) // updateBreakGlassConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[21])) // updateCouncilConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[22])) // updateFarmConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[23])) // updateFarmFactoryConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[24])) // updateTreasuryFactoryConfig
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[25])) // updateDoormanMinMvkAmount
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[26])) // updateWhitelistDevelopersSet
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[27])) // setGovernanceProxy
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[28])) // createFarm
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[29])) // trackFarm
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[30])) // untrackFarm
-  
-        const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
-        await confirmOperation(tezos, setupGovernanceProxySecondLambdasOperation.opHash)
-        console.log("GovernanceProxy Proxy Lambdas Setup (2nd Batch)")
-        
-        const governanceProxyThirdLambdaBatch = await tezos.wallet
-        .batch()
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(23, governanceProxyLambdas[31])) // initFarm
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(24, governanceProxyLambdas[32])) // closeFarm
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(25, governanceProxyLambdas[33])) // createTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(26, governanceProxyLambdas[34])) // trackTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[35])) // untrackTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[36])) // transferTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[37])) // mintMvkAndTransferTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[38])) // updateMvkOperatorsTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[39])) // stakeMvkTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[40])) // unstakeMvkTreasury
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[41])) // createAggregator
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[42])) // trackAggregator
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[43])) // untrackAggregator
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(33, governanceProxyLambdas[44])) // updateInflationRate
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(34, governanceProxyLambdas[45])) // triggerInflation
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(35, governanceProxyLambdas[46])) // addVestee
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(36, governanceProxyLambdas[47])) // removeVestee
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(37, governanceProxyLambdas[48])) // updateVestee
-        .withContractCall(governanceProxy.contract.methods.setProxyLambda(38, governanceProxyLambdas[49])) // toggleVesteeLock
-  
-        const setupGovernanceProxyThirdLambdasOperation = await governanceProxyThirdLambdaBatch.send()
-        await confirmOperation(tezos, setupGovernanceProxyThirdLambdasOperation.opHash)
-        console.log("Governance Proxy Proxy Lambdas Setup")
-  
-  
-  
-        // Governance Setup Lambdas
-        await setGovernanceLambdas(tezos, governance.contract)
-        console.log("Governance Lambdas Setup")
-  
-        // Governance Financial Setup Lambdas
-        await setGovernanceFinancialLambdas(tezos, governanceFinancial.contract)
-        console.log("Governance Financial Lambdas Setup")
-  
-        // Governance Satellite Setup Lambdas      
-        await setGovernanceSatelliteLambdas(tezos, governanceSatellite.contract)
-        console.log("Governance Satellite Lambdas Setup")
-  
-  
-  
-        // Doorman Setup Lambdas
-        await setDoormanLambdas(tezos, doorman.contract)
-        console.log("Doorman Lambdas Setup")
-  
-  
-  
-        // Delegation Setup Lambdas
-        await setDelegationLambdas(tezos, delegation.contract)
-        console.log("Delegation Lambdas Setup")
-        
-  
-  
-        // Break Glass Setup Lambdas
-        await setBreakGlassLambdas(tezos, breakGlass.contract)
-        console.log("Break Glass Lambdas Setup")
-  
-  
-  
-        // Emergency Governance Setup Lambdas
-        await setEmergencyGovernanceLambdas(tezos, emergencyGovernance.contract)
-        console.log("Emergency Governance Lambdas Setup")
-        
-  
-  
-        // Council Setup Lambdas
-        await setCouncilLambdas(tezos, council.contract);
-        console.log("Council Lambdas Setup")
-    
-  
-  
-        // Vesting Setup Lambdas      
-        await setVestingLambdas(tezos, vesting.contract);
-        console.log("Vesting Lambdas Setup")
-  
-  
-  
-        // Farm FA12 Setup Lambdas
-        await setFarmLambdas(tezos, farm.contract)
-        console.log("Farm FA12 Lambdas Setup")
-  
-        // Farm FA2 Setup Lambdas
-        await setFarmLambdas(tezos, farmFA2.contract)
-        console.log("Farm FA2 Lambdas Setup")
-  
-        // Farm Factory Setup Lambdas
-        await setFarmFactoryLambdas(tezos, farmFactory.contract)
-        console.log("Farm Factory Lambdas Setup")
-  
-        // Farm Factory Setup Product Lambdas
-        await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
-        console.log("Farm Factory Product Lambdas Setup")
-  
-  
-  
-        // Treasury Setup Lambdas
-        await setTreasuryLambdas(tezos, treasury.contract);
-        console.log("Treasury Lambdas Setup")
-  
-        // Treasury Factory Setup Lambdas
-        await setTreasuryFactoryLambdas(tezos, treasuryFactory.contract);
-        console.log("Treasury Factory Lambdas Setup")
-  
-        // Treasury Factory Product Setup Lambdas
-        await setTreasuryFactoryProductLambdas(tezos, treasuryFactory.contract);
-        console.log("Treasury Factory Product Lambdas Setup")
-  
-  
-  
-        // Aggregator Setup Lambdas
-        await setAggregatorLambdas(tezos, aggregator.contract);
-        console.log("Aggregator Lambdas Setup")
-  
-        // Aggregator Factory Setup Lambdas
-        await setAggregatorFactoryLambdas(tezos, aggregatorFactory.contract);
-        console.log("AggregatorFactory Lambdas Setup")
-  
-        await setAggregatorFactoryProductLambdas(tezos, aggregatorFactory.contract);
-        console.log("Aggregator Factory Product Lambdas Setup")
+      // Governance Proxy Setup Lambdas - Contract Lambdas
+      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 6) // 6 is the last index + 1 (exclusive)
+      console.log("Governance Proxy Contract - Lambdas Setup")
+
+      // Governance Proxy Setup Lambdas - Proxy Lambdas
+      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 6) // 6 is the starting index (inclusive)
+      console.log("Governance Proxy Contract - Proxy Lambdas Setup")
+
+
+
+      // Governance Setup Lambdas
+      await setGovernanceLambdas(tezos, governance.contract)
+      console.log("Governance Lambdas Setup")
+
+      // Governance Financial Setup Lambdas
+      await setGovernanceFinancialLambdas(tezos, governanceFinancial.contract)
+      console.log("Governance Financial Lambdas Setup")
+
+      // Governance Satellite Setup Lambdas      
+      await setGovernanceSatelliteLambdas(tezos, governanceSatellite.contract)
+      console.log("Governance Satellite Lambdas Setup")
+
+
+
+      // Doorman Setup Lambdas
+      await setDoormanLambdas(tezos, doorman.contract)
+      console.log("Doorman Lambdas Setup")
+
+
+
+      // Delegation Setup Lambdas
+      await setDelegationLambdas(tezos, delegation.contract)
+      console.log("Delegation Lambdas Setup")
       
-        // Set Lambdas End
+
+
+      // Break Glass Setup Lambdas
+      await setBreakGlassLambdas(tezos, breakGlass.contract)
+      console.log("Break Glass Lambdas Setup")
+
+
+
+      // Emergency Governance Setup Lambdas
+      await setEmergencyGovernanceLambdas(tezos, emergencyGovernance.contract)
+      console.log("Emergency Governance Lambdas Setup")
+      
+
+
+      // Council Setup Lambdas
+      await setCouncilLambdas(tezos, council.contract);
+      console.log("Council Lambdas Setup")
   
+
+
+      // Vesting Setup Lambdas      
+      await setVestingLambdas(tezos, vesting.contract);
+      console.log("Vesting Lambdas Setup")
+
+
+
+      // Farm FA12 Setup Lambdas
+      await setFarmLambdas(tezos, farm.contract)
+      console.log("Farm FA12 Lambdas Setup")
+
+      // Farm FA2 Setup Lambdas
+      await setFarmLambdas(tezos, farmFA2.contract)
+      console.log("Farm FA2 Lambdas Setup")
+
+      // Farm Factory Setup Lambdas
+      await setFarmFactoryLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Lambdas Setup")
+
+      // Farm Factory Setup Product Lambdas
+      await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Product Lambdas Setup")
+
+
+
+      // Treasury Setup Lambdas
+      await setTreasuryLambdas(tezos, treasury.contract);
+      console.log("Treasury Lambdas Setup")
+
+      // Treasury Factory Setup Lambdas
+      await setTreasuryFactoryLambdas(tezos, treasuryFactory.contract);
+      console.log("Treasury Factory Lambdas Setup")
+
+      // Treasury Factory Product Setup Lambdas
+      await setTreasuryFactoryProductLambdas(tezos, treasuryFactory.contract);
+      console.log("Treasury Factory Product Lambdas Setup")
+
+
+
+      // Aggregator Setup Lambdas
+      await setAggregatorLambdas(tezos, aggregator.contract);
+      console.log("Aggregator Lambdas Setup")
+
+      // Aggregator Factory Setup Lambdas
+      await setAggregatorFactoryLambdas(tezos, aggregatorFactory.contract);
+      console.log("AggregatorFactory Lambdas Setup")
+
+      await setAggregatorFactoryProductLambdas(tezos, aggregatorFactory.contract);
+      console.log("Aggregator Factory Product Lambdas Setup")
+    
+      // Set Lambdas End
+
       //----------------------------
       // Set remaining contract addresses - post-deployment
       //----------------------------
@@ -715,7 +644,7 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
   
 
-      
+
       // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
       // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
       const treasuryContractsBatch = await tezos.wallet
