@@ -188,11 +188,7 @@ export const GovernanceView = ({
   const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
 
   const isVisibleOngoingVoiting =
-    !onProposalHistoryPage &&
-    Boolean(ongoingProposals?.length) &&
-    governancePhase === 'VOTING' &&
-    Boolean(ongoingProposals[0]?.currentRoundProposal) &&
-    Boolean(ongoingProposals[0].id === governanceStorage.cycleHighestVotedProposalId)
+    !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'VOTING'
 
   const isVisibleOngoingTimeLock =
     !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'TIME_LOCK'
@@ -230,8 +226,6 @@ export const GovernanceView = ({
   // )
 
   const rightSideContentStatus = statusInfo.statusFlag
-
-  console.log('%c ||||| statusInfo', 'color:green', statusInfo)
 
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
   const someVisible = Object.values(visibleLists).some((item) => item)

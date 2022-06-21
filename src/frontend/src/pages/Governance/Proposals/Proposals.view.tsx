@@ -68,7 +68,6 @@ export const ProposalsView = ({
           // )
 
           const contentStatus = statusInfo.statusFlag
-          console.log('%c ||||| statusInfo', 'color:yellowgreen', statusInfo)
 
           const dividedPassVoteMvkTotal = proposal.passVoteMvkTotal / 1_000_000_000
           return (
