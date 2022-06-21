@@ -27,6 +27,9 @@
 // Delegation Type for updateConfig
 #include "../partials/types/delegationTypes.ligo"
 
+// Doorman Type for updateConfig
+#include "../partials/types/doormanTypes.ligo"
+
 // Farm Type
 #include "../partials/types/farmTypes.ligo"
 
@@ -47,6 +50,9 @@
 
 // Governance Financial Type
 #include "../partials/types/governanceFinancialTypes.ligo"
+
+// Governance Satellite Type
+#include "../partials/types/governanceSatelliteTypes.ligo"
 
 // Farm Type
 #include "../partials/types/farmTypes.ligo"
