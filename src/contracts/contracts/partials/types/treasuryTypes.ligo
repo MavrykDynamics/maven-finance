@@ -38,7 +38,7 @@ type treasuryLambdaActionType is
 | LambdaSetAdmin                       of (address)
 | LambdaSetGovernance                  of (address)
 | LambdaSetBaker                       of option(key_hash)
-| LambdaUpdateName                     of (string)
+| LambdaSetName                        of (string)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts         of updateGeneralContractsParams

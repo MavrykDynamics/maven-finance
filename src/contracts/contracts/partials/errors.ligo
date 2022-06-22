@@ -38,7 +38,7 @@
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                                                              = 25n;
 [@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                   = 26n;
 [@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                     = 27n;
-[@inline] const error_UPDATE_NAME_ENTRYPOINT_NOT_FOUND                                                                  = 28n;
+[@inline] const error_SET_NAME_ENTRYPOINT_NOT_FOUND                                                                     = 28n;
 [@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND                                             = 29n;
 [@inline] const error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND                                                     = 30n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                                                    = 31n;
@@ -401,7 +401,7 @@
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                                   = 280n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                              = 281n;
-[@inline] const error_UPDATE_NAME_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                                 = 282n;
+[@inline] const error_SET_NAME_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                                    = 282n;
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                             = 283n;
 [@inline] const error_UPDATE_CONFIG_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                               = 284n;
 [@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND                                  = 285n;
@@ -665,7 +665,7 @@
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 477n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                          = 478n;
 [@inline] const error_SET_BAKER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 479n;
-[@inline] const error_UPDATE_NAME_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                             = 480n;
+[@inline] const error_SET_NAME_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                                = 480n;
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                         = 481n;
 [@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                              = 482n;
 [@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                = 483n;
