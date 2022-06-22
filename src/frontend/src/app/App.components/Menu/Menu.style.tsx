@@ -19,6 +19,8 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   position: sticky;
   top: 0;
   left: 0;
+  z-index: 10;
+
   .mobile-logo {
     display: none;
   }
