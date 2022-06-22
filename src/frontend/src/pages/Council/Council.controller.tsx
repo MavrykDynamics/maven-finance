@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
+// type
+import { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
+
 // actions
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 
@@ -23,6 +26,11 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 export const Council = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
+  const { councilStorage } = useSelector((state: State) => state.council)
+
+  const { councilMembers } = councilStorage
+
+  console.log('%c ||||| councilMembers', 'color:yellowgreen', councilMembers)
 
   const itemsForDropDown = [
     { text: 'Suspend Satellite', value: 'suspendSatellite' },
@@ -89,15 +97,14 @@ export const Council = () => {
             <CouncilPastActionView />
             <CouncilPastActionView />
           </div>
-          <aside className="council-members">
-            <h1>Council Members</h1>
-            <CouncilMemberView />
-            <CouncilMemberView />
-            <CouncilMemberView />
-            <CouncilMemberView />
-            <CouncilMemberView />
-            <CouncilMemberView />
-          </aside>
+          {councilMembers.length ? (
+            <aside className="council-members">
+              <h1>Council Members</h1>
+              {councilMembers.map((item: CouncilMember) => (
+                <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
+              ))}
+            </aside>
+          ) : null}
         </article>
       </CouncilStyled>
     </Page>

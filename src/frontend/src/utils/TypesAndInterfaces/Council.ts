@@ -21,10 +21,19 @@ export type CouncilActionRecord = {
   signers: CouncilActionSigner[]
 }
 
+
+export type CouncilMember = {
+  id: number
+  name: string
+  image: string
+  user_id: string
+  website: string
+}
+
 export interface CouncilStorage {
   address: string
   config: CouncilConfig
-  councilMembers?: { address: string }[]
+  councilMembers?: CouncilMember[]
   councilActionsLedger: CouncilActionRecord[]
   actionCounter: number
 }

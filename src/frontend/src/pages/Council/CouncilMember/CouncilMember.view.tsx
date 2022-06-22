@@ -4,18 +4,29 @@ import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 // style
 import { CouncilMemberStyled } from './CouncilMember.style'
 
-export const CouncilMemberView = () => {
+type Props = {
+  image: string
+  name: string
+  user_id: string
+}
+
+export const CouncilMemberView = (props: Props) => {
+  const { image, name, user_id } = props
   return (
     <CouncilMemberStyled>
       <AvatarStyle>
         <img
-          src="https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3"
-          alt=""
+          src={image}
+          alt={name}
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null
+            currentTarget.style.opacity = '0'
+          }}
         />
       </AvatarStyle>
       <figcaption>
-        <h4>Jeff Stone Jeff Stone Jeff Stone Jeff Stone</h4>
-        <TzAddress tzAddress={'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'} hasIcon={false} />
+        <h4>{name}</h4>
+        {user_id ? <TzAddress tzAddress={user_id} hasIcon={false} /> : null}
       </figcaption>
     </CouncilMemberStyled>
   )

@@ -524,6 +524,7 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
+    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : []
   }
 }
 
