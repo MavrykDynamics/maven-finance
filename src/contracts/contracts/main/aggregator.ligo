@@ -138,11 +138,11 @@ block {
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorage): unit is
+function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorage): unit is
 block {
 
     // First check because a aggregator without a factory should still be accessible
-    if Tezos.sender = s.admin then skip
+    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
                 Some (_address) -> _address

@@ -218,16 +218,17 @@ block {
       | CreateAggregator (_v)                  -> 39n
       | TrackAggregator (_v)                   -> 40n
       | UntrackAggregator (_v)                 -> 41n
+      | SetAggregatorMaintainer (_v)           -> 42n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 42n
-      | TriggerMvkInflation (_v)               -> 43n
+      | UpdateMvkInflationRate (_v)            -> 43n
+      | TriggerMvkInflation (_v)               -> 44n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 44n
-      | RemoveVestee (_v)                      -> 45n
-      | UpdateVestee (_v)                      -> 46n
-      | ToggleVesteeLock (_v)                  -> 47n
+      | AddVestee (_v)                         -> 45n
+      | RemoveVestee (_v)                      -> 46n
+      | UpdateVestee (_v)                      -> 47n
+      | ToggleVesteeLock (_v)                  -> 48n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -1974,6 +1975,45 @@ block {
                   );
 
                 operations := untrackAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function setAggregatorMaintainer(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      SetAggregatorMaintainer(setAggregatorMaintainerParams) -> {
+
+                // assign params to constants for better code readability
+                const aggregatorAddress     : address = setAggregatorMaintainerParams.aggregatorAddress;
+                const newMaintainerAddress  : address = setAggregatorMaintainerParams.maintainerAddress;
+
+                // find and get setAggregatorMaintainer entrypoint of aggregator contract
+                const setMaintainerEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setMaintainer",
+                    aggregatorAddress) : option(contract(address))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
+
+                // set new aggregator maintainer operation
+                const setAggregatorMaintainerOperation : operation = Tezos.transaction(
+                    (newMaintainerAddress),
+                    0tez, 
+                    setMaintainerEntrypoint
+                  );
+
+                operations := setAggregatorMaintainerOperation # operations;
 
         }
     | _ -> skip
