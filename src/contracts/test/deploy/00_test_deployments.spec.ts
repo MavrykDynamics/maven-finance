@@ -17,8 +17,6 @@ chai.should()
 import env from '../../env'
 import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
 
-import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
-
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -377,11 +375,11 @@ describe('Contracts Deployment for Tests', async () => {
       await signerFactory(bob.sk);
   
       // Governance Proxy Setup Lambdas - Contract Lambdas
-      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 6) // 6 is the last index + 1 (exclusive)
+      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 6) // 6 (exclusive) is the last index + 1 
       console.log("Governance Proxy Contract - Lambdas Setup")
 
       // Governance Proxy Setup Lambdas - Proxy Lambdas
-      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 6) // 6 is the starting index (inclusive)
+      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 6) // 6 (inclusive) is the starting index 
       console.log("Governance Proxy Contract - Proxy Lambdas Setup")
 
 
@@ -500,6 +498,7 @@ describe('Contracts Deployment for Tests', async () => {
       const aggregatorContractsBatch = await tezos.wallet
       .batch()
       .withContractCall(aggregator.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+      .withContractCall(aggregator.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
       
       const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
       await confirmOperation(tezos, aggregatorContractsBatchOperation.opHash)
