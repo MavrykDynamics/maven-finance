@@ -13,7 +13,7 @@ function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatell
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAllowed(s); // check that sender is admin
 
     case governanceSatelliteLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {

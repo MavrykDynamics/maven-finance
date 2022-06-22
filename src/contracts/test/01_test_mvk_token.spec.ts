@@ -1906,35 +1906,9 @@
 //           .updateWhitelistContracts('bob', bob.pkh)
 //           .send()
 //         await whitelistBobOperationAdd.confirmation()
-//         const mintAlice = await tokenInstance.methods.mint(alice.pkh, 20000).send({ amount: 5 })
-//         await mintAlice.confirmation()
+//         await chai.expect(tokenInstance.methods.mint(alice.pkh, 20000).send({ amount: 5 })).to.be.rejected;
 //       } catch (e) {
-//         assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', 'This entrypoint should not receive XTZ')
-//         const whitelistBobOperationRemove = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationRemove.confirmation()
-
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-//         const aliceTokenLedgerAfter = await tokenStorage.ledger.get(alice.pkh)
-//         const totalSupplyAfter = await tokenStorage.totalSupply
-
-//         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase),
-//           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
-//         )
-//         assert.equal(
-//             parseInt(aliceTokenLedgerAfter),
-//           parseInt(aliceTokenLedgerBase),
-//           'Alice MVK Ledger should have ' + aliceTokenLedgerBase + 'MVK but he has ' + aliceTokenLedgerAfter + 'MVK',
-//         )
-//         assert.equal(
-//             parseInt(totalSupplyAfter),
-//           parseInt(totalSupplyBase),
-//           "MVK total supply shouldn't have increased. Current supply: " + totalSupplyAfter + 'MVK',
-//         )
+//         console.dir(e, {depth: 5})
 //       }
 //     })
 
@@ -2007,37 +1981,9 @@
 //       try {
 //         const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
 //         await whitelistEveOperationAdd.confirmation()
-//         const mintMallory = await tokenInstance.methods.mint(mallory.pkh, 20000).send({ amount: 5 })
-//         await mintMallory.confirmation()
+//         await chai.expect(tokenInstance.methods.mint(mallory.pkh, 20000).send({ amount: 5 })).to.be.rejected;
 //       } catch (e) {
-//         assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', 'This entrypoint should not receive XTZ')
-//         const whitelistEveOperationRemove = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
-//         await whitelistEveOperationRemove.confirmation()
-
-//         tokenStorage = await tokenInstance.storage()
-//         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
-//         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)
-//         const totalSupplyAfter = await tokenStorage.totalSupply
-
-//         assert.equal(
-//             parseInt(eveTokenLedgerAfter),
-//           parseInt(eveTokenLedgerBase),
-//           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
-//         )
-//         assert.equal(
-//             parseInt(malloryTokenLedgerAfter),
-//           parseInt(malloryTokenLedgerBase),
-//           "Mallory's MVK Ledger should have " +
-//             malloryTokenLedgerBase +
-//             'MVK but he has ' +
-//             malloryTokenLedgerAfter +
-//             'MVK',
-//         )
-//         assert.equal(
-//             parseInt(totalSupplyAfter),
-//             parseInt(totalSupplyBase),
-//           "MVK total supply shouldn't have increased. Current supply: " + totalSupplyAfter + 'MVK',
-//         )
+//         console.dir(e, {depth: 5})
 //       }
 //     })
 
@@ -2073,52 +2019,52 @@
 //   })
 
 //   describe('%updateWhitelistContracts', function () {
-//     it('Adds Bob to the Whitelisted Contracts map', async () => {
+//     it('Adds Eve to the Whitelisted Contracts map', async () => {
 //       try {
-//         const oldWhitelistContractsMapBob = await tokenStorage['whitelistContracts'].get('bob')
-//         const whitelistBobOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
+//         const oldWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
+//         const whitelistEveOperationAdd = await tokenInstance.methods
+//           .updateWhitelistContracts('eve', eve.pkh)
 //           .send()
-//         await whitelistBobOperationAdd.confirmation()
+//         await whitelistEveOperationAdd.confirmation()
 
 //         tokenStorage = await tokenInstance.storage()
-//         const newWhitelistContractsMapBob = await tokenStorage['whitelistContracts'].get('bob')
+//         const newWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
 
 //         assert.strictEqual(
-//           oldWhitelistContractsMapBob,
+//           oldWhitelistContractsMapEve,
 //           undefined,
-//           'Bob should not be in the Whitelist Contracts map before adding her to it',
+//           'Eve should not be in the Whitelist Contracts map before adding her to it',
 //         )
 //         assert.strictEqual(
-//           newWhitelistContractsMapBob,
-//           bob.pkh,
-//           'Bob should be in the Whitelist Contracts map after adding her to it',
+//           newWhitelistContractsMapEve,
+//           eve.pkh,
+//           'Eve should be in the Whitelist Contracts map after adding her to it',
 //         )
 //       } catch (e) {
 //         console.log(e)
 //       }
 //     })
 
-//     it('Removes Bob from the Whitelisted Contracts map', async () => {
+//     it('Removes Eve from the Whitelisted Contracts map', async () => {
 //       try {
-//         const oldWhitelistContractsMapBob = await tokenStorage['whitelistContracts'].get('bob')
-//         const whitelistBobOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
+//         const oldWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
+//         const whitelistEveOperationAdd = await tokenInstance.methods
+//           .updateWhitelistContracts('eve', eve.pkh)
 //           .send()
-//         await whitelistBobOperationAdd.confirmation()
+//         await whitelistEveOperationAdd.confirmation()
 
 //         tokenStorage = await tokenInstance.storage()
-//         const newWhitelistContractsMapBob = await tokenStorage['whitelistContracts'].get('bob')
+//         const newWhitelistContractsMapEve = await tokenStorage['whitelistContracts'].get('eve')
 
 //         assert.strictEqual(
-//           oldWhitelistContractsMapBob,
-//           bob.pkh,
-//           'Bob should be in the Whitelist Contracts map before adding her to it',
+//           oldWhitelistContractsMapEve,
+//           eve.pkh,
+//           'Eve should be in the Whitelist Contracts map before adding her to it',
 //         )
 //         assert.strictEqual(
-//           newWhitelistContractsMapBob,
+//           newWhitelistContractsMapEve,
 //           undefined,
-//           'Bob should not be in the Whitelist Contracts map after adding her to it',
+//           'Eve should not be in the Whitelist Contracts map after adding her to it',
 //         )
 //       } catch (e) {
 //         console.log(e)

@@ -538,14 +538,14 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                     Some (value) -> value
-                | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
                 
                 var emptySatelliteRecord : satelliteRecordType :=
                 record [
-                    status                = "ACTIVE";        
-                    stakedMvkBalance      = 0n;       
-                    satelliteFee          = 0n;    
+                    status                = "INACTIVE";        
+                    stakedMvkBalance      = 0n;
+                    satelliteFee          = 0n;
                     totalDelegatedAmount  = 0n;
                     
                     name                  = "Empty Satellite";

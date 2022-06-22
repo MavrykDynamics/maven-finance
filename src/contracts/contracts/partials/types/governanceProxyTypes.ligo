@@ -57,7 +57,7 @@ type updateContractWhitelistTokenMapType is [@layout:comb] record [
   tokenContractAddress      : address; 
 ]
 
-type updateContractNameType is [@layout:comb] record [
+type setContractNameType is [@layout:comb] record [
   targetContractAddress     : address;
   contractName              : string;
 ]
@@ -116,13 +116,13 @@ type executeActionParamsType is
   UpdateProxyLambda                  of setProxyLambdaType
 | SetContractAdmin                   of setContractAdminType
 | SetContractGovernance              of setContractGovernanceType
+| SetContractName                    of setContractNameType
 | SetContractLambda                  of setContractLambdaType
 | SetFactoryProductLambda            of setContractLambdaType
 | UpdateContractMetadata             of updateContractMetadataType
 | UpdateContractWhitelistMap         of updateContractWhitelistMapType
 | UpdateContractGeneralMap           of updateContractGeneralMapType
 | UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
-| UpdateContractName                 of updateContractNameType
 
 | UpdateGovernanceConfig             of governanceUpdateConfigParamsType
 | UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType

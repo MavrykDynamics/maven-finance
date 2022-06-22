@@ -45,7 +45,7 @@ type treasuryAction is
     | SetAdmin                       of (address)
     | SetGovernance                  of (address)
     | SetBaker                       of option(key_hash)
-    | UpdateName                     of (string)
+    | SetName                        of (string)
     | UpdateMetadata                 of updateMetadataType
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
@@ -410,17 +410,17 @@ block {
 
 
 
-(* updateName entrypoint - update the metadata at a given key *)
-function updateName(const updatedName : string; var s : treasuryStorage) : return is
+(* setName entrypoint - update the metadata at a given key *)
+function setName(const updatedName : string; var s : treasuryStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateName"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateName(updatedName);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetName(updatedName);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -775,7 +775,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
         | SetGovernance(parameters)                     -> setGovernance(parameters, s)
         | SetBaker(parameters)                          -> setBaker(parameters, s)
-        | UpdateName(parameters)                        -> updateName(parameters, s)
+        | SetName(parameters)                           -> setName(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)

@@ -45,31 +45,31 @@
   },
   {
     "index": 11,
-    "name": "setContractLambda"
+    "name": "setContractName"
   },
   {
     "index": 12,
-    "name": "setFactoryProductLambda"
+    "name": "setContractLambda"
   },
   {
     "index": 13,
-    "name": "updateContractMetadata"
+    "name": "setFactoryProductLambda"
   },
   {
     "index": 14,
-    "name": "updateContractWhitelistMap"
+    "name": "updateContractMetadata"
   },
   {
     "index": 15,
-    "name": "updateContractGeneralMap"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 16,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 17,
-    "name": "updateContractName"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 18,

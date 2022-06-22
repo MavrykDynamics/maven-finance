@@ -13,7 +13,7 @@ function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionTyp
 block {
     
     checkNoAmount(Unit);
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
 
     case aggregatorLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {

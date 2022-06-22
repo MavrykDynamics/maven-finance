@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAllowed(s); // check that sender is admin
 
     case aggregatorFactoryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {

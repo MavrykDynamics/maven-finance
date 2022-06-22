@@ -308,7 +308,7 @@
 //                 assert.equal(afterDelegationLedgerBob.stakedMvkBalance,       userStake);
 //                 assert.equal(afterDelegationLedgerBob.satelliteFee,           satelliteFee);
 //                 assert.equal(afterDelegationLedgerBob.totalDelegatedAmount,   0);
-//                 assert.equal(afterDelegationLedgerBob.status,                 1);
+//                 assert.equal(afterDelegationLedgerBob.status,                 "ACTIVE");
 
 //                 // Bob's staked balance remains the same
 //                 assert.equal(afterBobStakedBalance.balance, userStake);
@@ -1011,7 +1011,7 @@
 //                 assert.equal(afterDelegationLedgerBob.stakedMvkBalance,       userStake);
 //                 assert.equal(afterDelegationLedgerBob.satelliteFee,           satelliteFee);
 //                 assert.equal(afterDelegationLedgerBob.totalDelegatedAmount,   0);
-//                 assert.equal(afterDelegationLedgerBob.status,                 1);
+//                 assert.equal(afterDelegationLedgerBob.status,                 "ACTIVE");
 
 //                 // Bob's staked balance remains the same
 //                 assert.equal(afterBobStakedBalance.balance, userStake);
