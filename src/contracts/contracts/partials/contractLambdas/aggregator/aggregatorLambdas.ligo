@@ -71,7 +71,7 @@ block {
     checkNoAmount(Unit);     
     
     // allowed: admin (governance proxy in most cases), governance satellite contract
-    checkSenderIsAdminOrGovernanceSatellite(s); 
+    checkSenderIsAdmin(s); 
 
     case aggregatorLambdaAction of [
         | LambdaSetName(updatedName) -> {
@@ -267,7 +267,7 @@ function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionTyp
 block {
     
     checkNoAmount(Unit);
-    checkSenderIsAdminOrGovernanceSatelliteOrFactory(s);
+    checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -304,7 +304,7 @@ function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionT
 block {
 
     checkNoAmount(Unit);
-    checkSenderIsAdminOrGovernanceSatelliteOrFactory(s);
+    checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {

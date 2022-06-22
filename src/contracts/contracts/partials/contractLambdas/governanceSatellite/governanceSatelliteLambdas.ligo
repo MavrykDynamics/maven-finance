@@ -1076,6 +1076,132 @@ block {
 // Aggregator Governance Lambdas Begin
 // ------------------------------------------------------------------------------
 
+(*  setAggregatorMaintainer lambda *)
+function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+block {
+    
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    
+    case governanceSatelliteLambdaAction of [
+        | LambdaSetAggregatorMaintainer(setAggregatorMaintainerParams) -> {
+                
+                // init params
+                const aggregatorAddress    : address  = setAggregatorMaintainerParams.aggregatorAddress;
+                const maintainerAddress    : address  = setAggregatorMaintainerParams.maintainerAddress;
+                const purpose              : string   = setAggregatorMaintainerParams.purpose;
+
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get satellite record for initiator
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                case satelliteOptView of [
+                      Some (value) -> case value of [
+                          Some (_satellite) -> skip
+                        | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
+                      ]
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
+
+                const addressMap        : addressMapType     = map [
+                    ("aggregatorAddress" : string)   -> aggregatorAddress;
+                    ("maintainerAddress" : string)   -> maintainerAddress;
+                ];
+                const emptyStringMap    : stringMapType      = map [];
+                const emptyNatMap       : natMapType         = map [];
+
+                // get doorman contract address
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get staked MVK total supply
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
+                      Some (value) -> value
+                    | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
+
+                const stakedMvkRequiredForApproval: nat = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
+
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
+
+                        initiator                          = Tezos.sender;
+                        status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+                        executed                           = False;
+
+                        governanceType                     = "SET_AGGREGATOR_MAINTAINER";
+                        governancePurpose                  = purpose;
+                        voters                             = emptyVotersMap;
+
+                        addressMap                         = addressMap;
+                        stringMap                          = emptyStringMap;
+                        natMap                             = emptyNatMap;
+
+                        yayVoteTotal                       = 0n;
+                        nayVoteTotal                       = 0n;
+                        passVoteTotal                      = 0n;
+
+                        snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
+                        stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
+                        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+
+                        startDateTime                      = Tezos.now;            
+                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                    ];
+
+                const actionId : nat = s.governanceSatelliteCounter;
+
+                // save action to governance satellite ledger
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
+
+                // increment governance satellite counter
+                s.governanceSatelliteCounter := actionId + 1n;
+
+                // create snapshot in governanceSatelliteSnapshotLedger (to be filled with satellite's )
+                const emptyGovernanceSatelliteActionSnapshotMap  : governanceSatelliteSnapshotMapType     = map [];
+                s.governanceSatelliteSnapshotLedger[actionId] := emptyGovernanceSatelliteActionSnapshotMap;
+
+                // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
+                      Some (value) -> value
+                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                for satelliteAddress -> satellite in map activeSatellites block {
+                    const satelliteSnapshot : actionSatelliteSnapshotType = record [
+                        satelliteAddress      = satelliteAddress;
+                        actionId              = actionId;
+                        stakedMvkBalance      = satellite.stakedMvkBalance;
+                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
+                    ];
+
+                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                }; 
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  registerAggregator lambda *)
 function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
 block {
@@ -1712,6 +1838,32 @@ block {
                                     satelliteOracleRecord.aggregatorsSubscribed  := 0n;
                                     s.satelliteOracleLedger[satelliteAddress] := satelliteOracleRecord;
 
+                                } else skip;
+
+
+
+                                // Governance: Set new Aggregator Maintainer
+                                if _governanceSatelliteActionRecord.governanceType = "SET_AGGREGATOR_MAINTAINER" then block {
+
+                                    const aggregatorAddress : address = case _governanceSatelliteActionRecord.addressMap["aggregatorAddress"] of [
+                                         Some(_address) -> _address
+                                       | None -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
+                                    ];
+
+                                    const newMaintainerAddress : address = case _governanceSatelliteActionRecord.addressMap["maintainerAddress"] of [
+                                         Some(_address) -> _address
+                                       | None -> failwith(error_MAINTAINER_ADDRESS_NOT_FOUND)
+                                    ];
+
+                                    // set aggregator new maintainer
+                                    const setNewMaintainerOperation : operation = Tezos.transaction(
+                                        newMaintainerAddress,
+                                        0tez,
+                                        getSetMaintainerInAggregatorEntrypoint(aggregatorAddress)
+                                    );
+
+                                    operations := setNewMaintainerOperation # operations;
+                                
                                 } else skip;
 
 
