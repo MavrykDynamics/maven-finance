@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // type
-import { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
+import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 
 // actions
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
@@ -27,10 +27,11 @@ export const Council = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage } = useSelector((state: State) => state.council)
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
   const { councilMembers } = councilStorage
 
-  console.log('%c ||||| councilMembers', 'color:yellowgreen', councilMembers)
+  const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
 
   const itemsForDropDown = [
     { text: 'Suspend Satellite', value: 'suspendSatellite' },
@@ -62,35 +63,44 @@ export const Council = () => {
     <Page>
       <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
       <CouncilStyled>
-        <h1>Pending Signature</h1>
-        <article className="pending">
-          <div className="pending-items">
-            <CouncilPendingView />
-            <CouncilPendingView />
-            <CouncilPendingView />
-          </div>
+        {isUserInCouncilMembers ? (
+          <>
+            <h1>Pending Signature</h1>
+            <article className="pending">
+              <div className="pending-items">
+                <CouncilPendingView />
+                <CouncilPendingView />
+                <CouncilPendingView />
+              </div>
 
-          <CouncilPendingReviewView />
-        </article>
-        <article className="council-details">
+              <CouncilPendingReviewView />
+            </article>
+          </>
+        ) : null}
+        <article className={`council-details ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
           <div className="council-actions">
-            <DropdownCard className="pending-dropdown">
-              <DropdownWrap>
-                <h2>Available Actions</h2>
-                <DropDown
-                  clickOnDropDown={handleClickDropdown}
-                  placeholder={ddItems[0]}
-                  onChange={handleSelect}
-                  isOpen={ddIsOpen}
-                  itemSelected={chosenDdItem?.text}
-                  items={ddItems}
-                  onBlur={() => {}}
-                  clickOnItem={(e) => handleOnClickDropdownItem(e)}
-                />
-              </DropdownWrap>
-              <CouncilFormAddVestee />
-            </DropdownCard>
-            <h1 className="past-actions">My Past Council Actions</h1>
+            {isUserInCouncilMembers ? (
+              <DropdownCard className="pending-dropdown">
+                <DropdownWrap>
+                  <h2>Available Actions</h2>
+                  <DropDown
+                    clickOnDropDown={handleClickDropdown}
+                    placeholder={ddItems[0]}
+                    onChange={handleSelect}
+                    isOpen={ddIsOpen}
+                    itemSelected={chosenDdItem?.text}
+                    items={ddItems}
+                    onBlur={() => {}}
+                    clickOnItem={(e) => handleOnClickDropdownItem(e)}
+                  />
+                </DropdownWrap>
+                <CouncilFormAddVestee />
+              </DropdownCard>
+            ) : null}
+
+            <h1 className={`past-actions ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
+              {isUserInCouncilMembers ? 'My ' : null}Past Council Actions
+            </h1>
             <CouncilPastActionView />
             <CouncilPastActionView />
             <CouncilPastActionView />
@@ -98,7 +108,7 @@ export const Council = () => {
             <CouncilPastActionView />
           </div>
           {councilMembers.length ? (
-            <aside className="council-members">
+            <aside className={`council-members ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
               <h1>Council Members</h1>
               {councilMembers.map((item: CouncilMember) => (
                 <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />

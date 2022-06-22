@@ -22,6 +22,11 @@ export const CouncilStyled = styled.section`
 
   .council-details {
     display: flex;
+    padding-top: 30px;
+
+    &.is-user-member {
+      padding-top: 0;
+    }
   }
 
   .council-members {
@@ -30,8 +35,14 @@ export const CouncilStyled = styled.section`
     flex-shrink: 0;
 
     h1 {
-      margin-top: 22px;
+      margin-top: 0;
       margin-bottom: 9px;
+    }
+
+    &.is-user-member {
+      h1 {
+        margin-top: 22px;
+      }
     }
   }
 
@@ -40,7 +51,11 @@ export const CouncilStyled = styled.section`
   }
 
   .past-actions {
-    margin-top: 9px;
+    margin-top: 0;
     margin-bottom: 9px;
+
+    &.is-user-member {
+      margin-top: 9px;
+    }
   }
 `
