@@ -35,7 +35,7 @@ type updateSatelliteRecordType is [@layout:comb] record [
 
 // record for satellites
 type satelliteRecordType is [@layout:comb] record [
-    status                : string;     // ACTIVE / SUSPENDED / BANNED
+    status                : string;     // ACTIVE / INACTIVE / SUSPENDED / BANNED
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates

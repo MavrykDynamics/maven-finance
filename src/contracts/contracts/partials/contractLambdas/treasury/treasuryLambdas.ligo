@@ -64,14 +64,14 @@ block {
 
 
 
-(* updateName lambda - update the metadata at a given key *)
-function lambdaUpdateName(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+(* setName lambda - update the contract name *)
+function lambdaSetName(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
     checkSenderIsAdmin(s);
     
     case treasuryLambdaAction of [
-        | LambdaUpdateName(updatedName) -> {
+        | LambdaSetName(updatedName) -> {
 
                 // Get treasury factory address
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);

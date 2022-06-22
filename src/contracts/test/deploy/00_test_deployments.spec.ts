@@ -377,11 +377,11 @@ describe('Contracts Deployment for Tests', async () => {
       await signerFactory(bob.sk);
   
       // Governance Proxy Setup Lambdas - Contract Lambdas
-      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 6) // 6 is the last index + 1 (exclusive)
+      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 8) // 8 is the last index + 1 (exclusive)
       console.log("Governance Proxy Contract - Lambdas Setup")
 
       // Governance Proxy Setup Lambdas - Proxy Lambdas
-      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 6) // 6 is the starting index (inclusive)
+      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 8) // 8 is the starting index (inclusive)
       console.log("Governance Proxy Contract - Proxy Lambdas Setup")
 
 

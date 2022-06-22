@@ -54,14 +54,14 @@ export const setGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract:
     const lambdasPerBatch = 10;
 
     const lambdasCount = governanceLambdas.length;
-    const batchesCount = (lambdasCount % lambdasPerBatch) + 1;
+    const batchesCount = lambdasCount % lambdasPerBatch;
 
     for(let i = 0; i < batchesCount; i++) {
       
       const batch = tezosToolkit.wallet.batch();
 
       governanceLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {  
-        if( (i * lambdasPerBatch) + index < (lambdasPerBatch * (i + 1))){
+        if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
           batch.withContractCall(contract.methods.setLambda(name, governanceLambdas[index]))
         }
       });

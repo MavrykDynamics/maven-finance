@@ -31,7 +31,7 @@ type farmAction is
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
 |   SetGovernance               of (address)
-|   UpdateName                  of (string)
+|   SetName                     of (string)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
@@ -573,17 +573,17 @@ block {
 
 
 
-(* updateName entrypoint - update the metadata at a given key *)
-function updateName(const updatedName : string; var s : farmStorage) : return is
+(* setName entrypoint - update the metadata at a given key *)
+function setName(const updatedName : string; var s : farmStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateName"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaUpdateName(updatedName);
+    const farmLambdaAction : farmLambdaActionType = LambdaSetName(updatedName);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
@@ -967,7 +967,7 @@ function main (const action: farmAction; var s: farmStorage): return is
             // Housekeeping Entrypoints
             SetAdmin (parameters)                    -> setAdmin(parameters, s)
         |   SetGovernance (parameters)               -> setGovernance(parameters, s)
-        |   UpdateName (parameters)                  -> updateName(parameters, s)
+        |   SetName (parameters)                     -> setName(parameters, s)
         |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
