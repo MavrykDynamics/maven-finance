@@ -163,6 +163,7 @@ type executeActionParamsType is
 | CreateAggregator                   of createAggregatorParamsType
 | TrackAggregator                    of trackAggregatorParamsType
 | UntrackAggregator                  of untrackAggregatorParamsType
+| SetAggregatorMaintainer            of setAggregatorMaintainerActionType
 
 | UpdateMvkInflationRate             of (nat)
 | TriggerMvkInflation                of unit

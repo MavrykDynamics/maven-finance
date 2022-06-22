@@ -811,46 +811,7 @@
 //     );
 //   });
 
-//   describe('requestRateUpdateDeviation', () => {
-//     // it(
-//     //   'should fail because no tezos sent',
-//     //   async () => {
-//     //     await signerFactory(eve.sk);
-
-//     //     const previousStorage: aggregatorStorageType = await aggregator.storage();
-//     //     const roundId = new BigNumber(previousStorage.round);
-//     //     const price = new BigNumber(200);
-//     //     const data: MichelsonData = {
-//     //       prim: 'Pair',
-//     //       args: [
-//     //         { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
-//     //         { string: eve.pkh },
-//     //       ],
-//     //     };
-//     //     const type: MichelsonType = {
-//     //       prim: 'pair',
-//     //       args: [
-//     //         { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
-//     //         { prim: 'address' },
-//     //       ],
-//     //     };
-//     //     const priceCodec = packDataBytes(data, type);
-//     //     const hash = createHash('sha256')
-//     //         .update(priceCodec.bytes, 'hex')
-//     //         .digest('hex');
-//     //     const op = aggregator.methods.requestRateUpdateDeviation(
-//     //       new BigNumber(roundId).plus(1),
-//     //       hash
-//     //     );
-
-//     //     // await chai.expect(op.send()).rejects.toThrow(
-//     //     //   'You should send XTZ to call this entrypoint'
-//     //     // );
-//     //     await chai.expect(op.send()).to.be.rejectedWith();
-
-//     //   },
-
-//     // );
+//   describe('requestRateUpdateDeviation without deposit fee', () => {
 
 //     it(
 //       'should trigger a new requestRateUpdateDeviation as mallory',
@@ -1070,7 +1031,6 @@
 //   });
 
 
-
 //   describe('withdrawRewardXtz', () => {
 
 //       it('oracles should be able to withdraw reward xtz', async () => {
@@ -1242,6 +1202,104 @@
 //   });
 
 
+//   describe('requestRateUpdateDeviation with deposit fee required', () => {
+//     it(
+//       'should fail because no tezos sent',
+//       async () => {
+        
+//         await signerFactory(bob.sk);
+//         const requestRateDevDepositFee = 1000000;
+//         const test_update_config_requestRateDevDepositFee_op = await aggregator.methods.updateConfig(
+//           requestRateDevDepositFee, "configRequestRateDevDepositFee"
+//         ).send();
+//         await test_update_config_requestRateDevDepositFee_op.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+
+//         assert.equal(storage.config.requestRateDeviationDepositFee,  requestRateDevDepositFee);
+
+//         await signerFactory(eve.sk);
+
+//         const previousStorage: aggregatorStorageType = await aggregator.storage();
+//         const roundId = new BigNumber(previousStorage.round);
+//         const price = new BigNumber(200);
+//         const data: MichelsonData = {
+//           prim: 'Pair',
+//           args: [
+//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+//             { string: eve.pkh },
+//           ],
+//         };
+//         const type: MichelsonType = {
+//           prim: 'pair',
+//           args: [
+//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+//             { prim: 'address' },
+//           ],
+//         };
+//         const priceCodec = packDataBytes(data, type);
+//         const hash = createHash('sha256')
+//             .update(priceCodec.bytes, 'hex')
+//             .digest('hex');
+//         const op = aggregator.methods.requestRateUpdateDeviation(
+//           new BigNumber(roundId).plus(1),
+//           hash
+//         );
+
+//         // await chai.expect(op.send()).rejects.toThrow(
+//         //   'You should send XTZ to call this entrypoint'
+//         // );
+//         await chai.expect(op.send()).to.be.rejectedWith();
+
+//       },
+
+//     );
+
+//     it(
+//       'should trigger a new requestRateUpdateDeviation as mallory (with deposit fee required)',
+//       async () => {
+//         await signerFactory(mallory.sk);
+
+//         const previousStorage: aggregatorStorageType = await aggregator.storage();
+//         const requestRateDevDepositFee = previousStorage.config.requestRateDeviationDepositFee;
+
+//         const roundId = previousStorage.round;
+//         const price = new BigNumber(200);
+//         const data: MichelsonData = {
+//           prim: 'Pair',
+//           args: [
+//             { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+//             { string: mallory.pkh },
+//           ],
+//         };
+//         const type: MichelsonType = {
+//           prim: 'pair',
+//           args: [
+//             { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+//             { prim: 'address' },
+//           ],
+//         };
+//         const priceCodec = packDataBytes(data, type);
+//         const hash = createHash('sha256')
+//             .update(priceCodec.bytes, 'hex')
+//             .digest('hex');
+//         const op = aggregator.methods.requestRateUpdateDeviation(
+//           roundId.plus(1),
+//           hash
+//         );
+//           const tx = await op.send({ mutez: true, amount: requestRateDevDepositFee });
+//           await tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         assert.deepEqual(storage.round,roundId.plus(1));
+//         assert.deepEqual(storage.observationCommits?.has(mallory.pkh),true);
+//         assert.deepEqual(storage.observationCommits?.get(mallory.pkh),hash);
+//       },
+
+//     );
+
+//   });
+
 
 //   describe('updateConfig', () => {
     
@@ -1262,6 +1320,7 @@
 //     it(
 //       'should fail if called by random address',
 //       async () => {
+
 //         await signerFactory(david.sk);
 
 //         const test_update_config_decimals_op = aggregator.methods.updateConfig(
@@ -1439,14 +1498,121 @@
 //       );
 //     });
 
-//     describe('setGovernance', () => {
+//   describe('setGovernance', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const op = aggregator.methods.setGovernance(
+//           bob.pkh
+//         );
+
+//         await chai.expect(op.send()).to.be.rejectedWith();
+//       },
+
+//     );
+
+//     it(
+//       'should update contract governance',
+//       async () => {
+//         await signerFactory(bob.sk);
+
+//         const op = aggregator.methods.setGovernance(
+//           bob.pkh
+//         );
+
+//         const tx = await op.send();
+//         await tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         assert.deepEqual(storage.governanceAddress,bob.pkh);
+//         },
+
+//       );
+//     });
+
+    
+//   describe('setMaintainer', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const op = aggregator.methods.setMaintainer(
+//           bob.pkh
+//         );
+
+//         await chai.expect(op.send()).to.be.rejectedWith();
+//       },
+
+//     );
+
+//     it(
+//       'should update contract maintainer',
+//       async () => {
+//         await signerFactory(bob.sk);
+
+//         const op = aggregator.methods.setMaintainer(
+//           bob.pkh
+//         );
+
+//         const tx = await op.send();
+//         await tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         assert.deepEqual(storage.governanceAddress,bob.pkh);
+//         },
+
+//       );
+//     });
+
+//   describe('setName', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const op = aggregator.methods.setName(
+//           "newName"
+//         );
+
+//         await chai.expect(op.send()).to.be.rejectedWith();
+//       },
+
+//     );
+
+//     it(
+//       'should update contract name',
+//       async () => {
+//         await signerFactory(bob.sk);
+
+//         const op = aggregator.methods.setName(
+//           "newName"
+//         );
+
+//         const tx = await op.send();
+//         await tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         assert.deepEqual(storage.governanceAddress,bob.pkh);
+//         },
+
+//       );
+//     });
+
+//     describe('updateMetadata', () => {
 //       it(
 //         'should fail if called by random address',
 //         async () => {
 //           await signerFactory(david.sk);
   
-//           const op = aggregator.methods.setGovernance(
-//             bob.pkh
+//           // Initial values
+//           const key   = ''
+//           const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+          
+//           const op = aggregator.methods.updateMetadata(
+//             key, hash
 //           );
   
 //           await chai.expect(op.send()).to.be.rejectedWith();
@@ -1455,91 +1621,172 @@
 //       );
   
 //       it(
-//         'should update contract governance',
+//         'should update contract metadata',
 //         async () => {
 //           await signerFactory(bob.sk);
   
-//           const op = aggregator.methods.setGovernance(
-//             bob.pkh
+//           // Initial values
+//           const key   = ''
+//           const hash  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+          
+//           const op = aggregator.methods.updateMetadata(
+//             key, hash
 //           );
   
 //           const tx = await op.send();
 //           await tx.confirmation();
   
 //           const storage: aggregatorStorageType = await aggregator.storage();
-//           assert.deepEqual(storage.governanceAddress,bob.pkh);
+//           const updatedData              = await storage.metadata.get(key);
+//           assert.equal(updatedData, hash);
+  
 //           },
   
 //         );
 //       });
 
-    
-//       describe('setMaintainer', () => {
-//         it(
-//           'should fail if called by random address',
-//           async () => {
-//             await signerFactory(david.sk);
-    
-//             const op = aggregator.methods.setMaintainer(
-//               bob.pkh
-//             );
-    
-//             await chai.expect(op.send()).to.be.rejectedWith();
-//           },
-    
-//         );
-    
-//         it(
-//           'should update contract maintainer',
-//           async () => {
-//             await signerFactory(bob.sk);
-    
-//             const op = aggregator.methods.setMaintainer(
-//               bob.pkh
-//             );
-    
-//             const tx = await op.send();
-//             await tx.confirmation();
-    
-//             const storage: aggregatorStorageType = await aggregator.storage();
-//             assert.deepEqual(storage.governanceAddress,bob.pkh);
-//             },
-    
-//           );
-//         });
 
-//         describe('setName', () => {
-//           it(
-//             'should fail if called by random address',
-//             async () => {
-//               await signerFactory(david.sk);
-      
-//               const op = aggregator.methods.setName(
-//                 "newName"
-//               );
-      
-//               await chai.expect(op.send()).to.be.rejectedWith();
-//             },
-      
-//           );
-      
-//           it(
-//             'should update contract name',
-//             async () => {
-//               await signerFactory(bob.sk);
-      
-//               const op = aggregator.methods.setName(
-//                 "newName"
-//               );
-      
-//               const tx = await op.send();
-//               await tx.confirmation();
-      
-//               const storage: aggregatorStorageType = await aggregator.storage();
-//               assert.deepEqual(storage.governanceAddress,bob.pkh);
-//               },
-      
-//             );
-//           });
+//   describe('updateWhitelistContracts', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const op = aggregator.methods.updateWhitelistContracts(
+//           "testContract", david.pkh
+//         );
+
+//         await chai.expect(op.send()).to.be.rejectedWith();
+//       },
+
+//     );
+
+//     it(
+//       'should update whitelist contracts',
+//       async () => {
+//         await signerFactory(bob.sk);
+
+//         const op = aggregator.methods.updateWhitelistContracts(
+//           "testContract", david.pkh
+//         );
+
+//         const tx = await op.send();
+//         await tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         const whitelistTestContract = await storage.whitelistContracts.get("testContract");
+//         assert.deepEqual(whitelistTestContract, david.pkh);
+//         },
+
+//       );
+//     });
+
+//   describe('updateGeneralContracts', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const op = aggregator.methods.updateGeneralContracts(
+//           "testContract", david.pkh
+//         );
+
+//         await chai.expect(op.send()).to.be.rejectedWith();
+//       },
+
+//     );
+
+//     it(
+//       'should update general contracts',
+//       async () => {
+//         await signerFactory(bob.sk);
+
+//         const op = aggregator.methods.updateGeneralContracts(
+//           "testContract", david.pkh
+//         );
+
+//         const tx = await op.send();
+//         await tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         const generalTestContract = await storage.generalContracts.get("testContract");
+//         assert.deepEqual(generalTestContract, david.pkh);
+//         },
+
+//       );
+//     });
+
+//   describe('pause and unpause', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const op_pause_all = aggregator.methods.pauseAll();
+//         await chai.expect(op_pause_all.send()).to.be.rejectedWith();
+
+//         const op_unpause_all = aggregator.methods.unpauseAll();
+//         await chai.expect(op_unpause_all.send()).to.be.rejectedWith();
+
+//         // todo: other single entrypoints toggle pause to be refactored into one entrypoint
+//       },
+
+//     );
+
+//     it(
+//       'should pause or unpause entrypoints',
+//       async () => {
+//         await signerFactory(bob.sk);
+
+//         const op_pause_all = aggregator.methods.pauseAll();
+
+//         const pause_all_tx = await op_pause_all.send();
+//         await pause_all_tx.confirmation();
+
+//         const storage: aggregatorStorageType = await aggregator.storage();
+//         const breakGlassConfig = await storage.breakGlassConfig;
+//         assert.equal(breakGlassConfig.requestRateUpdateIsPaused, true);
+//         assert.equal(breakGlassConfig.requestRateUpdateDeviationIsPaused, true);
+//         assert.equal(breakGlassConfig.setObservationCommitIsPaused, true);
+//         assert.equal(breakGlassConfig.setObservationRevealIsPaused, true);
+//         assert.equal(breakGlassConfig.withdrawRewardXtzIsPaused, true);
+//         assert.equal(breakGlassConfig.withdrawRewardStakedMvkIsPaused, true);
+
+//         const op_unpause_all = aggregator.methods.unpauseAll();
+
+//         const unpause_all_tx = await op_unpause_all.send();
+//         await unpause_all_tx.confirmation();
+
+//         const updatedStorage: aggregatorStorageType = await aggregator.storage();
+//         const updatedBreakGlassConfig = await updatedStorage.breakGlassConfig;
+//         assert.equal(updatedBreakGlassConfig.requestRateUpdateIsPaused, false);
+//         assert.equal(updatedBreakGlassConfig.requestRateUpdateDeviationIsPaused, false);
+//         assert.equal(updatedBreakGlassConfig.setObservationCommitIsPaused, false);
+//         assert.equal(updatedBreakGlassConfig.setObservationRevealIsPaused, false);
+//         assert.equal(updatedBreakGlassConfig.withdrawRewardXtzIsPaused, false);
+//         assert.equal(updatedBreakGlassConfig.withdrawRewardStakedMvkIsPaused, false);
+//         },
+
+//       );
+//     });
+
+//   describe('setLambda', () => {
+//     it(
+//       'should fail if called by random address',
+//       async () => {
+//         await signerFactory(david.sk);
+
+//         const bytes  = Buffer.from('tezos-storage:data', 'ascii').toString('hex')
+//         const op = aggregator.methods.setLambda(
+//           "testSetLambda", bytes
+//         );
+
+//         await chai.expect(op.send()).to.be.rejectedWith();
+//       },
+
+//     );
+
+//   });
+  
 
 // });

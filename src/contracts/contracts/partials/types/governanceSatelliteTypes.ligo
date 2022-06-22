@@ -162,6 +162,11 @@ type removeOracleInAggregatorActionType is [@layout:comb] record [
     purpose                     : string;
 ]
 
+type setAggregatorMaintainerActionType is [@layout:comb] record [
+    aggregatorAddress           : address;
+    maintainerAddress           : address;
+    purpose                     : string;
+]
 
 type dropActionType is [@layout:comb] record [
     dropActionId                : nat;
@@ -217,6 +222,7 @@ type governanceSatelliteLambdaActionType is
 | LambdaRemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
   // Aggregator Governance
+| LambdaSetAggregatorMaintainer       of setAggregatorMaintainerActionType
 | LambdaRegisterAggregator            of registerAggregatorActionType     // callback from aggregator factory in creating aggregator contract
 | LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
 
