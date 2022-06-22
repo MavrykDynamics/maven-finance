@@ -49,6 +49,7 @@ type governanceSatelliteAction is
     | RemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
       // Aggregator Governance
+    | SetAggregatorMaintainer       of setAggregatorMaintainerActionType    
     | RegisterAggregator            of registerAggregatorActionType
     | UpdateAggregatorStatus        of updateAggregatorStatusActionType
 
@@ -225,6 +226,16 @@ case (Tezos.get_entrypoint_opt(
       contractAddress) : option(contract(updateSatelliteStatusParamsType))) of [
     Some(contr) -> contr
   | None -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
+];
+
+
+// helper function to get setMaintainer entrypoint in aggregator contract
+function getSetMaintainerInAggregatorEntrypoint(const contractAddress : address) : contract(address) is
+case (Tezos.get_entrypoint_opt(
+      "%setMaintainer",
+      contractAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 // ------------------------------------------------------------------------------
@@ -641,6 +652,25 @@ block {
 // Aggregator Governance Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(*  setAggregatorMaintainer entrypoint  *)
+function setAggregatorMaintainer(const setAggregatorMaintainerParams : setAggregatorMaintainerActionType; var s : governanceSatelliteStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAggregatorMaintainer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance satellite lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAggregatorMaintainer(setAggregatorMaintainerParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
 (*  registerAggregator entrypoint  *)
 function registerAggregator(const registerAggregatorParams : registerAggregatorActionType; var s : governanceSatelliteStorage) : return is 
 block {
@@ -788,6 +818,7 @@ function main (const action : governanceSatelliteAction; const s : governanceSat
         | RemoveOracleInAggregator(parameters)      -> removeOracleInAggregator(parameters, s)
 
           // Aggregator Governance
+        | SetAggregatorMaintainer(parameters)       -> setAggregatorMaintainer(parameters, s)
         | RegisterAggregator(parameters)            -> registerAggregator(parameters, s)
         | UpdateAggregatorStatus(parameters)        -> updateAggregatorStatus(parameters, s)
 

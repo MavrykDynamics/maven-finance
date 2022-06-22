@@ -17,8 +17,6 @@ chai.should()
 import env from '../../env'
 import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
 
-import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
-
 
 // ------------------------------------------------------------------------------
 // Contract Helpers
@@ -500,6 +498,7 @@ describe('Contracts Deployment for Tests', async () => {
       const aggregatorContractsBatch = await tezos.wallet
       .batch()
       .withContractCall(aggregator.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+      .withContractCall(aggregator.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
       
       const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
       await confirmOperation(tezos, aggregatorContractsBatchOperation.opHash)

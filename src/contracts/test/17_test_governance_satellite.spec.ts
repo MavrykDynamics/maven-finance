@@ -1805,6 +1805,15 @@
 //                 await chai.expect(failRemoveAllSatelliteOraclesOperation).to.be.eventually.rejected;
 
 
+//                 // fail to create governance action to set aggregator maintainer
+//                 const failSetAggregatorMaintainerOperation = governanceSatelliteInstance.methods.updateAggregatorStatus(
+//                     aggregatorAddress,
+//                     bob.pkh,
+//                     purpose
+//                 ).send();
+//                 await chai.expect(failSetAggregatorMaintainerOperation).to.be.eventually.rejected;
+
+                
 //                 // fail to create governance action to update aggregator status
 //                 const failUpdateAggregatorStatusOperation = governanceSatelliteInstance.methods.updateAggregatorStatus(
 //                     aggregatorAddress,
@@ -1812,7 +1821,6 @@
 //                     purpose
 //                 ).send();
 //                 await chai.expect(failUpdateAggregatorStatusOperation).to.be.eventually.rejected;
-                
                 
 
 //                 // fail to create governance action to register aggregator
@@ -1822,7 +1830,6 @@
 //                     aggregatorAddress
 //                 ).send();
 //                 await chai.expect(failRegisterAggregatorOperation).to.be.eventually.rejected;
-
 
 
 //                 // Satellite Bob creates a governance action to add oracle to aggregator

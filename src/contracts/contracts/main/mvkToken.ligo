@@ -347,7 +347,7 @@ block{
 function setAdmin(const newAdminAddress : address; var store : mvkTokenStorage) : return is
 block {
 
-  checkSenderIsAdmin(store);
+  checkSenderIsAllowed(store);
   store.admin := newAdminAddress;
 
 } with (noOperations, store)

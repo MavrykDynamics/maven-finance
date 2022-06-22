@@ -1077,6 +1077,7 @@
 [@inline] const error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 774n;
 [@inline] const error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND                                               = 775n;
 [@inline] const error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR                                                = 776n;
+[@inline] const error_MAINTAINER_ADDRESS_NOT_FOUND                                                                      = 776n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                   = 777n;
