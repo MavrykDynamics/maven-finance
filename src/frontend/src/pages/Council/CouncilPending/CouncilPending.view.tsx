@@ -2,18 +2,33 @@
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 
+// helpers
+import { getSeparateCamelCase } from '../../../utils/parse'
+
 // style
 import { CouncilPendingStyled } from './CouncilPending.style'
 
-export const CouncilPendingView = () => {
+type Props = {
+  executed_datetime: string
+  action_type: string
+  initiator_id: string
+  signers_count: number
+  num_council_members: number
+}
+
+export const CouncilPendingView = (props: Props) => {
+  const { executed_datetime, action_type, signers_count, num_council_members, initiator_id } = props
+
   return (
     <CouncilPendingStyled>
-      <h3>Add Vestee</h3>
+      <h3>{getSeparateCamelCase(action_type)}</h3>
       <div className="parameters">
         <p>Parameters</p>
         <p>Signed</p>
-        <TzAddress tzAddress={'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'} hasIcon={false} />
-        <div>3/8</div>
+        <TzAddress tzAddress={initiator_id} hasIcon={false} />
+        <div>
+          {signers_count}/{num_council_members}
+        </div>
       </div>
       <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={() => null} />
     </CouncilPendingStyled>
