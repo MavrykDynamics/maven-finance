@@ -42,3 +42,25 @@ export const COUNCIL_STORAGE_QUERY = `
 
 export const COUNCIL_STORAGE_QUERY_NAME = 'GetCouncilStorageQuery'
 export const COUNCIL_STORAGE_QUERY_VARIABLE = {}
+
+export const COUNCIL_PAST_ACTIONS_QUERY = `
+  query GetPastCouncilActions {
+    council_action_record(where: {executed: {_eq: true}}) {
+      council_id
+      executed
+      executed_datetime
+      executed_level
+      expiration_datetime
+      id
+      initiator_id
+      signers_count
+      start_datetime
+      status
+      action_type
+    }
+  }
+`
+
+export const COUNCIL_PAST_ACTIONS_NAME = 'GetPastCouncilActions'
+export const COUNCIL_PAST_ACTIONS_VARIABLE = {}
+
