@@ -30,6 +30,9 @@
 // Council Type for financial requests
 #include "../partials/types/councilTypes.ligo"
 
+// Delegation Types
+#include "../partials/types/delegationTypes.ligo"
+
 // Governance Financial Type
 #include "../partials/types/governanceFinancialTypes.ligo"
 

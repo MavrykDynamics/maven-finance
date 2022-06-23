@@ -1872,7 +1872,7 @@
 //                 assert.equal(action.signersCount, 2);
 //                 assert.equal(addressMap.get("contractAddress"), farmFactoryAddress.address);
 //                 assert.equal(natMap.get("newBlocksPerMinute"), actionValue);
-//                 assert.equal(givenContractStorage.config, actionValue);
+//                 assert.equal(givenContractStorage.config.blocksPerMinute, actionValue);
 //             } catch(e){
 //                 console.log(e);
 //             }

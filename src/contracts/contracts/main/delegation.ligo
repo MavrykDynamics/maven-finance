@@ -61,10 +61,11 @@ type delegationAction is
     | RegisterAsSatellite               of newSatelliteRecordType
     | UnregisterAsSatellite             of (address)
     | UpdateSatelliteRecord             of updateSatelliteRecordType
-    | DistributeReward                  of distributeRewardTypes
+    | DistributeReward                  of distributeRewardStakedMvkType
 
       // General Entrypoints
     | OnStakeChange                     of onStakeChangeParams
+    | UpdateSatelliteStatus             of updateSatelliteStatusParamsType
 
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
@@ -348,7 +349,7 @@ block {
 
     var satelliteRecord : satelliteRecordType :=
       record [
-        status                = 0n;        
+        status                = "ACTIVE";        
         stakedMvkBalance      = 0n;        
         satelliteFee          = 0n;    
         totalDelegatedAmount  = 0n;
@@ -479,7 +480,7 @@ block {
     var activeSatellites: map(address, satelliteRecordType) := Map.empty; 
 
     function findActiveSatellite(const activeSatellites: map(address, satelliteRecordType); const satellite: address * satelliteRecordType): map(address, satelliteRecordType) is
-      if satellite.1.status = 1n then Map.add(satellite.0, satellite.1, activeSatellites)
+      if satellite.1.status = "ACTIVE" then Map.add(satellite.0, satellite.1, activeSatellites)
       else activeSatellites;
 
     var activeSatellites: map(address, satelliteRecordType) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
@@ -918,7 +919,7 @@ block {
 
 
 (* distributeReward entrypoint *)
-function distributeReward(const distributeRewardParams: distributeRewardTypes; var s: delegationStorage) : return is
+function distributeReward(const distributeRewardParams: distributeRewardStakedMvkType; var s: delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeReward"] of [
@@ -955,6 +956,25 @@ block {
 
     // init delegation lambda action
     const delegationLambdaAction : delegationLambdaActionType = LambdaOnStakeChange(userAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
+
+
+
+(* updateSatelliteStatus entrypoint *)
+function updateSatelliteStatus(const updateSatelliteStatusParams : updateSatelliteStatusParamsType; var s : delegationStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateSatelliteStatus"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateSatelliteStatus(updateSatelliteStatusParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -1036,6 +1056,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
+        | UpdateSatelliteStatus(parameters)             -> updateSatelliteStatus(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)    

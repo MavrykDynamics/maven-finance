@@ -2,8 +2,17 @@ const { alice, bob, eve, mallory } = require("./scripts/sandbox/accounts");
 
 module.exports = {
   confirmationPollingTimeoutSecond: 500000,
-  syncInterval: 0, // 0 for tests, 5000 for deploying
-  confirmTimeout: 90000, // 90000 for tests, 180000 for deploying
+
+  // test config
+
+  syncInterval: 0,
+  confirmTimeout: 90000,
+
+  // testnet deployment config
+
+  // syncInterval: 5000,
+  // confirmTimeout: 1800000,
+
   buildDir: "build",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",

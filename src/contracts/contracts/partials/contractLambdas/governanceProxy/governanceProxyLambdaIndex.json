@@ -17,11 +17,11 @@
   },
   {
     "index": 4,
-    "name": "lambdaUpdateWhitelistTokenContracts"
+    "name": "lambdaUpdateGeneralContracts"
   },
   {
     "index": 5,
-    "name": "lambdaUpdateGeneralContracts"
+    "name": "lambdaUpdateWhitelistTokenContracts"
   },
   {
     "index": 6,
@@ -45,31 +45,31 @@
   },
   {
     "index": 11,
-    "name": "setContractLambda"
+    "name": "setContractName"
   },
   {
     "index": 12,
-    "name": "setFactoryProductLambda"
+    "name": "setContractLambda"
   },
   {
     "index": 13,
-    "name": "updateContractMetadata"
+    "name": "setFactoryProductLambda"
   },
   {
     "index": 14,
-    "name": "updateContractWhitelistMap"
+    "name": "updateContractMetadata"
   },
   {
     "index": 15,
-    "name": "updateContractGeneralMap"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 16,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 17,
-    "name": "updateContractName"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 18,
@@ -81,118 +81,146 @@
   },
   {
     "index": 20,
-    "name": "updateDelegationConfig"
+    "name": "updateGovernanceSatelliteConfig"
   },
   {
     "index": 21,
-    "name": "updateEmergencyConfig"
+    "name": "updateDelegationConfig"
   },
   {
     "index": 22,
-    "name": "updateBreakGlassConfig"
+    "name": "updateEmergencyConfig"
   },
   {
     "index": 23,
-    "name": "updateCouncilConfig"
+    "name": "updateBreakGlassConfig"
   },
   {
     "index": 24,
-    "name": "updateFarmConfig"
+    "name": "updateCouncilConfig"
   },
   {
     "index": 25,
-    "name": "updateFarmFactoryConfig"
+    "name": "updateFarmConfig"
   },
   {
     "index": 26,
-    "name": "updateTreasuryFactoryConfig"
+    "name": "updateFarmFactoryConfig"
   },
   {
     "index": 27,
-    "name": "updateDoormanMinMvkAmount"
+    "name": "updateAggregatorConfig"
   },
   {
     "index": 28,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateAggregatorFactoryConfig"
   },
   {
     "index": 29,
-    "name": "setGovernanceProxy"
+    "name": "updateTreasuryFactoryConfig"
   },
   {
     "index": 30,
-    "name": "createFarm"
+    "name": "updateDoormanConfig"
   },
   {
     "index": 31,
-    "name": "trackFarm"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 32,
-    "name": "untrackFarm"
+    "name": "setGovernanceProxy"
   },
   {
     "index": 33,
-    "name": "initFarm"
+    "name": "createFarm"
   },
   {
     "index": 34,
-    "name": "closeFarm"
+    "name": "trackFarm"
   },
   {
     "index": 35,
-    "name": "createTreasury"
+    "name": "untrackFarm"
   },
   {
     "index": 36,
-    "name": "trackTreasury"
+    "name": "initFarm"
   },
   {
     "index": 37,
-    "name": "untrackTreasury"
+    "name": "closeFarm"
   },
   {
     "index": 38,
-    "name": "transferTreasury"
+    "name": "createTreasury"
   },
   {
     "index": 39,
-    "name": "mintMvkAndTransferTreasury"
+    "name": "trackTreasury"
   },
   {
     "index": 40,
-    "name": "updateMvkOperatorsTreasury"
+    "name": "untrackTreasury"
   },
   {
     "index": 41,
-    "name": "stakeMvkTreasury"
+    "name": "transferTreasury"
   },
   {
     "index": 42,
-    "name": "unstakeMvkTreasury"
+    "name": "mintMvkAndTransferTreasury"
   },
   {
     "index": 43,
-    "name": "updateMvkInflationRate"
+    "name": "updateMvkOperatorsTreasury"
   },
   {
     "index": 44,
-    "name": "triggerMvkInflation"
+    "name": "stakeMvkTreasury"
   },
   {
     "index": 45,
-    "name": "addVestee"
+    "name": "unstakeMvkTreasury"
   },
   {
     "index": 46,
-    "name": "removeVestee"
+    "name": "createAggregator"
   },
   {
     "index": 47,
-    "name": "updateVestee"
+    "name": "trackAggregator"
   },
   {
     "index": 48,
+    "name": "untrackAggregator"
+  },
+  {
+    "index": 49,
+    "name": "setAggregatorMaintainer"
+  },
+  {
+    "index": 50,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 51,
+    "name": "triggerMvkInflation"
+  },
+  {
+    "index": 52,
+    "name": "addVestee"
+  },
+  {
+    "index": 53,
+    "name": "removeVestee"
+  },
+  {
+    "index": 54,
+    "name": "updateVestee"
+  },
+  {
+    "index": 55,
     "name": "toggleVesteeLock"
   }
 ]

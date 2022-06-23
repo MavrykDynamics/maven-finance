@@ -847,7 +847,7 @@
 //                     var breakGlassActionID    = breakGlassStorage.actionCounter;
 //                     const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass().send();
 //                     await propagateActionOperation.confirmation();
-
+                    
 //                     // Sign action propagate action
 //                     await signerFactory(alice.sk);
 //                     var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();

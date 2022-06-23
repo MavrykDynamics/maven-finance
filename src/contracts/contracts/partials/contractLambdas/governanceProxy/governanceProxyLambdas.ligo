@@ -170,56 +170,65 @@ block {
       (* General Controls *)    
       | SetContractAdmin (_v)                  -> 2n
       | SetContractGovernance (_v)             -> 3n
-      | SetContractLambda (_v)                 -> 4n
-      | SetFactoryProductLambda (_v)           -> 5n
-      | UpdateContractMetadata (_v)            -> 6n
-      | UpdateContractWhitelistMap (_v)        -> 7n
-      | UpdateContractGeneralMap (_v)          -> 8n
-      | UpdateContractWhitelistTokenMap (_v)   -> 9n
-      | UpdateContractName (_v)                -> 10n
+      | SetContractName (_v)                   -> 4n
+      | SetContractLambda (_v)                 -> 5n
+      | SetFactoryProductLambda (_v)           -> 6n
+      | UpdateContractMetadata (_v)            -> 7n
+      | UpdateContractWhitelistMap (_v)        -> 8n
+      | UpdateContractGeneralMap (_v)          -> 9n
+      | UpdateContractWhitelistTokenMap (_v)   -> 10n
       
       (* Update Configs *)    
       | UpdateGovernanceConfig (_v)            -> 11n
       | UpdateGovernanceFinancialConfig (_v)   -> 12n
-      | UpdateDelegationConfig (_v)            -> 13n
-      | UpdateEmergencyConfig (_v)             -> 14n
-      | UpdateBreakGlassConfig (_v)            -> 15n
-      | UpdateCouncilConfig (_v)               -> 16n
-      | UpdateFarmConfig (_v)                  -> 17n
-      | UpdateFarmFactoryConfig (_v)           -> 18n
-      | UpdateTreasuryFactoryConfig (_v)       -> 19n
-      | UpdateDoormanMinMvkAmount (_v)         -> 20n
+      | UpdateGovernanceSatelliteConfig (_v)   -> 13n
+      | UpdateDelegationConfig (_v)            -> 14n
+      | UpdateEmergencyConfig (_v)             -> 15n
+      | UpdateBreakGlassConfig (_v)            -> 16n
+      | UpdateCouncilConfig (_v)               -> 17n
+      | UpdateFarmConfig (_v)                  -> 18n
+      | UpdateFarmFactoryConfig (_v)           -> 19n
+      | UpdateAggregatorConfig (_v)            -> 20n
+      | UpdateAggregatorFactoryConfig (_v)     -> 21n
+      | UpdateTreasuryFactoryConfig (_v)       -> 22n
+      | UpdateDoormanConfig (_v)               -> 23n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 21n
-      | SetGovernanceProxy (_v)                -> 22n
+      | UpdateWhitelistDevelopersSet (_v)      -> 24n
+      | SetGovernanceProxy (_v)                -> 25n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 23n
-      | TrackFarm (_v)                         -> 24n
-      | UntrackFarm (_v)                       -> 25n
-      | InitFarm (_v)                          -> 26n
-      | CloseFarm (_v)                         -> 27n
+      | CreateFarm (_v)                        -> 26n
+      | TrackFarm (_v)                         -> 27n
+      | UntrackFarm (_v)                       -> 28n
+      | InitFarm (_v)                          -> 29n
+      | CloseFarm (_v)                         -> 30n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 28n
-      | TrackTreasury (_v)                     -> 29n
-      | UntrackTreasury (_v)                   -> 30n
-      | TransferTreasury (_v)                  -> 31n
-      | MintMvkAndTransferTreasury (_v)        -> 32n
-      | UpdateMvkOperatorsTreasury (_v)        -> 33n
-      | StakeMvkTreasury (_v)                  -> 34n
-      | UnstakeMvkTreasury (_v)                -> 35n
+      | CreateTreasury (_v)                    -> 31n
+      | TrackTreasury (_v)                     -> 32n
+      | UntrackTreasury (_v)                   -> 33n
+      | TransferTreasury (_v)                  -> 34n
+      | MintMvkAndTransferTreasury (_v)        -> 35n
+      | UpdateMvkOperatorsTreasury (_v)        -> 36n
+      | StakeMvkTreasury (_v)                  -> 37n
+      | UnstakeMvkTreasury (_v)                -> 38n
+
+      (* Aggregator Control *)
+      | CreateAggregator (_v)                  -> 39n
+      | TrackAggregator (_v)                   -> 40n
+      | UntrackAggregator (_v)                 -> 41n
+      | SetAggregatorMaintainer (_v)           -> 42n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 36n
-      | TriggerMvkInflation (_v)               -> 37n
+      | UpdateMvkInflationRate (_v)            -> 43n
+      | TriggerMvkInflation (_v)               -> 44n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 38n
-      | RemoveVestee (_v)                      -> 39n
-      | UpdateVestee (_v)                      -> 40n
-      | ToggleVesteeLock (_v)                  -> 41n
+      | AddVestee (_v)                         -> 45n
+      | RemoveVestee (_v)                      -> 46n
+      | UpdateVestee (_v)                      -> 47n
+      | ToggleVesteeLock (_v)                  -> 48n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -572,8 +581,8 @@ block {
 
 
 
-(* updateContractName lambda *)
-function updateContractName(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+(* setContractName lambda *)
+function setContractName(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -581,20 +590,20 @@ block {
     var operations: list(operation) := nil;
 
     case executeAction of [
-        UpdateContractName(updateContractNameParams) -> {
+        SetContractName(updateContractNameParams) -> {
 
             // assign params to constants for better code readability
             const targetContractAddress     : address   = updateContractNameParams.targetContractAddress;
             const updatedName               : string    = updateContractNameParams.contractName;
 
-            // updateName operation
-            const updateNameOperation : operation = Tezos.transaction(
+            // setName operation
+            const setNameOperation : operation = Tezos.transaction(
               updatedName,
               0tez, 
-              getUpdateContractNameEntrypoint(targetContractAddress)
+              getSetContractNameEntrypoint(targetContractAddress)
             );
 
-            operations := updateNameOperation # operations;
+            operations := setNameOperation # operations;
 
           }
 
@@ -671,7 +680,7 @@ block {
             "%updateConfig",
             governanceFinancialAddress) : option(contract(nat * governanceFinancialUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * governanceFinancialUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat * governanceFinancialUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -686,6 +695,55 @@ block {
           );
 
         operations := updateGovernanceFinancialConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateGovernanceSatelliteConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      UpdateGovernanceSatelliteConfig(params) -> {
+
+        // find and get governanceSatellite contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+        const governanceSatelliteAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get updateConfig entrypoint of governance contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            governanceSatelliteAddress) : option(contract(nat * governanceSatelliteUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(nat * governanceSatelliteUpdateConfigActionType))
+            ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
+
+        // update governance satellite config operation
+        const updateGovernanceSatelliteConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateGovernanceSatelliteConfigOperation # operations;
 
         }
     | _ -> skip
@@ -936,6 +994,97 @@ block {
 
 
 
+function updateAggregatorConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateAggregatorConfig(params) -> {
+
+        // assign params to constants for better code readability
+        const aggregatorAddress     = params.targetAggregatorAddress;
+        const updateConfigAction    = params.aggregatorConfig.updateConfigAction;
+        const updateConfigNewValue  = params.aggregatorConfig.updateConfigNewValue;
+
+        // find and get updateConfig entrypoint of farm contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            aggregatorAddress) : option(contract(nat * aggregatorUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(nat * aggregatorUpdateConfigActionType))
+            ];
+
+        // update aggregator config operation
+        const updateAggregatorConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateAggregatorConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateAggregatorFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateAggregatorFactoryConfig(params) -> {
+
+        // find and get farm factory contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+        const aggregatorFactoryAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction    = params.updateConfigAction;
+        const updateConfigNewValue  = params.updateConfigNewValue;
+
+        // find and get updateConfig entrypoint of farm factory contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            aggregatorFactoryAddress) : option(contract(nat * aggregatorFactoryUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(nat * aggregatorFactoryUpdateConfigActionType))
+            ];
+
+        // update aggregator factory config operation
+        const updateAggregatorFactoryConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateAggregatorFactoryConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
 function updateTreasuryFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
@@ -1036,7 +1185,7 @@ block {
 
 
 
-function updateDoormanMinMvkAmount(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateDoormanConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1045,9 +1194,9 @@ block {
 
     case executeAction of [
       
-      UpdateDoormanMinMvkAmount(newMinMvkAmount) -> {
+      UpdateDoormanConfig(params) -> {
 
-        // find and get doorman contract address from the generalContracts map
+        // find and get doorman contract address from the generalContracts big map
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
         const doormanAddress: address = case generalContractsOptView of [
             Some (_optionContract) -> case _optionContract of [
@@ -1057,19 +1206,23 @@ block {
         |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
-        // find and get updateConfig entrypoint of farm contract
-        const updateMinMvkAmountEntrypoint = case (Tezos.get_entrypoint_opt(
-            "%updateMinMvkAmount",
-            doormanAddress) : option(contract(nat))) of [
+        // find and get updateConfig entrypoint of break glass contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            doormanAddress) : option(contract(nat * doormanUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_MIN_MVK_AMOUNT_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat * doormanUpdateConfigActionType))
             ];
 
-        // update farm config operation
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
+
+        // update doorman config operation
         const updateDoormanConfigOperation : operation = Tezos.transaction(
-          (newMinMvkAmount),
+          (updateConfigNewValue, updateConfigAction),
           0tez, 
-          updateMinMvkAmountEntrypoint
+          updateConfigEntrypoint
           );
 
         operations := updateDoormanConfigOperation # operations;
@@ -1687,6 +1840,180 @@ block {
           );
 
         operations := unstakeOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function createAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      CreateAggregator(createAggregatorParams) -> {
+
+                // find and get aggregatorFactory contract address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+                const aggregatorFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // find and get createAggregator entrypoint of aggregatorFactory contract
+                const createAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%createAggregator",
+                    aggregatorFactoryAddress) : option(contract(createAggregatorParamsType))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(createAggregatorParamsType))
+                    ];
+
+                // create a new aggregator
+                const createAggregatorOperation : operation = Tezos.transaction(
+                    (createAggregatorParams),
+                    0tez, 
+                    createAggregatorEntrypoint
+                  );
+
+                operations := createAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      TrackAggregator(trackAggregatorParams) -> {
+
+                // find and get aggregatorFactory contract address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+                const aggregatorFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // find and get trackAggregator entrypoint of aggregatorFactory contract
+                const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%trackAggregator",
+                    aggregatorFactoryAddress) : option(contract(trackAggregatorParamsType))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(trackAggregatorParamsType))
+                    ];
+
+                // track aggregator
+                const trackAggregatorOperation : operation = Tezos.transaction(
+                    (trackAggregatorParams),
+                    0tez, 
+                    trackAggregatorEntrypoint
+                  );
+
+                operations := trackAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UntrackAggregator(untrackAggregatorParams) -> {
+
+                // find and get aggregatorFactory contract address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+                const aggregatorFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // find and get trackAggregator entrypoint of aggregatorFactory contract
+                const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%untrackAggregator",
+                    aggregatorFactoryAddress) : option(contract(untrackAggregatorParamsType))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(untrackAggregatorParamsType))
+                    ];
+
+                // untrack aggregator
+                const untrackAggregatorOperation : operation = Tezos.transaction(
+                    (untrackAggregatorParams),
+                    0tez, 
+                    untrackAggregatorEntrypoint
+                  );
+
+                operations := untrackAggregatorOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function setAggregatorMaintainer(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      SetAggregatorMaintainer(setAggregatorMaintainerParams) -> {
+
+                // assign params to constants for better code readability
+                const aggregatorAddress     : address = setAggregatorMaintainerParams.aggregatorAddress;
+                const newMaintainerAddress  : address = setAggregatorMaintainerParams.maintainerAddress;
+
+                // find and get setAggregatorMaintainer entrypoint of aggregator contract
+                const setMaintainerEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%setMaintainer",
+                    aggregatorAddress) : option(contract(address))) of [
+                          Some(contr) -> contr
+                        | None        -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+                    ];
+
+                // set new aggregator maintainer operation
+                const setAggregatorMaintainerOperation : operation = Tezos.transaction(
+                    (newMaintainerAddress),
+                    0tez, 
+                    setMaintainerEntrypoint
+                  );
+
+                operations := setAggregatorMaintainerOperation # operations;
 
         }
     | _ -> skip

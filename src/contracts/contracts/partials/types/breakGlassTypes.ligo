@@ -124,16 +124,17 @@ type breakGlassLambdaActionType is
 
 type breakGlassStorage is [@layout:comb] record [
     admin                       : address;               
+    metadata                    : metadataType;
+    config                      : breakGlassConfigType;
+
     mvkTokenAddress             : address;
     governanceAddress           : address;
-    metadata                    : metadataType;
-    
-    config                      : breakGlassConfigType;
-    glassBroken                 : bool;
-    councilMembers              : councilMembersType;        // set of council member addresses
 
     whitelistContracts          : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts            : generalContractsType;      // map of all contract addresses (e.g. doorman, delegation, vesting)
+
+    glassBroken                 : bool;
+    councilMembers              : councilMembersType;        // set of council member addresses
     
     actionsLedger               : actionsLedgerType;         // record of past actions taken by council members
     actionCounter               : nat;

@@ -206,8 +206,8 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%get_balance": self.MVK(2),
             });
         
-        with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
+#         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+#             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
         
         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
@@ -378,14 +378,14 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%get_balance": self.MVK(2),
             });
         
-        with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
+#         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+#             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
         
-        with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                farmFactoryAddress+"%checkFarmExists": True,
-                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
-            });
+#         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+#             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+#                 farmFactoryAddress+"%checkFarmExists": True,
+#                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+#             });
         
         # Final values
         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
@@ -567,95 +567,98 @@ class DoormanContract(TestCase):
         print('compound is paused:')
         print(finalCompoundIsPaused)
     
-    def test_27_non_admin_pause_compound(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
+#     def test_27_non_admin_pause_compound(self):
+#         init_doorman_storage = deepcopy(self.doormanStorage)
 
-        # Initial values
-        compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-        finalCompoundIsPaused = compoundIsPaused;
+#         # Initial values
+#         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+#         finalCompoundIsPaused = compoundIsPaused;
 
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.doormanContract.togglePauseCompound().interpret(storage=init_doorman_storage, sender=alice)
+#         # Operation
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
+#             res = self.doormanContract.togglePauseCompound().interpret(storage=init_doorman_storage, sender=alice)
 
-            # Final values
-            finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+#             # Final values
+#             finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
 
-            # Tests operations
-            res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
+#             # Tests operations
+#             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
 
-            self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
+#             self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
+#             self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
 
-        print('----')
-        print('✅ Non-admin tries to pause compound entrypoint')
-        print('compound is paused:')
-        print(finalCompoundIsPaused)
+#         print('----')
+#         print('✅ Non-admin tries to pause compound entrypoint')
+#         print('compound is paused:')
+#         print(finalCompoundIsPaused)
 
-     ###
-    # %togglePauseFarmClaim
-    ##
-    def test_27_admin_pause_farm_claim(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
+#      ###
+#     # %togglePauseFarmClaim
+#     ##
+#     def test_27_admin_pause_farm_claim(self):
+#         init_doorman_storage = deepcopy(self.doormanStorage)
 
-        # Initial values
-        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
-        recipientAddress = alice
-        mintedTokens = self.MVK(2)
-        forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+#         # Initial values
+#         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
+#         recipientAddress = alice
+#         mintedTokens = self.MVK(2)
+#         forceTransfer = False
+#         mvkTotalSupply = self.MVK(100)
+#         mvkMaximumSupply = self.MVK(1000)
 
-        # Operation
-        res = self.doormanContract.togglePauseFarmClaim().interpret(storage=init_doorman_storage, sender=bob)
+#         # Operation
+#         res = self.doormanContract.togglePauseFarmClaim().interpret(storage=init_doorman_storage, sender=bob)
 
-        # Final values
-        finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
+#         # Final values
+#         finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-        # Tests operations
-        with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
-            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                farmFactoryAddress+"%checkFarmExists": True,
-                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
-            });
+#         # Tests operations
+#         with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+#             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+#                 farmFactoryAddress+"%checkFarmExists": True,
+#                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+#             });
 
-        self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
+#         self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
+#         self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
-        print('----')
-        print('✅ Admin tries to pause farmClaim entrypoint')
-        print('farmClaim is paused:')
-        print(finalFarmClaimIsPaused)
+#         print('----')
+#         print('✅ Admin tries to pause farmClaim entrypoint')
+#         print('farmClaim is paused:')
+#         print(finalFarmClaimIsPaused)
     
-    def test_28_non_admin_pause_compound(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
+#     def test_28_non_admin_pause_compound(self):
+#         init_doorman_storage = deepcopy(self.doormanStorage)
 
-        # Initial values
-        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
-        finalFarmClaimIsPaused = farmClaimIsPaused;
-        recipientAddress = alice
-        mintedTokens = self.MVK(2)
-        forceTransfer = False
-        mvkTotalSupply = self.MVK(100)
-        mvkMaximumSupply = self.MVK(1000)
+#         # Initial values
+#         farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
+#         finalFarmClaimIsPaused = farmClaimIsPaused;
+#         recipientAddress = alice
+#         mintedTokens = self.MVK(2)
+#         forceTransfer = False
+#         mvkTotalSupply = self.MVK(100)
+#         mvkMaximumSupply = self.MVK(1000)
 
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=alice)
+#         # Operation
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
+#             res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=alice)
 
-            # Final values
-            finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
+#             # Final values
+#             finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-            # Tests operations
-            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
-                farmFactoryAddress+"%checkFarmExists": True,
-                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
-            });
+#             # Tests operations
+#             res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+#                 farmFactoryAddress+"%checkFarmExists": True,
+#                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+#             });
 
-            self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
+#             self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
+#             self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
-        print('----')
-        print('✅ Non-admin tries to pause farmClaim entrypoint')
-        print('farmClaim is paused:')
-        print(finalFarmClaimIsPaused)
+#         print('----')
+#         print('✅ Non-admin tries to pause farmClaim entrypoint')
+#         print('farmClaim is paused:')
+#         print(finalFarmClaimIsPaused)
     
     ###
     # %stake
@@ -796,28 +799,28 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%get_balance": self.MVK(2),
             });
 
-        newAmount = res.storage['minMvkAmount']
+#         newAmount = res.storage['minMvkAmount']
 
-        self.assertNotEqual(minAmount, newAmount)
+#         self.assertNotEqual(minAmount, newAmount)
 
-        print('----')
-        print('✅ Admin should be able to increase the minimum amount of MVK to interact with the contract')
-        print('minimum amount:')
-        print(res.storage['minMvkAmount'])
+#         print('----')
+#         print('✅ Admin should be able to increase the minimum amount of MVK to interact with the contract')
+#         print('minimum amount:')
+#         print(res.storage['minMvkAmount'])
 
-    def test_71_admin_can_decrease_min_mvk(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
+#     def test_71_admin_can_decrease_min_mvk(self):
+#         init_doorman_storage = deepcopy(self.doormanStorage)
+#         init_mvk_storage = deepcopy(self.mvkTokenStorage)
 
-        # Initial values
-        stakeAmount = self.MVK(1)
-        minAmount = init_doorman_storage['minMvkAmount']
-        firstDesiredMinAmount = self.MVK(3)
-        secondDesiredMinAmount = self.MVK(2)
+#         # Initial values
+#         stakeAmount = self.MVK(1)
+#         minAmount = init_doorman_storage['minMvkAmount']
+#         firstDesiredMinAmount = self.MVK(3)
+#         secondDesiredMinAmount = self.MVK(2)
 
-        # Operation
-        res = self.doormanContract.updateMinMvkAmount(firstDesiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
-        res = self.doormanContract.updateMinMvkAmount(secondDesiredMinAmount).interpret(storage=res.storage, sender=bob);
+#         # Operation
+#         res = self.doormanContract.updateMinMvkAmount(firstDesiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
+#         res = self.doormanContract.updateMinMvkAmount(secondDesiredMinAmount).interpret(storage=res.storage, sender=bob);
 
         # Test operation
         with self.raisesMichelsonError(error_codes.error_MVK_ACCESS_AMOUNT_NOT_REACHED):

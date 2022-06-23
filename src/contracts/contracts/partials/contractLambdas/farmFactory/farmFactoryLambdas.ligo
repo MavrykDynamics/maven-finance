@@ -406,7 +406,7 @@ block{
 
                 // Originate a farm 
                 const originatedFarmStorage : farmStorage = record[
-                    admin                   = s.admin;                   // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
+                    admin                   = s.admin;                   // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
                     mvkTokenAddress         = s.mvkTokenAddress;
                     governanceAddress       = s.governanceAddress;
                     metadata                = farmMetadata;

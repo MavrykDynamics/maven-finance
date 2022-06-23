@@ -67,17 +67,18 @@ type treasuryFactoryLambdaActionType is
 
 type treasuryFactoryStorage is [@layout:comb] record[
     admin                      : address;
+    metadata                   : metadata;
+    config                     : treasuryFactoryConfigType;
+
     mvkTokenAddress            : address;
     governanceAddress          : address;
-    config                     : treasuryFactoryConfigType;
-    metadata                   : metadata;
 
     trackedTreasuries          : set(address);
     breakGlassConfig           : treasuryFactoryBreakGlassConfigType;
 
     whitelistContracts         : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
+    whitelistTokenContracts    : whitelistTokenContractsType;
 
     lambdaLedger               : lambdaLedgerType;
     treasuryLambdaLedger       : lambdaLedgerType;

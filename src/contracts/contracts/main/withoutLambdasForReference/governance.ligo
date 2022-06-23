@@ -704,7 +704,7 @@ block {
     | ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minProposalRoundVotePercentage := updateConfigNewValue
     | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
     | ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minQuorumPercentage                     := updateConfigNewValue
-    | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
+    | ConfigMinQuorumStakedMvkTotal (_v)                -> s.config.minQuorumStakedMvkTotal                 := updateConfigNewValue
     | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.votingPowerRatio                        := updateConfigNewValue
     | ConfigProposalSubmissionFee (_v)                  -> s.config.proposalSubmissionFee                   := updateConfigNewValue
     | ConfigMinimumStakeReqPercentage (_v)              -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minimumStakeReqPercentage               := updateConfigNewValue
@@ -803,7 +803,7 @@ block {
       
     | Voting -> case currentRoundHighestVotedProposal of [
           Some (proposal) -> block{
-            if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal then {
+            if proposal.upvoteMvkTotal < proposal.minQuorumStakedMvkTotal then {
               // Start proposal
               s := setupProposalRound(s);
             } else block {
@@ -914,7 +914,7 @@ block {
         voters                  = emptyVotersMap;                  // voting round ledger
 
         minQuorumPercentage     = s.config.minQuorumPercentage;    // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-        minQuorumMvkTotal       = s.config.minQuorumMvkTotal;      // log of min quorum in MVK - capture state at this point     
+        minQuorumStakedMvkTotal = s.config.minQuorumStakedMvkTotal;      // log of min quorum in MVK - capture state at this point     
         quorumCount             = 0n;                              // log of turnout for voting round - number of satellites who voted
         quorumMvkTotal          = 0n;                              // log of total positive votes in MVK  
         startDateTime           = Tezos.now;                       // log of when the proposal was proposed
