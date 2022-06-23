@@ -15,11 +15,11 @@ const config = {
     minProposalRoundVotesRequired       : 10000,
 
     minQuorumPercentage                 : 1000,
-    minQuorumStakedMvkTotal             : 10000,
+    minYayVotePercentage                : 5100,
 
     votingPowerRatio                    : 10000,
     proposalSubmissionFeeMutez          : 1000000, // 1 tez
-    maxProposalsPerDelegate             : 20,
+    maxProposalsPerSatellite            : 20,
 
     newBlockTimeLevel                   : 0,
     newBlocksPerMinute                  : 0,
@@ -79,6 +79,7 @@ export const governanceStorage: governanceStorageType = {
     roundProposers            : MichelsonMap.fromLiteral({}),
     roundVotes                : MichelsonMap.fromLiteral({}),
     cycleTotalVotersReward    : new BigNumber(0),
+    minQuorumStakedMvkTotal   : new BigNumber(0)
   },
 
   cycleHighestVotedProposalId        : new BigNumber(0),
