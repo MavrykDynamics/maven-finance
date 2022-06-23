@@ -15,10 +15,11 @@ type Props = {
   executed_datetime: string
   action_type: string
   signers_count: number
+  num_council_members: number
 }
 
 export const CouncilPastActionView = (props: Props) => {
-  const { executed_datetime, action_type, signers_count } = props
+  const { executed_datetime, action_type, signers_count, num_council_members } = props
   return (
     <CouncilPastActionStyled>
       <div>
@@ -33,7 +34,9 @@ export const CouncilPastActionView = (props: Props) => {
       </div>
       <div>
         <p>Approved / vetoed</p>
-        <h4>{signers_count}/9</h4>
+        <h4>
+          {signers_count}/{num_council_members}
+        </h4>
       </div>
       <figure>
         <a target="_blank" href="https://tzkt.io/" rel="noreferrer">
