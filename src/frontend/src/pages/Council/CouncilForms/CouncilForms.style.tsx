@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, downColor, upColor, skyColor, headerColor, cyanColor, royalPurpleColor } from 'styles'
+import { Card, downColor, upColor, skyColor, headerColor, cyanColor, royalPurpleColor, containerColor } from 'styles'
 
 export const CouncilFormStyled = styled.form`
   padding: 24px 30px;
@@ -59,6 +59,12 @@ export const CouncilFormStyled = styled.form`
 
     svg {
       stroke: none;
+    }
+
+    &.fill {
+      svg {
+        stroke: ${containerColor};
+      }
     }
   }
 `

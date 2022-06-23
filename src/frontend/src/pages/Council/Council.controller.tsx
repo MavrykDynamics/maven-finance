@@ -19,6 +19,7 @@ import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.vie
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
+import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
 
 // styles
 import { Page } from 'styles'
@@ -39,6 +40,7 @@ export const Council = () => {
     { text: 'Chose action', value: '' },
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },
+    { text: 'Update Vestee', value: 'updateVestee' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -114,6 +116,7 @@ export const Council = () => {
                 </DropdownWrap>
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
+                {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
               </DropdownCard>
             ) : null}
 
