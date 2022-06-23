@@ -2873,9 +2873,9 @@ describe("Testnet interactions helper", async () => {
                 await nextRoundOperation.confirmation();
                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
                 await proposeOperation.confirmation();
-                var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()
+                var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()
                 await addPaymentDataOperation.confirmation();
-                addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, "fa2", mvkTokenAddress.address, 0, MVK(20)).send()
+                addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, MVK(20), "fa2", mvkTokenAddress.address, 0).send()
                 await addPaymentDataOperation.confirmation();
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();

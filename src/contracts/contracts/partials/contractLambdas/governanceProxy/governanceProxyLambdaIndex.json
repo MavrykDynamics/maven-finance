@@ -197,26 +197,30 @@
   },
   {
     "index": 49,
-    "name": "updateMvkInflationRate"
+    "name": "setAggregatorMaintainer"
   },
   {
     "index": 50,
-    "name": "triggerMvkInflation"
+    "name": "updateMvkInflationRate"
   },
   {
     "index": 51,
-    "name": "addVestee"
+    "name": "triggerMvkInflation"
   },
   {
     "index": 52,
-    "name": "removeVestee"
+    "name": "addVestee"
   },
   {
     "index": 53,
-    "name": "updateVestee"
+    "name": "removeVestee"
   },
   {
     "index": 54,
+    "name": "updateVestee"
+  },
+  {
+    "index": 55,
     "name": "toggleVesteeLock"
   }
 ]

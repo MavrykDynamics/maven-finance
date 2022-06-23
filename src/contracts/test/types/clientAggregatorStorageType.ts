@@ -5,5 +5,5 @@ export type clientAggregatorStorageType = {
     round: BigNumber;
     price: BigNumber;
     percentOracleResponse: BigNumber;
-    priceDateTime: BigNumber;
+    priceDateTime: string;
 };

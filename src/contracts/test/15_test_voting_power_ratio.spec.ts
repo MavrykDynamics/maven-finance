@@ -408,27 +408,6 @@
 //                 console.dir(e, {depth: 5})
 //             }
 //         });
-
-//         it('Admin should be able to call the entrypoint and configure the min sMVK required percentage', async () => {
-//             try{
-//                 // Initial Values
-//                 governanceStorage = await governanceInstance.storage();
-//                 const newConfigValue = 0;
-
-//                 // Operation
-//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinimumStakeReqPercentage").send();
-//                 await updateConfigOperation.confirmation();
-
-//                 // Final values
-//                 governanceStorage = await governanceInstance.storage();
-//                 const updateConfigValue = governanceStorage.config.minimumStakeReqPercentage;
-
-//                 // Assertions
-//                 assert.equal(updateConfigValue, newConfigValue);
-//             } catch(e){
-//                 console.dir(e, {depth: 5})
-//             }
-//         });
 //     });
 
 //     describe("Init cycle with Proposal Round", async () => {
