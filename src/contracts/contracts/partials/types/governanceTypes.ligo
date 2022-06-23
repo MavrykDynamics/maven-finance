@@ -7,24 +7,6 @@ type proposalIdType is nat
 type requestIdType is nat; 
 type metadata is big_map (string, bytes);
 
-// ------------------------------------------------------------------------------
-// Satellite Types
-// ------------------------------------------------------------------------------
-
-
-type satelliteRecordType is [@layout:comb] record [
-    status                : nat;        // active: 1; inactive: 0; 
-    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
-    satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
-    totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
-    
-    name                  : string;     // string for name
-    description           : string;     // string for description
-    image                 : string;     // ipfs hash
-    website               : string;     // satellite website if it has one
-    
-    registeredDateTime    : timestamp;  
-]
 
 
 // ------------------------------------------------------------------------------
@@ -51,18 +33,18 @@ type newProposalType is [@layout:comb] record [
 
 // Stores all voter data during proposal round
 type proposalRoundVoteType is (nat * timestamp)                             // total voting power (MVK) * timestamp
-type passVotersMapType is map (address, proposalRoundVoteType)
+type proposalVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
 type voteForProposalChoiceType is 
-  Yay of unit
-| Nay of unit
-| Abstain of unit
+  Yay     of unit
+| Nay     of unit
+| Pass    of unit
 type votingRoundVoteType is [@layout:comb] record [
   vote  : voteForProposalChoiceType;
-  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %abstain become entrypoints.
+  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
-type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
+type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is pass * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundRecordType)
 
 type proposalRecordType is [@layout:comb] record [
@@ -83,25 +65,25 @@ type proposalRecordType is [@layout:comb] record [
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
   
-    passVoteCount                     : nat;                     // proposal round: pass votes count - number of satellites
-    passVoteMvkTotal                  : nat;                     // proposal round pass vote total mvk from satellites who voted pass
-    passVotersMap                     : passVotersMapType;       // proposal round ledger
+    proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
+    proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
+    proposalVotersMap                 : proposalVotersMapType;       // proposal round ledger
   
     minProposalRoundVotePercentage    : nat;          // min vote percentage of total MVK supply required to pass proposal round
     minProposalRoundVotesRequired     : nat;          // min staked MVK votes required for proposal round to pass
   
-    upvoteCount                       : nat;                     // voting round: upvotes count - number of satellites
-    upvoteMvkTotal                    : nat;                     // voting round: upvotes MVK total
-    downvoteCount                     : nat;                     // voting round: downvotes count - number of satellites
-    downvoteMvkTotal                  : nat;                     // voting round: downvotes MVK total
-    abstainCount                      : nat;                     // voting round: abstain count - number of satellites
-    abstainMvkTotal                   : nat;                     // voting round: abstain MVK total
+    yayVoteCount                      : nat;                     // voting round: yay count - number of satellites
+    yayVoteStakedMvkTotal             : nat;                     // voting round: yay MVK total
+    nayVoteCount                      : nat;                     // voting round: nay count - number of satellites
+    nayVoteStakedMvkTotal             : nat;                     // voting round: nay MVK total
+    passVoteCount                     : nat;                     // voting round: pass count - number of satellites
+    passVoteStakedMvkTotal            : nat;                     // voting round: pass MVK total
     voters                            : votersMapType;           // voting round ledger
   
     minQuorumPercentage               : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-    minQuorumMvkTotal                 : nat;                     // log of min quorum in MVK - capture state at this point
+    minQuorumStakedMvkTotal           : nat;                     // log of min quorum in MVK - capture state at this point
     quorumCount                       : nat;                     // log of turnout for voting round - number of satellites who voted
-    quorumMvkTotal                    : nat;                     // log of total positive votes in MVK 
+    quorumStakedMvkTotal              : nat;                     // log of total positive votes in MVK 
     startDateTime                     : timestamp;               // log of when the proposal was proposed
   
     cycle                             : nat;                 // log of cycle that proposal belongs to
@@ -132,7 +114,7 @@ type governanceConfigType is [@layout:comb] record [
     minProposalRoundVotesRequired       : nat;  // amount of staked MVK votes required to pass proposal round
 
     minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in MVK)
-    minQuorumMvkTotal                   : nat;  // minimum quorum in MVK
+    minQuorumStakedMvkTotal             : nat;  // minimum quorum in MVK
 
     votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
     proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
@@ -160,7 +142,7 @@ type governanceUpdateConfigActionType is
 | ConfigMinProposalRoundVotePct     of unit
 | ConfigMinProposalRoundVotesReq    of unit
 | ConfigMinQuorumPercentage         of unit
-| ConfigMinQuorumMvkTotal           of unit
+| ConfigMinQuorumStakedMvkTotal     of unit
 | ConfigVotingPowerRatio            of unit
 | ConfigProposeFeeMutez             of unit
 | ConfigMaxProposalsPerDelegate     of unit
@@ -289,10 +271,10 @@ type governanceStorage is [@layout:comb] record [
 
     mvkTokenAddress                   : address;
     governanceProxyAddress            : address;     
-  
-    whitelistDevelopers               : whitelistDevelopersType;  
-    generalContracts                  : generalContractsType;
+    
     whitelistContracts                : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
+    generalContracts                  : generalContractsType;
+    whitelistDevelopers               : whitelistDevelopersType;  
 
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;

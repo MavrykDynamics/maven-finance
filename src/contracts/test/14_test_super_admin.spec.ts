@@ -138,7 +138,7 @@
 //                         await updateGovernanceConfig.confirmation();
 //                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
 //                         await updateGovernanceConfig.confirmation();
-//                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumMvkTotal").send();
+//                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumStakedMvkTotal").send();
 //                         await updateGovernanceConfig.confirmation();
 
 //                         // Register Alice and Bob as satellites

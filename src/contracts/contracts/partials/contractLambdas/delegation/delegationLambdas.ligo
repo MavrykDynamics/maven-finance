@@ -538,14 +538,14 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                     Some (value) -> value
-                | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
                 
                 var emptySatelliteRecord : satelliteRecordType :=
                 record [
-                    status                = 0n;        
-                    stakedMvkBalance      = 0n;       
-                    satelliteFee          = 0n;    
+                    status                = "INACTIVE";        
+                    stakedMvkBalance      = 0n;
+                    satelliteFee          = 0n;
                     totalDelegatedAmount  = 0n;
                     
                     name                  = "Empty Satellite";
@@ -561,7 +561,7 @@ block {
                     | Some(_record) -> _record
                 ];
 
-                if _satelliteRecord.status = 1n then block {
+                if _satelliteRecord.status = "ACTIVE" then block {
                 // satellite exists
 
                 // check that sMVK balance does not exceed satellite's total delegated amount
@@ -662,7 +662,7 @@ block {
                 const satelliteRecord: satelliteRecordType = case Map.find_opt(userAddress, s.satelliteLedger) of [
                       Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
                     | None -> record [            
-                            status                = 1n;
+                            status                = "ACTIVE";
                             stakedMvkBalance      = stakedMvkBalance;
                             satelliteFee          = satelliteFee;
                             totalDelegatedAmount  = 0n;
@@ -810,7 +810,7 @@ block {
                 
             // Get variables from parameters
             const eligibleSatellites: set(address) = distributeRewardParams.eligibleSatellites;
-            const totalReward: nat = distributeRewardParams.totalSMvkReward;
+            const totalReward: nat = distributeRewardParams.totalStakedMvkReward;
 
             // Send the rewards from the treasury to the doorman contract
             const generalContractsOptViewSatelliteTreasury : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "satelliteTreasury", s.governanceAddress);
@@ -874,8 +874,8 @@ block {
                     if satelliteFee > rewardPerSatellite then failwith(error_SATELLITE_FEE_EXCEEDS_TOTAL_REWARD) else skip;
 
                     // Update satellite record
-                    const satelliteVotingPower: nat                                 = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
-                    satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
+                    const satelliteTotalStakedMvk: nat                               = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
+                    satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteTotalStakedMvk);
                     satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFeeReward;
                     s.satelliteRewardsLedger[satelliteAddress]                      := satelliteRewardsRecord;
                 }
@@ -1016,6 +1016,44 @@ block {
     ];
 
 } with (operations, s)
+
+
+
+(* updateSatelliteStatus lambda *)
+function lambdaUpdateSatelliteStatus(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+block {
+
+    // Operation list
+    var operations: list(operation) := nil;
+
+    // Check sender is admin or a whitelisted contract (governance satellite)
+    if s.admin = Tezos.sender or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+
+    case delegationLambdaAction of [
+        | LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {
+                
+                // Get variables from parameters
+                const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
+                const newStatus         : string  = updateSatelliteStatusParams.newStatus;
+
+                // get satellite record if exists
+                var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
+                      Some(_record) -> _record 
+                    | None -> failwith(error_SATELLITE_NOT_FOUND)
+                ];
+            
+                // update satellite with new status
+                satelliteRecord.status := newStatus;
+
+                // update satellite record
+                s.satelliteLedger[satelliteAddress] := satelliteRecord;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 
 // ------------------------------------------------------------------------------
 // General Lambdas End

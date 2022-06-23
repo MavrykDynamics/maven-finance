@@ -1,16 +1,93 @@
-import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  OriginationOperation,
+  TezosToolkit,
+  Wallet
+} from "@taquito/taquito";
 import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { treasuryFactoryStorageType } from "../types/treasuryFactoryStorageType";
 
+import treasuryFactoryLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/treasuryFactory/treasuryFactoryLambdaIndex.json';
+import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+import {treasuryStorageType} from "../types/treasuryStorageType";
+import treasuryLambdaIndex from "../../contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json";
+import treasuryFactoryLambdas from '../../build/lambdas/treasuryFactoryLambdas.json'
+import treasuryLambdas from '../../build/lambdas/treasuryLambdas.json'
+import {MichelsonMap} from "@taquito/michelson-encoder";
+import {BigNumber} from "bignumber.js";
+
+type TreasuryFactoryContractMethods<T extends ContractProvider | Wallet> = {
+  setLambda: (number, string) => ContractMethod<T>;
+  updateWhitelistContracts: (
+      whitelistContractName:string,
+      whitelistContractAddress:string
+  ) => ContractMethod<T>;
+  updateGeneralContracts: (
+      generalContractName:string,
+      generalContractAddress:string
+  ) => ContractMethod<T>;
+  setProductLambda: (number, string) => ContractMethod<T>;
+};
+
+type TreasuryFactoryContractMethodObject<T extends ContractProvider | Wallet> =
+  Record<string, (...args: any[]) => ContractMethodObject<T>>;
+
+type TreasuryViews = Record<string, (...args: any[]) => ContractView>;
+
+type TreasuryOnChainViews = {
+  [key: string]: OnChainView
+};
+
+type TreasuryFactoryContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+  TreasuryFactoryContractMethods<T>,
+  TreasuryFactoryContractMethodObject<T>,
+  TreasuryViews,
+  TreasuryOnChainViews,
+  treasuryStorageType>;
+
+
+export const setTreasuryFactoryLambdas = async (tezosToolkit: TezosToolkit, contract: TreasuryFactoryContractAbstraction) => {
+  const batch = tezosToolkit.wallet
+      .batch();
+
+  treasuryFactoryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+      batch.withContractCall(contract.methods.setLambda(name, treasuryFactoryLambdas[index]))
+
+  });
+
+
+  const op = await batch.send()
+  await confirmOperation(tezosToolkit, op.opHash);
+}
+
+export const setTreasuryFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: TreasuryFactoryContractAbstraction) => {
+  const batch = tezosToolkit.wallet
+      .batch();
+
+  treasuryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+      batch.withContractCall(contract.methods.setProductLambda(name, treasuryLambdas[index]))
+
+  });
+
+
+  const op = await batch.send()
+  await confirmOperation(tezosToolkit, op.opHash);
+}
+
 export class TreasuryFactory {
-    contract: Contract;
+    contract: TreasuryFactoryContractAbstraction;
     storage: treasuryFactoryStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: Contract, tezos: TezosToolkit) {
+    constructor(contract: TreasuryFactoryContractAbstraction, tezos: TezosToolkit) {
       this.contract = contract;
       this.tezos = tezos;
     }
@@ -63,4 +140,3 @@ export class TreasuryFactory {
       }
 
   }
-  

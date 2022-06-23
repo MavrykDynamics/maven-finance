@@ -42,14 +42,14 @@ block {
 
 
 
-(* updateName lambda - update the metadata at a given key *)
-function lambdaUpdateName(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+(* settName lambda - update the metadata at a given key *)
+function lambdaSetName(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
     checkSenderIsAdmin(s);
     
     case farmLambdaAction of [
-        | LambdaUpdateName(updatedName) -> {
+        | LambdaSetName(updatedName) -> {
 
                 // Get farm factory address
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);

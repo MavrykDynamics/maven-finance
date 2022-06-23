@@ -1,16 +1,83 @@
-import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import {
+  ContractAbstraction,
+  ContractMethod,
+  ContractMethodObject,
+  ContractProvider,
+  ContractView,
+  OriginationOperation,
+  TezosToolkit,
+  Wallet
+} from "@taquito/taquito";
 import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 import { governanceStorageType } from "../types/governanceStorageType";
 
+import governanceLambdaIndex
+    from '../../../contracts/contracts/partials/contractLambdas/governance/governanceLambdaIndex.json';
+import governanceLambdas from "../../build/lambdas/governanceLambdas.json";
+import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view";
+
+type GovernanceContractMethods<T extends ContractProvider | Wallet> = {
+    setGovernanceProxy: (string) => ContractMethod<T>;  
+    setLambda: (number, string) => ContractMethod<T>;
+    updateWhitelistContracts: (
+      whitelistContractName:string,
+      whitelistContractAddress:string
+    ) => ContractMethod<T>;
+    updateGeneralContracts: (
+        generalContractName:string,
+        generalContractAddress:string
+    ) => ContractMethod<T>;  
+};
+
+type GovernanceContractMethodObject<T extends ContractProvider | Wallet> =
+    Record<string, (...args: any[]) => ContractMethodObject<T>>;
+
+type GovernanceViews = Record<string, (...args: any[]) => ContractView>;
+
+type GovernanceOnChainViews = {
+    decimals: () => OnChainView;
+};
+
+type GovernanceContractAbstraction<T extends ContractProvider | Wallet = any> = ContractAbstraction<T,
+    GovernanceContractMethods<T>,
+    GovernanceContractMethodObject<T>,
+    GovernanceViews,
+    GovernanceOnChainViews,
+    governanceStorageType>;
+
+
+export const setGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceContractAbstraction) => {
+
+    const lambdasPerBatch = 10;
+
+    const lambdasCount = governanceLambdas.length;
+    const batchesCount = lambdasCount % lambdasPerBatch;
+
+    for(let i = 0; i < batchesCount; i++) {
+      
+      const batch = tezosToolkit.wallet.batch();
+
+      governanceLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {  
+        if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+          batch.withContractCall(contract.methods.setLambda(name, governanceLambdas[index]))
+        }
+      });
+
+      const setupGovernanceLambdasOperation = await batch.send()
+      await confirmOperation(tezosToolkit, setupGovernanceLambdasOperation.opHash);
+    }
+};
+
+
 export class Governance {
-    contract: Contract;
+    contract: GovernanceContractAbstraction;
     storage: governanceStorageType;
     tezos: TezosToolkit;
   
-    constructor(contract: Contract, tezos: TezosToolkit) {
+    constructor(contract: GovernanceContractAbstraction, tezos: TezosToolkit) {
       this.contract = contract;
       this.tezos = tezos;
     }
@@ -53,4 +120,3 @@ export class Governance {
     }
 
   }
-  

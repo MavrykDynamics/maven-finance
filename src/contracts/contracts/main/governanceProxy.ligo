@@ -27,6 +27,9 @@
 // Delegation Type for updateConfig
 #include "../partials/types/delegationTypes.ligo"
 
+// Doorman Type for updateConfig
+#include "../partials/types/doormanTypes.ligo"
+
 // Farm Type
 #include "../partials/types/farmTypes.ligo"
 
@@ -48,6 +51,9 @@
 // Governance Financial Type
 #include "../partials/types/governanceFinancialTypes.ligo"
 
+// Governance Satellite Type
+#include "../partials/types/governanceSatelliteTypes.ligo"
+
 // Farm Type
 #include "../partials/types/farmTypes.ligo"
 
@@ -59,6 +65,12 @@
 
 // TreasuryFactory Type
 #include "../partials/types/treasuryFactoryTypes.ligo"
+
+// Aggregator Type
+#include "../partials/types/aggregatorTypes.ligo"
+
+// AggregatorFactory Type
+#include "../partials/types/aggregatorFactoryTypes.ligo"
 
 // Governance Proxy Types
 #include "../partials/types/governanceProxyTypes.ligo"
@@ -285,13 +297,13 @@ case (Tezos.get_entrypoint_opt(
 
 
 
-// governance proxy lamba helper function to get updateContractName entrypoint
-function getUpdateContractNameEntrypoint(const contractAddress : address) : contract(string) is
+// governance proxy lamba helper function to get setContractName entrypoint
+function getSetContractNameEntrypoint(const contractAddress : address) : contract(string) is
 case (Tezos.get_entrypoint_opt(
-      "%updateName",
+      "%setName",
       contractAddress) : option(contract(string))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_UPDATE_NAME_ENTRYPOINT_NOT_FOUND) : contract(string))
+        | None        -> (failwith(error_SET_NAME_ENTRYPOINT_NOT_FOUND) : contract(string))
       ];
 
 // ------------------------------------------------------------------------------

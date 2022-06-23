@@ -86,6 +86,10 @@
     {
       "index": 21,
       "name": "lambdaOnStakeChange"
+    },
+    {
+      "index": 22,
+      "name": "lambdaUpdateSatelliteStatus"
     }
 ]
   

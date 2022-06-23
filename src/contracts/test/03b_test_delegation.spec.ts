@@ -458,6 +458,7 @@
 //                 doormanStorage              = await doormanInstance.storage();
 //                 governanceStorage           = await governanceInstance.storage();
 //                 mvkTokenStorage             = await mvkTokenInstance.storage();
+//                 console.log(governanceStorage.lambdaLedger)
 //                 const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
 //                 const proposalId            = governanceStorage.nextProposalId.toNumber();
 //                 const proposalName          = "New Proposal #1";
@@ -545,7 +546,7 @@
 //                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("nay").send();
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(mallory.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("abstain").send();
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("pass").send();
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
