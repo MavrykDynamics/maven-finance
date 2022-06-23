@@ -4,6 +4,7 @@ import { State } from 'reducers'
 
 // type
 import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
+import type { CouncilPastAction } from '../../reducers/council'
 
 // actions
 import { getCouncilPastActionsStorage } from './Council.actions'
@@ -107,8 +108,13 @@ export const Council = () => {
                 <h1 className={`past-actions ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
                   {isUserInCouncilMembers ? 'My ' : null}Past Council Actions
                 </h1>
-                {councilPastActions.map((item) => (
-                  <CouncilPastActionView executed_datetime={item.executed_datetime} key={item.id} />
+                {councilPastActions.map((item: CouncilPastAction) => (
+                  <CouncilPastActionView
+                    executed_datetime={item.executed_datetime}
+                    key={item.id}
+                    action_type={item.action_type}
+                    signers_count={item.signers_count}
+                  />
                 ))}
               </>
             ) : null}

@@ -26,6 +26,10 @@ export const CouncilPastActionStyled = styled(Card)`
     font-size: 14px;
     line-height: 14px;
     color: ${cyanColor};
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
   }
 
   figure {
