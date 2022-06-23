@@ -18,6 +18,7 @@ import { CouncilMemberView } from './CouncilMember/CouncilMember.view'
 import { CouncilPastActionView } from './CouncilPastAction/CouncilPastAction.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
+import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 
 // styles
 import { Page } from 'styles'
@@ -35,10 +36,9 @@ export const Council = () => {
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
 
   const itemsForDropDown = [
-    { text: 'Suspend Satellite', value: 'suspendSatellite' },
-    { text: 'Test 0', value: 'satelliteFee' },
-    { text: 'Test 1', value: 'totalDelegatedAmount' },
-    { text: 'Test 2', value: 'participation' },
+    { text: 'Chose action', value: '' },
+    { text: 'Add Vestee', value: 'addVestee' },
+    { text: 'Add Council Member', value: 'addCouncilMember' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -112,7 +112,8 @@ export const Council = () => {
                     clickOnItem={(e) => handleOnClickDropdownItem(e)}
                   />
                 </DropdownWrap>
-                <CouncilFormAddVestee />
+                {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
+                {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
               </DropdownCard>
             ) : null}
 

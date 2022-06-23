@@ -5,6 +5,7 @@ export const CouncilFormStyled = styled.form`
   padding: 24px 30px;
   border-top: 1px solid ${royalPurpleColor};
   margin-top: 1px;
+  position: relative;
 
   .form-h1 {
     margin-top: 15px;
@@ -26,15 +27,23 @@ export const CouncilFormStyled = styled.form`
     gap: 20px;
     padding-top: 1px;
     row-gap: 18px;
+  }
+
+  label {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${headerColor};
+    padding-left: 8px;
+    padding-bottom: 5px;
+    display: block;
+  }
+
+  .form-ipfs {
+    margin-bottom: 0;
 
     label {
-      font-weight: 700;
-      font-size: 14px;
-      line-height: 21px;
-      color: ${headerColor};
-      padding-left: 8px;
-      padding-bottom: 5px;
-      display: block;
+      margin-bottom: 2px;
     }
   }
 

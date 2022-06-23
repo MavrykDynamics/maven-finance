@@ -26,6 +26,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
+  cursor: pointer;
 
   span {
     width: 50px;
@@ -70,6 +71,7 @@ export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   font-weight: 500;
   margin-top: 8px;
+  z-index: 1;
 `
 
 export const DropDownListItem = styled.li`
