@@ -20,6 +20,7 @@ import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
+import Icon from '../../app/App.components/Icon/Icon.view'
 
 // styles
 import { Page } from 'styles'
@@ -31,7 +32,8 @@ export const Council = () => {
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-
+  const [isCoback, setIsCoback] = useState(false)
+  const [isStartState, setIsStartState] = useState(true)
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
@@ -76,6 +78,12 @@ export const Council = () => {
     <Page>
       <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
       <CouncilStyled>
+        {isCoback ? (
+          <button className="go-back">
+            <Icon id="arrow-left-stroke" />
+            Back to Member Dashboard
+          </button>
+        ) : null}
         {isPendingSignature ? (
           <>
             <h1>Pending Signature</h1>
