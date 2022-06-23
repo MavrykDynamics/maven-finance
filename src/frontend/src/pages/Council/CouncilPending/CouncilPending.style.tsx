@@ -17,6 +17,10 @@ export const CouncilPendingStyled = styled(Card)`
     line-height: 18px;
     color: ${headerColor};
     margin-bottom: 20px;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
   }
 
   .sign-btn {

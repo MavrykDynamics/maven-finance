@@ -39,28 +39,43 @@ export const COUNCIL_STORAGE_QUERY = `
     }
   }
 `
-
 export const COUNCIL_STORAGE_QUERY_NAME = 'GetCouncilStorageQuery'
 export const COUNCIL_STORAGE_QUERY_VARIABLE = {}
+
+const COUNCIL_ACTIONS_PARAMS = `
+  council_id
+  executed
+  executed_datetime
+  executed_level
+  expiration_datetime
+  id
+  initiator_id
+  signers_count
+  start_datetime
+  status
+  action_type
+`
 
 export const COUNCIL_PAST_ACTIONS_QUERY = `
   query GetPastCouncilActions {
     council_action_record(where: {executed: {_eq: true}}) {
-      council_id
-      executed
-      executed_datetime
-      executed_level
-      expiration_datetime
-      id
-      initiator_id
-      signers_count
-      start_datetime
-      status
-      action_type
+      ${COUNCIL_ACTIONS_PARAMS}
     }
   }
 `
-
 export const COUNCIL_PAST_ACTIONS_NAME = 'GetPastCouncilActions'
 export const COUNCIL_PAST_ACTIONS_VARIABLE = {}
+
+
+// TODO May be “initiator_id” === “accountPkh”
+export const COUNCIL_PENDING_ACTIONS_QUERY = `
+  query GetPandingCouncilActions {
+    council_action_record(where: {status: {_eq: "0"}}, order_by: {executed_datetime: asc}, limit: 3) {
+      ${COUNCIL_ACTIONS_PARAMS}
+    }
+  }
+`
+export const COUNCIL_PENDING_ACTIONS_NAME = 'GetPandingCouncilActions'
+export const COUNCIL_PENDING_ACTIONS_VARIABLE = {}
+
 

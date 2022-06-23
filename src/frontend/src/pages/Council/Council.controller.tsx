@@ -7,7 +7,7 @@ import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 import type { CouncilPastAction } from '../../reducers/council'
 
 // actions
-import { getCouncilPastActionsStorage } from './Council.actions'
+import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -27,7 +27,7 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 export const Council = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { councilStorage, councilPastActions } = useSelector((state: State) => state.council)
+  const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
   const { councilMembers } = councilStorage
@@ -44,6 +44,8 @@ export const Council = () => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+
+  const isPendingSignature = isUserInCouncilMembers && councilPendingActions.length
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -64,25 +66,36 @@ export const Council = () => {
     dispatch(getCouncilPastActionsStorage())
   }, [dispatch])
 
+  useEffect(() => {
+    if (accountPkh) dispatch(getCouncilPendingActionsStorage())
+  }, [accountPkh])
+
   return (
     <Page>
       <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
       <CouncilStyled>
-        {isUserInCouncilMembers ? (
+        {isPendingSignature ? (
           <>
             <h1>Pending Signature</h1>
             <article className="pending">
               <div className="pending-items">
-                <CouncilPendingView />
-                <CouncilPendingView />
-                <CouncilPendingView />
+                {councilPendingActions.map((item) => (
+                  <CouncilPendingView
+                    executed_datetime={item.executed_datetime}
+                    key={item.id}
+                    action_type={item.action_type}
+                    signers_count={item.signers_count}
+                    initiator_id={item.initiator_id}
+                    num_council_members={councilMembers.length}
+                  />
+                ))}
               </div>
 
               <CouncilPendingReviewView />
             </article>
           </>
         ) : null}
-        <article className={`council-details ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
+        <article className={`council-details ${isPendingSignature ? 'is-user-member' : ''}`}>
           <div className="council-actions">
             {isUserInCouncilMembers ? (
               <DropdownCard className="pending-dropdown">
@@ -105,7 +118,7 @@ export const Council = () => {
 
             {councilPastActions?.length ? (
               <>
-                <h1 className={`past-actions ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
+                <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
                   {isUserInCouncilMembers ? 'My ' : null}Past Council Actions
                 </h1>
                 {councilPastActions.map((item: CouncilPastAction) => (
