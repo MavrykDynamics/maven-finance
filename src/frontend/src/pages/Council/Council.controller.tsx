@@ -6,7 +6,7 @@ import { State } from 'reducers'
 import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 
 // actions
-import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
+import { getCouncilPastActionsStorage } from './Council.actions'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -26,7 +26,7 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 export const Council = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { councilStorage } = useSelector((state: State) => state.council)
+  const { councilStorage, councilPastActions } = useSelector((state: State) => state.council)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
   const { councilMembers } = councilStorage
@@ -58,6 +58,10 @@ export const Council = () => {
     setDdIsOpen(!ddIsOpen)
     handleSelect(chosenItem)
   }
+
+  useEffect(() => {
+    dispatch(getCouncilPastActionsStorage())
+  }, [dispatch])
 
   return (
     <Page>
@@ -98,14 +102,16 @@ export const Council = () => {
               </DropdownCard>
             ) : null}
 
-            <h1 className={`past-actions ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
-              {isUserInCouncilMembers ? 'My ' : null}Past Council Actions
-            </h1>
-            <CouncilPastActionView />
-            <CouncilPastActionView />
-            <CouncilPastActionView />
-            <CouncilPastActionView />
-            <CouncilPastActionView />
+            {councilPastActions?.length ? (
+              <>
+                <h1 className={`past-actions ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
+                  {isUserInCouncilMembers ? 'My ' : null}Past Council Actions
+                </h1>
+                {councilPastActions.map((item) => (
+                  <CouncilPastActionView executed_datetime={item.executed_datetime} key={item.id} />
+                ))}
+              </>
+            ) : null}
           </div>
           {councilMembers.length ? (
             <aside className={`council-members ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
