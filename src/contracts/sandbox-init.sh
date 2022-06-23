@@ -38,7 +38,7 @@ docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to isaac --
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to david --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to susie --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to ivan --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to astronaut --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 5000 from alice to astronaut --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to oracleMaintainer --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to gagarine --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to armstrong --burn-cap 0.06425
