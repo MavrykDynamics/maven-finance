@@ -4,7 +4,7 @@ import { MichelsonMap } from '@taquito/taquito'
 interface GovernanceConfig {
   successReward: number
   minQuorumPercentage: number
-  minQuorumMvkTotal: number
+  minQuorumStakedMvkTotal: number
   votingPowerRatio: number
   proposalSubmissionFee: number // 10 tez
   minimumStakeReqPercentage: number // 0.01% for testing: change to 10,000 later -> 10%

@@ -57,7 +57,7 @@ type updateContractWhitelistTokenMapType is [@layout:comb] record [
   tokenContractAddress      : address; 
 ]
 
-type updateContractNameType is [@layout:comb] record [
+type setContractNameType is [@layout:comb] record [
   targetContractAddress     : address;
   contractName              : string;
 ]
@@ -65,6 +65,16 @@ type updateContractNameType is [@layout:comb] record [
 type targetFarmUpdateConfigParamsType is [@layout:comb] record [
   targetFarmAddress         : address;
   farmConfig                : farmUpdateConfigParamsType;
+]
+
+type targetAggregatorUpdateConfigParamsType is [@layout:comb] record [
+  targetAggregatorAddress   : address;
+  aggregatorConfig          : aggregatorUpdateConfigParamsType;
+]
+
+type setAggregatorMaintainerType is [@layout:comb] record [
+    aggregatorAddress           : address;
+    maintainerAddress           : address;
 ]
 
 type targetFarmInitType is [@layout:comb] record [
@@ -97,29 +107,45 @@ type unstakeTreasuryType is [@layout:comb] record [
   unstakeAmount             : nat;
 ]
 
+// type pauseEntrypointType is 
+//   | LambdaTogglePauseStake
+
+// type pauseSingleEntrypointInContractType is [@layout:comb] record [
+//   contract                  : address;
+//   entrypoint                : pauseEntrypointType;
+// ]
+
+
 type executeActionParamsType is 
 
   UpdateProxyLambda                  of setProxyLambdaType
 | SetContractAdmin                   of setContractAdminType
 | SetContractGovernance              of setContractGovernanceType
+| SetContractName                    of setContractNameType
 | SetContractLambda                  of setContractLambdaType
 | SetFactoryProductLambda            of setContractLambdaType
 | UpdateContractMetadata             of updateContractMetadataType
 | UpdateContractWhitelistMap         of updateContractWhitelistMapType
 | UpdateContractGeneralMap           of updateContractGeneralMapType
 | UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
-| UpdateContractName                 of updateContractNameType
 
 | UpdateGovernanceConfig             of governanceUpdateConfigParamsType
 | UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
+| UpdateGovernanceSatelliteConfig    of governanceSatelliteUpdateConfigParamsType
 | UpdateDelegationConfig             of delegationUpdateConfigParamsType
 | UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
 | UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
 | UpdateCouncilConfig                of councilUpdateConfigParamsType
 | UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
 | UpdateFarmFactoryConfig            of farmFactoryUpdateConfigParamsType
+| UpdateAggregatorConfig             of targetAggregatorUpdateConfigParamsType
+| UpdateAggregatorFactoryConfig      of aggregatorFactoryUpdateConfigParamsType
 | UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
-| UpdateDoormanMinMvkAmount          of (nat)
+| UpdateDoormanConfig                of doormanUpdateConfigParamsType
+
+// | PauseAllInContract                 of (address)
+// | UnpauseAllInContract               of (address)
+// | PauseSingleEntrypointInContract    of pauseSingleEntrypointInContractType
 
 | UpdateWhitelistDevelopersSet       of (address)
 | SetGovernanceProxy                 of (address)
@@ -138,6 +164,11 @@ type executeActionParamsType is
 | UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
 | StakeMvkTreasury                   of stakeTreasuryType
 | UnstakeMvkTreasury                 of unstakeTreasuryType
+
+| CreateAggregator                   of createAggregatorParamsType
+| TrackAggregator                    of trackAggregatorParamsType
+| UntrackAggregator                  of untrackAggregatorParamsType
+| SetAggregatorMaintainer            of setAggregatorMaintainerType
 
 | UpdateMvkInflationRate             of (nat)
 | TriggerMvkInflation                of unit
@@ -168,10 +199,11 @@ type governanceProxyLambdaActionType is
 
 type governanceProxyStorage is record [
     admin                       : address;
-    governanceAddress           : address;    // separate admin from governance address in event of break glass
     metadata                    : metadata;
 
     mvkTokenAddress             : address;
+    governanceAddress           : address;    // separate admin from governance address in event of break glass
+    
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType; 
     whitelistTokenContracts     : whitelistTokenContractsType;      

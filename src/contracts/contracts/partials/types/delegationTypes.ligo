@@ -35,7 +35,7 @@ type updateSatelliteRecordType is [@layout:comb] record [
 
 // record for satellites
 type satelliteRecordType is [@layout:comb] record [
-    status                : nat;        // active: 1; inactive: 0; 
+    status                : string;     // ACTIVE / INACTIVE / SUSPENDED / BANNED
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
@@ -108,9 +108,14 @@ type delegateToSatelliteType is [@layout:comb] record [
     satelliteAddress : address;
 ]
 
-type distributeRewardTypes is [@layout:comb] record [
+type distributeRewardStakedMvkType is [@layout:comb] record [
     eligibleSatellites    : set(address);
-    totalSMvkReward       : nat;
+    totalStakedMvkReward  : nat;
+]
+
+type updateSatelliteStatusParamsType is [@layout:comb] record [
+    satelliteAddress        : address;
+    newStatus               : string;
 ]
 
 type setLambdaType is [@layout:comb] record [
@@ -148,26 +153,23 @@ type delegationLambdaActionType is
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
 | LambdaUnregisterAsSatellite                 of (address)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
-| LambdaDistributeReward                      of distributeRewardTypes
+| LambdaDistributeReward                      of distributeRewardStakedMvkType
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
+| LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
-type distributeRewardsTypes is [@layout:comb] record [
-    eligibleSatellites    : set(address);
-    totalSMvkReward       : nat;
-]
 
 type delegationStorage is [@layout:comb] record [
-    admin                : address;
-    mvkTokenAddress      : address;
-    governanceAddress    : address;
-    metadata             : metadata;
-    
-    config               : delegationConfigType;
+    admin                   : address;
+    metadata                : metadata;
+    config                  : delegationConfigType;
+
+    mvkTokenAddress         : address;
+    governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;

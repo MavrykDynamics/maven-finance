@@ -196,16 +196,16 @@ type councilLambdaActionType is
 
 type councilStorage is [@layout:comb] record [
     admin                       : address;
+    metadata                    : metadataType;
+    config                      : councilConfigType;
+
     mvkTokenAddress             : address;
     governanceAddress           : address;
-    metadata                    : metadataType;
-
-    config                      : councilConfigType;
-    councilMembers              : councilMembersType;  
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType;
-
+    
+    councilMembers              : councilMembersType;  
     councilActionsLedger        : councilActionsLedgerType; 
     actionCounter               : nat;
 

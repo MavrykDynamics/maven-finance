@@ -38,7 +38,7 @@ type treasuryLambdaActionType is
 | LambdaSetAdmin                       of (address)
 | LambdaSetGovernance                  of (address)
 | LambdaSetBaker                       of option(key_hash)
-| LambdaUpdateName                     of (string)
+| LambdaSetName                        of (string)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts         of updateGeneralContractsParams
@@ -65,16 +65,17 @@ type treasuryLambdaActionType is
 
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;
+    metadata                   : metadata;
+    name                       : string;
+    
     mvkTokenAddress            : address;
     governanceAddress          : address;
-    name                       : string;
-    metadata                   : metadata;
-    
-    breakGlassConfig           : treasuryBreakGlassConfigType;
 
     whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
+    whitelistTokenContracts    : whitelistTokenContractsType;
+
+    breakGlassConfig           : treasuryBreakGlassConfigType;
 
     lambdaLedger               : lambdaLedgerType;
 ]

@@ -63,24 +63,26 @@ block {
 
 
 
-(*  updateMinMvkAmount lambda *)
-function lambdaUpdateMinMvkAmount(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is 
+(* updateConfig lambda *)
+function lambdaUpdateConfig(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is 
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
     case doormanLambdaAction of [
-        | LambdaUpdateMinMvkAmount(newMinMvkAmount) -> {
+        | LambdaUpdateConfig(updateConfigParams) -> {
                 
-              if newMinMvkAmount < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) 
-              else skip;
+                const updateConfigAction    : doormanUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : doormanUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-              s.minMvkAmount := newMinMvkAmount;
-
+                case updateConfigAction of [
+                    | ConfigMinMvkAmount (_v)              -> s.config.minMvkAmount         := updateConfigNewValue
+                    | Empty (_v)                           -> skip
+                ];
             }
         | _ -> skip
     ];
-
+  
 } with (noOperations, s)
 
 
@@ -391,7 +393,7 @@ block {
               s := compoundUserRewards(userAddress, s);
 
               // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-              if stakeAmount < s.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
+              if stakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
               else skip;
 
               const mvkTokenAddress : address = s.mvkTokenAddress;
@@ -491,7 +493,7 @@ block {
                 const userAddress   : address   = Tezos.sender;
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-                if unstakeAmount < s.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
+                if unstakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip;
 
                 // Compound user rewards
@@ -627,7 +629,7 @@ block {
                 const userAddress   : address   = Tezos.sender;
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-                if unstakeAmount < s.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
+                if unstakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip;
 
                 // Compound user rewards

@@ -332,12 +332,12 @@
 //                 const newConfigValue = MVK(2);
 
 //                 // Operation
-//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumMvkTotal").send();
+//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumStakedMvkTotal").send();
 //                 await updateConfigOperation.confirmation();
 
 //                 // Final values
 //                 governanceStorage = await governanceInstance.storage();
-//                 const updateConfigValue = governanceStorage.config.minQuorumMvkTotal;
+//                 const updateConfigValue = governanceStorage.config.minQuorumStakedMvkTotal;
 
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
@@ -540,7 +540,7 @@
 //                 const successReward = governanceStorage.config.successReward
 //                 const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                 const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-//                 const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
+//                 const minQuorumStakedMvkTotal = governanceStorage.config.minQuorumStakedMvkTotal
 //                 const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                 const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
 //                 const cycleCounter = governanceStorage.cycleCounter
@@ -566,20 +566,20 @@
 //                 assert.equal(newProposal.successReward.toNumber(), successReward.toNumber());
 //                 assert.equal(newProposal.executed, false);
 //                 assert.equal(newProposal.locked, true);
-//                 assert.equal(newProposal.passVoteCount.toNumber(), 0);
-//                 assert.equal(newProposal.passVoteMvkTotal.toNumber(), 0);
+//                 assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
+//                 assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
 //                 assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
 //                 assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
-//                 assert.equal(newProposal.upvoteCount.toNumber(), 0);
-//                 assert.equal(newProposal.upvoteMvkTotal.toNumber(), 0);
-//                 assert.equal(newProposal.downvoteCount.toNumber(), 0);
-//                 assert.equal(newProposal.downvoteMvkTotal.toNumber(), 0);
-//                 assert.equal(newProposal.abstainCount.toNumber(), 0);
-//                 assert.equal(newProposal.abstainMvkTotal.toNumber(), 0);
+//                 assert.equal(newProposal.yayVoteCount.toNumber(), 0);
+//                 assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
+//                 assert.equal(newProposal.nayVoteCount.toNumber(), 0);
+//                 assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+//                 assert.equal(newProposal.passVoteCount.toNumber(), 0);
+//                 assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
 //                 assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-//                 assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
+//                 assert.equal(newProposal.minQuorumStakedMvkTotal.toNumber(), minQuorumStakedMvkTotal.toNumber());
 //                 assert.equal(newProposal.quorumCount.toNumber(), 0);
-//                 assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
+//                 assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
 //                 assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
 //                 assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //             } catch(e){
@@ -658,7 +658,7 @@
 //                 console.dir(snapshotLedger, {depth: 5})
 
 //                 // Assertion
-//                 assert.equal(totalVotingPower, proposal.quorumMvkTotal.toNumber())
+//                 assert.equal(totalVotingPower, proposal.quorumStakedMvkTotal.toNumber())
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }

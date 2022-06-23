@@ -193,7 +193,7 @@ block {
                     | ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minProposalRoundVotePercentage := updateConfigNewValue
                     | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
                     | ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage                     := updateConfigNewValue
-                    | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
+                    | ConfigMinQuorumStakedMvkTotal (_v)                -> s.config.minQuorumStakedMvkTotal                 := updateConfigNewValue
                     | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                        := updateConfigNewValue
                     | ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
                     | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
@@ -396,7 +396,7 @@ block {
                 case s.currentCycleInfo.round of [
 
                     Proposal -> case proposalRoundProposal of [
-                        Some (proposal) -> if highestVotedProposalId =/= 0n and proposal.passVoteMvkTotal >= proposal.minProposalRoundVotesRequired then
+                        Some (proposal) -> if highestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvkTotal >= proposal.minProposalRoundVotesRequired then
 
                             // Start voting round with highest voted proposal from proposal round
                             s := setupVotingRound(highestVotedProposalId, s)
@@ -415,7 +415,7 @@ block {
                             if Map.size(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
                             else skip;
 
-                            if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal then {
+                            if proposal.yayVoteStakedMvkTotal < proposal.minQuorumStakedMvkTotal then {
                             
                                 // Vote criteria not matched - restart a new proposal round
                                 s := setupProposalRound(s);
@@ -522,11 +522,11 @@ block {
                 if satelliteSnapshot.totalStakedMvkBalance < minimumMvkRequiredForProposalSubmission then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip; 
 
-                const proposalId          : nat                                     = s.nextProposalId;
-                const emptyPassVotersMap  : passVotersMapType                       = map [];
-                const emptyVotersMap      : votersMapType                           = map [];
-                const proposalMetadata    : map(nat, option(proposalMetadataType))  = map [];
-                const paymentMetadata     : map(nat, option(paymentMetadataType))   = map [];
+                const proposalId                : nat                                     = s.nextProposalId;
+                const emptyProposalVotersMap    : proposalVotersMapType                   = map [];
+                const emptyVotersMap            : votersMapType                           = map [];
+                const proposalMetadata          : map(nat, option(proposalMetadataType))  = map [];
+                const paymentMetadata           : map(nat, option(paymentMetadataType))   = map [];
 
                 var proposerProposals   : set(nat)             := case s.currentCycleInfo.roundProposers[Tezos.sender] of [
                       Some (_proposals) -> _proposals
@@ -553,25 +553,25 @@ block {
                     paymentProcessed                    = False;                           // boolean: set to true if proposal payment has been processed 
                     locked                              = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
 
-                    passVoteCount                       = 0n;                              // proposal round: pass votes count (to proceed to voting round)
-                    passVoteMvkTotal                    = 0n;                              // proposal round pass vote total mvk from satellites who voted pass
-                    passVotersMap                       = emptyPassVotersMap;              // proposal round ledger
+                    proposalVoteCount                   = 0n;                              // proposal round: pass votes count (to proceed to voting round)
+                    proposalVoteStakedMvkTotal          = 0n;                              // proposal round pass vote total mvk from satellites who voted pass
+                    proposalVotersMap                   = emptyProposalVotersMap;          // proposal round ledger
 
                     minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;   // min vote percentage of total MVK supply required to pass proposal round
                     minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;    // min staked MVK votes required for proposal round to pass
 
-                    upvoteCount                         = 0n;                              // voting round: upvotes count
-                    upvoteMvkTotal                      = 0n;                              // voting round: upvotes MVK total 
-                    downvoteCount                       = 0n;                              // voting round: downvotes count
-                    downvoteMvkTotal                    = 0n;                              // voting round: downvotes MVK total 
-                    abstainCount                        = 0n;                              // voting round: abstain count
-                    abstainMvkTotal                     = 0n;                              // voting round: abstain MVK total 
+                    yayVoteCount                        = 0n;                              // voting round: yay count
+                    yayVoteStakedMvkTotal               = 0n;                              // voting round: yay MVK total 
+                    nayVoteCount                        = 0n;                              // voting round: nay count
+                    nayVoteStakedMvkTotal               = 0n;                              // voting round: nay MVK total 
+                    passVoteCount                       = 0n;                              // voting round: pass count
+                    passVoteStakedMvkTotal              = 0n;                              // voting round: pass MVK total 
                     voters                              = emptyVotersMap;                  // voting round ledger
 
                     minQuorumPercentage                 = s.config.minQuorumPercentage;    // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-                    minQuorumMvkTotal                   = s.config.minQuorumMvkTotal;      // log of min quorum in MVK - capture state at this point     
+                    minQuorumStakedMvkTotal             = s.config.minQuorumStakedMvkTotal;// log of min quorum in MVK - capture state at this point     
                     quorumCount                         = 0n;                              // log of turnout for voting round - number of satellites who voted
-                    quorumMvkTotal                      = 0n;                              // log of total positive votes in MVK  
+                    quorumStakedMvkTotal                = 0n;                              // log of total positive votes in MVK  
                     startDateTime                       = Tezos.now;                       // log of when the proposal was proposed
 
                     cycle                               = s.cycleCounter;
@@ -933,11 +933,11 @@ block {
                 
                     // satellite has not voted for other proposals
 
-                    const newPassVoteMvkTotal : nat = _proposal.passVoteMvkTotal + satelliteSnapshot.totalVotingPower;
+                    const newProposalVoteStakedMvkTotal : nat = _proposal.proposalVoteStakedMvkTotal + satelliteSnapshot.totalVotingPower;
 
-                    _proposal.passVoteCount               := _proposal.passVoteCount + 1n;    
-                    _proposal.passVoteMvkTotal            := newPassVoteMvkTotal;
-                    _proposal.passVotersMap[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now);
+                    _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;    
+                    _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
+                    _proposal.proposalVotersMap[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now);
                     
                     // update proposal with new vote
                     s.proposalLedger[proposalId] := _proposal;
@@ -946,7 +946,7 @@ block {
                     s.currentCycleInfo.roundVotes[Tezos.sender] := proposalId;
 
                     // increment proposal with satellite snapshot's total voting power
-                    s.currentCycleInfo.roundProposals[proposalId] := newPassVoteMvkTotal;
+                    s.currentCycleInfo.roundProposals[proposalId] := newProposalVoteStakedMvkTotal;
 
                 } else block {
 
@@ -957,11 +957,11 @@ block {
                     ];
                     
                     // satellite has voted for another proposal
-                    const newPassVoteMvkTotal : nat = _proposal.passVoteMvkTotal + satelliteSnapshot.totalVotingPower;
+                    const newProposalVoteStakedMvkTotal : nat = _proposal.proposalVoteStakedMvkTotal + satelliteSnapshot.totalVotingPower;
 
-                    _proposal.passVoteCount               := _proposal.passVoteCount + 1n;
-                    _proposal.passVoteMvkTotal            := newPassVoteMvkTotal;
-                    _proposal.passVotersMap[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now);
+                    _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;
+                    _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
+                    _proposal.proposalVotersMap[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now);
 
                     // update previous prospoal begin -----------------
                     const previousVotedProposalId : nat = case s.currentCycleInfo.roundVotes[Tezos.sender] of [
@@ -974,19 +974,19 @@ block {
                         | None                    -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
 
-                    var previousProposalPassVoteCount : nat := _previousProposal.passVoteCount;
-                    _previousProposal.passVoteCount := abs(previousProposalPassVoteCount - 1n) ;
+                    var previousProposalProposalVoteCount : nat := _previousProposal.proposalVoteCount;
+                    _previousProposal.proposalVoteCount := abs(previousProposalProposalVoteCount - 1n) ;
 
                     // decrement previously voted on proposal by amount of satellite's total voting power - conditionals to check that min will never go below 0
-                    var previousProposalPassVoteMvkTotal : nat := _previousProposal.passVoteMvkTotal;
-                    if satelliteSnapshot.totalVotingPower > previousProposalPassVoteMvkTotal then previousProposalPassVoteMvkTotal := 0n 
-                    else previousProposalPassVoteMvkTotal := abs(previousProposalPassVoteMvkTotal - satelliteSnapshot.totalVotingPower); 
+                    var previousProposalProposalVoteStakedMvkTotal : nat := _previousProposal.proposalVoteStakedMvkTotal;
+                    if satelliteSnapshot.totalVotingPower > previousProposalProposalVoteStakedMvkTotal then previousProposalProposalVoteStakedMvkTotal := 0n 
+                    else previousProposalProposalVoteStakedMvkTotal := abs(previousProposalProposalVoteStakedMvkTotal - satelliteSnapshot.totalVotingPower); 
                     
-                    _previousProposal.passVoteMvkTotal := previousProposalPassVoteMvkTotal;
+                    _previousProposal.proposalVoteStakedMvkTotal := previousProposalProposalVoteStakedMvkTotal;
 
                     // remove user from previous proposal that he voted on, decrement previously voted proposal by satellite snapshot's total voting power
-                    remove Tezos.sender from map _previousProposal.passVotersMap;        
-                    s.currentCycleInfo.roundProposals[previousVotedProposalId] := previousProposalPassVoteMvkTotal;
+                    remove Tezos.sender from map _previousProposal.proposalVotersMap;        
+                    s.currentCycleInfo.roundProposals[previousVotedProposalId] := previousProposalProposalVoteStakedMvkTotal;
                     // -------- update previous prospoal end ---------
                 
                     // update proposal with new vote, increment proposal with satellite snapshot's total voting power
@@ -994,7 +994,7 @@ block {
                     s.proposalLedger[previousVotedProposalId] := _previousProposal;
 
                     // increment proposal with satellite snapshot's total voting power
-                    s.currentCycleInfo.roundProposals[proposalId] := newPassVoteMvkTotal;
+                    s.currentCycleInfo.roundProposals[proposalId] := newProposalVoteStakedMvkTotal;
 
                     // update current round votes with satellite's address -> new proposal id
                     s.currentCycleInfo.roundVotes[Tezos.sender] := proposalId;    
@@ -1068,7 +1068,7 @@ block {
                 else skip;
 
                 // note: currentCycleInfo.roundVotes change in the use of nat from proposal round (from proposal id to vote type)
-                //  i.e. (satelliteAddress, voteType - Yay | Nay | Abstain)
+                //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
                 const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentCycleInfo.roundVotes);
                 if checkIfSatelliteHasVotedFlag = False then block {
                     // satellite has not voted - add new vote

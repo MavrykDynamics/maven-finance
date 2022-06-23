@@ -77,9 +77,10 @@ type vestingLambdaActionType is
 
 type vestingStorage is [@layout:comb] record [
     admin               : address;
+    metadata            : metadata;
+
     mvkTokenAddress     : address;
     governanceAddress   : address;
-    metadata            : metadata;
 
     whitelistContracts  : whitelistContractsType;      
     generalContracts    : generalContractsType;

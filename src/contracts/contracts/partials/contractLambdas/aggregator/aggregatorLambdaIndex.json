@@ -1,0 +1,98 @@
+[
+  {
+    "index": 0,
+    "name": "lambdaSetAdmin"
+  },
+  {
+    "index": 1,
+    "name": "lambdaSetGovernance"
+  },
+  {
+    "index": 2,
+    "name": "lambdaSetMaintainer"
+  },
+  {
+    "index": 3,
+    "name": "lambdaSetName"
+  },
+  {
+    "index": 4,
+    "name": "lambdaUpdateMetadata"
+  },
+  {
+    "index": 5,
+    "name": "lambdaUpdateConfig"
+  },
+  {
+    "index": 6,
+    "name": "lambdaUpdateWhitelistContracts"
+  },
+  {
+    "index": 7,
+    "name": "lambdaUpdateGeneralContracts"
+  },
+  {
+    "index": 8,
+    "name": "lambdaAddOracle"
+  },
+  {
+    "index": 9,
+    "name": "lambdaRemoveOracle"
+  },
+  {
+    "index": 10,
+    "name": "lambdaPauseAll"
+  },
+  {
+    "index": 11,
+    "name": "lambdaUnpauseAll"
+  },
+  {
+    "index": 12,
+    "name": "lambdaTogglePauseReqRateUpd"
+  },
+  {
+    "index": 13,
+    "name": "lambdaTogglePauseReqRateUpdDev"
+  },
+  {
+    "index": 14,
+    "name": "lambdaTogglePauseSetObsCommit"
+  },
+  {
+    "index": 15,
+    "name": "lambdaTogglePauseSetObsReveal"
+  },
+  {
+    "index": 16,
+    "name": "lambdaTogglePauseRewardXtz"
+  },
+  {
+    "index": 17,
+    "name": "lambdaTogglePauseRewardSMvk"
+  },
+  {
+    "index": 18,
+    "name": "lambdaRequestRateUpdate"
+  },
+  {
+    "index": 19,
+    "name": "lambdaRequestRateUpdateDeviation"
+  },
+  {
+    "index": 20,
+    "name": "lambdaSetObservationCommit"
+  },
+  {
+    "index": 21,
+    "name": "lambdaSetObservationReveal"
+  },
+  {
+    "index": 22,
+    "name": "lambdaWithdrawRewardXtz"
+  },
+  {
+    "index": 23,
+    "name": "lambdaWithdrawRewardStakedMvk"
+  }  
+]

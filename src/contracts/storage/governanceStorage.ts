@@ -15,7 +15,7 @@ const config = {
     minProposalRoundVotesRequired       : 10000,
 
     minQuorumPercentage                 : 1000,
-    minQuorumMvkTotal                   : 10000,
+    minQuorumStakedMvkTotal             : 10000,
 
     votingPowerRatio                    : 10000,
     proposalSubmissionFeeMutez          : 1000000, // 1 tez
