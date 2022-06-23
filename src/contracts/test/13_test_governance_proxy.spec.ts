@@ -166,7 +166,7 @@
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumStakedMvkTotal").send();
+//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
 //                 await updateGovernanceConfig.confirmation();
     
 //                 // Register satellites

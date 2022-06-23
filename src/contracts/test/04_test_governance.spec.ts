@@ -254,7 +254,7 @@ describe("Governance tests", async () => {
                 try{
                     // Initial Values
                     governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = 10;
+                    const newConfigValue = 1;
 
                     // Operation
                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumPercentage").send();
@@ -291,19 +291,19 @@ describe("Governance tests", async () => {
                     console.dir(e, {depth: 5})
                 }
             });
-            it('Admin should be able to call the entrypoint and configure the min quorum smvk total required', async () => {
+            it('Admin should be able to call the entrypoint and configure the min yay votes mvk total required', async () => {
                 try{
                     // Initial Values
                     governanceStorage = await governanceInstance.storage();
-                    const newConfigValue = MVK(2);
+                    const newConfigValue = 5050;
 
                     // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumStakedMvkTotal").send();
+                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinYayVotePercentage").send();
                     await updateConfigOperation.confirmation();
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.minQuorumStakedMvkTotal;
+                    const updateConfigValue = governanceStorage.config.minYayVotePercentage;
 
                     // Assertions
                     assert.equal(updateConfigValue, newConfigValue);
@@ -372,19 +372,19 @@ describe("Governance tests", async () => {
                     console.dir(e, {depth: 5})
                 }
             });
-            it('Admin should be able to call the entrypoint and configure the max proposals per delegate', async () => {
+            it('Admin should be able to call the entrypoint and configure the max proposals per satellite', async () => {
                 try{
                     // Initial Values
                     governanceStorage = await governanceInstance.storage();
                     const newConfigValue = 5;
 
                     // Operation
-                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMaxProposalsPerDelegate").send();
+                    const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMaxProposalsPerSatellite").send();
                     await updateConfigOperation.confirmation();
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const updateConfigValue = governanceStorage.config.maxProposalsPerDelegate;
+                    const updateConfigValue = governanceStorage.config.maxProposalsPerSatellite;
 
                     // Assertions
                     assert.equal(updateConfigValue, newConfigValue);
@@ -757,9 +757,10 @@ describe("Governance tests", async () => {
                     await startNextRoundOperation.confirmation();
 
                     // Final values
-                    governanceStorage = await governanceInstance.storage();
-                    const finalRound                       = governanceStorage.currentCycleInfo.round
-                    const finalRoundString                 = Object.keys(finalRound)[0]
+                    governanceStorage                       = await governanceInstance.storage();
+                    mvkTokenStorage                         = await mvkTokenInstance.storage();
+                    const finalRound                        = governanceStorage.currentCycleInfo.round
+                    const finalRoundString                  = Object.keys(finalRound)[0]
 
                     // Assertions
                     assert.equal(finalRoundString, "timelock");
@@ -792,55 +793,6 @@ describe("Governance tests", async () => {
                 }
             })
 
-            // it('User should not be able to call the entrypoint if the current round has not ended yet', async () => {
-            //     try{
-            //         // Initial Values
-            //         governanceStorage = await governanceInstance.storage();
-            //         const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-            //         const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
-            //         const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-            //         const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-            //         const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-            //         const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-            //         const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-            //         const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-            //         const cycleHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
-
-            //         const roundDurationConfig = 1
-
-            //         // Operation
-            //         await signerFactory(bob.sk)
-            //         var updateConfigOperation = await governanceInstance.methods.updateConfig(roundDurationConfig, "configBlocksPerProposalRound").send();
-            //         await updateConfigOperation.confirmation();
-            //         await signerFactory(eve.sk)
-
-            //         await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
-
-            //         // Final values
-            //         governanceStorage = await governanceInstance.storage();
-            //         const finalRound                       = governanceStorage.currentCycleInfo.round
-            //         const finalRoundString                 = Object.keys(finalRound)[0]
-            //         const finalBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-            //         const finalBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-            //         const finalBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-            //         const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-            //         const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-            //         const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-            //         const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
-
-            //         // Assertions
-            //         assert.equal(finalRoundString, currentCycleInfoRoundString);
-            //         assert.equal(finalBlocksPerProposalRound.toNumber(), currentCycleInfoBlocksPerProposalRound.toNumber());
-            //         assert.equal(finalBlocksPerVotingRound.toNumber(), currentCycleInfoBlocksPerVotingRound.toNumber());
-            //         assert.equal(finalBlocksPerTimelockRound.toNumber(), currentCycleInfoBlocksPerTimelockRound.toNumber());
-            //         assert.equal(finalRoundStartLevel.toNumber(), currentCycleInfoRoundStartLevel.toNumber());
-            //         assert.equal(finalRoundEndLevel.toNumber(), currentCycleInfoRoundEndLevel.toNumber());
-            //         assert.equal(finalCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
-            //         assert.equal(finalRoundHighestVotedProposalId.toNumber(), cycleHighestVotedProposalId.toNumber());
-            //     } catch(e){
-            //         console.dir(e, {depth: 5})
-            //     }
-            // })
         })
 
         describe("%propose", async () => {
@@ -867,7 +819,7 @@ describe("Governance tests", async () => {
                     const successReward = governanceStorage.config.successReward
                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-                    const minQuorumStakedMvkTotal = governanceStorage.config.minQuorumStakedMvkTotal
+                    const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
                     const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
                     const cycleCounter = governanceStorage.cycleCounter
@@ -899,7 +851,7 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
                     assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-                    assert.equal(newProposal.minQuorumStakedMvkTotal.toNumber(), minQuorumStakedMvkTotal.toNumber());
+                    assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
                     assert.equal(newProposal.quorumCount.toNumber(), 0);
                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
@@ -957,7 +909,7 @@ describe("Governance tests", async () => {
                     const successReward = governanceStorage.config.successReward
                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-                    const minQuorumStakedMvkTotal = governanceStorage.config.minQuorumStakedMvkTotal
+                    const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
                     const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
                     const cycleCounter = governanceStorage.cycleCounter
@@ -992,7 +944,7 @@ describe("Governance tests", async () => {
                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
                     assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-                    assert.equal(newProposal.minQuorumStakedMvkTotal.toNumber(), minQuorumStakedMvkTotal.toNumber());
+                    assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
                     assert.equal(newProposal.quorumCount.toNumber(), 0);
                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
@@ -1504,9 +1456,9 @@ describe("Governance tests", async () => {
                     const roundVoters           = await governanceStorage.currentCycleInfo.roundVotes;
                     const roundVoter            = await roundVoters.get(eve.pkh);
                     const previousProposal = await governanceStorage.proposalLedger.get(roundVoter);
-                    const previousproposalVoteCount = await previousProposal.proposalVoteCount;
-                    const previousproposalVoters = await previousProposal.proposalVotersMap;
-                    const previousproposalVoter = await previousproposalVoters.get(eve.pkh);
+                    const previousProposalVoteCount = await previousProposal.proposalVoteCount;
+                    const previousProposalVoters = await previousProposal.proposalVotersMap;
+                    const previousProposalVoter = await previousProposalVoters.get(eve.pkh);
 
                     // Add data to proposal for later execution
                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
@@ -1548,17 +1500,17 @@ describe("Governance tests", async () => {
                     const proposalVoter = await proposalVoters.get(eve.pkh);
 
                     const oldProposal = await governanceStorage.proposalLedger.get(roundVoter);
-                    const oldproposalVoteCount = await oldProposal.proposalVoteCount;
-                    const oldproposalVoters = await oldProposal.proposalVotersMap;
-                    const oldproposalVoter = await oldproposalVoters.get(eve.pkh);
+                    const oldProposalVoteCount = await oldProposal.proposalVoteCount;
+                    const oldProposalVoters = await oldProposal.proposalVotersMap;
+                    const oldProposalVoter = await oldProposalVoters.get(eve.pkh);
 
                     // Assertions
                     assert.notEqual(finalRoundVoter.toNumber(), roundVoter.toNumber())
                     assert.notStrictEqual(proposalVoter, undefined)
                     assert.notEqual(proposalVoteCount.toNumber(), 0)
-                    assert.notStrictEqual(previousproposalVoter, undefined)
-                    assert.strictEqual(oldproposalVoter, undefined)
-                    assert.strictEqual(previousproposalVoteCount.toNumber(), oldproposalVoteCount.toNumber() + 1)
+                    assert.notStrictEqual(previousProposalVoter, undefined)
+                    assert.strictEqual(oldProposalVoter, undefined)
+                    assert.strictEqual(previousProposalVoteCount.toNumber(), oldProposalVoteCount.toNumber() + 1)
                 } catch(e){
                     console.dir(e, {depth: 5})
                 }
@@ -1822,7 +1774,7 @@ describe("Governance tests", async () => {
                 try{
                     // Update config
                     await signerFactory(bob.sk);
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMaxProposalsPerDelegate").send();
+                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMaxProposalsPerSatellite").send();
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
@@ -1864,7 +1816,7 @@ describe("Governance tests", async () => {
                 try{
                     // Update config
                     await signerFactory(bob.sk);
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(25,"configMaxProposalsPerDelegate").send();
+                    var updateConfigOperation = await governanceInstance.methods.updateConfig(25,"configMaxProposalsPerSatellite").send();
                     await updateConfigOperation.confirmation();
 
                     // Initial Values
@@ -2206,7 +2158,7 @@ describe("Governance tests", async () => {
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
                     await updateConfigOperation.confirmation();
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumStakedMvkTotal").send();
+                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
                     await updateConfigOperation.confirmation();
@@ -2345,7 +2297,7 @@ describe("Governance tests", async () => {
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
                     await updateConfigOperation.confirmation();
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumStakedMvkTotal").send();
+                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
                     await updateConfigOperation.confirmation();
@@ -2643,7 +2595,7 @@ describe("Governance tests", async () => {
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
                     await updateConfigOperation.confirmation();
-                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumStakedMvkTotal").send();
+                    var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
                     await updateConfigOperation.confirmation();
                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
                     await updateConfigOperation.confirmation();
@@ -2704,8 +2656,14 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
+
+                    await signerFactory(alice.sk)
+                    votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                    await votingRoundVoteOperation.confirmation();
+
+                    await signerFactory(eve.sk)
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
@@ -2714,10 +2672,10 @@ describe("Governance tests", async () => {
                     await startNextRoundOperation.confirmation();
 
                     
-                    governanceStorage           = await governanceInstance.storage();
-                    var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
-                    var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
-                    const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+                    governanceStorage                   = await governanceInstance.storage();
+                    var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
+                    var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
+                    var proposal                      = await governanceStorage.proposalLedger.get(proposalId);
 
                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
                     assert.strictEqual(proposal.executed, true)
@@ -2783,7 +2741,7 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("nay").send();
+                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("nay").send();
                     await votingRoundVoteOperation.confirmation();
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -2852,7 +2810,7 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -2933,7 +2891,7 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -2994,7 +2952,7 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -3057,7 +3015,7 @@ describe("Governance tests", async () => {
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
                     await startNextRoundOperation.confirmation();
 
-                    const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+                    var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
                     await votingRoundVoteOperation.confirmation();
 
                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
