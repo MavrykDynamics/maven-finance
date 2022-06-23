@@ -588,7 +588,7 @@
 //                 assert.equal(governanceAction.governancePurpose,                         purpose);
 //                 assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //                 assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//                 assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//                 assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
@@ -699,7 +699,7 @@
 //               assert.equal(governanceAction.governancePurpose,                         purpose);
 //               assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //               assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//               assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//               assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //               assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //               assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
               
@@ -808,7 +808,7 @@
 //               assert.equal(governanceAction.governancePurpose,                         purpose);
 //               assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //               assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//               assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//               assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //               assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //               assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
               
@@ -919,7 +919,7 @@
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
 //             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
             
@@ -1045,7 +1045,7 @@
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
 //             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
             
@@ -1185,7 +1185,7 @@
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
 //             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
             
@@ -1343,7 +1343,7 @@
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
 //             assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
         
@@ -1390,7 +1390,7 @@
 //             assert.equal(secondGovernanceAction.governancePurpose,                         purpose);
 //             assert.equal(secondGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(secondGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(secondGovernanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(secondGovernanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(secondGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(secondGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
         
@@ -1437,7 +1437,7 @@
 //             assert.equal(thirdGovernanceAction.governancePurpose,                         purpose);
 //             assert.equal(thirdGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(thirdGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(thirdGovernanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(thirdGovernanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(thirdGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(thirdGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
         
@@ -1527,7 +1527,7 @@
 //             assert.equal(fourthGovernanceAction.governancePurpose,                         purposeRemove);
 //             assert.equal(fourthGovernanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //             assert.equal(fourthGovernanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//             assert.equal(fourthGovernanceAction.passVoteTotal.toNumber(),                  0);
+//             assert.equal(fourthGovernanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //             assert.equal(fourthGovernanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //             assert.equal(fourthGovernanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
 
@@ -1656,7 +1656,7 @@
 //                 assert.equal(governanceAction.governancePurpose,                         purpose);
 //                 assert.equal(governanceAction.yayVoteStakedMvkTotal.toNumber(),                   0);
 //                 assert.equal(governanceAction.nayVoteStakedMvkTotal.toNumber(),                   0);
-//                 assert.equal(governanceAction.passVoteTotal.toNumber(),                  0);
+//                 assert.equal(governanceAction.passVoteStakedMvkTotal.toNumber(),                  0);
 //                 assert.equal(governanceAction.stakedMvkPercentageForApproval.toNumber(), 6700);
 //                 assert.equal(governanceAction.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
