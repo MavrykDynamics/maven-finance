@@ -2,17 +2,23 @@
 import Time from 'react-pure-time'
 import { Link } from 'react-router-dom'
 
+// view
 import Icon from '../../../app/App.components/Icon/Icon.view'
+
+// helpers
+import { getSeparateCamelCase } from '../../../utils/parse'
 
 // style
 import { CouncilPastActionStyled } from './CouncilPastAction.style'
 
 type Props = {
   executed_datetime: string
+  action_type: string
+  signers_count: number
 }
 
 export const CouncilPastActionView = (props: Props) => {
-  const { executed_datetime } = props
+  const { executed_datetime, action_type, signers_count } = props
   return (
     <CouncilPastActionStyled>
       <div>
@@ -23,16 +29,16 @@ export const CouncilPastActionView = (props: Props) => {
       </div>
       <div>
         <p>Purpose</p>
-        <h4>Change Council Member</h4>
+        <h4>{getSeparateCamelCase(action_type)}</h4>
       </div>
       <div>
         <p>Approved / vetoed</p>
-        <h4>5/9</h4>
+        <h4>{signers_count}/9</h4>
       </div>
       <figure>
-        <Link to="/">
+        <a target="_blank" href="https://tzkt.io/" rel="noreferrer">
           <Icon id="send" />
-        </Link>
+        </a>
       </figure>
     </CouncilPastActionStyled>
   )
