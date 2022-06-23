@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { downColor, upColor, skyColor, headerColor, royalPurpleColor } from '../../styles/colors'
+import { downColor, upColor, skyColor, headerColor, royalPurpleColor, containerColor } from 'styles'
 
 export const CouncilStyled = styled.section`
   .pending {
@@ -56,6 +56,29 @@ export const CouncilStyled = styled.section`
 
     &.is-user-member {
       margin-top: 9px;
+    }
+  }
+
+  .go-back {
+    display: flex;
+    border: 1px solid ${royalPurpleColor};
+    margin-top: 30px;
+    padding: 26px 30px;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 26px;
+    color: ${headerColor};
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    align-items: center;
+    background-color: ${containerColor};
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: ${headerColor};
+      margin-right: 8px;
     }
   }
 `
