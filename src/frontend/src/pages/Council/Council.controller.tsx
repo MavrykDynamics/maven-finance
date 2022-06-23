@@ -114,6 +114,7 @@ export const Council = () => {
                     key={item.id}
                     action_type={item.action_type}
                     signers_count={item.signers_count}
+                    num_council_members={councilMembers.length}
                   />
                 ))}
               </>
