@@ -20,6 +20,7 @@ import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
+import { CouncilFormToggleVesteeLock } from './CouncilForms/CouncilFormToggleVesteeLock.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 
 // styles
@@ -43,6 +44,7 @@ export const Council = () => {
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
+    { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -144,6 +146,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'addVestee' ? <CouncilFormAddVestee /> : null}
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
+                {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
               </DropdownCard>
             ) : null}
 

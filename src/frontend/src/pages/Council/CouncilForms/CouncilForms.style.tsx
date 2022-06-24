@@ -67,4 +67,11 @@ export const CouncilFormStyled = styled.form`
       }
     }
   }
+
+  .button-aligment {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-bottom: -3px;
+  }
 `
