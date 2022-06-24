@@ -17,11 +17,10 @@ class Config(BaseModel):
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
     minQuorumPercentage: str
-    minQuorumStakedMvkTotal: str
+    minYayVotePercentage: str
     votingPowerRatio: str
     proposalSubmissionFeeMutez: str
-    minimumStakeReqPercentage: str
-    maxProposalsPerDelegate: str
+    maxProposalsPerSatellite: str
     blocksPerMinute: str
     blocksPerProposalRound: str
     blocksPerVotingRound: str
@@ -75,8 +74,8 @@ class Transaction(BaseModel):
         extra = Extra.forbid
 
     to_: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
     amount: str
+    token: Union[TokenItem, TokenItem1, TokenItem2]
 
 
 class PaymentMetadatum(BaseModel):
@@ -156,6 +155,7 @@ class ProposalLedger(BaseModel):
     voters: Dict[str, Voters]
     minQuorumPercentage: str
     minQuorumStakedMvkTotal: str
+    minYayVotePercentage: str
     quorumCount: str
     quorumStakedMvkTotal: str
     startDateTime: str
@@ -210,6 +210,7 @@ class CurrentCycleInfo(BaseModel):
     roundProposers: Dict[str, List[str]]
     roundVotes: Dict[str, str]
     cycleTotalVotersReward: str
+    minQuorumStakedMvkTotal: str
 
 
 class GovernanceStorage(BaseModel):
@@ -231,5 +232,4 @@ class GovernanceStorage(BaseModel):
     cycleCounter: str
     cycleHighestVotedProposalId: str
     timelockProposalId: str
-    snapshotMvkTotalSupply: str
     lambdaLedger: Dict[str, str]

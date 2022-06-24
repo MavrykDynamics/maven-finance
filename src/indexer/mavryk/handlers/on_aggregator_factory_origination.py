@@ -17,7 +17,7 @@ async def on_aggregator_factory_origination(
     track_aggregator_paused         = aggregator_factory_origination.storage.breakGlassConfig.trackAggregatorIsPaused
     untrack_aggregator_paused       = aggregator_factory_origination.storage.breakGlassConfig.untrackAggregatorIsPaused
     distribute_reward_xtz_paused    = aggregator_factory_origination.storage.breakGlassConfig.distributeRewardXtzIsPaused
-    distribute_reward_smvk_paused   = aggregator_factory_origination.storage.breakGlassConfig.distributeRewardMvkIsPaused
+    distribute_reward_smvk_paused   = aggregator_factory_origination.storage.breakGlassConfig.distributeRewardStakedMvkIsPaused
 
     # Get or create governance record
     governance, _                   = await models.Governance.get_or_create(address = governance_address)

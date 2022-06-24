@@ -16,7 +16,6 @@ async def on_aggregator_request_rate_update(
     deviation_trigger_bans              = request_rate_update.storage.deviationTriggerBan
     deviation_trigger_info              = request_rate_update.storage.deviationTriggerInfos
     deviation_oracle_address            = deviation_trigger_info.oracleAddress
-    deviation_amount                    = float(deviation_trigger_info.amount)
     deviation_round_price               = float(deviation_trigger_info.roundPrice)
     switch_block                        = int(request_rate_update.storage.switchBlock)
     round_count                         = int(request_rate_update.storage.round)
@@ -31,7 +30,6 @@ async def on_aggregator_request_rate_update(
     aggregator.round_start_timestamp            = round_start
     aggregator.deviation_trigger_oracle         = deviation_oracle
     aggregator.deviation_trigger_round_price    = deviation_round_price
-    aggregator.deviation_trigger_amount         = deviation_amount
     aggregator.switch_block                     = switch_block
     await aggregator.save()
 

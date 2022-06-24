@@ -40,7 +40,7 @@ class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMaxProposalsPerDelegate: Dict[str, Any]
+    configMaxProposalsPerSatellite: Dict[str, Any]
 
 
 class UpdateConfigActionItem5(BaseModel):
@@ -68,66 +68,59 @@ class UpdateConfigActionItem8(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinQuorumStakedMvkTotal: Dict[str, Any]
+    configMinYayVotePercentage: Dict[str, Any]
 
 
 class UpdateConfigActionItem9(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinimumStakeReqPercentage: Dict[str, Any]
+    configProposalCodeMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem10(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalCodeMaxLength: Dict[str, Any]
+    configProposalDatTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem11(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalDatTitleMaxLength: Dict[str, Any]
+    configProposalDescMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem12(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalDescMaxLength: Dict[str, Any]
+    configProposalInvoiceMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem13(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalInvoiceMaxLength: Dict[str, Any]
+    configProposalTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem14(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalTitleMaxLength: Dict[str, Any]
+    configProposeFeeMutez: Dict[str, Any]
 
 
 class UpdateConfigActionItem15(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposeFeeMutez: Dict[str, Any]
-
-
-class UpdateConfigActionItem16(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     configSuccessReward: Dict[str, Any]
 
 
-class UpdateConfigActionItem17(BaseModel):
+class UpdateConfigActionItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -157,5 +150,4 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem14,
         UpdateConfigActionItem15,
         UpdateConfigActionItem16,
-        UpdateConfigActionItem17,
     ]

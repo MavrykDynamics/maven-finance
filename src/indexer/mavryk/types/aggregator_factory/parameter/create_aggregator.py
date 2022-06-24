@@ -35,3 +35,4 @@ class CreateAggregatorParameter(BaseModel):
     oracleAddresses: Dict[str, bool]
     aggregatorConfig: AggregatorConfig
     maintainer: str
+    metadata: str

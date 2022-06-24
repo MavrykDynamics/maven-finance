@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.3.2
+          image: tezosdynamics/mavryk-indexer:v0.3.3
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.3.2
+          image: tezosdynamics/mavryk-indexer:v0.3.3
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -127,52 +127,52 @@ data:
 
     contracts:
       mvk:
-        address: KT1KFsPe5xskwsXGAyUJtaFnpywh2aQ3t5Um
+        address: KT1DHcwL8EbmzAgxZj4imdzzUWqH7GrEi8gZ
         typename: mvk
       governance:
-        address: KT1VQxcsocKw14JnnrbiKjmVS8oJ9iDapVt2
+        address: KT1DLkCePuaMmUvBsFa3ipWgS63RUP2Vbi7q
         typename: governance
       doorman:
-        address: KT1NPgQZUGxmPp9r7D2ZvCGidmqrmWJBpdsu
+        address: KT1Q3wQaJKmpQAwvwV5kMbuAnTEzEHCkiKKb
         typename: doorman
       farm:
-        address: KT19UGFYo2LjJtmbrhXxjgUi6CvgXehP1HkZ #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
+        address: KT1NwaaduVQgBSkij4murCzodkRKti9YqCH2 #KT1QHCw2KNaSK5gxFRCEEPYgdAooS2frFPrt
         typename: farm
       farm_factory:
-        address: KT1PTfqBTGrRaBbNSQcwngvA2aWSpyN2C4dW
+        address: KT1PXubdHppKyMag6qd6tSk5PSdUWrfntFoQ
         typename: farm_factory
       delegation:
-        address: KT1DYDMans97GVoFWmg31H5BzxikyEmhpxaW
+        address: KT1GZg9YyoHpcayRSpugW1EGMWqMk2QJSW6j
         typename: delegation
       vesting:
-        address: KT1Bbd73ccpFNUzt35UywziSakE7SqzfARiY
+        address: KT1SqMyY2mqdLihuqjLXG4u4ARDD38F3eyuh
         typename: vesting
       emergency_governance:
-        address: KT1H12WLZ9EA8YnJcmPVtxuZN39oAzk6Mfkw
+        address: KT1JuFD3UYTZxj6Ev17GjPcdka2ykm8Gtqc2
         typename: emergency_governance
       council:
-        address: KT1HW8CHca2ehknnxFW8pzui47kReH1kMxbA
+        address: KT1QowTnKxp3mhWAcoeCEKMccNbrdGiB9o2j
         typename: council
       break_glass:
-        address: KT1VB2iHBXriF8NbaKAnN5j321yhsBEQhPay
+        address: KT1VM6ZEkkfvR23N98KpZ6HJVEJ2uyhJruiZ
         typename: break_glass
       governance_financial:
-        address: KT1GT16zSJN2t2ft9tsiJ9uA49Ngvktu3Yus
+        address: KT1DzRuBjvQT6bh2FJbcGvQfCuPpEQxD4Qne
         typename: governance_financial
       governance_satellite:
-        address: KT1D3UC58yYa4qjXQQEtgVSvEywDDmAxTPm2
+        address: KT1G4DecGfPRHx12ZdKZiKAwPnuMj4EAGrF3
         typename: governance_satellite
       aggregator:
-        address: KT1B2qDqFf4f2gKvt6oNkJSdwsN1vQLbAmNp
+        address: KT1V8UhJV4ZvQkTi9P47HsU5PaLJVAMd35nk
         typename: aggregator
       aggregator_factory:
-        address: KT1Lth7ZsjvT7hHvfcn2CRkqe1mbYSAgcVic
+        address: KT1KqkfNwTLJDsD5GrRm7UKZPVarnF56VGGr
         typename: aggregator_factory
       treasury:
-        address: KT1GG6rfr4XcHiGs8Ltc9m8kt4EV2qub9ARa
+        address: KT1SmY8wJnQW7SskDGVzxfnXqzhf2WaxyFg4
         typename: treasury
       treasury_factory:
-        address: KT1ND2MF36nQnpAK6SjwwRHa4XbLWgLsT91S
+        address: KT1UA1pJKQ2nfB2AfMESWA29RTGuXeV4c3Mr
         typename: treasury_factory
 
     datasources:
@@ -572,10 +572,10 @@ data:
             pattern:
               - destination: doorman
                 entrypoint: setGovernance
-          - callback: on_doorman_update_min_mvk_amount
+          - callback: on_doorman_update_config
             pattern:
               - destination: doorman
-                entrypoint: updateMinMvkAmount
+                entrypoint: updateConfig
           - callback: on_doorman_update_whitelist_contracts
             pattern:
               - destination: doorman

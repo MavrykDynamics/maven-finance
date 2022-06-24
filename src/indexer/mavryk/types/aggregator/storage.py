@@ -41,7 +41,6 @@ class DeviationTriggerInfos(BaseModel):
         extra = Extra.forbid
 
     oracleAddress: str
-    amount: str
     roundPrice: str
 
 
