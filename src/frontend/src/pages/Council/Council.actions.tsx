@@ -61,3 +61,51 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
     })
   }
 }
+
+export const SIGN_REQUEST = 'SIGN_REQUEST'
+export const SIGN_RESULT = 'SIGN_RESULT'
+export const SIGN_ERROR = 'SIGN_ERROR'
+export const sign = (actionID: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    if (!actionID?.length) {
+      throw new Error('Check you action')
+    }
+
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
+    console.log('%c ||||| actionID', 'color:yellowgreen', actionID)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.signAction(actionID).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Sign...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Sign done', 'All good :)'))
+
+    dispatch({
+      type: SIGN_RESULT,
+    })
+    dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilPendingActionsStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: SIGN_ERROR,
+      error,
+    })
+  }
+}

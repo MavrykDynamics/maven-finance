@@ -1,9 +1,14 @@
+import { useDispatch, useSelector } from 'react-redux'
+
 // components
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 
 // helpers
 import { getSeparateCamelCase } from '../../../utils/parse'
+
+// actions
+import { sign } from '../Council.actions'
 
 // style
 import { CouncilPendingStyled } from './CouncilPending.style'
@@ -17,7 +22,14 @@ type Props = {
 }
 
 export const CouncilPendingView = (props: Props) => {
+  const dispatch = useDispatch()
   const { executed_datetime, action_type, signers_count, num_council_members, initiator_id } = props
+
+  const handleSign = () => {
+    if (action_type) {
+      dispatch(sign(action_type))
+    }
+  }
 
   return (
     <CouncilPendingStyled>
@@ -30,7 +42,7 @@ export const CouncilPendingView = (props: Props) => {
           {signers_count}/{num_council_members}
         </div>
       </div>
-      <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={() => null} />
+      <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
     </CouncilPendingStyled>
   )
 }
