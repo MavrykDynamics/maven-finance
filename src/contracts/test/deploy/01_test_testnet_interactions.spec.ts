@@ -1185,6 +1185,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin claims', async () => {
             try{
                 // Operation
+                await wait(60 * 1000);
                 const operation = await vestingInstance.methods.claim().send();
                 await operation.confirmation();
             } catch(e){
@@ -2623,10 +2624,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates min quorum mvk total', async () => {
+        it('Admin updates min yay vote mvk total', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(1, "configMinQuorumStakedMvkTotal").send();
+                const operation = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2653,20 +2654,10 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates minimum stake req pct', async () => {
+        it('Admin updates max proposal per satellite', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
-        it('Admin updates max proposal per delegate', async () => {
-            try{
-                // Operation
-                const operation = await governanceInstance.methods.updateConfig(2, "configMaxProposalsPerDelegate").send();
+                const operation = await governanceInstance.methods.updateConfig(2, "configMaxProposalsPerSatellite").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
