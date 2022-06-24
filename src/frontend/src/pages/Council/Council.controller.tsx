@@ -32,8 +32,8 @@ export const Council = () => {
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const [isCoback, setIsCoback] = useState(false)
-  const [isStartState, setIsStartState] = useState(true)
+  const [isGoback, setIsGoback] = useState(false)
+  const [isPendingSignature, setIsPendingSignature] = useState(false)
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
@@ -49,7 +49,7 @@ export const Council = () => {
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
-  const isPendingSignature = isUserInCouncilMembers && councilPendingActions.length
+  // const isPendingSignature = isUserInCouncilMembers && councilPendingActions.length
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -74,12 +74,26 @@ export const Council = () => {
     if (accountPkh) dispatch(getCouncilPendingActionsStorage())
   }, [accountPkh])
 
+  useEffect(() => {
+    setIsPendingSignature(Boolean(isUserInCouncilMembers && councilPendingActions.length))
+  }, [isUserInCouncilMembers, councilPendingActions.length])
+
+  useEffect(() => {
+    // re get data
+  }, [isPendingSignature])
+
   return (
     <Page>
       <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
       <CouncilStyled>
-        {isCoback ? (
-          <button className="go-back">
+        {isGoback ? (
+          <button
+            onClick={() => {
+              setIsPendingSignature(true)
+              setIsGoback(false)
+            }}
+            className="go-back"
+          >
             <Icon id="arrow-left-stroke" />
             Back to Member Dashboard
           </button>
@@ -101,13 +115,18 @@ export const Council = () => {
                 ))}
               </div>
 
-              <CouncilPendingReviewView />
+              <CouncilPendingReviewView
+                onClick={() => {
+                  setIsGoback(true)
+                  setIsPendingSignature(false)
+                }}
+              />
             </article>
           </>
         ) : null}
         <article className={`council-details ${isPendingSignature ? 'is-user-member' : ''}`}>
           <div className="council-actions">
-            {isUserInCouncilMembers ? (
+            {isPendingSignature ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
                   <h2>Available Actions</h2>
@@ -131,7 +150,7 @@ export const Council = () => {
             {councilPastActions?.length ? (
               <>
                 <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
-                  {isUserInCouncilMembers ? 'My ' : null}Past Council Actions
+                  {isPendingSignature ? 'My ' : null}Past Council Actions
                 </h1>
                 {councilPastActions.map((item: CouncilPastAction) => (
                   <CouncilPastActionView
@@ -146,7 +165,7 @@ export const Council = () => {
             ) : null}
           </div>
           {councilMembers.length ? (
-            <aside className={`council-members ${isUserInCouncilMembers ? 'is-user-member' : ''}`}>
+            <aside className={`council-members ${isPendingSignature ? 'is-user-member' : ''}`}>
               <h1>Council Members</h1>
               {councilMembers.map((item: CouncilMember) => (
                 <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
