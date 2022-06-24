@@ -11,27 +11,27 @@ async def on_delegation_update_config(
 ) -> None:
 
     # Get operation values
-    delegationAddress       = update_config.data.target_address
-    updatedValue            = int(update_config.parameter.updateConfigNewValue)
-    updateConfigAction      = type(update_config.parameter.updateConfigAction)
+    delegation_address      = update_config.data.target_address
+    updated_value           = int(update_config.parameter.updateConfigNewValue)
+    update_config_action    = type(update_config.parameter.updateConfigAction)
 
     # Update contract
     delegation = await models.Delegation.get(
-        address = delegationAddress
+        address = delegation_address
     )
-    if updateConfigAction == configDelegationRatio:
-        delegation.delegation_ratio                 = updatedValue
-    elif updateConfigAction == configMaxSatellites:
-        delegation.max_satellites                   = updatedValue
-    elif updateConfigAction == configMinimumStakedMvkBalance:
-        delegation.minimum_smvk_balance             = updatedValue
-    elif updateConfigAction == configSatDescMaxLength:
-        delegation.satellite_description_max_length = updatedValue
-    elif updateConfigAction == configSatImageMaxLength:
-        delegation.satellite_image_max_length       = updatedValue
-    elif updateConfigAction == configSatNameMaxLength:
-        delegation.satellite_name_max_length        = updatedValue
-    elif updateConfigAction == configSatWebsiteMaxLength:
-        delegation.satellite_website_max_length     = updatedValue
+    if update_config_action == configDelegationRatio:
+        delegation.delegation_ratio                 = updated_value
+    elif update_config_action == configMaxSatellites:
+        delegation.max_satellites                   = updated_value
+    elif update_config_action == configMinimumStakedMvkBalance:
+        delegation.minimum_smvk_balance             = updated_value
+    elif update_config_action == configSatDescMaxLength:
+        delegation.satellite_description_max_length = updated_value
+    elif update_config_action == configSatImageMaxLength:
+        delegation.satellite_image_max_length       = updated_value
+    elif update_config_action == configSatNameMaxLength:
+        delegation.satellite_name_max_length        = updated_value
+    elif update_config_action == configSatWebsiteMaxLength:
+        delegation.satellite_website_max_length     = updated_value
     
     await delegation.save()

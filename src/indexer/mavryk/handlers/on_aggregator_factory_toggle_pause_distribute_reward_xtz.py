@@ -16,7 +16,7 @@ async def on_aggregator_factory_toggle_pause_distribute_reward_xtz(
     track_aggregator_paused                             = toggle_pause_distribute_reward_xtz.storage.breakGlassConfig.trackAggregatorIsPaused
     untrack_aggregator_paused                           = toggle_pause_distribute_reward_xtz.storage.breakGlassConfig.untrackAggregatorIsPaused
     distribute_reward_xtz_paused                        = toggle_pause_distribute_reward_xtz.storage.breakGlassConfig.distributeRewardXtzIsPaused
-    distribute_reward_smvk_paused                       = toggle_pause_distribute_reward_xtz.storage.breakGlassConfig.distributeRewardMvkIsPaused
+    distribute_reward_smvk_paused                       = toggle_pause_distribute_reward_xtz.storage.breakGlassConfig.distributeRewardStakedMvkIsPaused
 
     # Update record
     aggregator_factory                                  = await models.AggregatorFactory.get(address    = aggregator_factory_address)

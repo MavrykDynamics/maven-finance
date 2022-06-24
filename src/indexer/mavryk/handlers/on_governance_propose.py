@@ -41,7 +41,7 @@ async def on_governance_propose(
     pass_vote_count        = int(storage_record.passVoteCount)
     pass_vote_smvk         = float(storage_record.passVoteStakedMvkTotal)
     min_quorum_pct         = int(storage_record.minQuorumPercentage)
-    min_quorum_smvk        = float(storage_record.minQuorumStakedMvkTotal)
+    min_yay_vote_percentage= float(storage_record.minYayVotePercentage)
     quorum_count           = int(storage_record.quorumCount)
     quorum_smvk            = float(storage_record.quorumStakedMvkTotal)
     start_datetime         = parser.parse(storage_record.startDateTime)
@@ -80,7 +80,7 @@ async def on_governance_propose(
         pass_vote_count                 = pass_vote_count,
         pass_vote_smvk_total            = pass_vote_smvk,
         min_quorum_percentage           = min_quorum_pct,
-        min_quorum_smvk_total           = min_quorum_smvk,
+        min_yay_vote_percentage         = min_yay_vote_percentage,
         quorum_vote_count               = quorum_count,
         quorum_smvk_total               = quorum_smvk,
         start_datetime                  = start_datetime,

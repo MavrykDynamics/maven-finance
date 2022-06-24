@@ -14,7 +14,7 @@ async def on_delegation_distribute_reward(
     delegation_address      = distribute_reward.data.target_address
     elligible_satellites    = distribute_reward.parameter.eligibleSatellites
     timestamp               = distribute_reward.data.timestamp
-    reward_amount           = float(distribute_reward.parameter.totalSMvkReward)
+    reward_amount           = float(distribute_reward.parameter.totalStakedMvkReward)
 
     # Get and update records
     delegation  = await models.Delegation.get(address = delegation_address)
