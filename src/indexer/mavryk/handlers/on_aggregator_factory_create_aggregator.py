@@ -22,7 +22,6 @@ async def on_aggregator_factory_create_aggregator(
     admin                                       = aggregator_origination.storage.admin
     governance_address                          = aggregator_origination.storage.governanceAddress
     deviation_trigger_oracle_address            = aggregator_origination.storage.deviationTriggerInfos.oracleAddress
-    deviation_trigger_amount                    = float(aggregator_origination.storage.deviationTriggerInfos.amount)
     deviation_trigger_round_price               = float(aggregator_origination.storage.deviationTriggerInfos.roundPrice)
     maintainer_address                          = aggregator_origination.storage.maintainer
     creation_timestamp                          = aggregator_origination.data.timestamp
@@ -98,7 +97,6 @@ async def on_aggregator_factory_create_aggregator(
     aggregator.aggregator_factory                          = aggregator_factory
     aggregator.deviation_trigger_oracle                    = deviation_trigger_oracle
     aggregator.maintainer                                  = maintainer
-    aggregator.deviation_trigger_amount                    = deviation_trigger_amount
     aggregator.deviation_trigger_round_price               = deviation_trigger_round_price
     aggregator.creation_timestamp                          = creation_timestamp
     aggregator.name                                        = name

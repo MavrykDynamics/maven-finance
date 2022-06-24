@@ -18,7 +18,6 @@ async def on_aggregator_request_rate_update_deviation(
     round_count         = int(request_rate_update_deviation.storage.round)
     round_start         = parser.parse(request_rate_update_deviation.storage.roundStart)
     sign                = request_rate_update_deviation.parameter.sign
-    amount              = float(request_rate_update_deviation.storage.deviationTriggerInfos.amount)
     round_price         = float(request_rate_update_deviation.storage.deviationTriggerInfos.roundPrice)
 
     # Create, update and delete records
@@ -30,7 +29,6 @@ async def on_aggregator_request_rate_update_deviation(
     aggregator.round_start_timestamp            = round_start
     aggregator.switch_block                     = switch_block
     aggregator.deviation_trigger_oracle         = oracle
-    aggregator.deviation_trigger_amount         = amount
     aggregator.deviation_trigger_round_price    = round_price
     await aggregator.save()
 

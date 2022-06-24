@@ -17,12 +17,8 @@ async def on_governance_proposal_round_vote(
     voter_address           = proposal_round_vote.data.sender_address
     current_round           = models.GovernanceRoundType.PROPOSAL
     vote                    = models.GovernanceVoteType.YAY
-    
-    # TODO: Remove this quick fix for future contract version (related to opHash: op4JYAsmrrHEvhzTeLTCV93gNEp8feBLoJsmZZviSvQfj69TFX3)
-    voting_power            = 0
-    if voter_address in storage_proposal.proposalVotersMap:
-        storage_voter           = storage_proposal.proposalVotersMap[voter_address]
-        voting_power            = float(storage_voter.nat)
+    storage_voter           = storage_proposal.proposalVotersMap[voter_address]
+    voting_power            = float(storage_voter.nat)
     vote_count              = int(storage_proposal.proposalVoteCount)
     vote_smvk_total         = float(storage_proposal.proposalVoteStakedMvkTotal)
 
