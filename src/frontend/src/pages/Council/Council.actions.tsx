@@ -65,7 +65,7 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
 export const SIGN_REQUEST = 'SIGN_REQUEST'
 export const SIGN_RESULT = 'SIGN_RESULT'
 export const SIGN_ERROR = 'SIGN_ERROR'
-export const sign = (actionID: string) => async (dispatch: any, getState: any) => {
+export const sign = (actionID: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -79,11 +79,7 @@ export const sign = (actionID: string) => async (dispatch: any, getState: any) =
   }
 
   try {
-    if (!actionID?.length) {
-      throw new Error('Check you action')
-    }
-
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
     console.log('%c ||||| actionID', 'color:yellowgreen', actionID)
     console.log('contract', contract)
     const transaction = await contract?.methods.signAction(actionID).send()

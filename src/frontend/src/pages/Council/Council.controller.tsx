@@ -45,13 +45,13 @@ export const Council = () => {
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
     { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
+    { text: 'Change Council Member', value: 'changeCouncilMember' },
   ]
+  // CouncilFormChangeCouncilMember.view.tsx
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
-
-  // const isPendingSignature = isUserInCouncilMembers && councilPendingActions.length
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -109,6 +109,7 @@ export const Council = () => {
                   <CouncilPendingView
                     executed_datetime={item.executed_datetime}
                     key={item.id}
+                    id={item.id}
                     action_type={item.action_type}
                     signers_count={item.signers_count}
                     initiator_id={item.initiator_id}

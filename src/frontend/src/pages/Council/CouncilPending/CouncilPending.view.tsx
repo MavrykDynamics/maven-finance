@@ -19,15 +19,16 @@ type Props = {
   initiator_id: string
   signers_count: number
   num_council_members: number
+  id: number
 }
 
 export const CouncilPendingView = (props: Props) => {
   const dispatch = useDispatch()
-  const { executed_datetime, action_type, signers_count, num_council_members, initiator_id } = props
+  const { executed_datetime, action_type, signers_count, num_council_members, initiator_id, id } = props
 
   const handleSign = () => {
-    if (action_type) {
-      dispatch(sign(action_type))
+    if (id) {
+      dispatch(sign(id))
     }
   }
 
