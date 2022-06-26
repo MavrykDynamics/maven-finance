@@ -62,6 +62,7 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
   }
 }
 
+// Sign
 export const SIGN_REQUEST = 'SIGN_REQUEST'
 export const SIGN_RESULT = 'SIGN_RESULT'
 export const SIGN_ERROR = 'SIGN_ERROR'
@@ -79,6 +80,9 @@ export const sign = (actionID: number) => async (dispatch: any, getState: any) =
   }
 
   try {
+    dispatch({
+      type: SIGN_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
     console.log('%c ||||| actionID', 'color:yellowgreen', actionID)
     console.log('contract', contract)
@@ -105,3 +109,54 @@ export const sign = (actionID: number) => async (dispatch: any, getState: any) =
     })
   }
 }
+
+// Add Vestee
+export const ADD_VESTEE_REQUEST = 'ADD_VESTEE_REQUEST'
+export const ADD_VESTEE_RESULT = 'ADD_VESTEE_RESULT'
+export const ADD_VESTEE_ERROR = 'ADD_VESTEE_ERROR'
+export const addVestee =
+  (vesteeAddress: string, totalAllocated: number, cliffInMonths: number, vestingInMonths: number) =>
+  async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: ADD_VESTEE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Add Vestee...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Add Vestee done', 'All good :)'))
+
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
+      dispatch({
+        type: ADD_VESTEE_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: ADD_VESTEE_ERROR,
+        error,
+      })
+    }
+  }
