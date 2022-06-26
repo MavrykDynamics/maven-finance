@@ -242,3 +242,54 @@ export const addCouncilMember =
       })
     }
   }
+
+// Add Vestee
+export const UPDATE_VESTEE_REQUEST = 'UPDATE_VESTEE_REQUEST'
+export const UPDATE_VESTEE_RESULT = 'UPDATE_VESTEE_RESULT'
+export const UPDATE_VESTEE_ERROR = 'UPDATE_VESTEE_ERROR'
+export const updateVestee =
+  (vesteeAddress: string, totalAllocated: number, cliffInMonths: number, vestingInMonths: number) =>
+  async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: UPDATE_VESTEE_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Update Vestee...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Update Vestee done', 'All good :)'))
+
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
+      dispatch({
+        type: UPDATE_VESTEE_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UPDATE_VESTEE_ERROR,
+        error,
+      })
+    }
+  }
