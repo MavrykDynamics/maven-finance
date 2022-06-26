@@ -13,6 +13,8 @@ export const CouncilStyled = styled.section`
     width: 100%;
     display: flex;
     gap: 20px;
+    max-width: 750px;
+    overflow: auto;
   }
 
   h1 {

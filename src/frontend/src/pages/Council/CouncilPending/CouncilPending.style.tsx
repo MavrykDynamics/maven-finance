@@ -6,6 +6,7 @@ export const CouncilPendingStyled = styled(Card)`
   width: 100%;
   padding: 25px;
   padding-bottom: 28px;
+  min-width: 237px;
 
   h3 {
     max-width: 190px;

@@ -3,6 +3,7 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
+import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import {
   COUNCIL_PAST_ACTIONS_QUERY,
   COUNCIL_PAST_ACTIONS_NAME,
@@ -10,7 +11,27 @@ import {
   COUNCIL_PENDING_ACTIONS_QUERY,
   COUNCIL_PENDING_ACTIONS_NAME,
   COUNCIL_PENDING_ACTIONS_VARIABLE,
+  COUNCIL_STORAGE_QUERY,
+  COUNCIL_STORAGE_QUERY_NAME,
+  COUNCIL_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries/getCouncilStorage'
+
+export const GET_COUNCIL_STORAGE = 'GET_COUNCIL_STORAGE'
+export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  const storage = await fetchFromIndexerWithPromise(
+    COUNCIL_STORAGE_QUERY,
+    COUNCIL_STORAGE_QUERY_NAME,
+    COUNCIL_STORAGE_QUERY_VARIABLE,
+  )
+  const convertedStorage = storageToTypeConverter('council', storage?.council[0])
+
+  dispatch({
+    type: GET_COUNCIL_STORAGE,
+    councilStorage: convertedStorage,
+  })
+}
 
 export const GET_COUNCIL_PAST_ACTIONS_STORAGE = 'GET_COUNCIL_PAST_ACTIONS_STORAGE'
 export const getCouncilPastActionsStorage = () => async (dispatch: any, getState: any) => {
@@ -48,9 +69,18 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
 
+    const councilPendingActions = storage?.council_action_record?.length
+      ? storage?.council_action_record.filter((item: any) => {
+          const timeNow = Date.now()
+          const expirationDatetime = new Date(item.expiration_datetime).getTime()
+          const isEndedVotingTime = expirationDatetime > timeNow
+          return isEndedVotingTime
+        })
+      : []
+
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
-      councilPendingActions: storage.council_action_record,
+      councilPendingActions,
     })
   } catch (error: any) {
     console.error(error)
@@ -156,6 +186,58 @@ export const addVestee =
       dispatch(showToaster(ERROR, 'Error', error.message))
       dispatch({
         type: ADD_VESTEE_ERROR,
+        error,
+      })
+    }
+  }
+
+// Add member
+export const ADD_MEMBER_REQUEST = 'ADD_MEMBER_REQUEST'
+export const ADD_MEMBER_RESULT = 'ADD_MEMBER_RESULT'
+export const ADD_MEMBER_ERROR = 'ADD_MEMBER_ERROR'
+export const addCouncilMember =
+  (newMemberAddress: string, newMemberName: string, newMemberWebsite: string, newMemberImage: string) =>
+  async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: ADD_MEMBER_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .councilActionAddMember(newMemberAddress, newMemberName, newMemberWebsite, newMemberImage)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Add Council Member...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Add Council Member done', 'All good :)'))
+
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
+      dispatch(getCouncilStorage())
+      dispatch({
+        type: ADD_MEMBER_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: ADD_MEMBER_ERROR,
         error,
       })
     }
