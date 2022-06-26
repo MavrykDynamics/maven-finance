@@ -15,14 +15,16 @@ import { addVestee } from '../Council.actions'
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
+const INIT_FORM = {
+  vesteeAddress: '',
+  totalAllocated: '',
+  cliffInMonths: '',
+  vestingInMonths: '',
+}
+
 export const CouncilFormAddVestee = () => {
   const dispatch = useDispatch()
-  const [form, setForm] = useState({
-    vesteeAddress: '',
-    totalAllocated: '',
-    cliffInMonths: '',
-    vestingInMonths: '',
-  })
+  const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     vesteeAddress: '',
@@ -33,9 +35,20 @@ export const CouncilFormAddVestee = () => {
 
   const { vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths } = form
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault()
-    dispatch(addVestee(vesteeAddress, +totalAllocated, +cliffInMonths, +vestingInMonths))
+    try {
+      await dispatch(addVestee(vesteeAddress, +totalAllocated, +cliffInMonths, +vestingInMonths))
+      setForm(INIT_FORM)
+      setFormInputStatus({
+        vesteeAddress: '',
+        totalAllocated: '',
+        cliffInMonths: '',
+        vestingInMonths: '',
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const handleChange = (e: any) => {
