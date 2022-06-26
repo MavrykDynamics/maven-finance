@@ -1,15 +1,57 @@
-import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+
+// type
+import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
+
+// view
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
+
+// action
+import { addVestee } from '../Council.actions'
 
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
 export const CouncilFormAddVestee = () => {
+  const dispatch = useDispatch()
+  const [form, setForm] = useState({
+    vesteeAddress: '',
+    totalAllocated: '',
+    cliffInMonths: '',
+    vestingInMonths: '',
+  })
+
+  const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
+    vesteeAddress: '',
+    totalAllocated: '',
+    cliffInMonths: '',
+    vestingInMonths: '',
+  })
+
+  const { vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths } = form
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault()
+    dispatch(addVestee(vesteeAddress, +totalAllocated, +cliffInMonths, +vestingInMonths))
+  }
+
+  const handleChange = (e: any) => {
+    setForm((prev) => {
+      return { ...prev, [e.target.name]: e.target.value }
+    })
+  }
+
+  const handleBlur = (e: any) => {
+    setFormInputStatus((prev) => {
+      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
+    })
+  }
+
   return (
-    <CouncilFormStyled>
+    <CouncilFormStyled onSubmit={handleSubmit}>
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
         <Icon id="question" />
       </a>
@@ -18,30 +60,74 @@ export const CouncilFormAddVestee = () => {
       <div className="form-grid">
         <div>
           <label>Vestee Address</label>
-          <Input type="text" value={''} onChange={() => null} onBlur={() => {}} />
+          <Input
+            type="text"
+            required
+            value={vesteeAddress}
+            name="vesteeAddress"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.vesteeAddress}
+          />
         </div>
 
         <div>
           <label>Total Allocated Amount</label>
-          <Input type="text" value={''} onChange={() => null} onBlur={() => {}} />
+          <Input
+            type="number"
+            required
+            value={totalAllocated}
+            name="totalAllocated"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.totalAllocated}
+          />
         </div>
 
         <div>
           <label>
             Cliff Period <small>(in months)</small>
           </label>
-          <Input type="text" value={''} onChange={() => null} onBlur={() => {}} />
+          <Input
+            type="number"
+            required
+            value={cliffInMonths}
+            name="cliffInMonths"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.cliffInMonths}
+          />
         </div>
 
         <div>
           <label>
             Vesting Period <small>(in months)</small>
           </label>
-          <Input type="text" value={''} onChange={() => null} onBlur={() => {}} />
+          <Input
+            type="number"
+            required
+            value={vestingInMonths}
+            name="vestingInMonths"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.vestingInMonths}
+          />
         </div>
       </div>
       <div className="btn-group">
-        <Button text="Add Vestee" className="plus-btn" kind={'actionPrimary'} icon="plus" onClick={() => null} />
+        <Button text="Add Vestee" className="plus-btn" kind={'actionPrimary'} icon="plus" type="submit" />
       </div>
     </CouncilFormStyled>
   )
