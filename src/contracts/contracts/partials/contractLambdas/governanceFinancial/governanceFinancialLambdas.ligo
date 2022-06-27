@@ -591,13 +591,13 @@ block {
                     | None            -> failwith(error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND)
                 ]; 
 
-                const satelliteSnapshotRecord : financialRequestSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
+                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
                       Some(_record) -> _record
                     | None          -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
 
                 // Save and update satellite's vote record
-                const voteType         : voteForRequestChoiceType   = voteForRequest.vote;
+                const voteType         : voteType   = voteForRequest.vote;
                 const totalVotingPower : nat                        = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted

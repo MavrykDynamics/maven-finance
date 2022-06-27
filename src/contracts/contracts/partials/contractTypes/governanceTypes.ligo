@@ -1,13 +1,9 @@
 // ------------------------------------------------------------------------------
-// General Types
+// Needed Types
 // ------------------------------------------------------------------------------
 
-
-type proposalIdType is nat
-type requestIdType is nat; 
-type metadata is big_map (string, bytes);
-
-
+// Vote Types
+#include "../shared/voteTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Governance Cycle Round Types
@@ -36,15 +32,11 @@ type proposalRoundVoteType is (nat * timestamp)                             // t
 type proposalVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
-type voteForProposalChoiceType is 
-  Yay     of unit
-| Nay     of unit
-| Pass    of unit
 type votingRoundVoteType is [@layout:comb] record [
-  vote  : voteForProposalChoiceType;
+  vote  : voteType;
   empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
-type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is pass * total voting power (MVK) * timestamp
+type votingRoundRecordType is (nat * timestamp * voteType)   // 1 is Yay, 0 is Nay, 2 is pass * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundRecordType)
 
 type proposalRecordType is [@layout:comb] record [
@@ -94,13 +86,13 @@ type proposalRecordType is [@layout:comb] record [
 type proposalLedgerType is big_map (nat, proposalRecordType);
 
 // snapshot will be valid for current cycle only (proposal + voting rounds)
-type snapshotRecordType is [@layout:comb] record [
+type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
     totalVotingPower          : nat;      // log calculated total voting power 
     cycle                     : nat;      // log of the cycle where the snapshot was taken
 ]
-type snapshotLedgerType is map (address, snapshotRecordType);
+type snapshotLedgerType is map (address, governanceSatelliteSnapshotRecordType);
 
 // ------------------------------------------------------------------------------
 // Governance Config Types
@@ -172,8 +164,6 @@ type roundType       is
 | Voting                    of unit
 | Timelock                  of unit
 
-type proxyLambdaLedgerType is big_map(nat, bytes)
-
 type currentCycleInfoType is [@layout:comb] record[
     round                       : roundType;               // proposal, voting, timelock
     blocksPerProposalRound      : nat;                     // to determine duration of proposal round
@@ -193,20 +183,14 @@ type currentCycleInfoType is [@layout:comb] record[
 // Governance Entrypoint Types
 // ------------------------------------------------------------------------------
 
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
 type updateProposalDataType is [@layout:comb] record [
-  proposalId         : nat;
+  proposalId         : actionIdType;
   title              : string;
   proposalBytes      : bytes;
 ]
 
 type updatePaymentDataType is [@layout:comb] record [
-  proposalId         : nat;
+  proposalId         : actionIdType;
   title              : string;
   paymentTransaction : transferDestinationType;
 ]
@@ -239,8 +223,8 @@ type governanceLambdaActionType is
 | LambdaSetGovernanceProxy                    of address
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceUpdateConfigParamsType
-| LambdaUpdateGeneralContracts                of updateGeneralContractsParams
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts                of updateGeneralContractsType
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
 | LambdaUpdateWhitelistDevelopers             of (address)
 | LambdaMistakenTransfer                      of transferActionType
 | LambdaSetContractAdmin                      of setContractAdminType
@@ -249,15 +233,15 @@ type governanceLambdaActionType is
   // Governance Cycle Lambdas
 | LambdaStartNextRound                        of (bool)
 | LambdaPropose                               of newProposalType
-| LambdaProposalRoundVote                     of proposalIdType
+| LambdaProposalRoundVote                     of actionIdType
 | LambdaUpdateProposalData                 of updateProposalDataType
 | LambdaUpdatePaymentData                  of updatePaymentDataType
-| LambdaLockProposal                          of proposalIdType
+| LambdaLockProposal                          of actionIdType
 | LambdaVotingRoundVote                       of votingRoundVoteType
 | LambdaExecuteProposal                       of (unit)
-| LambdaProcessProposalPayment                of proposalIdType
+| LambdaProcessProposalPayment                of actionIdType
 | LambdaProcessProposalSingleData             of (unit)
-| LambdaDropProposal                          of proposalIdType
+| LambdaDropProposal                          of actionIdType
 
 
 // ------------------------------------------------------------------------------
@@ -265,10 +249,10 @@ type governanceLambdaActionType is
 // ------------------------------------------------------------------------------
 
 
-type governanceStorage is [@layout:comb] record [
+type governanceStorageType is [@layout:comb] record [
     
     admin                             : address;
-    metadata                          : metadata;
+    metadata                          : metadataType;
     config                            : governanceConfigType;
 
     mvkTokenAddress                   : address;

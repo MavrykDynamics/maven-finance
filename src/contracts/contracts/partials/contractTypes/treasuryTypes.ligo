@@ -1,11 +1,5 @@
 // Treasury Transfer Types
-#include "../../partials/transferTypes.ligo"
-
-type metadata is big_map (string, bytes);
-
-type operator is address
-type owner is address
-type tokenId is nat;
+#include "../../partials/shared/transferTypes.ligo"
 
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
@@ -19,19 +13,6 @@ type mintMvkAndTransferType is [@layout:comb] record [
     amt             : nat;
 ]
 
-type updateSatelliteBalanceParams is (address)
-
-type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
-]
-type lambdaLedgerType is map(string, bytes)
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
 type treasuryLambdaActionType is 
 
   // Housekeeping Entrypoints
@@ -40,9 +21,9 @@ type treasuryLambdaActionType is
 | LambdaSetBaker                       of option(key_hash)
 | LambdaSetName                        of (string)
 | LambdaUpdateMetadata                 of updateMetadataType
-| LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
-| LambdaUpdateGeneralContracts         of updateGeneralContractsParams
-| LambdaUpdateWhitelistTokens          of updateWhitelistTokenContractsParams
+| LambdaUpdateWhitelistContracts       of updateWhitelistContractsType
+| LambdaUpdateGeneralContracts         of updateGeneralContractsType
+| LambdaUpdateWhitelistTokens          of updateWhitelistTokenContractsType
 
   // Pause / Break Glass Entrypoints
 | LambdaPauseAll                       of (unit)
@@ -55,7 +36,7 @@ type treasuryLambdaActionType is
   // Treasury Entrypoints
 | LambdaTransfer                       of transferActionType
 | LambdaMintMvkAndTransfer             of mintMvkAndTransferType
-| LambdaUpdateMvkOperators             of updateOperatorsParams
+| LambdaUpdateMvkOperators             of updateOperatorsType
 | LambdaStakeMvk                       of (nat)
 | LambdaUnstakeMvk                     of (nat)
 
@@ -63,9 +44,9 @@ type treasuryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type treasuryStorage is [@layout:comb] record [
+type treasuryStorageType is [@layout:comb] record [
     admin                      : address;
-    metadata                   : metadata;
+    metadata                   : metadataType;
     name                       : string;
     
     mvkTokenAddress            : address;

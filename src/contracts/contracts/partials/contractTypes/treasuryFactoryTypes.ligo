@@ -2,18 +2,10 @@
 // Treasury Factory Types
 // ------------------------------------------------------------------------------
 
-type metadata is big_map (string, bytes);
-
 type treasuryFactoryBreakGlassConfigType is record [
     createTreasuryIsPaused     : bool;
     trackTreasuryIsPaused      : bool;
     untrackTreasuryIsPaused    : bool;
-]
-
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
 ]
 
 type createTreasuryType is [@layout:comb] record[
@@ -44,9 +36,9 @@ type treasuryFactoryLambdaActionType is
 |   LambdaSetGovernance                       of (address)
 |   LambdaUpdateMetadata                      of updateMetadataType
 |   LambdaUpdateConfig                        of treasuryFactoryUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts            of updateWhitelistContractsParams
-|   LambdaUpdateGeneralContracts              of updateGeneralContractsParams
-|   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsParams
+|   LambdaUpdateWhitelistContracts            of updateWhitelistContractsType
+|   LambdaUpdateGeneralContracts              of updateGeneralContractsType
+|   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsType
 |   LambdaMistakenTransfer                    of transferActionType
 
     // Pause / Break Glass Entrypoints
@@ -65,9 +57,9 @@ type treasuryFactoryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type treasuryFactoryStorage is [@layout:comb] record[
+type treasuryFactoryStorageType is [@layout:comb] record[
     admin                      : address;
-    metadata                   : metadata;
+    metadata                   : metadataType;
     config                     : treasuryFactoryConfigType;
 
     mvkTokenAddress            : address;

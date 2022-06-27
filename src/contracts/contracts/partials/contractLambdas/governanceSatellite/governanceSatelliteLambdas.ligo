@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
@@ -44,7 +44,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUpdateMetadata(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -65,7 +65,7 @@ block {
 
 
 (*  updateConfig lambda  *)
-function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is 
+function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -93,7 +93,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage): return is
+function lambdaUpdateWhitelistContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType): return is
 block {
     
     // check that sender is admin
@@ -111,7 +111,7 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage): return is
+function lambdaUpdateGeneralContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType): return is
 block {
     
     // check that sender is admin
@@ -137,7 +137,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  suspendSatellite lambda *)
-function lambdaSuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -272,7 +272,7 @@ block {
 
 
 (*  unsuspendSatellite lambda *)
-function lambdaUnsuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUnsuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -406,7 +406,7 @@ block {
 
 
 (*  banSatellite lambda *)
-function lambdaBanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaBanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -540,7 +540,7 @@ block {
 
 
 (*  unbanSatellite lambda *)
-function lambdaUnbanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUnbanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -682,7 +682,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  removeAllSatelliteOracles lambda *)
-function lambdaRemoveAllSatelliteOracles(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaRemoveAllSatelliteOracles(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -816,7 +816,7 @@ block {
 
 
 (*  addOracleToAggregator lambda *)
-function lambdaAddOracleToAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaAddOracleToAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -942,7 +942,7 @@ block {
 
 
 (*  removeOracleInAggregator lambda *)
-function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1077,7 +1077,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAggregatorMaintainer lambda *)
-function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1203,7 +1203,7 @@ block {
 
 
 (*  registerAggregator lambda *)
-function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1245,7 +1245,7 @@ block {
 
 
 (*  updateAggregatorStatus lambda *)
-function lambdaUpdateAggregatorStatus(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUpdateAggregatorStatus(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1380,7 +1380,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  dropAction lambda *)
-function lambdaDropAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaDropAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1436,7 +1436,7 @@ block {
 
 
 (*  voteForAction lambda *)
-function lambdaVoteForAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaVoteForAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1483,13 +1483,13 @@ block {
                     | None            -> failwith(error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND)
                 ]; 
 
-                const satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType = case governanceSatelliteActionSnapshot[Tezos.sender] of [ 
+                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case governanceSatelliteActionSnapshot[Tezos.sender] of [ 
                       Some(_record) -> _record
                     | None          -> failwith(error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT)
                 ];
 
                 // Save and update satellite's vote record
-                const voteType         : governanceSatelliteVoteChoiceType   = voteForAction.vote;
+                const voteType         : voteType   = voteForAction.vote;
                 const totalVotingPower : nat                                 = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted

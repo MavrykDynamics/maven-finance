@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  breakGlass lambda *)
-function lambdaBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -38,7 +38,7 @@ block {
 
 
 (*  propagateBreakGlass lambda *)
-function lambdaPropagateBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaPropagateBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -100,7 +100,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaSetAdmin(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -132,7 +132,7 @@ block {
 
 
 (*  setGovernanceProxy lambda *)
-function lambdaSetGovernanceProxy(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaSetGovernanceProxy(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -150,7 +150,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaUpdateMetadata(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -171,7 +171,7 @@ block {
 
 
 (*  updateConfig lambda *)
-function lambdaUpdateConfig(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaUpdateConfig(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -216,7 +216,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -234,7 +234,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage): return is
+function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -251,7 +251,7 @@ block {
 
 
 (*  updateWhitelistDevelopersContracts lambda *)
-function lambdaUpdateWhitelistDevelopers(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaUpdateWhitelistDevelopers(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -274,7 +274,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaMistakenTransfer(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -307,7 +307,7 @@ block {
 
 
 (*  setContractAdmin lambda *)
-function lambdaSetContractAdmin(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaSetContractAdmin(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -332,7 +332,7 @@ block {
 
 
 (*  setContractGovernance lambda *)
-function lambdaSetContractGovernance(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaSetContractGovernance(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -365,7 +365,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  startNextRound lambda *)
-function lambdaStartNextRound(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaStartNextRound(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
 
   // Current round hass not ended
@@ -453,7 +453,7 @@ block {
 
 
 (* propose lambda *)
-function lambdaPropose(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaPropose(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -503,7 +503,7 @@ block {
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -652,7 +652,7 @@ block {
 
 
 (* updateProposalData lambda *)
-function lambdaUpdateProposalData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaUpdateProposalData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
@@ -739,7 +739,7 @@ block {
 
 
 (* updatePaymentData lambda *)
-function lambdaUpdatePaymentData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaUpdatePaymentData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
@@ -826,7 +826,7 @@ block {
 
 
 (* lockProposal lambda *)
-function lambdaLockProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaLockProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
@@ -874,7 +874,7 @@ block {
 
 
 (* proposalRoundVote lambda *)
-function lambdaProposalRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaProposalRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -909,7 +909,7 @@ block {
 
                 ];
 
-                const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -1013,7 +1013,7 @@ block {
 
 
 (* votingRoundVote lambda *)
-function lambdaVotingRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaVotingRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -1032,7 +1032,7 @@ block {
         | LambdaVotingRoundVote(voteRecord) -> {
 
                 // get vote from record 
-                const voteType: voteForProposalChoiceType   = voteRecord.vote;
+                const voteType: voteType   = voteRecord.vote;
                 
                 // check if satellite exists in the active satellites map
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -1052,7 +1052,7 @@ block {
 
                 ];
 
-                const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -1089,7 +1089,7 @@ block {
                     // satellite has already voted - change of vote
                     
                     // get previous vote
-                    var previousVote : (nat * timestamp * voteForProposalChoiceType) := case _proposal.voters[Tezos.sender] of [ 
+                    var previousVote : (nat * timestamp * voteType) := case _proposal.voters[Tezos.sender] of [ 
                         | None                -> failwith(error_VOTE_NOT_FOUND)
                         | Some(_previousVote) -> _previousVote
                     ];
@@ -1123,7 +1123,7 @@ block {
 
 
 (* executeProposal lambda *)
-function lambdaExecuteProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaExecuteProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
     // Steps Overview: 
     // 1. verify that user is a satellite and can execute proposal
@@ -1206,7 +1206,7 @@ block {
 
 
 (* processProposalPayment lambda *)
-function lambdaProcessProposalPayment(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaProcessProposalPayment(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
     
     // Steps Overview: 
@@ -1296,7 +1296,7 @@ block {
 
 
 (* processProposalSingleData lambda *)
-function lambdaProcessProposalSingleData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaProcessProposalSingleData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     var operations : list(operation) := nil;
@@ -1377,7 +1377,7 @@ block {
 
 
 (* dropProposal lambda *)
-function lambdaDropProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaDropProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview: 

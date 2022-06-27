@@ -1,7 +1,3 @@
-type setAdminParams is address;
-type metadataType is big_map (string, bytes);
-type lambdaLedgerType is map(string, bytes)
-
 type trackedAggregatorsType is map (string * string, address)
 
 type trackAggregatorParamsType is [@layout:comb] record [
@@ -35,13 +31,6 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
     distributeRewardStakedMvkIsPaused   : bool;
 ]
 
-type aggregatorMetadataType is [@layout:comb] record[
-    name                     : string;
-    description              : string;
-    version                  : string;
-    authors                  : string;
-]
-
 type createAggregatorParamsType is string * string * [@layout:comb] record[
   name                    : string;
   addToGeneralContracts   : bool;
@@ -51,16 +40,6 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
   aggregatorConfig        : aggregatorConfigType;
   maintainer              : address;
   metadata                : bytes;
-];
-
-type updateAggregatorConfigParamsType is [@layout:comb] record [
-  satelliteAddress: address;
-  aggregatorConfig: aggregatorConfigType;
-];
-
-type updateAggregatorAdminParamsType is [@layout:comb] record [
-  satelliteAddress: address;
-  adminAddress: address;
 ];
 
 type registerAggregatorActionType is [@layout:comb] record [
@@ -87,8 +66,8 @@ type aggregatorFactoryLambdaActionType is
   | LambdaSetGovernance                 of (address)
   | LambdaUpdateMetadata                of updateMetadataType
   | LambdaUpdateConfig                  of aggregatorFactoryUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
-  | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+  | LambdaUpdateGeneralContracts        of updateGeneralContractsType
 
       // Pause / Break Glass Entrypoints
   | LambdaPauseAll                      of (unit)
@@ -112,7 +91,7 @@ type aggregatorFactoryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type aggregatorFactoryStorage is [@layout:comb] record [
+type aggregatorFactoryStorageType is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
     config                  : aggregatorFactoryConfigType;
