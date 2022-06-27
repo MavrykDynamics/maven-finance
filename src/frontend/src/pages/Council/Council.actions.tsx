@@ -62,19 +62,21 @@ export const GET_COUNCIL_PENDING_ACTIONS_STORAGE = 'GET_COUNCIL_PENDING_ACTIONS_
 export const getCouncilPendingActionsStorage = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
+  const accountPkh = state.wallet.accountPkh
+
   try {
     const storage = await fetchFromIndexerWithPromise(
       COUNCIL_PENDING_ACTIONS_QUERY,
       COUNCIL_PENDING_ACTIONS_NAME,
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
-
     const councilPendingActions = storage?.council_action_record?.length
       ? storage?.council_action_record.filter((item: any) => {
           const timeNow = Date.now()
           const expirationDatetime = new Date(item.expiration_datetime).getTime()
           const isEndedVotingTime = expirationDatetime > timeNow
-          return isEndedVotingTime
+          const isNoSameAccountPkh = accountPkh !== item.initiator_id
+          return isEndedVotingTime && isNoSameAccountPkh
         })
       : []
 

@@ -36,6 +36,14 @@ export const CouncilStyled = styled.section`
     margin-left: 30px;
     flex-shrink: 0;
 
+    &.is-user-member {
+      padding-top: 30px;
+    }
+
+    &.is-pending-list {
+      padding-top: 86px;
+    }
+
     h1 {
       margin-top: 0;
       margin-bottom: 9px;
