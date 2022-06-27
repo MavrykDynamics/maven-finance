@@ -1,20 +1,26 @@
-type signersType is set(address)
+// ------------------------------------------------------------------------------
+// Needed Types
+// ------------------------------------------------------------------------------
 
-type metadataType is big_map (string, bytes);
+// Council Types
+#include "../shared/councilMemberTypes.ligo"
 
-type addressMapType   is map(string, address);
-type stringMapType    is map(string, string);
-type natMapType       is map(string, nat);
+// Vote Types
+#include "../shared/voteTypes.ligo"
+
+// ------------------------------------------------------------------------------
+// Types definition
+// ------------------------------------------------------------------------------
 
 type councilActionRecordType is [@layout:comb] record [
 
     initiator                  : address;          // address of action initiator
     actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
     signers                    : signersType;      // set of signers
+    executed                   : bool;             // boolean of whether action has been executed
 
     status                     : string;           // PENDING / FLUSHED / EXECUTED 
     signersCount               : nat;              // total number of signers
-    executed                   : bool;             // boolean of whether action has been executed
 
     addressMap                 : addressMapType;
     stringMap                  : stringMapType;
@@ -28,7 +34,7 @@ type councilActionRecordType is [@layout:comb] record [
     expirationDateTime         : timestamp;        // timestamp of when action will expire
 ]
 
-type councilActionsLedgerType is big_map(nat, councilActionRecordType)
+type councilActionsLedgerType is big_map(actionIdType, councilActionRecordType)
 
 type councilConfigType is [@layout:comb] record [
     threshold                       : nat;                 // min number of council members who need to agree on action
@@ -45,9 +51,6 @@ type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [
     contractAddress             : address;
     newBlocksPerMinute          : nat;
 ] 
-
-type flushActionType is (nat)
-type signActionType is (nat)
 
 type councilUpdateConfigNewValueType is nat
 type councilUpdateConfigActionType is 
@@ -79,16 +82,6 @@ type councilActionRequestMintType is [@layout:comb] record [
     purpose          : string;   // financial request purpose
 ]
 
-type tokenBalance is nat
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: tokenBalance;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
 type councilActionTransferType is [@layout:comb] record [
     receiverAddress       : address;       // receiver address
     tokenContractAddress  : address;       // token contract address
@@ -98,45 +91,11 @@ type councilActionTransferType is [@layout:comb] record [
     purpose               : string;           
 ]
 
-type councilActionAddMemberType is [@layout:comb] record [
-    memberAddress       : address;
-    memberName          : string;
-    memberWebsite       : string;
-    memberImage         : string;
-]
-
-type councilActionChangeMemberType is [@layout:comb] record [
-    oldCouncilMemberAddress           : address;
-    newCouncilMemberAddress           : address;
-    newCouncilMemberName              : string;
-    newCouncilMemberWebsite           : string;
-    newCouncilMemberImage             : string;
-]
-
-type councilMemberInfoType is [@layout:comb] record [
-    name          : string;
-    website       : string;
-    image         : string;
-]
-
-type councilMembersType is map(address, councilMemberInfoType)
-
 type setBakerType is option(key_hash)
 type councilActionSetContractBakerType is [@layout:comb] record [
     targetContractAddress  : address;
     keyHash                : option(key_hash);
 ]
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
-type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
-]
-type lambdaLedgerType is map(string, bytes)
 
 type addVesteeType is [@layout:comb] record [
     vesteeAddress           : address;
@@ -160,8 +119,8 @@ type councilLambdaActionType is
   | LambdaSetGovernance                         of address
   | LambdaUpdateMetadata                        of updateMetadataType
   | LambdaUpdateConfig                          of councilUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
-  | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+  | LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+  | LambdaUpdateGeneralContracts                of updateGeneralContractsType
   | LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
 
     // Council Actions for Internal Control
@@ -187,14 +146,14 @@ type councilLambdaActionType is
   | LambdaCouncilDropFinancialReq               of nat
 
     // Council Signing of Actions
-  | LambdaFlushAction                           of flushActionType
-  | LambdaSignAction                            of signActionType 
+  | LambdaFlushAction                           of actionIdType
+  | LambdaSignAction                            of actionIdType 
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
-type councilStorage is [@layout:comb] record [
+type councilStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
     config                      : councilConfigType;

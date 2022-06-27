@@ -1,34 +1,16 @@
 // ------------------------------------------------------------------------------
-// Common Types
-// ------------------------------------------------------------------------------
-
-type depositor is address
-type tokenBalance is nat
-type metadata is big_map (string, bytes);
-
-// ------------------------------------------------------------------------------
 // Farm Types
 // ------------------------------------------------------------------------------
 
-type farmPlannedRewards is [@layout:comb] record[
+type farmPlannedRewardsType is [@layout:comb] record[
     totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
+    currentRewardPerBlock: tokenBalanceType;
 ]
 
-type farmLpToken is [@layout:comb] record [
+type farmLpTokenType is [@layout:comb] record [
     tokenAddress   : address;
     tokenId        : nat;
-    tokenStandard  : lpStandard;
-]
-
-type farmToken is [@layout:comb] record [
-    symbol: string;
-    tokenAddress: address;
-]
-
-type farmTokenPair is [@layout:comb] record [
-    token0: farmToken;
-    token1: farmToken;
+    tokenStandard  : lpStandardType;
 ]
 
 type createFarmType is [@layout:comb] record[
@@ -36,9 +18,9 @@ type createFarmType is [@layout:comb] record[
     addToGeneralContracts    : bool;
     forceRewardFromTransfer  : bool;
     infinite                 : bool;
-    plannedRewards           : farmPlannedRewards;
+    plannedRewards           : farmPlannedRewardsType;
     metadata                 : bytes;
-    lpToken                  : farmLpToken;
+    lpToken                  : farmLpTokenType;
 ]
 
 type farmFactoryBreakGlassConfigType is [@layout:comb] record [
@@ -50,11 +32,6 @@ type farmFactoryBreakGlassConfigType is [@layout:comb] record [
 type farmFactoryConfigType is [@layout:comb] record [
     blocksPerMinute         : nat;
     farmNameMaxLength       : nat;
-] 
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
 ]
 
 type farmFactoryUpdateConfigNewValueType is nat
@@ -73,8 +50,8 @@ type farmFactoryLambdaActionType is
 |   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
-|   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+|   LambdaUpdateGeneralContracts      of updateGeneralContractsType
 |   LambdaMistakenTransfer            of transferActionType
 |   LambdaUpdateBlocksPerMinute       of (nat)
 
@@ -95,9 +72,9 @@ type farmFactoryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type farmFactoryStorage is [@layout:comb] record[
+type farmFactoryStorageType is [@layout:comb] record[
     admin                  : address;
-    metadata               : metadata;
+    metadata               : metadataType;
     config                 : farmFactoryConfigType;
 
     mvkTokenAddress        : address;

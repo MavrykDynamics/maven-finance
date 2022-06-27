@@ -1,23 +1,16 @@
 // ------------------------------------------------------------------------------
-// General Types
+// Needed Types
 // ------------------------------------------------------------------------------
 
-
-type proposalIdType is nat
-type requestIdType is nat; 
-type metadata is big_map (string, bytes);
+// Vote Types
+#include "../shared/voteTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Financial Request Types
 // ------------------------------------------------------------------------------
 
-type voteForRequestChoiceType is 
-  Yay   of unit
-| Nay   of unit
-| Pass  of unit
-
 type financialRequestVoteType is [@layout:comb] record [
-  vote              : voteForRequestChoiceType;
+  vote              : voteType;
   totalVotingPower  : nat; 
   timeVoted         : timestamp;
 ] 
@@ -52,31 +45,16 @@ type financialRequestRecordType is [@layout:comb] record [
     requestedDateTime       : timestamp;               // log of when the request was submitted
     expiryDateTime          : timestamp;               
 ]
-type financialRequestLedgerType is big_map (nat, financialRequestRecordType);
+type financialRequestLedgerType is big_map (actionIdType, financialRequestRecordType);
 
-type financialRequestSnapshotRecordType is [@layout:comb] record [
-    totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-]
-type financialRequestSnapshotMapType is map (address, financialRequestSnapshotRecordType)
-type financialRequestSnapshotLedgerType is big_map (requestIdType, financialRequestSnapshotMapType);
+type financialRequestSnapshotMapType is map (address, satelliteSnapshotRecordType)
+type financialRequestSnapshotLedgerType is big_map (actionIdType, financialRequestSnapshotMapType);
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
     requestId             : nat; 
     stakedMvkBalance      : nat; 
     totalDelegatedAmount  : nat; 
 ]
-
-// snapshot will be valid for current cycle only (proposal + voting rounds)
-type snapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-    currentCycleStartLevel    : nat;      // log of current cycle starting block level
-    currentCycleEndLevel      : nat;      // log of when cycle (proposal + voting) will end
-]
-type snapshotLedgerType is big_map (address, snapshotRecordType);
 
 // ------------------------------------------------------------------------------
 // Governance Financial Config Types
@@ -107,36 +85,9 @@ type governanceFinancialUpdateConfigParamsType is [@layout:comb] record [
 // Governance Entrypoint Types
 // ------------------------------------------------------------------------------
 
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
-type requestTokensType is [@layout:comb] record [
-    treasuryAddress       : address;  // treasury address
-    tokenContractAddress  : address;  // token contract address
-    tokenName             : string;   // token name should be in whitelist token contracts map in governance contract
-    tokenAmount           : nat;      // token amount requested
-    tokenType             : string;   
-    tokenId               : nat;      // token amount requested
-    purpose               : string;   // financial request purpose
-]
-
-type requestMintType is [@layout:comb] record [
-    treasuryAddress       : address;  // treasury address
-    tokenAmount           : nat;      // MVK token amount requested
-    purpose               : string;   // financial request purpose
-]
-
-type setContractBakerType is [@layout:comb] record [
-    targetContractAddress  : address;
-    keyHash                : option(key_hash);
-]
-
 type voteForRequestType is [@layout:comb] record [
-    requestId        : nat;
-    vote             : voteForRequestChoiceType;
+    requestId        : actionIdType;
+    vote             : voteType;
 ]
 
 // ------------------------------------------------------------------------------
@@ -151,15 +102,15 @@ type governanceFinancialLambdaActionType is
 | LambdaSetGovernance                         of address
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceFinancialUpdateConfigParamsType
-| LambdaUpdateGeneralContracts                of updateGeneralContractsParams
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
-| LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
+| LambdaUpdateGeneralContracts                of updateGeneralContractsType
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+| LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsType
 | LambdaMistakenTransfer                      of transferActionType
 
   // Financial Governance Lambdas
-| LambdaRequestTokens                         of requestTokensType
-| LambdaRequestMint                           of requestMintType
-| LambdaSetContractBaker                      of setContractBakerType
+| LambdaRequestTokens                         of councilActionRequestTokensType
+| LambdaRequestMint                           of councilActionRequestMintType
+| LambdaSetContractBaker                      of councilActionSetContractBakerType
 | LambdaDropFinancialRequest                  of (nat)
 | LambdaVoteForRequest                        of voteForRequestType
 
@@ -172,7 +123,7 @@ type governanceFinancialLambdaActionType is
 type governanceFinancialStorage is [@layout:comb] record [
     
     admin                               : address;
-    metadata                            : metadata;
+    metadata                            : metadataType;
     config                              : governanceFinancialConfigType;
 
     mvkTokenAddress                     : address;
@@ -191,7 +142,5 @@ type governanceFinancialStorage is [@layout:comb] record [
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;
-
-    
 
 ]

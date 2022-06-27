@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------------------
+// Needed Types
+// ------------------------------------------------------------------------------
+
+// Council Types
+#include "../shared/councilMemberTypes.ligo"
+
+// Vote Types
+#include "../shared/voteTypes.ligo"
+
+// ------------------------------------------------------------------------------
+// Types definition
+// ------------------------------------------------------------------------------
+
 type breakGlassConfigType is [@layout:comb] record [
     threshold                       : nat;    // min number of council members who need to agree on action
     actionExpiryDays                : nat;    // action expiry in number of days
@@ -5,29 +19,6 @@ type breakGlassConfigType is [@layout:comb] record [
     councilMemberNameMaxLength      : nat;
     councilMemberWebsiteMaxLength   : nat;
     councilMemberImageMaxLength     : nat;
-]
-
-type councilMemberInfoType is [@layout:comb] record [
-    name          : string;
-    website       : string;
-    image         : string;
-]
-type councilMembersType is map(address, councilMemberInfoType)
-type signersType is set(address)
-
-type councilAddMemberType is [@layout:comb] record [
-    memberAddress       : address;
-    memberName          : string;
-    memberWebsite       : string;
-    memberImage         : string;
-]
-
-type councilChangeMemberType is [@layout:comb] record [
-    oldCouncilMemberAddress           : address;
-    newCouncilMemberAddress           : address;
-    newCouncilMemberName              : string;
-    newCouncilMemberWebsite           : string;
-    newCouncilMemberImage             : string;
 ]
 
 type breakGlassUpdateConfigNewValueType is nat
@@ -42,13 +33,7 @@ type breakGlassUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : breakGlassUpdateConfigActionType;
 ]
 
-type addressMapType   is map(string, address);
-type stringMapType    is map(string, string);
-type natMapType       is map(string, nat);
-
-type metadataType is big_map (string, bytes);
-
-type actionRecordType is record [
+type breakGlassActionRecordType is record [
     
     initiator                  : address;          // address of action initiator
     status                     : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
@@ -69,22 +54,7 @@ type actionRecordType is record [
     expirationDateTime         : timestamp;       // timestamp of when action will expire
     
 ]
-type actionsLedgerType is big_map(nat, actionRecordType)
-
-type signActionType is (nat)
-type flushActionType is (nat)
-
-type setSingleContractAdminType is [@layout:comb] record [
-    newAdminAddress        : address;
-    targetContractAddress  : address;
-]
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
-type whitelistDevelopersType is set(address)
+type breakGlassActionsLedgerType is big_map(nat, breakGlassActionRecordType)
 
 type breakGlassLambdaActionType is 
 
@@ -96,33 +66,33 @@ type breakGlassLambdaActionType is
 | LambdaSetGovernance                 of (address)
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
-| LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
-| LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+| LambdaUpdateGeneralContracts        of updateGeneralContractsType
 | LambdaMistakenTransfer              of transferActionType
 | LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
 
     // Internal Control of Council Members
-| LambdaAddCouncilMember              of councilAddMemberType
+| LambdaAddCouncilMember              of councilActionAddMemberType
 | LambdaRemoveCouncilMember           of address
-| LambdaChangeCouncilMember           of councilChangeMemberType
+| LambdaChangeCouncilMember           of councilActionChangeMemberType
 
     // Glass Broken Required
 | LambdaPropagateBreakGlass           of (unit)
-| LambdaSetSingleContractAdmin        of setSingleContractAdminType
+| LambdaSetSingleContractAdmin        of setContractAdminType
 | LambdaSetAllContractsAdmin          of (address)               
 | LambdaPauseAllEntrypoints           of (unit)             
 | LambdaUnpauseAllEntrypoints         of (unit)
 | LambdaRemoveBreakGlassControl       of (unit)
 
     // Council Signing of Actions
-| LambdaFlushAction                   of flushActionType
-| LambdaSignAction                    of signActionType
+| LambdaFlushAction                   of actionIdType
+| LambdaSignAction                    of actionIdType
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
-type breakGlassStorage is [@layout:comb] record [
+type breakGlassStorageType is [@layout:comb] record [
     admin                       : address;               
     metadata                    : metadataType;
     config                      : breakGlassConfigType;
@@ -136,7 +106,7 @@ type breakGlassStorage is [@layout:comb] record [
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
     
-    actionsLedger               : actionsLedgerType;         // record of past actions taken by council members
+    actionsLedger               : breakGlassActionsLedgerType;         // record of past actions taken by council members
     actionCounter               : nat;
 
     lambdaLedger                : lambdaLedgerType;

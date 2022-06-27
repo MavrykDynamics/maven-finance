@@ -3,8 +3,6 @@
 // General Types
 // ------------------------------------------------------------------------------
 
-
-type proposalIdType is nat
 type proxyLambdaLedgerType is big_map(nat, bytes)
 
 type setProxyLambdaType is [@layout:comb] record [
@@ -15,17 +13,6 @@ type setProxyLambdaType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 // Execute Action Types
 // ------------------------------------------------------------------------------
-
-
-type setContractAdminType is [@layout:comb] record [
-  targetContractAddress  : address;
-  newAdminAddress        : address; 
-]
-
-type setContractGovernanceType is [@layout:comb] record [
-  targetContractAddress  : address;
-  newGovernanceAddress   : address; 
-]
 
 type setContractLambdaType is [@layout:comb] record [
   targetContractAddress   : address;
@@ -94,7 +81,7 @@ type targetTreasuryMintMvkAndTransferType is [@layout:comb] record [
 
 type updateOperatorsTreasuryType is [@layout:comb] record [
   targetTreasuryAddress     : address;
-  treasuryUpdatedOperators  : updateOperatorsParams;
+  treasuryUpdatedOperators  : updateOperatorsType;
 ]
 
 type stakeTreasuryType is [@layout:comb] record [
@@ -187,9 +174,9 @@ type governanceProxyLambdaActionType is
   LambdaSetAdmin                        of address
 | LambdaSetGovernance                   of (address)
 | LambdaUpdateMetadata                  of updateMetadataType
-| LambdaUpdateWhitelistContracts        of updateWhitelistContractsParams
-| LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsParams
-| LambdaUpdateGeneralContracts          of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
+| LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
+| LambdaUpdateGeneralContracts          of updateGeneralContractsType
 | LambdaMistakenTransfer                of transferActionType
 
 // ------------------------------------------------------------------------------
@@ -197,9 +184,9 @@ type governanceProxyLambdaActionType is
 // ------------------------------------------------------------------------------
 
 
-type governanceProxyStorage is record [
+type governanceProxyStorageType is record [
     admin                       : address;
-    metadata                    : metadata;
+    metadata                    : metadataType;
 
     mvkTokenAddress             : address;
     governanceAddress           : address;    // separate admin from governance address in event of break glass

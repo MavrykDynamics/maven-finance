@@ -1,37 +1,35 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Doorman types
-#include "../partials/types/doormanTypes.ligo"
+#include "../partials/contractTypes/doormanTypes.ligo"
 
 // MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Treasury types for farmClaim
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // Delegation types for compound
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -42,8 +40,8 @@ type doormanAction is
   | SetGovernance               of (address)
   | UpdateMetadata              of updateMetadataType
   | UpdateConfig                of doormanUpdateConfigParamsType
-  | UpdateWhitelistContracts    of updateWhitelistContractsParams
-  | UpdateGeneralContracts      of updateGeneralContractsParams
+  | UpdateWhitelistContracts    of updateWhitelistContractsType
+  | UpdateGeneralContracts      of updateGeneralContractsType
   | MistakenTransfer            of transferActionType
   | MigrateFunds                of (address)
 
@@ -66,10 +64,10 @@ type doormanAction is
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * doormanStorage
+type return is list (operation) * doormanStorageType
 
 // doorman contract methods lambdas
-type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorage) -> return
+type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorageType) -> return
 
 
 
@@ -91,23 +89,6 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 
 // ------------------------------------------------------------------------------
 //
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -116,19 +97,19 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : doormanStorage) : unit is
+function checkSenderIsAllowed(var s : doormanStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(var s : doormanStorage) : unit is
+function checkSenderIsAdmin(var s : doormanStorageType) : unit is
   if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
-function checkSenderIsMvkTokenContract(var s : doormanStorage) : unit is
+function checkSenderIsMvkTokenContract(var s : doormanStorageType) : unit is
 block{
   const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
@@ -137,7 +118,7 @@ block{
 
 
 
-function checkSenderIsDelegationContract(var s : doormanStorage) : unit is
+function checkSenderIsDelegationContract(var s : doormanStorageType) : unit is
 block{
   const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
   const delegationAddress: address = case generalContractsOptView of [
@@ -153,7 +134,7 @@ block{
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -176,21 +157,6 @@ function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -200,25 +166,25 @@ function checkNoAmount(const _p : unit) : unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkStakeIsNotPaused(var s : doormanStorage) : unit is
+function checkStakeIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkUnstakeIsNotPaused(var s : doormanStorage) : unit is
+function checkUnstakeIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkCompoundIsNotPaused(var s : doormanStorage) : unit is
+function checkCompoundIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkFarmClaimIsNotPaused(var s : doormanStorage) : unit is
+function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
@@ -232,23 +198,23 @@ function checkFarmClaimIsNotPaused(var s : doormanStorage) : unit is
 // ------------------------------------------------------------------------------
 
 // helper function to update satellite's balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
+function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceType) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
-      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
+      delegationAddress) : option(contract(updateSatelliteBalanceType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteBalanceParams))
+  | None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteBalanceType))
 ];
 
 
 
 // helper function to get transfer entrypoint
-function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(transferType) is
+function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(fa2TransferType) is
   case (Tezos.get_entrypoint_opt(
       "%transfer",
-      tokenAddress) : option(contract(transferType))) of [
+      tokenAddress) : option(contract(fa2TransferType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(transferType))
+  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
 ];
 
 
@@ -283,7 +249,7 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 
 (*  compoundUserRewards helper function *)
-function compoundUserRewards(const userAddress: address; var s: doormanStorage) : doormanStorage is 
+function compoundUserRewards(const userAddress: address; var s: doormanStorageType) : doormanStorageType is 
 block{ 
     
     // Get the user's record
@@ -313,7 +279,7 @@ block{
       
       // -- Satellite rewards -- //
       // Get the user satelliteRewards record
-      const satelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
+      const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
       const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
         Some (_v) -> True
       | None -> False
@@ -323,15 +289,15 @@ block{
       var satelliteUnpaidRewards: nat := 0n;
       if userHasSatelliteRewards then
       block{
-        const satelliteRewardsOpt: option(satelliteRewards) = case satelliteRewardsOptView of [
+        const satelliteRewardsOpt: option(satelliteRewardsType) = case satelliteRewardsOptView of [
           Some (value) -> value
         | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
         ];
 
         satelliteUnpaidRewards := case satelliteRewardsOpt of [
           Some (_rewards) -> block{
-            const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-            const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
+            const getUserReferenceRewardOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+            const getUserReferenceRewardOpt: option(satelliteRewardsType) = case getUserReferenceRewardOptView of [
               Some (value) -> value
             | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
             ];
@@ -367,7 +333,7 @@ block{
     else skip;
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
-    // Update the doormanStorage
+    // Update the doormanStorageType
     s.userStakeBalanceLedger[userAddress]  := userRecord;
 
 } with (s)
@@ -382,7 +348,7 @@ block{
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(doormanUnpackLambdaFunctionType)) of [
@@ -428,55 +394,55 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : doormanStorage) : address is
+[@view] function getAdmin(const _: unit; var s : doormanStorageType) : address is
   s.admin
 
 
 
 (*  View: get config *)
-[@view] function getConfig(const _: unit; const s: doormanStorage) : doormanConfigType is
+[@view] function getConfig(const _: unit; const s: doormanStorageType) : doormanConfigType is
   s.config
 
 
 
 (*  View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; const s: doormanStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; const s: doormanStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (*  View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; const s: doormanStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; const s: doormanStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (*  View: get break glass config *)
-[@view] function getBreakGlassConfig(const _: unit; const s: doormanStorage) : doormanBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _: unit; const s: doormanStorageType) : doormanBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (* View: get userStakeBalance *)
-[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
+[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorageType) : option(userStakeBalanceRecordType) is
   Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
 
 
 
 (*  View: unclaimedRewards *)
-[@view] function getUnclaimedRewards(const _: unit; const s: doormanStorage) : nat is
+[@view] function getUnclaimedRewards(const _: unit; const s: doormanStorageType) : nat is
   s.unclaimedRewards
 
 
 
 (*  View: accumulatedFeesPerShare *)
-[@view] function getAccumulatedFeesPerShare(const _: unit; const s: doormanStorage) : nat is
+[@view] function getAccumulatedFeesPerShare(const _: unit; const s: doormanStorageType) : nat is
   s.accumulatedFeesPerShare
 
 
 
 (* View: stakedBalance *)
-[@view] function getStakedBalance(const userAddress : address; var s : doormanStorage) : nat is
+[@view] function getStakedBalance(const userAddress : address; var s : doormanStorageType) : nat is
   case s.userStakeBalanceLedger[userAddress] of [
     Some (_val) -> _val.balance
   | None -> 0n
@@ -485,13 +451,13 @@ block {
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : doormanStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : doormanStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -513,7 +479,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -532,7 +498,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : doormanStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -551,7 +517,7 @@ block {
 
 
 (*  updateMetadata entrypoint: update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : doormanStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -570,7 +536,7 @@ block {
 
 
 (* updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : doormanUpdateConfigParamsType; var s : doormanStorage) : return is 
+function updateConfig(const updateConfigParams : doormanUpdateConfigParamsType; var s : doormanStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -589,7 +555,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: doormanStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: doormanStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -608,7 +574,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: doormanStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: doormanStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -627,7 +593,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: doormanStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: doormanStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -646,7 +612,7 @@ block {
 
 
 (*  migrateFunds entrypoint *)
-function migrateFunds(const destinationAddress: address; var s: doormanStorage): return is
+function migrateFunds(const destinationAddress: address; var s: doormanStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMigrateFunds"] of [
@@ -672,7 +638,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll entrypoint *)
-function pauseAll(var s : doormanStorage) : return is
+function pauseAll(var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -691,7 +657,7 @@ block {
 
 
 (*  unpauseAll entrypoint *)
-function unpauseAll(var s : doormanStorage) : return is
+function unpauseAll(var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -710,7 +676,7 @@ block {
 
 
 (*  togglePauseStake entrypoint *)
-function togglePauseStake(var s : doormanStorage) : return is
+function togglePauseStake(var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStake"] of [
@@ -729,7 +695,7 @@ block {
 
 
 (*  togglePauseUnstake entrypoint *)
-function togglePauseUnstake(var s : doormanStorage) : return is
+function togglePauseUnstake(var s : doormanStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstake"] of [
@@ -748,7 +714,7 @@ block {
 
 
 (*  togglePauseCompound entrypoint *)
-function togglePauseCompound(var s : doormanStorage) : return is
+function togglePauseCompound(var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCompound"] of [
@@ -767,7 +733,7 @@ block {
 
 
 (*  togglePauseFarmClaim entrypoint *)
-function togglePauseFarmClaim(var s : doormanStorage) : return is
+function togglePauseFarmClaim(var s : doormanStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseFarmClaim"] of [
@@ -794,7 +760,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  stake entrypoint *)
-function stake(const stakeAmount : nat; var s : doormanStorage) : return is
+function stake(const stakeAmount : nat; var s : doormanStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaStake"] of [
@@ -813,7 +779,7 @@ block {
 
 
 (*  unstake entrypoint *)
-function unstake(const unstakeAmount : nat; var s : doormanStorage) : return is
+function unstake(const unstakeAmount : nat; var s : doormanStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstake"] of [
@@ -832,7 +798,7 @@ block {
 
 
 (*  compound entrypoint *)
-function compound(const userAddress: address; var s: doormanStorage): return is
+function compound(const userAddress: address; var s: doormanStorageType): return is
 block{
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCompound"] of [
@@ -851,7 +817,7 @@ block{
 
 
 (* farmClaim entrypoint *)
-function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): return is
+function farmClaim(const farmClaim: farmClaimType; var s: doormanStorageType): return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaFarmClaim"] of [
@@ -877,7 +843,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: doormanStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: doormanStorageType): return is
 block{
     
     // check that sender is admin
@@ -903,7 +869,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : doormanAction; const s : doormanStorage) : return is
+function main (const action : doormanAction; const s : doormanStorageType) : return is
   block {
     
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  

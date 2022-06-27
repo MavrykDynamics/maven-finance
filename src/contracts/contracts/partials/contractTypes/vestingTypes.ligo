@@ -1,6 +1,3 @@
-type blockLevel is nat;
-type metadata is big_map (string, bytes);
-
 type vesteeRecordType is [@layout:comb] record [
     
     // static variables initiated at start ----
@@ -47,19 +44,14 @@ type updateVesteeType is [@layout:comb] record [
     newVestingInMonths         : nat;
 ]
 
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
 type vestingLambdaActionType is 
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                      of (address)
 | LambdaSetGovernance                 of (address)
 | LambdaUpdateMetadata                of updateMetadataType
-| LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
-| LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+| LambdaUpdateGeneralContracts        of updateGeneralContractsType
 | LambdaMistakenTransfer              of transferActionType
 
   // Internal Vestee Control Entrypoints
@@ -75,9 +67,9 @@ type vestingLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type vestingStorage is [@layout:comb] record [
+type vestingStorageType is [@layout:comb] record [
     admin               : address;
-    metadata            : metadata;
+    metadata            : metadataType;
 
     mvkTokenAddress     : address;
     governanceAddress   : address;

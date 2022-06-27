@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaSetAdmin(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
     
     checkSenderIsAllowed(s);
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is
+function lambdaSetGovernance(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is
+function lambdaUpdateMetadata(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); 
@@ -64,7 +64,7 @@ block {
 
 
 (* updateConfig lambda *)
-function lambdaUpdateConfig(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is 
+function lambdaUpdateConfig(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -88,7 +88,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaUpdateWhitelistContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -105,7 +105,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaUpdateGeneralContracts(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -122,7 +122,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s: farmFactoryStorage): return is
+function lambdaMistakenTransfer(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s: farmFactoryStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -155,7 +155,7 @@ block {
 
 
 (*  UpdateBlocksPerMinute lambda *)
-function lambdaUpdateBlocksPerMinute(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaUpdateBlocksPerMinute(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
 
     // check that source is admin or factory
@@ -193,7 +193,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaPauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
 
     checkSenderIsAllowed(s);
@@ -230,7 +230,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaUnpauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
 
     checkSenderIsAllowed(s);
@@ -267,7 +267,7 @@ block {
 
 
 (*  togglePauseCreateFarm lambda *)
-function lambdaTogglePauseCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaTogglePauseCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -286,7 +286,7 @@ block {
 
 
 (*  togglePauseUntrackFarm lambda *)
-function lambdaTogglePauseUntrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaTogglePauseUntrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -306,7 +306,7 @@ block {
 
 
 (*  togglePauseTrackFarm lambda *)
-function lambdaTogglePauseTrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
+function lambdaTogglePauseTrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -334,7 +334,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createFarm lambda *)
-function lambdaCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is 
+function lambdaCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is 
 block{
 
     // Check if Sender is admin
@@ -363,19 +363,19 @@ block{
                 const farmGeneralContracts : generalContractsType = map[];
 
                 // Create needed records for farm contract
-                const farmClaimedRewards : claimedRewards = record[
+                const farmClaimedRewards : claimedRewardsType = record[
                     paid=0n;
                     unpaid=0n;
                 ];
                 const farmForceRewardFromTransfer : bool  = createFarmParams.forceRewardFromTransfer;
                 const farmInfinite : bool                 = createFarmParams.infinite;
                 const farmTotalRewards : nat              = createFarmParams.plannedRewards.totalBlocks * createFarmParams.plannedRewards.currentRewardPerBlock;
-                const farmPlannedRewards : plannedRewards = record[
+                const farmPlannedRewards : plannedRewardsType = record[
                     totalBlocks             = createFarmParams.plannedRewards.totalBlocks;
                     currentRewardPerBlock   = createFarmParams.plannedRewards.currentRewardPerBlock;
                     totalRewards            = farmTotalRewards;
                 ];
-                const farmLPToken : lpToken  = record[
+                const farmLPToken : lpTokenType  = record[
                     tokenAddress        = createFarmParams.lpToken.tokenAddress;
                     tokenId             = createFarmParams.lpToken.tokenId;
                     tokenStandard       = createFarmParams.lpToken.tokenStandard;
@@ -395,17 +395,17 @@ block{
                 ];
 
                 // Prepare Farm Metadata
-                const farmMetadata: metadata = Big_map.literal (list [
+                const farmMetadata: metadataType = Big_map.literal (list [
                     ("", Bytes.pack("tezos-storage:data"));
                     ("data", createFarmParams.metadata);
                 ]); 
-                const farmLambdaLedger : map(string, bytes) = s.farmLambdaLedger;
+                const farmLambdaLedger : lambdaLedgerType = s.farmLambdaLedger;
 
                 // Check wether the farm is infinite or its total blocks has been set
                 if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
 
                 // Originate a farm 
-                const originatedFarmStorage : farmStorage = record[
+                const originatedfarmStorageType : farmStorageType = record[
                     admin                   = s.admin;                   // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
                     mvkTokenAddress         = s.mvkTokenAddress;
                     governanceAddress       = s.governanceAddress;
@@ -434,21 +434,21 @@ block{
                 const farmOrigination : (operation * address) = createFarmFunc(
                     (None: option(key_hash)), 
                     0tez,
-                    originatedFarmStorage
+                    originatedfarmStorageType
                 );
 
                 s.trackedFarms := Set.add(farmOrigination.1, s.trackedFarms);
 
                 // Add the farm to the governance general contracts map
                 if createFarmParams.addToGeneralContracts then {
-                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                    const updateGeneralMapRecord : updateGeneralContractsType = record [
                         generalContractName    = createFarmParams.name;
                         generalContractAddress = farmOrigination.1;
                     ];
 
-                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsType))) of [
                         Some (contr) -> contr
-                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
                     ];
 
                     // updateContractGeneralMap operation
@@ -474,7 +474,7 @@ block{
 
 
 (* trackFarm lambda *)
-function lambdaTrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is 
+function lambdaTrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is 
 block{
     
     // Check if Sender is admin
@@ -500,7 +500,7 @@ block{
 
 
 (* untrackFarm lambda *)
-function lambdaUntrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is 
+function lambdaUntrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is 
 block{
 
     // Check if Sender is admin
