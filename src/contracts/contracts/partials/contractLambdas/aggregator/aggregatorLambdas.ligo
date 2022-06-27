@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);     
@@ -45,7 +45,7 @@ block {
 
 
 (*  setMaintainer lambda *)
-function lambdaSetMaintainer(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetMaintainer(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);     
@@ -65,7 +65,7 @@ block {
 
 
 (*  setName lambda *)
-function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);     
@@ -102,7 +102,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);
@@ -125,7 +125,7 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     checkNoAmount(Unit);  
@@ -161,7 +161,7 @@ block{
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
     
     checkNoAmount(Unit);  
@@ -179,7 +179,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
 
     checkNoAmount(Unit);
@@ -205,7 +205,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
-function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
     
     checkNoAmount(Unit);
@@ -230,7 +230,7 @@ block {
 
 
 (*  removeOracle entrypoint  *)
-function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
     
     checkNoAmount(Unit);
@@ -263,7 +263,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);
@@ -300,7 +300,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -337,7 +337,7 @@ block {
 
 
 (*  togglePauseReqRateUpd lambda *)
-function lambdaTogglePauseReqRateUpd(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaTogglePauseReqRateUpd(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -358,7 +358,7 @@ block {
 
 
 (*  togglePauseReqRateUpdDev lambda *)
-function lambdaTogglePauseReqRateUpdDev(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaTogglePauseReqRateUpdDev(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -379,7 +379,7 @@ block {
 
 
 (*  togglePauseSetObsCommit lambda *)
-function lambdaTogglePauseSetObsCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaTogglePauseSetObsCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -400,7 +400,7 @@ block {
 
 
 (*  togglePauseSetObsReveal lambda *)
-function lambdaTogglePauseSetObsReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaTogglePauseSetObsReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -421,7 +421,7 @@ block {
 
 
 (*  togglePauseRewardXtz lambda *)
-function lambdaTogglePauseRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaTogglePauseRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -442,7 +442,7 @@ block {
 
 
 (*  togglePauseRewardSMvk lambda *)
-function lambdaTogglePauseRewardSMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaTogglePauseRewardSMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -471,7 +471,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  requestRateUpdate entrypoint  *)
-function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -520,7 +520,7 @@ block{
 
 
 (*  requestRateUpdateDeviation entrypoint  *)
-function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -610,7 +610,7 @@ block{
 
 
 (*  setObservationCommit entrypoint  *)
-function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -651,7 +651,7 @@ block{
 
 
 (*  setObservationReveal entrypoint  *)
-function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -736,7 +736,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  withdrawRewardXtz entrypoint  *)
-function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -788,7 +788,7 @@ block{
 
 
 (*  withdrawRewardStakedMvk entrypoint  *)
-function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check

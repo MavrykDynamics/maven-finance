@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is
+function lambdaSetAdmin(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is
+function lambdaSetGovernance(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -44,7 +44,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is
+function lambdaUpdateMetadata(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -65,7 +65,7 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+function lambdaUpdateWhitelistContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -82,7 +82,7 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+function lambdaUpdateGeneralContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -99,7 +99,7 @@ block {
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+function lambdaUpdateWhitelistTokenContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -117,7 +117,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+function lambdaMistakenTransfer(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -156,7 +156,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* executeGovernanceLambdaProxy lambda *)
-function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -236,7 +236,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // reference: type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
+    // reference: type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorageType) -> return
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
@@ -247,7 +247,7 @@ block {
 
 
 (* updateProxyLambda lambda *)
-function updateProxyLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function updateProxyLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -280,7 +280,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setContractAdmin lambda *)
-function setContractAdmin(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function setContractAdmin(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -292,7 +292,7 @@ block {
 
             // assign params to constants for better code readability
             const targetContractAddress  : address   = setContractAdminParams.targetContractAddress;
-            const newAdminAddress        : address   = setContractAdminParams.newAdminAddress;
+            const newAdminAddress        : address   = setContractAdminParams.newContractAdmin;
 
             // set new admin operation
             const setNewAdminOperation : operation = Tezos.transaction(
@@ -313,7 +313,7 @@ block {
 
 
 (* setContractGovernance lambda *)
-function setContractGovernance(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function setContractGovernance(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -325,7 +325,7 @@ block {
 
             // assign params to constants for better code readability
             const targetContractAddress  : address   = setContractGovernanceParams.targetContractAddress;
-            const newGovernanceAddress   : address   = setContractGovernanceParams.newGovernanceAddress;
+            const newGovernanceAddress   : address   = setContractGovernanceParams.newContractGovernance;
 
             // set new governance operation
             const setNewGovernanceOperation : operation = Tezos.transaction(
@@ -346,7 +346,7 @@ block {
 
 
 (* setContractLambda lambda *)
-function setContractLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function setContractLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -386,7 +386,7 @@ block {
 
 
 (* setFactoryProductLambda lambda *)
-function setFactoryProductLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function setFactoryProductLambda(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -426,7 +426,7 @@ block {
 
 
 (* updateContractMetadata lambda *)
-function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -465,7 +465,7 @@ block {
 
 
 (* updateContractWhitelistMap lambda *)
-function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -480,7 +480,7 @@ block {
             const whitelistContractName     : string    = updateContractWhitelistMapParams.whitelistContractName;
             const whitelistContractAddress  : address   = updateContractWhitelistMapParams.whitelistContractAddress;
 
-            const updateWhitelistMapRecord : updateWhitelistContractsParams = record [
+            const updateWhitelistMapRecord : updateWhitelistContractsType = record [
                 whitelistContractName    = whitelistContractName;
                 whitelistContractAddress = whitelistContractAddress;
             ];
@@ -504,7 +504,7 @@ block {
 
 
 (* updateContractGeneralMap lambda *)
-function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -519,7 +519,7 @@ block {
             const generalContractName       : string    = updateContractGeneralMapParams.generalContractName;
             const generalContractAddress    : address   = updateContractGeneralMapParams.generalContractAddress;
 
-            const updateGeneralMapRecord : updateGeneralContractsParams = record [
+            const updateGeneralMapRecord : updateGeneralContractsType = record [
                 generalContractName    = generalContractName;
                 generalContractAddress = generalContractAddress;
             ];
@@ -543,7 +543,7 @@ block {
 
 
 (* updateContractWhitelistTokenMap lambda *)
-function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -558,7 +558,7 @@ block {
             const tokenContractName         : string    = updateContractWhitelistTokenMapParams.tokenContractName;
             const tokenContractAddress      : address   = updateContractWhitelistTokenMapParams.tokenContractAddress;
 
-            const updateWhitelistTokenMapRecord : updateWhitelistTokenContractsParams = record [
+            const updateWhitelistTokenMapRecord : updateWhitelistTokenContractsType = record [
                 tokenContractName    = tokenContractName;
                 tokenContractAddress = tokenContractAddress;
             ];
@@ -582,7 +582,7 @@ block {
 
 
 (* setContractName lambda *)
-function setContractName(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+function setContractName(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is
 block {
     
     checkSenderIsAdminOrGovernance(s);
@@ -616,7 +616,7 @@ block {
 // General Control Lambdas End
 // ------------------------------------------------------------------------------
 
-function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -655,7 +655,7 @@ block {
 
 
 
-function updateGovernanceFinancialConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateGovernanceFinancialConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -704,7 +704,7 @@ block {
 
 
 
-function updateGovernanceSatelliteConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateGovernanceSatelliteConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -753,7 +753,7 @@ block {
 
 
 
-function updateDelegationConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateDelegationConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -803,7 +803,7 @@ block {
 
 
 
-function updateEmergencyConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateEmergencyConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -853,7 +853,7 @@ block {
 
 
 
-function updateCouncilConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateCouncilConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -903,7 +903,7 @@ block {
 
 
 
-function updateFarmConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateFarmConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -944,7 +944,7 @@ block {
 
 
 
-function updateFarmFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateFarmFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -994,7 +994,7 @@ block {
 
 
 
-function updateAggregatorConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateAggregatorConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1035,7 +1035,7 @@ block {
 
 
 
-function updateAggregatorFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateAggregatorFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1085,7 +1085,7 @@ block {
 
 
 
-function updateTreasuryFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateTreasuryFactoryConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1135,7 +1135,7 @@ block {
 
 
 
-function updateBreakGlassConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateBreakGlassConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1185,7 +1185,7 @@ block {
 
 
 
-function updateDoormanConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateDoormanConfig(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1235,7 +1235,7 @@ block {
 
 
 
-function updateWhitelistDevelopersSet(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateWhitelistDevelopersSet(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1270,7 +1270,7 @@ block {
 
 
 
-function setGovernanceProxy(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function setGovernanceProxy(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1305,7 +1305,7 @@ block {
 
 
 
-function createFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function createFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1350,7 +1350,7 @@ block {
 
 
 
-function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1395,7 +1395,7 @@ block {
 
 
 
-function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1439,7 +1439,7 @@ block {
 
 
 
-function initFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function initFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1478,7 +1478,7 @@ block {
 
 
 
-function closeFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function closeFarm(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1513,7 +1513,7 @@ block {
 
 
 
-function createTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function createTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1558,7 +1558,7 @@ block {
 
 
 
-function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1603,7 +1603,7 @@ block {
 
 
 
-function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1648,7 +1648,7 @@ block {
 
 
 
-function transferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function transferTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1688,7 +1688,7 @@ block {
 
 
 
-function updateMvkOperatorsTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateMvkOperatorsTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1701,15 +1701,15 @@ block {
 
         // assign params to constants for better code readability
         const targetTreasuryAddress   : address                  = updateMvkOperatorsTreasuryParams.targetTreasuryAddress;
-        const updatedOperators        : updateOperatorsParams    = updateMvkOperatorsTreasuryParams.treasuryUpdatedOperators;
+        const updatedOperators        : updateOperatorsType    = updateMvkOperatorsTreasuryParams.treasuryUpdatedOperators;
 
 
         // find and get update_operators entrypoint of treasury contract
         const updateEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateMvkOperators",
-            targetTreasuryAddress) : option(contract(updateOperatorsParams))) of [
+            targetTreasuryAddress) : option(contract(updateOperatorsType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_MVK_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(updateOperatorsParams))
+                | None        -> (failwith(error_UPDATE_MVK_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
             ];
 
         // update operators operation
@@ -1728,7 +1728,7 @@ block {
 
 
 
-function mintMvkAndTransferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function mintMvkAndTransferTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1768,7 +1768,7 @@ block {
 
 
 
-function stakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function stakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1808,7 +1808,7 @@ block {
 
 
 
-function unstakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function unstakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1848,7 +1848,7 @@ block {
 
 
 
-function createAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function createAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1893,7 +1893,7 @@ block {
 
 
 
-function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function trackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1938,7 +1938,7 @@ block {
 
 
 
-function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function untrackAggregator(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1983,7 +1983,7 @@ block {
 
 
 
-function setAggregatorMaintainer(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function setAggregatorMaintainer(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -2022,7 +2022,7 @@ block {
 
 
 
-function updateMvkInflationRate(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateMvkInflationRate(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -2057,7 +2057,7 @@ block {
 
 
 
-function triggerMvkInflation(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function triggerMvkInflation(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -2092,7 +2092,7 @@ block {
 
 
 
-function addVestee(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function addVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -2137,7 +2137,7 @@ block {
 
 
 
-function removeVestee(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function removeVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -2182,7 +2182,7 @@ block {
 
 
 
-function updateVestee(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateVestee(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -2227,7 +2227,7 @@ block {
 
 
 
-function toggleVesteeLock(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function toggleVesteeLock(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);

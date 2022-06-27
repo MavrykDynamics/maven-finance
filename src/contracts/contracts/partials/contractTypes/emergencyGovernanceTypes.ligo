@@ -52,13 +52,6 @@ type triggerEmergencyControlType is [@layout:comb] record[
   description  : string;
 ]
 
-type metadata is big_map (string, bytes);
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
 type emergencyGovernanceLambdaActionType is 
 
   // Housekeeping Entrypoints
@@ -66,8 +59,8 @@ type emergencyGovernanceLambdaActionType is
 | LambdaSetGovernance             of (address)
 | LambdaUpdateMetadata            of updateMetadataType
 | LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
-| LambdaUpdateGeneralContracts    of updateGeneralContractsParams
-| LambdaUpdateWhitelistContracts  of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts    of updateGeneralContractsType
+| LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
 | LambdaMistakenTransfer          of transferActionType
 
   // Emergency Governance Entrypoints
@@ -80,9 +73,9 @@ type emergencyGovernanceLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type emergencyGovernanceStorage is [@layout:comb] record [
+type emergencyGovernanceStorageType is [@layout:comb] record [
     admin                               : address;
-    metadata                            : metadata;
+    metadata                            : metadataType;
     config                              : emergencyConfigType;
 
     mvkTokenAddress                     : address;

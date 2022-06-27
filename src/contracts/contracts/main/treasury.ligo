@@ -1,39 +1,32 @@
 // ------------------------------------------------------------------------------
-// Common Types 
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
-
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
-
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Functional Types 
+// Shared Methods and Types
 // ------------------------------------------------------------------------------
 
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // MvkToken Types
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Treasury Types
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // TreasuryFactory Types
-#include "../partials/types/treasuryFactoryTypes.ligo"
+#include "../partials/contractTypes/treasuryFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -47,9 +40,9 @@ type treasuryAction is
     | SetBaker                       of option(key_hash)
     | SetName                        of (string)
     | UpdateMetadata                 of updateMetadataType
-    | UpdateWhitelistContracts       of updateWhitelistContractsParams
-    | UpdateGeneralContracts         of updateGeneralContractsParams
-    | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
+    | UpdateWhitelistContracts       of updateWhitelistContractsType
+    | UpdateGeneralContracts         of updateGeneralContractsType
+    | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsType
 
     // Pause / Break Glass Entrypoints
     | PauseAll                       of (unit)
@@ -64,7 +57,7 @@ type treasuryAction is
     | MintMvkAndTransfer             of mintMvkAndTransferType
 
     // Staking Entrypoints
-    | UpdateMvkOperators             of updateOperatorsParams
+    | UpdateMvkOperators             of updateOperatorsType
     | StakeMvk                       of (nat)
     | UnstakeMvk                     of (nat)
 
@@ -73,27 +66,10 @@ type treasuryAction is
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * treasuryStorage
+type return is list (operation) * treasuryStorageType
 
 // treasury contract methods lambdas
-type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasuryStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasuryStorageType) -> return
 
 
 
@@ -109,19 +85,19 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 
 
 
-function checkSenderIsAdmin(var s : treasuryStorage) : unit is
+function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
-function checkSenderIsAllowed(const s: treasuryStorage): unit is
+function checkSenderIsAllowed(const s: treasuryStorageType): unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorage): unit is
+function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorageType): unit is
     block{
         const governanceFinancialAddress: address = case s.whitelistContracts["governanceFinancial"] of [
               Some (_address) -> _address
@@ -133,7 +109,7 @@ function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorage): unit
 
 
 
-function checkSenderIsGovernanceOrFactory(const s: treasuryStorage): unit is
+function checkSenderIsGovernanceOrFactory(const s: treasuryStorageType): unit is
 block {
     
     // First check because a treasury without a factory should still be accessible
@@ -155,26 +131,6 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -185,25 +141,25 @@ function checkNoAmount(const _p : unit) : unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkTransferIsNotPaused(var s : treasuryStorage) : unit is
+function checkTransferIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
+function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkStakeMvkIsNotPaused(var s : treasuryStorage) : unit is
+function checkStakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.stakeMvkIsPaused then failwith(error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkUnstakeMvkIsNotPaused(var s : treasuryStorage) : unit is
+function checkUnstakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.unstakeMvkIsPaused then failwith(error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
@@ -217,12 +173,12 @@ function checkUnstakeMvkIsNotPaused(var s : treasuryStorage) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintParams) is
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
-      token_address) : option(contract(mintParams))) of [
+      token_address) : option(contract(mintType))) of [
           Some(contr) -> contr
-        | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintParams))
+        | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
       ];
 
 
@@ -248,7 +204,7 @@ function mintTokens(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryUnpackLambdaFunctionType)) of [
@@ -292,49 +248,49 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : treasuryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : treasuryStorageType) : address is
   s.admin
 
 
 
 (* View: get name variable *)
-[@view] function getName(const _: unit; var s : treasuryStorage) : string is
+[@view] function getName(const _: unit; var s : treasuryStorageType) : string is
   s.name
 
 
 
 (* View: get break glass config *)
-[@view] function getBreakGlassConfig(const _: unit; var s : treasuryStorage) : treasuryBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _: unit; var s : treasuryStorageType) : treasuryBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : treasuryStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : treasuryStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContracts(const _: unit; var s : treasuryStorage) : whitelistTokenContractsType is
+[@view] function getWhitelistTokenContracts(const _: unit; var s : treasuryStorageType) : whitelistTokenContractsType is
   s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : treasuryStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : treasuryStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : treasuryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : treasuryStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -354,7 +310,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : treasuryStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : treasuryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -373,7 +329,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : treasuryStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : treasuryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -392,7 +348,7 @@ block {
 
 
 (* setBaker entrypoint *)
-function setBaker(const keyHash : option(key_hash); var s : treasuryStorage) : return is
+function setBaker(const keyHash : option(key_hash); var s : treasuryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetBaker"] of [
@@ -411,7 +367,7 @@ block {
 
 
 (* setName entrypoint - update the metadata at a given key *)
-function setName(const updatedName : string; var s : treasuryStorage) : return is
+function setName(const updatedName : string; var s : treasuryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
@@ -430,7 +386,7 @@ block {
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : treasuryStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : treasuryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -449,7 +405,7 @@ block {
 
 
 (* updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: treasuryStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -468,7 +424,7 @@ block {
 
 
 (* updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: treasuryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -487,7 +443,7 @@ block {
 
 
 (* updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryStorage): return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsType; var s: treasuryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
@@ -514,7 +470,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll entrypoint *)
-function pauseAll(var s: treasuryStorage) : return is
+function pauseAll(var s: treasuryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -533,7 +489,7 @@ block {
 
 
 (* unpauseAll entrypoint *)
-function unpauseAll(var s : treasuryStorage) : return is
+function unpauseAll(var s : treasuryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -552,7 +508,7 @@ block {
 
 
 (* togglePauseTransfer entrypoint *)
-function togglePauseTransfer(var s : treasuryStorage) : return is
+function togglePauseTransfer(var s : treasuryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTransfer"] of [
@@ -571,7 +527,7 @@ block {
 
 
 (* togglePauseMintMvkAndTransfer entrypoint *)
-function togglePauseMintMvkAndTransfer(var s : treasuryStorage) : return is
+function togglePauseMintMvkAndTransfer(var s : treasuryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseMintMvkAndTransfer"] of [
@@ -590,7 +546,7 @@ block {
 
 
 (* togglePauseStake entrypoint *)
-function togglePauseStakeMvk(var s : treasuryStorage) : return is
+function togglePauseStakeMvk(var s : treasuryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStakeMvk"] of [
@@ -609,7 +565,7 @@ block {
 
 
 (* togglePauseUnstakeMvk entrypoint *)
-function togglePauseUnstakeMvk(var s : treasuryStorage) : return is
+function togglePauseUnstakeMvk(var s : treasuryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstakeMvk"] of [
@@ -636,7 +592,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* transfer entrypoint *)
-function transfer(const transferTokenParams : transferActionType; var s : treasuryStorage) : return is 
+function transfer(const transferTokenParams : transferActionType; var s : treasuryStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTransfer"] of [
@@ -655,7 +611,7 @@ block {
 
 
 (* mintMvkAndTransfer entrypoint *)
-function mintMvkAndTransfer(const mintMvkAndTransferParams : mintMvkAndTransferType ; var s : treasuryStorage) : return is 
+function mintMvkAndTransfer(const mintMvkAndTransferParams : mintMvkAndTransferType ; var s : treasuryStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMintMvkAndTransfer"] of [
@@ -674,7 +630,7 @@ block {
 
 
 (* updateMvkOperators entrypoint *)
-function updateMvkOperators(const updateOperatorsParams : updateOperatorsParams ; var s : treasuryStorage) : return is 
+function updateMvkOperators(const updateOperatorsParams : updateOperatorsType ; var s : treasuryStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMvkOperators"] of [
@@ -693,7 +649,7 @@ block {
 
 
 (* stakeMvk entrypoint *)
-function stakeMvk(const stakeAmount : nat ; var s : treasuryStorage) : return is 
+function stakeMvk(const stakeAmount : nat ; var s : treasuryStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaStakeMvk"] of [
@@ -712,7 +668,7 @@ block {
 
 
 (* unstakeMvk entrypoint *)
-function unstakeMvk(const unstakeAmount : nat ; var s : treasuryStorage) : return is 
+function unstakeMvk(const unstakeAmount : nat ; var s : treasuryStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstakeMvk"] of [
@@ -739,7 +695,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: treasuryStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: treasuryStorageType): return is
 block{
     
     // check that sender is admin
@@ -765,7 +721,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : treasuryAction; const s : treasuryStorage) : return is 
+function main (const action : treasuryAction; const s : treasuryStorageType) : return is 
     
     case action of [
 

@@ -1,28 +1,33 @@
 // ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
+
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
+
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
+
+// ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
-
 // Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+#include "../partials/shared/transferTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Delegation Types
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // Governance Satellite Types
-#include "../partials/types/governanceSatelliteTypes.ligo"
+#include "../partials/contractTypes/governanceSatelliteTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -34,8 +39,8 @@ type governanceSatelliteAction is
     | SetGovernance                 of address
     | UpdateMetadata                of updateMetadataType
     | UpdateConfig                  of governanceSatelliteUpdateConfigParamsType
-    | UpdateWhitelistContracts      of updateWhitelistContractsParams
-    | UpdateGeneralContracts        of updateGeneralContractsParams
+    | UpdateWhitelistContracts      of updateWhitelistContractsType
+    | UpdateGeneralContracts        of updateGeneralContractsType
 
       // Satellite Governance
     | SuspendSatellite              of suspendSatelliteActionType
@@ -62,27 +67,10 @@ type governanceSatelliteAction is
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * governanceSatelliteStorage
+type return is list (operation) * governanceSatelliteStorageType
 
 // governance satellite contract methods lambdas
-type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaActionType * governanceSatelliteStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaActionType * governanceSatelliteStorageType) -> return
 
 
 
@@ -96,13 +84,13 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : governanceSatelliteStorage) : unit is
+function checkSenderIsAllowed(var s : governanceSatelliteStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s: governanceSatelliteStorage): unit is
+function checkSenderIsAdmin(const s: governanceSatelliteStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
@@ -111,16 +99,6 @@ function checkSenderIsAdmin(const s: governanceSatelliteStorage): unit is
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -132,7 +110,7 @@ function checkNoAmount(const _p : unit) : unit is
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function setSatelliteSnapshot(const satelliteSnapshot : actionSatelliteSnapshotType; var s : governanceSatelliteStorage) : governanceSatelliteStorage is 
+function setSatelliteSnapshot(const satelliteSnapshot : actionSatelliteSnapshotType; var s : governanceSatelliteStorageType) : governanceSatelliteStorageType is 
 block {
     // init variables
     const actionId              : nat     = satelliteSnapshot.actionId;
@@ -146,7 +124,7 @@ block {
     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
     else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
-    var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := record [
+    var satelliteSnapshotRecord : satelliteSnapshotRecordType := record [
         totalStakedMvkBalance   = stakedMvkBalance; 
         totalDelegatedAmount    = totalDelegatedAmount; 
         totalVotingPower        = totalVotingPower;
@@ -248,7 +226,7 @@ case (Tezos.get_entrypoint_opt(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceSatelliteUnpackLambdaFunctionType)) of [
@@ -277,73 +255,73 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin *)
-[@view] function getAdmin(const _: unit; var s : governanceSatelliteStorage) : address is
+[@view] function getAdmin(const _: unit; var s : governanceSatelliteStorageType) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : governanceSatelliteStorage) : governanceSatelliteConfigType is
+[@view] function getConfig(const _: unit; var s : governanceSatelliteStorageType) : governanceSatelliteConfigType is
   s.config
 
 
 
 (* View: get Governance address *)
-[@view] function getGovernanceAddress(const _: unit; var s : governanceSatelliteStorage) : address is
+[@view] function getGovernanceAddress(const _: unit; var s : governanceSatelliteStorageType) : address is
   s.governanceAddress
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : governanceSatelliteStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : governanceSatelliteStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : governanceSatelliteStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : governanceSatelliteStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get a governance satellite action *)
-[@view] function getGovernanceSatelliteActionOpt(const actionId: nat; var s : governanceSatelliteStorage) : option(governanceSatelliteActionRecordType) is
+[@view] function getGovernanceSatelliteActionOpt(const actionId: nat; var s : governanceSatelliteStorageType) : option(governanceSatelliteActionRecordType) is
   Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
 
 
 
 (* View: get a governance satellite action snapshot *)
-[@view] function getGovernanceActionSnapshotOpt(const actionId: nat; var s : governanceSatelliteStorage) : option(governanceSatelliteSnapshotMapType) is
+[@view] function getGovernanceActionSnapshotOpt(const actionId: nat; var s : governanceSatelliteStorageType) : option(governanceSatelliteSnapshotMapType) is
   Big_map.find_opt(actionId, s.governanceSatelliteSnapshotLedger)
 
 
 
 (* View: get governance satellite counter *)
-[@view] function getGovernanceSatelliteCounter(const _: unit; var s : governanceSatelliteStorage) : nat is
+[@view] function getGovernanceSatelliteCounter(const _: unit; var s : governanceSatelliteStorageType) : nat is
   s.governanceSatelliteCounter
 
 
 
 (* View: get a satellite oracle record *)
-[@view] function getSatelliteOracleRecordOpt(const satelliteAddress: address; var s : governanceSatelliteStorage) : option(satelliteOracleRecordType) is
+[@view] function getSatelliteOracleRecordOpt(const satelliteAddress: address; var s : governanceSatelliteStorageType) : option(satelliteOracleRecordType) is
   Big_map.find_opt(satelliteAddress, s.satelliteOracleLedger)
 
 
 
 (* View: get an aggregator record *)
-[@view] function getAggregatorRecordOpt(const aggregatorAddress: address; var s : governanceSatelliteStorage) : option(aggregatorRecordType) is
+[@view] function getAggregatorRecordOpt(const aggregatorAddress: address; var s : governanceSatelliteStorageType) : option(aggregatorRecordType) is
   Big_map.find_opt(aggregatorAddress, s.aggregatorLedger)
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : governanceSatelliteStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceSatelliteStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : governanceSatelliteStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : governanceSatelliteStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -382,7 +360,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : governanceSatelliteStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : governanceSatelliteStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -401,7 +379,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : governanceSatelliteStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : governanceSatelliteStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -420,7 +398,7 @@ block {
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceSatelliteStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceSatelliteStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -439,7 +417,7 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : governanceSatelliteUpdateConfigParamsType; var s : governanceSatelliteStorage) : return is 
+function updateConfig(const updateConfigParams : governanceSatelliteUpdateConfigParamsType; var s : governanceSatelliteStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -458,7 +436,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint  *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceSatelliteStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: governanceSatelliteStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -477,7 +455,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint  *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceSatelliteStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: governanceSatelliteStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -504,7 +482,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  suspendSatellite entrypoint  *)
-function suspendSatellite(const suspendSatelliteParams : suspendSatelliteActionType ; var s : governanceSatelliteStorage) : return is 
+function suspendSatellite(const suspendSatelliteParams : suspendSatelliteActionType ; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSuspendSatellite"] of [
@@ -523,7 +501,7 @@ block {
 
 
 (*  unsuspendSatellite entrypoint  *)
-function unsuspendSatellite(const unsuspendSatelliteParams : unsuspendSatelliteActionType ; var s : governanceSatelliteStorage) : return is 
+function unsuspendSatellite(const unsuspendSatelliteParams : unsuspendSatelliteActionType ; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnsuspendSatellite"] of [
@@ -542,7 +520,7 @@ block {
 
 
 (*  banSatellite entrypoint  *)
-function banSatellite(const banSatelliteParams : banSatelliteActionType; var s : governanceSatelliteStorage) : return is 
+function banSatellite(const banSatelliteParams : banSatelliteActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBanSatellite"] of [
@@ -561,7 +539,7 @@ block {
 
 
 (*  unbanSatellite entrypoint  *)
-function unbanSatellite(const unbanSatelliteParams : unbanSatelliteActionType; var s : governanceSatelliteStorage) : return is 
+function unbanSatellite(const unbanSatelliteParams : unbanSatelliteActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnbanSatellite"] of [
@@ -588,7 +566,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  removeAllSatelliteOracles entrypoint  *)
-function removeAllSatelliteOracles(const removeAllSatelliteOraclesParams : removeAllSatelliteOraclesActionType; var s : governanceSatelliteStorage) : return is 
+function removeAllSatelliteOracles(const removeAllSatelliteOraclesParams : removeAllSatelliteOraclesActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveAllSatelliteOracles"] of [
@@ -607,7 +585,7 @@ block {
 
 
 (*  addOracleToAggregator entrypoint  *)
-function addOracleToAggregator(const addOracleToAggregatorParams : addOracleToAggregatorActionType; var s : governanceSatelliteStorage) : return is 
+function addOracleToAggregator(const addOracleToAggregatorParams : addOracleToAggregatorActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracleToAggregator"] of [
@@ -626,7 +604,7 @@ block {
 
 
 (*  removeOracleInAggregator entrypoint  *)
-function removeOracleInAggregator(const removeOracleInAggregatorParams : removeOracleInAggregatorActionType; var s : governanceSatelliteStorage) : return is 
+function removeOracleInAggregator(const removeOracleInAggregatorParams : removeOracleInAggregatorActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveOracleInAggregator"] of [
@@ -653,7 +631,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAggregatorMaintainer entrypoint  *)
-function setAggregatorMaintainer(const setAggregatorMaintainerParams : setAggregatorMaintainerActionType; var s : governanceSatelliteStorage) : return is 
+function setAggregatorMaintainer(const setAggregatorMaintainerParams : setAggregatorMaintainerActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAggregatorMaintainer"] of [
@@ -672,7 +650,7 @@ block {
 
 
 (*  registerAggregator entrypoint  *)
-function registerAggregator(const registerAggregatorParams : registerAggregatorActionType; var s : governanceSatelliteStorage) : return is 
+function registerAggregator(const registerAggregatorParams : registerAggregatorActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterAggregator"] of [
@@ -691,7 +669,7 @@ block {
 
 
 (*  updateAggregatorStatus entrypoint  *)
-function updateAggregatorStatus(const updateAggregatorStatusParams : updateAggregatorStatusActionType; var s : governanceSatelliteStorage) : return is 
+function updateAggregatorStatus(const updateAggregatorStatusParams : updateAggregatorStatusActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorStatus"] of [
@@ -718,7 +696,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  voteForAction entrypoint  *)
-function voteForAction(const voteForActionParams : voteForActionType; var s : governanceSatelliteStorage) : return is 
+function voteForAction(const voteForActionParams : voteForActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForAction"] of [
@@ -737,7 +715,7 @@ block {
 
 
 (*  dropAction entrypoint  *)
-function dropAction(const dropActionParams : dropActionType; var s : governanceSatelliteStorage) : return is 
+function dropAction(const dropActionParams : dropActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropAction"] of [
@@ -764,7 +742,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: governanceSatelliteStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: governanceSatelliteStorageType): return is
 block{
     
     // check that sender is admin
@@ -792,7 +770,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : governanceSatelliteAction; const s : governanceSatelliteStorage) : return is
+function main (const action : governanceSatelliteAction; const s : governanceSatelliteStorageType) : return is
     block{
         checkNoAmount(Unit);
     }

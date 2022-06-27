@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
     checkSenderIsAllowed(s); 
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (* settName lambda - update the metadata at a given key *)
-function lambdaSetName(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaSetName(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -83,7 +83,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
     checkSenderIsAdmin(s);
@@ -104,7 +104,7 @@ block {
 
 
 (*  updateConfig lambda *)
-function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is 
+function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
 block {
 
   checkSenderIsAdmin(s); 
@@ -124,7 +124,7 @@ block {
                         // check if farm has been initiated
                         checkFarmIsInit(s);
 
-                        // update farmStorage
+                        // update farmStorageType
                         s := updateFarm(s);
 
                         // Check new reward per block
@@ -136,7 +136,7 @@ block {
                         const remainingBlocks: nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
                         const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
 
-                        // Update farmStorage
+                        // Update farmStorageType
                         s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
                         s.config.plannedRewards.totalRewards := newTotalRewards;
                     }
@@ -151,7 +151,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+function lambdaUpdateWhitelistContracts(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -168,7 +168,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -185,7 +185,7 @@ block {
 
 
 (*  mistaken lambda *)
-function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -229,7 +229,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  updateBlocksPerMinute lambda *)
-function lambdaUpdateBlocksPerMinute(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
+function lambdaUpdateBlocksPerMinute(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
 block {
     
     // check that source is admin or factory
@@ -241,7 +241,7 @@ block {
     case farmLambdaAction of [
         | LambdaUpdateBlocksPerMinute(blocksPerMinute) -> {
                 
-                // update farmStorage
+                // update farmStorageType
                 s := updateFarm(s);
 
                 // Check new blocksPerMinute
@@ -261,11 +261,11 @@ block {
                     const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
                     newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
                     
-                    // Update farmStorage
+                    // Update farmStorageType
                     s.config.plannedRewards.totalBlocks := newTotalBlocks;
                 };
 
-                // Update farmStorage
+                // Update farmStorageType
                 s.config.blocksPerMinute := blocksPerMinute;
                 s.config.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
 
@@ -278,7 +278,7 @@ block {
 
 
 (* initFarm lambda *)
-function lambdaInitFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+function lambdaInitFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType): return is
 block{
 
     checkSenderIsAdmin(s);
@@ -295,7 +295,7 @@ block{
                 // Check wether the farm is infinite or its total blocks has been set
                 if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
                 
-                // Update farmStorage
+                // Update farmStorageType
                 s := updateFarm(s);
                 s.initBlock := Tezos.level;
                 s.config.infinite := initFarmParams.infinite;
@@ -316,7 +316,7 @@ block{
 
 
 (* closeFarm lambda *)
-function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType): return is
 block{
     
     checkSenderIsAdmin(s);
@@ -346,7 +346,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
+function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
 block {
     
     checkSenderIsGovernanceOrFactory(s);
@@ -373,7 +373,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
     checkSenderIsGovernanceOrFactory(s);
@@ -400,7 +400,7 @@ block {
 
 
 (*  togglePauseDeposit lambda *)
-function lambdaTogglePauseDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaTogglePauseDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
     
     checkSenderIsAdmin(s);
@@ -419,7 +419,7 @@ block {
 
 
 (*  togglePauseWithdraw lambda *)
-function lambdaTogglePauseWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaTogglePauseWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -439,7 +439,7 @@ block {
 
 
 (*  togglePauseClaim lambda *)
-function lambdaTogglePauseClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+function lambdaTogglePauseClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -467,7 +467,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* deposit lambda *)
-function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
+function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
 block{
 
     // break glass check
@@ -481,20 +481,20 @@ block{
     case farmLambdaAction of [
         | LambdaDeposit(tokenAmount) -> {
                 
-                // Update pool farmStorage
+                // Update pool farmStorageType
                 s := updateFarm(s);
 
                 // Check if farm is closed or not
                 checkFarmIsOpen(s);
 
                 // Depositor address
-                const depositor     : depositor = Tezos.sender;
+                const depositor     : depositorType = Tezos.sender;
 
                 // Check if sender as already a record
                 const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
 
                 // Prepare new depositor record
-                var depositorRecord: depositorRecord := record[
+                var depositorRecord: depositorRecordType := record[
                     balance                     =0n;
                     participationRewardsPerShare    =s.accumulatedRewardsPerShare;
                     unclaimedRewards            =0n;
@@ -536,7 +536,7 @@ block{
 
 
 (* withdraw lambda *)
-function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
+function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
 block{
 
     // break glass check
@@ -550,15 +550,15 @@ block{
     case farmLambdaAction of [
         | LambdaWithdraw(tokenAmount) -> {
                 
-                // Update pool farmStorage
+                // Update pool farmStorageType
                 s := updateFarm(s);     
 
-                const depositor: depositor = Tezos.sender;
+                const depositor: depositorType = Tezos.sender;
 
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(depositor, s);
 
-                var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
+                var depositorRecord: depositorRecordType := case getDepositorDeposit(depositor, s) of [
                     Some (d)    -> d
                 |   None        -> failwith(error_DEPOSITOR_NOT_FOUND)
                 ];
@@ -593,7 +593,7 @@ block{
 
 
 (* claim lambda *)
-function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
+function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
 block{
 
     // break glass check
@@ -607,19 +607,19 @@ block{
     case farmLambdaAction of [
         | LambdaClaim(depositor) -> {
                 
-                // Update pool farmStorage
+                // Update pool farmStorageType
                 s := updateFarm(s);
 
                 // Update user's unclaimed rewards
                 s := updateUnclaimedRewards(depositor, s);
 
                 // Check if sender as already a record
-                var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
+                var depositorRecord: depositorRecordType := case getDepositorDeposit(depositor, s) of [
                     Some (r)        -> r
-                |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecord)
+                |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecordType)
                 ];
 
-                const claimedRewards: tokenBalance = depositorRecord.unclaimedRewards;
+                const claimedRewards: tokenBalanceType = depositorRecord.unclaimedRewards;
 
                 if claimedRewards = 0n then failwith(error_NO_FARM_REWARDS_TO_CLAIM) else skip;
 

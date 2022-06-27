@@ -2,32 +2,31 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-type depositor is address
-type tokenBalance is nat
+type depositorType is address;
 
-type depositorRecord is [@layout:comb] record[
-    balance                         : tokenBalance;
+type depositorRecordType is [@layout:comb] record[
+    balance                         : tokenBalanceType;
     participationRewardsPerShare    : nat;
-    unclaimedRewards                : tokenBalance;
-    claimedRewards                  : tokenBalance;
+    unclaimedRewards                : tokenBalanceType;
+    claimedRewards                  : tokenBalanceType;
 ]
-type claimedRewards is [@layout:comb] record[
-    unpaid: tokenBalance;
-    paid: tokenBalance;
+type claimedRewardsType is [@layout:comb] record[
+    unpaid: tokenBalanceType;
+    paid: tokenBalanceType;
 ]
-type plannedRewards is [@layout:comb] record[
+type plannedRewardsType is [@layout:comb] record[
     totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
-    totalRewards: tokenBalance;
+    currentRewardPerBlock: tokenBalanceType;
+    totalRewards: tokenBalanceType;
 ]
-type lpStandard is
+type lpStandardType is
     Fa12 of unit
 |   Fa2 of unit
-type lpToken is [@layout:comb] record[
+type lpTokenType is [@layout:comb] record[
     tokenAddress: address;
     tokenId: nat;
-    tokenStandard: lpStandard;
-    tokenBalance: tokenBalance;
+    tokenStandard: lpStandardType;
+    tokenBalance: tokenBalanceType;
 ]
 
 type farmBreakGlassConfigType is [@layout:comb] record [
@@ -37,31 +36,16 @@ type farmBreakGlassConfigType is [@layout:comb] record [
 ]
 
 type farmConfigType is record [
-    lpToken                     : lpToken;
+    lpToken                     : lpTokenType;
     infinite                    : bool;
     forceRewardFromTransfer     : bool;
     blocksPerMinute             : nat;
-    plannedRewards              : plannedRewards;
+    plannedRewards              : plannedRewardsType;
 ]
-
-type metadata is big_map (string, bytes);
 
 // ------------------------------------------------------------------------------
 // Inputs
 // ------------------------------------------------------------------------------
-
-(* Transfer entrypoint inputs for FA12 and FA2 *)
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: tokenBalance;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type newTransferType is list(transfer)
-type oldTransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
 
 (* initFarm entrypoint inputs *)
 type initFarmParamsType is [@layout:comb] record[
@@ -71,9 +55,6 @@ type initFarmParamsType is [@layout:comb] record[
     forceRewardFromTransfer: bool;
     infinite: bool;
 ]
-
-(* doorman's farmClaim entrypoint inputs *)
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 (* updateConfig entrypoint inputs *)
 type farmUpdateConfigNewValueType is nat
@@ -85,12 +66,6 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmUpdateConfigActionType;
 ]
 
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
 type farmLambdaActionType is 
 
   // Housekeeping Entrypoints
@@ -99,8 +74,8 @@ type farmLambdaActionType is
 |   LambdaSetName                     of (string)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateConfig                of farmUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
-|   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+|   LambdaUpdateGeneralContracts      of updateGeneralContractsType
 |   LambdaMistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
@@ -124,27 +99,27 @@ type farmLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type farmStorage is [@layout:comb] record[
-    admin                   : address;
-    metadata                : metadata;
-    name                    : string;
-    config                  : farmConfigType;
+type farmStorageType is [@layout:comb] record[
+    admin                       : address;
+    metadata                    : metadataType;
+    name                        : string;
+    config                      : farmConfigType;
 
-    mvkTokenAddress         : address;
-    governanceAddress       : address;
+    mvkTokenAddress             : address;
+    governanceAddress           : address;
 
-    whitelistContracts      : whitelistContractsType;      
-    generalContracts        : generalContractsType;
+    whitelistContracts          : whitelistContractsType;      
+    generalContracts            : generalContractsType;
 
-    breakGlassConfig        : farmBreakGlassConfigType;
+    breakGlassConfig            : farmBreakGlassConfigType;
 
-    lastBlockUpdate         : nat;
-    accumulatedRewardsPerShare  : tokenBalance;
-    claimedRewards          : claimedRewards;
-    depositors              : big_map(depositor, depositorRecord);
-    open                    : bool;
-    init                    : bool;
-    initBlock               : nat;
+    lastBlockUpdate             : nat;
+    accumulatedRewardsPerShare  : tokenBalanceType;
+    claimedRewards              : claimedRewardsType;
+    depositors                  : big_map(depositorType, depositorRecordType);
+    open                        : bool;
+    init                        : bool;
+    initBlock                   : nat;
 
-    lambdaLedger            : lambdaLedgerType;
+    lambdaLedger                : lambdaLedgerType;
 ]

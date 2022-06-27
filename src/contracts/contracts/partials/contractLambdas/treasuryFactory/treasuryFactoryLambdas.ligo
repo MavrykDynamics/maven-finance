@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
     
     checkSenderIsAllowed(s); 
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is
+function lambdaSetGovernance(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is
+function lambdaUpdateMetadata(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); 
@@ -64,7 +64,7 @@ block {
 
 
 (* updateConfig lambda *)
-function lambdaUpdateConfig(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is 
+function lambdaUpdateConfig(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -91,7 +91,7 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -108,7 +108,7 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaUpdateGeneralContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -125,7 +125,7 @@ block {
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaUpdateWhitelistTokenContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -142,7 +142,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaMistakenTransfer(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -183,7 +183,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll lambda *)
-function lambdaPauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaPauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAllowed(s);
@@ -220,7 +220,7 @@ block {
 
 
 (* unpauseAll lambda *)
-function lambdaUnpauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaUnpauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAllowed(s);
@@ -257,7 +257,7 @@ block {
 
 
 (* togglePauseCreateTreasury lambda *)
-function lambdaTogglePauseCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaTogglePauseCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -277,7 +277,7 @@ block {
 
 
 (* togglePauseTrackTreasury lambda *)
-function lambdaTogglePauseTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaTogglePauseTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -297,7 +297,7 @@ block {
 
 
 (* togglePauseUntrackTreasury lambda *)
-function lambdaTogglePauseUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
+function lambdaTogglePauseUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -325,7 +325,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createTreasury lambda *)
-function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is 
+function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is 
 block{
 
     // Check if Sender is admin
@@ -363,13 +363,13 @@ block{
                 ];
 
                 // Prepare Treasury Metadata
-                const treasuryMetadata: metadata = Big_map.literal (list [
+                const treasuryMetadata: metadataType = Big_map.literal (list [
                     ("", Bytes.pack("tezos-storage:data"));
                     ("data", createTreasuryParams.metadata)
                 ]);
-                const treasuryLambdaLedger : map(string, bytes) = s.treasuryLambdaLedger;
+                const treasuryLambdaLedger : lambdaLedgerType = s.treasuryLambdaLedger;
 
-                const originatedTreasuryStorage : treasuryStorage = record[
+                const originatedTreasuryStorage : treasuryStorageType = record[
                     admin                     = s.admin;                         // admin will be the governance contract
                     mvkTokenAddress           = s.mvkTokenAddress;
                     governanceAddress         = s.governanceAddress;
@@ -395,14 +395,14 @@ block{
 
                 // Add the treasury to the governance general contracts map
                 if createTreasuryParams.addToGeneralContracts then {
-                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                    const updateGeneralMapRecord : updateGeneralContractsType = record [
                         generalContractName    = createTreasuryParams.name;
                         generalContractAddress = treasuryOrigination.1;
                     ];
 
-                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType)    = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsType))) of [
                         Some (contr) -> contr
-                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                    |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
                     ];
 
                     // updateContractGeneralMap operation
@@ -428,7 +428,7 @@ block{
 
 
 (* trackTreasury lambda *)
-function lambdaTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is 
+function lambdaTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is 
 block{
 
     // Check if Sender is admin
@@ -454,7 +454,7 @@ block{
 
 
 (* untrackTreasury lambda *)
-function lambdaUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is 
+function lambdaUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is 
 block{
 
     // Check if Sender is admin

@@ -1,40 +1,38 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // MvkToken Types
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Treasury Type for mint and transfers
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // Council Type for financial requests
-#include "../partials/types/councilTypes.ligo"
+#include "../partials/contractTypes/councilTypes.ligo"
 
 // Delegation Types
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // Governance Financial Type
-#include "../partials/types/governanceFinancialTypes.ligo"
+#include "../partials/contractTypes/governanceFinancialTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -45,15 +43,15 @@ type governanceFinancialAction is
     | SetGovernance                   of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceFinancialUpdateConfigParamsType
-    | UpdateGeneralContracts          of updateGeneralContractsParams
-    | UpdateWhitelistContracts        of updateWhitelistContractsParams
-    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+    | UpdateGeneralContracts          of updateGeneralContractsType
+    | UpdateWhitelistContracts        of updateWhitelistContractsType
+    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     | MistakenTransfer                of transferActionType
 
       // Financial Governance Entrypoints
-    | RequestTokens                   of requestTokensType
-    | RequestMint                     of requestMintType
-    | SetContractBaker                of setContractBakerType
+    | RequestTokens                   of councilActionRequestTokensType
+    | RequestMint                     of councilActionRequestMintType
+    | SetContractBaker                of councilActionSetContractBakerType
     | DropFinancialRequest            of (nat)
     | VoteForRequest                  of voteForRequestType
 
@@ -80,23 +78,6 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 // ------------------------------------------------------------------------------
 //
 // Constants End
-//
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
 //
 // ------------------------------------------------------------------------------
 
@@ -239,26 +220,6 @@ block{
   }
 } with unit
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -357,7 +318,7 @@ block {
     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
     else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
-    var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
+    var satelliteSnapshotRecord : satelliteSnapshotRecordType := record [
         totalStakedMvkBalance   = stakedMvkBalance; 
         totalDelegatedAmount    = totalDelegatedAmount; 
         totalVotingPower        = totalVotingPower;
@@ -588,7 +549,7 @@ block {
 
 
 // (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceFinancialStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: governanceFinancialStorage): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -607,7 +568,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceFinancialStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: governanceFinancialStorage): return is
 block {
         
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -626,7 +587,7 @@ block {
 
 
 // (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceFinancialStorage): return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsType; var s: governanceFinancialStorage): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
