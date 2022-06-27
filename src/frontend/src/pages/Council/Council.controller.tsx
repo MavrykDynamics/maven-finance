@@ -38,6 +38,7 @@ export const Council = () => {
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
+  const isPendindList = councilPendingActions.length && isUserInCouncilMembers
 
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
@@ -77,8 +78,8 @@ export const Council = () => {
   }, [accountPkh])
 
   useEffect(() => {
-    setIsPendingSignature(Boolean(isUserInCouncilMembers && councilPendingActions.length))
-  }, [isUserInCouncilMembers, councilPendingActions.length])
+    setIsPendingSignature(Boolean(isUserInCouncilMembers))
+  }, [isUserInCouncilMembers])
 
   useEffect(() => {
     // re get data
@@ -100,35 +101,29 @@ export const Council = () => {
             Back to Member Dashboard
           </button>
         ) : null}
-        {isPendingSignature ? (
-          <>
-            <h1>Pending Signature</h1>
-            <article className="pending">
-              <div className="pending-items">
-                {councilPendingActions.map((item) => (
-                  <CouncilPendingView
-                    executed_datetime={item.executed_datetime}
-                    key={item.id}
-                    id={item.id}
-                    action_type={item.action_type}
-                    signers_count={item.signers_count}
-                    initiator_id={item.initiator_id}
-                    num_council_members={councilMembers.length}
-                  />
-                ))}
-              </div>
 
-              <CouncilPendingReviewView
-                onClick={() => {
-                  setIsGoback(true)
-                  setIsPendingSignature(false)
-                }}
-              />
-            </article>
-          </>
-        ) : null}
-        <article className={`council-details ${isPendingSignature ? 'is-user-member' : ''}`}>
+        <article className={`council-details ${isPendindList ? 'is-user-member' : ''}`}>
           <div className="council-actions">
+            {isPendingSignature && isPendindList ? (
+              <>
+                <h1>Pending Signature</h1>
+                <article className="pending">
+                  <div className="pending-items">
+                    {councilPendingActions.map((item) => (
+                      <CouncilPendingView
+                        executed_datetime={item.executed_datetime}
+                        key={item.id}
+                        id={item.id}
+                        action_type={item.action_type}
+                        signers_count={item.signers_count}
+                        initiator_id={item.initiator_id}
+                        num_council_members={councilMembers.length}
+                      />
+                    ))}
+                  </div>
+                </article>
+              </>
+            ) : null}
             {isPendingSignature ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
@@ -168,14 +163,30 @@ export const Council = () => {
               </>
             ) : null}
           </div>
-          {councilMembers.length ? (
-            <aside className={`council-members ${isPendingSignature ? 'is-user-member' : ''}`}>
-              <h1>Council Members</h1>
-              {councilMembers.map((item: CouncilMember) => (
-                <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
-              ))}
-            </aside>
-          ) : null}
+
+          <aside
+            className={`council-members ${isPendingSignature ? 'is-user-member' : ''} ${
+              isPendindList && isPendingSignature ? 'is-pending-list' : ''
+            }`}
+          >
+            {isPendingSignature ? (
+              <CouncilPendingReviewView
+                onClick={() => {
+                  setIsGoback(true)
+                  setIsPendingSignature(false)
+                }}
+              />
+            ) : null}
+
+            {councilMembers.length ? (
+              <div>
+                <h1>Council Members</h1>
+                {councilMembers.map((item: CouncilMember) => (
+                  <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
+                ))}
+              </div>
+            ) : null}
+          </aside>
         </article>
       </CouncilStyled>
     </Page>

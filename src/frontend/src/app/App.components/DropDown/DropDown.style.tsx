@@ -139,6 +139,7 @@ export const DropdownCard = styled(Card)`
 
   &.pending-dropdown {
     margin-bottom: 30px;
+    margin-top: 30px;
   }
 
   &.satellite-governance-dropdown {
