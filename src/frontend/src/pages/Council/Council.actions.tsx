@@ -245,7 +245,7 @@ export const addCouncilMember =
     }
   }
 
-// Add Vestee
+// Update Vestee
 export const UPDATE_VESTEE_REQUEST = 'UPDATE_VESTEE_REQUEST'
 export const UPDATE_VESTEE_RESULT = 'UPDATE_VESTEE_RESULT'
 export const UPDATE_VESTEE_ERROR = 'UPDATE_VESTEE_ERROR'
@@ -295,3 +295,50 @@ export const updateVestee =
       })
     }
   }
+
+// Toggle Vestee Lock
+export const TOGGLE_VESTEE_LOCK_REQUEST = 'TOGGLE_VESTEE_LOCK_REQUEST'
+export const TOGGLE_VESTEE_LOCK_RESULT = 'TOGGLE_VESTEE_LOCK_RESULT'
+export const TOGGLE_VESTEE_LOCK_ERROR = 'TOGGLE_VESTEE_LOCK_ERROR'
+export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: TOGGLE_VESTEE_LOCK_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.councilActionToggleVesteeLock(vesteeAddress).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Toggle Vestee Lock...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Toggle Vestee Lock done', 'All good :)'))
+
+    dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilPendingActionsStorage())
+    dispatch({
+      type: TOGGLE_VESTEE_LOCK_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: TOGGLE_VESTEE_LOCK_ERROR,
+      error,
+    })
+  }
+}
