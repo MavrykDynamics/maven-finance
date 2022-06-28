@@ -10,16 +10,17 @@ export const CouncilStyled = styled.section`
   }
 
   .pending-items {
-    width: 100%;
-    display: flex;
-    gap: 20px;
-    max-width: 750px;
-    overflow: auto;
+    width: 750px;
   }
 
   h1 {
     margin-top: 29px;
     margin-bottom: 11px;
+
+    small {
+      font-weight: normal;
+      font-size: 0.7em;
+    }
   }
 
   .council-details {

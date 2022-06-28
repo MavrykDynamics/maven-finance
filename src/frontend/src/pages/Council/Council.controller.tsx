@@ -23,6 +23,7 @@ import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.
 import { CouncilFormToggleVesteeLock } from './CouncilForms/CouncilFormToggleVesteeLock.view'
 import { CouncilFormChangeCouncilMember } from './CouncilForms/CouncilFormChangeCouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
+import Carousel from '../../app/App.components/Carousel/Carousel.view'
 
 // styles
 import { Page } from 'styles'
@@ -111,17 +112,19 @@ export const Council = () => {
                 </h1>
                 <article className="pending">
                   <div className="pending-items">
-                    {councilPendingActions.map((item) => (
-                      <CouncilPendingView
-                        executed_datetime={item.executed_datetime}
-                        key={item.id}
-                        id={item.id}
-                        action_type={item.action_type}
-                        signers_count={item.signers_count}
-                        initiator_id={item.initiator_id}
-                        num_council_members={councilMembers.length}
-                      />
-                    ))}
+                    <Carousel>
+                      {councilPendingActions.map((item) => (
+                        <CouncilPendingView
+                          executed_datetime={item.executed_datetime}
+                          key={item.id}
+                          id={item.id}
+                          action_type={item.action_type}
+                          signers_count={item.signers_count}
+                          initiator_id={item.initiator_id}
+                          num_council_members={councilMembers.length}
+                        />
+                      ))}
+                    </Carousel>
                   </div>
                 </article>
               </>
