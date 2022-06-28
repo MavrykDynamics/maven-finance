@@ -23,12 +23,18 @@ export const FARM_STORAGE_QUERY = `
       total_rewards
       unpaid_rewards
       force_rewards_from_transfer
+      name
+      creation_timestamp
+      admin
     }
     farm_factory {
       address
       create_farm_paused
       track_farm_paused
       untrack_farm_paused
+      blocks_per_minute
+      admin
+      farm_name_max_length
       farms {
         withdraw_paused
         total_blocks
@@ -52,6 +58,9 @@ export const FARM_STORAGE_QUERY = `
         force_rewards_from_transfer
         current_reward_per_block
         accumulated_rewards_per_share
+        creation_timestamp
+        admin
+        name
       }
     }
   }

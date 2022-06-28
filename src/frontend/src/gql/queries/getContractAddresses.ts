@@ -1,8 +1,5 @@
 export const CONTRACT_ADDRESSES_QUERY = `
   query ContractAddressesQuery {
-    farm {
-      address
-    }
     delegation {
       address
     }
@@ -10,6 +7,9 @@ export const CONTRACT_ADDRESSES_QUERY = `
       address
     }
     mvk_token {
+      address
+    }
+    farm {
       address
     }
     farm_factory {
@@ -30,7 +30,28 @@ export const CONTRACT_ADDRESSES_QUERY = `
     treasury {
       address
     }
+    treasury_factory {
+      address
+    }
     vesting {
+      address
+    }
+    governance_satellite {
+      address
+    }
+    usdm_token {
+      address
+    }
+    usdm_token_controller {
+      address
+    }
+    vault {
+      address
+    }
+    aggregator_factory {
+      address
+    }
+    aggregator {
       address
     }
   }
