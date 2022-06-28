@@ -70,15 +70,17 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
       COUNCIL_PENDING_ACTIONS_NAME,
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
-    const councilPendingActions = storage?.council_action_record?.length
-      ? storage?.council_action_record.filter((item: any) => {
-          const timeNow = Date.now()
-          const expirationDatetime = new Date(item.expiration_datetime).getTime()
-          const isEndedVotingTime = expirationDatetime > timeNow
-          const isNoSameAccountPkh = accountPkh !== item.initiator_id
-          return isEndedVotingTime && isNoSameAccountPkh
-        })
-      : []
+    // const councilPendingActions = storage?.council_action_record?.length
+    //   ? storage?.council_action_record.filter((item: any) => {
+    //       const timeNow = Date.now()
+    //       const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    //       const isEndedVotingTime = expirationDatetime > timeNow
+    //       const isNoSameAccountPkh = accountPkh !== item.initiator_id
+    //       return isEndedVotingTime && isNoSameAccountPkh
+    //     })
+    //   : []
+
+    const councilPendingActions = storage?.council_action_record
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
@@ -404,3 +406,49 @@ export const changeCouncilMember =
       })
     }
   }
+
+// Remove Council Member
+export const REMOVE_MEMBER_REQUEST = 'REMOVE_MEMBER_REQUEST'
+export const REMOVE_MEMBER_RESULT = 'REMOVE_MEMBER_RESULT'
+export const REMOVE_MEMBER_ERROR = 'REMOVE_MEMBER_ERROR'
+export const removeCouncilMember = (memberAddress: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: REMOVE_MEMBER_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.councilActionRemoveMember(memberAddress).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Remove Council Member...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Remove Council Member done', 'All good :)'))
+
+    dispatch(getCouncilStorage())
+    dispatch({
+      type: REMOVE_MEMBER_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: REMOVE_MEMBER_ERROR,
+      error,
+    })
+  }
+}

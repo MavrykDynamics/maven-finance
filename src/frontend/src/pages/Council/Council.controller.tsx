@@ -22,6 +22,7 @@ import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCounci
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
 import { CouncilFormToggleVesteeLock } from './CouncilForms/CouncilFormToggleVesteeLock.view'
 import { CouncilFormChangeCouncilMember } from './CouncilForms/CouncilFormChangeCouncilMember.view'
+import { CouncilFormRemoveCouncilMember } from './CouncilForms/CouncilFormRemoveCouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import Carousel from '../../app/App.components/Carousel/Carousel.view'
 
@@ -49,6 +50,7 @@ export const Council = () => {
     { text: 'Update Vestee', value: 'updateVestee' },
     { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
     { text: 'Change Council Member', value: 'changeCouncilMember' },
+    { text: 'Remove Council Member', value: 'removeCouncilMember' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -149,6 +151,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
                 {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
+                {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
               </DropdownCard>
             ) : null}
 
