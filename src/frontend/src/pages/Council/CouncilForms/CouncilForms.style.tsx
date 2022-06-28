@@ -27,6 +27,10 @@ export const CouncilFormStyled = styled.form`
     gap: 20px;
     padding-top: 1px;
     row-gap: 18px;
+
+    &.form-grid-button-right {
+      padding-bottom: 16px;
+    }
   }
 
   label {

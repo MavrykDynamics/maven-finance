@@ -61,7 +61,7 @@ export const CouncilFormToggleVesteeLock = () => {
       </a>
       <h1 className="form-h1">Toggle Vestee Lock</h1>
       <p>Please enter valid function parameters for toggle vestee lock</p>
-      <div className="form-grid" style={{ paddingBottom: '4px' }}>
+      <div className="form-grid form-grid-button-right">
         <div>
           <label>Vestee Address</label>
           <Input
