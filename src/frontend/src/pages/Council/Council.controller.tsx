@@ -21,6 +21,7 @@ import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
 import { CouncilFormToggleVesteeLock } from './CouncilForms/CouncilFormToggleVesteeLock.view'
+import { CouncilFormChangeCouncilMember } from './CouncilForms/CouncilFormChangeCouncilMember.view'
 import Icon from '../../app/App.components/Icon/Icon.view'
 
 // styles
@@ -48,7 +49,6 @@ export const Council = () => {
     { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
     { text: 'Change Council Member', value: 'changeCouncilMember' },
   ]
-  // CouncilFormChangeCouncilMember.view.tsx
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -145,6 +145,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
+                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
               </DropdownCard>
             ) : null}
 

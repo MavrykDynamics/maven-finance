@@ -51,6 +51,8 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
   const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql'
   const gqlAPINetwork = process.env.NODE_ENV === 'development' ? developmentAPI : prodictionAPI
 
+  console.log('%c ||||| gqlAPINetwork', 'color:yellowgreen', gqlAPINetwork);
+
   return new Promise<any>((resolve, reject) => {
     fetch(gqlAPINetwork, {
       method: 'POST',

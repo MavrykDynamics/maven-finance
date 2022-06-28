@@ -342,3 +342,65 @@ export const toggleVesteeLock = (vesteeAddress: string) => async (dispatch: any,
     })
   }
 }
+
+// Change Council Member
+export const CHANGE_MEMBER_REQUEST = 'CHANGE_MEMBER_REQUEST'
+export const CHANGE_MEMBER_RESULT = 'CHANGE_MEMBER_RESULT'
+export const CHANGE_MEMBER_ERROR = 'CHANGE_MEMBER_ERROR'
+export const changeCouncilMember =
+  (
+    oldCouncilMemberAddress: string,
+    newCouncilMemberAddress: string,
+    newMemberName: string,
+    newMemberWebsite: string,
+    newMemberImage: string,
+  ) =>
+  async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: CHANGE_MEMBER_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .councilActionChangeMember(
+          oldCouncilMemberAddress,
+          newCouncilMemberAddress,
+          newMemberName,
+          newMemberWebsite,
+          newMemberImage,
+        )
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Change Council Member...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Change Council Member done', 'All good :)'))
+
+      dispatch(getCouncilStorage())
+      dispatch({
+        type: CHANGE_MEMBER_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: CHANGE_MEMBER_ERROR,
+        error,
+      })
+    }
+  }
