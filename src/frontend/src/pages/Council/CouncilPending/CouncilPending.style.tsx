@@ -7,6 +7,7 @@ export const CouncilPendingStyled = styled(Card)`
   padding: 25px;
   padding-bottom: 28px;
   min-width: 237px;
+  margin-right: 20px;
 
   h3 {
     max-width: 190px;
@@ -57,7 +58,7 @@ export const CouncilPendingStyled = styled(Card)`
 export const CouncilPendingReviewStyled = styled(Card)`
   margin: 0;
   width: 100%;
-  height: 216px;
+  height: 201px;
   margin-bottom: 32px;
   padding: 30px;
   flex-shrink: 0;
