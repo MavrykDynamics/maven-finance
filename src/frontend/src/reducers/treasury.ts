@@ -3,10 +3,12 @@ import { SET_TREASURY_STORAGE } from '../pages/Treasury/Treasury.actions'
 
 export interface TreasuryState {
   treasuryStorage: Array<TreasuryType>
+  treasuryFactoryAddress: string
 }
 
 const treasuryDefaultState: TreasuryState = {
   treasuryStorage: [],
+  treasuryFactoryAddress: ''
 }
 
 export function treasury(state = treasuryDefaultState, action: any): TreasuryState {
@@ -14,7 +16,8 @@ export function treasury(state = treasuryDefaultState, action: any): TreasurySta
     case SET_TREASURY_STORAGE : 
       return {
         ...state,
-        treasuryStorage: action.treasuryStorage
+        treasuryStorage: action.treasuryStorage,
+        treasuryFactoryAddress: action.treasuryFactoryAddress
       }
     default:
       return state

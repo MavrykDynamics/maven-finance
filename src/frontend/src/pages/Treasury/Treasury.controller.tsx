@@ -24,7 +24,7 @@ import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 export const Treasury = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { treasuryStorage } = useSelector((state: State) => state.treasury)
+  const { treasuryStorage, treasuryFactoryAddress } = useSelector((state: State) => state.treasury)
 
   const itemsForDropDown = [{ text: 'Choose treasury', value: '' }].concat(
     treasuryStorage.map((treasury) => ({
@@ -69,7 +69,7 @@ export const Treasury = () => {
   return (
     <Page>
       <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
-      <TreasuryView treasury={globalTreasuryData} isGlobal />
+      <TreasuryView treasury={globalTreasuryData} isGlobal factoryAddress={treasuryFactoryAddress} />
       <TreasuryActiveStyle>
         <TreasurySelectStyle isSelectedTreasury={Boolean(chosenDdItem?.value)}>
           <h2>Active Treasuries</h2>

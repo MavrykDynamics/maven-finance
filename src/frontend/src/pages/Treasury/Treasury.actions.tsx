@@ -67,6 +67,7 @@ export const fillTreasuryStorage = () => async (dispatch: any) => {
     dispatch({
       type: SET_TREASURY_STORAGE,
       treasuryStorage,
+      treasuryFactoryAddress: convertedStorage.treasuryFactoryAddress,
     })
   } catch (error) {
     console.log('%c ---- error getTreasuryStorage', 'color:red', error)

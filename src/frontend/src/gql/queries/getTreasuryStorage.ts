@@ -21,6 +21,9 @@ export const GET_TREASURY_DATA = `
       treasury_name_max_length
       untrack_treasury_paused
     }
+    treasury_factory {
+      address
+    }
   }
 `
 

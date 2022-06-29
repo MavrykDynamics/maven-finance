@@ -39,6 +39,21 @@ export const TreasuryViewStyle = styled(Card)`
     white-space: nowrap;
   }
 
+  .factory_address {
+    display: flex;
+
+    .text {
+      color: #8d86eb;
+      opacity: 0.7;
+      margin-right: 20px;
+    }
+
+    .tzAddressToClick {
+      font-size: 12px;
+      color: #86d4c9;
+    }
+  }
+
   .assets-block {
     display: grid;
     grid-template-columns: 100px 150px auto;
