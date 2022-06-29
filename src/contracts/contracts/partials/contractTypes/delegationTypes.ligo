@@ -116,6 +116,14 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
     newStatus               : string;
 ]
 
+type delegationTogglePauseEntrypointType is
+  ToggleDelegateToSatellite             of bool
+| ToggleUndelegateSatellite             of bool
+| ToggleRegisterSatellite               of bool
+| ToggleUnregisterSatellite             of bool
+| ToggleUpdateSatellite                 of bool
+| ToggleDistributeReward                of bool
+
 type delegationLambdaActionType is 
 
   // Housekeeping Lambdas
@@ -130,12 +138,7 @@ type delegationLambdaActionType is
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                              of (unit)
 | LambdaUnpauseAll                            of (unit)
-| LambdaPauseDelegateToSatellite              of (unit)
-| LambdaPauseUndelegateSatellite              of (unit)
-| LambdaPauseRegisterSatellite                of (unit)
-| LambdaPauseUnregisterSatellite              of (unit)
-| LambdaPauseUpdateSatellite                  of (unit)
-| LambdaPauseDistributeReward                 of (unit)
+| LambdaTogglePauseEntrypoint                 of delegationTogglePauseEntrypointType
 
   // Delegation Lambdas
 | LambdaDelegateToSatellite                   of delegateToSatelliteType

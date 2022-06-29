@@ -336,19 +336,25 @@ block {
 
 
 
-(*  togglePauseReqRateUpd lambda *)
-function lambdaTogglePauseReqRateUpd(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
-        | LambdaTogglePauseReqRateUpd(_parameters) -> {
-                
-                if s.breakGlassConfig.requestRateUpdateIsPaused then s.breakGlassConfig.requestRateUpdateIsPaused := False
-                else s.breakGlassConfig.requestRateUpdateIsPaused := True;
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
 
+                case targetEntrypoint of [
+                    ToggleRequestRateUpdate (_v)            -> s.breakGlassConfig.requestRateUpdateIsPaused := _v
+                |   ToggleRequestRateUpdateDev (_v)         -> s.breakGlassConfig.requestRateUpdateDeviationIsPaused := _v
+                |   ToggleSetObservationCommit (_v)         -> s.breakGlassConfig.setObservationCommitIsPaused := _v
+                |   ToggleSetObservationReveal (_v)         -> s.breakGlassConfig.setObservationRevealIsPaused := _v
+                |   ToggleWithdrawRewardXtz (_v)            -> s.breakGlassConfig.withdrawRewardXtzIsPaused := _v
+                |   ToggleWithdrawRewardStakedMvk (_v)      -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -356,109 +362,6 @@ block {
 } with (noOperations, s)
 
 
-
-(*  togglePauseReqRateUpdDev lambda *)
-function lambdaTogglePauseReqRateUpdDev(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseReqRateUpdDev(_parameters) -> {
-                
-                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then s.breakGlassConfig.requestRateUpdateDeviationIsPaused := False
-                else s.breakGlassConfig.requestRateUpdateDeviationIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseSetObsCommit lambda *)
-function lambdaTogglePauseSetObsCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseSetObsCommit(_parameters) -> {
-                
-                if s.breakGlassConfig.setObservationCommitIsPaused then s.breakGlassConfig.setObservationCommitIsPaused := False
-                else s.breakGlassConfig.setObservationCommitIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseSetObsReveal lambda *)
-function lambdaTogglePauseSetObsReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseSetObsReveal(_parameters) -> {
-                
-                if s.breakGlassConfig.setObservationRevealIsPaused then s.breakGlassConfig.setObservationRevealIsPaused := False
-                else s.breakGlassConfig.setObservationRevealIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseRewardXtz lambda *)
-function lambdaTogglePauseRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseRewardXtz(_parameters) -> {
-                
-                if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
-                else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseRewardSMvk lambda *)
-function lambdaTogglePauseRewardSMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseRewardSMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
-                else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End

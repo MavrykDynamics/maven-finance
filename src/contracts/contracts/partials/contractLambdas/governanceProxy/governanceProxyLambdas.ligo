@@ -164,10 +164,10 @@ block {
     (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
     const id : nat = case executeAction of [
       
-      (* Update Lambda Function *)    
+      (* Update Lambda Function *)
       | UpdateProxyLambda (_v)                 -> 1n
 
-      (* General Controls *)    
+      (* General Controls *)
       | SetContractAdmin (_v)                  -> 2n
       | SetContractGovernance (_v)             -> 3n
       | SetContractName (_v)                   -> 4n
@@ -178,7 +178,7 @@ block {
       | UpdateContractGeneralMap (_v)          -> 9n
       | UpdateContractWhitelistTokenMap (_v)   -> 10n
       
-      (* Update Configs *)    
+      (* Update Configs *)
       | UpdateGovernanceConfig (_v)            -> 11n
       | UpdateGovernanceFinancialConfig (_v)   -> 12n
       | UpdateGovernanceSatelliteConfig (_v)   -> 13n
@@ -193,42 +193,52 @@ block {
       | UpdateTreasuryFactoryConfig (_v)       -> 22n
       | UpdateDoormanConfig (_v)               -> 23n
 
+      (* BreakGlass Configs *)
+      | ToggleAggregatorEntrypoint (_v)        -> 24n
+      | ToggleAggregatorFacEntrypoint (_v)     -> 25n
+      | ToggleDelegationEntrypoint (_v)        -> 26n
+      | ToggleDoormanEntrypoint (_v)           -> 27n
+      | ToggleFarmEntrypoint (_v)              -> 28n
+      | ToggleFarmFacEntrypoint (_v)           -> 29n
+      | ToggleTreasuryEntrypoint (_v)          -> 30n
+      | ToggleTreasuryFacEntrypoint (_v)       -> 31n
+
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 24n
-      | SetGovernanceProxy (_v)                -> 25n
+      | UpdateWhitelistDevelopersSet (_v)      -> 32n
+      | SetGovernanceProxy (_v)                -> 33n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 26n
-      | TrackFarm (_v)                         -> 27n
-      | UntrackFarm (_v)                       -> 28n
-      | InitFarm (_v)                          -> 29n
-      | CloseFarm (_v)                         -> 30n
+      | CreateFarm (_v)                        -> 34n
+      | TrackFarm (_v)                         -> 35n
+      | UntrackFarm (_v)                       -> 36n
+      | InitFarm (_v)                          -> 37n
+      | CloseFarm (_v)                         -> 38n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 31n
-      | TrackTreasury (_v)                     -> 32n
-      | UntrackTreasury (_v)                   -> 33n
-      | TransferTreasury (_v)                  -> 34n
-      | MintMvkAndTransferTreasury (_v)        -> 35n
-      | UpdateMvkOperatorsTreasury (_v)        -> 36n
-      | StakeMvkTreasury (_v)                  -> 37n
-      | UnstakeMvkTreasury (_v)                -> 38n
+      | CreateTreasury (_v)                    -> 39n
+      | TrackTreasury (_v)                     -> 40n
+      | UntrackTreasury (_v)                   -> 41n
+      | TransferTreasury (_v)                  -> 42n
+      | MintMvkAndTransferTreasury (_v)        -> 43n
+      | UpdateMvkOperatorsTreasury (_v)        -> 44n
+      | StakeMvkTreasury (_v)                  -> 45n
+      | UnstakeMvkTreasury (_v)                -> 46n
 
       (* Aggregator Control *)
-      | CreateAggregator (_v)                  -> 39n
-      | TrackAggregator (_v)                   -> 40n
-      | UntrackAggregator (_v)                 -> 41n
-      | SetAggregatorMaintainer (_v)           -> 42n
+      | CreateAggregator (_v)                  -> 47n
+      | TrackAggregator (_v)                   -> 48n
+      | UntrackAggregator (_v)                 -> 49n
+      | SetAggregatorMaintainer (_v)           -> 50n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 43n
-      | TriggerMvkInflation (_v)               -> 44n
+      | UpdateMvkInflationRate (_v)            -> 51n
+      | TriggerMvkInflation (_v)               -> 52n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 45n
-      | RemoveVestee (_v)                      -> 46n
-      | UpdateVestee (_v)                      -> 47n
-      | ToggleVesteeLock (_v)                  -> 48n
+      | AddVestee (_v)                         -> 53n
+      | RemoveVestee (_v)                      -> 54n
+      | UpdateVestee (_v)                      -> 55n
+      | ToggleVesteeLock (_v)                  -> 56n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -1226,6 +1236,356 @@ block {
           );
 
         operations := updateDoormanConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleAggregatorEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleAggregatorEntrypoint(params) -> {
+
+        // assign params to constants for better code readability
+        const aggregatorAddress     = params.targetAggregatorAddress;
+        const targetEntrypoint      = params.targetEntrypoint;
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            aggregatorAddress) : option(contract(aggregatorTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(aggregatorTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleAggregatorFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleAggregatorFacEntrypoint(targetEntrypoint) -> {
+
+        // find and get the contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
+        const aggregatorFactoryAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            aggregatorFactoryAddress) : option(contract(aggregatorFactoryTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : contract(aggregatorFactoryTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleDelegationEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleDelegationEntrypoint(targetEntrypoint) -> {
+
+        // find and get the contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+        const delegationAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            delegationAddress) : option(contract(delegationTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegationTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleDoormanEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleDoormanEntrypoint(targetEntrypoint) -> {
+
+        // find and get the contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+        const doormanAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            doormanAddress) : option(contract(doormanTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(doormanTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleFarmEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleFarmEntrypoint(params) -> {
+
+        // assign params to constants for better code readability
+        const farmAddress           = params.targetFarmAddress;
+        const targetEntrypoint      = params.targetEntrypoint;
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            farmAddress) : option(contract(farmTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND) : contract(farmTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleFarmFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleFarmFacEntrypoint(targetEntrypoint) -> {
+
+        // find and get the contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+        const farmFactoryAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            farmFactoryAddress) : option(contract(farmFactoryTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(farmFactoryTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleTreasuryEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleTreasuryEntrypoint(params) -> {
+
+        // assign params to constants for better code readability
+        const treasuryAddress       = params.targetTreasuryAddress;
+        const targetEntrypoint      = params.targetEntrypoint;
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            treasuryAddress) : option(contract(treasuryTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(treasuryTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function toggleTreasuryFacEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleTreasuryFacEntrypoint(targetEntrypoint) -> {
+
+        // find and get the contract address from the generalContracts big map
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
+        const treasuryFactoryAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get togglePauseEntrypoint entrypoint
+        const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%togglePauseEntrypoint",
+            treasuryFactoryAddress) : option(contract(treasuryFactoryTogglePauseEntrypointType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_PAUSE_ENTRYPOINT_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(treasuryFactoryTogglePauseEntrypointType))
+            ];
+
+        // pause contract entrypoint
+        const togglePauseEntrypointOperation : operation = Tezos.transaction(
+          targetEntrypoint,
+          0tez, 
+          togglePauseEntrypoint
+          );
+
+        operations := togglePauseEntrypointOperation # operations;
 
         }
     | _ -> skip

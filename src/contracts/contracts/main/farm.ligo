@@ -50,9 +50,7 @@ type farmAction is
     // Pause / Break Glass Entrypoints
 |   PauseAll                    of (unit)
 |   UnpauseAll                  of (unit)
-|   TogglePauseDeposit          of (unit)
-|   TogglePauseWithdraw         of (unit)
-|   TogglePauseClaim            of (unit)
+|   TogglePauseEntrypoint      of farmTogglePauseEntrypointType
 
     // Farm Entrypoints
 |   Deposit                     of nat
@@ -770,60 +768,24 @@ block {
 
 
 
-(*  togglePauseDeposit entrypoint *)
-function togglePauseDeposit(var s : farmStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDeposit"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: farmTogglePauseEntrypointType; const s: farmStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseDeposit(unit);
+    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseWithdraw entrypoint *)
-function togglePauseWithdraw(var s : farmStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseWithdraw"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseWithdraw(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseClaim entrypoint *)
-function togglePauseClaim(var s : farmStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseClaim"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseClaim(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -954,9 +916,7 @@ function main (const action: farmAction; var s: farmStorageType): return is
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                   -> pauseAll(s)
         |   UnpauseAll (_parameters)                 -> unpauseAll(s)
-        |   TogglePauseDeposit (_parameters)         -> togglePauseDeposit(s)
-        |   TogglePauseWithdraw (_parameters)        -> togglePauseWithdraw(s)
-        |   TogglePauseClaim (_parameters)           -> togglePauseClaim(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)

@@ -53,26 +53,18 @@
     },
     {
       "index": 13,
-      "name": "lambdaTogglePauseDeposit"
+      "name": "lambdaTogglePauseEntrypoint"
     },
     {
       "index": 14,
-      "name": "lambdaTogglePauseWithdraw"
-    },
-    {
-      "index": 15,
-      "name": "lambdaTogglePauseClaim"
-    },
-    {
-      "index": 16,
       "name": "lambdaDeposit"
     },
     {
-      "index": 17,
+      "index": 15,
       "name": "lambdaWithdraw"
     },
     {
-      "index": 18,
+      "index": 16,
       "name": "lambdaClaim"
     }    
 ]

@@ -399,17 +399,21 @@ block {
 
 
 
-(*  togglePauseDeposit lambda *)
-function lambdaTogglePauseDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
-    
+
     checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
-        | LambdaTogglePauseDeposit(_parameters) -> {
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+
+                case targetEntrypoint of [
+                    ToggleDeposit (_v)       -> s.breakGlassConfig.depositIsPaused := _v
+                |   ToggleWithdraw (_v)      -> s.breakGlassConfig.withdrawIsPaused := _v
+                |   ToggleClaim (_v)         -> s.breakGlassConfig.claimIsPaused := _v
+                ]
                 
-                if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
-                else s.breakGlassConfig.depositIsPaused := True;
             }
         | _ -> skip
     ];
@@ -417,44 +421,6 @@ block {
 } with (noOperations, s)
 
 
-
-(*  togglePauseWithdraw lambda *)
-function lambdaTogglePauseWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case farmLambdaAction of [
-        | LambdaTogglePauseWithdraw(_parameters) -> {
-                
-                if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
-                else s.breakGlassConfig.withdrawIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseClaim lambda *)
-function lambdaTogglePauseClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case farmLambdaAction of [
-        | LambdaTogglePauseClaim(_parameters) -> {
-                
-                if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
-                else s.breakGlassConfig.claimIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End

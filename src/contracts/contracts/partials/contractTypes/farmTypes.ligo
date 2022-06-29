@@ -66,6 +66,11 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmUpdateConfigActionType;
 ]
 
+type farmTogglePauseEntrypointType is
+  ToggleDeposit     of bool
+| ToggleWithdraw    of bool
+| ToggleClaim       of bool
+
 type farmLambdaActionType is 
 
   // Housekeeping Entrypoints
@@ -86,9 +91,7 @@ type farmLambdaActionType is
     // Pause / Break Glass Entrypoints
 |   LambdaPauseAll                    of (unit)
 |   LambdaUnpauseAll                  of (unit)
-|   LambdaTogglePauseDeposit          of (unit)
-|   LambdaTogglePauseWithdraw         of (unit)
-|   LambdaTogglePauseClaim            of (unit)
+|   LambdaTogglePauseEntrypoint       of farmTogglePauseEntrypointType
 
     // Farm Entrypoints
 |   LambdaDeposit                     of nat
