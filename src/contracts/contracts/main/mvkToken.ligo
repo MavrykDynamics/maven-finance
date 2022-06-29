@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
@@ -21,8 +24,10 @@ type action is
 
   // Housekeeping Entrypoints
   SetAdmin                  of address
+| SetGovernance             of address
 | UpdateWhitelistContracts  of updateWhitelistContractsParams
 | UpdateGeneralContracts    of updateGeneralContractsParams
+| MistakenTransfer          of transferActionType
 
   // FA2 Entrypoints
 | AssertMetadata            of assertMetadataParams
@@ -66,34 +71,86 @@ const one_year       : int              = one_day * 365;
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
+//
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+function checkSenderIsAllowed(var s : mvkTokenStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
 function checkSenderIsAdmin(const store: mvkTokenStorage): unit is
-  if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+  if Tezos.sender =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
 function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
+  if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
   else unit
 
 
 
 function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
-  case Map.find_opt("doorman", store.generalContracts) of [
-      Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
-    | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
-  ]
+  block{
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
+  } with(case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> if _contract =/= Tezos.sender then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
+            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ])
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvkTokenStorage) : unit is
+block{
+  if Tezos.sender = store.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", store.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
 
 
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -189,30 +246,84 @@ block{
 //
 // ------------------------------------------------------------------------------
 
-(* getBalance View *)
-[@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
-  case Big_map.find_opt(user, store.ledger) of [
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var store : mvkTokenStorage) : address is
+  store.admin
+
+
+
+(* get: general contracts *)
+[@view] function getGeneralContracts(const _: unit; const store: mvkTokenStorage) : generalContractsType is
+  store.generalContracts
+
+
+
+(* get: whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const store: mvkTokenStorage) : whitelistContractsType is
+  store.whitelistContracts
+
+
+
+(* get: inflation rate *)
+[@view] function getInflationRate(const _: unit; const store: mvkTokenStorage) : nat is
+  store.inflationRate
+
+
+
+(* get: next inflation timestamp *)
+[@view] function getNextInflationTimestamp(const _: unit; const store: mvkTokenStorage) : timestamp is
+  store.nextInflationTimestamp
+
+
+
+(* get: operator *)
+[@view] function getOperatorOpt(const operator: (owner * operator * nat); const store: mvkTokenStorage) : option(unit) is
+  Big_map.find_opt(operator, store.operators)
+
+
+
+(* maximumSupply View *)
+[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+  store.maximumSupply
+
+
+
+(* get: balance View *)
+[@view] function get_balance(const userAndId: owner * nat; const store: mvkTokenStorage) : tokenBalance is
+  case Big_map.find_opt(userAndId.0, store.ledger) of [
       Some (_v) -> _v
     | None      -> 0n
   ]
 
 
 
-(* GetTotalSupply View *)
-[@view] function getTotalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
-  store.totalSupply
+(* total_supply View *)
+[@view] function total_supply(const _tokenId: nat; const _store: mvkTokenStorage) : tokenBalance is
+  _store.totalSupply
 
 
 
-(* GetMaximumSupply View *)
-[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
-  store.maximumSupply
+(* all_tokens View *)
+[@view] function all_tokens(const _: unit; const _store: mvkTokenStorage) : list(nat) is
+  list[0n]
 
 
 
-(* GetTotalAndMaximumSupply View *)
-[@view] function getTotalAndMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance * tokenBalance is
-  (store.totalSupply, store.maximumSupply)
+(* check if operator *)
+[@view] function is_operator(const operator: (owner * operator * nat); const store: mvkTokenStorage) : bool is
+  Big_map.mem(operator, store.operators)
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId: nat; const store: mvkTokenStorage) : tokenMetadataInfo is
+  case Big_map.find_opt(tokenId, store.token_metadata) of [
+    Some (_metadata)  -> _metadata
+  | None              -> record[
+    token_id    = tokenId;
+    token_info  = map[]
+  ]
+  ]
 
 // ------------------------------------------------------------------------------
 //
@@ -236,8 +347,19 @@ block{
 function setAdmin(const newAdminAddress : address; var store : mvkTokenStorage) : return is
 block {
 
-  checkSenderIsAdmin(store);
+  checkSenderIsAllowed(store);
   store.admin := newAdminAddress;
+
+} with (noOperations, store)
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var store : mvkTokenStorage) : return is
+block {
+    
+  checkSenderIsAllowed(store);
+  store.governanceAddress := newGovernanceAddress;
 
 } with (noOperations, store)
 
@@ -262,6 +384,31 @@ block {
     s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
 
 } with (noOperations, s)
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var store: mvkTokenStorage): return is
+block {
+    // Check if the sender is the governanceSatellite contract
+    checkSenderIsAdminOrGovernanceSatelliteContract(store);
+
+    // Operations list
+    var operations : list(operation) := nil;
+
+    // Create transfer operations
+    function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+      block{
+        // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+        const transferTokenOperation : operation = case transferParam.token of [
+            | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+            | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+            | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+        ];
+      } with(transferTokenOperation # operationList);
+    
+    operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+} with (operations, store)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -304,8 +451,8 @@ block{
             const tokenId: tokenId = destination.token_id;
             const tokenAmount: tokenBalance = destination.amount;
             const receiver: owner = destination.to_;
-            const ownerBalance: tokenBalance = getBalance(owner, accumulator);
-            const receiverBalance: tokenBalance = getBalance(receiver, accumulator);
+            const ownerBalance: tokenBalance = get_balance((owner, 0n), accumulator);
+            const receiverBalance: tokenBalance = get_balance((receiver, 0n), accumulator);
 
             // Validate operator
             checkOperator(owner, tokenId, account.1.operators);
@@ -398,11 +545,11 @@ block {
 
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
-    if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") 
+    if tempTotalSupply > store.maximumSupply then failwith(error_MAXIMUM_SUPPLY_EXCEEDED) 
     else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = get_balance((recipientAddress, 0n), store) + mintedTokens;
 
     // Update mvkTokenStorage
     store.totalSupply := store.totalSupply + mintedTokens;
@@ -427,7 +574,7 @@ block {
     checkSenderIsAdmin(store);
 
     // Update the inflation rate
-    if newInflationRate > 2000n then failwith("Error. The inflation rate cannot exceed 20%")
+    if newInflationRate > 2000n then failwith(error_INFLATION_RATE_TOO_HIGH)
     else store.inflationRate  := newInflationRate
 
 } with (noOperations, store)
@@ -452,7 +599,7 @@ block {
       // Update the next change date
       store.nextInflationTimestamp  := Tezos.now + one_year;
     }
-    else failwith("Error. You cannot trigger inflation now");
+    else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
 
 } with (noOperations, store)
 
@@ -480,8 +627,10 @@ function main (const action : action; const store : mvkTokenStorage) : return is
 
         // Housekeeping Entrypoints
         SetAdmin (params)                   -> setAdmin(params, store)
+      | SetGovernance (params)              -> setGovernance(params, store)
       | UpdateWhitelistContracts (params)   -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params)     -> updateGeneralContracts(params, store)
+      | MistakenTransfer (params)           -> mistakenTransfer(params, store)
 
         // FA2 Entrypoints
       | AssertMetadata (params)             -> assertMetadata(params, store)

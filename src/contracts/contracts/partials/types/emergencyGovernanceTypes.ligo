@@ -63,9 +63,12 @@ type emergencyGovernanceLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                  of (address)
+| LambdaSetGovernance             of (address)
 | LambdaUpdateMetadata            of updateMetadataType
 | LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
 | LambdaUpdateGeneralContracts    of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts  of updateWhitelistContractsParams
+| LambdaMistakenTransfer          of transferActionType
 
   // Emergency Governance Entrypoints
 | LambdaTriggerEmergencyControl   of triggerEmergencyControlType
@@ -79,16 +82,19 @@ type emergencyGovernanceLambdaActionType is
 
 type emergencyGovernanceStorage is [@layout:comb] record [
     admin                               : address;
-    config                              : emergencyConfigType;
-    mvkTokenAddress                     : address;
     metadata                            : metadata;
+    config                              : emergencyConfigType;
+
+    mvkTokenAddress                     : address;
+    governanceAddress                   : address;
     
+    whitelistContracts                  : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                    : generalContractsType;
 
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
     
     currentEmergencyGovernanceId        : nat;
-    nextEmergencyGovernanceProposalId   : nat;
+    nextEmergencyGovernanceId           : nat;
 
     lambdaLedger                        : lambdaLedgerType;
 ]

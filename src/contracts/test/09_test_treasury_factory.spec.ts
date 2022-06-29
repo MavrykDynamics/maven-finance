@@ -126,7 +126,7 @@
 //                     const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
 //                     await resetAdminOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 } 
 //             });
 
@@ -135,7 +135,7 @@
 //                     await signerFactory(eve.sk);
 //                     await chai.expect(treasuryInstance.methods.setAdmin(alice.pkh).send()).to.be.eventually.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 } 
 //             }); 
 //         })
@@ -160,7 +160,11 @@
 //                     treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury",
+//                         true,
+//                         treasuryMetadataBase
+//                     ).send()).to.be.rejected;
     
 //                     // Reset admin
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
@@ -170,7 +174,7 @@
 //                     assert.equal(isPausedStart, false);
 //                     assert.equal(isPausedEnd, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //             it('Non-admin should not be able to call the entrypoint', async () => {
@@ -178,7 +182,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.togglePauseCreateTreasury().send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -213,7 +217,7 @@
 //                     assert.equal(isPausedStart, false);
 //                     assert.equal(isPausedEnd, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //             it('Non-admin should not be able to call the entrypoint', async () => {
@@ -221,7 +225,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.togglePauseTrackTreasury().send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -256,7 +260,7 @@
 //                     assert.equal(isPausedStart, false);
 //                     assert.equal(isPausedEnd, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //             it('Non-admin should not be able to call the entrypoint', async () => {
@@ -264,7 +268,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.togglePauseUntrackTreasury().send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -300,7 +304,7 @@
 //                         }
 //                     }
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //             it('Non-admin should not be able to call the entrypoint', async () => {
@@ -308,7 +312,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.pauseAll().send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -344,7 +348,7 @@
 //                         }
 //                     }
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //             it('Non-admin should not be able to call the entrypoint', async () => {
@@ -352,7 +356,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -366,7 +370,10 @@
 //             it('Admin should be able to call this entrypoint', async () => {
 //                 try{
 //                     // Operation
-//                     const operation = await treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send();
+//                     const operation = await treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury1",
+//                         true,
+//                         treasuryMetadataBase).send();
 //                     await operation.confirmation()
 
 //                     // Final values
@@ -378,7 +385,7 @@
 //                     assert.strictEqual(treasuryStorage.admin, bob.pkh);
 //                     assert.strictEqual(treasuryStorage.mvkTokenAddress, mvkTokenAddress.address);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -386,9 +393,12 @@
 //                 try{
 //                     // Operation
 //                     await signerFactory(alice.sk);
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.eventually.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury",
+//                         false,
+//                         treasuryMetadataBase).send()).to.be.eventually.rejected;
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -406,7 +416,11 @@
 //                     treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(
+//                         "testTreasury",
+//                         false,
+//                         treasuryMetadataBase
+//                     ).send()).to.be.rejected;
     
 //                     // Reset admin
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
@@ -416,7 +430,7 @@
 //                     assert.equal(isPausedStart, false);
 //                     assert.equal(isPausedEnd, true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 //         });
@@ -440,7 +454,7 @@
 //                     // Assertions
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), false);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -470,7 +484,7 @@
 //                     assert.equal(isPausedEnd, true);
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), false);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -487,7 +501,7 @@
 //                     treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -503,7 +517,7 @@
 //                     treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToTrack), true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 //         })
@@ -527,7 +541,7 @@
 //                     // Assertions
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -557,7 +571,7 @@
 //                     assert.equal(isPausedEnd, true);
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -574,7 +588,7 @@
 //                     treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), false);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -590,7 +604,7 @@
 //                     treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
 //                     assert.equal(treasuryFactoryStorage.trackedTreasuries.includes(treasuryToUntrack), false);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 //         })

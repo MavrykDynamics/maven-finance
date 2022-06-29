@@ -12,11 +12,28 @@
 function lambdaSetAdmin(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
 
     case vestingLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const vestingLambdaAction : vestingLambdaActionType;  var s : vestingStorage) : return is
+block {
+    
+    checkSenderIsAllowed(s);
+
+    case vestingLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];
@@ -78,6 +95,39 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  mistakenTransfer lambda *)
+function lambdaMistakenTransfer(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorage): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case vestingLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -99,10 +149,7 @@ block {
         | LambdaAddVestee(addVesteeParams) -> {
                 
                 // check sender is from council contract
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-                else skip;
+                checkSenderIsCouncilOrAdmin(s);
 
                 // init parameters
                 const vesteeAddress          : address  = addVesteeParams.vesteeAddress;
@@ -111,15 +158,15 @@ block {
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
                 // check for div by 0 error
-                if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+                if vestingInMonths = 0n then failwith(error_VESTING_IN_MONTHS_TOO_SHORT)
                 else skip;
 
                 // Check for duration
-                if cliffInMonths > vestingInMonths then failwith("Error. The cliff period cannot last longer than the vesting period.")
+                if cliffInMonths > vestingInMonths then failwith(error_CLIFF_PERIOD_TOO_LONG)
                 else skip;
 
                 var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [
-                        Some(_record) -> failwith("Error. Vestee already exists")
+                        Some(_record) -> failwith(error_VESTEE_ALREADY_EXISTS)
                     |   None -> record [
                         
                         // static variables initiated at start ----
@@ -172,14 +219,11 @@ block {
     case vestingLambdaAction of [
         | LambdaRemoveVestee(vesteeAddress) -> {
                 
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-                else skip;
+                checkSenderIsCouncilOrAdmin(s);
 
                 var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
-                    | None -> failwith("Error. Vestee is not found.")
+                    | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 remove vesteeAddress from map s.vesteeLedger;
@@ -202,11 +246,7 @@ block {
     case vestingLambdaAction of [
         | LambdaUpdateVestee(updateVesteeParams) -> {
                 
-                // check sender is from council contract
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-                else skip;
+                checkSenderIsCouncilOrAdmin(s);
                 
                 // init parameters
                 const vesteeAddress             : address  = updateVesteeParams.vesteeAddress;
@@ -215,16 +255,16 @@ block {
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
                 // check for div by 0 error
-                if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+                if newVestingInMonths = 0n then failwith(error_VESTING_IN_MONTHS_TOO_SHORT)
                 else skip;
 
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
-                    | None -> failwith("Error. Vestee is not found.")
+                    | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 // Check for duration
-                if newCliffInMonths > newVestingInMonths then failwith("Error. The cliff period cannot last longer than the vesting period.")
+                if newCliffInMonths > newVestingInMonths then failwith(error_CLIFF_PERIOD_TOO_LONG)
                 else skip;
 
                 vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
@@ -277,14 +317,11 @@ block {
     case vestingLambdaAction of [
         | LambdaToggleVesteeLock(vesteeAddress) -> {
                 
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-                else skip;
+                checkSenderIsCouncilOrAdmin(s);
 
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
-                    | None          -> failwith("Error. Vestee is not found.")
+                    | None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 var newStatus : string := "newStatus";
@@ -327,14 +364,14 @@ block {
                 // use _vestee and _operations so that compiling will not have warnings that variable is unused
                 var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
                     | Some(_record) -> _record
-                    | None -> failwith("Error. Vestee is not found.")
+                    | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 // vestee status is not locked
-                if _vestee.status = "LOCKED" then failwith("Error. Vestee is locked.")
+                if _vestee.status = "LOCKED" then failwith(error_VESTEE_LOCKED)
                 else skip;
 
-                if _vestee.totalRemainder = 0n then failwith("Error. You already claimed everything")
+                if _vestee.totalRemainder = 0n then failwith(error_NO_VESTING_REWARDS_TO_CLAIM)
                 else skip;
 
                 const timestampCheck  : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
@@ -343,6 +380,9 @@ block {
 
                     // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
                     var numberOfClaimMonths : nat := abs(abs(Tezos.now - _vestee.lastClaimedTimestamp) / thirty_days);
+
+                    // first claim month
+                    if _vestee.lastClaimedTimestamp = _vestee.startTimestamp then numberOfClaimMonths   := numberOfClaimMonths + 1n else skip;
 
                     // get total claim amount
                     var totalClaimAmount := _vestee.claimAmountPerMonth * numberOfClaimMonths;
@@ -369,7 +409,7 @@ block {
                     _vestee.monthsClaimed            := monthsClaimed;
 
                     // use vestee start period to calculate next redemption period
-                    _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days) + thirty_days;
+                    _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days);
                     _vestee.lastClaimedTimestamp     := Tezos.now;    // current timestamp
 
                     _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  
@@ -384,7 +424,7 @@ block {
                     // update total vested amount in contract
                     s.totalVestedAmount := s.totalVestedAmount + totalClaimAmount;
 
-                } else failwith("Error. You are unable to claim now.");
+                } else failwith(error_CANNOT_CLAIM_VESTING_REWARDS_NOW);
 
             }
         | _ -> skip

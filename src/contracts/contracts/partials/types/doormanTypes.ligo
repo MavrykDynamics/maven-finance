@@ -13,19 +13,10 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
     compoundIsPaused        : bool;
+    farmClaimIsPaused       : bool;
 ]
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
-
-type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
-]
-type lambdaLedgerType is big_map(string, bytes)
-
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
 
 type metadata is big_map (string, bytes)
 
@@ -34,44 +25,31 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
+type doormanConfigType is [@layout:comb] record [
+    minMvkAmount     : nat;
+    empty            : unit
+];
 
-// vault and usdm types
-type vaultHandleType is [@layout:comb] record [
-    id      : nat ;
-    owner   : address;
+type doormanUpdateConfigNewValueType is nat
+type doormanUpdateConfigActionType is 
+  ConfigMinMvkAmount          of unit
+| Empty                       of unit
+type doormanUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: doormanUpdateConfigNewValueType; 
+  updateConfigAction: doormanUpdateConfigActionType;
 ]
-type tokenBalanceType            is nat;
-type collateralNameType          is string;
-type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
-type vaultType is [@layout:comb] record [
-    address                     : address;
-    collateralBalanceLedger     : collateralBalanceLedgerType;  // tez/token balance
-    usdmOutstanding             : nat;                    
-]
-type vaultDepositStakedMvkType is [@layout:comb] record [
-    vaultId          : nat;
-    depositAmount    : nat;
-]
-type vaultWithdrawStakedMvkType is [@layout:comb] record [
-    vaultId          : nat;
-    withdrawAmount   : nat;
-]
-type vaultLiquidateStakedMvkType is [@layout:comb] record [
-    liquidatedAmount  : nat; 
-    vaultId           : nat;
-    vaultOwner        : address; 
-    liquidator        : address; 
-]
-
 
 type doormanLambdaActionType is 
 
   // Housekeeping Lambdas
   LambdaSetAdmin                    of address
+| LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata              of updateMetadataType
-| LambdaUpdateMinMvkAmount          of (nat)
+| LambdaUpdateConfig                of doormanUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+| LambdaMistakenTransfer            of transferActionType
+| LambdaMigrateFunds                of (address)
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                    of (unit)
@@ -79,6 +57,7 @@ type doormanLambdaActionType is
 | LambdaTogglePauseStake            of (unit)
 | LambdaTogglePauseUnstake          of (unit)
 | LambdaTogglePauseCompound         of (unit)
+| LambdaTogglePauseFarmClaim        of (unit)
 
   // Doorman Lambdas
 | LambdaStake                       of (nat)
@@ -102,10 +81,11 @@ type doormanLambdaActionType is
 
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
-  mvkTokenAddress           : address;
   metadata                  : metadata;
-  
-  minMvkAmount              : nat;
+  config                    : doormanConfigType;
+
+  mvkTokenAddress           : address;
+  governanceAddress         : address;
   
   whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
   generalContracts          : generalContractsType;
@@ -114,12 +94,7 @@ type doormanStorage is [@layout:comb] record [
   
   userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
 
-  stakedMvkTotalSupply      : nat; // current total staked MVK
   unclaimedRewards          : nat; // current exit fee pool rewards
-
-  logExitFee                : nat; // to be removed after testing
-  logFinalAmount            : nat; // to be removed after testing
-
   accumulatedFeesPerShare   : nat;
 
   lambdaLedger              : lambdaLedgerType;

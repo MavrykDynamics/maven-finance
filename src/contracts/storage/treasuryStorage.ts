@@ -34,6 +34,8 @@ const metadata = MichelsonMap.fromLiteral({
 export const treasuryStorage: treasuryStorageType = {
   admin                     : bob.pkh,
   mvkTokenAddress           : "",
+  governanceAddress         : "",
+  name                      : "treasury",
   metadata                  : metadata,
 
   config                    : config,

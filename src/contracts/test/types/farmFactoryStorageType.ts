@@ -3,9 +3,13 @@ import { BigNumber } from "bignumber.js";
 
 export type farmFactoryStorageType = {
   admin                 : string;
-  metadata              : MichelsonMap<MichelsonMapKey, unknown>;
+  governanceAddress     : string;
   mvkTokenAddress       : string;
-  config                : BigNumber;
+  metadata              : MichelsonMap<MichelsonMapKey, unknown>;
+  config                : {
+    blocksPerMinute     : BigNumber,
+    farmNameMaxLength   : BigNumber
+  };
   breakGlassConfig      : {
     createFarmIsPaused  : boolean;
     trackFarmIsPaused   : boolean;
@@ -18,4 +22,6 @@ export type farmFactoryStorageType = {
   trackedFarms          : Array<unknown>;
 
   lambdaLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+  farmLambdaLedger      : MichelsonMap<MichelsonMapKey, unknown>;
+
 };

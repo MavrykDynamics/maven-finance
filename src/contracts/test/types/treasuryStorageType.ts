@@ -4,6 +4,9 @@ import { BigNumber } from 'bignumber.js'
 export type treasuryStorageType = {
   admin                     : string;
   mvkTokenAddress           : string;
+  governanceAddress         : string;
+
+  name                      : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
   config                    : {};

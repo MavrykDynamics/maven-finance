@@ -28,7 +28,7 @@ export async function confirmOperation(
   }
 
   if (initializedAt && initializedAt + CONFIRM_TIMEOUT < Date.now()) {
-    throw new Error("Confirmation polling timed out");
+    throw new Error(`Confirmation polling timed out for operation ${opHash}`);
   }
 
   const startedAt: number = Date.now();
