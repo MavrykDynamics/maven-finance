@@ -74,7 +74,7 @@ export const InputView = ({
           disabled={disabled}
         />
         <InputStatus className={`${classNames} ${pinnedText ? 'with-text' : ''}`} />
-        {pinnedText && <InputLabel className={classNames}>{pinnedText}</InputLabel>}
+        {pinnedText && <InputLabel className={`${classNames} pinned-text`}>{pinnedText}</InputLabel>}
       </InputComponentContainer>
       {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}
     </InputStyled>

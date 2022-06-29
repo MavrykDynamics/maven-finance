@@ -28,6 +28,8 @@ import { CouncilFormRemoveCouncilMember } from './CouncilForms/CouncilFormRemove
 import { CouncilFormUpdateCouncilMemberInfo } from './CouncilForms/CouncilFormUpdateCouncilMemberInfo.view'
 import { CouncilFormTransferTokens } from './CouncilForms/CouncilFormTransferTokens.view'
 import { CouncilFormRequestTokens } from './CouncilForms/CouncilFormRequestTokens.view'
+import { CouncilFormRequestTokenMint } from './CouncilForms/CouncilFormRequestTokenMint.view'
+import { CouncilFormDropFinancialRequest } from './CouncilForms/CouncilFormDropFinancialRequest.view'
 
 // styles
 import { Page } from 'styles'
@@ -48,14 +50,17 @@ export const Council = () => {
 
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
-    { text: 'Add Vestee', value: 'addVestee' },
-    { text: 'Add Council Member', value: 'addCouncilMember' },
-    { text: 'Update Vestee', value: 'updateVestee' },
-    { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
-    { text: 'Change Council Member', value: 'changeCouncilMember' },
-    { text: 'Remove Council Member', value: 'removeCouncilMember' },
+    { text: 'Add Vestee', value: 'addVestee' }, // ok tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
+    { text: 'Add Council Member', value: 'addCouncilMember' }, // ok tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L
+    { text: 'Update Vestee', value: 'updateVestee' }, // ок tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
+    { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' }, // ок tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
+    { text: 'Change Council Member', value: 'changeCouncilMember' }, //ok tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD / tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr
+    { text: 'Remove Council Member', value: 'removeCouncilMember' }, // ок tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
+    { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' }, // ok tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
     { text: 'Transfer Tokens', value: 'transferTokens' },
     { text: 'Request Tokens', value: 'requestTokens' },
+    { text: 'Request Token Mint', value: 'requestTokenMint' },
+    { text: 'Drop Financial Request', value: 'dropFinancialRequest' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -160,6 +165,8 @@ export const Council = () => {
                 {chosenDdItem?.value === 'updateCouncilMemberInfo' ? <CouncilFormUpdateCouncilMemberInfo /> : null}
                 {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
                 {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
+                {chosenDdItem?.value === 'requestTokenMint' ? <CouncilFormRequestTokenMint /> : null}
+                {chosenDdItem?.value === 'dropFinancialRequest' ? <CouncilFormDropFinancialRequest /> : null}
               </DropdownCard>
             ) : null}
 

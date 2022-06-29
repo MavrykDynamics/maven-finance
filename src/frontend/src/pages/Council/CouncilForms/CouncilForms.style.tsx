@@ -88,4 +88,13 @@ export const CouncilFormStyled = styled.form`
   .textarea-group {
     padding-top: 20px;
   }
+
+  .with-pinned-text {
+    .pinned-text {
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 14px;
+      top: 14px;
+    }
+  }
 `
