@@ -26,26 +26,16 @@ import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
-export const CouncilFormRemoveCouncilMember = () => {
+export const CouncilFormDropFinancialRequest = () => {
   const dispatch = useDispatch()
   const { councilStorage } = useSelector((state: State) => state.council)
   const { councilMembers } = councilStorage
 
-  const itemsForDropDown = useMemo(
-    () =>
-      councilMembers?.length
-        ? [
-            { text: 'Chose Member Address', value: '' },
-            ...councilMembers.map((item: CouncilMember) => {
-              return {
-                text: getShortTzAddress(item.user_id),
-                value: item.user_id,
-              }
-            }),
-          ]
-        : [{ text: 'Chose Member Address', value: '' }],
-    [councilMembers],
-  )
+  const itemsForDropDown = [
+    { text: 'Test 0', value: 'satelliteFee' },
+    { text: 'Test 1', value: 'totalDelegatedAmount' },
+    { text: 'Test 2', value: 'participation' },
+  ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -61,7 +51,7 @@ export const CouncilFormRemoveCouncilMember = () => {
     e.preventDefault()
     try {
       if (!memberAddress) {
-        dispatch(showToaster(ERROR, 'Please enter valid function parameter', 'Choose Council Member to remove'))
+        dispatch(showToaster(ERROR, 'Please enter valid function parameter', 'Choose Financial Request to drop'))
         return
       }
 
@@ -82,7 +72,7 @@ export const CouncilFormRemoveCouncilMember = () => {
 
   const handleSelect = (item: any) => {
     setForm((prev) => {
-      return { ...prev, memberAddress: item.value }
+      return { ...prev, oldCouncilMemberAddress: item.value }
     })
   }
 
@@ -98,11 +88,11 @@ export const CouncilFormRemoveCouncilMember = () => {
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
         <Icon id="question" />
       </a>
-      <h1 className="form-h1">Remove Council Member</h1>
-      <p>Please enter valid function parameters for removing a council member</p>
+      <h1 className="form-h1">Drop Financial Request</h1>
+      <p>Please enter valid function parameters for dropping a financial request</p>
       <div className="form-grid form-grid-button-right">
         <div>
-          <label>Choose Council Member to remove</label>
+          <label>Choose Financial Request to drop</label>
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
@@ -115,7 +105,13 @@ export const CouncilFormRemoveCouncilMember = () => {
           />
         </div>
         <div className="button-aligment">
-          <Button text="Remove Council Member" className="plus-btn" kind={'actionPrimary'} icon="minus" type="submit" />
+          <Button
+            text="Drop Financial Request"
+            className="plus-btn fill"
+            kind={'actionPrimary'}
+            icon="close-stroke"
+            type="submit"
+          />
         </div>
       </div>
     </CouncilFormStyled>

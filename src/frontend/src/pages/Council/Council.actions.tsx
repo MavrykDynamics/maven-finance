@@ -394,6 +394,8 @@ export const changeCouncilMember =
       dispatch(showToaster(SUCCESS, 'Change Council Member done', 'All good :)'))
 
       dispatch(getCouncilStorage())
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
       dispatch({
         type: CHANGE_MEMBER_RESULT,
       })
@@ -440,6 +442,8 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: a
     dispatch(showToaster(SUCCESS, 'Remove Council Member done', 'All good :)'))
 
     dispatch(getCouncilStorage())
+    dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilPendingActionsStorage())
     dispatch({
       type: REMOVE_MEMBER_RESULT,
     })
@@ -489,6 +493,8 @@ export const updateCouncilMemberInfo =
       dispatch(showToaster(SUCCESS, 'Update Council Member Info done', 'All good :)'))
 
       dispatch(getCouncilStorage())
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
       dispatch({
         type: UPDATE_INFO_MEMBER_RESULT,
       })
