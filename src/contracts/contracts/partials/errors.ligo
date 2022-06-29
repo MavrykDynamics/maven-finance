@@ -208,6 +208,9 @@
 [@inline] const error_SATELLITE_NOT_FOUND                                                                               = 141n;
 [@inline] const error_SATELLITE_ALREADY_EXISTS                                                                          = 142n;
 
+[@inline] const error_SATELLITE_SUSPENDED                                                                               = 142n;
+[@inline] const error_SATELLITE_BANNED                                                                                  = 142n;
+
 [@inline] const error_DELEGATE_NOT_ALLOWED                                                                              = 143n;
 [@inline] const error_DELEGATE_NOT_FOUND                                                                                = 144n;
 [@inline] const error_DELEGATE_ALREADY_EXISTS                                                                           = 145n;

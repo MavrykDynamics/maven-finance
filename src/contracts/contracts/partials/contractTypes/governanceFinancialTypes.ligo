@@ -120,7 +120,7 @@ type governanceFinancialLambdaActionType is
 // ------------------------------------------------------------------------------
 
 
-type governanceFinancialStorage is [@layout:comb] record [
+type governanceFinancialStorageType is [@layout:comb] record [
     
     admin                               : address;
     metadata                            : metadataType;

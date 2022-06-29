@@ -528,6 +528,7 @@ block{
                 checkIfTimeToCommit(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredCommit(s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
                 
                 // get number of observations 
                 const observationsDataUpdated       : observationCommitsType  = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
@@ -569,6 +570,7 @@ block{
                 checkIfTimeToReveal(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
                 
                 // fetch oracle commit and compare it with bytes of price salted 
                 const oracleCommit  : bytes = getObservationCommit(Tezos.sender, s.observationCommits);
@@ -654,6 +656,9 @@ block{
 
                 // check if oracle address is present in aggregator
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+
+                // check if oracle is still a satellite and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(oracleAddress, s);
                 
                 const reward : nat = getRewardAmountXtz(oracleAddress, s);
 
@@ -706,6 +711,9 @@ block{
                 
                 // check if oracle address is present in aggregator
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+
+                // check if oracle is still a satellite and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(oracleAddress, s);
 
                 const reward = getRewardAmountStakedMvk(oracleAddress, s);
 
