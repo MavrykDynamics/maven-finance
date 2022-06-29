@@ -71,7 +71,6 @@ export const TreasuryViewStyle = styled(Card)`
 
   .right-text {
     text-align: right;
-    padding-right: 20px;
 
     &.value {
       padding-right: 0;
