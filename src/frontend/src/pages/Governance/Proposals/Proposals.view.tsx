@@ -59,17 +59,9 @@ export const ProposalsView = ({
             governanceStorage.cycleCounter,
           )
 
-          // const contentStatus = normalizeProposalStatus(
-          //   governancePhase,
-          //   proposal?.status ?? 0,
-          //   Boolean(proposal?.executed),
-          //   Boolean(proposal?.locked),
-          //   isProposalPhase,
-          // )
-
           const contentStatus = statusInfo.statusFlag
 
-          const dividedPassVoteMvkTotal = proposal.passVoteMvkTotal / 1_000_000_000
+          const dividedPassVoteMvkTotal = proposal.passVoteMvkTotal ? proposal.passVoteMvkTotal / 1_000_000_000 : 0
           return (
             <ProposalListItem
               key={proposal.id}

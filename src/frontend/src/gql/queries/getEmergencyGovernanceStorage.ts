@@ -8,6 +8,12 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
       smvk_percentage_required
       min_smvk_required_to_trigger
       vote_expiry_days
+      required_fee_mutez
+      proposal_title_max_length
+      proposal_desc_max_length
+      governance_id
+      decimals
+      admin
       emergency_governance_records {
         description
         dropped
@@ -32,11 +38,6 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
         start_level
         total_smvk_votes
       }
-      required_fee_mutez
-      proposal_title_max_length
-      proposal_desc_max_length
-      governance_id
-      decimals
     }
   }
 `

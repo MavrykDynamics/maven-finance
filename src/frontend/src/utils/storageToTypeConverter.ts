@@ -572,7 +572,7 @@ function convertToGovernanceStorageType(storage: {
     config: {
       successReward: calcWithoutPrecision(currentGovernance.success_reward),
       minQuorumPercentage: currentGovernance.min_quorum_percentage,
-      minQuorumMvkTotal: currentGovernance.min_quorum_mvk_total,
+      minQuorumMvkTotal: currentGovernance.min_yay_vote_percentage,
       votingPowerRatio: currentGovernance.voting_power_ratio,
       proposalSubmissionFee: currentGovernance.proposal_submission_fee, // 10 tez
       minimumStakeReqPercentage: currentGovernance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
@@ -660,24 +660,24 @@ function convertGovernanceFinancialRequestVoteToInterface(
 
 function convertGovernanceProposalRecordToInterface(
   governance_proposal_record: {
-    abstain_mvk_total: any
+    pass_vote_smvk_total: any
     current_cycle_end_level: any
     current_cycle_start_level: any
     current_round_proposal: any
     cycle: any
     description: any
-    down_vote_mvk_total: any
+    nay_vote_smvk_total: any
     id: any
     executed: any
     invoice: any
     locked: any
     min_proposal_round_vote_pct: any
-    pass_vote_mvk_total: any
+    proposal_vote_smvk_total: any
     min_quorum_percentage: any
-    min_quorum_mvk_total: any
+    min_yay_vote_percentage: any
     min_proposal_round_vote_req: any
     proposer_id: any
-    quorum_mvk_total: any
+    quorum_smvk_total: any
     source_code: any
     round_highest_voted_proposal: any
     start_datetime: any
@@ -685,7 +685,7 @@ function convertGovernanceProposalRecordToInterface(
     success_reward: any
     timelock_proposal: any
     title: any
-    up_vote_mvk_total: any
+    yay_vote_smvk_total: any
     votes: {
       current_round_vote: any
       governance_proposal_record_id: any
@@ -701,8 +701,8 @@ function convertGovernanceProposalRecordToInterface(
   const governanceProposalRecords: ProposalRecordType[] = []
   if (Array.isArray(governance_proposal_record)) {
     governance_proposal_record.forEach((record) => {
-      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)      
-      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)      
+      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)
+      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
       governanceProposalRecords.push(newProposalRecord)
     })
   }
@@ -776,16 +776,16 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     locked: item.locked,
     timelockProposal: item.timelock_proposal,
     sourceCode: item.source_code,
-    passVoteMvkTotal: item.pass_vote_mvk_total,
-    upvoteMvkTotal: item.up_vote_mvk_total,
-    downvoteMvkTotal: item.down_vote_count,
-    abstainMvkTotal: item.abstain_mvk_total,
+    passVoteMvkTotal: item.proposal_vote_smvk_total,
+    upvoteMvkTotal: item.yay_vote_smvk_total,
+    downvoteMvkTotal: item.nay_vote_count,
+    abstainMvkTotal: item.pass_vote_smvk_total,
     votes: convertGovernanceProposalVoteToInterface(item.votes),
     minProposalRoundVoteRequirement: item.min_proposal_round_vote_req,
     minProposalRoundVotePercentage: item.min_proposal_round_vote_pct,
     minQuorumPercentage: item.min_quorum_percentage,
-    minQuorumMvkTotal: item.min_quorum_mvk_total,
-    quorumMvkTotal: item.quorum_mvk_total,
+    minQuorumMvkTotal: item.min_yay_vote_percentage,
+    quorumMvkTotal: item.quorum_smvk_total,
     currentRoundProposal: item.current_round_proposal,
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,

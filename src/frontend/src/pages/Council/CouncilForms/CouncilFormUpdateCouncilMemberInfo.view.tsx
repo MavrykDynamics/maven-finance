@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // type
 import type { InputStatusType } from '../../../app/App.components/Input/Input.controller'
@@ -12,22 +13,21 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 
 // action
-import { addCouncilMember } from '../Council.actions'
+import { updateCouncilMemberInfo } from '../Council.actions'
 
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
-export const CouncilFormAddCouncilMember = () => {
+export const CouncilFormUpdateCouncilMemberInfo = () => {
   const dispatch = useDispatch()
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const [form, setForm] = useState({
-    newMemberAddress: '',
     newMemberName: '',
     newMemberWebsite: '',
     newMemberImage: '',
   })
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    newMemberAddress: '',
     newMemberName: '',
     newMemberWebsite: '',
     newMemberImage: '',
@@ -35,20 +35,18 @@ export const CouncilFormAddCouncilMember = () => {
 
   const disabled = false
 
-  const { newMemberAddress, newMemberName, newMemberWebsite, newMemberImage } = form
+  const { newMemberName, newMemberWebsite, newMemberImage } = form
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     try {
-      await dispatch(addCouncilMember(newMemberAddress, newMemberName, newMemberWebsite, newMemberImage))
+      await dispatch(updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage))
       setForm({
-        newMemberAddress: '',
         newMemberName: '',
         newMemberWebsite: '',
         newMemberImage: '',
       })
       setFormInputStatus({
-        newMemberAddress: '',
         newMemberName: '',
         newMemberWebsite: '',
         newMemberImage: '',
@@ -75,27 +73,18 @@ export const CouncilFormAddCouncilMember = () => {
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
         <Icon id="question" />
       </a>
-      <h1 className="form-h1">Add Council Member</h1>
-      <p>Please enter valid function parameters for adding a council member</p>
+      <h1 className="form-h1">Update Council Member Info</h1>
+      <p>Please enter valid function parameters for adding council member info</p>
       <div className="form-grid">
         <div>
           <label>Council Member Address</label>
-          <Input
-            type="text"
-            required
-            value={newMemberAddress}
-            name="newMemberAddress"
-            onChange={(e) => {
-              handleChange(e)
-              handleBlur(e)
-            }}
-            onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.newMemberAddress}
-          />
+          <div className="form-grid-adress">
+            <TzAddress tzAddress={accountPkh || ''} hasIcon={false} />
+          </div>
         </div>
 
         <div>
-          <label>Council Member Name</label>
+          <label>Update Name</label>
           <Input
             type="text"
             required
@@ -111,7 +100,7 @@ export const CouncilFormAddCouncilMember = () => {
         </div>
 
         <div>
-          <label>Council Member Website URL</label>
+          <label>Updated Website URL</label>
           <Input
             type="text"
             required
@@ -138,7 +127,13 @@ export const CouncilFormAddCouncilMember = () => {
         title={'Upload Profile Pic'}
       />
       <div className="btn-group">
-        <Button text="Add Council Member" className="plus-btn" kind={'actionPrimary'} icon="plus" type="submit" />
+        <Button
+          text="Add Council Member"
+          className="plus-btn fill"
+          kind={'actionPrimary'}
+          icon="upload"
+          type="submit"
+        />
       </div>
     </CouncilFormStyled>
   )

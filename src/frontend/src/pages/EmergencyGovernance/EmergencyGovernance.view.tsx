@@ -70,7 +70,6 @@ export const EmergencyGovernanceView = ({
   useEffect(() => {
     handleGetTimestampByLevel(selectedProposal?.currentCycleEndLevel ?? 0)
   }, [selectedProposal?.currentCycleEndLevel])
-
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow

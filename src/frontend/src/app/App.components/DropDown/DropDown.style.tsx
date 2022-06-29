@@ -71,7 +71,7 @@ export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   font-weight: 500;
   margin-top: 8px;
-  z-index: 1;
+  z-index: 2;
 `
 
 export const DropDownListItem = styled.li`
@@ -139,6 +139,7 @@ export const DropdownCard = styled(Card)`
 
   &.pending-dropdown {
     margin-bottom: 30px;
+    margin-top: 30px;
   }
 
   &.satellite-governance-dropdown {

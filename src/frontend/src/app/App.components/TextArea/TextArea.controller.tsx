@@ -15,6 +15,7 @@ type TextAreaProps = {
   inputStatus?: TextAreaStatusType
   errorMessage?: string
   disabled?: boolean
+  required?: boolean
 }
 
 export const TextArea = ({
@@ -28,6 +29,7 @@ export const TextArea = ({
   inputStatus,
   errorMessage,
   disabled,
+  required,
 }: TextAreaProps) => {
   return (
     <TextAreaView
@@ -41,6 +43,7 @@ export const TextArea = ({
       textAreaStatus={inputStatus}
       errorMessage={errorMessage}
       disabled={disabled}
+      required={required}
     />
   )
 }
