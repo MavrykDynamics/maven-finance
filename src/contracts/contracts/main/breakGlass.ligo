@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -27,10 +30,12 @@ type breakGlassAction is
 
     // Housekeeping Entrypoints - Glass Broken Not Required
     | SetAdmin                      of (address)
+    | SetGovernance                 of (address)
     | UpdateMetadata                of updateMetadataType
     | UpdateConfig                  of breakGlassUpdateConfigParamsType    
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
+    | MistakenTransfer              of transferActionType
     | UpdateCouncilMemberInfo       of councilMemberInfoType
     
     // Internal Control of Council Members
@@ -39,6 +44,7 @@ type breakGlassAction is
     | ChangeCouncilMember           of councilChangeMemberType
     
     // Glass Broken Required
+    | PropagateBreakGlass           of (unit)
     | SetSingleContractAdmin        of setSingleContractAdminType
     | SetAllContractsAdmin          of (address)               
     | PauseAllEntrypoints           of (unit)             
@@ -67,17 +73,8 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                           = 1n;
-[@inline] const error_ONLY_EMERGENCY_CONTRACT_ALLOWED                                        = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 3n;
-[@inline] const error_GLASS_NOT_BROKEN                                                       = 4n;
-
-[@inline] const error_EMERGENCY_CONTRACT_NOT_FOUND                                           = 5n;
-[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                             = 6n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 7n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 8n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -97,6 +94,12 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
 function checkSenderIsAdmin(var s : breakGlassStorage) : unit is
     if (Tezos.sender = s.admin) then unit
         else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
@@ -113,10 +116,29 @@ function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorage) : u
 block{
   const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
       Some(_address) -> _address
-      | None -> failwith(error_EMERGENCY_CONTRACT_NOT_FOUND)
+      | None -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = emergencyGovernanceAddress) then skip
-    else failwith(error_ONLY_EMERGENCY_CONTRACT_ALLOWED);
+    else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
+} with unit
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : breakGlassStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
 } with unit
 
 
@@ -140,6 +162,11 @@ function checkGlassIsBroken(var s : breakGlassStorage) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
 
 
 
@@ -202,6 +229,77 @@ block {
 // ------------------------------------------------------------------------------
 
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : breakGlassStorage) : address is
+  s.admin
+
+
+
+(* View: get Glass broken variable *)
+[@view] function getGlassBroken(const _: unit; var s : breakGlassStorage) : bool is
+  s.glassBroken
+
+
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : breakGlassStorage) : breakGlassConfigType is
+  s.config
+
+
+
+(* View: get council members *)
+[@view] function getCouncilMembers(const _: unit; var s : breakGlassStorage) : councilMembersType is
+  s.councilMembers
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : breakGlassStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : breakGlassStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get an action *)
+[@view] function getActionOpt(const actionId: nat; var s : breakGlassStorage) : option(actionRecordType) is
+  Big_map.find_opt(actionId, s.actionsLedger)
+
+
+
+(* View: get the action counter *)
+[@view] function getActionCounter(const _: unit; var s : breakGlassStorage) : nat is
+  s.actionCounter
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : breakGlassStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : breakGlassStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -251,6 +349,25 @@ block {
 
     // init break glass lambda action
     const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : breakGlassStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
@@ -330,6 +447,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: breakGlassStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);  
 
 } with response
 
@@ -456,6 +592,25 @@ block {
 
     // init break glass lambda action
     const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUnpauseAllEntrypoints(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
+
+
+
+(*  propagateBreakGlass entrypoint  *)
+function propagateBreakGlass(var s : breakGlassStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPropagateBreakGlass"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaPropagateBreakGlass(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
@@ -615,10 +770,12 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             
             // Housekeeping Entrypoints - Glass Broken Not Required
             | SetAdmin(parameters)                  -> setAdmin(parameters, s)
+            | SetGovernance(parameters)             -> setGovernance(parameters, s)
             | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)  
             | UpdateConfig(parameters)              -> updateConfig(parameters, s)
             | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
             | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+            | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
             | UpdateCouncilMemberInfo(parameters)   -> updateCouncilMemberInfo(parameters, s)
 
             // Break Glass Council Actions - Internal Control of Council Members
@@ -627,6 +784,7 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             | ChangeCouncilMember(parameters)       -> changeCouncilMember(parameters, s)
             
             // Glass Broken Required
+            | PropagateBreakGlass(_parameters)      -> propagateBreakGlass(s)
             | SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters, s)
             | SetAllContractsAdmin(parameters)      -> setAllContractsAdmin(parameters, s)
             | PauseAllEntrypoints(_parameters)      -> pauseAllEntrypoints(s)

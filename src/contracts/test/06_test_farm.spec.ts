@@ -92,17 +92,16 @@
 //                 await signerFactory(alice.sk);
 
 //                 // Create a transaction for initiating a farm 
-//                 const operation = await farmInstance.methods.initFarm(
+//                 await chai.expect(farmInstance.methods.initFarm(
 //                     12000,
 //                     100,
 //                     2,
 //                     false,
 //                     false
-//                 ).send();
-//                 await operation.confirmation()
+//                 ).send()).to.be.rejected;
 
 //             }catch(e){
-//                 assert.equal(e.message, '(temporary) proto.011-PtHangz2.michelson_v1.script_rejected');
+//                 console.log(e)
 //             }
 //         })
 
@@ -144,17 +143,16 @@
 
 //         it('Initialize a farm after it has been already initiated', async () => {
 //             try{
-//                 // Create a transaction for initiating a farm 
-//                 const operation = await farmInstance.methods.initFarm(
+//                 // Create a transaction for initiating a farm
+//                 await chai.expect(farmInstance.methods.initFarm(
 //                     12000,
 //                     100,
 //                     2,
 //                     false,
 //                     false
-//                 ).send();
-//                 await operation.confirmation()
+//                 ).send()).to.be.rejected;
 //             }catch(e){
-//                 assert.equal(e.message, "This farm is already opened you cannot initialize it again")
+//                 console.log(e)
 //             }
 //         })
 //     });
@@ -423,7 +421,7 @@
 //                 var doormanBalanceFirstUpdate = 0;
 //                 var treasuryFirstUpdate = 0;
 //                 await sleep(5000).then(async () => {
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyFirstUpdate = parseInt(mvkTokenStorage.totalSupply);
@@ -444,7 +442,7 @@
 //                 var doormanBalanceSecondUpdate = 0;
 //                 var treasurySecondUpdate = 0;
 //                 await sleep(5000).then(async () => {
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplySecondUpdate = parseInt(mvkTokenStorage.totalSupply);
@@ -465,7 +463,7 @@
 //                 var doormanBalanceThirdUpdate = 0;
 //                 var treasuryThirdUpdate = 0;
 //                 await sleep(5000).then(async () => {
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyThirdUpdate = parseInt(mvkTokenStorage.totalSupply);
@@ -525,7 +523,7 @@
 //                 var mvkTotalSupplyFirstUpdate = 0;
 //                 var doormanBalanceFirstUpdate = 0;
 //                 await sleep(5000).then(async () => {
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyFirstUpdate = parseInt(mvkTokenStorage.totalSupply);
@@ -546,7 +544,7 @@
 //                 var doormanBalanceSecondUpdate = 0;
 //                 await signerFactory(bob.sk);
 //                 await sleep(5000).then(async () => {
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplySecondUpdate = parseInt(mvkTokenStorage.totalSupply);

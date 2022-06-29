@@ -5,51 +5,62 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateBlocksPerMinute"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseCreateFarm"
+      "name": "lambdaUpdateBlocksPerMinute"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseTrackFarm"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseUntrackFarm"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 10,
-      "name": "lambdaCreateFarm"
+      "name": "lambdaTogglePauseCreateFarm"
     },
     {
       "index": 11,
-      "name": "lambdaTrackFarm"
+      "name": "lambdaTogglePauseTrackFarm"
     },
     {
       "index": 12,
+      "name": "lambdaTogglePauseUntrackFarm"
+    },
+    {
+      "index": 13,
+      "name": "lambdaCreateFarm"
+    },
+    {
+      "index": 14,
+      "name": "lambdaTrackFarm"
+    },
+    {
+      "index": 15,
       "name": "lambdaUntrackFarm"
     }
 ]
-  

@@ -5,51 +5,63 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseCreateTreasury"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseTrackTreasury"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseUntrackTreasury"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 10,
-      "name": "lambdaCreateTreasury"
+      "name": "lambdaTogglePauseCreateTreasury"
     },
     {
       "index": 11,
-      "name": "lambdaTrackTreasury"
+      "name": "lambdaTogglePauseTrackTreasury"
     },
     {
       "index": 12,
+      "name": "lambdaTogglePauseUntrackTreasury"
+    },
+    {
+      "index": 13,
+      "name": "lambdaCreateTreasury"
+    },
+    {
+      "index": 14,
+      "name": "lambdaTrackTreasury"
+    },
+    {
+      "index": 15,
       "name": "lambdaUntrackTreasury"
     }
 ]
-  
+   

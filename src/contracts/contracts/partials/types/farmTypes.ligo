@@ -7,7 +7,7 @@ type tokenBalance is nat
 
 type depositorRecord is [@layout:comb] record[
     balance                         : tokenBalance;
-    participationMVKPerShare        : nat;
+    participationRewardsPerShare    : nat;
     unclaimedRewards                : tokenBalance;
     claimedRewards                  : tokenBalance;
 ]
@@ -95,10 +95,13 @@ type farmLambdaActionType is
 
   // Housekeeping Entrypoints
     LambdaSetAdmin                    of (address)
+|   LambdaSetGovernance               of (address)
+|   LambdaSetName                     of (string)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateConfig                of farmUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaMistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
 |   LambdaUpdateBlocksPerMinute       of (nat)
@@ -115,7 +118,7 @@ type farmLambdaActionType is
     // Farm Entrypoints
 |   LambdaDeposit                     of nat
 |   LambdaWithdraw                    of nat
-|   LambdaClaim                       of unit
+|   LambdaClaim                       of address
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -123,9 +126,12 @@ type farmLambdaActionType is
 
 type farmStorage is [@layout:comb] record[
     admin                   : address;
-    mvkTokenAddress         : address;
     metadata                : metadata;
+    name                    : string;
     config                  : farmConfigType;
+
+    mvkTokenAddress         : address;
+    governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;
@@ -133,7 +139,7 @@ type farmStorage is [@layout:comb] record[
     breakGlassConfig        : farmBreakGlassConfigType;
 
     lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
+    accumulatedRewardsPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
     depositors              : big_map(depositor, depositorRecord);
     open                    : bool;

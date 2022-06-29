@@ -1,11 +1,5 @@
-// FA12 Transfer Types
-#include "../../partials/functionalTypes/fa12TransferTypes.ligo"
-
-// FA2 Transfer Types
-#include "../../partials/functionalTypes/fa2TransferTypes.ligo"
-
 // Treasury Transfer Types
-#include "../../partials/functionalTypes/treasuryTransferTypes.ligo"
+#include "../../partials/transferTypes.ligo"
 
 type metadata is big_map (string, bytes);
 
@@ -16,6 +10,8 @@ type tokenId is nat;
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
     mintMvkAndTransferIsPaused  : bool;
+    stakeMvkIsPaused            : bool;
+    unstakeMvkIsPaused          : bool;
 ]
 
 type mintMvkAndTransferType is [@layout:comb] record [
@@ -29,7 +25,7 @@ type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
 ]
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
@@ -40,7 +36,9 @@ type treasuryLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                       of (address)
+| LambdaSetGovernance                  of (address)
 | LambdaSetBaker                       of option(key_hash)
+| LambdaSetName                        of (string)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts         of updateGeneralContractsParams
@@ -51,10 +49,15 @@ type treasuryLambdaActionType is
 | LambdaUnpauseAll                     of (unit)
 | LambdaTogglePauseTransfer            of (unit)
 | LambdaTogglePauseMintTransfer        of (unit)
+| LambdaTogglePauseStakeMvk            of (unit)
+| LambdaTogglePauseUnstakeMvk          of (unit)
 
   // Treasury Entrypoints
 | LambdaTransfer                       of transferActionType
 | LambdaMintMvkAndTransfer             of mintMvkAndTransferType
+| LambdaUpdateMvkOperators             of updateOperatorsParams
+| LambdaStakeMvk                       of (nat)
+| LambdaUnstakeMvk                     of (nat)
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -62,14 +65,17 @@ type treasuryLambdaActionType is
 
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;
-    mvkTokenAddress            : address;
     metadata                   : metadata;
+    name                       : string;
     
-    breakGlassConfig           : treasuryBreakGlassConfigType;
+    mvkTokenAddress            : address;
+    governanceAddress          : address;
 
     whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
+    whitelistTokenContracts    : whitelistTokenContractsType;
+
+    breakGlassConfig           : treasuryBreakGlassConfigType;
 
     lambdaLedger               : lambdaLedgerType;
 ]

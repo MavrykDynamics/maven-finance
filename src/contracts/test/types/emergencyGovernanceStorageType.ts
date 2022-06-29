@@ -7,12 +7,15 @@ export type emergencyGovernanceStorageType = {
   admin                                 : string;
   config                                : {};
   mvkTokenAddress                       : string;
+  governanceAddress                     : string;
   metadata                              : MichelsonMap<MichelsonMapKey, unknown>;
+  
+  whitelistContracts                    : MichelsonMap<MichelsonMapKey, unknown>
   generalContracts                      : MichelsonMap<MichelsonMapKey, unknown>;
 
   emergencyGovernanceLedger             : MichelsonMap<MichelsonMapKey, unknown>;
   currentEmergencyGovernanceId          : BigNumber;
-  nextEmergencyGovernanceProposalId     : BigNumber;
+  nextEmergencyGovernanceId     : BigNumber;
 
   lambdaLedger                          : MichelsonMap<MichelsonMapKey, unknown>;
 

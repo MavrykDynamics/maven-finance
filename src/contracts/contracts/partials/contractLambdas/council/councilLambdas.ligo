@@ -13,11 +13,29 @@ function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAllowed(s); // check that sender is admin
 
     case councilLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorage) : return is
+block {
+    
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);
+
+    case councilLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];
@@ -61,7 +79,7 @@ block {
                 const updateConfigNewValue  : councilUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold := updateConfigNewValue
+                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
                     | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
                     | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
                     | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
@@ -124,13 +142,13 @@ block {
                 // Check if sender is a member of the council
                 var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
                     Some (_info) -> _info
-                |   None -> failwith("Error. You are not a member of the council")
+                |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];
                 
                 // Validate inputs
-                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
-                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
-                if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Update member info
                 councilMember.name      := councilMemberInfo.name;
@@ -170,12 +188,12 @@ block {
         | LambdaCouncilActionAddMember(newCouncilMember) -> {
 
                 // Validate inputs
-                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
-                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
-                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
-                if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+                if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
                 else skip;
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -238,11 +256,11 @@ block {
         | LambdaCouncilActionRemoveMember(councilMemberAddress) -> {
                 
                 // Check if council member is in the council
-                if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+                if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 else skip;
 
                 // Check if removing the council member won't impact the threshold
-                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                 else skip;
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -301,16 +319,16 @@ block {
         | LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
-                if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+                if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
                 else skip;
 
                 // Check if old council member is in the council
-                if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+                if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith(error_LAMBDA_NOT_FOUND)
                 else skip;
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -430,7 +448,7 @@ block {
         | LambdaCouncilUpdateBlocksPerMin(councilActionUpdateBlocksPerMinParam) -> {
                 
                 // Check that blocks per minute will not break the system
-                if councilActionUpdateBlocksPerMinParam.newBlocksPerMinute = 0n then failwith("Error. The provided new blocksPerMinutes would break the system")
+                if councilActionUpdateBlocksPerMinParam.newBlocksPerMinute = 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE)
                 else skip;
 
                 // Check if the provided contract has a updateBlocksPerMinute entrypoint
@@ -501,9 +519,13 @@ block {
         | LambdaCouncilActionAddVestee(addVesteeParams) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                var vestingAddress : address := case s.generalContracts["vesting"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Vesting Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                const vestingAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
 
@@ -514,13 +536,13 @@ block {
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
                 // Check if the vestee already exists
-                const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
-                case getVesteeOptView of [
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+                case vesteeOptView of [
                     Some (_value) -> case _value of [
-                            Some (_vestee) -> failwith ("Error. This vestee already exists")
+                            Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
                         |   None -> skip
                     ]
-                |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -583,20 +605,24 @@ block {
         | LambdaCouncilActionRemoveVestee(vesteeAddress) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                var vestingAddress : address := case s.generalContracts["vesting"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Vesting Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                const vestingAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(address) = sendRemoveVesteeParams(vestingAddress);
 
                 // Check if the vestee already exists
-                const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
-                case getVesteeOptView of [
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+                case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> skip
-                        |   None -> failwith ("Error. This vestee does not exist")
+                        |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -655,9 +681,13 @@ block {
         | LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                var vestingAddress : address := case s.generalContracts["vesting"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Vesting Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                const vestingAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(updateVesteeType)  = sendUpdateVesteeParams(vestingAddress);
 
@@ -668,13 +698,13 @@ block {
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
                 // Check if the vestee already exists
-                const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
-                case getVesteeOptView of [
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+                case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> skip
-                        |   None -> failwith ("Error. This vestee does not exist")
+                        |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -737,20 +767,24 @@ block {
         | LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
                 
                 // Check if entrypoint exists on Vesting Contract
-                var vestingAddress : address := case s.generalContracts["vesting"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Vesting Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                const vestingAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const _checkEntrypoint: contract(address) = sendToggleVesteeLockParams(vestingAddress);
 
                 // Check if the vestee already exists
-                const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
-                case getVesteeOptView of [
+                const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+                case vesteeOptView of [
                     Some (_value) -> case _value of [
                             Some (_vestee) -> skip
-                        |   None -> failwith ("Error. This vestee does not exist")
+                        |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -816,13 +850,13 @@ block {
         | LambdaCouncilActionTransfer(councilActionTransferParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+                if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if type is correct
                 if councilActionTransferParams.tokenType = "FA12" or
                 councilActionTransferParams.tokenType = "FA2" or
-                councilActionTransferParams.tokenType = "XTZ" then skip
-                else failwith("Error. Wrong token type provided. Only FA12/FA2/XTZ allowed");
+                councilActionTransferParams.tokenType = "TEZ" then skip
+                else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -887,21 +921,25 @@ block {
         | LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {                
 
                 // Validate inputs
-                if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
-                if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith("Error. Request token name too long") else skip;
+                if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exist on Governance Contract
-                var govenanceAddress : address := case s.generalContracts["governance"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Governance Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                const governanceFinancialAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(govenanceAddress);
+                const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(governanceFinancialAddress);
 
                 // Check if type is correct
                 if councilActionRequestTokensParams.tokenType = "FA12" or
                 councilActionRequestTokensParams.tokenType = "FA2" or
-                councilActionRequestTokensParams.tokenType = "XTZ" then skip
-                else failwith("Error. Wrong token type provided. Only FA12/FA2/XTZ allowed");
+                councilActionRequestTokensParams.tokenType = "TEZ" then skip
+                else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -967,14 +1005,18 @@ block {
         | LambdaCouncilRequestMint(councilActionRequestMintParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+                if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exists on Governance Contract
-                var govenanceAddress : address := case s.generalContracts["governance"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Governance Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                const governanceFinancialAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
+                const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -1036,11 +1078,15 @@ block {
         | LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
                 // Check if entrypoint exist on Governance contract
-                var govenanceAddress : address := case s.generalContracts["governance"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Governance Contract Address not found")
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                const governanceFinancialAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(govenanceAddress);
+                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = councilActionSetContractBakerParams.keyHash; 
 
@@ -1100,10 +1146,10 @@ block {
                 // Check if financial request exists
                 const _request: councilActionRecordType = case Big_map.find_opt(requestId, s.councilActionsLedger) of [
                         Some (_action) -> _action
-                    |   None -> failwith("Error. Provided financial request not found")
+                    |   None -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
                 ];
 
-                if _request.status  = "FLUSHED" then failwith("Error. The provided financial request has already been dropped")
+                if _request.status  = "FLUSHED" then failwith(error_FINANCIAL_REQUEST_DROPPED)
                 else skip;
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -1171,13 +1217,13 @@ block {
                 // Check if council action
                 const _request: councilActionRecordType = case Big_map.find_opt(actionId, s.councilActionsLedger) of [
                         Some (_action) -> _action
-                    |   None -> failwith("Error. Provided council action not found")
+                    |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
-                if _request.status  = "FLUSHED" then failwith("Error. The council action has already been flushed")
+                if _request.status  = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)
                 else skip;
 
-                if _request.executed then failwith("Error. The provided council action has been executed, it cannot be flushed")
+                if _request.executed then failwith(error_COUNCIL_ACTION_EXECUTED)
                 else skip;
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -1234,17 +1280,17 @@ block {
                 
                 var _councilActionRecord : councilActionRecordType := case s.councilActionsLedger[actionId] of [
                       Some(_record) -> _record
-                    | None -> failwith("Error. Council Action not found")
+                    | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 // check if council action has been flushed
-                if _councilActionRecord.status = "FLUSHED" then failwith("Error. Council action has been flushed") else skip;
+                if _councilActionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED) else skip;
 
                 // check if council action has expired
-                if Tezos.now > _councilActionRecord.expirationDateTime then failwith("Error. Council action has expired") else skip;
+                if Tezos.now > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
                 // check if signer already signer
-                if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith("Error. Sender already signed this council action") else skip;
+                if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := _councilActionRecord.signersCount + 1n;
@@ -1271,29 +1317,29 @@ block {
                         // fetch params begin ---
                         const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. CouncilMemberAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberName : string = case _councilActionRecord.stringMap["councilMemberName"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. CouncilMemberName not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberImage : string = case _councilActionRecord.stringMap["councilMemberImage"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. CouncilMemberImage not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberWebsite : string = case _councilActionRecord.stringMap["councilMemberWebsite"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. CouncilMemberWebsite not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
-                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
-                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
                         const councilMemberInfo: councilMemberInfoType  = record[
@@ -1302,7 +1348,7 @@ block {
                             website=councilMemberWebsite;
                         ];
 
-                        if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+                        if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
                         else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
                         
                     } else skip;
@@ -1315,16 +1361,16 @@ block {
                         // fetch params begin ---
                         const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. CouncilMemberAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Check if council member is in the council
-                        if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+                        if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                         else skip;
 
                         // Check if removing the council member won't impact the threshold
-                        if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+                        if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                         else skip;
                         s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
 
@@ -1338,41 +1384,41 @@ block {
                         // fetch params begin ---
                         const oldCouncilMemberAddress : address = case _councilActionRecord.addressMap["oldCouncilMemberAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. OldCouncilMemberAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberAddress : address = case _councilActionRecord.addressMap["newCouncilMemberAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. NewCouncilMemberAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberName : string = case _councilActionRecord.stringMap["newCouncilMemberName"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. NewCouncilMemberName not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberImage : string = case _councilActionRecord.stringMap["newCouncilMemberImage"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. NewCouncilMemberImage not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberWebsite : string = case _councilActionRecord.stringMap["newCouncilMemberWebsite"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. NewCouncilMemberWebsite not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
-                        if String.length(newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
-                        if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+                        if String.length(newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
-                        if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+                        if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
                         else skip;
 
                         // Check if old council member is in the council
-                        if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+                        if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                         else skip;
 
                         const councilMemberInfo: councilMemberInfoType  = record[
@@ -1413,11 +1459,11 @@ block {
                         // fetch params begin ---
                         const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. NewBlocksPerMinute not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. ContractAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1446,22 +1492,22 @@ block {
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. VesteeAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const totalAllocatedAmount : nat = case _councilActionRecord.natMap["totalAllocatedAmount"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. TotalAllocatedAmount not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const cliffInMonths : nat = case _councilActionRecord.natMap["cliffInMonths"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. CliffInMonths not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const vestingInMonths : nat = case _councilActionRecord.natMap["vestingInMonths"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. VestingInMonths not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1472,9 +1518,13 @@ block {
                             vestingInMonths         = vestingInMonths;
                         ];
 
-                        var vestingAddress : address := case s.generalContracts["vesting"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Vesting Contract Address not found")
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                        const vestingAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const addVesteeOperation : operation = Tezos.transaction(
@@ -1495,14 +1545,17 @@ block {
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. VesteeAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
-
-                        var vestingAddress : address := case s.generalContracts["vesting"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Vesting Contract Address not found")
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                        const vestingAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const removeVesteeOperation : operation = Tezos.transaction(
@@ -1523,22 +1576,22 @@ block {
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. VesteeAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newTotalAllocatedAmount : nat = case _councilActionRecord.natMap["newTotalAllocatedAmount"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. NewTotalAllocatedAmount not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCliffInMonths : nat = case _councilActionRecord.natMap["newCliffInMonths"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. NewCliffInMonths not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newVestingInMonths : nat = case _councilActionRecord.natMap["newVestingInMonths"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. NewVestingInMonths not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1549,9 +1602,13 @@ block {
                             newVestingInMonths          = newVestingInMonths;
                         ];
 
-                        var vestingAddress : address := case s.generalContracts["vesting"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Vesting Contract Address not found")
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                        const vestingAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const updateVesteeOperation : operation = Tezos.transaction(
@@ -1572,13 +1629,17 @@ block {
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. VesteeAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch end begin ---
 
-                        var vestingAddress : address := case s.generalContracts["vesting"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Vesting Contract Address not found")
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
+                        const vestingAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const toggleVesteeLockOperation : operation = Tezos.transaction(
@@ -1609,27 +1670,27 @@ block {
                         // fetch params begin ---
                         const receiverAddress : address = case _councilActionRecord.addressMap["receiverAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. ReceiverAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. TokenContractAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. TokenType not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. TokenAmount not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. TokenId not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1640,24 +1701,24 @@ block {
                         // ---- set token type ----
                         var _tokenTransferType : tokenType := Tez;
 
-                        if  tokenType = "XTZ" then block {
-                        _tokenTransferType      := Tez; 
+                        if  tokenType = "TEZ" then block {
+                        _tokenTransferType      := (Tez: tokenType); 
                         } else skip;
 
                         if  tokenType = "FA12" then block {
-                        _tokenTransferType      := Fa12(tokenContractAddress); 
+                        _tokenTransferType      := (Fa12(tokenContractAddress): tokenType);
                         } else skip;
 
                         if  tokenType = "FA2" then block {
-                        _tokenTransferType      := Fa2(record [
+                        _tokenTransferType      := (Fa2(record [
                             tokenContractAddress   = tokenContractAddress;
                             tokenId                = tokenId;
-                        ]); 
+                        ]): tokenType); 
                         } else skip;
                         // --- --- ---
 
                         const transferTokenOperation : operation = case _tokenTransferType of [ 
-                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address. Cannot transfer XTZ"): contract(unit)), amt)
+                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
                             | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                             | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                         ];
@@ -1674,43 +1735,43 @@ block {
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. TreasuryAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. TokenContractAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. TokenType not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenName : string = case _councilActionRecord.stringMap["tokenName"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. TokenName not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. Purpose not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. TokenAmount not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. TokenId not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
-                        if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith("Error. Request token name too long") else skip;
+                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const requestTokensParams : councilActionRequestTokensType = record[
                             treasuryAddress       = treasuryAddress;
@@ -1722,15 +1783,19 @@ block {
                             purpose               = purpose;
                         ];
 
-                        var governanceAddress : address := case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const requestTokensOperation : operation = Tezos.transaction(
                             requestTokensParams,
                             0tez, 
-                            sendRequestTokensParams(governanceAddress)
+                            sendRequestTokensParams(governanceFinancialAddress)
                         );
 
                         operations := requestTokensOperation # operations;
@@ -1741,32 +1806,35 @@ block {
 
                     // requestMint action type
                     if actionType = "requestMint" then block {
-                        
-                        var governanceAddress : address := case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
-
 
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. TreasuryAddress not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
                               Some(_string) -> _string
-                            | None -> failwith("Error. Purpose not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. TokenAmount not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
 
                         const requestMintParams : councilActionRequestMintType = record[
                             tokenAmount      = tokenAmount;
@@ -1777,7 +1845,7 @@ block {
                         const requestMintOperation : operation = Tezos.transaction(
                             requestMintParams,
                             0tez, 
-                            sendRequestMintParams(governanceAddress)
+                            sendRequestMintParams(governanceFinancialAddress)
                         );
 
                         operations := requestMintOperation # operations;
@@ -1789,17 +1857,21 @@ block {
                     // setContractBaker action type
                     if actionType = "setContractBaker" then block {
                         
-                        var governanceAddress : address := case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
-
                         // fetch params begin ---
                         const targetContractAddress : address = case _councilActionRecord.addressMap["targetContractAddress"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. Target Contract Address not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
+
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
 
                         const setContractBakerParams : councilActionSetContractBakerType = record[
                             targetContractAddress   = targetContractAddress;
@@ -1809,7 +1881,7 @@ block {
                         const setContractBakerOperation : operation = Tezos.transaction(
                             setContractBakerParams,
                             0tez, 
-                            sendContractBakerParams(governanceAddress)
+                            sendContractBakerParams(governanceFinancialAddress)
                         );
 
                         operations := setContractBakerOperation # operations;
@@ -1821,22 +1893,26 @@ block {
                     // dropFinancialRequest action type
                     if actionType = "dropFinancialRequest" then block {
                         
-                        var governanceAddress : address := case s.generalContracts["governance"] of [ 
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
-
                         // fetch params begin ---
                         const requestId : nat = case _councilActionRecord.natMap["requestId"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. RequestId not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
+
+                        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
+                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                                ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        ];
 
                         const dropFinancialRequestOperation : operation = Tezos.transaction(
                             requestId,
                             0tez, 
-                            sendDropFinancialRequestParams(governanceAddress)
+                            sendDropFinancialRequestParams(governanceFinancialAddress)
                         );
 
                         operations := dropFinancialRequestOperation # operations;
@@ -1859,19 +1935,19 @@ block {
                         // fetch params begin ---
                         const flushedCouncilActionId : nat = case _councilActionRecord.natMap["actionId"] of [
                               Some(_nat) -> _nat
-                            | None -> failwith("Error. ActionId not found.")
+                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         var flushedCouncilActionRecord : councilActionRecordType := case s.councilActionsLedger[flushedCouncilActionId] of [      
                               Some(_record) -> _record
-                            | None -> failwith("Error. Council Action not found")
+                            | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                         ];
 
-                        if flushedCouncilActionRecord.status  = "FLUSHED" then failwith("Error. The council action has already been flushed")
+                        if flushedCouncilActionRecord.status  = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)
                         else skip;
 
-                        if flushedCouncilActionRecord.executed then failwith("Error. The provided council action has been executed, it cannot be flushed")
+                        if flushedCouncilActionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED)
                         else skip;
 
                         flushedCouncilActionRecord.status := "FLUSHED";

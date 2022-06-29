@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -18,16 +21,22 @@
 // Farm types
 #include "../partials/types/farmTypes.ligo"
 
+// FarmFactory Types
+#include "../partials/types/farmFactoryTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type farmAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
+|   SetGovernance               of (address)
+|   SetName                     of (string)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
+|   MistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
 |   UpdateBlocksPerMinute       of (nat)
@@ -44,7 +53,7 @@ type farmAction is
     // Farm Entrypoints
 |   Deposit                     of nat
 |   Withdraw                    of nat
-|   Claim                       of unit
+|   Claim                       of address
 
     // Lambda Entrypoints
 |   SetLambda                   of setLambdaType
@@ -80,27 +89,8 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 1n;
-[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 2n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                                             = 3n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
-
-[@inline] const error_FARM_NOT_INITIATED                                                     = 5n;
-[@inline] const error_FARM_IS_CLOSED                                                         = 6n;
-[@inline] const error_DEPOSIT_ENTRYPOINT_IS_PAUSED                                           = 7n;
-[@inline] const error_WITHDRAW_ENTRYPOINT_IS_PAUSED                                          = 8n;
-[@inline] const error_CLAIM_ENTRYPOINT_IS_PAUSED                                             = 9n;
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS                        = 10n;
-[@inline] const error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT                    = 11n;
-[@inline] const error_DEPOSITOR_NOT_FOUND                                                    = 12n;
-[@inline] const error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 13n;
-[@inline] const error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 14n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND                      = 15n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND                       = 16n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 17n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 18n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -120,6 +110,8 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+
+
 function getDepositorDeposit(const depositor: depositor; const s: farmStorage): option(depositorRecord) is
     Big_map.find_opt(depositor, s.depositors)
 
@@ -137,7 +129,7 @@ function checkNoAmount(const _p: unit): unit is
 
 
 
-function checkSenderOrSourceIsCouncil(const s: farmStorage): unit is
+function checkSenderIsCouncilOrFarmFactory(const s: farmStorage): unit is
 block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
@@ -145,27 +137,59 @@ block {
     |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
-    if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
-    else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
+    if Tezos.sender = councilAddress then skip
+    else {
+      const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
+              Some (_address) -> _address
+          |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND): address)
+      ];
+      if Tezos.sender = farmFactoryAddress then skip
+      else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
+    }
 
 } with(unit)
 
 
 
 function checkSenderIsAllowed(const s: farmStorage): unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernanceOrFactory(const s: farmStorage): unit is
 block {
 
     // First check because a farm without a facory should still be accessible
-    if Tezos.sender = s.admin then skip
+    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
     else{
         const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
+            |   None -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED): address)
         ];
-        if Tezos.sender = farmFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.sender = farmFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
 
 
 
@@ -176,7 +200,7 @@ function checkFarmIsInit(const s: farmStorage): unit is
 
 
 function checkFarmIsOpen(const s: farmStorage): unit is 
-  if not s.open then failwith(error_FARM_IS_CLOSED)
+  if not s.open then failwith(error_FARM_CLOSED)
   else unit
 
 
@@ -190,6 +214,11 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 #include "../partials/generalContractsMethod.ligo"
 
 
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -201,15 +230,15 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 // ------------------------------------------------------------------------------
 
 function checkDepositIsNotPaused(var s : farmStorage) : unit is
-    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
 function checkWithdrawIsNotPaused(var s : farmStorage) : unit is
-    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
 function checkClaimIsNotPaused(var s : farmStorage) : unit is
-    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -221,45 +250,6 @@ function checkClaimIsNotPaused(var s : farmStorage) : unit is
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
-block{
-
-    const transferParams: oldTransferType = (from_,(to_,tokenAmount));
-
-    const tokenContract: contract(oldTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND): contract(oldTransferType))
-        ];
-
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: newTransferType = list[
-            record[
-                from_=from_;
-                txs=list[
-                    record[
-                        to_=to_;
-                        token_id=tokenId;
-                        amount=tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(newTransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
-        ];
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-
 
 function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
     case tokenStandard of [
@@ -273,15 +263,19 @@ function transferReward(const depositor: depositor; const tokenAmount: tokenBala
 block{
 
     // Call farmClaim from the doorman contract
-    const doormanContractAddress: address = case Map.find_opt("doorman", s.generalContracts) of [
-        Some (a) -> a
-    |   None -> (failwith(error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS): address)
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+    const doormanContractAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     
     const doormanContract: contract(farmClaimType) =
     case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of [
         Some (c) -> c
-    |   None -> (failwith(error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT): contract(farmClaimType))
+    |   None -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND): contract(farmClaimType))
     ];
 
     const farmClaimParams: farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
@@ -333,7 +327,7 @@ block{
         
     // Updates the farmStorage
     s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
-    s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
+    s.accumulatedRewardsPerShare := s.accumulatedRewardsPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
     s := updateBlock(s);
 
 } with(s)
@@ -353,11 +347,8 @@ block{
 
 
 
-function updateUnclaimedRewards(var s: farmStorage): farmStorage is
+function updateUnclaimedRewards(const depositor: depositor; var s: farmStorage): farmStorage is
 block{
-
-    // Get depositor
-    const depositor: depositor = Tezos.sender;
 
     // Check if sender as already a record
     var depositorRecord: depositorRecord :=
@@ -367,22 +358,22 @@ block{
         ];
 
     // Compute depositor reward
-    const accumulatedMVKPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
-    const accumulatedMVKPerShareEnd: tokenBalance = s.accumulatedMVKPerShare;
-    if accumulatedMVKPerShareStart > accumulatedMVKPerShareEnd then failwith(error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE) else skip;
-    const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
+    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationRewardsPerShare;
+    const accumulatedRewardsPerShareEnd: tokenBalance = s.accumulatedRewardsPerShare;
+    if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
+    const currentMVKPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
     const depositorReward = (currentMVKPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
     // Update paid and unpaid rewards in farmStorage
-    if depositorReward > s.claimedRewards.unpaid then failwith(error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD) else skip;
+    if depositorReward > s.claimedRewards.unpaid then failwith(error_CALCULATION_ERROR) else skip;
     s.claimedRewards := record[
         unpaid=abs(s.claimedRewards.unpaid - depositorReward);
         paid=s.claimedRewards.paid + depositorReward;
     ];
 
-    // Update user's unclaimed rewards and participationMVKPerShare
+    // Update user's unclaimed rewards and participationRewardsPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
-    depositorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
+    depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
     s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
 } with(s)
@@ -434,7 +425,105 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : farmStorage) : address is
+  s.admin
+
+
+
+(* View: get name variable *)
+[@view] function getName(const _: unit; var s : farmStorage) : string is
+  s.name
+
+
+
+(*  View: get config *)
+[@view] function getConfig(const _: unit; const s: farmStorage) : farmConfigType is
+  s.config
+
+
+
+(*  View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const s: farmStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(*  View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; const s: farmStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _: unit; const s: farmStorage) : farmBreakGlassConfigType is
+  s.breakGlassConfig
+
+
+
+(*  View: get last block update *)
+[@view] function getLastBlockUpdate(const _: unit; const s: farmStorage) : nat is
+  s.lastBlockUpdate
+
+
+
+(*  View: get last block update *)
+[@view] function getAccumulatedRewardsPerShare(const _: unit; const s: farmStorage) : nat is
+  s.accumulatedRewardsPerShare
+
+
+
+(*  View: get claimed rewards *)
+[@view] function getClaimedRewards(const _: unit; const s: farmStorage) : claimedRewards is
+  s.claimedRewards
+
+
+
+(*  View: get depositor *)
+[@view] function getDepositorOpt(const depositorAddress: depositor; const s: farmStorage) : option(depositorRecord) is
+  Big_map.find_opt(depositorAddress, s.depositors)
+
+
+
+(*  View: get open *)
+[@view] function getOpen(const _: unit; const s: farmStorage) : bool is
+  s.open
+
+
+
+(*  View: get init *)
+[@view] function getInit(const _: unit; const s: farmStorage) : bool is
+  s.init
+
+
+
+(*  View: get init block *)
+[@view] function getInitBlock(const _: unit; const s: farmStorage) : nat is
+  s.initBlock
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : farmStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -457,6 +546,44 @@ block {
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : farmStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
+
+} with response
+
+
+
+(* setName entrypoint - update the metadata at a given key *)
+function setName(const updatedName : string; var s : farmStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetName(updatedName);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
@@ -533,6 +660,25 @@ block {
 
     // init farm lambda action
     const farmLambdaAction : farmLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
@@ -756,7 +902,7 @@ block{
 
 
 (* Claim Entrypoint *)
-function claim(var s: farmStorage) : return is
+function claim(const depositor: depositor; var s: farmStorage) : return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
@@ -765,7 +911,7 @@ block{
     ];
 
     // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaClaim(unit);
+    const farmLambdaAction : farmLambdaActionType = LambdaClaim(depositor);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
@@ -820,10 +966,13 @@ function main (const action: farmAction; var s: farmStorage): return is
 
             // Housekeeping Entrypoints
             SetAdmin (parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)               -> setGovernance(parameters, s)
+        |   SetName (parameters)                     -> setName(parameters, s)
         |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
             // Farm Admin Entrypoints
         |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)
@@ -840,7 +989,7 @@ function main (const action: farmAction; var s: farmStorage): return is
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)
         |   Withdraw (parameters)                    -> withdraw(parameters, s)
-        |   Claim (_parameters)                      -> claim(s)
+        |   Claim (parameters)                       -> claim(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                    -> setLambda(parameters, s)

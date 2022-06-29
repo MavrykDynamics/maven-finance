@@ -11,6 +11,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -36,10 +39,13 @@ type doormanAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
+  | SetGovernance               of (address)
   | UpdateMetadata              of updateMetadataType
-  | UpdateMinMvkAmount          of (nat)
+  | UpdateConfig                of doormanUpdateConfigParamsType
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
+  | MistakenTransfer            of transferActionType
+  | MigrateFunds                of (address)
 
     // Pause / Break Glass Entrypoints
   | PauseAll                    of (unit)
@@ -47,6 +53,7 @@ type doormanAction is
   | TogglePauseStake            of (unit)
   | TogglePauseUnstake          of (unit)
   | TogglePauseCompound         of (unit)
+  | TogglePauseFarmClaim        of (unit)
 
     // Doorman Entrypoints
   | Stake                       of (nat)
@@ -93,25 +100,8 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                            = 0n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                       = 1n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                      = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                     = 3n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                         = 4n;
-[@inline] const error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                              = 5n;
-[@inline] const error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                           = 6n;
-
-[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                            = 7n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                          = 8n;
-[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                         = 9n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND           = 10n;
-[@inline] const error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND  = 11n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                       = 12n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                    = 13n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND       = 14n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                      = 15n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                               = 16n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -130,6 +120,12 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : doormanStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : doormanStorage) : unit is
   if (Tezos.sender = s.admin) then unit
@@ -150,9 +146,13 @@ block{
 
 function checkSenderIsDelegationContract(var s : doormanStorage) : unit is
 block{
-  const delegationAddress : address = case s.generalContracts["delegation"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+  const delegationAddress: address = case generalContractsOptView of [
+      Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+          |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+          ]
+  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
@@ -160,15 +160,21 @@ block{
 
 
 
-
-function checkSenderIsUsdmTokenControllerContract(var s : doormanStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorage) : unit is
 block{
-  const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND)
-  ];
-  if (Tezos.sender = usdmTokenControllerAddress) then skip
-    else failwith(error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED);
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
 } with unit
 
 
@@ -187,6 +193,11 @@ function checkNoAmount(const _p : unit) : unit is
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -197,19 +208,25 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 function checkStakeIsNotPaused(var s : doormanStorage) : unit is
-  if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkUnstakeIsNotPaused(var s : doormanStorage) : unit is
-  if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkCompoundIsNotPaused(var s : doormanStorage) : unit is
-  if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
+    else unit;
+
+
+
+function checkFarmClaimIsNotPaused(var s : doormanStorage) : unit is
+  if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -232,26 +249,13 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
 
 
 
-// helper function to update satellite's balance
-function onSatelliteRewardPaid(const delegationAddress : address) : contract(address) is
-  case (Tezos.get_entrypoint_opt(
-      "%onSatelliteRewardPaid",
-      delegationAddress) : option(contract(address))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
-];
-
-
-
-
-
 // helper function to get transfer entrypoint
 function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(transferType) is
   case (Tezos.get_entrypoint_opt(
       "%transfer",
       tokenAddress) : option(contract(transferType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(transferType))
+  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(transferType))
 ];
 
 
@@ -307,38 +311,54 @@ block{
     if userRecord.balance > 0n then {
 
       // Get delegation contract
-      const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
-          Some (_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
+      const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+      const delegationAddress: address = case generalContractsOptView of [
+          Some (_optionContract) -> case _optionContract of [
+                  Some (_contract)    -> _contract
+              |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+              ]
+      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
       
       // -- Satellite rewards -- //
-      // Check if user is satellite or delegate
-      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", userAddress, delegationAddress);
-      const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
-        Some (value) -> value
-      | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
+      // Get the user satelliteRewards record
+      const satelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
+      const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
+        Some (_v) -> True
+      | None -> False
       ];
 
-      const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
-        Some (_rewards) -> block{
-          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-          const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
-            Some (value) -> value
-          | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-          ];
-          
-          // Calculate the user unclaimed rewards
-          const satelliteReward: nat  = case getUserReferenceRewardOpt of [
-            Some (_referenceRewards) -> block{
-              const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-              const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
-            } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-          | None -> failwith("Error. Satellite reference rewards record not found")
-          ];
-        } with (satelliteReward)
-      | None -> 0n
-      ];
+      // If user never delegated or registered as a satellite, it does not calculates its rewards
+      var satelliteUnpaidRewards: nat := 0n;
+      if userHasSatelliteRewards then
+      block{
+        const satelliteRewardsOpt: option(satelliteRewards) = case satelliteRewardsOptView of [
+          Some (value) -> value
+        | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        satelliteUnpaidRewards := case satelliteRewardsOpt of [
+          Some (_rewards) -> block{
+            const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+            const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
+              Some (value) -> value
+            | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            ];
+            
+            // Calculate the user unclaimed rewards
+            const satelliteReward: nat  = case getUserReferenceRewardOpt of [
+              Some (_referenceRewards) -> block{
+                const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
+                const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
+              } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
+            | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
+            ];
+          } with (satelliteReward)
+        | None -> 0n
+        ];
+      }
+      else skip;
+
 
       // -- Exit fee rewards -- //
       // Calculate what fees the user missed since his/her last claim
@@ -416,18 +436,72 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(*  View: getTotalStakedSupply *)
-[@view] function getTotalStakedSupply(const _: unit; const s: doormanStorage) : nat is
-  s.stakedMvkTotalSupply
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : doormanStorage) : address is
+  s.admin
 
 
 
-(* View: getStakedBalance *)
-[@view] function getStakedBalance (const userAddress : address; var s : doormanStorage) : nat is
+(*  View: get config *)
+[@view] function getConfig(const _: unit; const s: doormanStorage) : doormanConfigType is
+  s.config
+
+
+
+(*  View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const s: doormanStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(*  View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; const s: doormanStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _: unit; const s: doormanStorage) : doormanBreakGlassConfigType is
+  s.breakGlassConfig
+
+
+
+(* View: get userStakeBalance *)
+[@view] function getUserStakeBalanceOpt(const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
+  Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
+
+
+
+(*  View: unclaimedRewards *)
+[@view] function getUnclaimedRewards(const _: unit; const s: doormanStorage) : nat is
+  s.unclaimedRewards
+
+
+
+(*  View: accumulatedFeesPerShare *)
+[@view] function getAccumulatedFeesPerShare(const _: unit; const s: doormanStorage) : nat is
+  s.accumulatedFeesPerShare
+
+
+
+(* View: stakedBalance *)
+[@view] function getStakedBalance(const userAddress : address; var s : doormanStorage) : nat is
   case s.userStakeBalanceLedger[userAddress] of [
     Some (_val) -> _val.balance
   | None -> 0n
 ]
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : doormanStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -466,6 +540,25 @@ block {
 
 
 
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : doormanStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
+
+} with response
+
+
+
 (*  updateMetadata entrypoint: update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : doormanStorage) : return is
 block {
@@ -485,20 +578,20 @@ block {
 
 
 
-(*  updateMinMvkAmount entrypoint *)
-function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : doormanUpdateConfigParamsType; var s : doormanStorage) : return is 
 block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMinMvkAmount"] of [
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateMinMvkAmount(newMinMvkAmount);
+    // init delegation lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
 
 } with response
 
@@ -534,6 +627,44 @@ block {
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: doormanStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  migrateFunds entrypoint *)
+function migrateFunds(const destinationAddress: address; var s: doormanStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMigrateFunds"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMigrateFunds(destinationAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -636,6 +767,25 @@ block {
 
     // init doorman lambda action
     const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseCompound(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseFarmClaim entrypoint *)
+function togglePauseFarmClaim(var s : doormanStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseFarmClaim"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseFarmClaim(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -829,11 +979,14 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
     case action of [
 
         // Housekeeping Entrypoints
-      | SetAdmin(parameters)                  -> setAdmin(parameters, s)
+        SetAdmin(parameters)                  -> setAdmin(parameters, s)
+      | SetGovernance(parameters)             -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-      | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
+      | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+      | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+      | MigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
         // Pause / Break Glass Entrypoints
       | PauseAll(_parameters)                 -> pauseAll(s)
@@ -841,6 +994,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | TogglePauseStake(_parameters)         -> togglePauseStake(s)
       | TogglePauseUnstake(_parameters)       -> togglePauseUnstake(s)
       | TogglePauseCompound(_parameters)      -> togglePauseCompound(s)
+      | TogglePauseFarmClaim(_parameters)     -> togglePauseFarmClaim(s)
 
         // Doorman Entrypoints
       | Stake(parameters)                     -> stake(parameters, s)  

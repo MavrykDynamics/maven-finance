@@ -1,14 +1,6 @@
 type blockLevel is nat;
 type metadata is big_map (string, bytes);
 
-type claimRecordType is [@layout:comb] record [
-    amountClaimed      : nat;
-    remainderVested    : nat; 
-    dateTimeClaimed    : timestamp;
-    blockLevelClaimed  : nat;
-]
-type claimLedgerType is big_map(address, claimRecordType)
-
 type vesteeRecordType is [@layout:comb] record [
     
     // static variables initiated at start ----
@@ -64,9 +56,11 @@ type vestingLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                      of (address)
+| LambdaSetGovernance                 of (address)
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaMistakenTransfer              of transferActionType
 
   // Internal Vestee Control Entrypoints
 | LambdaAddVestee                     of (addVesteeType)
@@ -83,13 +77,14 @@ type vestingLambdaActionType is
 
 type vestingStorage is [@layout:comb] record [
     admin               : address;
-    mvkTokenAddress     : address;
     metadata            : metadata;
+
+    mvkTokenAddress     : address;
+    governanceAddress   : address;
 
     whitelistContracts  : whitelistContractsType;      
     generalContracts    : generalContractsType;
 
-    claimLedger         : claimLedgerType;
     vesteeLedger        : vesteeLedgerType;
 
     totalVestedAmount   : nat;              // record of how much has been vested so far

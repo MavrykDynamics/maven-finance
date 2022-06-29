@@ -19,6 +19,9 @@
 // TokenSale Types
 #include "../partials/types/tokenSaleTypes.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type tokenSaleAction is 
@@ -58,22 +61,8 @@ const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^17
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                              = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                       = 1n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 2n;
-
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4n;
-
-[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 5n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 6n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                = 7n;
-[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 8n;
-[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 9n;
-[@inline] const error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                = 10n;
-[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                    = 11n;
-[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 12n;
-[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 13n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -142,31 +131,13 @@ function addToWhitelist (const newUserAddress : address; var whitelistedAddresse
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
 function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
-
-// helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-case (Tezos.get_entrypoint_opt(
-      "%transfer",
-      contractAddress) : option(contract(transferActionType))) of [
-          Some(contr) -> contr
-        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
-      ];
-
-
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
@@ -175,8 +146,63 @@ case (Tezos.get_entrypoint_opt(
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : tokenSaleStorage) : address is
+  s.admin
 
 
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : tokenSaleStorage) : tokenSaleConfigType is
+  s.config
+
+
+
+(* View: get treasury address *)
+[@view] function getTreasuryAddress(const _: unit; var s : tokenSaleStorage) : address is
+  s.treasuryAddress
+
+
+
+(* View: get treasury address *)
+[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
+  Big_map.find_opt(userAddress, s.whitelistedAddresses)
+
+
+
+(* View: get token sale record *)
+[@view] function getTokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorage) : option(tokenSaleRecordType) is
+  Big_map.find_opt(userAddress, s.tokenSaleLedger)
+
+
+
+(* View: tokenSaleHasStarted *)
+[@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorage) : bool is
+  s.tokenSaleHasStarted
+
+
+
+(* View: whitelistAmountTotal *)
+[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.whitelistAmountTotal
+
+
+
+(* View: overallAmountTotal *)
+[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.overallAmountTotal
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -436,7 +462,7 @@ block {
       ];
 
       // send amount to treasury
-      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Treasury Contract not found.");
+      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Contract not found at given address");
       const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
       operations := transferAmountToTreasuryOperation # operations;
 

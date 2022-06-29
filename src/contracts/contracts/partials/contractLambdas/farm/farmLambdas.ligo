@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
     
     case farmLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -21,6 +21,63 @@ block {
         | _ -> skip
     ];
     
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+block {
+    
+    checkSenderIsAllowed(s);
+
+    case farmLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* settName lambda - update the metadata at a given key *)
+function lambdaSetName(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+block {
+
+    checkSenderIsAdmin(s);
+    
+    case farmLambdaAction of [
+        | LambdaSetName(updatedName) -> {
+
+                // Get farm factory address
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
+                const farmFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get the farm factory config
+                const configView : option (farmFactoryConfigType) = Tezos.call_view ("getConfig", unit, farmFactoryAddress);
+                const farmFactoryConfig: farmFactoryConfigType = case configView of [
+                    Some (_config) -> _config
+                |   None -> failwith (error_GET_CONFIG_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND)
+                ];
+
+                // Check get the name config param from the farm factory
+                const farmNameMaxLength: nat    = farmFactoryConfig.farmNameMaxLength;
+
+                // Validate inputs and update the name
+                if String.length(updatedName) > farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
+                
+            }
+        | _ -> skip
+    ];
+
 } with (noOperations, s)
 
 
@@ -60,13 +117,11 @@ block {
 
                 case updateConfigAction of [
                     ConfigForceRewardFromTransfer (_v)  -> block {
-                        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith("Configuration value error") else skip;
+                        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith(error_CONFIG_VALUE_ERROR) else skip;
                         s.config.forceRewardFromTransfer    := updateConfigNewValue = 1n;
                     }
                 | ConfigRewardPerBlock (_v)          -> block {
                         // check if farm has been initiated
-                        checkFarmIsInit(s);
-
                         checkFarmIsInit(s);
 
                         // update farmStorage
@@ -74,7 +129,7 @@ block {
 
                         // Check new reward per block
                         const currentRewardPerBlock: nat = s.config.plannedRewards.currentRewardPerBlock;
-                        if currentRewardPerBlock > updateConfigNewValue then failwith("The new reward per block must be higher than the previous one.") else skip;
+                        if currentRewardPerBlock > updateConfigNewValue then failwith(error_CONFIG_VALUE_ERROR) else skip;
 
                         // Calculate new total rewards
                         const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
@@ -127,6 +182,42 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  mistaken lambda *)
+function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case farmLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Get LP Token address
+                const lpTokenAddress: address  = s.config.lpToken.tokenAddress;
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -142,7 +233,7 @@ function lambdaUpdateBlocksPerMinute(const farmLambdaAction : farmLambdaActionTy
 block {
     
     // check that source is admin or factory
-    checkSenderOrSourceIsCouncil(s);
+    checkSenderIsCouncilOrFarmFactory(s);
 
     // check if farm has been initiated
     checkFarmIsInit(s);
@@ -154,7 +245,7 @@ block {
                 s := updateFarm(s);
 
                 // Check new blocksPerMinute
-                if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
+                if blocksPerMinute > 0n then skip else failwith(error_INVALID_BLOCKS_PER_MINUTE);
 
                 var newcurrentRewardPerBlock: nat := 0n;
                 if s.config.infinite then {
@@ -196,13 +287,13 @@ block{
         | LambdaInitFarm(initFarmParams) -> {
                 
                 // Check if farm is already open
-                if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
+                if s.open or s.init then failwith(error_FARM_ALREADY_OPEN) else skip;
 
                 // Check if the blocks per minute is greater than 0
-                if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
+                if initFarmParams.blocksPerMinute <= 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE) else skip;
 
                 // Check wether the farm is infinite or its total blocks has been set
-                if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+                if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
                 
                 // Update farmStorage
                 s := updateFarm(s);
@@ -258,7 +349,7 @@ block{
 function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block {
     
-    checkSenderIsAllowed(s);
+    checkSenderIsGovernanceOrFactory(s);
 
     case farmLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -285,7 +376,7 @@ block {
 function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAllowed(s);
+    checkSenderIsGovernanceOrFactory(s);
 
     case farmLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -312,7 +403,7 @@ block {
 function lambdaTogglePauseDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
     
-    checkSenderIsAllowed(s);
+    checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
         | LambdaTogglePauseDeposit(_parameters) -> {
@@ -331,7 +422,7 @@ block {
 function lambdaTogglePauseWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAllowed(s);
+    checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
         | LambdaTogglePauseWithdraw(_parameters) -> {
@@ -351,10 +442,10 @@ block {
 function lambdaTogglePauseClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAllowed(s);
+    checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
-        | LambdaTogglePauseWithdraw(_parameters) -> {
+        | LambdaTogglePauseClaim(_parameters) -> {
                 
                 if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
                 else s.breakGlassConfig.claimIsPaused := True;
@@ -397,7 +488,7 @@ block{
                 checkFarmIsOpen(s);
 
                 // Depositor address
-                const depositor: depositor = Tezos.sender;
+                const depositor     : depositor = Tezos.sender;
 
                 // Check if sender as already a record
                 const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
@@ -405,7 +496,7 @@ block{
                 // Prepare new depositor record
                 var depositorRecord: depositorRecord := record[
                     balance                     =0n;
-                    participationMVKPerShare    =s.accumulatedMVKPerShare;
+                    participationRewardsPerShare    =s.accumulatedRewardsPerShare;
                     unclaimedRewards            =0n;
                     claimedRewards              =0n;
                 ];
@@ -413,12 +504,12 @@ block{
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
                     // Update user's unclaimed rewards
-                    s := updateUnclaimedRewards(s);
+                    s := updateUnclaimedRewards(depositor, s);
 
                     // Refresh depositor deposit with updated unclaimed rewards
                     depositorRecord :=  case getDepositorDeposit(depositor, s) of [
                         Some (_depositor)   -> _depositor
-                    |   None                -> failwith("Depositor not found")
+                    |   None                -> failwith(error_DEPOSITOR_NOT_FOUND)
                     ];
                     
                 }
@@ -465,20 +556,20 @@ block{
                 const depositor: depositor = Tezos.sender;
 
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
-                s := updateUnclaimedRewards(s);
+                s := updateUnclaimedRewards(depositor, s);
 
                 var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
                     Some (d)    -> d
-                |   None        -> failwith("DEPOSITOR_NOT_FOUND")
+                |   None        -> failwith(error_DEPOSITOR_NOT_FOUND)
                 ];
 
                 // Check if the depositor has enough token to withdraw
-                if tokenAmount > depositorRecord.balance then failwith("The amount withdrawn is higher than the depositor deposit") else skip;
+                if tokenAmount > depositorRecord.balance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
                 depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
                 s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Check if the farm has enough token
-                if tokenAmount > s.config.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
+                if tokenAmount > s.config.lpToken.tokenBalance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
                 s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
@@ -514,25 +605,23 @@ block{
     var operations : list(operation) := nil;
 
     case farmLambdaAction of [
-        | LambdaClaim(_parameters) -> {
+        | LambdaClaim(depositor) -> {
                 
                 // Update pool farmStorage
                 s := updateFarm(s);
 
                 // Update user's unclaimed rewards
-                s := updateUnclaimedRewards(s);
-
-                const depositor: depositor = Tezos.sender;
+                s := updateUnclaimedRewards(depositor, s);
 
                 // Check if sender as already a record
                 var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
                     Some (r)        -> r
-                |   None            -> (failwith("DEPOSITOR_NOT_FOUND"): depositorRecord)
+                |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecord)
                 ];
 
                 const claimedRewards: tokenBalance = depositorRecord.unclaimedRewards;
 
-                if claimedRewards = 0n then failwith("The depositor has no rewards to claim") else skip;
+                if claimedRewards = 0n then failwith(error_NO_FARM_REWARDS_TO_CLAIM) else skip;
 
                 // Store new unclaimedRewards value in depositor
                 depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
