@@ -4,6 +4,9 @@ export const GET_TREASURY_DATA = `
       address,
       name
     }
+    treasury_factory {
+      address
+    }
   }
 `
 
