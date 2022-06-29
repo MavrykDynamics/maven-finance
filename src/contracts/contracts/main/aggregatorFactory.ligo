@@ -57,11 +57,7 @@ type aggregatorFactoryAction is
       // Pause / Break Glass Entrypoints
     | PauseAll                        of (unit)
     | UnpauseAll                      of (unit)
-    | TogglePauseCreateAggregator     of (unit)
-    | TogglePauseTrackAggregator      of (unit)
-    | TogglePauseUntrackAggregator    of (unit)
-    | TogglePauseDistributeRewardXtz  of (unit)
-    | TogglePauseDistributeRewardSMvk of (unit)
+    | TogglePauseEntrypoint          of aggregatorFactoryTogglePauseEntrypointType
 
       // Aggregator Factory Entrypoints
     | CreateAggregator                of createAggregatorParamsType
@@ -502,98 +498,24 @@ block {
 
 
 
-(*  togglePauseCreateAggregator entrypoint *)
-function togglePauseCreateAggregator(var s: aggregatorFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateAgg"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: aggregatorFactoryTogglePauseEntrypointType; const s: aggregatorFactoryStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseCreateAgg(unit);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseUntrackAggregator entrypoint *)
-function togglePauseUntrackAggregator(var s: aggregatorFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackAgg"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseUntrackAgg(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseTrackAggregator entrypoint *)
-function togglePauseTrackAggregator(var s: aggregatorFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackAgg"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseTrackAgg(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseDistributeRewardXtz entrypoint *)
-function togglePauseDistributeRewardXtz(var s: aggregatorFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDisRewardXtz"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseDisRewardXtz(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseDistributeRewardSMvk entrypoint *)
-function togglePauseDistributeRewardSMvk(var s: aggregatorFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDisRewardSMvk"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseDisRewardSMvk(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
@@ -778,11 +700,7 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
           // Pause / Break Glass Entrypoints
         | PauseAll (_parameters)                        -> pauseAll(s)
         | UnpauseAll (_parameters)                      -> unpauseAll(s)
-        | TogglePauseCreateAggregator (_parameters)     -> togglePauseCreateAggregator(s)
-        | TogglePauseTrackAggregator (_parameters)      -> togglePauseTrackAggregator(s)
-        | TogglePauseUntrackAggregator (_parameters)    -> togglePauseUntrackAggregator(s)
-        | TogglePauseDistributeRewardXtz (_parameters)  -> togglePauseDistributeRewardXtz(s)
-        | TogglePauseDistributeRewardSMvk (_parameters) -> togglePauseDistributeRewardSMvk(s)
+        | TogglePauseEntrypoint (parameters)           -> togglePauseEntrypoint(parameters, s)
 
           // Aggregator Factory Entrypoints  
         | CreateAggregator (parameters)                 -> createAggregator(parameters, s)

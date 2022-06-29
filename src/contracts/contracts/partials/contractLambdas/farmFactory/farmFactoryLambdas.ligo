@@ -266,17 +266,21 @@ block {
 
 
 
-(*  togglePauseCreateFarm lambda *)
-function lambdaTogglePauseCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
 
     case farmFactoryLambdaAction of [
-        | LambdaTogglePauseCreateFarm(_parameters) -> {
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+
+                case targetEntrypoint of [
+                    ToggleCreateFarm (_v)           -> s.breakGlassConfig.createFarmIsPaused := _v
+                |   ToggleUntrackFarm (_v)          -> s.breakGlassConfig.untrackFarmIsPaused := _v
+                |   ToggleTrackFarm (_v)            -> s.breakGlassConfig.trackFarmIsPaused := _v
+                ]
                 
-                if s.breakGlassConfig.createFarmIsPaused then s.breakGlassConfig.createFarmIsPaused := False
-                else s.breakGlassConfig.createFarmIsPaused := True;
             }
         | _ -> skip
     ];
@@ -284,44 +288,6 @@ block {
 } with (noOperations, s)
 
 
-
-(*  togglePauseUntrackFarm lambda *)
-function lambdaTogglePauseUntrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case farmFactoryLambdaAction of [
-        | LambdaTogglePauseUntrackFarm(_parameters) -> {
-                
-                if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
-                else s.breakGlassConfig.untrackFarmIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseTrackFarm lambda *)
-function lambdaTogglePauseTrackFarm(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case farmFactoryLambdaAction of [
-        | LambdaTogglePauseTrackFarm(_parameters) -> {
-                
-                if s.breakGlassConfig.trackFarmIsPaused then s.breakGlassConfig.trackFarmIsPaused := False
-                else s.breakGlassConfig.trackFarmIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas Begin

@@ -54,9 +54,7 @@ type treasuryFactoryAction is
         // Pause / Break Glass Entrypoints
     |   PauseAll                            of (unit)
     |   UnpauseAll                          of (unit)
-    |   TogglePauseCreateTreasury           of (unit)
-    |   TogglePauseTrackTreasury            of (unit)
-    |   TogglePauseUntrackTreasury          of (unit)
+    |   TogglePauseEntrypoint               of treasuryFactoryTogglePauseEntrypointType
 
         // Treasury Factory Entrypoints
     |   CreateTreasury                      of createTreasuryType
@@ -489,60 +487,24 @@ block {
 
 
 
-(* togglePauseCreateTreasury entrypoint *)
-function togglePauseCreateTreasury(var s: treasuryFactoryStorageType): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateTreasury"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: treasuryFactoryTogglePauseEntrypointType; const s: treasuryFactoryStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaTogglePauseCreateTreasury(unit);
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
 
 } with response
 
 
-
-(* togglePauseUntrackTreasury entrypoint *)
-function togglePauseUntrackTreasury(var s: treasuryFactoryStorageType): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaToggleUntrackTreasury(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(* togglePauseTrackTreasury entrypoint *)
-function togglePauseTrackTreasury(var s: treasuryFactoryStorageType): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaToggleTrackTreasury(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -684,9 +646,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                      -> pauseAll(s)
         |   UnpauseAll (_parameters)                    -> unpauseAll(s)
-        |   TogglePauseCreateTreasury (_parameters)     -> togglePauseCreateTreasury(s)
-        |   TogglePauseTrackTreasury (_parameters)      -> togglePauseTrackTreasury(s)
-        |   TogglePauseUntrackTreasury (_parameters)    -> togglePauseUntrackTreasury(s)
+        |   TogglePauseEntrypoint (parameters)          -> togglePauseEntrypoint(parameters, s)
 
             // Treasury Factory Entrypoints
         |   CreateTreasury (params)                     -> createTreasury(params, s)

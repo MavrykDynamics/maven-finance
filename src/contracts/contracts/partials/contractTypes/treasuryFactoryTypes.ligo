@@ -28,6 +28,10 @@ type treasuryFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: treasuryFactoryUpdateConfigActionType;
 ]
 
+type treasuryFactoryTogglePauseEntrypointType is
+  ToggleCreateTreasury         of bool
+| ToggleTrackTreasury          of bool
+| ToggleUntrackTreasury        of bool
 
 type treasuryFactoryLambdaActionType is 
 
@@ -44,9 +48,7 @@ type treasuryFactoryLambdaActionType is
     // Pause / Break Glass Entrypoints
 |   LambdaPauseAll                            of (unit)
 |   LambdaUnpauseAll                          of (unit)
-|   LambdaTogglePauseCreateTreasury           of (unit)
-|   LambdaToggleTrackTreasury                 of (unit)
-|   LambdaToggleUntrackTreasury               of (unit)
+|   LambdaTogglePauseEntrypoint               of treasuryFactoryTogglePauseEntrypointType
 
     // Treasury Factory Entrypoints
 |   LambdaCreateTreasury                      of createTreasuryType

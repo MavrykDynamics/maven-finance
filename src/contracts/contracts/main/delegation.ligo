@@ -44,12 +44,7 @@ type delegationAction is
       // Pause / Break Glass Entrypoints
     | PauseAll                          of (unit)
     | UnpauseAll                        of (unit)
-    | TogglePauseDelegateToSatellite    of (unit)
-    | TogglePauseUndelegateSatellite    of (unit)
-    | TogglePauseRegisterSatellite      of (unit)
-    | TogglePauseUnregisterSatellite    of (unit)
-    | TogglePauseUpdateSatellite        of (unit)
-    | TogglePauseDistributeReward       of (unit)
+    | TogglePauseEntrypoint            of delegationTogglePauseEntrypointType
 
       // Delegation Entrypoints
     | DelegateToSatellite               of delegateToSatelliteType    
@@ -662,17 +657,17 @@ block {
 
 
 
-(* togglePauseDelegateToSatellite entrypoint *)
-function togglePauseDelegateToSatellite(var s : delegationStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDelegateToSatellite"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: delegationTogglePauseEntrypointType; const s: delegationStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseDelegateToSatellite(unit);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -681,96 +676,6 @@ block {
 
 
 
-(* togglePauseUndelegateSatellite entrypoint *)
-function togglePauseUndelegateSatellite(var s : delegationStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUndelegateSatellite"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseUndelegateSatellite(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
-
-
-(* togglePauseRegisterSatellite entrypoint *)
-function togglePauseRegisterSatellite(var s : delegationStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRegisterSatellite"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseRegisterSatellite(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
-
-
-
-(* togglePauseUnregisterSatellite entrypoint *)
-function togglePauseUnregisterSatellite(var s : delegationStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnregisterSatellite"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseUnregisterSatellite(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
-
-
-(* togglePauseUpdateSatellite entrypoint *)
-function togglePauseUpdateSatellite(var s : delegationStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUpdateSatellite"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseUpdateSatellite(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
-
-
-
-(* togglePauseDistributeReward entrypoint *)
-function togglePauseDistributeReward(var s : delegationStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDistributeReward"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseDistributeReward(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1003,12 +908,7 @@ function main (const action : delegationAction; const s : delegationStorageType)
           // Pause / Break Glass Entrypoints
         | PauseAll(_parameters)                         -> pauseAll(s)
         | UnpauseAll(_parameters)                       -> unpauseAll(s)
-        | TogglePauseDelegateToSatellite(_parameters)   -> togglePauseDelegateToSatellite(s)
-        | TogglePauseUndelegateSatellite(_parameters)   -> togglePauseUndelegateSatellite(s)
-        | TogglePauseRegisterSatellite(_parameters)     -> togglePauseRegisterSatellite(s)
-        | TogglePauseUnregisterSatellite(_parameters)   -> togglePauseUnregisterSatellite(s)
-        | TogglePauseUpdateSatellite(_parameters)       -> togglePauseUpdateSatellite(s)
-        | TogglePauseDistributeReward(_parameters)      -> togglePauseDistributeReward(s)
+        | TogglePauseEntrypoint(parameters)            -> togglePauseEntrypoint(parameters, s)
         
           // Delegation Entrypoints
         | DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)

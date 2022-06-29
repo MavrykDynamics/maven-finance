@@ -41,26 +41,18 @@
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseCreateTreasury"
+      "name": "lambdaTogglePauseEntrypoint"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseTrackTreasury"
-    },
-    {
-      "index": 12,
-      "name": "lambdaTogglePauseUntrackTreasury"
-    },
-    {
-      "index": 13,
       "name": "lambdaCreateTreasury"
     },
     {
-      "index": 14,
+      "index": 12,
       "name": "lambdaTrackTreasury"
     },
     {
-      "index": 15,
+      "index": 13,
       "name": "lambdaUntrackTreasury"
     }
 ]

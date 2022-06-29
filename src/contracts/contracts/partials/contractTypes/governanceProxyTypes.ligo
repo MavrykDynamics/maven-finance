@@ -94,14 +94,20 @@ type unstakeTreasuryType is [@layout:comb] record [
   unstakeAmount             : nat;
 ]
 
-// type pauseEntrypointType is 
-//   | LambdaTogglePauseStake
+type toggleAggregatorEntrypointType is [@layout:comb] record [
+  targetAggregatorAddress   : address;
+  targetEntrypoint          : aggregatorTogglePauseEntrypointType;
+]
 
-// type pauseSingleEntrypointInContractType is [@layout:comb] record [
-//   contract                  : address;
-//   entrypoint                : pauseEntrypointType;
-// ]
+type toggleFarmEntrypointType is [@layout:comb] record [
+  targetFarmAddress         : address;
+  targetEntrypoint          : farmTogglePauseEntrypointType;
+]
 
+type toggleTreasuryEntrypointType is [@layout:comb] record [
+  targetTreasuryAddress     : address;
+  targetEntrypoint          : treasuryTogglePauseEntrypointType;
+]
 
 type executeActionParamsType is 
 
@@ -130,9 +136,14 @@ type executeActionParamsType is
 | UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
 | UpdateDoormanConfig                of doormanUpdateConfigParamsType
 
-// | PauseAllInContract                 of (address)
-// | UnpauseAllInContract               of (address)
-// | PauseSingleEntrypointInContract    of pauseSingleEntrypointInContractType
+| ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
+| ToggleAggregatorFacEntrypoint      of aggregatorFactoryTogglePauseEntrypointType
+| ToggleDelegationEntrypoint         of delegationTogglePauseEntrypointType
+| ToggleDoormanEntrypoint            of doormanTogglePauseEntrypointType
+| ToggleFarmEntrypoint               of toggleFarmEntrypointType
+| ToggleFarmFacEntrypoint            of farmFactoryTogglePauseEntrypointType
+| ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
+| ToggleTreasuryFacEntrypoint        of treasuryFactoryTogglePauseEntrypointType
 
 | UpdateWhitelistDevelopersSet       of (address)
 | SetGovernanceProxy                 of (address)

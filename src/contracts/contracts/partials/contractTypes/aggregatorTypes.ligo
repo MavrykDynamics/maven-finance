@@ -67,6 +67,14 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : aggregatorUpdateConfigActionType;
 ]
 
+type aggregatorTogglePauseEntrypointType is
+  ToggleRequestRateUpdate             of bool
+| ToggleRequestRateUpdateDev          of bool
+| ToggleSetObservationCommit          of bool
+| ToggleSetObservationReveal          of bool
+| ToggleWithdrawRewardXtz             of bool
+| ToggleWithdrawRewardStakedMvk       of bool
+
 // ------------------------------------------------------------------------------
 // Storage Types
 // ------------------------------------------------------------------------------
@@ -127,12 +135,7 @@ type aggregatorLambdaActionType is
     // Pause / Break Glass Entrypoints
   | LambdaPauseAll                      of (unit)
   | LambdaUnpauseAll                    of (unit)
-  | LambdaTogglePauseReqRateUpd         of (unit)
-  | LambdaTogglePauseReqRateUpdDev      of (unit)
-  | LambdaTogglePauseSetObsCommit       of (unit)
-  | LambdaTogglePauseSetObsReveal       of (unit)
-  | LambdaTogglePauseRewardXtz          of (unit)
-  | LambdaTogglePauseRewardSMvk         of (unit)
+  | LambdaTogglePauseEntrypoint         of aggregatorTogglePauseEntrypointType
 
     // Oracle Entrypoints
   | LambdaRequestRateUpdate             of requestRateUpdateType

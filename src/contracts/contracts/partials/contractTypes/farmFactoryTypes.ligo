@@ -43,6 +43,11 @@ type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmFactoryUpdateConfigActionType;
 ]
 
+type farmFactoryTogglePauseEntrypointType is
+  ToggleCreateFarm         of bool
+| ToggleUntrackFarm        of bool
+| ToggleTrackFarm          of bool
+
 type farmFactoryLambdaActionType is 
 
     // Housekeeping Entrypoints
@@ -58,9 +63,7 @@ type farmFactoryLambdaActionType is
     // Pause / Break Glass Entrypoints
 |   LambdaPauseAll                    of (unit)
 |   LambdaUnpauseAll                  of (unit)
-|   LambdaTogglePauseCreateFarm       of (unit)
-|   LambdaTogglePauseTrackFarm        of (unit)
-|   LambdaTogglePauseUntrackFarm      of (unit)
+|   LambdaTogglePauseEntrypoint       of farmFactoryTogglePauseEntrypointType
 
     // Farm Factory Entrypoints
 |   LambdaCreateFarm                  of createFarmType

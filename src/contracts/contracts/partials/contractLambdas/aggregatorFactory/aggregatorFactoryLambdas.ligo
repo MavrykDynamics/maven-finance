@@ -215,102 +215,30 @@ block {
 
 
 
-(*  togglePauseCreateAgg lambda *)
-function lambdaTogglePauseCreateAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType) : return is
 block {
 
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseCreateAgg(_parameters) -> {
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+
+                case targetEntrypoint of [
+                    ToggleCreateAggregator (_v)             -> s.breakGlassConfig.createAggregatorIsPaused := _v
+                |   ToggleUntrackAggregator (_v)            -> s.breakGlassConfig.untrackAggregatorIsPaused := _v
+                |   ToggleTrackAggregator (_v)              -> s.breakGlassConfig.trackAggregatorIsPaused := _v
+                |   ToggleDistributeRewardXtz (_v)          -> s.breakGlassConfig.distributeRewardXtzIsPaused := _v
+                |   ToggleDistributeRewardSmvk (_v)         -> s.breakGlassConfig.distributeRewardStakedMvkIsPaused := _v
+                ]
                 
-                if s.breakGlassConfig.createAggregatorIsPaused then s.breakGlassConfig.createAggregatorIsPaused := False
-                else s.breakGlassConfig.createAggregatorIsPaused := True;
             }
         | _ -> skip
     ];
 
 } with (noOperations, s)
 
-
-
-(*  togglePauseUntrackAgg lambda *)
-function lambdaTogglePauseUntrackAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseUntrackAgg(_parameters) -> {
-                
-                if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
-                else s.breakGlassConfig.untrackAggregatorIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseTrackAgg lambda *)
-function lambdaTogglePauseTrackAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseTrackAgg(_parameters) -> {
-                
-                if s.breakGlassConfig.trackAggregatorIsPaused then s.breakGlassConfig.trackAggregatorIsPaused := False
-                else s.breakGlassConfig.trackAggregatorIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseDisRewardXtz lambda *)
-function lambdaTogglePauseDisRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseDisRewardXtz(_parameters) -> {
-                
-                if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
-                else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseDisRewardSMvk lambda *)
-function lambdaTogglePauseDisRewardSMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseDisRewardSMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then s.breakGlassConfig.distributeRewardStakedMvkIsPaused := False
-                else s.breakGlassConfig.distributeRewardStakedMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 
 // ------------------------------------------------------------------------------

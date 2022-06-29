@@ -48,10 +48,7 @@ type doormanAction is
     // Pause / Break Glass Entrypoints
   | PauseAll                    of (unit)
   | UnpauseAll                  of (unit)
-  | TogglePauseStake            of (unit)
-  | TogglePauseUnstake          of (unit)
-  | TogglePauseCompound         of (unit)
-  | TogglePauseFarmClaim        of (unit)
+  | TogglePauseEntrypoint      of doormanTogglePauseEntrypointType
 
     // Doorman Entrypoints
   | Stake                       of (nat)
@@ -675,79 +672,24 @@ block {
 
 
 
-(*  togglePauseStake entrypoint *)
-function togglePauseStake(var s : doormanStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStake"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: doormanTogglePauseEntrypointType; const s: doormanStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseStake(unit);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseUnstake entrypoint *)
-function togglePauseUnstake(var s : doormanStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstake"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-    
-    // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseUnstake(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseCompound entrypoint *)
-function togglePauseCompound(var s : doormanStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCompound"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseCompound(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseFarmClaim entrypoint *)
-function togglePauseFarmClaim(var s : doormanStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseFarmClaim"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseFarmClaim(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -891,10 +833,7 @@ function main (const action : doormanAction; const s : doormanStorageType) : ret
         // Pause / Break Glass Entrypoints
       | PauseAll(_parameters)                 -> pauseAll(s)
       | UnpauseAll(_parameters)               -> unpauseAll(s)
-      | TogglePauseStake(_parameters)         -> togglePauseStake(s)
-      | TogglePauseUnstake(_parameters)       -> togglePauseUnstake(s)
-      | TogglePauseCompound(_parameters)      -> togglePauseCompound(s)
-      | TogglePauseFarmClaim(_parameters)     -> togglePauseFarmClaim(s)
+      | TogglePauseEntrypoint(parameters)    -> togglePauseEntrypoint(parameters, s)
 
         // Doorman Entrypoints
       | Stake(parameters)                     -> stake(parameters, s)  

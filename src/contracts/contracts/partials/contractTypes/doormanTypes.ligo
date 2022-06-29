@@ -32,6 +32,12 @@ type doormanUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: doormanUpdateConfigActionType;
 ]
 
+type doormanTogglePauseEntrypointType is
+  ToggleStake             of bool
+| ToggleUnstake           of bool
+| ToggleCompound          of bool
+| ToggleFarmClaim         of bool
+
 type doormanLambdaActionType is 
 
   // Housekeeping Lambdas
@@ -47,10 +53,7 @@ type doormanLambdaActionType is
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                    of (unit)
 | LambdaUnpauseAll                  of (unit)
-| LambdaTogglePauseStake            of (unit)
-| LambdaTogglePauseUnstake          of (unit)
-| LambdaTogglePauseCompound         of (unit)
-| LambdaTogglePauseFarmClaim        of (unit)
+| LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
   // Doorman Lambdas
 | LambdaStake                       of (nat)
