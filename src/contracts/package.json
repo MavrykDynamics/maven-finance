@@ -71,6 +71,10 @@
     "compile-treasuryFactory-contract": "yarn pre-compile treasuryFactory && ts-node scripts/cli.ts compile -f json -o build -c treasuryFactory && yarn compile-treasuryFactory-lambdas",
     "compile-emergencyGovernance-contract": "yarn pre-compile emergencyGovernance && ts-node scripts/cli.ts compile -f json -o build -c emergencyGovernance && yarn compile-emergencyGovernance-lambdas",
 
+    "compile-cfmm-contract": "yarn pre-compile cfmm && ts-node scripts/cli.ts compile -f json -o build -c cfmm",
+    "compile-tokenController-contract": "yarn pre-compile tokenController && ts-node scripts/cli.ts compile -f json -o build -c tokenController",
+    "compile-vault-contract": "yarn pre-compile u_vault && ts-node scripts/cli.ts compile -f json -o build -c u_vault",
+
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 600000",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ithacanet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 9000000",
     "test-net-interact": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ithacanet ts-mocha --paths test/deploy/01_test_testnet_interactions.spec.ts --bail --timeout 900000",

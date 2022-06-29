@@ -1150,3 +1150,12 @@
 [@inline] const error_GET_TOKEN_SALE_HAS_STARTED_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 827n;
 [@inline] const error_GET_WHITELIST_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 828n;
 [@inline] const error_GET_OVERALL_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                       = 829n;
+
+// ------------------------------------------------------------------------------
+//
+// USDM Token Controller Errors
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                                                          = 829n;
+[@inline] const error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                                                       = 829n;

@@ -1035,19 +1035,19 @@ block{
                 const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
-                const ownerOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                const ownerUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (vaultOwner),
                   0tez,
-                  onSatelliteRewardPaid(delegationAddress)
+                  updateSatelliteBalance(delegationAddress)
                 );
 
-                const vaultOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (vaultAddress),
                   0tez,
-                  onSatelliteRewardPaid(delegationAddress)
+                  updateSatelliteBalance(delegationAddress)
                 );
 
-                operations  := list [ownerOnSatelliteRewardPaidOperation; vaultOnSatelliteRewardPaidOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [ownerUpdateSatelliteBalanceOperation; vaultUpdateSatelliteBalanceOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -1142,19 +1142,19 @@ block{
                 const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
-                const ownerOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                const ownerUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (vaultOwner),
                   0tez,
-                  onSatelliteRewardPaid(delegationAddress)
+                  updateSatelliteBalance(delegationAddress)
                 );
 
-                const vaultOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (vaultAddress),
                   0tez,
-                  onSatelliteRewardPaid(delegationAddress)
+                  updateSatelliteBalance(delegationAddress)
                 );
 
-                operations  := list [ownerOnSatelliteRewardPaidOperation; vaultOnSatelliteRewardPaidOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [ownerUpdateSatelliteBalanceOperation; vaultUpdateSatelliteBalanceOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -1262,19 +1262,19 @@ block{
                 const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
-                const liquidatorOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                const liquidatorUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (liquidator),
                   0tez,
-                  onSatelliteRewardPaid(delegationAddress)
+                  updateSatelliteBalance(delegationAddress)
                 );
 
-                const vaultOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (vaultAddress),
                   0tez,
-                  onSatelliteRewardPaid(delegationAddress)
+                  updateSatelliteBalance(delegationAddress)
                 );
 
-                operations  := list [liquidatorOnSatelliteRewardPaidOperation; vaultOnSatelliteRewardPaidOperation; liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [liquidatorUpdateSatelliteBalanceOperation; vaultUpdateSatelliteBalanceOperation; liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
