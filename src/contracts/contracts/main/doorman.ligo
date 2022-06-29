@@ -179,6 +179,18 @@ block{
 
 
 
+function checkSenderIsUsdmTokenControllerContract(var s : doormanStorage) : unit is
+block{
+  const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
+      Some(_address) -> _address
+      | None -> failwith(error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = usdmTokenControllerAddress) then skip
+    else failwith(error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED);
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
