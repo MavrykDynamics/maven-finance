@@ -99,14 +99,39 @@ type toggleAggregatorEntrypointType is [@layout:comb] record [
   targetEntrypoint          : aggregatorTogglePauseEntrypointType;
 ]
 
+type toggleAggregatorFacEntrypointType is [@layout:comb] record [
+  targetEntrypoint          : aggregatorFactoryTogglePauseEntrypointType;
+  empty                     : unit;
+]
+
 type toggleFarmEntrypointType is [@layout:comb] record [
   targetFarmAddress         : address;
   targetEntrypoint          : farmTogglePauseEntrypointType;
 ]
 
+type toggleFarmFacEntrypointType is [@layout:comb] record [
+  targetEntrypoint          : farmFactoryTogglePauseEntrypointType;
+  empty                     : unit;
+]
+
 type toggleTreasuryEntrypointType is [@layout:comb] record [
   targetTreasuryAddress     : address;
   targetEntrypoint          : treasuryTogglePauseEntrypointType;
+]
+
+type toggleTreasuryFacEntrypointType is [@layout:comb] record [
+  targetEntrypoint          : treasuryFactoryTogglePauseEntrypointType;
+  empty                     : unit;
+]
+
+type toggleDoormanEntrypointType is [@layout:comb] record [
+  targetEntrypoint          : doormanTogglePauseEntrypointType;
+  empty                     : unit;
+]
+
+type toggleDelegationEntrypointType is [@layout:comb] record [
+  targetEntrypoint          : delegationTogglePauseEntrypointType;
+  empty                     : unit;
 ]
 
 type executeActionParamsType is 
@@ -136,14 +161,16 @@ type executeActionParamsType is
 | UpdateTreasuryFactoryConfig        of treasuryFactoryUpdateConfigParamsType
 | UpdateDoormanConfig                of doormanUpdateConfigParamsType
 
+| PauseAllContractEntrypoint         of (address)
+| UnpauseAllContractEntrypoint       of (address)
 | ToggleAggregatorEntrypoint         of toggleAggregatorEntrypointType
-| ToggleAggregatorFacEntrypoint      of aggregatorFactoryTogglePauseEntrypointType
-| ToggleDelegationEntrypoint         of delegationTogglePauseEntrypointType
-| ToggleDoormanEntrypoint            of doormanTogglePauseEntrypointType
+| ToggleAggregatorFacEntrypoint      of toggleAggregatorFacEntrypointType
+| ToggleDelegationEntrypoint         of toggleDelegationEntrypointType
+| ToggleDoormanEntrypoint            of toggleDoormanEntrypointType
 | ToggleFarmEntrypoint               of toggleFarmEntrypointType
-| ToggleFarmFacEntrypoint            of farmFactoryTogglePauseEntrypointType
+| ToggleFarmFacEntrypoint            of toggleFarmFacEntrypointType
 | ToggleTreasuryEntrypoint           of toggleTreasuryEntrypointType
-| ToggleTreasuryFacEntrypoint        of treasuryFactoryTogglePauseEntrypointType
+| ToggleTreasuryFacEntrypoint        of toggleTreasuryFacEntrypointType
 
 | UpdateWhitelistDevelopersSet       of (address)
 | SetGovernanceProxy                 of (address)
