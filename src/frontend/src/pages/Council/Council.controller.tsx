@@ -27,6 +27,7 @@ import { CouncilFormChangeCouncilMember } from './CouncilForms/CouncilFormChange
 import { CouncilFormRemoveCouncilMember } from './CouncilForms/CouncilFormRemoveCouncilMember.view'
 import { CouncilFormUpdateCouncilMemberInfo } from './CouncilForms/CouncilFormUpdateCouncilMemberInfo.view'
 import { CouncilFormTransferTokens } from './CouncilForms/CouncilFormTransferTokens.view'
+import { CouncilFormRequestTokens } from './CouncilForms/CouncilFormRequestTokens.view'
 
 // styles
 import { Page } from 'styles'
@@ -54,6 +55,7 @@ export const Council = () => {
     { text: 'Change Council Member', value: 'changeCouncilMember' },
     { text: 'Remove Council Member', value: 'removeCouncilMember' },
     { text: 'Transfer Tokens', value: 'transferTokens' },
+    { text: 'Request Tokens', value: 'requestTokens' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -157,6 +159,7 @@ export const Council = () => {
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
                 {chosenDdItem?.value === 'updateCouncilMemberInfo' ? <CouncilFormUpdateCouncilMemberInfo /> : null}
                 {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
+                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
               </DropdownCard>
             ) : null}
 

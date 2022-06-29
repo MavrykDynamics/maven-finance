@@ -23,7 +23,7 @@ const INIT_FORM = {
   vestingInMonths: '',
 }
 
-export const CouncilFormTransferTokens = () => {
+export const CouncilFormRequestTokens = () => {
   const dispatch = useDispatch()
   const [form, setForm] = useState(INIT_FORM)
 
@@ -69,11 +69,11 @@ export const CouncilFormTransferTokens = () => {
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
         <Icon id="question" />
       </a>
-      <h1 className="form-h1">Transfer Tokens</h1>
-      <p>Please enter valid function parameters for transferring tokens</p>
+      <h1 className="form-h1">Request Tokens</h1>
+      <p>Please enter valid function parameters for requesting tokens</p>
       <div className="form-grid">
         <div>
-          <label>Receiver’s Address</label>
+          <label>Treasury Address</label>
           <Input
             type="text"
             required
@@ -88,7 +88,21 @@ export const CouncilFormTransferTokens = () => {
           />
         </div>
 
-        <div />
+        <div>
+          <label>Token Contract Address</label>
+          <Input
+            type="text"
+            required
+            value={vesteeAddress}
+            name="vesteeAddress"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.vesteeAddress}
+          />
+        </div>
 
         <div>
           <label>Token Contract Address</label>
@@ -155,7 +169,7 @@ export const CouncilFormTransferTokens = () => {
         </div>
       </div>
       <div className="textarea-group">
-        <label>Purpose for Transfer</label>
+        <label>Purpose for Request</label>
         <TextArea
           type="text"
           required
@@ -170,7 +184,7 @@ export const CouncilFormTransferTokens = () => {
         />
       </div>
       <div className="btn-group">
-        <Button text="Transfer Tokens" className="plus-btn" kind={'actionPrimary'} icon="transfer-fill" type="submit" />
+        <Button text="Request Tokens" className="plus-btn" kind={'actionPrimary'} icon="transfer-fill" type="submit" />
       </div>
     </CouncilFormStyled>
   )
