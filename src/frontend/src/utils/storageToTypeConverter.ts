@@ -94,9 +94,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
   return res
 }
 
-function convertToTreasuryAddressType(storage: any): {treasuryAddresses: Array<TreasuryType>} {
+function convertToTreasuryAddressType(storage: any): {treasuryAddresses: Array<TreasuryType>, treasuryFactoryAddress: string} {
   return {
-    treasuryAddresses: storage?.treasury
+    treasuryAddresses: storage?.treasury,
+    treasuryFactoryAddress: storage?.treasury_factory[0].address
   }
 }
 
