@@ -10,6 +10,8 @@ import type { CouncilPastAction } from '../../reducers/council'
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
 
 // view
+import Icon from '../../app/App.components/Icon/Icon.view'
+import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
@@ -23,8 +25,8 @@ import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.
 import { CouncilFormToggleVesteeLock } from './CouncilForms/CouncilFormToggleVesteeLock.view'
 import { CouncilFormChangeCouncilMember } from './CouncilForms/CouncilFormChangeCouncilMember.view'
 import { CouncilFormRemoveCouncilMember } from './CouncilForms/CouncilFormRemoveCouncilMember.view'
-import Icon from '../../app/App.components/Icon/Icon.view'
-import Carousel from '../../app/App.components/Carousel/Carousel.view'
+import { CouncilFormUpdateCouncilMemberInfo } from './CouncilForms/CouncilFormUpdateCouncilMemberInfo.view'
+import { CouncilFormTransferTokens } from './CouncilForms/CouncilFormTransferTokens.view'
 
 // styles
 import { Page } from 'styles'
@@ -51,6 +53,7 @@ export const Council = () => {
     { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
     { text: 'Change Council Member', value: 'changeCouncilMember' },
     { text: 'Remove Council Member', value: 'removeCouncilMember' },
+    { text: 'Transfer Tokens', value: 'transferTokens' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -152,6 +155,8 @@ export const Council = () => {
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
                 {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
                 {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
+                {chosenDdItem?.value === 'updateCouncilMemberInfo' ? <CouncilFormUpdateCouncilMemberInfo /> : null}
+                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
               </DropdownCard>
             ) : null}
 
