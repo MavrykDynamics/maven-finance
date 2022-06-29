@@ -70,7 +70,7 @@ export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: Tezos
   const lambdasPerBatch = 10;
 
   const lambdasCount = governanceProxyLambdas.length;
-  const batchesCount = lambdasCount % lambdasPerBatch;
+  const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
 
   for(let i = 0; i < batchesCount; i++) {
     
@@ -84,6 +84,7 @@ export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: Tezos
         const newIndex = index - startIndex;
 
         if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+          console.log(newIndex, " - ", index)
           batch.withContractCall(contract.methods.setProxyLambda(newIndex, governanceProxyLambdas[index]))
         }
       }

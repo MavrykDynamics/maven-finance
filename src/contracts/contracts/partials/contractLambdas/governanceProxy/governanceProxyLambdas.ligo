@@ -194,51 +194,53 @@ block {
       | UpdateDoormanConfig (_v)               -> 23n
 
       (* BreakGlass Configs *)
-      | ToggleAggregatorEntrypoint (_v)        -> 24n
-      | ToggleAggregatorFacEntrypoint (_v)     -> 25n
-      | ToggleDelegationEntrypoint (_v)        -> 26n
-      | ToggleDoormanEntrypoint (_v)           -> 27n
-      | ToggleFarmEntrypoint (_v)              -> 28n
-      | ToggleFarmFacEntrypoint (_v)           -> 29n
-      | ToggleTreasuryEntrypoint (_v)          -> 30n
-      | ToggleTreasuryFacEntrypoint (_v)       -> 31n
+      | PauseAllContractEntrypoint (_v)        -> 24n
+      | UnpauseAllContractEntrypoint (_v)      -> 25n
+      | ToggleAggregatorEntrypoint (_v)        -> 26n
+      | ToggleAggregatorFacEntrypoint (_v)     -> 27n
+      | ToggleDelegationEntrypoint (_v)        -> 28n
+      | ToggleDoormanEntrypoint (_v)           -> 29n
+      | ToggleFarmEntrypoint (_v)              -> 30n
+      | ToggleFarmFacEntrypoint (_v)           -> 31n
+      | ToggleTreasuryEntrypoint (_v)          -> 32n
+      | ToggleTreasuryFacEntrypoint (_v)       -> 33n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 32n
-      | SetGovernanceProxy (_v)                -> 33n
+      | UpdateWhitelistDevelopersSet (_v)      -> 34n
+      | SetGovernanceProxy (_v)                -> 35n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 34n
-      | TrackFarm (_v)                         -> 35n
-      | UntrackFarm (_v)                       -> 36n
-      | InitFarm (_v)                          -> 37n
-      | CloseFarm (_v)                         -> 38n
+      | CreateFarm (_v)                        -> 36n
+      | TrackFarm (_v)                         -> 37n
+      | UntrackFarm (_v)                       -> 38n
+      | InitFarm (_v)                          -> 39n
+      | CloseFarm (_v)                         -> 40n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 39n
-      | TrackTreasury (_v)                     -> 40n
-      | UntrackTreasury (_v)                   -> 41n
-      | TransferTreasury (_v)                  -> 42n
-      | MintMvkAndTransferTreasury (_v)        -> 43n
-      | UpdateMvkOperatorsTreasury (_v)        -> 44n
-      | StakeMvkTreasury (_v)                  -> 45n
-      | UnstakeMvkTreasury (_v)                -> 46n
+      | CreateTreasury (_v)                    -> 41n
+      | TrackTreasury (_v)                     -> 42n
+      | UntrackTreasury (_v)                   -> 43n
+      | TransferTreasury (_v)                  -> 44n
+      | MintMvkAndTransferTreasury (_v)        -> 45n
+      | UpdateMvkOperatorsTreasury (_v)        -> 46n
+      | StakeMvkTreasury (_v)                  -> 47n
+      | UnstakeMvkTreasury (_v)                -> 48n
 
       (* Aggregator Control *)
-      | CreateAggregator (_v)                  -> 47n
-      | TrackAggregator (_v)                   -> 48n
-      | UntrackAggregator (_v)                 -> 49n
-      | SetAggregatorMaintainer (_v)           -> 50n
+      | CreateAggregator (_v)                  -> 49n
+      | TrackAggregator (_v)                   -> 50n
+      | UntrackAggregator (_v)                 -> 51n
+      | SetAggregatorMaintainer (_v)           -> 52n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 51n
-      | TriggerMvkInflation (_v)               -> 52n
+      | UpdateMvkInflationRate (_v)            -> 53n
+      | TriggerMvkInflation (_v)               -> 54n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 53n
-      | RemoveVestee (_v)                      -> 54n
-      | UpdateVestee (_v)                      -> 55n
-      | ToggleVesteeLock (_v)                  -> 56n
+      | AddVestee (_v)                         -> 55n
+      | RemoveVestee (_v)                      -> 56n
+      | UpdateVestee (_v)                      -> 57n
+      | ToggleVesteeLock (_v)                  -> 58n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -1245,6 +1247,78 @@ block {
 
 
 
+function pauseAllContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      PauseAllContractEntrypoint(targetContractAddress) -> {
+
+        // find and get pauseAll entrypoint
+        const pauseAllEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%pauseAll",
+            targetContractAddress) : option(contract(unit))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_PAUSE_ALL_ENTRYPOINT_NOT_FOUND) : contract(unit))
+            ];
+
+        // pause contract all entrypoint
+        const pauseAllEntrypointOperation : operation = Tezos.transaction(
+          unit,
+          0tez, 
+          pauseAllEntrypoint
+          );
+
+        operations := pauseAllEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function unpauseAllContractEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UnpauseAllContractEntrypoint(targetContractAddress) -> {
+
+        // find and get unpauseAll entrypoint
+        const unpauseAllEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%unpauseAll",
+            targetContractAddress) : option(contract(unit))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_NOT_FOUND) : contract(unit))
+            ];
+
+        // unpause contract all entrypoint
+        const unpauseAllEntrypointOperation : operation = Tezos.transaction(
+          unit,
+          0tez, 
+          unpauseAllEntrypoint
+          );
+
+        operations := unpauseAllEntrypointOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
 function toggleAggregatorEntrypoint(const executeAction : executeActionType; var s : governanceProxyStorageType) : return is 
 block {
 
@@ -1294,7 +1368,7 @@ block {
 
     case executeAction of [
       
-      ToggleAggregatorFacEntrypoint(targetEntrypoint) -> {
+      ToggleAggregatorFacEntrypoint(params) -> {
 
         // find and get the contract address from the generalContracts big map
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
@@ -1316,7 +1390,7 @@ block {
 
         // pause contract entrypoint
         const togglePauseEntrypointOperation : operation = Tezos.transaction(
-          targetEntrypoint,
+          params.targetEntrypoint,
           0tez, 
           togglePauseEntrypoint
           );
@@ -1340,7 +1414,7 @@ block {
 
     case executeAction of [
       
-      ToggleDelegationEntrypoint(targetEntrypoint) -> {
+      ToggleDelegationEntrypoint(params) -> {
 
         // find and get the contract address from the generalContracts big map
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
@@ -1362,7 +1436,7 @@ block {
 
         // pause contract entrypoint
         const togglePauseEntrypointOperation : operation = Tezos.transaction(
-          targetEntrypoint,
+          params.targetEntrypoint,
           0tez, 
           togglePauseEntrypoint
           );
@@ -1386,7 +1460,7 @@ block {
 
     case executeAction of [
       
-      ToggleDoormanEntrypoint(targetEntrypoint) -> {
+      ToggleDoormanEntrypoint(params) -> {
 
         // find and get the contract address from the generalContracts big map
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
@@ -1408,7 +1482,7 @@ block {
 
         // pause contract entrypoint
         const togglePauseEntrypointOperation : operation = Tezos.transaction(
-          targetEntrypoint,
+          params.targetEntrypoint,
           0tez, 
           togglePauseEntrypoint
           );
@@ -1472,7 +1546,7 @@ block {
 
     case executeAction of [
       
-      ToggleFarmFacEntrypoint(targetEntrypoint) -> {
+      ToggleFarmFacEntrypoint(params) -> {
 
         // find and get the contract address from the generalContracts big map
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
@@ -1494,7 +1568,7 @@ block {
 
         // pause contract entrypoint
         const togglePauseEntrypointOperation : operation = Tezos.transaction(
-          targetEntrypoint,
+          params.targetEntrypoint,
           0tez, 
           togglePauseEntrypoint
           );
@@ -1558,7 +1632,7 @@ block {
 
     case executeAction of [
       
-      ToggleTreasuryFacEntrypoint(targetEntrypoint) -> {
+      ToggleTreasuryFacEntrypoint(params) -> {
 
         // find and get the contract address from the generalContracts big map
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
@@ -1580,7 +1654,7 @@ block {
 
         // pause contract entrypoint
         const togglePauseEntrypointOperation : operation = Tezos.transaction(
-          targetEntrypoint,
+          params.targetEntrypoint,
           0tez, 
           togglePauseEntrypoint
           );

@@ -28,13 +28,13 @@
 [@inline] const error_ONLY_PROPOSER_ALLOWED                                                                             = 18n;
 [@inline] const error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED                                 = 19n;
 
-
-
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                                                        = 20n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                                                   = 21n;
 [@inline] const error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND                                                                   = 22n;
 [@inline] const error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND                                                           = 23n;
 [@inline] const error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                                                                  = 24n;
+[@inline] const error_PAUSE_ALL_ENTRYPOINT_NOT_FOUND                                                                    = 24n;
+[@inline] const error_UNPAUSE_ALL_ENTRYPOINT_NOT_FOUND                                                                  = 24n;
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                                                              = 25n;
 [@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                   = 26n;
 [@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                     = 27n;

@@ -54,8 +54,8 @@ export const setGovernanceLambdas = async (tezosToolkit: TezosToolkit, contract:
     const lambdasPerBatch = 10;
 
     const lambdasCount = governanceLambdas.length;
-    const batchesCount = lambdasCount % lambdasPerBatch;
-
+    const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+    
     for(let i = 0; i < batchesCount; i++) {
       
       const batch = tezosToolkit.wallet.batch();
