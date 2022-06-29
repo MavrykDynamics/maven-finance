@@ -15,6 +15,7 @@ type TextAreaViewProps = {
   textAreaStatus?: TextAreaStatusType
   errorMessage?: string
   disabled?: boolean
+  required?: boolean
 }
 
 export const TextAreaView = ({
@@ -28,6 +29,7 @@ export const TextAreaView = ({
   textAreaStatus,
   errorMessage,
   disabled,
+  required,
 }: TextAreaViewProps) => {
   let status = textAreaStatus !== undefined ? textAreaStatus : 'none'
   return (
@@ -46,6 +48,7 @@ export const TextAreaView = ({
         onBlur={onBlur}
         autoComplete={name}
         disabled={disabled}
+        required={required}
       />
       <TextAreaStatus className={status} />
       {errorMessage && <TextAreaErrorMessage>{errorMessage}</TextAreaErrorMessage>}

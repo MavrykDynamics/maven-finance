@@ -452,3 +452,52 @@ export const removeCouncilMember = (memberAddress: string) => async (dispatch: a
     })
   }
 }
+
+// Update Council Member Info
+export const UPDATE_INFO_MEMBER_REQUEST = 'UPDATE_INFO_MEMBER_REQUEST'
+export const UPDATE_INFO_MEMBER_RESULT = 'UPDATE_INFO_MEMBER_RESULT'
+export const UPDATE_INFO_MEMBER_ERROR = 'UPDATE_INFO_MEMBER_ERROR'
+export const updateCouncilMemberInfo =
+  (newMemberName: string, newMemberWebsite: string, newMemberImage: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: UPDATE_INFO_MEMBER_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Update Council Member Info...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Update Council Member Info done', 'All good :)'))
+
+      dispatch(getCouncilStorage())
+      dispatch({
+        type: UPDATE_INFO_MEMBER_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UPDATE_INFO_MEMBER_ERROR,
+        error,
+      })
+    }
+  }
