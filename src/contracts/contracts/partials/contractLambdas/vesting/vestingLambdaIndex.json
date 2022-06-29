@@ -5,34 +5,42 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 4,
-      "name": "lambdaAddVestee"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 5,
-      "name": "lambdaRemoveVestee"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 6,
-      "name": "lambdaUpdateVestee"
+      "name": "lambdaAddVestee"
     },
     {
       "index": 7,
-      "name": "lambdaToggleVesteeLock"
+      "name": "lambdaRemoveVestee"
     },
     {
       "index": 8,
+      "name": "lambdaUpdateVestee"
+    },
+    {
+      "index": 9,
+      "name": "lambdaToggleVesteeLock"
+    },
+    {
+      "index": 10,
       "name": "lambdaClaim"
     }
 ]

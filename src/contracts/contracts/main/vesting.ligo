@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Transfer Types: transferDestinationType
+#include "../partials/transferTypes.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -26,10 +29,12 @@
 type vestingAction is 
     
       // Housekeeping Entrypoints
-    | SetAdmin                      of (address)
+      SetAdmin                      of (address)
+    | SetGovernance                 of (address)
     | UpdateMetadata                of updateMetadataType
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
+    | MistakenTransfer              of transferActionType
     
       // Internal Vestee Control Entrypoints
     | AddVestee                     of (addVesteeType)
@@ -75,14 +80,8 @@ const thirty_days    : int              = one_day * 30;
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 1n;
-
-[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 2n;
-[@inline] const error_VESTEE_NOT_FOUND                                                       = 3n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 4n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 5n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -101,10 +100,46 @@ const thirty_days    : int              = one_day * 30;
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+function checkSenderIsAllowed(var s : vestingStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : vestingStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+
+
+function checkSenderIsCouncilOrAdmin(var s : vestingStorage) : unit is
+    block{
+        const councilAddress: address = case s.whitelistContracts["council"] of [
+              Some (_address) -> _address
+          |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
+        ];
+        if Tezos.sender = councilAddress or Tezos.sender = s.admin then skip
+        else failwith(error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
+    } with (unit)
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vestingStorage) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
 
 
 
@@ -122,6 +157,11 @@ function checkNoAmount(const _p : unit) : unit is
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+
+
+// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
+#include "../partials/transferMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -138,7 +178,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
       "%mint",
       token_address) : option(contract(mintParams))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_MINT_ENTRYPOINT_NOT_FOUND) : contract(mintParams))
+  | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintParams))
   ];
 
 
@@ -209,6 +249,30 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get admin variable *)
+[@view] function getAdmin(const _: unit; var s : vestingStorage) : address is
+  s.admin
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : vestingStorage) : whitelistContractsType is 
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : vestingStorage) : generalContractsType is 
+    s.generalContracts
+
+
+
+(* View: get total vested amount *)
+[@view] function getTotalVestedAmount(const _: unit; var s : vestingStorage) : nat is 
+    s.totalVestedAmount
+
+
+
 (* View: get total vesting remainder of vestee *)
 [@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
     case s.vesteeLedger[vesteeAddress] of [ 
@@ -224,9 +288,15 @@ block {
 
 
 
-(* View: get total vested amount *)
-[@view] function getTotalVested(const _ : unit; var s : vestingStorage) : nat is 
-    s.totalVestedAmount
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : vestingStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : vestingStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -260,6 +330,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : vestingStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);
 
 } with response
 
@@ -314,6 +403,25 @@ block {
 
     // init vesting lambda action
     const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: vestingStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
@@ -478,9 +586,11 @@ function main (const action : vestingAction; const s : vestingStorage) : return 
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                    -> setAdmin(parameters, s)  
+      | SetGovernance(parameters)               -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)              -> updateMetadata(parameters, s)
       | UpdateWhitelistContracts(parameters)    -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)      -> updateGeneralContracts(parameters, s)
+      | MistakenTransfer(parameters)            -> mistakenTransfer(parameters, s)
 
         // Internal Vestee Control Entrypoints
       | AddVestee(parameters)                   -> addVestee(parameters, s)

@@ -1,30 +1,32 @@
-import { TransactionOperation, TezosToolkit, MichelsonMap } from '@taquito/taquito'
 import { InMemorySigner } from '@taquito/signer'
-
+import { MichelsonMap, PollingSubscribeProvider, TezosToolkit, TransactionOperation } from '@taquito/taquito'
 import { BigNumber } from 'bignumber.js'
 
-import { confirmOperation } from '../../scripts/confirmation'
-
-import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
-
 import env from '../../env'
+import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
+import { confirmOperation } from '../../scripts/confirmation'
 
 const defaultNetwork = 'development'
 const network = env.network || defaultNetwork
 
 export class Utils {
   tezos: TezosToolkit
+  network: string
 
   async init(providerSK: string): Promise<void> {
-    const chosenNetwork = process.env.NETWORK_TO_MIGRATE_TO || network
-    const networkConfig = env.networks[chosenNetwork]
+    this.network = process.env.NETWORK_TO_MIGRATE_TO || network
+    const networkConfig = env.networks[this.network]
     this.tezos = new TezosToolkit(networkConfig.rpc)
+
     this.tezos.setProvider({
       config: {
         confirmationPollingTimeoutSecond: env.confirmationPollingTimeoutSecond,
       },
       signer: await InMemorySigner.fromSecretKey(providerSK),
     })
+    this.tezos.setStreamProvider(this.tezos.getFactory(PollingSubscribeProvider)({
+      pollingIntervalMilliseconds: 2000
+    }));
   }
 
   async setProvider(newProviderSK: string): Promise<void> {

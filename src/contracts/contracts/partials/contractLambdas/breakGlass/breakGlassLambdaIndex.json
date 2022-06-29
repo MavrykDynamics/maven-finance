@@ -5,67 +5,78 @@
     },
     {
       "index": 1,
-      "name": "lambdaSetAdmin"
+      "name": "lambdaPropagateBreakGlass"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetAdmin"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 6,
-      "name": "lambdaUpdateCouncilMemberInfo"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 7,
-      "name": "lambdaAddCouncilMember"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 8,
-      "name": "lambdaRemoveCouncilMember"
+      "name": "lambdaMistakenTransfer"
     },
     {
       "index": 9,
-      "name": "lambdaChangeCouncilMember"
+      "name": "lambdaUpdateCouncilMemberInfo"
     },
     {
       "index": 10,
-      "name": "lambdaPauseAllEntrypoints"
+      "name": "lambdaAddCouncilMember"
     },
     {
       "index": 11,
-      "name": "lambdaUnpauseAllEntrypoints"
+      "name": "lambdaRemoveCouncilMember"
     },
     {
       "index": 12,
-      "name": "lambdaSetSingleContractAdmin"
+      "name": "lambdaChangeCouncilMember"
     },
     {
       "index": 13,
-      "name": "lambdaSetAllContractsAdmin"
+      "name": "lambdaPauseAllEntrypoints"
     },
     {
       "index": 14,
-      "name": "lambdaRemoveBreakGlassControl"
+      "name": "lambdaUnpauseAllEntrypoints"
     },
     {
       "index": 15,
-      "name": "lambdaFlushAction"
+      "name": "lambdaSetSingleContractAdmin"
     },
     {
       "index": 16,
+      "name": "lambdaSetAllContractsAdmin"
+    },
+    {
+      "index": 17,
+      "name": "lambdaRemoveBreakGlassControl"
+    },
+    {
+      "index": 18,
+      "name": "lambdaFlushAction"
+    },
+    {
+      "index": 19,
       "name": "lambdaSignAction"
     }
 ]
-  

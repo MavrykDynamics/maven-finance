@@ -796,9 +796,8 @@ block {
 
     // Overall steps:
     // 1. check if user is a satellite 
-    // 2a. if user is a satellite, update satellite's bond amount depending on stakeAmount and stakeType
-    // 2b. if user is not a satellite, update satellite's total delegated amount depending on stakeAmount and stakeType
-    // Note: stakeType 1n to increase, stakeType 0n to decrease
+    // 2a. if user is a satellite, update satellite's bond amount
+    // 2b. if user is not a satellite, update satellite's total delegated amount
 
     // check sender is Doorman Contract or Treasury Contract
     // checkSenderIsDoormanContract(s);

@@ -32,62 +32,50 @@ type farmTokenPair is [@layout:comb] record [
 ]
 
 type createFarmType is [@layout:comb] record[
-    forceRewardFromTransfer : bool;
-    infinite                : bool;
-    plannedRewards          : farmPlannedRewards;
-    metadata                : bytes;
-    lpToken                 : farmLpToken;
-]
-
-type farmMetadataType is record[
     name                     : string;
-    description              : string;
-    version                  : string;
-    liquidityPairToken       : record[
-        tokenAddress         : address;
-        origin               : string;
-        token0               : farmToken;
-        token1               : farmToken;
-    ];
-    authors                  : string;
+    addToGeneralContracts    : bool;
+    forceRewardFromTransfer  : bool;
+    infinite                 : bool;
+    plannedRewards           : farmPlannedRewards;
+    metadata                 : bytes;
+    lpToken                  : farmLpToken;
 ]
 
-type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
-const createFarmFunc: createFarmFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../../compiled/farm.tz"
-        ;
-          PAIR } |}
-: createFarmFuncType)];
-
-type initFarmParamsType is record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
+type farmFactoryBreakGlassConfigType is [@layout:comb] record [
+    createFarmIsPaused      : bool;
+    trackFarmIsPaused       : bool;
+    untrackFarmIsPaused     : bool;
 ]
 
-type farmFactoryBreakGlassConfigType is record [
-    createFarmIsPaused     : bool;
-    trackFarmIsPaused      : bool;
-    untrackFarmIsPaused    : bool;
-]
-
-type farmFactoryConfigType is record [
-    blocksPerMinute        : nat;
-]
+type farmFactoryConfigType is [@layout:comb] record [
+    blocksPerMinute         : nat;
+    farmNameMaxLength       : nat;
+] 
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
     metadataHash     : bytes; 
 ]
 
+type farmFactoryUpdateConfigNewValueType is nat
+type farmFactoryUpdateConfigActionType is 
+  ConfigFarmNameMaxLength of unit
+| Empty                   of unit
+type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: farmFactoryUpdateConfigNewValueType; 
+  updateConfigAction: farmFactoryUpdateConfigActionType;
+]
+
 type farmFactoryLambdaActionType is 
 
     // Housekeeping Entrypoints
     LambdaSetAdmin                    of (address)
+|   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
+|   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaMistakenTransfer            of transferActionType
 |   LambdaUpdateBlocksPerMinute       of (nat)
 
     // Pause / Break Glass Entrypoints
@@ -110,14 +98,18 @@ type farmFactoryLambdaActionType is
 type farmFactoryStorage is [@layout:comb] record[
     admin                  : address;
     metadata               : metadata;
-    mvkTokenAddress        : address;
     config                 : farmFactoryConfigType;
-    breakGlassConfig       : farmFactoryBreakGlassConfigType;
+
+    mvkTokenAddress        : address;
+    governanceAddress      : address;
 
     whitelistContracts     : whitelistContractsType;      
     generalContracts       : generalContractsType;
 
+    breakGlassConfig       : farmFactoryBreakGlassConfigType;
+
     trackedFarms           : set(address);
 
     lambdaLedger           : lambdaLedgerType;
+    farmLambdaLedger       : lambdaLedgerType;
 ]

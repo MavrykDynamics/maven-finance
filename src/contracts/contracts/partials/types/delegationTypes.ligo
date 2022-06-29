@@ -17,9 +17,6 @@ type delegateRecordType is [@layout:comb] record [
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
-// type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
-// type updateSatelliteRecordParams is (string * string * string * nat)
-
 type newSatelliteRecordType is [@layout:comb] record [
     name                  : string;
     description           : string;
@@ -38,7 +35,7 @@ type updateSatelliteRecordType is [@layout:comb] record [
 
 // record for satellites
 type satelliteRecordType is [@layout:comb] record [
-    status                : nat;        // active: 1; inactive: 0; 
+    status                : string;     // ACTIVE / INACTIVE / SUSPENDED / BANNED
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
@@ -52,7 +49,7 @@ type satelliteRecordType is [@layout:comb] record [
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
-type satelliteRewardsLedgerType is map (address, satelliteRewards)
+type satelliteRewardsLedgerType is big_map (address, satelliteRewards)
 
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
@@ -106,25 +103,37 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes;
 ]
 
-type distributeRewardTypes is [@layout:comb] record [
+type delegateToSatelliteType is [@layout:comb] record [
+    userAddress      : address;
+    satelliteAddress : address;
+]
+
+type distributeRewardStakedMvkType is [@layout:comb] record [
     eligibleSatellites    : set(address);
-    totalSMvkReward       : nat;
+    totalStakedMvkReward  : nat;
+]
+
+type updateSatelliteStatusParamsType is [@layout:comb] record [
+    satelliteAddress        : address;
+    newStatus               : string;
 ]
 
 type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
 ]
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type delegationLambdaActionType is 
 
   // Housekeeping Lambdas
   LambdaSetAdmin                              of address
+| LambdaSetGovernance                         of (address)
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of delegationUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaMistakenTransfer                      of transferActionType
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                              of (unit)
@@ -137,33 +146,30 @@ type delegationLambdaActionType is
 | LambdaPauseDistributeReward                 of (unit)
 
   // Delegation Lambdas
-| LambdaDelegateToSatellite                   of (address)
+| LambdaDelegateToSatellite                   of delegateToSatelliteType
 | LambdaUndelegateFromSatellite               of (address)
 
   // Satellite Lambdas
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
-| LambdaUnregisterAsSatellite                 of (unit)
+| LambdaUnregisterAsSatellite                 of (address)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
-| LambdaDistributeReward                      of distributeRewardTypes
+| LambdaDistributeReward                      of distributeRewardStakedMvkType
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
-| LambdaOnSatelliteRewardPaid                 of address
+| LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
-type distributeRewardsTypes is [@layout:comb] record [
-    eligibleSatellites    : set(address);
-    totalSMvkReward       : nat;
-]
 
 type delegationStorage is [@layout:comb] record [
     admin                   : address;
-    mvkTokenAddress         : address;
     metadata                : metadata;
-
     config                  : delegationConfigType;
+
+    mvkTokenAddress         : address;
+    governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;

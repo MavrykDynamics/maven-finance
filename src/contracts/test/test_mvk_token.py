@@ -34,7 +34,7 @@
 
 # alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 # admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
-# bob   = 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6'
+# bob   = 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD'
 # eve   = 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6'
 # fox   = 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L'
 
@@ -45,8 +45,8 @@
 
 # error_only_administrator        = 'ONLY_ADMINISTRATOR_ALLOWED'
 # error_sender_not_allowed        = 'Error. Sender is not allowed to call this entrypoint.'
-# error_maximum_amount_exceeded   = 'Maximum total supply of MVK exceeded'
-# error_too_soon                  = 'Error. You cannot trigger inflation now'
+# error_maximum_amount_exceeded   = 'MAXIMUM_SUPPLY_EXCEEDED'
+# error_too_soon                  = 'CANNOT_TRIGGER_INFLATION_NOW'
 
 # class MVKTokenContract(TestCase):
     
@@ -149,6 +149,9 @@
 
 #         print('✅ Whitelist should not be able to call this entrypoint and mint tokens if the amount it wants to mint exceeds the maximum supply and a year has not passed')
 
+#     ###
+#     # %mint
+#     ##
 #     def test_11_whitelist_should_exceed_maximum_if_year_has_passed(self):
 #         # Initial values
 #         init_token_storage  = deepcopy(self.mvkTokenStorage);

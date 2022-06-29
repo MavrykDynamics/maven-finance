@@ -31,7 +31,12 @@ export const treasuryFactoryStorage: treasuryFactoryStorageType = {
   
   admin                     : bob.pkh,
   mvkTokenAddress           : "",
+  governanceAddress         : "",
   metadata                  : metadata,
+
+  config                    : {
+    treasuryNameMaxLength   : new BigNumber(100)
+  },
 
   trackedTreasuries         : [],
   breakGlassConfig          : breakGlassConfig,
@@ -40,6 +45,7 @@ export const treasuryFactoryStorage: treasuryFactoryStorageType = {
   whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
   generalContracts          : MichelsonMap.fromLiteral({}),
 
-  lambdaLedger              : MichelsonMap.fromLiteral({})
+  lambdaLedger              : MichelsonMap.fromLiteral({}),
+  treasuryLambdaLedger      : MichelsonMap.fromLiteral({})
 
 };
