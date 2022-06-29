@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react'
 // view
 import { TreasuryChartType, TreasuryType } from 'utils/TypesAndInterfaces/Treasury'
 import PieChartView from '../../app/App.components/PieСhart/PieСhart.view'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 
 import { calcPersent, getAssetColor } from './helpers/treasury.utils'
 import { TREASURY_ASSSET_BALANCE_DIVIDER, TREASURY_NUMBER_FORMATTER } from './treasury.const'
@@ -14,9 +15,10 @@ import { TreasuryViewStyle } from './Treasury.style'
 type Props = {
   treasury: TreasuryType
   isGlobal?: boolean
+  factoryAddress?: string
 }
 
-export default function TreasuryView({ treasury, isGlobal = false }: Props) {
+export default function TreasuryView({ treasury, isGlobal = false, factoryAddress = '' }: Props) {
   const [hoveredPath, setHoveredPath] = useState<null | string>(null)
 
   const reducedBalance = useMemo(
@@ -110,6 +112,12 @@ export default function TreasuryView({ treasury, isGlobal = false }: Props) {
           {treasury.name ? <h1 title={treasury.name}>{treasury.name}</h1> : null}
           {isGlobal ? <var>$ {TREASURY_NUMBER_FORMATTER.format(reducedBalance)}</var> : null}
         </header>
+        {factoryAddress ? (
+          <div className="factory_address">
+            <div className="text">Treasury Factory address</div>{' '}
+            <TzAddress tzAddress={factoryAddress} hasIcon={false} />
+          </div>
+        ) : null}
         <div>
           {!isGlobal ? (
             <div className="assets-block assets-block-tvl">
