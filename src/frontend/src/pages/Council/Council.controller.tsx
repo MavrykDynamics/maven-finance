@@ -10,6 +10,8 @@ import type { CouncilPastAction } from '../../reducers/council'
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
 
 // view
+import Icon from '../../app/App.components/Icon/Icon.view'
+import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { CouncilPendingView } from './CouncilPending/CouncilPending.view'
@@ -21,7 +23,11 @@ import { CouncilFormAddVestee } from './CouncilForms/CouncilFormAddVestee.view'
 import { CouncilFormAddCouncilMember } from './CouncilForms/CouncilFormAddCouncilMember.view'
 import { CouncilFormUpdateVestee } from './CouncilForms/CouncilFormUpdateVestee.view'
 import { CouncilFormToggleVesteeLock } from './CouncilForms/CouncilFormToggleVesteeLock.view'
-import Icon from '../../app/App.components/Icon/Icon.view'
+import { CouncilFormChangeCouncilMember } from './CouncilForms/CouncilFormChangeCouncilMember.view'
+import { CouncilFormRemoveCouncilMember } from './CouncilForms/CouncilFormRemoveCouncilMember.view'
+import { CouncilFormUpdateCouncilMemberInfo } from './CouncilForms/CouncilFormUpdateCouncilMemberInfo.view'
+import { CouncilFormTransferTokens } from './CouncilForms/CouncilFormTransferTokens.view'
+import { CouncilFormRequestTokens } from './CouncilForms/CouncilFormRequestTokens.view'
 
 // styles
 import { Page } from 'styles'
@@ -38,6 +44,7 @@ export const Council = () => {
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
+  const isPendindList = councilPendingActions.length && isUserInCouncilMembers
 
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
@@ -45,13 +52,15 @@ export const Council = () => {
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
     { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
+    { text: 'Change Council Member', value: 'changeCouncilMember' },
+    { text: 'Remove Council Member', value: 'removeCouncilMember' },
+    { text: 'Transfer Tokens', value: 'transferTokens' },
+    { text: 'Request Tokens', value: 'requestTokens' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
-
-  // const isPendingSignature = isUserInCouncilMembers && councilPendingActions.length
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -77,8 +86,8 @@ export const Council = () => {
   }, [accountPkh])
 
   useEffect(() => {
-    setIsPendingSignature(Boolean(isUserInCouncilMembers && councilPendingActions.length))
-  }, [isUserInCouncilMembers, councilPendingActions.length])
+    setIsPendingSignature(Boolean(isUserInCouncilMembers))
+  }, [isUserInCouncilMembers])
 
   useEffect(() => {
     // re get data
@@ -100,34 +109,33 @@ export const Council = () => {
             Back to Member Dashboard
           </button>
         ) : null}
-        {isPendingSignature ? (
-          <>
-            <h1>Pending Signature</h1>
-            <article className="pending">
-              <div className="pending-items">
-                {councilPendingActions.map((item) => (
-                  <CouncilPendingView
-                    executed_datetime={item.executed_datetime}
-                    key={item.id}
-                    action_type={item.action_type}
-                    signers_count={item.signers_count}
-                    initiator_id={item.initiator_id}
-                    num_council_members={councilMembers.length}
-                  />
-                ))}
-              </div>
 
-              <CouncilPendingReviewView
-                onClick={() => {
-                  setIsGoback(true)
-                  setIsPendingSignature(false)
-                }}
-              />
-            </article>
-          </>
-        ) : null}
-        <article className={`council-details ${isPendingSignature ? 'is-user-member' : ''}`}>
+        <article className={`council-details ${isPendindList ? 'is-user-member' : ''}`}>
           <div className="council-actions">
+            {isPendingSignature && isPendindList ? (
+              <>
+                <h1>
+                  Pending Signature<small>({councilPendingActions.length})</small>
+                </h1>
+                <article className="pending">
+                  <div className="pending-items">
+                    <Carousel>
+                      {councilPendingActions.map((item) => (
+                        <CouncilPendingView
+                          executed_datetime={item.executed_datetime}
+                          key={item.id}
+                          id={item.id}
+                          action_type={item.action_type}
+                          signers_count={item.signers_count}
+                          initiator_id={item.initiator_id}
+                          num_council_members={councilMembers.length}
+                        />
+                      ))}
+                    </Carousel>
+                  </div>
+                </article>
+              </>
+            ) : null}
             {isPendingSignature ? (
               <DropdownCard className="pending-dropdown">
                 <DropdownWrap>
@@ -147,6 +155,11 @@ export const Council = () => {
                 {chosenDdItem?.value === 'addCouncilMember' ? <CouncilFormAddCouncilMember /> : null}
                 {chosenDdItem?.value === 'updateVestee' ? <CouncilFormUpdateVestee /> : null}
                 {chosenDdItem?.value === 'toggleVesteeLock' ? <CouncilFormToggleVesteeLock /> : null}
+                {chosenDdItem?.value === 'changeCouncilMember' ? <CouncilFormChangeCouncilMember /> : null}
+                {chosenDdItem?.value === 'removeCouncilMember' ? <CouncilFormRemoveCouncilMember /> : null}
+                {chosenDdItem?.value === 'updateCouncilMemberInfo' ? <CouncilFormUpdateCouncilMemberInfo /> : null}
+                {chosenDdItem?.value === 'transferTokens' ? <CouncilFormTransferTokens /> : null}
+                {chosenDdItem?.value === 'requestTokens' ? <CouncilFormRequestTokens /> : null}
               </DropdownCard>
             ) : null}
 
@@ -167,14 +180,30 @@ export const Council = () => {
               </>
             ) : null}
           </div>
-          {councilMembers.length ? (
-            <aside className={`council-members ${isPendingSignature ? 'is-user-member' : ''}`}>
-              <h1>Council Members</h1>
-              {councilMembers.map((item: CouncilMember) => (
-                <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
-              ))}
-            </aside>
-          ) : null}
+
+          <aside
+            className={`council-members ${isPendingSignature ? 'is-user-member' : ''} ${
+              isPendindList && isPendingSignature ? 'is-pending-list' : ''
+            }`}
+          >
+            {isPendingSignature ? (
+              <CouncilPendingReviewView
+                onClick={() => {
+                  setIsGoback(true)
+                  setIsPendingSignature(false)
+                }}
+              />
+            ) : null}
+
+            {councilMembers.length ? (
+              <div>
+                <h1>Council Members</h1>
+                {councilMembers.map((item: CouncilMember) => (
+                  <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
+                ))}
+              </div>
+            ) : null}
+          </aside>
         </article>
       </CouncilStyled>
     </Page>

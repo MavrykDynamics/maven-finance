@@ -8,7 +8,7 @@ export const SATELLITE_RECORDS_QUERY = `
       image
       name
       user_id
-      active
+      status
       website
       delegation_records {
         user {
@@ -19,7 +19,6 @@ export const SATELLITE_RECORDS_QUERY = `
         smvk_balance
         mvk_balance
         address
-        participation_fees_per_share
         emergency_governance_votes {
           emergency_governance_record_id
           id
@@ -44,15 +43,11 @@ export const SATELLITE_RECORDS_QUERY = `
           voter_id
           voting_power
           governance_proposal_record {
-            abstain_mvk_total
-            abstain_vote_count
             current_cycle_end_level
             current_cycle_start_level
             current_round_proposal
             cycle
             description
-            down_vote_count
-            down_vote_mvk_total
             executed
             execution_counter
             governance_id
@@ -61,21 +56,25 @@ export const SATELLITE_RECORDS_QUERY = `
             locked
             min_proposal_round_vote_pct
             min_proposal_round_vote_req
-            min_quorum_mvk_total
             min_quorum_percentage
             pass_vote_count
-            pass_vote_mvk_total
             payment_processed
             proposer_id
-            quorum_mvk_total
             source_code
             start_datetime
             status
             success_reward
             title
-            up_vote_count
-            up_vote_mvk_total
             quorum_count
+            min_yay_vote_percentage
+            nay_vote_count
+            nay_vote_smvk_total
+            pass_vote_smvk_total
+            proposal_vote_smvk_total
+            proposal_vote_count
+            quorum_smvk_total
+            yay_vote_count
+            yay_vote_smvk_total
           }
         }
       }
@@ -93,7 +92,6 @@ export function SATELLITE_RECORDS_QUERY_VARIABLES(address: string): Record<strin
 export const USER_VOTING_HYSTORY_QUERY = `
   query UserVotingHistory($_eq: String = "") {
     mavryk_user(where: {address: {_eq: $_eq}}) {
-      participation_fees_per_share
       smvk_balance
       mvk_balance
       address

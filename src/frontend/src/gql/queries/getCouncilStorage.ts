@@ -67,10 +67,9 @@ export const COUNCIL_PAST_ACTIONS_NAME = 'GetPastCouncilActions'
 export const COUNCIL_PAST_ACTIONS_VARIABLE = {}
 
 
-// TODO May be “initiator_id” === “accountPkh”
 export const COUNCIL_PENDING_ACTIONS_QUERY = `
   query GetPandingCouncilActions {
-    council_action_record(where: {status: {_eq: "0"}}, order_by: {executed_datetime: asc}, limit: 3) {
+    council_action_record(where: {status: {_eq: "0"}}) {
       ${COUNCIL_ACTIONS_PARAMS}
     }
   }

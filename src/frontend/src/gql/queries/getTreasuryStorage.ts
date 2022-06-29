@@ -1,8 +1,25 @@
 export const GET_TREASURY_DATA = `
-  query getTreasuryAddresses {
+  query GetTreasuryStorageQuery {
     treasury {
-      address,
+      address
+      admin
+      creation_timestamp
+      governance_id
+      mint_mvk_and_transfer_paused
       name
+      stake_mvk_paused
+      transfer_paused
+      treasury_factory_id
+      unstake_mvk_paused
+    }
+    treasury_factory {
+      address
+      admin
+      create_treasury_paused
+      governance_id
+      track_treasury_paused
+      treasury_name_max_length
+      untrack_treasury_paused
     }
     treasury_factory {
       address

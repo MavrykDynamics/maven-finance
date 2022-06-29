@@ -5,7 +5,6 @@ query GetUserStakeBalance($_eq: String = "") {
       address
       mvk_balance
       smvk_balance
-      participation_fees_per_share
     }
   }
 }

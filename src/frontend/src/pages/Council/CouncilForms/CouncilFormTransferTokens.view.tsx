@@ -6,6 +6,7 @@ import type { InputStatusType } from '../../../app/App.components/Input/Input.co
 
 // view
 import { Input } from '../../../app/App.components/Input/Input.controller'
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
@@ -22,7 +23,7 @@ const INIT_FORM = {
   vestingInMonths: '',
 }
 
-export const CouncilFormAddVestee = () => {
+export const CouncilFormTransferTokens = () => {
   const dispatch = useDispatch()
   const [form, setForm] = useState(INIT_FORM)
 
@@ -68,11 +69,29 @@ export const CouncilFormAddVestee = () => {
       <a className="info-link" href="https://mavryk.finance/litepaper#mavryk-council" target="_blank" rel="noreferrer">
         <Icon id="question" />
       </a>
-      <h1 className="form-h1">Add Vestee</h1>
-      <p>Please enter valid function parameters for adding a vestee</p>
+      <h1 className="form-h1">Transfer Tokens</h1>
+      <p>Please enter valid function parameters for transferring tokens</p>
       <div className="form-grid">
         <div>
-          <label>Vestee Address</label>
+          <label>Receiver’s Address</label>
+          <Input
+            type="text"
+            required
+            value={vesteeAddress}
+            name="vesteeAddress"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.vesteeAddress}
+          />
+        </div>
+
+        <div />
+
+        <div>
+          <label>Token Contract Address</label>
           <Input
             type="text"
             required
@@ -88,7 +107,7 @@ export const CouncilFormAddVestee = () => {
         </div>
 
         <div>
-          <label>Total Allocated Amount</label>
+          <label>Token Amount to Transfer</label>
           <Input
             type="number"
             required
@@ -104,9 +123,23 @@ export const CouncilFormAddVestee = () => {
         </div>
 
         <div>
-          <label>
-            Cliff Period <small>(in months)</small>
-          </label>
+          <label>Token Contract Address</label>
+          <Input
+            type="text"
+            required
+            value={vesteeAddress}
+            name="vesteeAddress"
+            onChange={(e) => {
+              handleChange(e)
+              handleBlur(e)
+            }}
+            onBlur={(e) => handleBlur(e)}
+            inputStatus={formInputStatus.vesteeAddress}
+          />
+        </div>
+
+        <div>
+          <label>Token ID</label>
           <Input
             type="number"
             required
@@ -120,27 +153,24 @@ export const CouncilFormAddVestee = () => {
             inputStatus={formInputStatus.cliffInMonths}
           />
         </div>
-
-        <div>
-          <label>
-            Vesting Period <small>(in months)</small>
-          </label>
-          <Input
-            type="number"
-            required
-            value={vestingInMonths}
-            name="vestingInMonths"
-            onChange={(e) => {
-              handleChange(e)
-              handleBlur(e)
-            }}
-            onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vestingInMonths}
-          />
-        </div>
+      </div>
+      <div className="textarea-group">
+        <label>Purpose for Transfer</label>
+        <TextArea
+          type="text"
+          required
+          value={vesteeAddress}
+          name="vesteeAddress"
+          onChange={(e) => {
+            handleChange(e)
+            handleBlur(e)
+          }}
+          onBlur={(e) => handleBlur(e)}
+          inputStatus={formInputStatus.vesteeAddress}
+        />
       </div>
       <div className="btn-group">
-        <Button text="Add Vestee" className="plus-btn" kind={'actionPrimary'} icon="plus" type="submit" />
+        <Button text="Transfer Tokens" className="plus-btn" kind={'actionPrimary'} icon="transfer-fill" type="submit" />
       </div>
     </CouncilFormStyled>
   )

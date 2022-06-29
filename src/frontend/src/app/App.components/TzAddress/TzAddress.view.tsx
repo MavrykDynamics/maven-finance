@@ -1,5 +1,9 @@
 import * as React from 'react'
 import { useDispatch } from 'react-redux'
+
+// helpers
+import { getShortTzAddress } from '../../../utils/tzAdress'
+
 import { showToaster } from '../Toaster/Toaster.actions'
 import { TzAddressStyles } from './TzAddress.constants'
 import { TzAddressContainer, TzAddressIcon, TzAddressStyled } from './TzAddress.style'
@@ -39,9 +43,7 @@ export const TzAddress = ({ tzAddress = '', type, hasIcon, iconToLeft, isBold }:
             <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
           </TzAddressIcon>
         )}
-        <TzAddressStyled className={addrClasses}>
-          {`${tzAddress.slice(0, 7)}...${tzAddress.slice(tzAddress.length - 4, tzAddress.length)}`}
-        </TzAddressStyled>
+        <TzAddressStyled className={addrClasses}>{getShortTzAddress(tzAddress)}</TzAddressStyled>
         {!iconToLeft && (
           <TzAddressIcon className={addrClasses}>
             <use xlinkHref="/icons/sprites.svg#copyToClipboard" />
@@ -57,9 +59,7 @@ export const TzAddress = ({ tzAddress = '', type, hasIcon, iconToLeft, isBold }:
           _handleCopyToClipboard(tzAddress)
         }}
       >
-        <TzAddressStyled className={addrClasses}>
-          {`${tzAddress.slice(0, 7)}...${tzAddress.slice(tzAddress.length - 4, tzAddress.length)}`}
-        </TzAddressStyled>
+        <TzAddressStyled className={addrClasses}>{getShortTzAddress(tzAddress)}</TzAddressStyled>
       </TzAddressContainer>
     )
 }

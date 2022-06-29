@@ -10,14 +10,17 @@ export const CouncilStyled = styled.section`
   }
 
   .pending-items {
-    width: 100%;
-    display: flex;
-    gap: 20px;
+    width: 750px;
   }
 
   h1 {
     margin-top: 29px;
     margin-bottom: 11px;
+
+    small {
+      font-weight: normal;
+      font-size: 0.7em;
+    }
   }
 
   .council-details {
@@ -33,6 +36,14 @@ export const CouncilStyled = styled.section`
     width: 309px;
     margin-left: 30px;
     flex-shrink: 0;
+
+    &.is-user-member {
+      padding-top: 30px;
+    }
+
+    &.is-pending-list {
+      padding-top: 86px;
+    }
 
     h1 {
       margin-top: 0;

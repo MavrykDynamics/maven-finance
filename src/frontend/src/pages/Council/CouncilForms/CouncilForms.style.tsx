@@ -27,6 +27,16 @@ export const CouncilFormStyled = styled.form`
     gap: 20px;
     padding-top: 1px;
     row-gap: 18px;
+
+    &.form-grid-button-right {
+      padding-bottom: 16px;
+    }
+
+    .form-grid-adress {
+      color: ${upColor};
+      padding-top: 12px;
+      padding-left: 16px;
+    }
   }
 
   label {
@@ -73,5 +83,9 @@ export const CouncilFormStyled = styled.form`
     justify-content: flex-end;
     align-items: flex-end;
     margin-bottom: -3px;
+  }
+
+  .textarea-group {
+    padding-top: 20px;
   }
 `
