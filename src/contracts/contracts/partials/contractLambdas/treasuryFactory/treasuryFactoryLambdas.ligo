@@ -256,18 +256,21 @@ block {
 
 
 
-(* togglePauseCreateTreasury lambda *)
-function lambdaTogglePauseCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
 
     case treasuryFactoryLambdaAction of [
-        | LambdaTogglePauseCreateTreasury(_parameters) -> {
-                
-                if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
-                else s.breakGlassConfig.createTreasuryIsPaused := True;
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
 
+                case targetEntrypoint of [
+                    ToggleCreateTreasury (_v)       -> s.breakGlassConfig.createTreasuryIsPaused := _v
+                |   ToggleTrackTreasury (_v)        -> s.breakGlassConfig.trackTreasuryIsPaused := _v
+                |   ToggleUntrackTreasury (_v)      -> s.breakGlassConfig.untrackTreasuryIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -275,44 +278,6 @@ block {
 } with (noOperations, s)
 
 
-
-(* togglePauseTrackTreasury lambda *)
-function lambdaTogglePauseTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case treasuryFactoryLambdaAction of [
-        | LambdaToggleTrackTreasury(_parameters) -> {
-                
-                if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
-                else s.breakGlassConfig.trackTreasuryIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUntrackTreasury lambda *)
-function lambdaTogglePauseUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case treasuryFactoryLambdaAction of [
-        | LambdaToggleUntrackTreasury(_parameters) -> {
-                
-                if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
-                else s.breakGlassConfig.untrackTreasuryIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End

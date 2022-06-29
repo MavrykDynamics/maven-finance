@@ -58,12 +58,7 @@ type aggregatorAction is
     // Pause / Break Glass Entrypoints
   | PauseAll                             of (unit)
   | UnpauseAll                           of (unit)
-  | TogglePauseRequestRateUpdate         of (unit)
-  | TogglePauseRequestRateUpdateDev      of (unit)
-  | TogglePauseSetObservationCommit      of (unit)
-  | TogglePauseSetObservationReveal      of (unit)
-  | TogglePauseWithdrawRewardXtz         of (unit)
-  | TogglePauseWithdrawRewardSMvk        of (unit)
+  | TogglePauseEntrypoint                of aggregatorTogglePauseEntrypointType
 
   // Maintainer Entrypoints
   | RequestRateUpdate                    of requestRateUpdateType
@@ -1022,17 +1017,17 @@ block{
 
 
 
-(*  togglePauseRequestRateUpdate entrypoint  *)
-function togglePauseRequestRateUpdate(const s: aggregatorStorageType): return is
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: aggregatorTogglePauseEntrypointType; const s: aggregatorStorageType): return is
 block{
   
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpd"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseReqRateUpd(unit);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1040,98 +1035,6 @@ block{
 } with response
 
 
-
-(*  togglePauseRequestRateUpdateDev entrypoint  *)
-function togglePauseRequestRateUpdateDev(const s: aggregatorStorageType): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpdDev"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseReqRateUpdDev(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseSetObservationCommit entrypoint  *)
-function togglePauseSetObservationCommit(const s: aggregatorStorageType): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsCommit"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseSetObsCommit(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseSetObservationReveal entrypoint  *)
-function togglePauseSetObservationReveal(const s: aggregatorStorageType): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsReveal"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseSetObsReveal(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-(*  togglePauseWithdrawRewardXtz entrypoint  *)
-function togglePauseWithdrawRewardXtz(const s: aggregatorStorageType): return is
-block{
-  
-   const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardXtz"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseRewardXtz(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseWithdrawRewardSMvk entrypoint  *)
-function togglePauseWithdrawRewardSMvk(const s: aggregatorStorageType): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardSMvk"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseRewardSMvk(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
@@ -1333,9 +1236,9 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
       
       // Housekeeping Entrypoints
     | SetAdmin (parameters)                           -> setAdmin(parameters, s)
-    | SetGovernance(parameters)                       -> setGovernance(parameters, s) 
-    | SetMaintainer(parameters)                       -> setMaintainer(parameters, s) 
-    | SetName(parameters)                             -> setName(parameters, s) 
+    | SetGovernance (parameters)                      -> setGovernance(parameters, s) 
+    | SetMaintainer (parameters)                      -> setMaintainer(parameters, s) 
+    | SetName (parameters)                            -> setName(parameters, s) 
     | UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
     | UpdateConfig (parameters)                       -> updateConfig(parameters, s)
     | UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
@@ -1348,12 +1251,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
       // Pause / Break Glass Entrypoints
     | PauseAll (_parameters)                          -> pauseAll(s)
     | UnpauseAll (_parameters)                        -> unpauseAll(s)
-    | TogglePauseRequestRateUpdate (_parameters)      -> togglePauseRequestRateUpdate(s)
-    | TogglePauseRequestRateUpdateDev (_parameters)   -> togglePauseRequestRateUpdateDev(s)
-    | TogglePauseSetObservationCommit (_parameters)   -> togglePauseSetObservationCommit(s)
-    | TogglePauseSetObservationReveal (_parameters)   -> togglePauseSetObservationReveal(s)
-    | TogglePauseWithdrawRewardXtz (_parameters)      -> togglePauseWithdrawRewardXtz(s)
-    | TogglePauseWithdrawRewardSMvk (_parameters)     -> togglePauseWithdrawRewardSMvk(s)
+    | TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
       // Oracle Entrypoints
     | RequestRateUpdate (_parameters)                 -> requestRateUpdate(s)
@@ -1366,5 +1264,5 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
     | WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
 
       // Lambda Entrypoints
-    | SetLambda(parameters)                           -> setLambda(parameters, s)
+    | SetLambda (parameters)                          -> setLambda(parameters, s)
   ];

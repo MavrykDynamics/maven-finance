@@ -423,7 +423,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses stake', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseStake().send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("toggleStake", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -433,7 +433,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses unstake', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseUnstake().send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("toggleUnstake", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -443,7 +443,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses compound', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseCompound().send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("toggleCompound", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -453,7 +453,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses farmClaim', async () => {
             try{
                 // Operation
-                const operation = await doormanInstance.methods.togglePauseFarmClaim().send();
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("toggleFarmClaim", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -602,7 +602,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses delegateToSatellite', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("toggleDelegateToSatellite", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -612,7 +612,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses undelegateSatellite', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.togglePauseUndelegateSatellite().send();
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("toggleUndelegateSatellite", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -622,7 +622,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses registerSatellite', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.togglePauseRegisterSatellite().send();
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("toggleRegisterSatellite", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -632,7 +632,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses unregisterSatellite', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.togglePauseUnregisterSatellite().send();
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("toggleUnregisterSatellite", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -642,7 +642,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses updateSatellite', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("toggleUpdateSatellite", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -652,7 +652,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses distributeReward', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.togglePauseDistributeReward().send();
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("toggleDistributeReward", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1430,7 +1430,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses create treasury entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
+                const operation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleCreateTreasury", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1440,7 +1440,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses track treasury entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.togglePauseTrackTreasury().send();
+                const operation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleTrackTreasury", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1450,7 +1450,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses untrack treasury entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryFactoryInstance.methods.togglePauseUntrackTreasury().send();
+                const operation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackTreasury", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1573,7 +1573,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses create transfer entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseTransfer().send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("toggleTransfer", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1583,7 +1583,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses mint and transfer entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("toggleMintMvkAndTransfer", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1593,7 +1593,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses stake MVK entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseStakeMvk().send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("toggleStakeMvk", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1603,7 +1603,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses unstake MVK entrypoint', async () => {
             try{
                 // Operation
-                const operation = await treasuryInstance.methods.togglePauseUnstakeMvk().send();
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("toggleUnstakeMvk", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1704,7 +1704,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses create farm entrypoint', async () => {
             try{
                 // Operation
-                const operation = await farmFactoryInstance.methods.togglePauseCreateFarm().send();
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleCreateFarm", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1714,7 +1714,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses track farm entrypoint', async () => {
             try{
                 // Operation
-                const operation = await farmFactoryInstance.methods.togglePauseTrackFarm().send();
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleTrackFarm", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1724,7 +1724,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses untrack farm entrypoint', async () => {
             try{
                 // Operation
-                const operation = await farmFactoryInstance.methods.togglePauseUntrackFarm().send();
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackFarm", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1880,7 +1880,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses deposit entrypoint', async () => {
             try{
                 // Operation
-                const operation = await farmInstance.methods.togglePauseDeposit().send();
+                const operation = await farmInstance.methods.togglePauseEntrypoint("toggleDeposit", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1890,7 +1890,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses withdraw entrypoint', async () => {
             try{
                 // Operation
-                const operation = await farmInstance.methods.togglePauseWithdraw().send();
+                const operation = await farmInstance.methods.togglePauseEntrypoint("toggleWithdraw", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1900,7 +1900,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses claim entrypoint', async () => {
             try{
                 // Operation
-                const operation = await farmInstance.methods.togglePauseClaim().send();
+                const operation = await farmInstance.methods.togglePauseEntrypoint("toggleClaim", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2030,7 +2030,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses create aggregator', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseCreateAggregator().send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("toggleCreateAggregator", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2040,7 +2040,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses track aggregator', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseTrackAggregator().send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("toggleTrackAggregator", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2050,7 +2050,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses untrack aggregator', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseUntrackAggregator().send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackAggregator", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2060,7 +2060,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses distribute reward xtz', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseDistributeRewardXtz().send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("toggleDistributeRewardXtz", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2070,7 +2070,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses distribute reward smvk', async () => {
             try{
                 // Operation
-                const operation = await aggregatorFactoryInstance.methods.togglePauseDistributeRewardSMvk().send();
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("toggleDistributeRewardSmvk", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2258,7 +2258,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses %requestRateUpdate', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseRequestRateUpdate().send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("toggleRequestRateUpdate", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2268,7 +2268,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses %requestRateUpdateDeviation', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseRequestRateUpdateDev().send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("toggleRequestRateUpdateDev", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2278,7 +2278,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses %setObservationCommit', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseSetObservationCommit().send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("toggleSetObservationCommit", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2288,7 +2288,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses %setObservationReveal', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseSetObservationReveal().send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("toggleSetObservationReveal", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2298,7 +2298,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses %withdrawRewardXtz', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseWithdrawRewardXtz().send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("toggleWithdrawRewardXtz", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2308,7 +2308,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin pauses %withdrawRewardStakedMvk', async () => {
             try{
                 // Operation
-                const operation = await aggregatorInstance.methods.togglePauseWithdrawRewardSMvk().send();
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("toggleWithdrawRewardStakedMvk", true).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

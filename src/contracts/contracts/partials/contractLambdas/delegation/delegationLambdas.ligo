@@ -243,71 +243,24 @@ block {
 
 
 
-(* togglePauseDelegateToSatellite lambda *)
-function lambdaTogglePauseDelegateToSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    case delegationLambdaAction of [
-        | LambdaPauseDelegateToSatellite(_parameters) -> {
-                if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-                else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUndelegateSatellite lambda *)
-function lambdaTogglePauseUndelegateSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    case delegationLambdaAction of [
-        | LambdaPauseUndelegateSatellite(_parameters) -> {
-                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-                else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseRegisterSatellite lambda *)
-function lambdaTogglePauseRegisterSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    case delegationLambdaAction of [
-        | LambdaPauseRegisterSatellite(_parameters) -> {
-                if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-                else s.breakGlassConfig.registerAsSatelliteIsPaused := True;    
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUnregisterSatellite lambda *)
-function lambdaTogglePauseUnregisterSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
-block {
-
-    // check that sender is admin
     checkSenderIsAdmin(s);
 
     case delegationLambdaAction of [
-        | LambdaPauseUnregisterSatellite(_parameters) -> {
-                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-                else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+
+                case targetEntrypoint of [
+                    ToggleDelegateToSatellite (_v)          -> s.breakGlassConfig.delegateToSatelliteIsPaused := _v
+                |   ToggleUndelegateSatellite (_v)          -> s.breakGlassConfig.undelegateFromSatelliteIsPaused := _v
+                |   ToggleRegisterSatellite (_v)            -> s.breakGlassConfig.registerAsSatelliteIsPaused := _v
+                |   ToggleUnregisterSatellite (_v)          -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
+                |   ToggleUpdateSatellite (_v)              -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
+                |   ToggleDistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -315,42 +268,6 @@ block {
 } with (noOperations, s)
 
 
-
-(* togglePauseUpdateSatellite lambda *)
-function lambdaTogglePauseUpdateSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case delegationLambdaAction of [
-        | LambdaPauseUpdateSatellite(_parameters) -> {
-                if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-                else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* lambdaTogglePauseDistributeReward lambda *)
-function lambdaTogglePauseDistributeReward(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case delegationLambdaAction of [
-        | LambdaPauseDistributeReward(_parameters) -> {
-                if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
-                else s.breakGlassConfig.distributeRewardIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End

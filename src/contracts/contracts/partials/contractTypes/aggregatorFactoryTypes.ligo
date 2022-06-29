@@ -58,6 +58,13 @@ type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : aggregatorFactoryUpdateConfigActionType;
 ]
 
+(* togglePauseEntrypoint entrypoint inputs *)
+type aggregatorFactoryTogglePauseEntrypointType is
+    ToggleCreateAggregator        of bool
+|   ToggleUntrackAggregator       of bool
+|   ToggleTrackAggregator         of bool
+|   ToggleDistributeRewardXtz     of bool
+|   ToggleDistributeRewardSmvk    of bool
 
 type aggregatorFactoryLambdaActionType is 
     
@@ -72,11 +79,7 @@ type aggregatorFactoryLambdaActionType is
       // Pause / Break Glass Entrypoints
   | LambdaPauseAll                      of (unit)
   | LambdaUnpauseAll                    of (unit)
-  | LambdaTogglePauseCreateAgg          of (unit)
-  | LambdaTogglePauseTrackAgg           of (unit)
-  | LambdaTogglePauseUntrackAgg         of (unit)
-  | LambdaTogglePauseDisRewardXtz       of (unit)
-  | LambdaTogglePauseDisRewardSMvk      of (unit)
+  | LambdaTogglePauseEntrypoint         of aggregatorFactoryTogglePauseEntrypointType
 
     // Aggregator Factory Lambdas
   | LambdaCreateAggregator              of createAggregatorParamsType

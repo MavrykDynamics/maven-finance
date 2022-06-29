@@ -49,50 +49,30 @@
   },
   {
     "index": 12,
-    "name": "lambdaTogglePauseReqRateUpd"
+    "name": "lambdaTogglePauseEntrypoint"
   },
   {
     "index": 13,
-    "name": "lambdaTogglePauseReqRateUpdDev"
-  },
-  {
-    "index": 14,
-    "name": "lambdaTogglePauseSetObsCommit"
-  },
-  {
-    "index": 15,
-    "name": "lambdaTogglePauseSetObsReveal"
-  },
-  {
-    "index": 16,
-    "name": "lambdaTogglePauseRewardXtz"
-  },
-  {
-    "index": 17,
-    "name": "lambdaTogglePauseRewardSMvk"
-  },
-  {
-    "index": 18,
     "name": "lambdaRequestRateUpdate"
   },
   {
-    "index": 19,
+    "index": 14,
     "name": "lambdaRequestRateUpdateDeviation"
   },
   {
-    "index": 20,
+    "index": 15,
     "name": "lambdaSetObservationCommit"
   },
   {
-    "index": 21,
+    "index": 16,
     "name": "lambdaSetObservationReveal"
   },
   {
-    "index": 22,
+    "index": 17,
     "name": "lambdaWithdrawRewardXtz"
   },
   {
-    "index": 23,
+    "index": 18,
     "name": "lambdaWithdrawRewardStakedMvk"
   }  
 ]

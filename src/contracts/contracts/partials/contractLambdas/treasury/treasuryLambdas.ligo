@@ -247,19 +247,23 @@ block {
 
 
 
-(* togglePauseTransfer lambda *)
-function lambdaTogglePauseTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    // check that sender is admin
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
-        | LambdaTogglePauseTransfer(_parameters) -> {
-                
-                if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
-                else s.breakGlassConfig.transferIsPaused := True;
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
 
+                case targetEntrypoint of [
+                    ToggleTransfer (_v)             -> s.breakGlassConfig.transferIsPaused := _v
+                |   ToggleMintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused := _v
+                |   ToggleStakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused := _v
+                |   ToggleUnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -267,67 +271,6 @@ block {
 } with (noOperations, s)
 
 
-
-(* togglePauseMintMvkAndTransfer lambda *)
-function lambdaTogglePauseMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case treasuryLambdaAction of [
-        | LambdaTogglePauseMintTransfer(_parameters) -> {
-                
-                if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
-                else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseStakeMvk lambda *)
-function lambdaTogglePauseStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case treasuryLambdaAction of [
-        | LambdaTogglePauseStakeMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
-                else s.breakGlassConfig.stakeMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUnstakeMvk lambda *)
-function lambdaTogglePauseUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case treasuryLambdaAction of [
-        | LambdaTogglePauseUnstakeMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
-                else s.breakGlassConfig.unstakeMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End

@@ -1693,7 +1693,7 @@
 #         print(finalclaimIsPaused)
 
 #     ###
-#     # %togglePauseDeposit
+#     # %togglePauseEntrypoint
 #     ##
 #     def test_64_admin_pause_deposit(self):
 #         init_farm_storage = deepcopy(self.farmStorage)
@@ -1715,7 +1715,9 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         res = self.farmContract.togglePauseDeposit().interpret(storage=res.storage, source=bob)
+#         res = self.farmContract.togglePauseEntrypoint({
+#             "toggleDeposit": True
+#         }).interpret(storage=res.storage, source=bob)
 
 #         # Final values
 #         finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
@@ -1732,48 +1734,6 @@
 #         print('deposit is paused:')
 #         print(finaldepositIsPaused)
 
-    
-#     def test_65_non_admin_pause_deposit(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-
-#         # Initial values
-#         depositIsPaused = init_farm_storage['breakGlassConfig']['depositIsPaused']
-#         depositAmount = 2
-#         finaldepositIsPaused = depositIsPaused;
-#         totalBlocks                 = 100
-#         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
-        
-#         # Init farm operation
-#         res = self.farmContract.initFarm({
-#             "currentRewardPerBlock": currentRewardPerBlock,
-#             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
-#             "forceRewardFromTransfer": False,
-#             "infinite": False
-#         }).interpret(storage=init_farm_storage, source=bob)
-
-#         # Operation
-#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-#             res = self.farmContract.togglePauseDeposit().interpret(storage=res.storage, sender=alice)
-
-#             # Final values
-#             finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
-
-#             # Tests operations
-#             res = self.farmContract.deposit(depositAmount).interpret(storage=res.storage, source=bob)
-
-#             self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
-#             self.assertEqual(depositIsPaused, finaldepositIsPaused)
-
-#         print('----')
-#         print('✅ Non-admin should not be to pause deposit entrypoint')
-#         print('deposit is paused:')
-#         print(finaldepositIsPaused)
-    
-#     ###
-#     # %togglePauseWithdraw
-#     ##
 #     def test_66_admin_pause_withdraw(self):
 #         init_farm_storage = deepcopy(self.farmStorage)
 
@@ -1794,7 +1754,9 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         res = self.farmContract.togglePauseWithdraw().interpret(storage=res.storage, source=bob)
+#         res = self.farmContract.togglePauseEntrypoint({
+#             "toggleWithdraw": True
+#         }).interpret(storage=res.storage, source=bob)
 
 #         # Final values
 #         finalwithdrawIsPaused = res.storage['breakGlassConfig']['withdrawIsPaused']
@@ -1811,48 +1773,6 @@
 #         print('withdraw is paused:')
 #         print(finalwithdrawIsPaused)
 
-    
-#     def test_67_non_admin_pause_withdraw(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-
-#         # Initial values
-#         withdrawIsPaused = init_farm_storage['breakGlassConfig']['withdrawIsPaused']
-#         withdrawAmount = 2
-#         finalwithdrawIsPaused = withdrawIsPaused;
-#         totalBlocks                 = 100
-#         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
-        
-#         # Init farm operation
-#         res = self.farmContract.initFarm({
-#             "currentRewardPerBlock": currentRewardPerBlock,
-#             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
-#             "forceRewardFromTransfer": False,
-#             "infinite": False
-#         }).interpret(storage=init_farm_storage, source=bob)
-
-#         # Operation
-#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-#             res = self.farmContract.togglePauseWithdraw().interpret(storage=res.storage, sender=alice)
-
-#             # Final values
-#             finalwithdrawIsPaused = res.storage['breakGlassConfig']['withdrawIsPaused']
-
-#             # Tests operations
-#             res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob)
-
-#             self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
-#             self.assertEqual(withdrawIsPaused, finalwithdrawIsPaused)
-
-#         print('----')
-#         print('✅ Non-admin should not be to pause withdraw entrypoint')
-#         print('withdraw is paused:')
-#         print(finalwithdrawIsPaused)
-
-#     ###
-#     # %togglePauseClaim
-#     ##
 #     def test_64_admin_pause_claim(self):
 #         init_farm_storage = deepcopy(self.farmStorage)
 
@@ -1873,7 +1793,9 @@
 
 #         # Operation
 #         res = self.farmContract.deposit(2).interpret(storage=res.storage, source=bob, level=1)
-#         res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, source=bob, level=2)
+#         res = self.farmContract.togglePauseEntrypoint({
+#             "toggleClaim": True
+#         }).interpret(storage=res.storage, source=bob, level=2)
 
 #         # Final values
 #         finalclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
@@ -1892,7 +1814,6 @@
 #         print('claim is paused:')
 #         print(finalclaimIsPaused)
 
-    
 #     def test_68_non_admin_pause_claim(self):
 #         init_farm_storage = deepcopy(self.farmStorage)
 
@@ -1914,7 +1835,9 @@
 
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-#             res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, sender=alice)
+#             res = self.farmContract.togglePauseEntrypoint({
+#                 "toggleClaim": True
+#             }).interpret(storage=res.storage, sender=alice)
 
 #             # Final values
 #             finalclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']

@@ -13,6 +13,12 @@ type mintMvkAndTransferType is [@layout:comb] record [
     amt             : nat;
 ]
 
+type treasuryTogglePauseEntrypointType is
+  ToggleTransfer                       of bool   
+| ToggleMintMvkAndTransfer             of bool
+| ToggleStakeMvk                       of bool
+| ToggleUnstakeMvk                     of bool
+
 type treasuryLambdaActionType is 
 
   // Housekeeping Entrypoints
@@ -28,10 +34,7 @@ type treasuryLambdaActionType is
   // Pause / Break Glass Entrypoints
 | LambdaPauseAll                       of (unit)
 | LambdaUnpauseAll                     of (unit)
-| LambdaTogglePauseTransfer            of (unit)
-| LambdaTogglePauseMintTransfer        of (unit)
-| LambdaTogglePauseStakeMvk            of (unit)
-| LambdaTogglePauseUnstakeMvk          of (unit)
+| LambdaTogglePauseEntrypoint          of treasuryTogglePauseEntrypointType
 
   // Treasury Entrypoints
 | LambdaTransfer                       of transferActionType

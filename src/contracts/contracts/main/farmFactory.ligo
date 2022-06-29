@@ -51,9 +51,7 @@ type farmFactoryAction is
     // Pause / Break Glass Entrypoints
 |   PauseAll                    of (unit)
 |   UnpauseAll                  of (unit)
-|   TogglePauseCreateFarm       of (unit)
-|   TogglePauseTrackFarm        of (unit)
-|   TogglePauseUntrackFarm      of (unit)
+|   TogglePauseEntrypoint       of farmFactoryTogglePauseEntrypointType
 
     // Farm Factory Entrypoints
 |   CreateFarm                  of createFarmType
@@ -494,60 +492,24 @@ block {
 
 
 
-(*  togglePauseCreateFarm entrypoint *)
-function togglePauseCreateFarm(var s: farmFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateFarm"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: farmFactoryTogglePauseEntrypointType; const s: farmFactoryStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseCreateFarm(unit);
+    // init farm factory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseUntrackFarm entrypoint *)
-function togglePauseUntrackFarm(var s: farmFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackFarm"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseUntrackFarm(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseTrackFarm entrypoint *)
-function togglePauseTrackFarm(var s: farmFactoryStorageType): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackFarm"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseTrackFarm(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
@@ -689,9 +651,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorageType): 
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                  -> pauseAll(s)
         |   UnpauseAll (_parameters)                -> unpauseAll(s)
-        |   TogglePauseCreateFarm (_parameters)     -> togglePauseCreateFarm(s)
-        |   TogglePauseTrackFarm (_parameters)      -> togglePauseTrackFarm(s)
-        |   TogglePauseUntrackFarm (_parameters)    -> togglePauseUntrackFarm(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
             // Farm Factory Entrypoints
         |   CreateFarm (params)                     -> createFarm(params, s)

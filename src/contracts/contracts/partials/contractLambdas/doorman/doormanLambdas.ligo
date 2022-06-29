@@ -275,57 +275,22 @@ block {
 
 
 
-(*  togglePauseStake lambda *)
-function lambdaTogglePauseStake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
-    
-    checkSenderIsAdmin(s); 
 
-    case doormanLambdaAction of [
-        | LambdaTogglePauseStake(_parameters) -> {
-                
-              if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
-              else s.breakGlassConfig.stakeIsPaused := True;
-                
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseUnstake lambda *)
-function lambdaTogglePauseUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
-block {
-    
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case doormanLambdaAction of [
-        | LambdaTogglePauseUnstake(_parameters) -> {
-                
-              if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
-              else s.breakGlassConfig.unstakeIsPaused := True;
-                
-            }
-        | _ -> skip
-    ];
+        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
 
-} with (noOperations, s)
-
-
-
-(*  togglePauseCompound lambda *)
-function lambdaTogglePauseCompound(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
-block {
-    
-    checkSenderIsAdmin(s);
-
-    case doormanLambdaAction of [
-        | LambdaTogglePauseCompound(_parameters) -> {
-                
-              if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
-              else s.breakGlassConfig.compoundIsPaused := True;
+                case targetEntrypoint of [
+                    ToggleStake (_v)            -> s.breakGlassConfig.stakeIsPaused := _v
+                |   ToggleUnstake (_v)          -> s.breakGlassConfig.unstakeIsPaused := _v
+                |   ToggleCompound (_v)         -> s.breakGlassConfig.compoundIsPaused := _v
+                |   ToggleFarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused := _v
+                ]
                 
             }
         | _ -> skip
@@ -334,24 +299,6 @@ block {
 } with (noOperations, s)
 
 
-
-(*  togglePauseFarmClaim lambda *)
-function lambdaTogglePauseFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
-block {
-    
-    checkSenderIsAdmin(s);
-
-    case doormanLambdaAction of [
-        | LambdaTogglePauseFarmClaim(_parameters) -> {
-                
-              if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
-              else s.breakGlassConfig.farmClaimIsPaused := True;
-                
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
