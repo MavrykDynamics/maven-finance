@@ -21,11 +21,8 @@ export const GET_TREASURY_DATA = `
       treasury_name_max_length
       untrack_treasury_paused
     }
-    treasury_factory {
-      address
-    }
   }
 `
 
-export const TREASURY_STORAGE_QUERY_NAME = 'getTreasuryAddresses'
+export const TREASURY_STORAGE_QUERY_NAME = 'GetTreasuryStorageQuery'
 export const TREASURY_STORAGE_QUERY_VARIABLE = {}

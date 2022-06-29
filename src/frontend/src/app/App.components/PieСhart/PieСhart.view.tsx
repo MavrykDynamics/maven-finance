@@ -15,7 +15,7 @@ export default function PieChartView({ chartData }: { chartData: any }) {
           const shownPersent = labelPersent
             ? labelPersent.toFixed(2) < 1
               ? '< 1%'
-              : `${labelPersent.toFixed(2)}%`
+              : `${parseFloat(labelPersent.toFixed(2))}%`
             : ''
           return shownPersent
         }}
