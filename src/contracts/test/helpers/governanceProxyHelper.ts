@@ -84,7 +84,6 @@ export const setGovernanceProxyContractProxyLambdas = async (tezosToolkit: Tezos
         const newIndex = index - startIndex;
 
         if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
-          console.log(newIndex, " - ", index)
           batch.withContractCall(contract.methods.setProxyLambda(newIndex, governanceProxyLambdas[index]))
         }
       }

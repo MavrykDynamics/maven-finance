@@ -637,6 +637,9 @@ block {
                 // check sender is satellite
                 checkUserIsSatellite(userAddress, s);
 
+                // check satellite is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(userAddress, s);
+
                 // Update unclaimed rewards
                 s := updateRewards(userAddress, s);
                 
@@ -665,6 +668,9 @@ block {
 
                 // Get user address
                 const userAddress: address  = Tezos.sender;
+
+                // check satellite is not banned
+                checkSatelliteIsNotBanned(userAddress, s);
 
                 // Update unclaimed rewards
                 s := updateRewards(userAddress, s);

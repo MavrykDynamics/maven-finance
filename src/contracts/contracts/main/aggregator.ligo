@@ -207,7 +207,31 @@ function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorageTyp
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
+function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : aggregatorStorageType) : unit is
+  block{
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
+          Some(_address) -> _address
+        | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    case satelliteOptView of [
+      Some (value) -> case value of [
+          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
+        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
+      ]
+
+    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+
+    ];
+  } with (unit)
+
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions Begin

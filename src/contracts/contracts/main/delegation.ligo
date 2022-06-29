@@ -261,7 +261,35 @@ function checkDistributeRewardIsNotPaused(var s : delegationStorageType) : unit 
 // Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
+function checkSatelliteIsNotSuspended(const satelliteAddress: address; var s : delegationStorageType) : unit is
+  case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+    Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else unit
+  | None              -> failwith(error_SATELLITE_NOT_FOUND)
+  ];
+
+
+
+function checkSatelliteIsNotBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
+  case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+    Some (_satellite) -> if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
+  | None              -> failwith(error_SATELLITE_NOT_FOUND)
+  ];
+
+
+
+function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
+  case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+    Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
+  | None              -> failwith(error_SATELLITE_NOT_FOUND)
+  ];
+
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
