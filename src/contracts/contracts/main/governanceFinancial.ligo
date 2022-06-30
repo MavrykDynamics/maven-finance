@@ -230,9 +230,13 @@ block{
 
 function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : governanceFinancialStorageType) : unit is
   block{
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-          Some(_address) -> _address
-        | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+    const delegationAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     case satelliteOptView of [

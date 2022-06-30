@@ -1172,21 +1172,21 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates a vestee', async () => {
+        it('Admin claims', async () => {
             try{
                 // Operation
-                const operation = await vestingInstance.methods.updateVestee(bob.pkh, MVK(2000000), 0, 36).send();
+                await wait(60 * 1000);
+                const operation = await vestingInstance.methods.claim().send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
         });
 
-        it('Admin claims', async () => {
+        it('Admin updates a vestee', async () => {
             try{
                 // Operation
-                await wait(60 * 1000);
-                const operation = await vestingInstance.methods.claim().send();
+                const operation = await vestingInstance.methods.updateVestee(bob.pkh, MVK(2000000), 0, 36).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
