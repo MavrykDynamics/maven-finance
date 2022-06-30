@@ -57,7 +57,7 @@ export const Council = () => {
     { text: 'Change Council Member', value: 'changeCouncilMember' }, //ok tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD / tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr
     { text: 'Remove Council Member', value: 'removeCouncilMember' }, // ок tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
     { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' }, // ok tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
-    { text: 'Transfer Tokens', value: 'transferTokens' },
+    { text: 'Transfer Tokens', value: 'transferTokens' }, // ok
     { text: 'Request Tokens', value: 'requestTokens' },
     { text: 'Request Token Mint', value: 'requestTokenMint' },
     { text: 'Drop Financial Request', value: 'dropFinancialRequest' },

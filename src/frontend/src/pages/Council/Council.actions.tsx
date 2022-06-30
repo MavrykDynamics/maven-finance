@@ -507,3 +507,62 @@ export const updateCouncilMemberInfo =
       })
     }
   }
+
+// Transfer Tokens
+export const TRANSFER_TOKENS_REQUEST = 'TRANSFER_TOKENS_REQUEST'
+export const TRANSFER_TOKENS_RESULT = 'TRANSFER_TOKENS_RESULT'
+export const TRANSFER_TOKENS_ERROR = 'TRANSFER_TOKENS_ERROR'
+export const transferTokens =
+  (
+    receiverAddress: string,
+    tokenContractAddress: string,
+    tokenAmount: number,
+    tokenType: string,
+    tokenId: number,
+    purpose: string,
+  ) =>
+  async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: TRANSFER_TOKENS_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .councilActionTransfer(receiverAddress, tokenContractAddress, tokenAmount, tokenType, tokenId, purpose)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Transfer Tokens...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Transfer Tokens done', 'All good :)'))
+
+      dispatch(getCouncilStorage())
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
+      dispatch({
+        type: TRANSFER_TOKENS_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: TRANSFER_TOKENS_ERROR,
+        error,
+      })
+    }
+  }
