@@ -11,16 +11,15 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // action
-import { addVestee } from '../Council.actions'
+import { requestTokenMint } from '../Council.actions'
 
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
 const INIT_FORM = {
-  vesteeAddress: '',
-  totalAllocated: '',
-  cliffInMonths: '',
-  vestingInMonths: '',
+  treasuryAddress: '',
+  tokenAmount: 0,
+  purpose: '',
 }
 
 export const CouncilFormRequestTokenMint = () => {
@@ -28,24 +27,22 @@ export const CouncilFormRequestTokenMint = () => {
   const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    vesteeAddress: '',
-    totalAllocated: '',
-    cliffInMonths: '',
-    vestingInMonths: '',
+    treasuryAddress: '',
+    tokenAmount: '',
+    purpose: '',
   })
 
-  const { vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths } = form
+  const { treasuryAddress, tokenAmount, purpose } = form
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     try {
-      await dispatch(addVestee(vesteeAddress, +totalAllocated, +cliffInMonths, +vestingInMonths))
+      await dispatch(requestTokenMint(treasuryAddress, +tokenAmount, purpose))
       setForm(INIT_FORM)
       setFormInputStatus({
-        vesteeAddress: '',
-        totalAllocated: '',
-        cliffInMonths: '',
-        vestingInMonths: '',
+        treasuryAddress: '',
+        tokenAmount: '',
+        purpose: '',
       })
     } catch (error) {
       console.error(error)
@@ -77,14 +74,14 @@ export const CouncilFormRequestTokenMint = () => {
           <Input
             type="text"
             required
-            value={vesteeAddress}
-            name="vesteeAddress"
+            value={treasuryAddress}
+            name="treasuryAddress"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vesteeAddress}
+            inputStatus={formInputStatus.treasuryAddress}
           />
         </div>
 
@@ -93,17 +90,32 @@ export const CouncilFormRequestTokenMint = () => {
           <Input
             type="text"
             required
-            value={vesteeAddress}
-            name="vesteeAddress"
+            value={tokenAmount}
+            name="tokenAmount"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vesteeAddress}
+            inputStatus={formInputStatus.tokenAmount}
             pinnedText={'MVK'}
           />
         </div>
+      </div>
+      <div className="textarea-group">
+        <label>Purpose for Request</label>
+        <TextArea
+          type="text"
+          required
+          value={purpose}
+          name="purpose"
+          onChange={(e) => {
+            handleChange(e)
+            handleBlur(e)
+          }}
+          onBlur={(e) => handleBlur(e)}
+          inputStatus={formInputStatus.purpose}
+        />
       </div>
       <div className="btn-group">
         <Button text="Request Mint" className="plus-btn" kind={'actionPrimary'} icon="coin-loan" type="submit" />

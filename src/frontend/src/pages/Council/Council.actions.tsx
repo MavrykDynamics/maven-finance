@@ -70,17 +70,17 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
       COUNCIL_PENDING_ACTIONS_NAME,
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
-    // const councilPendingActions = storage?.council_action_record?.length
-    //   ? storage?.council_action_record.filter((item: any) => {
-    //       const timeNow = Date.now()
-    //       const expirationDatetime = new Date(item.expiration_datetime).getTime()
-    //       const isEndedVotingTime = expirationDatetime > timeNow
-    //       const isNoSameAccountPkh = accountPkh !== item.initiator_id
-    //       return isEndedVotingTime && isNoSameAccountPkh
-    //     })
-    //   : []
+    const councilPendingActions = storage?.council_action_record?.length
+      ? storage?.council_action_record.filter((item: any) => {
+          const timeNow = Date.now()
+          const expirationDatetime = new Date(item.expiration_datetime).getTime()
+          const isEndedVotingTime = expirationDatetime > timeNow
+          const isNoSameAccountPkh = accountPkh !== item.initiator_id
+          return isEndedVotingTime && isNoSameAccountPkh
+        })
+      : []
 
-    const councilPendingActions = storage?.council_action_record
+    //const councilPendingActions = storage?.council_action_record
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,
@@ -630,6 +630,55 @@ export const requestTokens =
       dispatch(showToaster(ERROR, 'Error', error.message))
       dispatch({
         type: REQUEST_TOKENS_ERROR,
+        error,
+      })
+    }
+  }
+
+// Request Token Mint
+export const REQUEST_TOKEN_MINT_REQUEST = 'REQUEST_TOKEN_MINT_REQUEST'
+export const REQUEST_TOKEN_MINT_RESULT = 'REQUEST_TOKEN_MINT_RESULT'
+export const REQUEST_TOKEN_MINT_ERROR = 'REQUEST_TOKEN_MINT_ERROR'
+export const requestTokenMint =
+  (treasuryAddress: string, tokenAmount: number, purpose: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: REQUEST_TOKEN_MINT_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.councilActionRequestMint(treasuryAddress, tokenAmount, purpose).send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Request Tokens...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Request Tokens done', 'All good :)'))
+
+      dispatch(getCouncilStorage())
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
+      dispatch({
+        type: REQUEST_TOKEN_MINT_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REQUEST_TOKEN_MINT_ERROR,
         error,
       })
     }
