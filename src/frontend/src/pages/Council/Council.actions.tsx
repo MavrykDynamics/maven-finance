@@ -566,3 +566,71 @@ export const transferTokens =
       })
     }
   }
+
+// Request Tokens
+export const REQUEST_TOKENS_REQUEST = 'REQUEST_TOKENS_REQUEST'
+export const REQUEST_TOKENS_RESULT = 'REQUEST_TOKENS_RESULT'
+export const REQUEST_TOKENS_ERROR = 'REQUEST_TOKENS_ERROR'
+export const requestTokens =
+  (
+    treasuryAddress: string,
+    tokenContractAddress: string,
+    tokenName: string,
+    tokenAmount: number,
+    tokenType: string,
+    tokenId: number,
+    purpose: string,
+  ) =>
+  async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: REQUEST_TOKENS_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .councilActionRequestTokens(
+          treasuryAddress,
+          tokenContractAddress,
+          tokenName,
+          tokenAmount,
+          tokenType,
+          tokenId,
+          purpose,
+        )
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Request Tokens...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Request Tokens done', 'All good :)'))
+
+      dispatch(getCouncilStorage())
+      dispatch(getCouncilPastActionsStorage())
+      dispatch(getCouncilPendingActionsStorage())
+      dispatch({
+        type: REQUEST_TOKENS_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REQUEST_TOKENS_ERROR,
+        error,
+      })
+    }
+  }
