@@ -58,8 +58,8 @@ export const Council = () => {
     { text: 'Remove Council Member', value: 'removeCouncilMember' }, // ок tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
     { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' }, // ok tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
     { text: 'Transfer Tokens', value: 'transferTokens' }, // ok
-    { text: 'Request Tokens', value: 'requestTokens' },
-    { text: 'Request Token Mint', value: 'requestTokenMint' },
+    { text: 'Request Tokens', value: 'requestTokens' }, // ok
+    { text: 'Request Token Mint', value: 'requestTokenMint' }, // ok
     { text: 'Drop Financial Request', value: 'dropFinancialRequest' },
   ]
 
