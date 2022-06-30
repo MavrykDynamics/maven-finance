@@ -14,6 +14,6 @@ export const TREASURYS_COLORS = [
   '#C0DBFF',
 ]
 
-export const DEFAULT_STROKE_WIDTH = 18
+export const DEFAULT_STROKE_WIDTH = 19
 
 export const HIGHLIGHTED_STROKE_WIDTH = 25

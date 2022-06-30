@@ -26,12 +26,17 @@ export const Treasury = () => {
   const loading = useSelector((state: State) => state.loading)
   const { treasuryStorage, treasuryFactoryAddress } = useSelector((state: State) => state.treasury)
 
-  const itemsForDropDown = [{ text: 'Choose treasury', value: '' }].concat(
-    treasuryStorage.map((treasury) => ({
-      text: treasury.name,
-      value: treasury.address,
-    })),
-  )
+  const itemsForDropDown = [{ text: 'Choose treasury', value: '' }]
+    .concat(
+      treasuryStorage.map((treasury) => ({
+        text: treasury.name,
+        value: treasury.address,
+      })),
+    )
+    .map((item) => ({
+      ...item,
+      text: item.text.toUpperCase(),
+    }))
 
   const ddItems = useMemo(() => itemsForDropDown.map((item) => item.text), [itemsForDropDown])
   const [ddIsOpen, setDdIsOpen] = useState(false)
