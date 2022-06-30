@@ -11,16 +11,19 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // action
-import { addVestee } from '../Council.actions'
+import { requestTokens } from '../Council.actions'
 
 // style
 import { CouncilFormStyled } from './CouncilForms.style'
 
 const INIT_FORM = {
-  vesteeAddress: '',
-  totalAllocated: '',
-  cliffInMonths: '',
-  vestingInMonths: '',
+  treasuryAddress: '',
+  tokenContractAddress: '',
+  tokenName: '',
+  tokenAmount: 0,
+  tokenType: '',
+  tokenId: 0,
+  purpose: '',
 }
 
 export const CouncilFormRequestTokens = () => {
@@ -28,24 +31,32 @@ export const CouncilFormRequestTokens = () => {
   const [form, setForm] = useState(INIT_FORM)
 
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
-    vesteeAddress: '',
-    totalAllocated: '',
-    cliffInMonths: '',
-    vestingInMonths: '',
+    treasuryAddress: '',
+    tokenContractAddress: '',
+    tokenName: '',
+    tokenAmount: '',
+    tokenType: '',
+    tokenId: '',
+    purpose: '',
   })
 
-  const { vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths } = form
+  const { treasuryAddress, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose } = form
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     try {
-      await dispatch(addVestee(vesteeAddress, +totalAllocated, +cliffInMonths, +vestingInMonths))
+      await dispatch(
+        requestTokens(treasuryAddress, tokenContractAddress, tokenName, +tokenAmount, tokenType, +tokenId, purpose),
+      )
       setForm(INIT_FORM)
       setFormInputStatus({
-        vesteeAddress: '',
-        totalAllocated: '',
-        cliffInMonths: '',
-        vestingInMonths: '',
+        treasuryAddress: '',
+        tokenContractAddress: '',
+        tokenName: '',
+        tokenAmount: '',
+        tokenType: '',
+        tokenId: '',
+        purpose: '',
       })
     } catch (error) {
       console.error(error)
@@ -77,14 +88,14 @@ export const CouncilFormRequestTokens = () => {
           <Input
             type="text"
             required
-            value={vesteeAddress}
-            name="vesteeAddress"
+            value={treasuryAddress}
+            name="treasuryAddress"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vesteeAddress}
+            inputStatus={formInputStatus.treasuryAddress}
           />
         </div>
 
@@ -93,30 +104,30 @@ export const CouncilFormRequestTokens = () => {
           <Input
             type="text"
             required
-            value={vesteeAddress}
-            name="vesteeAddress"
+            value={tokenContractAddress}
+            name="tokenContractAddress"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vesteeAddress}
+            inputStatus={formInputStatus.tokenContractAddress}
           />
         </div>
 
         <div>
-          <label>Token Contract Address</label>
+          <label>Token Name</label>
           <Input
             type="text"
             required
-            value={vesteeAddress}
-            name="vesteeAddress"
+            value={tokenName}
+            name="tokenName"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vesteeAddress}
+            inputStatus={formInputStatus.tokenName}
           />
         </div>
 
@@ -125,30 +136,30 @@ export const CouncilFormRequestTokens = () => {
           <Input
             type="number"
             required
-            value={totalAllocated}
-            name="totalAllocated"
+            value={tokenAmount}
+            name="tokenAmount"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.totalAllocated}
+            inputStatus={formInputStatus.tokenAmount}
           />
         </div>
 
         <div>
-          <label>Token Contract Address</label>
+          <label>Token Type (FA12, FA2, TEZ)</label>
           <Input
             type="text"
             required
-            value={vesteeAddress}
-            name="vesteeAddress"
+            value={tokenType}
+            name="tokenType"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.vesteeAddress}
+            inputStatus={formInputStatus.tokenType}
           />
         </div>
 
@@ -157,14 +168,14 @@ export const CouncilFormRequestTokens = () => {
           <Input
             type="number"
             required
-            value={cliffInMonths}
-            name="cliffInMonths"
+            value={tokenId}
+            name="tokenId"
             onChange={(e) => {
               handleChange(e)
               handleBlur(e)
             }}
             onBlur={(e) => handleBlur(e)}
-            inputStatus={formInputStatus.cliffInMonths}
+            inputStatus={formInputStatus.tokenId}
           />
         </div>
       </div>
@@ -173,14 +184,14 @@ export const CouncilFormRequestTokens = () => {
         <TextArea
           type="text"
           required
-          value={vesteeAddress}
-          name="vesteeAddress"
+          value={purpose}
+          name="purpose"
           onChange={(e) => {
             handleChange(e)
             handleBlur(e)
           }}
           onBlur={(e) => handleBlur(e)}
-          inputStatus={formInputStatus.vesteeAddress}
+          inputStatus={formInputStatus.purpose}
         />
       </div>
       <div className="btn-group">
