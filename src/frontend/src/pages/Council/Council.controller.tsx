@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -48,18 +48,26 @@ export const Council = () => {
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
   const isPendindList = councilPendingActions.length && isUserInCouncilMembers
 
+  const curentCouncilPastActions = useMemo(
+    () =>
+      isPendingSignature
+        ? councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh)
+        : councilPastActions,
+    [councilPastActions, accountPkh, isPendingSignature],
+  )
+
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
-    { text: 'Add Vestee', value: 'addVestee' }, // ok tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
-    { text: 'Add Council Member', value: 'addCouncilMember' }, // ok tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L
-    { text: 'Update Vestee', value: 'updateVestee' }, // ок tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
-    { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' }, // ок tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD
-    { text: 'Change Council Member', value: 'changeCouncilMember' }, //ok tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD / tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr
-    { text: 'Remove Council Member', value: 'removeCouncilMember' }, // ок tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1
-    { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' }, // ok tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM
-    { text: 'Transfer Tokens', value: 'transferTokens' }, // ok
-    { text: 'Request Tokens', value: 'requestTokens' }, // ok
-    { text: 'Request Token Mint', value: 'requestTokenMint' }, // ok
+    { text: 'Add Vestee', value: 'addVestee' },
+    { text: 'Add Council Member', value: 'addCouncilMember' },
+    { text: 'Update Vestee', value: 'updateVestee' },
+    { text: 'Toggle Vestee Lock', value: 'toggleVesteeLock' },
+    { text: 'Change Council Member', value: 'changeCouncilMember' },
+    { text: 'Remove Council Member', value: 'removeCouncilMember' },
+    { text: 'Update Council Member Info', value: 'updateCouncilMemberInfo' },
+    { text: 'Transfer Tokens', value: 'transferTokens' },
+    { text: 'Request Tokens', value: 'requestTokens' },
+    { text: 'Request Token Mint', value: 'requestTokenMint' },
     { text: 'Drop Financial Request', value: 'dropFinancialRequest' },
   ]
 
@@ -93,10 +101,6 @@ export const Council = () => {
   useEffect(() => {
     setIsPendingSignature(Boolean(isUserInCouncilMembers))
   }, [isUserInCouncilMembers])
-
-  useEffect(() => {
-    // re get data
-  }, [isPendingSignature])
 
   return (
     <Page>
@@ -170,12 +174,12 @@ export const Council = () => {
               </DropdownCard>
             ) : null}
 
-            {councilPastActions?.length ? (
+            {curentCouncilPastActions?.length ? (
               <>
                 <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
                   {isPendingSignature ? 'My ' : null}Past Council Actions
                 </h1>
-                {councilPastActions.map((item: CouncilPastAction) => (
+                {curentCouncilPastActions.map((item: CouncilPastAction) => (
                   <CouncilPastActionView
                     executed_datetime={item.executed_datetime}
                     key={item.id}
