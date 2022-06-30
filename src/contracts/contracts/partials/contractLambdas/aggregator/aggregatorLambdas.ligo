@@ -436,6 +436,7 @@ block{
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
                 checkOracleIsNotBannedForDeviationTrigger(s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
 
                 // check if Tez sent is equal to request rate deposit fee (if any)
                 const requestRateDeviationDepositFee : nat = s.config.requestRateDeviationDepositFee;
