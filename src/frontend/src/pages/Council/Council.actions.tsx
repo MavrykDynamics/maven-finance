@@ -683,3 +683,51 @@ export const requestTokenMint =
       })
     }
   }
+
+// Drop Financial Request
+export const DROP_FINANCICAL_REQUEST = 'DROP_FINANCICAL_REQUEST'
+export const DROP_FINANCICAL_RESULT = 'DROP_FINANCICAL_RESULT'
+export const DROP_FINANCICAL_ERROR = 'DROP_FINANCICAL_ERROR'
+export const dropFinancialRequest = (financialReqID: number) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: DROP_FINANCICAL_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.councilActionDropFinancialReq(financialReqID).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Drop Financial Request...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Drop Financial Request done', 'All good :)'))
+
+    dispatch(getCouncilStorage())
+    dispatch(getCouncilPastActionsStorage())
+    dispatch(getCouncilPendingActionsStorage())
+    dispatch({
+      type: DROP_FINANCICAL_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: DROP_FINANCICAL_ERROR,
+      error,
+    })
+  }
+}

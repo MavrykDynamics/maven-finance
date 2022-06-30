@@ -20,7 +20,7 @@ import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploa
 import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // action
-import { removeCouncilMember } from '../Council.actions'
+import { dropFinancialRequest } from '../Council.actions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 
 // style
@@ -28,36 +28,46 @@ import { CouncilFormStyled } from './CouncilForms.style'
 
 export const CouncilFormDropFinancialRequest = () => {
   const dispatch = useDispatch()
-  const { councilStorage } = useSelector((state: State) => state.council)
-  const { councilMembers } = councilStorage
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { financialRequestLedger } = governanceStorage
 
-  const itemsForDropDown = [
-    { text: 'Test 0', value: 'satelliteFee' },
-    { text: 'Test 1', value: 'totalDelegatedAmount' },
-    { text: 'Test 2', value: 'participation' },
-  ]
+  const itemsForDropDown = useMemo(
+    () =>
+      financialRequestLedger?.length
+        ? [
+            { text: 'Choose Financial Request', value: '' },
+            ...financialRequestLedger.map((item: any, i: number) => {
+              return {
+                text: `${i + 1}-${item.request_purpose}`,
+                value: item.id,
+              }
+            }),
+          ]
+        : [{ text: 'Choose Financial Request', value: '' }],
+    [financialRequestLedger],
+  )
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   const [form, setForm] = useState({
-    memberAddress: '',
+    financialReqID: '',
   })
 
-  const { memberAddress } = form
+  const { financialReqID } = form
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     try {
-      if (!memberAddress) {
+      if (!financialReqID) {
         dispatch(showToaster(ERROR, 'Please enter valid function parameter', 'Choose Financial Request to drop'))
         return
       }
 
-      await dispatch(removeCouncilMember(memberAddress))
+      await dispatch(dropFinancialRequest(+financialReqID))
       setForm({
-        memberAddress: '',
+        financialReqID: '',
       })
 
       setChosenDdItem(itemsForDropDown[0])
@@ -72,7 +82,7 @@ export const CouncilFormDropFinancialRequest = () => {
 
   const handleSelect = (item: any) => {
     setForm((prev) => {
-      return { ...prev, oldCouncilMemberAddress: item.value }
+      return { ...prev, financialReqID: item.value }
     })
   }
 
