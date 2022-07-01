@@ -42,6 +42,7 @@ export const Council = () => {
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const [isGoback, setIsGoback] = useState(false)
+  const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(false)
   const { councilMembers } = councilStorage
 
@@ -96,6 +97,7 @@ export const Council = () => {
 
   useEffect(() => {
     if (accountPkh) dispatch(getCouncilPendingActionsStorage())
+    setSliderKey(sliderKey + 1)
   }, [accountPkh])
 
   useEffect(() => {
@@ -128,7 +130,7 @@ export const Council = () => {
                 </h1>
                 <article className="pending">
                   <div className="pending-items">
-                    <Carousel>
+                    <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>
                       {councilPendingActions.map((item) => (
                         <CouncilPendingView
                           executed_datetime={item.executed_datetime}
@@ -138,6 +140,7 @@ export const Council = () => {
                           signers_count={item.signers_count}
                           initiator_id={item.initiator_id}
                           num_council_members={councilMembers.length}
+                          councilPendingActionsLength={councilPendingActions?.length}
                         />
                       ))}
                     </Carousel>

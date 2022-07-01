@@ -26,6 +26,8 @@ export const CouncilFormAddCouncilMember = () => {
     newMemberImage: '',
   })
 
+  const [uploadKey, setUploadKey] = useState(1)
+
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
     newMemberAddress: '',
     newMemberName: '',
@@ -53,8 +55,10 @@ export const CouncilFormAddCouncilMember = () => {
         newMemberWebsite: '',
         newMemberImage: '',
       })
+      setUploadKey(uploadKey + 1)
     } catch (error) {
       console.error(error)
+      setUploadKey(uploadKey + 1)
     }
   }
 
@@ -128,10 +132,12 @@ export const CouncilFormAddCouncilMember = () => {
       </div>
       <IPFSUploader
         disabled={disabled}
+        key={uploadKey}
         typeFile="image"
         imageIpfsUrl={newMemberImage}
         className="form-ipfs"
         setIpfsImageUrl={(e: any) => {
+          console.log('%c ||||| e', 'color:yellowgreen', e)
           setForm({ ...form, newMemberImage: e })
           setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
         }}

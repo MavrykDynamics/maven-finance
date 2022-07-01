@@ -5,11 +5,16 @@ import { CarouselStyle, CarouselViewport, CarouselContainer, CarouselButton } fr
 
 type Props = {
   children: React.ReactNode
+  itemLength: number
 }
 
 const Carousel = (props: Props) => {
-  const { children } = props
-  const [viewportRef, embla] = useEmblaCarousel({ loop: false, slidesToScroll: 3, skipSnaps: false })
+  const { children, itemLength } = props
+  const options: any = { containScroll: 'keepSnaps', dragFree: true }
+  // for scroll 3 items
+  // const [viewportRef, embla] = useEmblaCarousel({ loop: false, slidesToScroll: 3, skipSnaps: false })
+  // for Variable Widths
+  const [viewportRef, embla] = useEmblaCarousel(options)
   const [prevBtnEnabled, setPrevBtnEnabled] = useState(false)
   const [nextBtnEnabled, setNextBtnEnabled] = useState(false)
 
@@ -27,6 +32,11 @@ const Carousel = (props: Props) => {
     onSelect()
   }, [embla, onSelect])
 
+  useEffect(() => {
+    if (!embla) return
+    embla.reInit(options)
+  }, [children])
+
   const arrowIcon = (
     <svg>
       <use xlinkHref="/icons/sprites.svg#arrow-down" />
@@ -37,12 +47,16 @@ const Carousel = (props: Props) => {
       <CarouselViewport ref={viewportRef}>
         <CarouselContainer>{children}</CarouselContainer>
       </CarouselViewport>
-      <CarouselButton className="button--prev" onClick={scrollPrev} disabled={!prevBtnEnabled}>
-        {arrowIcon}
-      </CarouselButton>
-      <CarouselButton className="button--next" onClick={scrollNext} disabled={!nextBtnEnabled}>
-        {arrowIcon}
-      </CarouselButton>
+      {itemLength > 1 ? (
+        <>
+          <CarouselButton className="button--prev" onClick={scrollPrev} disabled={!prevBtnEnabled}>
+            {arrowIcon}
+          </CarouselButton>
+          <CarouselButton className="button--next" onClick={scrollNext} disabled={!nextBtnEnabled}>
+            {arrowIcon}
+          </CarouselButton>
+        </>
+      ) : null}
     </CarouselStyle>
   )
 }

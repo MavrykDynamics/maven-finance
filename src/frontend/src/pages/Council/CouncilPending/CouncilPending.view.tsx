@@ -20,11 +20,20 @@ type Props = {
   signers_count: number
   num_council_members: number
   id: number
+  councilPendingActionsLength: number
 }
 
 export const CouncilPendingView = (props: Props) => {
   const dispatch = useDispatch()
-  const { executed_datetime, action_type, signers_count, num_council_members, initiator_id, id } = props
+  const {
+    executed_datetime,
+    action_type,
+    signers_count,
+    num_council_members,
+    initiator_id,
+    id,
+    councilPendingActionsLength,
+  } = props
 
   const handleSign = () => {
     if (id) {
@@ -33,7 +42,7 @@ export const CouncilPendingView = (props: Props) => {
   }
 
   return (
-    <CouncilPendingStyled>
+    <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
       <h3>{getSeparateCamelCase(action_type)}</h3>
       <div className="parameters">
         <p>Parameters</p>
