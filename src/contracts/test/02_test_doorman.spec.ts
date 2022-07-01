@@ -680,7 +680,7 @@
 //                 doormanStorage  = await doormanInstance.storage();
 //                 console.log("AFTER PAUSE ALL: ", doormanStorage.breakGlassConfig)
 
-//                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("toggleCompound", false).send();
+//                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("compound", false).send();
 //                 await pauseOperation.confirmation();
 
 //                 // Operations
@@ -698,7 +698,7 @@
 //                 assert.equal(unstakePaused, true)
 
 //                 // Reset compound
-//                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("toggleCompound", true).send();
+//                 pauseOperation = await doormanInstance.methods.togglePauseEntrypoint("compound", true).send();
 //                 await pauseOperation.confirmation();
 //             } catch(e) {
 //                 console.dir(e, {depth: 5})

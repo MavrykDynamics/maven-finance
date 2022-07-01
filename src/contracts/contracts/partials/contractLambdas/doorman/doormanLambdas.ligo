@@ -283,13 +283,13 @@ block {
     checkSenderIsAdmin(s);
 
     case doormanLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleStake (_v)            -> s.breakGlassConfig.stakeIsPaused := _v
-                |   ToggleUnstake (_v)          -> s.breakGlassConfig.unstakeIsPaused := _v
-                |   ToggleCompound (_v)         -> s.breakGlassConfig.compoundIsPaused := _v
-                |   ToggleFarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused := _v
+                case params.targetEntrypoint of [
+                    Stake (_v)            -> s.breakGlassConfig.stakeIsPaused := _v
+                |   Unstake (_v)          -> s.breakGlassConfig.unstakeIsPaused := _v
+                |   Compound (_v)         -> s.breakGlassConfig.compoundIsPaused := _v
+                |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused := _v
                 ]
                 
             }

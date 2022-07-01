@@ -223,14 +223,14 @@ block {
     checkSenderIsAdmin(s);
 
     case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleCreateAggregator (_v)             -> s.breakGlassConfig.createAggregatorIsPaused := _v
-                |   ToggleUntrackAggregator (_v)            -> s.breakGlassConfig.untrackAggregatorIsPaused := _v
-                |   ToggleTrackAggregator (_v)              -> s.breakGlassConfig.trackAggregatorIsPaused := _v
-                |   ToggleDistributeRewardXtz (_v)          -> s.breakGlassConfig.distributeRewardXtzIsPaused := _v
-                |   ToggleDistributeRewardSmvk (_v)         -> s.breakGlassConfig.distributeRewardStakedMvkIsPaused := _v
+                case params.targetEntrypoint of [
+                    CreateAggregator (_v)             -> s.breakGlassConfig.createAggregatorIsPaused := _v
+                |   UntrackAggregator (_v)            -> s.breakGlassConfig.untrackAggregatorIsPaused := _v
+                |   TrackAggregator (_v)              -> s.breakGlassConfig.trackAggregatorIsPaused := _v
+                |   DistributeRewardXtz (_v)          -> s.breakGlassConfig.distributeRewardXtzIsPaused := _v
+                |   DistributeRewardStakedMvk (_v)    -> s.breakGlassConfig.distributeRewardStakedMvkIsPaused := _v
                 ]
                 
             }

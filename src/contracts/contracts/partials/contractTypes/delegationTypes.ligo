@@ -116,13 +116,18 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
     newStatus               : string;
 ]
 
-type delegationTogglePauseEntrypointType is
-  ToggleDelegateToSatellite             of bool
-| ToggleUndelegateSatellite             of bool
-| ToggleRegisterSatellite               of bool
-| ToggleUnregisterSatellite             of bool
-| ToggleUpdateSatellite                 of bool
-| ToggleDistributeReward                of bool
+type delegationPausableEntrypointType is
+  DelegateToSatellite             of bool
+| UndelegateFromSatellite         of bool
+| RegisterAsSatellite             of bool
+| UnregisterAsSatellite           of bool
+| UpdateSatelliteRecord           of bool
+| DistributeReward                of bool
+
+type delegationTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : delegationPausableEntrypointType;
+    empty             : unit
+];
 
 type delegationLambdaActionType is 
 

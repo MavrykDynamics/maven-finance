@@ -59,12 +59,17 @@ type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 (* togglePauseEntrypoint entrypoint inputs *)
-type aggregatorFactoryTogglePauseEntrypointType is
-    ToggleCreateAggregator        of bool
-|   ToggleUntrackAggregator       of bool
-|   ToggleTrackAggregator         of bool
-|   ToggleDistributeRewardXtz     of bool
-|   ToggleDistributeRewardSmvk    of bool
+type aggregatorFactoryPausableEntrypointType is
+    CreateAggregator            of bool
+|   UntrackAggregator           of bool
+|   TrackAggregator             of bool
+|   DistributeRewardXtz         of bool
+|   DistributeRewardStakedMvk   of bool
+
+type aggregatorFactoryTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : aggregatorFactoryPausableEntrypointType;
+    empty             : unit
+];
 
 type aggregatorFactoryLambdaActionType is 
     

@@ -89,7 +89,6 @@ const storages = {
             minQuorumPercentage         = 1000n;
             minYayVotePercentage        = 5100n;
             
-            votingPowerRatio            = 10000n;
             proposalSubmissionFee       = 10000000n;
             maxProposalsPerSatellite    = 20n;
             

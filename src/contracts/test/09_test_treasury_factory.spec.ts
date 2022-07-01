@@ -153,7 +153,7 @@
 //                     const isPausedStart            = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
 
 //                     // Operation
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleCreateTreasury", true).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", true).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Final values
@@ -167,7 +167,7 @@
 //                     ).send()).to.be.rejected;
     
 //                     // Reset admin
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleCreateTreasury", false).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", false).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Assertions
@@ -185,7 +185,7 @@
 //                     const isPausedStart            = treasuryFactoryStorage.breakGlassConfig.trackTreasuryIsPaused
 
 //                     // Operation
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleTrackTreasury", true).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", true).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Final values
@@ -195,7 +195,7 @@
 //                     await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryAddress.address).send()).to.be.rejected;
     
 //                     // Reset admin
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleTrackTreasury", false).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", false).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Assertions
@@ -213,7 +213,7 @@
 //                     const isPausedStart            = treasuryFactoryStorage.breakGlassConfig.untrackTreasuryIsPaused
 
 //                     // Operation
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackTreasury", true).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", true).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Final values
@@ -223,7 +223,7 @@
 //                     await chai.expect(treasuryFactoryInstance.methods.untrackTreasury(treasuryAddress.address).send()).to.be.rejected;
     
 //                     // Reset admin
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackTreasury", false).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", false).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Assertions
@@ -237,7 +237,7 @@
 //             it('Non-admin should not be able to call the entrypoint', async () => {
 //                 try{
 //                     await signerFactory(alice.sk);
-//                     await chai.expect(treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackTreasury", true).send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", true).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -380,7 +380,7 @@
 //                     const isPausedStart            = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
 
 //                     // Operation
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleCreateTreasury", true).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", true).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Final values
@@ -394,7 +394,7 @@
 //                     ).send()).to.be.rejected;
     
 //                     // Reset admin
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleCreateTreasury", false).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", false).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Assertions
@@ -437,7 +437,7 @@
 //                     const isPausedStart             = treasuryFactoryStorage.breakGlassConfig.trackTreasuryIsPaused
 
 //                     // Operation
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleTrackTreasury", true).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", true).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Final values
@@ -447,7 +447,7 @@
 //                     await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryAddress.address).send()).to.be.rejected;
     
 //                     // Reset admin
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleTrackTreasury", false).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", false).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Assertions
@@ -524,7 +524,7 @@
 //                     const isPausedStart             = treasuryFactoryStorage.breakGlassConfig.untrackTreasuryIsPaused
 
 //                     // Operation
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackTreasury", true).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", true).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Final values
@@ -534,7 +534,7 @@
 //                     await chai.expect(treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack).send()).to.be.rejected;
     
 //                     // Reset admin
-//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackTreasury", false).send();
+//                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", false).send();
 //                     await togglePauseOperation.confirmation();
     
 //                     // Assertions

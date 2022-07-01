@@ -344,15 +344,15 @@ block {
     checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleRequestRateUpdate (_v)            -> s.breakGlassConfig.requestRateUpdateIsPaused := _v
-                |   ToggleRequestRateUpdateDev (_v)         -> s.breakGlassConfig.requestRateUpdateDeviationIsPaused := _v
-                |   ToggleSetObservationCommit (_v)         -> s.breakGlassConfig.setObservationCommitIsPaused := _v
-                |   ToggleSetObservationReveal (_v)         -> s.breakGlassConfig.setObservationRevealIsPaused := _v
-                |   ToggleWithdrawRewardXtz (_v)            -> s.breakGlassConfig.withdrawRewardXtzIsPaused := _v
-                |   ToggleWithdrawRewardStakedMvk (_v)      -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := _v
+                case params.targetEntrypoint of [
+                    RequestRateUpdate (_v)              -> s.breakGlassConfig.requestRateUpdateIsPaused := _v
+                |   RequestRateUpdateDeviation (_v)     -> s.breakGlassConfig.requestRateUpdateDeviationIsPaused := _v
+                |   SetObservationCommit (_v)           -> s.breakGlassConfig.setObservationCommitIsPaused := _v
+                |   SetObservationReveal (_v)           -> s.breakGlassConfig.setObservationRevealIsPaused := _v
+                |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused := _v
+                |   WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := _v
                 ]
                 
             }

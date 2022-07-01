@@ -255,13 +255,13 @@ block {
     checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleTransfer (_v)             -> s.breakGlassConfig.transferIsPaused := _v
-                |   ToggleMintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused := _v
-                |   ToggleStakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused := _v
-                |   ToggleUnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused := _v
+                case params.targetEntrypoint of [
+                    Transfer (_v)             -> s.breakGlassConfig.transferIsPaused := _v
+                |   MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused := _v
+                |   StakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused := _v
+                |   UnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused := _v
                 ]
                 
             }

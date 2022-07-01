@@ -273,12 +273,12 @@ block {
     checkSenderIsAdmin(s);
 
     case farmFactoryLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleCreateFarm (_v)           -> s.breakGlassConfig.createFarmIsPaused := _v
-                |   ToggleUntrackFarm (_v)          -> s.breakGlassConfig.untrackFarmIsPaused := _v
-                |   ToggleTrackFarm (_v)            -> s.breakGlassConfig.trackFarmIsPaused := _v
+                case params.targetEntrypoint of [
+                    CreateFarm (_v)           -> s.breakGlassConfig.createFarmIsPaused := _v
+                |   UntrackFarm (_v)          -> s.breakGlassConfig.untrackFarmIsPaused := _v
+                |   TrackFarm (_v)            -> s.breakGlassConfig.trackFarmIsPaused := _v
                 ]
                 
             }

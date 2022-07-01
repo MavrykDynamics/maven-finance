@@ -406,12 +406,12 @@ block {
     checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleDeposit (_v)       -> s.breakGlassConfig.depositIsPaused := _v
-                |   ToggleWithdraw (_v)      -> s.breakGlassConfig.withdrawIsPaused := _v
-                |   ToggleClaim (_v)         -> s.breakGlassConfig.claimIsPaused := _v
+                case params.targetEntrypoint of [
+                    Deposit (_v)       -> s.breakGlassConfig.depositIsPaused := _v
+                |   Withdraw (_v)      -> s.breakGlassConfig.withdrawIsPaused := _v
+                |   Claim (_v)         -> s.breakGlassConfig.claimIsPaused := _v
                 ]
                 
             }
