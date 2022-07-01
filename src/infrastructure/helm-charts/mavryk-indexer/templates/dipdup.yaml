@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.13
+          image: tezosdynamics/mavryk-indexer:v0.4.0
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.13
+          image: tezosdynamics/mavryk-indexer:v0.4.0
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -127,43 +127,52 @@ data:
 
     contracts:
       mvk:
-        address: KT1JMNii1SQya2hXK4YKeNKzdsY13jKmasCL
+        address: KT1KgUQ26ciUCrkZrDoV26ezvW2TiZTjZ1TQ
         typename: mvk
       governance:
-        address: KT1V7V1hRfjcTxyJeBDjYksngtMQUvtWWwa4
+        address: KT1XYGTH2ogxW1roAYWrTtUcsXVyu414shxM
         typename: governance
       doorman:
-        address: KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm
+        address: KT1EbCBmz4sdEiVs4R4iUgeEm4hZzjuJ6xMD
         typename: doorman
       farm:
-        address: KT1L7qz1p4bDQc9QfpdMFPe6NEbuWqoPYjxJ #KT1GeLhRbTiCqhuJDVt5WdSsixKE14Ckvq23
+        address: KT1B1AiBSiG2z8mPZvgKc5Rv1WxoKJVWw27t
         typename: farm
       farm_factory:
-        address: KT1Wzw6wCyn6NL87Zbk3BANGzTwXV3Nadsgx
+        address: KT1LwHbAUBvTbRZbr2tgRHykrYvZD4x76rSa
         typename: farm_factory
       delegation:
-        address: KT1UYJoRz8BcsXv3SCzSnySVFcuWJQ5eebcb
+        address: KT1CMAgdQipgpTZ2ejW6xWeE7TVdbKefTdmQ
         typename: delegation
       vesting:
-        address: KT1XYzCK6byh9HUpLP2poHrfBkv6hBLwvieH
+        address: KT1EBHf15fU5Dho88DDpzrZkh5v9EfRTLHZT
         typename: vesting
       emergency_governance:
-        address: KT1Mrp2aNC11vTDcXBZykyYpuYfXjGdJ755n
+        address: KT1TiPdAN9SpKFL23WcYqFsgwPxq6d4YoG7v
         typename: emergency_governance
       council:
-        address: KT192JmK3PQKnXfHRDj9LUUAvmPY4unVsXkB
+        address: KT1CkevWWpee584oiZXAmm78vTWiYezSK5ZQ
         typename: council
       break_glass:
-        address: KT1K2J38WHQbdrYgCqD8fW5gGFAaUXbmv3XT
+        address: KT1XsnpSVhTfCHG9Eq2eYAC8arvM6oE9tZvv
         typename: break_glass
       governance_financial:
-        address: KT1JZNNKR55c2GqYf2AFbkSb5ZbE48kez5th
+        address: KT1NAuqiAaS4rTiGxqWU6C4yUHEN7LFBkpQb
         typename: governance_financial
+      governance_satellite:
+        address: KT1QdNZVmU6eHQUiw74E47E4kExWNK3vazbG
+        typename: governance_satellite
+      aggregator:
+        address: KT1HitmjJgX6MccVJ8o5pvUco3p4iStohJHi
+        typename: aggregator
+      aggregator_factory:
+        address: KT1RjYz5QD5EfcRicmzuiYfXH2rQmCpgvcZe
+        typename: aggregator_factory
       treasury:
-        address: KT1TT97ADiJzSSeyewGbvywqzjLyEdnPxJym
+        address: KT1HyW4eKjp6igpH6HNuwwPrVnkbf8wajZU2
         typename: treasury
       treasury_factory:
-        address: KT1RsWRcTxMSWhq9EpCeHxtZL7nFpLdQ1UXT
+        address: KT1Q58LZnrNh5ETnofJtj3KFyCNMJFwmgWd2
         typename: treasury_factory
 
     datasources:
@@ -222,18 +231,10 @@ data:
             pattern:
               - destination: <farm_contract>
                 entrypoint: unpauseAll
-          - callback: on_farm_toggle_pause_deposit
+          - callback: on_farm_toggle_pause_entrypoint
             pattern:
               - destination: <farm_contract>
-                entrypoint: togglePauseDeposit
-          - callback: on_farm_toggle_pause_withdraw
-            pattern:
-              - destination: <farm_contract>
-                entrypoint: togglePauseWithdraw
-          - callback: on_farm_toggle_pause_claim
-            pattern:
-              - destination: <farm_contract>
-                entrypoint: togglePauseClaim
+                entrypoint: togglePauseEntrypoint
           - callback: on_farm_deposit
             pattern:
               - destination: <farm_contract>
@@ -284,26 +285,92 @@ data:
             pattern:
               - destination: <treasury_contract>
                 entrypoint: unpauseAll
-          - callback: on_treasury_toggle_pause_transfer
+          - callback: on_treasury_toggle_pause_entrypoint
             pattern:
               - destination: <treasury_contract>
-                entrypoint: togglePauseTransfer
-          - callback: on_treasury_toggle_pause_mint_mvk_and_transfer
-            pattern:
-              - destination: <treasury_contract>
-                entrypoint: togglePauseMintMvkAndTransfer
-          - callback: on_treasury_toggle_pause_stake_mvk
-            pattern:
-              - destination: <treasury_contract>
-                entrypoint: togglePauseStakeMvk
-          - callback: on_treasury_toggle_pause_unstake_mvk
-            pattern:
-              - destination: <treasury_contract>
-                entrypoint: togglePauseUnstakeMvk
+                entrypoint: togglePauseEntrypoint
           - callback: on_treasury_transfer
             pattern:
               - destination: <treasury_contract>
                 entrypoint: transfer
+      # Template for aggregator factory
+      aggregator_template:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - <aggregator_contract>
+        handlers:
+          - callback: on_aggregator_set_admin
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setAdmin
+          - callback: on_aggregator_set_governance
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setGovernance
+          - callback: on_aggregator_set_maintainer
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setMaintainer
+          - callback: on_aggregator_update_config
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateConfig
+          - callback: on_aggregator_update_whitelist_contracts
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateWhitelistContracts
+          - callback: on_aggregator_update_general_contracts
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateGeneralContracts
+          - callback: on_aggregator_add_oracle
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: addOracle
+          - callback: on_aggregator_remove_oracle
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: removeOracle
+          - callback: on_aggregator_pause_all
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: pauseAll
+          - callback: on_aggregator_unpause_all
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: unpauseAll
+          - callback: on_aggregator_toggle_pause_entrypoint
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: togglePauseEntrypoint
+          - callback: on_aggregator_request_rate_update
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: requestRateUpdate
+          - callback: on_aggregator_request_rate_update_deviation
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: requestRateUpdateDeviation
+          - callback: on_aggregator_set_observation_commit
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setObservationCommit
+          - callback: on_aggregator_set_observation_reveal
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setObservationReveal
+          - callback: on_aggregator_withdraw_reward_xtz
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: withdrawRewardXtz
+          - callback: on_aggregator_withdraw_reward_staked_mvk
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: withdrawRewardStakedMvk
 
     indexes:
       # MVK Token contract indexes
@@ -465,10 +532,10 @@ data:
             pattern:
               - destination: doorman
                 entrypoint: setGovernance
-          - callback: on_doorman_update_min_mvk_amount
+          - callback: on_doorman_update_config
             pattern:
               - destination: doorman
-                entrypoint: updateMinMvkAmount
+                entrypoint: updateConfig
           - callback: on_doorman_update_whitelist_contracts
             pattern:
               - destination: doorman
@@ -485,22 +552,10 @@ data:
             pattern:
               - destination: doorman
                 entrypoint: unpauseAll
-          - callback: on_doorman_toggle_pause_stake
+          - callback: on_doorman_toggle_pause_entrypoint
             pattern:
               - destination: doorman
-                entrypoint: togglePauseStake
-          - callback: on_doorman_toggle_pause_unstake
-            pattern:
-              - destination: doorman
-                entrypoint: togglePauseUnstake
-          - callback: on_doorman_toggle_pause_compound
-            pattern:
-              - destination: doorman
-                entrypoint: togglePauseCompound
-          - callback: on_doorman_toggle_pause_farm_claim
-            pattern:
-              - destination: doorman
-                entrypoint: togglePauseFarmClaim
+                entrypoint: togglePauseEntrypoint
           - callback: on_doorman_stake
             pattern:
               - destination: doorman
@@ -577,18 +632,10 @@ data:
             pattern:
               - destination: farm
                 entrypoint: unpauseAll
-          - callback: on_farm_toggle_pause_deposit
+          - callback: on_farm_toggle_pause_entrypoint
             pattern:
               - destination: farm
-                entrypoint: togglePauseDeposit
-          - callback: on_farm_toggle_pause_withdraw
-            pattern:
-              - destination: farm
-                entrypoint: togglePauseWithdraw
-          - callback: on_farm_toggle_pause_claim
-            pattern:
-              - destination: farm
-                entrypoint: togglePauseClaim
+                entrypoint: togglePauseEntrypoint
           - callback: on_farm_deposit
             pattern:
               - destination: farm
@@ -648,18 +695,10 @@ data:
             pattern:
               - destination: farm_factory
                 entrypoint: unpauseAll
-          - callback: on_farm_factory_toggle_pause_create_farm
+          - callback: on_farm_factory_toggle_pause_entrypoint
             pattern:
               - destination: farm_factory
-                entrypoint: togglePauseCreateFarm
-          - callback: on_farm_factory_toggle_pause_track_farm
-            pattern:
-              - destination: farm_factory
-                entrypoint: togglePauseTrackFarm
-          - callback: on_farm_factory_toggle_pause_untrack_farm
-            pattern:
-              - destination: farm_factory
-                entrypoint: togglePauseUntrackFarm
+                entrypoint: togglePauseEntrypoint
           - callback: on_farm_factory_create_farm
             pattern:
               - destination: farm_factory
@@ -717,30 +756,10 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: unpauseAll
-          - callback: on_delegation_toggle_pause_delegate_to_satellite
+          - callback: on_delegation_toggle_pause_entrypoint
             pattern:
               - destination: delegation
-                entrypoint: togglePauseDelegateToSatellite
-          - callback: on_delegation_toggle_pause_undelegate_satellite
-            pattern:
-              - destination: delegation
-                entrypoint: togglePauseUndelegateSatellite
-          - callback: on_delegation_toggle_pause_register_satellite
-            pattern:
-              - destination: delegation
-                entrypoint: togglePauseRegisterSatellite
-          - callback: on_delegation_toggle_pause_unregister_satellite
-            pattern:
-              - destination: delegation
-                entrypoint: togglePauseUnregisterSatellite
-          - callback: on_delegation_toggle_pause_update_satellite
-            pattern:
-              - destination: delegation
-                entrypoint: togglePauseDelegateToSatellite
-          - callback: on_delegation_toggle_pause_distribute_reward
-            pattern:
-              - destination: delegation
-                entrypoint: togglePauseDistributeReward
+                entrypoint: togglePauseEntrypoint
           - callback: on_delegation_delegate_to_satellite
             pattern:
               - destination: delegation
@@ -765,6 +784,10 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: distributeReward
+          - callback: on_delegation_update_satellite_status
+            pattern:
+              - destination: delegation
+                entrypoint: updateSatelliteStatus
           - callback: on_delegation_on_stake_change
             pattern:
               - destination: delegation
@@ -1111,6 +1134,223 @@ data:
             pattern:
               - destination: governance_financial
                 entrypoint: voteForRequest
+      # Governance Satellite contract indexes
+      governance_satellite:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - governance_satellite
+        handlers:
+          - callback: on_governance_satellite_origination
+            pattern:
+              - type: origination
+                originated_contract: governance_satellite
+          - callback: on_governance_satellite_set_admin
+            pattern:
+              - destination: governance_satellite
+                entrypoint: setAdmin
+          - callback: on_governance_satellite_set_governance
+            pattern:
+              - destination: governance_satellite
+                entrypoint: setGovernance
+          - callback: on_governance_satellite_update_config
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateConfig
+          - callback: on_governance_satellite_update_whitelist_contracts
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateWhitelistContracts
+          - callback: on_governance_satellite_update_general_contracts
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateGeneralContracts
+          - callback: on_governance_satellite_suspend_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: suspendSatellite
+          - callback: on_governance_satellite_unsuspend_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: unsuspendSatellite
+          - callback: on_governance_satellite_ban_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: banSatellite
+          - callback: on_governance_satellite_unban_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: unbanSatellite
+          - callback: on_governance_satellite_remove_all_satellite_oracles
+            pattern:
+              - destination: governance_satellite
+                entrypoint: removeAllSatelliteOracles
+          - callback: on_governance_satellite_add_oracle_to_aggregator
+            pattern:
+              - destination: governance_satellite
+                entrypoint: addOracleToAggregator
+          - callback: on_governance_satellite_remove_oracle_in_aggregator
+            pattern:
+              - destination: governance_satellite
+                entrypoint: removeOracleInAggregator
+          - callback: on_governance_satellite_register_aggregator
+            pattern:
+              - destination: governance_satellite
+                entrypoint: registerAggregator
+          - callback: on_governance_satellite_update_aggregator_status
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateAggregatorStatus
+          - callback: on_governance_satellite_drop_action
+            pattern:
+              - destination: governance_satellite
+                entrypoint: dropAction
+          - callback: on_governance_satellite_vote_for_action
+            pattern:
+              - destination: governance_satellite
+                entrypoint: voteForAction
+      # Aggregator contract indexes
+      aggregator:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - aggregator
+        handlers:
+          - callback: on_aggregator_origination
+            pattern:
+              - type: origination
+                originated_contract: aggregator
+          - callback: on_aggregator_set_admin
+            pattern:
+              - destination: aggregator
+                entrypoint: setAdmin
+          - callback: on_aggregator_set_governance
+            pattern:
+              - destination: aggregator
+                entrypoint: setGovernance
+          - callback: on_aggregator_set_maintainer
+            pattern:
+              - destination: aggregator
+                entrypoint: setMaintainer
+          - callback: on_aggregator_update_config
+            pattern:
+              - destination: aggregator
+                entrypoint: updateConfig
+          - callback: on_aggregator_update_whitelist_contracts
+            pattern:
+              - destination: aggregator
+                entrypoint: updateWhitelistContracts
+          - callback: on_aggregator_update_general_contracts
+            pattern:
+              - destination: aggregator
+                entrypoint: updateGeneralContracts
+          - callback: on_aggregator_add_oracle
+            pattern:
+              - destination: aggregator
+                entrypoint: addOracle
+          - callback: on_aggregator_remove_oracle
+            pattern:
+              - destination: aggregator
+                entrypoint: removeOracle
+          - callback: on_aggregator_pause_all
+            pattern:
+              - destination: aggregator
+                entrypoint: pauseAll
+          - callback: on_aggregator_unpause_all
+            pattern:
+              - destination: aggregator
+                entrypoint: unpauseAll
+          - callback: on_aggregator_toggle_pause_entrypoint
+            pattern:
+              - destination: aggregator
+                entrypoint: togglePauseEntrypoint
+          - callback: on_aggregator_request_rate_update
+            pattern:
+              - destination: aggregator
+                entrypoint: requestRateUpdate
+          - callback: on_aggregator_request_rate_update_deviation
+            pattern:
+              - destination: aggregator
+                entrypoint: requestRateUpdateDeviation
+          - callback: on_aggregator_set_observation_commit
+            pattern:
+              - destination: aggregator
+                entrypoint: setObservationCommit
+          - callback: on_aggregator_set_observation_reveal
+            pattern:
+              - destination: aggregator
+                entrypoint: setObservationReveal
+          - callback: on_aggregator_withdraw_reward_xtz
+            pattern:
+              - destination: aggregator
+                entrypoint: withdrawRewardXtz
+          - callback: on_aggregator_withdraw_reward_staked_mvk
+            pattern:
+              - destination: aggregator
+                entrypoint: withdrawRewardStakedMvk
+      # Aggregator Factory contract indexes
+      aggregator_factory:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - aggregator_factory
+        handlers:
+          - callback: on_aggregator_factory_origination
+            pattern:
+              - type: origination
+                originated_contract: aggregator_factory
+          - callback: on_aggregator_factory_set_admin
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: setAdmin
+          - callback: on_aggregator_factory_set_governance
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: setGovernance
+          - callback: on_aggregator_factory_update_whitelist_contracts
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: updateWhitelistContracts
+          - callback: on_aggregator_factory_update_general_contracts
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: updateGeneralContracts
+          - callback: on_aggregator_factory_pause_all
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: pauseAll
+          - callback: on_aggregator_factory_unpause_all
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: unpauseAll
+          - callback: on_aggregator_factory_toggle_pause_entrypoint
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: togglePauseEntrypoint
+          - callback: on_aggregator_factory_create_aggregator
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: createAggregator
+              - source: aggregator_factory
+                type: origination
+                similar_to: aggregator
+          - callback: on_aggregator_factory_track_aggregator
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: trackAggregator
+          - callback: on_aggregator_factory_untrack_aggregator
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: untrackAggregator
       # Treasury contract indexes
       treasury:
         kind: operation
@@ -1153,22 +1393,10 @@ data:
             pattern:
               - destination: treasury
                 entrypoint: unpauseAll
-          - callback: on_treasury_toggle_pause_transfer
+          - callback: on_treasury_toggle_pause_entrypoint
             pattern:
               - destination: treasury
-                entrypoint: togglePauseTransfer
-          - callback: on_treasury_toggle_pause_mint_mvk_and_transfer
-            pattern:
-              - destination: treasury
-                entrypoint: togglePauseMintMvkAndTransfer
-          - callback: on_treasury_toggle_pause_stake_mvk
-            pattern:
-              - destination: treasury
-                entrypoint: togglePauseStakeMvk
-          - callback: on_treasury_toggle_pause_unstake_mvk
-            pattern:
-              - destination: treasury
-                entrypoint: togglePauseUnstakeMvk
+                entrypoint: togglePauseEntrypoint
           - callback: on_treasury_transfer
             pattern:
               - destination: treasury
@@ -1220,18 +1448,10 @@ data:
             pattern:
               - destination: treasury_factory
                 entrypoint: unpauseAll
-          - callback: on_treasury_factory_toggle_pause_create_treasury
+          - callback: on_treasury_factory_toggle_pause_entrypoint
             pattern:
               - destination: treasury_factory
-                entrypoint: togglePauseCreateTreasury
-          - callback: on_treasury_factory_toggle_pause_track_treasury
-            pattern:
-              - destination: treasury_factory
-                entrypoint: togglePauseTrackTreasury
-          - callback: on_treasury_factory_toggle_pause_untrack_treasury
-            pattern:
-              - destination: treasury_factory
-                entrypoint: togglePauseUntrackTreasury
+                entrypoint: togglePauseEntrypoint
           - callback: on_treasury_factory_create_treasury
             pattern:
               - destination: treasury_factory
