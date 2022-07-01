@@ -2,7 +2,7 @@
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.types.governance_financial.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configFinancialReqApprovalPct, UpdateConfigActionItem1 as configFinancialReqDurationDays, UpdateConfigActionItem2 as configVotingPowerRatio
+from mavryk.types.governance_financial.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configFinancialReqApprovalPct, UpdateConfigActionItem1 as configFinancialReqDurationDays
 import mavryk.models as models
 
 async def on_governance_financial_update_config(
@@ -23,7 +23,5 @@ async def on_governance_financial_update_config(
         governance_financial.fin_req_approval_percentage    = updated_value
     elif update_config_action == configFinancialReqDurationDays:
         governance_financial.fin_req_duration_in_days       = updated_value
-    elif update_config_action == configVotingPowerRatio:
-        governance_financial.voting_power_ratio             = updated_value
     
     await governance_financial.save()

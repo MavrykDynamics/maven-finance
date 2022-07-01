@@ -12,7 +12,6 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    votingPowerRatio: str
     financialRequestApprovalPercentage: str
     financialRequestDurationInDays: str
 

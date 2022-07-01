@@ -13,7 +13,6 @@ async def on_governance_satellite_origination(
     address                     = governance_satellite_origination.data.originated_contract_address
     admin                       = governance_satellite_origination.storage.admin
     governance_address          = governance_satellite_origination.storage.governanceAddress
-    voting_power_ratio          = int(governance_satellite_origination.storage.config.votingPowerRatio)
     gov_sat_approval_pct        = int(governance_satellite_origination.storage.config.governanceSatelliteApprovalPercentage)
     gov_sat_duration_in_days    = int(governance_satellite_origination.storage.config.governanceSatelliteDurationInDays)
     gov_purpose_max_length      = int(governance_satellite_origination.storage.config.governancePurposeMaxLength)
@@ -28,7 +27,6 @@ async def on_governance_satellite_origination(
         address                         = address,
         admin                           = admin,
         governance                      = governance,
-        voting_power_ratio              = voting_power_ratio,
         gov_sat_approval_percentage     = gov_sat_approval_pct,
         gov_sat_duration_in_days        = gov_sat_duration_in_days,
         gov_purpose_max_length          = gov_purpose_max_length,

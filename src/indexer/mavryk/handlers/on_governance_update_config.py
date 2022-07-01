@@ -1,6 +1,6 @@
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configBlocksPerProposalRound, UpdateConfigActionItem1 as configBlocksPerTimelockRound, UpdateConfigActionItem2 as configBlocksPerVotingRound, UpdateConfigActionItem3 as configCycleVotersReward, UpdateConfigActionItem4 as configMaxProposalsPerSatellite, UpdateConfigActionItem5 as configMinProposalRoundVotePct, UpdateConfigActionItem6 as configMinProposalRoundVotesReq, UpdateConfigActionItem7 as configMinQuorumPercentage, UpdateConfigActionItem8 as configMinYayVotePercentage, UpdateConfigActionItem9 as configProposalCodeMaxLength, UpdateConfigActionItem10 as configProposalDatTitleMaxLength, UpdateConfigActionItem11 as configProposalDescMaxLength, UpdateConfigActionItem12 as configProposalInvoiceMaxLength, UpdateConfigActionItem13 as configProposalTitleMaxLength, UpdateConfigActionItem14 as configProposeFeeMutez, UpdateConfigActionItem15 as configSuccessReward, UpdateConfigActionItem16 as configVotingPowerRatio
+from mavryk.types.governance.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configBlocksPerProposalRound, UpdateConfigActionItem1 as configBlocksPerTimelockRound, UpdateConfigActionItem2 as configBlocksPerVotingRound, UpdateConfigActionItem3 as configCycleVotersReward, UpdateConfigActionItem4 as configMaxProposalsPerSatellite, UpdateConfigActionItem5 as configMinProposalRoundVotePct, UpdateConfigActionItem6 as configMinProposalRoundVotesReq, UpdateConfigActionItem7 as configMinQuorumPercentage, UpdateConfigActionItem8 as configMinYayVotePercentage, UpdateConfigActionItem9 as configProposalCodeMaxLength, UpdateConfigActionItem10 as configProposalDatTitleMaxLength, UpdateConfigActionItem11 as configProposalDescMaxLength, UpdateConfigActionItem12 as configProposalInvoiceMaxLength, UpdateConfigActionItem13 as configProposalTitleMaxLength, UpdateConfigActionItem14 as configProposeFeeMutez, UpdateConfigActionItem15 as configSuccessReward
 from mavryk.types.governance.storage import GovernanceStorage
 from dipdup.models import Transaction
 import mavryk.models as models
@@ -52,7 +52,5 @@ async def on_governance_update_config(
         governance.proposal_submission_fee_mutez            = int(updated_value)
     elif update_config_action == configSuccessReward:
         governance.success_reward                           = float(updated_value)
-    elif update_config_action == configVotingPowerRatio:
-        governance.voting_power_ratio                       = int(updated_value)
 
     await governance.save()
