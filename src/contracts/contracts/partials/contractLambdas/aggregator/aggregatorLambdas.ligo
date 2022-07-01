@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);     
@@ -45,7 +45,7 @@ block {
 
 
 (*  setMaintainer lambda *)
-function lambdaSetMaintainer(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetMaintainer(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);     
@@ -65,7 +65,7 @@ block {
 
 
 (*  setName lambda *)
-function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaSetName(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);     
@@ -102,7 +102,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);
@@ -125,7 +125,7 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     checkNoAmount(Unit);  
@@ -161,7 +161,7 @@ block{
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
     
     checkNoAmount(Unit);  
@@ -179,7 +179,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
 
     checkNoAmount(Unit);
@@ -205,7 +205,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
-function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
     
     checkNoAmount(Unit);
@@ -230,7 +230,7 @@ block {
 
 
 (*  removeOracle entrypoint  *)
-function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block {
     
     checkNoAmount(Unit);
@@ -263,7 +263,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);
@@ -300,7 +300,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
@@ -336,19 +336,25 @@ block {
 
 
 
-(*  togglePauseReqRateUpd lambda *)
-function lambdaTogglePauseReqRateUpd(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
-        | LambdaTogglePauseReqRateUpd(_parameters) -> {
-                
-                if s.breakGlassConfig.requestRateUpdateIsPaused then s.breakGlassConfig.requestRateUpdateIsPaused := False
-                else s.breakGlassConfig.requestRateUpdateIsPaused := True;
+        | LambdaTogglePauseEntrypoint(params) -> {
 
+                case params.targetEntrypoint of [
+                    RequestRateUpdate (_v)              -> s.breakGlassConfig.requestRateUpdateIsPaused := _v
+                |   RequestRateUpdateDeviation (_v)     -> s.breakGlassConfig.requestRateUpdateDeviationIsPaused := _v
+                |   SetObservationCommit (_v)           -> s.breakGlassConfig.setObservationCommitIsPaused := _v
+                |   SetObservationReveal (_v)           -> s.breakGlassConfig.setObservationRevealIsPaused := _v
+                |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused := _v
+                |   WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -356,109 +362,6 @@ block {
 } with (noOperations, s)
 
 
-
-(*  togglePauseReqRateUpdDev lambda *)
-function lambdaTogglePauseReqRateUpdDev(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseReqRateUpdDev(_parameters) -> {
-                
-                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then s.breakGlassConfig.requestRateUpdateDeviationIsPaused := False
-                else s.breakGlassConfig.requestRateUpdateDeviationIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseSetObsCommit lambda *)
-function lambdaTogglePauseSetObsCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseSetObsCommit(_parameters) -> {
-                
-                if s.breakGlassConfig.setObservationCommitIsPaused then s.breakGlassConfig.setObservationCommitIsPaused := False
-                else s.breakGlassConfig.setObservationCommitIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseSetObsReveal lambda *)
-function lambdaTogglePauseSetObsReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseSetObsReveal(_parameters) -> {
-                
-                if s.breakGlassConfig.setObservationRevealIsPaused then s.breakGlassConfig.setObservationRevealIsPaused := False
-                else s.breakGlassConfig.setObservationRevealIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseRewardXtz lambda *)
-function lambdaTogglePauseRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseRewardXtz(_parameters) -> {
-                
-                if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
-                else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseRewardSMvk lambda *)
-function lambdaTogglePauseRewardSMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
-block {
-
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
-
-    case aggregatorLambdaAction of [
-        | LambdaTogglePauseRewardSMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
-                else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
@@ -471,7 +374,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  requestRateUpdate entrypoint  *)
-function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -520,7 +423,7 @@ block{
 
 
 (*  requestRateUpdateDeviation entrypoint  *)
-function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -533,6 +436,7 @@ block{
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
                 checkOracleIsNotBannedForDeviationTrigger(s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
 
                 // check if Tez sent is equal to request rate deposit fee (if any)
                 const requestRateDeviationDepositFee : nat = s.config.requestRateDeviationDepositFee;
@@ -610,7 +514,7 @@ block{
 
 
 (*  setObservationCommit entrypoint  *)
-function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -625,6 +529,7 @@ block{
                 checkIfTimeToCommit(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredCommit(s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
                 
                 // get number of observations 
                 const observationsDataUpdated       : observationCommitsType  = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
@@ -651,7 +556,7 @@ block{
 
 
 (*  setObservationReveal entrypoint  *)
-function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -666,6 +571,7 @@ block{
                 checkIfTimeToReveal(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
                 
                 // fetch oracle commit and compare it with bytes of price salted 
                 const oracleCommit  : bytes = getObservationCommit(Tezos.sender, s.observationCommits);
@@ -736,7 +642,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  withdrawRewardXtz entrypoint  *)
-function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -751,6 +657,9 @@ block{
 
                 // check if oracle address is present in aggregator
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+
+                // check if oracle is still a satellite and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(oracleAddress, s);
                 
                 const reward : nat = getRewardAmountXtz(oracleAddress, s);
 
@@ -788,7 +697,7 @@ block{
 
 
 (*  withdrawRewardStakedMvk entrypoint  *)
-function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
 block{
 
     // pause / break glass check
@@ -803,6 +712,9 @@ block{
                 
                 // check if oracle address is present in aggregator
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
+
+                // check if oracle is still a satellite and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(oracleAddress, s);
 
                 const reward = getRewardAmountStakedMvk(oracleAddress, s);
 

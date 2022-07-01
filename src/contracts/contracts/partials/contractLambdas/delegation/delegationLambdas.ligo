@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaSetAdmin(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     checkSenderIsAllowed(s); // check that sender is admin or governance contract (i.e. Governance DAO contract address)
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaSetGovernance(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaUpdateMetadata(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)  
@@ -64,7 +64,7 @@ block {
 
 
 (* updateConfig lambda *)
-function lambdaUpdateConfig(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is 
+function lambdaUpdateConfig(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -93,7 +93,7 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorage): return is
+function lambdaUpdateWhitelistContracts(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorageType): return is
 block {
     
     // check that sender is admin
@@ -111,7 +111,7 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorage): return is
+function lambdaUpdateGeneralContracts(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorageType): return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin
@@ -128,7 +128,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorage): return is
+function lambdaMistakenTransfer(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -169,7 +169,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll lambda *)
-function lambdaPauseAll(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaPauseAll(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // check that sender is admin
@@ -207,7 +207,7 @@ block {
 
 
 (* unpauseAll lambda *)
-function lambdaUnpauseAll(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaUnpauseAll(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // check that sender is admin
@@ -243,71 +243,24 @@ block {
 
 
 
-(* togglePauseDelegateToSatellite lambda *)
-function lambdaTogglePauseDelegateToSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    case delegationLambdaAction of [
-        | LambdaPauseDelegateToSatellite(_parameters) -> {
-                if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-                else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUndelegateSatellite lambda *)
-function lambdaTogglePauseUndelegateSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    case delegationLambdaAction of [
-        | LambdaPauseUndelegateSatellite(_parameters) -> {
-                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-                else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseRegisterSatellite lambda *)
-function lambdaTogglePauseRegisterSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    case delegationLambdaAction of [
-        | LambdaPauseRegisterSatellite(_parameters) -> {
-                if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-                else s.breakGlassConfig.registerAsSatelliteIsPaused := True;    
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUnregisterSatellite lambda *)
-function lambdaTogglePauseUnregisterSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
-block {
-
-    // check that sender is admin
     checkSenderIsAdmin(s);
 
     case delegationLambdaAction of [
-        | LambdaPauseUnregisterSatellite(_parameters) -> {
-                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-                else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
+        | LambdaTogglePauseEntrypoint(params) -> {
+
+                case params.targetEntrypoint of [
+                    DelegateToSatellite (_v)          -> s.breakGlassConfig.delegateToSatelliteIsPaused := _v
+                |   UndelegateFromSatellite (_v)      -> s.breakGlassConfig.undelegateFromSatelliteIsPaused := _v
+                |   RegisterAsSatellite (_v)          -> s.breakGlassConfig.registerAsSatelliteIsPaused := _v
+                |   UnregisterAsSatellite (_v)        -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
+                |   UpdateSatelliteRecord (_v)        -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
+                |   DistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -315,42 +268,6 @@ block {
 } with (noOperations, s)
 
 
-
-(* togglePauseUpdateSatellite lambda *)
-function lambdaTogglePauseUpdateSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case delegationLambdaAction of [
-        | LambdaPauseUpdateSatellite(_parameters) -> {
-                if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-                else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* lambdaTogglePauseDistributeReward lambda *)
-function lambdaTogglePauseDistributeReward(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case delegationLambdaAction of [
-        | LambdaPauseDistributeReward(_parameters) -> {
-                if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
-                else s.breakGlassConfig.distributeRewardIsPaused := True;
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
@@ -363,7 +280,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* delegateToSatellite lambda *)
-function lambdaDelegateToSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is 
+function lambdaDelegateToSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
 
     // Overall steps:
@@ -452,7 +369,7 @@ block {
                 | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
                 ];
 
-                // Retrieve satellite account from delegationStorage
+                // Retrieve satellite account from delegationStorageType
                 var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
                 
                 // user is not delegated to a satellite
@@ -465,11 +382,11 @@ block {
                 s.delegateLedger[userAddress] := delegateRecord;
 
                 // Update or create delegate reward record
-                var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
+                var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
                     Some (_record) -> _record
                 | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                 ];
-                var delegateRewardsRecord: satelliteRewards := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+                var delegateRewardsRecord: satelliteRewardsType := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
                     Some(_record) -> _record
                 | None -> record[
                         unpaid                                  = 0n;
@@ -486,7 +403,7 @@ block {
                 // update satellite totalDelegatedAmount balance
                 satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
                 
-                // update satellite ledger delegationStorage with new balance
+                // update satellite ledger delegationStorageType with new balance
                 s.satelliteLedger[satelliteAddress] := satelliteRecord;
 
             }
@@ -499,7 +416,7 @@ block {
 
 
 (* undelegateFromSatellite lambda *)
-function lambdaUndelegateFromSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaUndelegateFromSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // Overall steps:
@@ -571,7 +488,7 @@ block {
                     // update satellite totalDelegatedAmount balance
                     _satelliteRecord.totalDelegatedAmount := abs(_satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
                     
-                    // update satellite ledger delegationStorage with new balance
+                    // update satellite ledger delegationStorageType with new balance
                     s.satelliteLedger[_delegateRecord.satelliteAddress] := _satelliteRecord;
 
                 } else skip;
@@ -596,7 +513,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* registerAsSatellite lambda *)
-function lambdaRegisterAsSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is 
+function lambdaRegisterAsSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
     
     // Overall steps: 
@@ -680,7 +597,7 @@ block {
                 s.satelliteLedger[userAddress] := satelliteRecord;
 
                 // Update or create a satellite rewards record
-                var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+                var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
                 Some (_rewards) -> _rewards
                 | None -> record[
                     unpaid                                      = 0n;
@@ -702,7 +619,7 @@ block {
 
 
 (* unregisterAsSatellite lambda *)
-function lambdaUnregisterAsSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaUnregisterAsSatellite(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
     // Overall steps:
     // 1. check if satellite exists in satelliteLedger
@@ -720,6 +637,9 @@ block {
                 // check sender is satellite
                 checkUserIsSatellite(userAddress, s);
 
+                // check satellite is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(userAddress, s);
+
                 // Update unclaimed rewards
                 s := updateRewards(userAddress, s);
                 
@@ -734,7 +654,7 @@ block {
 
 
 (* updateSatelliteRecord lambda *)
-function lambdaUpdateSatelliteRecord(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaUpdateSatelliteRecord(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // Overall steps:
@@ -748,6 +668,9 @@ block {
 
                 // Get user address
                 const userAddress: address  = Tezos.sender;
+
+                // check satellite is not banned
+                checkSatelliteIsNotBanned(userAddress, s);
 
                 // Update unclaimed rewards
                 s := updateRewards(userAddress, s);
@@ -778,7 +701,7 @@ block {
                 satelliteRecord.website        := website;
                 satelliteRecord.satelliteFee   := satelliteFee;        
                 
-                // update satellite ledger delegationStorage with new information
+                // update satellite ledger delegationStorageType with new information
                 s.satelliteLedger[userAddress] := satelliteRecord;
                 
             }
@@ -790,7 +713,7 @@ block {
 
 
 (* distributeReward lambda *)
-function lambdaDistributeReward(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaDistributeReward(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // Overall steps:
@@ -861,7 +784,7 @@ block {
                     | None -> failwith(error_SATELLITE_NOT_FOUND)
                     ];
 
-                    var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
+                    var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
                         Some (_record) -> _record
                     | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                     ];
@@ -897,7 +820,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* onStakeChange lambda *)
-function lambdaOnStakeChange(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is 
+function lambdaOnStakeChange(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
 
     // Overall steps:
@@ -927,12 +850,12 @@ block {
 
                 // Check if user is delegate or satellite
                 if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
-                    var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+                    var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
                         Some (_record) -> _record
                     | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                     ];
 
-                    var _satelliteReferenceRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
+                    var _satelliteReferenceRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
                         Some (_record) -> _record
                     | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
                     ];
@@ -969,7 +892,7 @@ block {
                 const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
                 
                 if userIsDelegator then block {
-                    // Retrieve satellite account from delegationStorage
+                    // Retrieve satellite account from delegationStorageType
                     var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
                     Some (_delegate) -> _delegate
                     | None -> failwith(error_DELEGATE_NOT_FOUND)
@@ -1020,7 +943,7 @@ block {
 
 
 (* updateSatelliteStatus lambda *)
-function lambdaUpdateSatelliteStatus(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+function lambdaUpdateSatelliteStatus(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // Operation list

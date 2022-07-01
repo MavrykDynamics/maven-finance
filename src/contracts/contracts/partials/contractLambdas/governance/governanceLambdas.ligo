@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  breakGlass lambda *)
-function lambdaBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -38,7 +38,7 @@ block {
 
 
 (*  propagateBreakGlass lambda *)
-function lambdaPropagateBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaPropagateBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -100,7 +100,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaSetAdmin(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -132,7 +132,7 @@ block {
 
 
 (*  setGovernanceProxy lambda *)
-function lambdaSetGovernanceProxy(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaSetGovernanceProxy(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -150,7 +150,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaUpdateMetadata(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -171,7 +171,7 @@ block {
 
 
 (*  updateConfig lambda *)
-function lambdaUpdateConfig(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaUpdateConfig(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -194,7 +194,6 @@ block {
                     | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
                     | ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minQuorumPercentage                     := updateConfigNewValue
                     | ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage                    := updateConfigNewValue
-                    | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                        := updateConfigNewValue
                     | ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
                     | ConfigMaxProposalsPerSatellite (_v)               -> s.config.maxProposalsPerSatellite                := updateConfigNewValue
                     | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound                  := updateConfigNewValue
@@ -216,7 +215,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaUpdateGeneralContracts(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -234,7 +233,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage): return is
+function lambdaUpdateWhitelistContracts(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -251,7 +250,7 @@ block {
 
 
 (*  updateWhitelistDevelopersContracts lambda *)
-function lambdaUpdateWhitelistDevelopers(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaUpdateWhitelistDevelopers(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -274,7 +273,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaMistakenTransfer(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -307,7 +306,7 @@ block {
 
 
 (*  setContractAdmin lambda *)
-function lambdaSetContractAdmin(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaSetContractAdmin(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -332,7 +331,7 @@ block {
 
 
 (*  setContractGovernance lambda *)
-function lambdaSetContractGovernance(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+function lambdaSetContractGovernance(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorageType): return is
 block {
 
     // check that sender is admin
@@ -365,7 +364,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  startNextRound lambda *)
-function lambdaStartNextRound(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+function lambdaStartNextRound(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
 
   // Current round hass not ended
@@ -453,7 +452,7 @@ block {
 
 
 (* propose lambda *)
-function lambdaPropose(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaPropose(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -487,23 +486,11 @@ block {
                 
                 operations  := transferFeeToTreasuryOperation # operations;
 
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+
                 // check if satellite exists in the active satellites map
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
-                case satelliteOptView of [
-                      Some (value) -> case value of [
-                          Some (_satellite) -> skip
-                        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                      ]
-                    
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -515,6 +502,10 @@ block {
                 if String.length(newProposal.sourceCode) > s.config.proposalSourceCodeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // check is user has enough smvk to propose 
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                    Some(_address) -> _address
+                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
                 const delegationConfigView : option (delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
                 const delegationConfig: delegationConfigType                = case delegationConfigView of [
                     Some (_config) -> _config
@@ -652,7 +643,7 @@ block {
 
 
 (* updateProposalData lambda *)
-function lambdaUpdateProposalData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaUpdateProposalData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
@@ -681,19 +672,8 @@ block {
                 if proposalRecord.proposerAddress =/= Tezos.sender and Tezos.self_address =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
-                // check that proposer is still a satellite
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                            Some (_satellite) -> skip
-                            | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                        ]
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
 
                 // Create the new proposalMetadata
                 const newProposalData: proposalMetadataType = record[
@@ -739,7 +719,7 @@ block {
 
 
 (* updatePaymentData lambda *)
-function lambdaUpdatePaymentData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaUpdatePaymentData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
@@ -768,19 +748,8 @@ block {
                 if proposalRecord.proposerAddress =/= Tezos.sender and Tezos.self_address =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
-                // check that proposer is still a satellite
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                            Some (_satellite) -> skip
-                            | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                        ]
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
 
                 // Create the new paymentMetadata
                 const newPaymentData: paymentMetadataType = record[
@@ -826,7 +795,7 @@ block {
 
 
 (* lockProposal lambda *)
-function lambdaLockProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaLockProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
@@ -844,19 +813,8 @@ block {
                 if proposalRecord.proposerAddress =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
-                // check that proposer is still a satellite
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                            Some (_satellite) -> skip
-                            | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                        ]
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
 
                 // check that proposal is not locked
                 if proposalRecord.locked = True then failwith(error_PROPOSAL_LOCKED)
@@ -874,7 +832,7 @@ block {
 
 
 (* proposalRoundVote lambda *)
-function lambdaProposalRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaProposalRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -892,24 +850,11 @@ block {
     case governanceLambdaAction of [
         | LambdaProposalRoundVote(proposalId) -> {
                 
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+
                 // check if satellite exists in the active satellites map
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
-                case satelliteOptView of [
-
-                  Some (value) -> case value of [
-                      Some (_satellite) -> skip
-                    | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                  ]
-
-                | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-
-                ];
-
-                const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -1013,7 +958,7 @@ block {
 
 
 (* votingRoundVote lambda *)
-function lambdaVotingRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaVotingRoundVote(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -1032,27 +977,13 @@ block {
         | LambdaVotingRoundVote(voteRecord) -> {
 
                 // get vote from record 
-                const voteType: voteForProposalChoiceType   = voteRecord.vote;
+                const voteType: voteType   = voteRecord.vote;
+
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
                 
                 // check if satellite exists in the active satellites map
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                  Some(_address) -> _address
-                | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
-                case satelliteOptView of [
-                
-                    Some (value) -> case value of [
-                          Some (_satellite) -> skip
-                        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                    ]
-
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-
-                ];
-
-                const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -1089,7 +1020,7 @@ block {
                     // satellite has already voted - change of vote
                     
                     // get previous vote
-                    var previousVote : (nat * timestamp * voteForProposalChoiceType) := case _proposal.voters[Tezos.sender] of [ 
+                    var previousVote : (nat * timestamp * voteType) := case _proposal.voters[Tezos.sender] of [ 
                         | None                -> failwith(error_VOTE_NOT_FOUND)
                         | Some(_previousVote) -> _previousVote
                     ];
@@ -1123,7 +1054,7 @@ block {
 
 
 (* executeProposal lambda *)
-function lambdaExecuteProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaExecuteProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
     // Steps Overview: 
     // 1. verify that user is a satellite and can execute proposal
@@ -1206,7 +1137,7 @@ block {
 
 
 (* processProposalPayment lambda *)
-function lambdaProcessProposalPayment(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaProcessProposalPayment(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
     
     // Steps Overview: 
@@ -1230,6 +1161,9 @@ block {
                 // verify that sender is the satellite that proposed the proposal
                 if Tezos.sender =/= proposal.proposerAddress then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
+
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(proposal.proposerAddress, s);
 
                 // verify that payment for proposal has not been processed
                 if proposal.paymentProcessed = True then failwith(error_PROPOSAL_PAYMENTS_PROCESSED)
@@ -1296,7 +1230,7 @@ block {
 
 
 (* processProposalSingleData lambda *)
-function lambdaProcessProposalSingleData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaProcessProposalSingleData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     var operations : list(operation) := nil;
@@ -1377,7 +1311,7 @@ block {
 
 
 (* dropProposal lambda *)
-function lambdaDropProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+function lambdaDropProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     // Steps Overview: 
@@ -1387,23 +1321,6 @@ block {
 
     case governanceLambdaAction of [
         | LambdaDropProposal(proposalId) -> {
-                
-                // check if satellite exists in the active satellites map
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                      Some(_address) -> _address
-                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
-                case satelliteOptView of [
-
-                    Some (value) -> case value of [
-                          Some (_satellite) -> skip
-                        | None -> if Tezos.sender = s.admin then skip else failwith(error_ONLY_SATELLITE_ALLOWED)
-                    ]
-                | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-
-                ];
 
                 // check if proposal exists in the current round's proposals
                 const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentCycleInfo.roundProposals);
@@ -1418,6 +1335,9 @@ block {
                 // verify that proposal has not been dropped already
                 if _proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
                 else skip;
+
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(_proposal.proposerAddress, s);
 
                 if _proposal.proposerAddress = Tezos.sender or Tezos.sender = s.admin then block {
                     _proposal.status               := "DROPPED";

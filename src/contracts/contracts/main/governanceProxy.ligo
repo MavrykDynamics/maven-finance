@@ -1,79 +1,77 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // MvkToken Types
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Delegation Type for updateConfig
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // Doorman Type for updateConfig
-#include "../partials/types/doormanTypes.ligo"
+#include "../partials/contractTypes/doormanTypes.ligo"
 
 // Farm Type
-#include "../partials/types/farmTypes.ligo"
+#include "../partials/contractTypes/farmTypes.ligo"
 
 // Treasury Type for mint and transfers
-#include "../partials/types/treasuryTypes.ligo"
-
-// Break Glass Type
-#include "../partials/types/breakGlassTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // Emergency Governance Type
-#include "../partials/types/emergencyGovernanceTypes.ligo"
+#include "../partials/contractTypes/emergencyGovernanceTypes.ligo"
 
 // Council Type
-#include "../partials/types/councilTypes.ligo"
+#include "../partials/contractTypes/councilTypes.ligo"
 
 // Governance Type
-#include "../partials/types/governanceTypes.ligo"
+#include "../partials/contractTypes/governanceTypes.ligo"
 
 // Governance Financial Type
-#include "../partials/types/governanceFinancialTypes.ligo"
+#include "../partials/contractTypes/governanceFinancialTypes.ligo"
 
 // Governance Satellite Type
-#include "../partials/types/governanceSatelliteTypes.ligo"
+#include "../partials/contractTypes/governanceSatelliteTypes.ligo"
+
+// Break Glass Type
+#include "../partials/contractTypes/breakGlassTypes.ligo"
 
 // Farm Type
-#include "../partials/types/farmTypes.ligo"
+#include "../partials/contractTypes/farmTypes.ligo"
 
 // FarmFactory Type
-#include "../partials/types/farmFactoryTypes.ligo"
+#include "../partials/contractTypes/farmFactoryTypes.ligo"
 
 // Treasury Type
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // TreasuryFactory Type
-#include "../partials/types/treasuryFactoryTypes.ligo"
+#include "../partials/contractTypes/treasuryFactoryTypes.ligo"
 
 // Aggregator Type
-#include "../partials/types/aggregatorTypes.ligo"
+#include "../partials/contractTypes/aggregatorTypes.ligo"
 
 // AggregatorFactory Type
-#include "../partials/types/aggregatorFactoryTypes.ligo"
+#include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
 
 // Governance Proxy Types
-#include "../partials/types/governanceProxyTypes.ligo"
+#include "../partials/contractTypes/governanceProxyTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -82,9 +80,9 @@ type governanceProxyAction is
     SetAdmin                        of (address)
   | SetGovernance                   of (address)
   | UpdateMetadata                  of updateMetadataType
-  | UpdateWhitelistContracts        of updateWhitelistContractsParams
-  | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
-  | UpdateGeneralContracts          of updateGeneralContractsParams
+  | UpdateWhitelistContracts        of updateWhitelistContractsType
+  | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
+  | UpdateGeneralContracts          of updateGeneralContractsType
   | MistakenTransfer                of transferActionType
 
   // Main entrypoints
@@ -96,30 +94,13 @@ type governanceProxyAction is
   | SetLambda                   of setLambdaType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * governanceProxyStorage
+type return is list (operation) * governanceProxyStorageType
 
 // proxy lambdas -> executing proposals to external contracts within MAVRYK system
-type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
+type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorageType) -> return
 
 // governance proxy contract methods lambdas
-type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorageType) -> return
 
 
 
@@ -133,13 +114,13 @@ type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : governanceProxyStorage) : unit is
+function checkSenderIsAllowed(var s : governanceProxyStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(var s : governanceProxyStorage) : unit is
+function checkSenderIsAdmin(var s : governanceProxyStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
@@ -151,13 +132,13 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 
-function checkSenderIsAdminOrGovernance(var s : governanceProxyStorage) : unit is
+function checkSenderIsAdminOrGovernance(var s : governanceProxyStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -179,26 +160,6 @@ block{
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -265,34 +226,34 @@ case (Tezos.get_entrypoint_opt(
 
 
 // governance proxy lamba helper function to get updateWhitelistContracts entrypoint
-function getUpdateWhitelistContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistContractsParams) is
+function getUpdateWhitelistContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistContractsType) is
 case (Tezos.get_entrypoint_opt(
       "%updateWhitelistContracts",
-      contractAddress) : option(contract(updateWhitelistContractsParams))) of [
+      contractAddress) : option(contract(updateWhitelistContractsType))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistContractsParams))
+        | None        -> (failwith(error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistContractsType))
       ];
 
 
 
 // governance proxy lamba helper function to get updateGeneralContracts entrypoint
-function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsParams) is
+function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsType) is
 case (Tezos.get_entrypoint_opt(
       "%updateGeneralContracts",
-      contractAddress) : option(contract(updateGeneralContractsParams))) of [
+      contractAddress) : option(contract(updateGeneralContractsType))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+        | None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
       ];
 
 
 
 // governance proxy lamba helper function to get updateWhitelistTokenContracts entrypoint
-function getUpdateWhitelistTokenContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistTokenContractsParams) is
+function getUpdateWhitelistTokenContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistTokenContractsType) is
 case (Tezos.get_entrypoint_opt(
       "%updateWhitelistTokenContracts",
-      contractAddress) : option(contract(updateWhitelistTokenContractsParams))) of [
+      contractAddress) : option(contract(updateWhitelistTokenContractsType))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistTokenContractsParams))
+        | None        -> (failwith(error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistTokenContractsType))
       ];
 
 
@@ -316,7 +277,7 @@ case (Tezos.get_entrypoint_opt(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyUnpackLambdaFunctionType)) of [
@@ -360,31 +321,31 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : governanceProxyStorage) : address is
+[@view] function getAdmin(const _: unit; var s : governanceProxyStorageType) : address is
   s.admin
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : governanceProxyStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : governanceProxyStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : governanceProxyStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : governanceProxyStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceProxyStorage) : whitelistTokenContractsType is
+[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceProxyStorageType) : whitelistTokenContractsType is
   s.whitelistTokenContracts
 
 
 
 (* View: get a proxy lambda *)
-[@view] function getProxyLambdaOpt(const lambdaIndex: nat; var s : governanceProxyStorage) : option(bytes) is
+[@view] function getProxyLambdaOpt(const lambdaIndex: nat; var s : governanceProxyStorageType) : option(bytes) is
   Big_map.find_opt(lambdaIndex, s.proxyLambdaLedger)
 
 // ------------------------------------------------------------------------------
@@ -404,7 +365,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : governanceProxyStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : governanceProxyStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -423,7 +384,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : governanceProxyStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : governanceProxyStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -442,7 +403,7 @@ block {
 
 
 (*  updateMetadata entrypoint: update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceProxyStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceProxyStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -461,7 +422,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceProxyStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: governanceProxyStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -480,7 +441,7 @@ block {
 
 
 (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceProxyStorage): return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsType; var s: governanceProxyStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
@@ -499,7 +460,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceProxyStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: governanceProxyStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -518,7 +479,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: governanceProxyStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceProxyStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -539,7 +500,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setProxyLambda entrypoint *)
-function setProxyLambda(const setProxyLambdaParams: setProxyLambdaType; var s : governanceProxyStorage) : return is 
+function setProxyLambda(const setProxyLambdaParams: setProxyLambdaType; var s : governanceProxyStorageType) : return is 
 block {
     
     checkSenderIsAdminOrGovernance(s); // governance contract will also be the admin in most cases unless break glass
@@ -556,7 +517,7 @@ block {
 
 
 (* executeGovernanceAction entrypoint *)
-function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceProxyStorage) : return is 
+function executeGovernanceAction(const governanceActionBytes : bytes; var s : governanceProxyStorageType) : return is 
 block {
     
     checkSenderIsAdminOrGovernance(s); // governance contract will also be the admin in most cases unless break glass
@@ -571,7 +532,7 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
+    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorageType) -> return
     const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
         Some(f) -> f(governanceAction, s)
       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
@@ -582,7 +543,7 @@ block {
 
 
 (* dataDataPackingHelper entrypoint *)
-function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorage) : return is 
+function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorageType) : return is 
   (noOperations, s)
 
 
@@ -591,7 +552,7 @@ function dataDataPackingHelper(const _governanceAction : executeActionType; var 
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: governanceProxyStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: governanceProxyStorageType): return is
 block{
     
     // check that sender is admin
@@ -617,7 +578,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : governanceProxyAction; const s : governanceProxyStorage) : return is 
+function main (const action : governanceProxyAction; const s : governanceProxyStorageType) : return is 
   block {
 
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  

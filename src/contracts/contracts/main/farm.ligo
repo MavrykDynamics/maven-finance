@@ -1,28 +1,32 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Doorman types
+#include "../partials/contractTypes/doormanTypes.ligo"
+
 // Farm types
-#include "../partials/types/farmTypes.ligo"
+#include "../partials/contractTypes/farmTypes.ligo"
 
 // FarmFactory Types
-#include "../partials/types/farmFactoryTypes.ligo"
+#include "../partials/contractTypes/farmFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -34,8 +38,8 @@ type farmAction is
 |   SetName                     of (string)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
-|   UpdateWhitelistContracts    of updateWhitelistContractsParams
-|   UpdateGeneralContracts      of updateGeneralContractsParams
+|   UpdateWhitelistContracts    of updateWhitelistContractsType
+|   UpdateGeneralContracts      of updateGeneralContractsType
 |   MistakenTransfer            of transferActionType
 
     // Farm Admin Entrypoints
@@ -46,9 +50,7 @@ type farmAction is
     // Pause / Break Glass Entrypoints
 |   PauseAll                    of (unit)
 |   UnpauseAll                  of (unit)
-|   TogglePauseDeposit          of (unit)
-|   TogglePauseWithdraw         of (unit)
-|   TogglePauseClaim            of (unit)
+|   TogglePauseEntrypoint      of farmTogglePauseEntrypointType
 
     // Farm Entrypoints
 |   Deposit                     of nat
@@ -59,11 +61,11 @@ type farmAction is
 |   SetLambda                   of setLambdaType
 
 
-type return is list (operation) * farmStorage
+type return is list (operation) * farmStorageType
 const noOperations : list (operation) = nil;
 
 // farm contract methods lambdas
-type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmStorage) -> return
+type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmStorageType) -> return
 
 
 
@@ -85,23 +87,6 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
 // ------------------------------------------------------------------------------
 //
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -112,12 +97,12 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
 
 
-function getDepositorDeposit(const depositor: depositor; const s: farmStorage): option(depositorRecord) is
+function getDepositorDeposit(const depositor: depositorType; const s: farmStorageType): option(depositorRecordType) is
     Big_map.find_opt(depositor, s.depositors)
 
 
 
-function checkSenderIsAdmin(const s: farmStorage): unit is
+function checkSenderIsAdmin(const s: farmStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
@@ -129,7 +114,7 @@ function checkNoAmount(const _p: unit): unit is
 
 
 
-function checkSenderIsCouncilOrFarmFactory(const s: farmStorage): unit is
+function checkSenderIsCouncilOrFarmFactory(const s: farmStorageType): unit is
 block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
@@ -151,13 +136,13 @@ block {
 
 
 
-function checkSenderIsAllowed(const s: farmStorage): unit is
+function checkSenderIsAllowed(const s: farmStorageType): unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsGovernanceOrFactory(const s: farmStorage): unit is
+function checkSenderIsGovernanceOrFactory(const s: farmStorageType): unit is
 block {
 
     // First check because a farm without a facory should still be accessible
@@ -174,7 +159,7 @@ block {
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -193,30 +178,15 @@ block{
 
 
 
-function checkFarmIsInit(const s: farmStorage): unit is 
+function checkFarmIsInit(const s: farmStorageType): unit is 
   if not s.init then failwith(error_FARM_NOT_INITIATED)
   else unit
 
 
 
-function checkFarmIsOpen(const s: farmStorage): unit is 
+function checkFarmIsOpen(const s: farmStorageType): unit is 
   if not s.open then failwith(error_FARM_CLOSED)
   else unit
-
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
 
 
 // ------------------------------------------------------------------------------
@@ -229,15 +199,15 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkDepositIsNotPaused(var s : farmStorage) : unit is
+function checkDepositIsNotPaused(var s : farmStorageType) : unit is
     if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
-function checkWithdrawIsNotPaused(var s : farmStorage) : unit is
+function checkWithdrawIsNotPaused(var s : farmStorageType) : unit is
     if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
-function checkClaimIsNotPaused(var s : farmStorage) : unit is
+function checkClaimIsNotPaused(var s : farmStorageType) : unit is
     if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
@@ -251,7 +221,7 @@ function checkClaimIsNotPaused(var s : farmStorage) : unit is
 // Transfer Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
+function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalanceType; const tokenId: nat; const tokenStandard: lpStandardType; const tokenContractAddress: address): operation is
     case tokenStandard of [
             Fa12 -> transferFa12Token(from_,to_,tokenAmount,tokenContractAddress)
         |   Fa2 -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
@@ -259,7 +229,7 @@ function transferLP(const from_: address; const to_: address; const tokenAmount:
 
     
 
-function transferReward(const depositor: depositor; const tokenAmount: tokenBalance; const s: farmStorage): operation is
+function transferReward(const depositor: depositorType; const tokenAmount: tokenBalanceType; const s: farmStorageType): operation is
 block{
 
     // Call farmClaim from the doorman contract
@@ -292,40 +262,40 @@ block{
 // Farm Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function updateBlock(var s: farmStorage): farmStorage is
+function updateBlock(var s: farmStorageType): farmStorageType is
 block{
     
     // Close farm is totalBlocks duration has been exceeded
     const lastBlock: nat = s.config.plannedRewards.totalBlocks + s.initBlock;
     s.open := Tezos.level <= lastBlock or s.config.infinite;
 
-    // Update lastBlockUpdate in farmStorage
+    // Update lastBlockUpdate in farmStorageType
     s.lastBlockUpdate := Tezos.level;
 
 } with(s)
 
 
 
-function updateFarmParameters(var s: farmStorage): farmStorage is
+function updateFarmParameters(var s: farmStorageType): farmStorageType is
 block{
 
     // Compute the potential reward of this block
     const multiplier: nat = abs(Tezos.level - s.lastBlockUpdate);
-    const suspectedReward: tokenBalance = multiplier * s.config.plannedRewards.currentRewardPerBlock;
+    const suspectedReward: tokenBalanceType = multiplier * s.config.plannedRewards.currentRewardPerBlock;
 
     // This check is necessary in case the farm unpaid reward was not updated for a long time
     // and the outstandingReward grew to such a big number that it exceeds the planned rewards.
     // In that case only the difference between planned and claimed rewards is paid out to empty
     // the account.
-    const totalClaimedRewards: tokenBalance = s.claimedRewards.paid + s.claimedRewards.unpaid;
-    const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
-    const totalPlannedRewards: tokenBalance = s.config.plannedRewards.totalRewards;
-    const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.config.infinite of [
+    const totalClaimedRewards: tokenBalanceType = s.claimedRewards.paid + s.claimedRewards.unpaid;
+    const totalFarmRewards: tokenBalanceType = suspectedReward + totalClaimedRewards;
+    const totalPlannedRewards: tokenBalanceType = s.config.plannedRewards.totalRewards;
+    const reward: tokenBalanceType = case totalFarmRewards > totalPlannedRewards and not s.config.infinite of [
         True -> abs(totalPlannedRewards - totalClaimedRewards)
     |   False -> suspectedReward
     ];
         
-    // Updates the farmStorage
+    // Updates the farmStorageType
     s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
     s.accumulatedRewardsPerShare := s.accumulatedRewardsPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
     s := updateBlock(s);
@@ -334,7 +304,7 @@ block{
 
 
 
-function updateFarm(var s: farmStorage): farmStorage is
+function updateFarm(var s: farmStorageType): farmStorageType is
 block{
     s := case s.config.lpToken.tokenBalance = 0n of [
         True -> updateBlock(s)
@@ -347,24 +317,24 @@ block{
 
 
 
-function updateUnclaimedRewards(const depositor: depositor; var s: farmStorage): farmStorage is
+function updateUnclaimedRewards(const depositor: depositorType; var s: farmStorageType): farmStorageType is
 block{
 
     // Check if sender as already a record
-    var depositorRecord: depositorRecord :=
+    var depositorRecord: depositorRecordType :=
         case getDepositorDeposit(depositor, s) of [
             Some (r) -> r
-        |   None -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecord)
+        |   None -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecordType)
         ];
 
     // Compute depositor reward
-    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationRewardsPerShare;
-    const accumulatedRewardsPerShareEnd: tokenBalance = s.accumulatedRewardsPerShare;
+    const accumulatedRewardsPerShareStart: tokenBalanceType = depositorRecord.participationRewardsPerShare;
+    const accumulatedRewardsPerShareEnd: tokenBalanceType = s.accumulatedRewardsPerShare;
     if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
     const currentMVKPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
     const depositorReward = (currentMVKPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
-    // Update paid and unpaid rewards in farmStorage
+    // Update paid and unpaid rewards in farmStorageType
     if depositorReward > s.claimedRewards.unpaid then failwith(error_CALCULATION_ERROR) else skip;
     s.claimedRewards := record[
         unpaid=abs(s.claimedRewards.unpaid - depositorReward);
@@ -388,7 +358,7 @@ block{
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(farmUnpackLambdaFunctionType)) of [
@@ -432,91 +402,91 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : farmStorage) : address is
+[@view] function getAdmin(const _: unit; var s : farmStorageType) : address is
   s.admin
 
 
 
 (* View: get name variable *)
-[@view] function getName(const _: unit; var s : farmStorage) : string is
+[@view] function getName(const _: unit; var s : farmStorageType) : string is
   s.name
 
 
 
 (*  View: get config *)
-[@view] function getConfig(const _: unit; const s: farmStorage) : farmConfigType is
+[@view] function getConfig(const _: unit; const s: farmStorageType) : farmConfigType is
   s.config
 
 
 
 (*  View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; const s: farmStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; const s: farmStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (*  View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; const s: farmStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; const s: farmStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (*  View: get break glass config *)
-[@view] function getBreakGlassConfig(const _: unit; const s: farmStorage) : farmBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _: unit; const s: farmStorageType) : farmBreakGlassConfigType is
   s.breakGlassConfig
 
 
 
 (*  View: get last block update *)
-[@view] function getLastBlockUpdate(const _: unit; const s: farmStorage) : nat is
+[@view] function getLastBlockUpdate(const _: unit; const s: farmStorageType) : nat is
   s.lastBlockUpdate
 
 
 
 (*  View: get last block update *)
-[@view] function getAccumulatedRewardsPerShare(const _: unit; const s: farmStorage) : nat is
+[@view] function getAccumulatedRewardsPerShare(const _: unit; const s: farmStorageType) : nat is
   s.accumulatedRewardsPerShare
 
 
 
 (*  View: get claimed rewards *)
-[@view] function getClaimedRewards(const _: unit; const s: farmStorage) : claimedRewards is
+[@view] function getClaimedRewards(const _: unit; const s: farmStorageType) : claimedRewardsType is
   s.claimedRewards
 
 
 
 (*  View: get depositor *)
-[@view] function getDepositorOpt(const depositorAddress: depositor; const s: farmStorage) : option(depositorRecord) is
+[@view] function getDepositorOpt(const depositorAddress: depositorType; const s: farmStorageType) : option(depositorRecordType) is
   Big_map.find_opt(depositorAddress, s.depositors)
 
 
 
 (*  View: get open *)
-[@view] function getOpen(const _: unit; const s: farmStorage) : bool is
+[@view] function getOpen(const _: unit; const s: farmStorageType) : bool is
   s.open
 
 
 
 (*  View: get init *)
-[@view] function getInit(const _: unit; const s: farmStorage) : bool is
+[@view] function getInit(const _: unit; const s: farmStorageType) : bool is
   s.init
 
 
 
 (*  View: get init block *)
-[@view] function getInitBlock(const _: unit; const s: farmStorage) : nat is
+[@view] function getInitBlock(const _: unit; const s: farmStorageType) : nat is
   s.initBlock
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : farmStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : farmStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -536,7 +506,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : farmStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : farmStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -555,7 +525,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : farmStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : farmStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -574,7 +544,7 @@ block {
 
 
 (* setName entrypoint - update the metadata at a given key *)
-function setName(const updatedName : string; var s : farmStorage) : return is
+function setName(const updatedName : string; var s : farmStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
@@ -593,7 +563,7 @@ block {
 
 
 (*  updateMetadata Entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -612,7 +582,7 @@ block {
 
 
 (*  updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : farmStorage) : return is 
+function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : farmStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -631,7 +601,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: farmStorage) : return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: farmStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -650,7 +620,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: farmStorage) : return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: farmStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -669,7 +639,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: farmStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -696,7 +666,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  updateBlocksPerMinute Entrypoint *)
-function updateBlocksPerMinute(const blocksPerMinute: nat; var s: farmStorage) : return is
+function updateBlocksPerMinute(const blocksPerMinute: nat; var s: farmStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateBlocksPerMinute"] of [
@@ -715,7 +685,7 @@ block {
 
 
 (* initFarm Entrypoint *)
-function initFarm (const initFarmParams: initFarmParamsType; var s: farmStorage) : return is
+function initFarm (const initFarmParams: initFarmParamsType; var s: farmStorageType) : return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaInitFarm"] of [
@@ -734,7 +704,7 @@ block{
 
 
 (* closeFarm Entrypoint *)
-function closeFarm (var s: farmStorage) : return is
+function closeFarm (var s: farmStorageType) : return is
 block{
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCloseFarm"] of [
@@ -761,7 +731,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  pauseAll entrypoint *)
-function pauseAll(var s: farmStorage) : return is
+function pauseAll(var s: farmStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -780,7 +750,7 @@ block {
 
 
 (*  unpauseAll entrypoint *)
-function unpauseAll(var s : farmStorage) : return is
+function unpauseAll(var s : farmStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -798,60 +768,24 @@ block {
 
 
 
-(*  togglePauseDeposit entrypoint *)
-function togglePauseDeposit(var s : farmStorage) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDeposit"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: farmTogglePauseEntrypointType; const s: farmStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseDeposit(unit);
+    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseWithdraw entrypoint *)
-function togglePauseWithdraw(var s : farmStorage) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseWithdraw"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseWithdraw(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseClaim entrypoint *)
-function togglePauseClaim(var s : farmStorage) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseClaim"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseClaim(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -864,7 +798,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* deposit Entrypoint *)
-function deposit(const tokenAmount: tokenBalance; var s: farmStorage) : return is
+function deposit(const tokenAmount: tokenBalanceType; var s: farmStorageType) : return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDeposit"] of [
@@ -883,7 +817,7 @@ block{
 
 
 (* withdraw Entrypoint *)
-function withdraw(const tokenAmount: tokenBalance; var s: farmStorage) : return is
+function withdraw(const tokenAmount: tokenBalanceType; var s: farmStorageType) : return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdraw"] of [
@@ -902,7 +836,7 @@ block{
 
 
 (* Claim Entrypoint *)
-function claim(const depositor: depositor; var s: farmStorage) : return is
+function claim(const depositor: depositorType; var s: farmStorageType) : return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
@@ -929,7 +863,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: farmStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: farmStorageType): return is
 block{
     
     // check that sender is admin
@@ -955,7 +889,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action: farmAction; var s: farmStorage): return is
+function main (const action: farmAction; var s: farmStorageType): return is
   block{
     
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  
@@ -982,9 +916,7 @@ function main (const action: farmAction; var s: farmStorage): return is
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                   -> pauseAll(s)
         |   UnpauseAll (_parameters)                 -> unpauseAll(s)
-        |   TogglePauseDeposit (_parameters)         -> togglePauseDeposit(s)
-        |   TogglePauseWithdraw (_parameters)        -> togglePauseWithdraw(s)
-        |   TogglePauseClaim (_parameters)           -> togglePauseClaim(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)

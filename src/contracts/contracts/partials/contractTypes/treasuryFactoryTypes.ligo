@@ -2,18 +2,10 @@
 // Treasury Factory Types
 // ------------------------------------------------------------------------------
 
-type metadata is big_map (string, bytes);
-
 type treasuryFactoryBreakGlassConfigType is record [
     createTreasuryIsPaused     : bool;
     trackTreasuryIsPaused      : bool;
     untrackTreasuryIsPaused    : bool;
-]
-
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
 ]
 
 type createTreasuryType is [@layout:comb] record[
@@ -36,6 +28,15 @@ type treasuryFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: treasuryFactoryUpdateConfigActionType;
 ]
 
+type treasuryFactoryPausableEntrypointType is
+  CreateTreasury         of bool
+| TrackTreasury          of bool
+| UntrackTreasury        of bool
+
+type treasuryFactoryTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : treasuryFactoryPausableEntrypointType;
+    empty             : unit
+];
 
 type treasuryFactoryLambdaActionType is 
 
@@ -44,17 +45,15 @@ type treasuryFactoryLambdaActionType is
 |   LambdaSetGovernance                       of (address)
 |   LambdaUpdateMetadata                      of updateMetadataType
 |   LambdaUpdateConfig                        of treasuryFactoryUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts            of updateWhitelistContractsParams
-|   LambdaUpdateGeneralContracts              of updateGeneralContractsParams
-|   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsParams
+|   LambdaUpdateWhitelistContracts            of updateWhitelistContractsType
+|   LambdaUpdateGeneralContracts              of updateGeneralContractsType
+|   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsType
 |   LambdaMistakenTransfer                    of transferActionType
 
     // Pause / Break Glass Entrypoints
 |   LambdaPauseAll                            of (unit)
 |   LambdaUnpauseAll                          of (unit)
-|   LambdaTogglePauseCreateTreasury           of (unit)
-|   LambdaToggleTrackTreasury                 of (unit)
-|   LambdaToggleUntrackTreasury               of (unit)
+|   LambdaTogglePauseEntrypoint               of treasuryFactoryTogglePauseEntrypointType
 
     // Treasury Factory Entrypoints
 |   LambdaCreateTreasury                      of createTreasuryType
@@ -65,9 +64,9 @@ type treasuryFactoryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type treasuryFactoryStorage is [@layout:comb] record[
+type treasuryFactoryStorageType is [@layout:comb] record[
     admin                      : address;
-    metadata                   : metadata;
+    metadata                   : metadataType;
     config                     : treasuryFactoryConfigType;
 
     mvkTokenAddress            : address;

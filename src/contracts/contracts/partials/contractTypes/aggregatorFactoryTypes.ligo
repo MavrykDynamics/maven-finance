@@ -1,7 +1,3 @@
-type setAdminParams is address;
-type metadataType is big_map (string, bytes);
-type lambdaLedgerType is map(string, bytes)
-
 type trackedAggregatorsType is map (string * string, address)
 
 type trackAggregatorParamsType is [@layout:comb] record [
@@ -35,13 +31,6 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
     distributeRewardStakedMvkIsPaused   : bool;
 ]
 
-type aggregatorMetadataType is [@layout:comb] record[
-    name                     : string;
-    description              : string;
-    version                  : string;
-    authors                  : string;
-]
-
 type createAggregatorParamsType is string * string * [@layout:comb] record[
   name                    : string;
   addToGeneralContracts   : bool;
@@ -51,16 +40,6 @@ type createAggregatorParamsType is string * string * [@layout:comb] record[
   aggregatorConfig        : aggregatorConfigType;
   maintainer              : address;
   metadata                : bytes;
-];
-
-type updateAggregatorConfigParamsType is [@layout:comb] record [
-  satelliteAddress: address;
-  aggregatorConfig: aggregatorConfigType;
-];
-
-type updateAggregatorAdminParamsType is [@layout:comb] record [
-  satelliteAddress: address;
-  adminAddress: address;
 ];
 
 type registerAggregatorActionType is [@layout:comb] record [
@@ -79,6 +58,18 @@ type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : aggregatorFactoryUpdateConfigActionType;
 ]
 
+(* togglePauseEntrypoint entrypoint inputs *)
+type aggregatorFactoryPausableEntrypointType is
+    CreateAggregator            of bool
+|   UntrackAggregator           of bool
+|   TrackAggregator             of bool
+|   DistributeRewardXtz         of bool
+|   DistributeRewardStakedMvk   of bool
+
+type aggregatorFactoryTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : aggregatorFactoryPausableEntrypointType;
+    empty             : unit
+];
 
 type aggregatorFactoryLambdaActionType is 
     
@@ -87,17 +78,13 @@ type aggregatorFactoryLambdaActionType is
   | LambdaSetGovernance                 of (address)
   | LambdaUpdateMetadata                of updateMetadataType
   | LambdaUpdateConfig                  of aggregatorFactoryUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
-  | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+  | LambdaUpdateGeneralContracts        of updateGeneralContractsType
 
       // Pause / Break Glass Entrypoints
   | LambdaPauseAll                      of (unit)
   | LambdaUnpauseAll                    of (unit)
-  | LambdaTogglePauseCreateAgg          of (unit)
-  | LambdaTogglePauseTrackAgg           of (unit)
-  | LambdaTogglePauseUntrackAgg         of (unit)
-  | LambdaTogglePauseDisRewardXtz       of (unit)
-  | LambdaTogglePauseDisRewardSMvk      of (unit)
+  | LambdaTogglePauseEntrypoint         of aggregatorFactoryTogglePauseEntrypointType
 
     // Aggregator Factory Lambdas
   | LambdaCreateAggregator              of createAggregatorParamsType
@@ -112,7 +99,7 @@ type aggregatorFactoryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type aggregatorFactoryStorage is [@layout:comb] record [
+type aggregatorFactoryStorageType is [@layout:comb] record [
     admin                   : address;
     metadata                : metadataType;
     config                  : aggregatorFactoryConfigType;

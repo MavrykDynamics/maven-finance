@@ -1,7 +1,6 @@
-type onStakeChangeParams is (address)
+type onStakeChangeType is (address)
 
-
-type satelliteRewards is [@layout:comb] record [
+type satelliteRewardsType is [@layout:comb] record [
     unpaid                                  : nat;
     paid                                    : nat;
     participationRewardsPerShare            : nat;
@@ -49,7 +48,13 @@ type satelliteRecordType is [@layout:comb] record [
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
-type satelliteRewardsLedgerType is big_map (address, satelliteRewards)
+type satelliteSnapshotRecordType is [@layout:comb] record [
+    totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
+    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
+    totalVotingPower          : nat;      // log calculated total voting power 
+]
+
+type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
 
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
@@ -96,13 +101,6 @@ type delegationUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: delegationUpdateConfigActionType;
 ]
 
-type metadata is big_map (string, bytes);
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes;
-]
-
 type delegateToSatelliteType is [@layout:comb] record [
     userAddress      : address;
     satelliteAddress : address;
@@ -118,11 +116,18 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
     newStatus               : string;
 ]
 
-type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
-]
-type lambdaLedgerType is map(string, bytes)
+type delegationPausableEntrypointType is
+  DelegateToSatellite             of bool
+| UndelegateFromSatellite         of bool
+| RegisterAsSatellite             of bool
+| UnregisterAsSatellite           of bool
+| UpdateSatelliteRecord           of bool
+| DistributeReward                of bool
+
+type delegationTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : delegationPausableEntrypointType;
+    empty             : unit
+];
 
 type delegationLambdaActionType is 
 
@@ -131,19 +136,14 @@ type delegationLambdaActionType is
 | LambdaSetGovernance                         of (address)
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of delegationUpdateConfigParamsType
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
-| LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+| LambdaUpdateGeneralContracts                of updateGeneralContractsType
 | LambdaMistakenTransfer                      of transferActionType
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                              of (unit)
 | LambdaUnpauseAll                            of (unit)
-| LambdaPauseDelegateToSatellite              of (unit)
-| LambdaPauseUndelegateSatellite              of (unit)
-| LambdaPauseRegisterSatellite                of (unit)
-| LambdaPauseUnregisterSatellite              of (unit)
-| LambdaPauseUpdateSatellite                  of (unit)
-| LambdaPauseDistributeReward                 of (unit)
+| LambdaTogglePauseEntrypoint                 of delegationTogglePauseEntrypointType
 
   // Delegation Lambdas
 | LambdaDelegateToSatellite                   of delegateToSatelliteType
@@ -156,16 +156,16 @@ type delegationLambdaActionType is
 | LambdaDistributeReward                      of distributeRewardStakedMvkType
 
   // General Lambdas
-| LambdaOnStakeChange                         of onStakeChangeParams
+| LambdaOnStakeChange                         of onStakeChangeType
 | LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
-type delegationStorage is [@layout:comb] record [
+type delegationStorageType is [@layout:comb] record [
     admin                   : address;
-    metadata                : metadata;
+    metadata                : metadataType;
     config                  : delegationConfigType;
 
     mvkTokenAddress         : address;

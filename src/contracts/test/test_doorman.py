@@ -413,7 +413,7 @@ class DoormanContract(TestCase):
         print(finalFarmClaimIsPaused)
 
     ###
-    # %togglePauseStake
+    # %togglePauseEntrypoint
     ##
     def test_24_admin_pause_stake(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
@@ -423,7 +423,9 @@ class DoormanContract(TestCase):
         stakeAmount = self.MVK(2)
 
         # Operation
-        res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=bob)
+        res = self.doormanContract.togglePauseEntrypoint({
+            "toggleStake": True
+        }).interpret(storage=init_doorman_storage, sender=bob)
 
         # Final values
         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
@@ -442,39 +444,7 @@ class DoormanContract(TestCase):
         print('stake is paused:')
         print(finalStakeIsPaused)
 
-    
-    def test_25_non_admin_pause_stake(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-
-        # Initial values
-        stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        stakeAmount = self.MVK(2)
-        finalStakeIsPaused = stakeIsPaused;
-
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=alice)
-
-            # Final values
-            finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-
-            # Tests operations
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                governanceAddress+"%getGeneralContractOpt": delegationAddress,
-                governanceAddress+"%getGeneralContractOpt": delegationAddress
-            });
-
-            self.assertEqual(stakeIsPaused, finalStakeIsPaused)
-
-        print('----')
-        print('✅ Non-admin tries to pause stake entrypoint')
-        print('stake is paused:')
-        print(finalStakeIsPaused)
-
-    ###
-    # %togglePauseUnstake
-    ##
-    def test_26_admin_pause_unstake(self):
+    def test_25_admin_pause_unstake(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
         init_mvk_storage = deepcopy(self.mvkTokenStorage)
 
@@ -484,7 +454,9 @@ class DoormanContract(TestCase):
         unstakeAmount = self.MVK()
 
         # Operation
-        res = self.doormanContract.togglePauseUnstake().interpret(storage=init_doorman_storage, sender=bob)
+        res = self.doormanContract.togglePauseEntrypoint({
+            "toggleUnstake": True
+        }).interpret(storage=init_doorman_storage, sender=bob)
 
         # Final values
         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
@@ -507,51 +479,16 @@ class DoormanContract(TestCase):
         print('unstake is paused:')
         print(finalUnstakeIsPaused)
 
-    def test_27_non_admin_pause_unstake(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-        init_mvk_storage = deepcopy(self.mvkTokenStorage)
-
-        # Initial values
-        unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-        stakeAmount = self.MVK(2)
-        unstakeAmount = self.MVK()
-        finalUnstakeIsPaused = unstakeIsPaused;
-
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.doormanContract.togglePauseUnstake().interpret(storage=init_doorman_storage, sender=alice)
-
-            # Final values
-            finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
-
-            # Tests operations
-            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                governanceAddress+"%getGeneralContractOpt": delegationAddress,
-                governanceAddress+"%getGeneralContractOpt": delegationAddress
-            });
-            res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-                mvkTokenAddress+"%total_supply": mvkTotalSupply,
-                mvkTokenAddress+"%get_balance": self.MVK(2),
-            });
-
-            self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
-
-        print('----')
-        print('✅ Non-admin tries to pause unstake entrypoint')
-        print('unstake is paused:')
-        print(finalUnstakeIsPaused)
-
-    ###
-    # %togglePauseCompound
-    ##
-    def test_26_admin_pause_compound(self):
+    def test_27_admin_pause_compound(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
 
         # Operation
-        res = self.doormanContract.togglePauseCompound().interpret(storage=init_doorman_storage, sender=bob)
+        res = self.doormanContract.togglePauseEntrypoint({
+            "toggleCompound": True
+        }).interpret(storage=init_doorman_storage, sender=bob)
 
         # Final values
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
