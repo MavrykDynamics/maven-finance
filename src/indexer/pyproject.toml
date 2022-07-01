@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "mavryk-indexer"
+version = "0.1.0"
+description = ""
+authors = ["Tristan Allaire <tristan.allaire@alarch.fr>"]
+
+[tool.poetry.dependencies]
+python = "3.10.4"
+dipdup = "^5.1.7"
+python-dateutil = "^2.8.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

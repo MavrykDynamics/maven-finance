@@ -1,0 +1,1469 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dipdup-dev
+  labels:
+    app: dipdup-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dipdup-dev
+  template:
+    metadata:
+      labels:
+        app: dipdup-dev
+    spec:
+      imagePullSecrets:
+        - name: docker-pull-credentials
+      initContainers:
+        - name: empty-db
+          args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PASSWORD
+            - name: ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: TZKT_URL
+              value: https://api.ithacanet.tzkt.io
+          image: tezosdynamics/mavryk-indexer:v0.4.0
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config-volume
+              mountPath: /mavryk/dipdup.yml
+              subPath: dipdup.yml
+      containers:
+        - name: dipdup
+          args: ['-c', 'dipdup.yml', 'run']
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PASSWORD
+            - name: ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: TZKT_URL
+              value: https://api.ithacanet.tzkt.io
+          image: tezosdynamics/mavryk-indexer:v0.4.0
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config-volume
+              mountPath: /mavryk/dipdup.yml
+              subPath: dipdup.yml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: dipdup-dev-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dipdup-dev-config
+data:
+  dipdup.yml: |
+    spec_version: 1.2
+    package: mavryk
+
+    database:
+      kind: postgres
+      host: ${POSTGRES_HOST:-changeme}
+      port: ${POSTGRES_PORT:-changeme}
+      user: ${POSTGRES_USERNAME:-changeme}
+      password: ${POSTGRES_PASSWORD:-changeme}
+      database: dipdup-dev
+      schema_name: public
+
+    hasura:
+      url: http://hasura-dev.mavryk-indexer.svc.cluster.local:8080
+      admin_secret: ${ADMIN_SECRET:-changeme}
+      select_limit: 1000
+      
+    advanced:
+      reindex:
+        manual: wipe
+        migration: exception
+        rollback: ignore
+
+    contracts:
+      mvk:
+        address: KT1KgUQ26ciUCrkZrDoV26ezvW2TiZTjZ1TQ
+        typename: mvk
+      governance:
+        address: KT1XYGTH2ogxW1roAYWrTtUcsXVyu414shxM
+        typename: governance
+      doorman:
+        address: KT1EbCBmz4sdEiVs4R4iUgeEm4hZzjuJ6xMD
+        typename: doorman
+      farm:
+        address: KT1B1AiBSiG2z8mPZvgKc5Rv1WxoKJVWw27t
+        typename: farm
+      farm_factory:
+        address: KT1LwHbAUBvTbRZbr2tgRHykrYvZD4x76rSa
+        typename: farm_factory
+      delegation:
+        address: KT1CMAgdQipgpTZ2ejW6xWeE7TVdbKefTdmQ
+        typename: delegation
+      vesting:
+        address: KT1EBHf15fU5Dho88DDpzrZkh5v9EfRTLHZT
+        typename: vesting
+      emergency_governance:
+        address: KT1TiPdAN9SpKFL23WcYqFsgwPxq6d4YoG7v
+        typename: emergency_governance
+      council:
+        address: KT1CkevWWpee584oiZXAmm78vTWiYezSK5ZQ
+        typename: council
+      break_glass:
+        address: KT1XsnpSVhTfCHG9Eq2eYAC8arvM6oE9tZvv
+        typename: break_glass
+      governance_financial:
+        address: KT1NAuqiAaS4rTiGxqWU6C4yUHEN7LFBkpQb
+        typename: governance_financial
+      governance_satellite:
+        address: KT1QdNZVmU6eHQUiw74E47E4kExWNK3vazbG
+        typename: governance_satellite
+      aggregator:
+        address: KT1HitmjJgX6MccVJ8o5pvUco3p4iStohJHi
+        typename: aggregator
+      aggregator_factory:
+        address: KT1RjYz5QD5EfcRicmzuiYfXH2rQmCpgvcZe
+        typename: aggregator_factory
+      treasury:
+        address: KT1HyW4eKjp6igpH6HNuwwPrVnkbf8wajZU2
+        typename: treasury
+      treasury_factory:
+        address: KT1Q58LZnrNh5ETnofJtj3KFyCNMJFwmgWd2
+        typename: treasury_factory
+
+    datasources:
+      tzkt:
+        kind: tzkt
+        url: ${TZKT_URL:-changeme}
+
+    templates:
+      # Template for Farm Factory
+      farm_template:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - <farm_contract>
+        handlers:
+          - callback: on_farm_set_admin
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: setAdmin
+          - callback: on_farm_set_governance
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: setGovernance
+          - callback: on_farm_update_config
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: updateConfig
+          - callback: on_farm_update_whitelist_contracts
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: updateWhitelistContracts
+          - callback: on_farm_update_general_contracts
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: updateGeneralContracts
+          - callback: on_farm_update_blocks_per_minute
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: updateBlocksPerMinute
+          - callback: on_farm_init_farm
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: initFarm
+          - callback: on_farm_close_farm
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: closeFarm
+          - callback: on_farm_pause_all
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: pauseAll
+          - callback: on_farm_unpause_all
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: unpauseAll
+          - callback: on_farm_toggle_pause_entrypoint
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: togglePauseEntrypoint
+          - callback: on_farm_deposit
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: deposit
+          - callback: on_farm_withdraw
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: withdraw
+          - callback: on_farm_claim
+            pattern:
+              - destination: <farm_contract>
+                entrypoint: claim
+      # Template for treasury Factory
+      treasury_template:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - <treasury_contract>
+        handlers:
+          - callback: on_treasury_set_admin
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: setAdmin
+          - callback: on_treasury_set_governance
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: setGovernance
+          - callback: on_treasury_update_general_contracts
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: updateGeneralContracts
+          - callback: on_treasury_update_whitelist_contracts
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: updateWhitelistContracts
+          - callback: on_treasury_update_whitelist_token_contracts
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_treasury_pause_all
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: pauseAll
+          - callback: on_treasury_unpause_all
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: unpauseAll
+          - callback: on_treasury_toggle_pause_entrypoint
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: togglePauseEntrypoint
+          - callback: on_treasury_transfer
+            pattern:
+              - destination: <treasury_contract>
+                entrypoint: transfer
+      # Template for aggregator factory
+      aggregator_template:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - <aggregator_contract>
+        handlers:
+          - callback: on_aggregator_set_admin
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setAdmin
+          - callback: on_aggregator_set_governance
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setGovernance
+          - callback: on_aggregator_set_maintainer
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setMaintainer
+          - callback: on_aggregator_update_config
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateConfig
+          - callback: on_aggregator_update_whitelist_contracts
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateWhitelistContracts
+          - callback: on_aggregator_update_general_contracts
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: updateGeneralContracts
+          - callback: on_aggregator_add_oracle
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: addOracle
+          - callback: on_aggregator_remove_oracle
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: removeOracle
+          - callback: on_aggregator_pause_all
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: pauseAll
+          - callback: on_aggregator_unpause_all
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: unpauseAll
+          - callback: on_aggregator_toggle_pause_entrypoint
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: togglePauseEntrypoint
+          - callback: on_aggregator_request_rate_update
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: requestRateUpdate
+          - callback: on_aggregator_request_rate_update_deviation
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: requestRateUpdateDeviation
+          - callback: on_aggregator_set_observation_commit
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setObservationCommit
+          - callback: on_aggregator_set_observation_reveal
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: setObservationReveal
+          - callback: on_aggregator_withdraw_reward_xtz
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: withdrawRewardXtz
+          - callback: on_aggregator_withdraw_reward_staked_mvk
+            pattern:
+              - destination: <aggregator_contract>
+                entrypoint: withdrawRewardStakedMvk
+
+    indexes:
+      # MVK Token contract indexes
+      mvk:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - mvk
+        handlers:
+          - callback: on_mvk_origination
+            pattern:
+              - type: origination
+                originated_contract: mvk
+          - callback: on_mvk_set_admin
+            pattern:
+              - destination: mvk
+                entrypoint: setAdmin
+          - callback: on_mvk_set_governance
+            pattern:
+              - destination: mvk
+                entrypoint: setGovernance
+          - callback: on_mvk_update_whitelist_contracts
+            pattern:
+              - destination: mvk
+                entrypoint: updateWhitelistContracts
+          - callback: on_mvk_update_general_contracts
+            pattern:
+              - destination: mvk
+                entrypoint: updateGeneralContracts
+          - callback: on_mvk_transfer
+            pattern:
+              - destination: mvk
+                entrypoint: transfer
+          - callback: on_mvk_update_operators
+            pattern:
+              - destination: mvk
+                entrypoint: update_operators
+          - callback: on_mvk_mint
+            pattern:
+              - destination: mvk
+                entrypoint: mint
+          - callback: on_mvk_update_inflation_rate
+            pattern:
+              - destination: mvk
+                entrypoint: updateInflationRate
+          - callback: on_mvk_trigger_inflation
+            pattern:
+              - destination: mvk
+                entrypoint: triggerInflation
+      # Governance contract indexes
+      governance:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - governance
+        handlers:
+          - callback: on_governance_origination
+            pattern:
+              - type: origination
+                originated_contract: governance
+          - callback: on_governance_break_glass
+            pattern:
+              - destination: governance
+                entrypoint: breakGlass
+          - callback: on_governance_set_admin
+            pattern:
+              - destination: governance
+                entrypoint: setAdmin
+          - callback: on_governance_set_governance_proxy
+            pattern:
+              - destination: governance
+                entrypoint: setGovernanceProxy
+          - callback: on_governance_update_config
+            pattern:
+              - destination: governance
+                entrypoint: updateConfig
+          - callback: on_governance_update_general_contracts
+            pattern:
+              - destination: governance
+                entrypoint: updateGeneralContracts
+          - callback: on_governance_update_whitelist_contracts
+            pattern:
+              - destination: governance
+                entrypoint: updateWhitelistContracts
+          - callback: on_governance_update_whitelist_developers
+            pattern:
+              - destination: governance
+                entrypoint: updateWhitelistDevelopers
+          - callback: on_governance_start_next_round
+            pattern:
+              - destination: governance
+                entrypoint: startNextRound
+          - callback: on_governance_propose
+            pattern:
+              - destination: governance
+                entrypoint: propose
+          - callback: on_governance_proposal_round_vote
+            pattern:
+              - destination: governance
+                entrypoint: proposalRoundVote
+          - callback: on_governance_update_proposal_data
+            pattern:
+              - destination: governance
+                entrypoint: updateProposalData
+          - callback: on_governance_update_payment_data
+            pattern:
+              - destination: governance
+                entrypoint: updatePaymentData
+          - callback: on_governance_lock_proposal
+            pattern:
+              - destination: governance
+                entrypoint: lockProposal
+          - callback: on_governance_voting_round_vote
+            pattern:
+              - destination: governance
+                entrypoint: votingRoundVote
+          - callback: on_governance_execute_proposal
+            pattern:
+              - destination: governance
+                entrypoint: executeProposal
+          - callback: on_governance_process_proposal_payment
+            pattern:
+              - destination: governance
+                entrypoint: processProposalPayment
+          - callback: on_governance_process_proposal_single_date
+            pattern:
+              - destination: governance
+                entrypoint: processProposalSingleData
+          - callback: on_governance_drop_proposal
+            pattern:
+              - destination: governance
+                entrypoint: dropProposal
+      # Doorman contract indexes
+      doorman:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - doorman
+          - mvk
+        handlers:
+          - callback: on_doorman_origination
+            pattern:
+              - type: origination
+                originated_contract: doorman
+          - callback: on_doorman_set_admin
+            pattern:
+              - destination: doorman
+                entrypoint: setAdmin
+          - callback: on_doorman_set_governance
+            pattern:
+              - destination: doorman
+                entrypoint: setGovernance
+          - callback: on_doorman_update_config
+            pattern:
+              - destination: doorman
+                entrypoint: updateConfig
+          - callback: on_doorman_update_whitelist_contracts
+            pattern:
+              - destination: doorman
+                entrypoint: updateWhitelistContracts
+          - callback: on_doorman_update_general_contracts
+            pattern:
+              - destination: doorman
+                entrypoint: updateGeneralContracts
+          - callback: on_doorman_pause_all
+            pattern:
+              - destination: doorman
+                entrypoint: pauseAll
+          - callback: on_doorman_unpause_all
+            pattern:
+              - destination: doorman
+                entrypoint: unpauseAll
+          - callback: on_doorman_toggle_pause_entrypoint
+            pattern:
+              - destination: doorman
+                entrypoint: togglePauseEntrypoint
+          - callback: on_doorman_stake
+            pattern:
+              - destination: doorman
+                entrypoint: stake
+              - source: doorman
+                destination: mvk
+                entrypoint: transfer
+          - callback: on_doorman_unstake
+            pattern:
+              - destination: doorman
+                entrypoint: unstake
+              - source: doorman
+                destination: mvk
+                entrypoint: transfer
+          - callback: on_doorman_compound
+            pattern:
+              - destination: doorman
+                entrypoint: compound
+          - callback: on_doorman_farm_claim
+            pattern:
+              - destination: doorman
+                entrypoint: farmClaim
+      # Farm contract indexes
+      farm:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - farm
+        handlers:
+          - callback: on_farm_origination
+            pattern:
+              - type: origination
+                originated_contract: farm
+          - callback: on_farm_set_admin
+            pattern:
+              - destination: farm
+                entrypoint: setAdmin
+          - callback: on_farm_set_governance
+            pattern:
+              - destination: farm
+                entrypoint: setGovernance
+          - callback: on_farm_update_config
+            pattern:
+              - destination: farm
+                entrypoint: updateConfig
+          - callback: on_farm_update_whitelist_contracts
+            pattern:
+              - destination: farm
+                entrypoint: updateWhitelistContracts
+          - callback: on_farm_update_general_contracts
+            pattern:
+              - destination: farm
+                entrypoint: updateGeneralContracts
+          - callback: on_farm_update_blocks_per_minute
+            pattern:
+              - destination: farm
+                entrypoint: updateBlocksPerMinute
+          - callback: on_farm_init_farm
+            pattern:
+              - destination: farm
+                entrypoint: initFarm
+          - callback: on_farm_close_farm
+            pattern:
+              - destination: farm
+                entrypoint: closeFarm
+          - callback: on_farm_pause_all
+            pattern:
+              - destination: farm
+                entrypoint: pauseAll
+          - callback: on_farm_unpause_all
+            pattern:
+              - destination: farm
+                entrypoint: unpauseAll
+          - callback: on_farm_toggle_pause_entrypoint
+            pattern:
+              - destination: farm
+                entrypoint: togglePauseEntrypoint
+          - callback: on_farm_deposit
+            pattern:
+              - destination: farm
+                entrypoint: deposit
+          - callback: on_farm_withdraw
+            pattern:
+              - destination: farm
+                entrypoint: withdraw
+          - callback: on_farm_claim
+            pattern:
+              - destination: farm
+                entrypoint: claim
+      # Farm Factory contract indexes
+      farm_factory:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - farm_factory
+          - farm
+        handlers:
+          - callback: on_farm_factory_origination
+            pattern:
+              - type: origination
+                originated_contract: farm_factory
+          - callback: on_farm_factory_set_admin
+            pattern:
+              - destination: farm_factory
+                entrypoint: setAdmin
+          - callback: on_farm_factory_set_governance
+            pattern:
+              - destination: farm_factory
+                entrypoint: setGovernance
+          - callback: on_farm_factory_update_config
+            pattern:
+              - destination: farm_factory
+                entrypoint: updateConfig
+          - callback: on_farm_factory_update_whitelist_contracts
+            pattern:
+              - destination: farm_factory
+                entrypoint: updateWhitelistContracts
+          - callback: on_farm_factory_update_general_contracts
+            pattern:
+              - destination: farm_factory
+                entrypoint: updateGeneralContracts
+          - callback: on_farm_factory_update_blocks_per_minute
+            pattern:
+              - destination: farm_factory
+                entrypoint: updateBlocksPerMinute
+          - callback: on_farm_factory_pause_all
+            pattern:
+              - destination: farm_factory
+                entrypoint: pauseAll
+          - callback: on_farm_factory_unpause_all
+            pattern:
+              - destination: farm_factory
+                entrypoint: unpauseAll
+          - callback: on_farm_factory_toggle_pause_entrypoint
+            pattern:
+              - destination: farm_factory
+                entrypoint: togglePauseEntrypoint
+          - callback: on_farm_factory_create_farm
+            pattern:
+              - destination: farm_factory
+                entrypoint: createFarm
+              - source: farm_factory
+                type: origination
+                similar_to: farm
+          - callback: on_farm_factory_track_farm
+            pattern:
+              - destination: farm_factory
+                entrypoint: trackFarm
+          - callback: on_farm_factory_untrack_farm
+            pattern:
+              - destination: farm_factory
+                entrypoint: untrackFarm
+      # Delegation contract indexes
+      delegation:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - delegation
+        handlers:
+          - callback: on_delegation_origination
+            pattern:
+              - type: origination
+                originated_contract: delegation
+          - callback: on_delegation_set_admin
+            pattern:
+              - destination: delegation
+                entrypoint: setAdmin
+          - callback: on_delegation_set_governance
+            pattern:
+              - destination: delegation
+                entrypoint: setGovernance
+          - callback: on_delegation_update_config
+            pattern:
+              - destination: delegation
+                entrypoint: updateConfig
+          - callback: on_delegation_update_whitelist_contracts
+            pattern:
+              - destination: delegation
+                entrypoint: updateWhitelistContracts
+          - callback: on_delegation_update_general_contracts
+            pattern:
+              - destination: delegation
+                entrypoint: updateGeneralContracts
+          - callback: on_delegation_pause_all
+            pattern:
+              - destination: delegation
+                entrypoint: pauseAll
+          - callback: on_delegation_unpause_all
+            pattern:
+              - destination: delegation
+                entrypoint: unpauseAll
+          - callback: on_delegation_toggle_pause_entrypoint
+            pattern:
+              - destination: delegation
+                entrypoint: togglePauseEntrypoint
+          - callback: on_delegation_delegate_to_satellite
+            pattern:
+              - destination: delegation
+                entrypoint: delegateToSatellite
+          - callback: on_delegation_undelegate_from_satellite
+            pattern:
+              - destination: delegation
+                entrypoint: undelegateFromSatellite
+          - callback: on_delegation_register_as_satellite
+            pattern:
+              - destination: delegation
+                entrypoint: registerAsSatellite
+          - callback: on_delegation_unregister_as_satellite
+            pattern:
+              - destination: delegation
+                entrypoint: unregisterAsSatellite
+          - callback: on_delegation_update_satellite_record
+            pattern:
+              - destination: delegation
+                entrypoint: updateSatelliteRecord
+          - callback: on_delegation_distribute_reward
+            pattern:
+              - destination: delegation
+                entrypoint: distributeReward
+          - callback: on_delegation_update_satellite_status
+            pattern:
+              - destination: delegation
+                entrypoint: updateSatelliteStatus
+          - callback: on_delegation_on_stake_change
+            pattern:
+              - destination: delegation
+                entrypoint: onStakeChange
+      # Vesting contract indexes
+      vesting:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - vesting
+        handlers:
+          - callback: on_vesting_origination
+            pattern:
+              - type: origination
+                originated_contract: vesting
+          - callback: on_vesting_set_admin
+            pattern:
+              - destination: vesting
+                entrypoint: setAdmin
+          - callback: on_vesting_set_governance
+            pattern:
+              - destination: vesting
+                entrypoint: setGovernance
+          - callback: on_vesting_update_whitelist_contracts
+            pattern:
+              - destination: vesting
+                entrypoint: updateWhitelistContracts
+          - callback: on_vesting_update_general_contracts
+            pattern:
+              - destination: vesting
+                entrypoint: updateGeneralContracts
+          - callback: on_vesting_add_vestee
+            pattern:
+              - destination: vesting
+                entrypoint: addVestee
+          - callback: on_vesting_remove_vestee
+            pattern:
+              - destination: vesting
+                entrypoint: removeVestee
+          - callback: on_vesting_update_vestee
+            pattern:
+              - destination: vesting
+                entrypoint: updateVestee
+          - callback: on_vesting_toggle_vestee_lock
+            pattern:
+              - destination: vesting
+                entrypoint: toggleVesteeLock
+          - callback: on_vesting_claim
+            pattern:
+              - destination: vesting
+                entrypoint: claim
+      # Emergency Governance contract indexes
+      emergency_governance:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - emergency_governance
+        handlers:
+          - callback: on_emergency_governance_origination
+            pattern:
+              - type: origination
+                originated_contract: emergency_governance
+          - callback: on_emergency_governance_set_admin
+            pattern:
+              - destination: emergency_governance
+                entrypoint: setAdmin
+          - callback: on_emergency_governance_set_governance
+            pattern:
+              - destination: emergency_governance
+                entrypoint: setGovernance
+          - callback: on_emergency_governance_update_config
+            pattern:
+              - destination: emergency_governance
+                entrypoint: updateConfig
+          - callback: on_emergency_governance_update_general_contracts
+            pattern:
+              - destination: emergency_governance
+                entrypoint: updateGeneralContracts
+          - callback: on_emergency_governance_update_whitelist_contracts
+            pattern:
+              - destination: emergency_governance
+                entrypoint: updateWhitelistContracts
+          - callback: on_emergency_governance_trigger_emergency_control
+            pattern:
+              - destination: emergency_governance
+                entrypoint: triggerEmergencyControl
+          - callback: on_emergency_governance_vote_for_emergency_control
+            pattern:
+              - destination: emergency_governance
+                entrypoint: voteForEmergencyControl
+          - callback: on_emergency_governance_drop_emergency_governance
+            pattern:
+              - destination: emergency_governance
+                entrypoint: dropEmergencyGovernance
+      # Council contract indexes
+      council:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - council
+        handlers:
+          - callback: on_council_origination
+            pattern:
+              - type: origination
+                originated_contract: council
+          - callback: on_council_set_admin
+            pattern:
+              - destination: council
+                entrypoint: setAdmin
+          - callback: on_council_set_governance
+            pattern:
+              - destination: council
+                entrypoint: setGovernance
+          - callback: on_council_update_config
+            pattern:
+              - destination: council
+                entrypoint: updateConfig
+          - callback: on_council_update_whitelist_contracts
+            pattern:
+              - destination: council
+                entrypoint: updateWhitelistContracts
+          - callback: on_council_update_general_contracts
+            pattern:
+              - destination: council
+                entrypoint: updateGeneralContracts
+          - callback: on_council_update_council_member_info
+            pattern:
+              - destination: council
+                entrypoint: updateCouncilMemberInfo
+          - callback: on_council_council_action_add_member
+            pattern:
+              - destination: council
+                entrypoint: councilActionAddMember
+          - callback: on_council_council_action_remove_member
+            pattern:
+              - destination: council
+                entrypoint: councilActionRemoveMember
+          - callback: on_council_council_action_change_member
+            pattern:
+              - destination: council
+                entrypoint: councilActionChangeMember
+          - callback: on_council_council_action_set_baker
+            pattern:
+              - destination: council
+                entrypoint: councilActionSetBaker
+          - callback: on_council_council_action_update_blocks_per_min
+            pattern:
+              - destination: council
+                entrypoint: councilActionUpdateBlocksPerMin
+          - callback: on_council_council_action_add_vestee
+            pattern:
+              - destination: council
+                entrypoint: councilActionAddVestee
+          - callback: on_council_council_action_remove_vestee
+            pattern:
+              - destination: council
+                entrypoint: councilActionRemoveVestee
+          - callback: on_council_council_action_update_vestee
+            pattern:
+              - destination: council
+                entrypoint: councilActionUpdateVestee
+          - callback: on_council_council_action_toggle_vestee_lock
+            pattern:
+              - destination: council
+                entrypoint: councilActionToggleVesteeLock
+          - callback: on_council_council_action_transfer
+            pattern:
+              - destination: council
+                entrypoint: councilActionTransfer
+          - callback: on_council_council_action_request_tokens
+            pattern:
+              - destination: council
+                entrypoint: councilActionRequestTokens
+          - callback: on_council_council_action_request_mint
+            pattern:
+              - destination: council
+                entrypoint: councilActionRequestMint
+          - callback: on_council_council_action_set_contract_baker
+            pattern:
+              - destination: council
+                entrypoint: councilActionSetContractBaker
+          - callback: on_council_council_action_drop_financial_req
+            pattern:
+              - destination: council
+                entrypoint: councilActionDropFinancialReq
+          - callback: on_council_flush_action
+            pattern:
+              - destination: council
+                entrypoint: flushAction
+          - callback: on_council_sign_action
+            pattern:
+              - destination: council
+                entrypoint: signAction
+      # Break Glass contract indexes
+      break_glass:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - break_glass
+        handlers:
+          - callback: on_break_glass_break_glass
+            pattern:
+              - destination: break_glass
+                entrypoint: breakGlass
+          - callback: on_break_glass_origination
+            pattern:
+              - type: origination
+                originated_contract: break_glass
+          - callback: on_break_glass_set_admin
+            pattern:
+              - destination: break_glass
+                entrypoint: setAdmin
+          - callback: on_break_glass_set_governance
+            pattern:
+              - destination: break_glass
+                entrypoint: setGovernance
+          - callback: on_break_glass_update_config
+            pattern:
+              - destination: break_glass
+                entrypoint: updateConfig
+          - callback: on_break_glass_update_whitelist_contracts
+            pattern:
+              - destination: break_glass
+                entrypoint: updateWhitelistContracts
+          - callback: on_break_glass_update_general_contracts
+            pattern:
+              - destination: break_glass
+                entrypoint: updateGeneralContracts
+          - callback: on_break_glass_update_council_member_info
+            pattern:
+              - destination: break_glass
+                entrypoint: updateCouncilMemberInfo
+          - callback: on_break_glass_add_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: addCouncilMember
+          - callback: on_break_glass_remove_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: removeCouncilMember
+          - callback: on_break_glass_change_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: changeCouncilMember
+          - callback: on_break_glass_propagate_break_glass
+            pattern:
+              - destination: break_glass
+                entrypoint: propagateBreakGlass
+          - callback: on_break_glass_set_single_contract_admin
+            pattern:
+              - destination: break_glass
+                entrypoint: setSingleContractAdmin
+          - callback: on_break_glass_set_all_contracts_admin
+            pattern:
+              - destination: break_glass
+                entrypoint: setAllContractsAdmin
+          - callback: on_break_glass_pause_all_entrypoints
+            pattern:
+              - destination: break_glass
+                entrypoint: pauseAllEntrypoints
+          - callback: on_break_glass_unpause_all_entrypoints
+            pattern:
+              - destination: break_glass
+                entrypoint: unpauseAllEntrypoints
+          - callback: on_break_glass_remove_break_glass_control
+            pattern:
+              - destination: break_glass
+                entrypoint: removeBreakGlassControl
+          - callback: on_break_glass_flush_action
+            pattern:
+              - destination: break_glass
+                entrypoint: flushAction
+          - callback: on_break_glass_sign_action
+            pattern:
+              - destination: break_glass
+                entrypoint: signAction
+      # Governance Financial contract indexes
+      governance_financial:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - governance_financial
+        handlers:
+          - callback: on_governance_financial_origination
+            pattern:
+              - type: origination
+                originated_contract: governance_financial
+          - callback: on_governance_financial_set_admin
+            pattern:
+              - destination: governance_financial
+                entrypoint: setAdmin
+          - callback: on_governance_financial_set_governance
+            pattern:
+              - destination: governance_financial
+                entrypoint: setGovernance
+          - callback: on_governance_financial_update_config
+            pattern:
+              - destination: governance_financial
+                entrypoint: updateConfig
+          - callback: on_governance_financial_update_general_contracts
+            pattern:
+              - destination: governance_financial
+                entrypoint: updateGeneralContracts
+          - callback: on_governance_financial_update_whitelist_contracts
+            pattern:
+              - destination: governance_financial
+                entrypoint: updateWhitelistContracts
+          - callback: on_governance_financial_update_whitelist_token_contracts
+            pattern:
+              - destination: governance_financial
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_governance_financial_request_tokens
+            pattern:
+              - destination: governance_financial
+                entrypoint: requestTokens
+          - callback: on_governance_financial_request_mint
+            pattern:
+              - destination: governance_financial
+                entrypoint: requestMint
+          - callback: on_governance_financial_set_contract_baker
+            pattern:
+              - destination: governance_financial
+                entrypoint: setContractBaker
+          - callback: on_governance_financial_drop_financial_request
+            pattern:
+              - destination: governance_financial
+                entrypoint: dropFinancialRequest
+          - callback: on_governance_financial_vote_for_request
+            pattern:
+              - destination: governance_financial
+                entrypoint: voteForRequest
+      # Governance Satellite contract indexes
+      governance_satellite:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - governance_satellite
+        handlers:
+          - callback: on_governance_satellite_origination
+            pattern:
+              - type: origination
+                originated_contract: governance_satellite
+          - callback: on_governance_satellite_set_admin
+            pattern:
+              - destination: governance_satellite
+                entrypoint: setAdmin
+          - callback: on_governance_satellite_set_governance
+            pattern:
+              - destination: governance_satellite
+                entrypoint: setGovernance
+          - callback: on_governance_satellite_update_config
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateConfig
+          - callback: on_governance_satellite_update_whitelist_contracts
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateWhitelistContracts
+          - callback: on_governance_satellite_update_general_contracts
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateGeneralContracts
+          - callback: on_governance_satellite_suspend_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: suspendSatellite
+          - callback: on_governance_satellite_unsuspend_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: unsuspendSatellite
+          - callback: on_governance_satellite_ban_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: banSatellite
+          - callback: on_governance_satellite_unban_satellite
+            pattern:
+              - destination: governance_satellite
+                entrypoint: unbanSatellite
+          - callback: on_governance_satellite_remove_all_satellite_oracles
+            pattern:
+              - destination: governance_satellite
+                entrypoint: removeAllSatelliteOracles
+          - callback: on_governance_satellite_add_oracle_to_aggregator
+            pattern:
+              - destination: governance_satellite
+                entrypoint: addOracleToAggregator
+          - callback: on_governance_satellite_remove_oracle_in_aggregator
+            pattern:
+              - destination: governance_satellite
+                entrypoint: removeOracleInAggregator
+          - callback: on_governance_satellite_register_aggregator
+            pattern:
+              - destination: governance_satellite
+                entrypoint: registerAggregator
+          - callback: on_governance_satellite_update_aggregator_status
+            pattern:
+              - destination: governance_satellite
+                entrypoint: updateAggregatorStatus
+          - callback: on_governance_satellite_drop_action
+            pattern:
+              - destination: governance_satellite
+                entrypoint: dropAction
+          - callback: on_governance_satellite_vote_for_action
+            pattern:
+              - destination: governance_satellite
+                entrypoint: voteForAction
+      # Aggregator contract indexes
+      aggregator:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - aggregator
+        handlers:
+          - callback: on_aggregator_origination
+            pattern:
+              - type: origination
+                originated_contract: aggregator
+          - callback: on_aggregator_set_admin
+            pattern:
+              - destination: aggregator
+                entrypoint: setAdmin
+          - callback: on_aggregator_set_governance
+            pattern:
+              - destination: aggregator
+                entrypoint: setGovernance
+          - callback: on_aggregator_set_maintainer
+            pattern:
+              - destination: aggregator
+                entrypoint: setMaintainer
+          - callback: on_aggregator_update_config
+            pattern:
+              - destination: aggregator
+                entrypoint: updateConfig
+          - callback: on_aggregator_update_whitelist_contracts
+            pattern:
+              - destination: aggregator
+                entrypoint: updateWhitelistContracts
+          - callback: on_aggregator_update_general_contracts
+            pattern:
+              - destination: aggregator
+                entrypoint: updateGeneralContracts
+          - callback: on_aggregator_add_oracle
+            pattern:
+              - destination: aggregator
+                entrypoint: addOracle
+          - callback: on_aggregator_remove_oracle
+            pattern:
+              - destination: aggregator
+                entrypoint: removeOracle
+          - callback: on_aggregator_pause_all
+            pattern:
+              - destination: aggregator
+                entrypoint: pauseAll
+          - callback: on_aggregator_unpause_all
+            pattern:
+              - destination: aggregator
+                entrypoint: unpauseAll
+          - callback: on_aggregator_toggle_pause_entrypoint
+            pattern:
+              - destination: aggregator
+                entrypoint: togglePauseEntrypoint
+          - callback: on_aggregator_request_rate_update
+            pattern:
+              - destination: aggregator
+                entrypoint: requestRateUpdate
+          - callback: on_aggregator_request_rate_update_deviation
+            pattern:
+              - destination: aggregator
+                entrypoint: requestRateUpdateDeviation
+          - callback: on_aggregator_set_observation_commit
+            pattern:
+              - destination: aggregator
+                entrypoint: setObservationCommit
+          - callback: on_aggregator_set_observation_reveal
+            pattern:
+              - destination: aggregator
+                entrypoint: setObservationReveal
+          - callback: on_aggregator_withdraw_reward_xtz
+            pattern:
+              - destination: aggregator
+                entrypoint: withdrawRewardXtz
+          - callback: on_aggregator_withdraw_reward_staked_mvk
+            pattern:
+              - destination: aggregator
+                entrypoint: withdrawRewardStakedMvk
+      # Aggregator Factory contract indexes
+      aggregator_factory:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - aggregator_factory
+        handlers:
+          - callback: on_aggregator_factory_origination
+            pattern:
+              - type: origination
+                originated_contract: aggregator_factory
+          - callback: on_aggregator_factory_set_admin
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: setAdmin
+          - callback: on_aggregator_factory_set_governance
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: setGovernance
+          - callback: on_aggregator_factory_update_whitelist_contracts
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: updateWhitelistContracts
+          - callback: on_aggregator_factory_update_general_contracts
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: updateGeneralContracts
+          - callback: on_aggregator_factory_pause_all
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: pauseAll
+          - callback: on_aggregator_factory_unpause_all
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: unpauseAll
+          - callback: on_aggregator_factory_toggle_pause_entrypoint
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: togglePauseEntrypoint
+          - callback: on_aggregator_factory_create_aggregator
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: createAggregator
+              - source: aggregator_factory
+                type: origination
+                similar_to: aggregator
+          - callback: on_aggregator_factory_track_aggregator
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: trackAggregator
+          - callback: on_aggregator_factory_untrack_aggregator
+            pattern:
+              - destination: aggregator_factory
+                entrypoint: untrackAggregator
+      # Treasury contract indexes
+      treasury:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - treasury
+        handlers:
+          - callback: on_treasury_origination
+            pattern:
+              - type: origination
+                originated_contract: treasury
+          - callback: on_treasury_set_admin
+            pattern:
+              - destination: treasury
+                entrypoint: setAdmin
+          - callback: on_treasury_set_governance
+            pattern:
+              - destination: treasury
+                entrypoint: setGovernance
+          - callback: on_treasury_update_general_contracts
+            pattern:
+              - destination: treasury
+                entrypoint: updateGeneralContracts
+          - callback: on_treasury_update_whitelist_contracts
+            pattern:
+              - destination: treasury
+                entrypoint: updateWhitelistContracts
+          - callback: on_treasury_update_whitelist_token_contracts
+            pattern:
+              - destination: treasury
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_treasury_pause_all
+            pattern:
+              - destination: treasury
+                entrypoint: pauseAll
+          - callback: on_treasury_unpause_all
+            pattern:
+              - destination: treasury
+                entrypoint: unpauseAll
+          - callback: on_treasury_toggle_pause_entrypoint
+            pattern:
+              - destination: treasury
+                entrypoint: togglePauseEntrypoint
+          - callback: on_treasury_transfer
+            pattern:
+              - destination: treasury
+                entrypoint: transfer
+      # Treasury Factory contract indexes
+      treasury_factory:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - treasury_factory
+          - treasury
+        handlers:
+          - callback: on_treasury_factory_origination
+            pattern:
+              - type: origination
+                originated_contract: treasury_factory
+          - callback: on_treasury_factory_set_admin
+            pattern:
+              - destination: treasury_factory
+                entrypoint: setAdmin
+          - callback: on_treasury_factory_set_governance
+            pattern:
+              - destination: treasury_factory
+                entrypoint: setGovernance
+          - callback: on_treasury_factory_update_config
+            pattern:
+              - destination: treasury_factory
+                entrypoint: updateConfig
+          - callback: on_treasury_factory_update_general_contracts
+            pattern:
+              - destination: treasury_factory
+                entrypoint: updateGeneralContracts
+          - callback: on_treasury_factory_update_whitelist_contracts
+            pattern:
+              - destination: treasury_factory
+                entrypoint: updateWhitelistContracts
+          - callback: on_treasury_factory_update_whitelist_token_contracts
+            pattern:
+              - destination: treasury_factory
+                entrypoint: updateWhitelistTokenContracts
+          - callback: on_treasury_factory_pause_all
+            pattern:
+              - destination: treasury_factory
+                entrypoint: pauseAll
+          - callback: on_treasury_factory_unpause_all
+            pattern:
+              - destination: treasury_factory
+                entrypoint: unpauseAll
+          - callback: on_treasury_factory_toggle_pause_entrypoint
+            pattern:
+              - destination: treasury_factory
+                entrypoint: togglePauseEntrypoint
+          - callback: on_treasury_factory_create_treasury
+            pattern:
+              - destination: treasury_factory
+                entrypoint: createTreasury
+              - source: treasury_factory
+                type: origination
+                similar_to: treasury
+          - callback: on_treasury_factory_track_treasury
+            pattern:
+              - destination: treasury_factory
+                entrypoint: trackTreasury
+          - callback: on_treasury_factory_untrack_treasury
+            pattern:
+              - destination: treasury_factory
+                entrypoint: untrackTreasury
