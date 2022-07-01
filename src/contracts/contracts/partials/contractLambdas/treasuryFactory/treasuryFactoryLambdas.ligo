@@ -263,12 +263,12 @@ block {
     checkSenderIsAdmin(s);
 
     case treasuryFactoryLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleCreateTreasury (_v)       -> s.breakGlassConfig.createTreasuryIsPaused := _v
-                |   ToggleTrackTreasury (_v)        -> s.breakGlassConfig.trackTreasuryIsPaused := _v
-                |   ToggleUntrackTreasury (_v)      -> s.breakGlassConfig.untrackTreasuryIsPaused := _v
+                case params.targetEntrypoint of [
+                    CreateTreasury (_v)       -> s.breakGlassConfig.createTreasuryIsPaused := _v
+                |   TrackTreasury (_v)        -> s.breakGlassConfig.trackTreasuryIsPaused := _v
+                |   UntrackTreasury (_v)      -> s.breakGlassConfig.untrackTreasuryIsPaused := _v
                 ]
                 
             }

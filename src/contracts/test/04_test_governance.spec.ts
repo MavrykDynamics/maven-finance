@@ -166,6 +166,27 @@
 
 //     describe("First Cycle", async () => {
 //         describe("%updateConfig", async () => {
+//             before("Configure delegation ratio on delegation contract", async () => {
+//                 try{
+//                     // Initial Values
+//                     await signerFactory(bob.sk)
+//                     delegationStorage   = await delegationInstance.storage();
+//                     const newConfigValue = 10;
+
+//                     // Operation
+//                     const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
+//                     await updateConfigOperation.confirmation();
+
+//                     // Final values
+//                     delegationStorage   = await delegationInstance.storage();
+//                     const updateConfigValue = delegationStorage.config.delegationRatio;
+
+//                     // Assertions
+//                     assert.equal(updateConfigValue, newConfigValue);
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             });
 //             beforeEach("Set signer to admin", async () => {
 //                 await signerFactory(bob.sk)
 //             });
@@ -307,47 +328,6 @@
 
 //                     // Assertions
 //                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should be able to call the entrypoint and configure the voting power ratio', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = 10;
-
-//                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send();
-//                     await updateConfigOperation.confirmation();
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.votingPowerRatio;
-
-//                     // Assertions
-//                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const currentConfigValue = governanceStorage.config.votingPowerRatio;
-//                     const newConfigValue = 10001;
-
-//                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.votingPowerRatio;
-
-//                     // Assertions
-//                     assert.notEqual(newConfigValue, currentConfigValue);
-//                     assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2160,7 +2140,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
+//                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
 //                     await updateConfigOperation.confirmation();
 //                     // Initial Values
 //                     await signerFactory(eve.sk)
@@ -2299,7 +2279,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
+//                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Initial Values
@@ -2597,7 +2577,7 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
+//                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Initial Values

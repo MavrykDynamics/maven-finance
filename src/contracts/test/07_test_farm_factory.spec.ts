@@ -472,7 +472,7 @@
 //                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
 
 //                     // Create an operation
-//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleCreateFarm", true).send();
+//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", true).send();
 //                     await pauseOperation.confirmation();
 
 //                     // Final values
@@ -494,7 +494,7 @@
 //                     ).send()).to.be.rejected;
 
 //                     // Create an operation
-//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleCreateFarm", false).send();
+//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", false).send();
 //                     await unpauseOperation.confirmation();
 
 //                     // Final values
@@ -515,7 +515,7 @@
 //                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
 //                     // Create an operation
-//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackFarm", true).send();
+//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", true).send();
 //                     await pauseOperation.confirmation();
 
 //                     // Final values
@@ -526,7 +526,7 @@
 //                     await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
 
 //                     // Create an operation
-//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleUntrackFarm", false).send();
+//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", false).send();
 //                     await unpauseOperation.confirmation();
 
 //                     // Final values
@@ -547,7 +547,7 @@
 //                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
 
 //                     // Create an operation
-//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleTrackFarm", true).send();
+//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send();
 //                     await pauseOperation.confirmation();
 
 //                     // Final values
@@ -558,7 +558,7 @@
 //                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
 
 //                     // Create an operation
-//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("toggleTrackFarm", false).send();
+//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", false).send();
 //                     await unpauseOperation.confirmation();
 
 //                     // Final values
@@ -582,7 +582,7 @@
 //                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
 
 //                     // Create a transaction for initiating a farm
-//                     await chai.expect(farmFactoryInstance.methods.togglePauseEntrypoint("toggleTrackFarm", true).send()).to.be.rejected;
+//                     await chai.expect(farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send()).to.be.rejected;
 
 //                     // Final values
 //                     farmFactoryStorage = await farmFactoryInstance.storage();

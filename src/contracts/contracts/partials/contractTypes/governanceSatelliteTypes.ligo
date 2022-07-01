@@ -13,7 +13,6 @@ type governanceSatelliteConfigType is [@layout:comb] record [
     governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
     governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength             : nat;
-    votingPowerRatio                       : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
 ]
 
 // ------------------------------------------------------------------------------
@@ -100,7 +99,6 @@ type governanceSatelliteUpdateConfigActionType is
   ConfigApprovalPercentage          of unit
 | ConfigSatelliteDurationInDays     of unit
 | ConfigPurposeMaxLength            of unit
-| ConfigVotingPowerRatio            of unit
 
 type governanceSatelliteUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType; 

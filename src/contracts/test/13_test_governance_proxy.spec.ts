@@ -6115,7 +6115,7 @@
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleAggregatorEntrypoint',
 //                     aggregatorAddress.address,
-//                     'toggleRequestRateUpdate',
+//                     'requestRateUpdate',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6208,7 +6208,7 @@
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleAggregatorFacEntrypoint',
-//                     'toggleCreateAggregator',
+//                     'createAggregator',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6302,7 +6302,7 @@
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleFarmEntrypoint',
 //                     farmAddress.address,
-//                     'toggleDeposit',
+//                     'deposit',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6395,7 +6395,7 @@
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleFarmFacEntrypoint',
-//                     'toggleCreateFarm',
+//                     'createFarm',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6489,7 +6489,7 @@
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleTreasuryEntrypoint',
 //                     treasuryAddress.address,
-//                     'toggleMintMvkAndTransfer',
+//                     'mintMvkAndTransfer',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6582,7 +6582,7 @@
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleTreasuryFacEntrypoint',
-//                     'toggleCreateTreasury',
+//                     'createTreasury',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6675,7 +6675,7 @@
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleDoormanEntrypoint',
-//                     'toggleStake',
+//                     'stake',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6768,7 +6768,7 @@
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'toggleDelegationEntrypoint',
-//                     'toggleRegisterSatellite',
+//                     'registerAsSatellite',
 //                     true
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
@@ -6928,7 +6928,7 @@
 //                 // Assertions
 //                 assert.strictEqual(proposal.executed, true);
 //                 assert.notEqual(endBreakGlass, initBreakGlass);
-//                 console.log("BREAK GLASS CONFIG AFTER: ", initBreakGlass)
+//                 console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
 //             } catch(e) {
 //                 console.dir(e, {depth:5})
 //             }

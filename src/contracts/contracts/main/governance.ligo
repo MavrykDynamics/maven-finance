@@ -553,6 +553,13 @@ block {
       | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
+    // get voting power ratio
+    const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const votingPowerRatio: nat                     = case configView of [
+            Some (_optionConfig) -> _optionConfig.delegationRatio
+        |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+    ];
+
     // Get active satellites from the delegation contract and loop through them
     const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
     const activeSatellites: map(address,satelliteRecordType) = case activeSatellitesView of [
@@ -569,8 +576,8 @@ block {
       var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
       // calculate total voting power
-      var maxTotalVotingPower: nat := mvkBalance * 10000n / s.config.votingPowerRatio;
-      if s.config.votingPowerRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
+      var maxTotalVotingPower: nat := mvkBalance * 10000n / votingPowerRatio;
+      if votingPowerRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
       const mvkBalanceAndTotalDelegatedAmount = mvkBalance + totalDelegatedAmount; 
       var totalVotingPower : nat := 0n;
       if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower

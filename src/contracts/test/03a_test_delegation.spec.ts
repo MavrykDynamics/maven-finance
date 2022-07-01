@@ -390,7 +390,7 @@
 //                 const satelliteFee            = "700";
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleRegisterSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -408,7 +408,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleRegisterSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -624,7 +624,7 @@
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUnregisterSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -638,7 +638,7 @@
 
 //                 // Reset admin
 //                 await signerFactory(bob.sk)
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUnregisterSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -743,7 +743,7 @@
 
 //                 // Operation
 //                 await signerFactory(bob.sk)
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUpdateSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -763,7 +763,7 @@
 
 //                 // Reset admin
 //                 await signerFactory(bob.sk)
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUpdateSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -836,7 +836,7 @@
 //                 await stakeAmountOperation.confirmation();
                 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleDelegateToSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -846,7 +846,7 @@
 //                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleDelegateToSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1074,7 +1074,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUndelegateSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1086,7 +1086,7 @@
 
 //                 // Reset admin
 //                 await signerFactory(bob.sk)
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUndelegateSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1204,7 +1204,7 @@
 //                 await stakeAmountOperation.confirmation();
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleDelegateToSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1214,7 +1214,7 @@
 //                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleDelegateToSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1232,7 +1232,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUndelegateSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1242,7 +1242,7 @@
 //                 await chai.expect(delegationInstance.methods.undelegateFromSatellite(bob.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUndelegateSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1265,7 +1265,7 @@
 //                 const satelliteFee            = "700";
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleRegisterSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1283,7 +1283,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleRegisterSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1301,7 +1301,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUnregisterSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1313,7 +1313,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUnregisterSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1336,7 +1336,7 @@
 //                 const updatedSatelliteFee           = "500";
 
 //                 // Operation
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUpdateSatellite", true).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1354,7 +1354,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("toggleUpdateSatellite", false).send();
+//                 var togglePauseOperation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1368,7 +1368,7 @@
 //         it('Non-admin should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(delegationInstance.methods.togglePauseEntrypoint("toggleUpdateSatellite", true).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth: 5});
 //             }

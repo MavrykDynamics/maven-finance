@@ -17,7 +17,6 @@ const config = {
     minQuorumPercentage                 : 1000,
     minYayVotePercentage                : 5100,
 
-    votingPowerRatio                    : 10000,
     proposalSubmissionFeeMutez          : 1000000, // 1 tez
     maxProposalsPerSatellite            : 20,
 

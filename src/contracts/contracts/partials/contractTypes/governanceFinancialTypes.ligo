@@ -62,8 +62,6 @@ type requestSatelliteSnapshotType is  [@layout:comb] record [
 
 type governanceFinancialConfigType is [@layout:comb] record [
 
-    votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
-
     financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
     financialRequestDurationInDays      : nat;  // duration of final request before expiry
     
@@ -74,7 +72,6 @@ type governanceFinancialUpdateConfigNewValueType is nat
 type governanceFinancialUpdateConfigActionType is
 | ConfigFinancialReqApprovalPct     of unit
 | ConfigFinancialReqDurationDays    of unit
-| ConfigVotingPowerRatio            of unit
 
 type governanceFinancialUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: governanceFinancialUpdateConfigNewValueType; 

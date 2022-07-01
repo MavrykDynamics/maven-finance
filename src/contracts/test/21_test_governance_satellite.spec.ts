@@ -425,31 +425,30 @@
 
 //     describe("%updateConfig", async () => {
 
-//         beforeEach("Set signer to admin", async () => {
-//             await signerFactory(bob.sk)
-//         });
-
-//         it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
+//         before("Configure delegation ratio on delegation contract", async () => {
 //             try{
 //                 // Initial Values
-//                 governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-//                 const currentConfigValue = governanceSatelliteStorage.config.votingPowerRatio;
-//                 const newConfigValue = 10001;
+//                 await signerFactory(bob.sk)
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const newConfigValue = 10;
 
 //                 // Operation
-//                 await chai.expect(governanceSatelliteInstance.methods.updateConfig(newConfigValue, "configVotingPowerRatio").send()).to.be.rejected;
+//                 const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
+//                 await updateConfigOperation.confirmation();
 
 //                 // Final values
-//                 governanceSatelliteStorage = await governanceSatelliteInstance.storage();
-//                 const updateConfigValue = governanceSatelliteStorage.config.votingPowerRatio;
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const updateConfigValue = delegationStorage.config.delegationRatio;
 
 //                 // Assertions
-//                 assert.notEqual(newConfigValue, currentConfigValue);
-//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-
+//                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
+//         });
+
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
 //         });
 
 //         it('Admin should be able to call the entrypoint and configure the approval percentage', async () => {

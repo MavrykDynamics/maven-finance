@@ -110,7 +110,7 @@ function checkNoAmount(const _p : unit) : unit is
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function setSatelliteSnapshot(const satelliteSnapshot : actionSatelliteSnapshotType; var s : governanceSatelliteStorageType) : governanceSatelliteStorageType is 
+function setSatelliteSnapshot(const satelliteSnapshot : actionSatelliteSnapshotType; const votingPowerRatio: nat; var s : governanceSatelliteStorageType) : governanceSatelliteStorageType is 
 block {
     // init variables
     const actionId              : nat     = satelliteSnapshot.actionId;
@@ -118,7 +118,7 @@ block {
     const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
     const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
 
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
+    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / votingPowerRatio);
     const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
     var totalVotingPower : nat := 0n;
     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower

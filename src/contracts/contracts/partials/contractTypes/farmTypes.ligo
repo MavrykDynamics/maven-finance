@@ -66,10 +66,15 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmUpdateConfigActionType;
 ]
 
-type farmTogglePauseEntrypointType is
-  ToggleDeposit     of bool
-| ToggleWithdraw    of bool
-| ToggleClaim       of bool
+type farmPausableEntrypointType is
+  Deposit     of bool
+| Withdraw    of bool
+| Claim       of bool
+
+type farmTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : farmPausableEntrypointType;
+    empty             : unit
+];
 
 type farmLambdaActionType is 
 
