@@ -7,7 +7,17 @@ export const CouncilPendingStyled = styled(Card)`
   padding: 25px;
   padding-bottom: 28px;
   min-width: 237px;
-  margin-right: 20px;
+
+  &.addVestee {
+    min-width: 494px;
+  }
+  &.requestTokens {
+    min-width: 750px;
+  }
+
+  &.more {
+    margin-right: 19px;
+  }
 
   h3 {
     max-width: 190px;
@@ -26,6 +36,9 @@ export const CouncilPendingStyled = styled(Card)`
   }
 
   .sign-btn {
+    width: 185px;
+    float: right;
+
     svg {
       stroke: transparent;
       fill: ${containerColor};

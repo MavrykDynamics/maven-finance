@@ -13,6 +13,7 @@ import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
+import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 
 // style
 import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'
@@ -20,7 +21,7 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 
 export const SatelliteGovernance = () => {
   const itemsForDropDown = [
-    { text: 'Suspend Satellite', value: 'suspendSatellite' },
+    { text: 'Chose action', value: '' },
     { text: 'Test 0', value: 'satelliteFee' },
     { text: 'Test 1', value: 'totalDelegatedAmount' },
     { text: 'Test 2', value: 'participation' },
@@ -122,33 +123,7 @@ export const SatelliteGovernance = () => {
               clickOnItem={(e) => handleOnClickDropdownItem(e)}
             />
           </DropdownWrap>
-          <AvailableActionsStyle>
-            <div className="inputs-block">
-              <a
-                className="info-link"
-                href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Icon id="question" />
-              </a>
-              <div>
-                <h1>Suspend Satellite</h1>
-                <p>Please enter a valid tz1 adress of the satellite to take action on</p>
-                <div className="satellite-address">
-                  <label>Satellite Address</label>
-                  <Input value="" onChange={() => null} onBlur={() => null} inputStatus="" />
-                </div>
-                <div>
-                  <label>Purpose</label>
-                  <TextArea value="" onChange={() => null} onBlur={() => null} inputStatus="" />
-                </div>
-              </div>
-              <div className="suspend-satellite-group">
-                <Button icon="minus" kind="actionPrimary" text="Suspend Satellite" onClick={() => null} />
-              </div>
-            </div>
-          </AvailableActionsStyle>
+          <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
         </DropdownCard>
         <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
       </SatelliteGovernanceStyled>

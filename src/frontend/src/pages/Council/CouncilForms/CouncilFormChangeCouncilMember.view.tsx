@@ -50,7 +50,7 @@ export const CouncilFormChangeCouncilMember = () => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
-
+  const [uploadKey, setUploadKey] = useState(1)
   const [form, setForm] = useState({
     oldCouncilMemberAddress: '',
     newCouncilMemberAddress: '',
@@ -101,8 +101,10 @@ export const CouncilFormChangeCouncilMember = () => {
         newMemberImage: '',
       })
       setChosenDdItem(itemsForDropDown[0])
+      setUploadKey(uploadKey + 1)
     } catch (error) {
       console.error(error)
+      setUploadKey(uploadKey + 1)
     }
   }
 
@@ -206,6 +208,7 @@ export const CouncilFormChangeCouncilMember = () => {
       <IPFSUploader
         disabled={false}
         typeFile="image"
+        key={uploadKey}
         imageIpfsUrl={newMemberImage}
         className="form-ipfs"
         setIpfsImageUrl={(e: any) => {
