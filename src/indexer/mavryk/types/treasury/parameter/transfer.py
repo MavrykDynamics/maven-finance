@@ -42,8 +42,8 @@ class TransferParameterItem(BaseModel):
         extra = Extra.forbid
 
     to_: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
     amount: str
+    token: Union[TokenItem, TokenItem1, TokenItem2]
 
 
 class TransferParameter(BaseModel):

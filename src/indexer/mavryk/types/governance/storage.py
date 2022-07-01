@@ -17,11 +17,9 @@ class Config(BaseModel):
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
     minQuorumPercentage: str
-    minQuorumMvkTotal: str
-    votingPowerRatio: str
+    minYayVotePercentage: str
     proposalSubmissionFeeMutez: str
-    minimumStakeReqPercentage: str
-    maxProposalsPerDelegate: str
+    maxProposalsPerSatellite: str
     blocksPerMinute: str
     blocksPerProposalRound: str
     blocksPerVotingRound: str
@@ -75,8 +73,8 @@ class Transaction(BaseModel):
         extra = Extra.forbid
 
     to_: str
-    token: Union[TokenItem, TokenItem1, TokenItem2]
     amount: str
+    token: Union[TokenItem, TokenItem1, TokenItem2]
 
 
 class PaymentMetadatum(BaseModel):
@@ -87,7 +85,7 @@ class PaymentMetadatum(BaseModel):
     transaction: Transaction
 
 
-class PassVotersMap(BaseModel):
+class ProposalVotersMap(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -99,14 +97,14 @@ class OrItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    abstain: Dict[str, Any]
+    nay: Dict[str, Any]
 
 
 class OrItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    nay: Dict[str, Any]
+    pass_: Dict[str, Any] = Field(..., alias='pass')
 
 
 class OrItem2(BaseModel):
@@ -142,22 +140,23 @@ class ProposalLedger(BaseModel):
     executed: bool
     paymentProcessed: bool
     locked: bool
-    passVoteCount: str
-    passVoteMvkTotal: str
-    passVotersMap: Dict[str, PassVotersMap]
+    proposalVoteCount: str
+    proposalVoteStakedMvkTotal: str
+    proposalVotersMap: Dict[str, ProposalVotersMap]
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
-    upvoteCount: str
-    upvoteMvkTotal: str
-    downvoteCount: str
-    downvoteMvkTotal: str
-    abstainCount: str
-    abstainMvkTotal: str
+    yayVoteCount: str
+    yayVoteStakedMvkTotal: str
+    nayVoteCount: str
+    nayVoteStakedMvkTotal: str
+    passVoteCount: str
+    passVoteStakedMvkTotal: str
     voters: Dict[str, Voters]
     minQuorumPercentage: str
-    minQuorumMvkTotal: str
+    minQuorumStakedMvkTotal: str
+    minYayVotePercentage: str
     quorumCount: str
-    quorumMvkTotal: str
+    quorumStakedMvkTotal: str
     startDateTime: str
     cycle: str
     currentCycleStartLevel: str
@@ -210,6 +209,7 @@ class CurrentCycleInfo(BaseModel):
     roundProposers: Dict[str, List[str]]
     roundVotes: Dict[str, str]
     cycleTotalVotersReward: str
+    minQuorumStakedMvkTotal: str
 
 
 class GovernanceStorage(BaseModel):
@@ -221,9 +221,9 @@ class GovernanceStorage(BaseModel):
     config: Config
     mvkTokenAddress: str
     governanceProxyAddress: str
-    whitelistDevelopers: List[str]
-    generalContracts: Dict[str, str]
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    whitelistDevelopers: List[str]
     proposalLedger: Dict[str, ProposalLedger]
     snapshotLedger: Dict[str, SnapshotLedger]
     currentCycleInfo: CurrentCycleInfo
@@ -231,5 +231,4 @@ class GovernanceStorage(BaseModel):
     cycleCounter: str
     cycleHighestVotedProposalId: str
     timelockProposalId: str
-    snapshotMvkTotalSupply: str
     lambdaLedger: Dict[str, str]

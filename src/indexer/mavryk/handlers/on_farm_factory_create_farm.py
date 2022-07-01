@@ -70,10 +70,10 @@ async def on_farm_factory_create_farm(
         address = governance_address
     )
     farm, _         = await models.Farm.get_or_create(
-        address     = farm_address,
-        admin       = admin,
-        governance  = governance
+        address     = farm_address
     )
+    farm.governance                      = governance
+    farm.admin                           = admin
     farm.name                            = name
     farm.creation_timestamp              = creation_timestamp 
     farm.farm_factory                    = farm_factory
