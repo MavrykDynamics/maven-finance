@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_whitelist_contract
 from mavryk.types.emergency_governance.storage import EmergencyGovernanceStorage
 from dipdup.models import Transaction
 from mavryk.types.emergency_governance.parameter.update_whitelist_contracts import UpdateWhitelistContractsParameter
@@ -8,4 +9,6 @@ async def on_emergency_governance_update_whitelist_contracts(
     ctx: HandlerContext,
     update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, EmergencyGovernanceStorage],
 ) -> None:
-    ...
+
+    # Persist whitelist contract
+    await persist_whitelist_contract(update_whitelist_contracts)

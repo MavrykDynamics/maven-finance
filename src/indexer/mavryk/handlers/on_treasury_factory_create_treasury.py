@@ -47,10 +47,10 @@ async def on_treasury_factory_create_treasury(
         address = governance_address
     )
     treasury, _         = await models.Treasury.get_or_create(
-        address                         = treasury_address,
-        admin                           = admin,
-        governance                      = governance
+        address                         = treasury_address
     )
+    treasury.governance                      = governance
+    treasury.admin                           = admin
     treasury.name                            = name
     treasury.creation_timestamp              = creation_timestamp
     treasury.treasury_factory                = treasury_factory
