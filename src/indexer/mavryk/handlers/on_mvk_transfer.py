@@ -1,0 +1,75 @@
+
+from mavryk.types.mvk.parameter.transfer import TransferParameter
+from dipdup.context import HandlerContext
+from mavryk.types.mvk.storage import MvkStorage
+from dipdup.models import Transaction
+import mavryk.models as models
+
+async def on_mvk_transfer(
+    ctx: HandlerContext,
+    transfer: Transaction[TransferParameter, MvkStorage],
+) -> None:
+
+    # Get transfer batch
+    transaction_batch   = transfer.parameter.__root__
+    timestamp           = transfer.data.timestamp
+    mvk_address         = transfer.data.target_address
+    user_ledger         = transfer.storage.ledger
+
+    for entry in transaction_batch:
+        sender_address = entry.from_
+        transactions = entry.txs
+        for transaction in transactions:
+            receiver_address = transaction.to_
+            amount = int(transaction.amount)
+
+            # Get MVK Token
+            mvk_token = await models.MVKToken.get(address=mvk_address)
+
+            # Get or create sender
+            sender, _ = await models.MavrykUser.get_or_create(
+                address=sender_address
+            )
+            sender.mvk_balance = user_ledger[sender_address]
+            await sender.save()
+
+            # Get or create receiver
+            receiver, _ = await models.MavrykUser.get_or_create(
+                address=receiver_address
+            )
+            receiver.mvk_balance = user_ledger[receiver_address]
+            await receiver.save()
+
+            # Create transfer
+            transfer_record = models.MVKTransferHistoryData(
+                timestamp=timestamp,
+                mvk_token=mvk_token,
+                from_=sender,
+                to_=receiver,
+                amount=amount
+            )
+            await transfer_record.save()
+
+            # Check if doorman
+            doorman_sender      = await models.Doorman.get_or_none(address  = sender_address)
+            doorman_receiver    = await models.Doorman.get_or_none(address  = receiver_address)
+            if doorman_sender or doorman_receiver:
+                smvk_total_supply   = 0
+                doorman             = None
+                if doorman_sender:
+                    smvk_total_supply   = float(transfer.storage.ledger[sender_address])
+                    doorman             = doorman_sender
+                else:
+                    smvk_total_supply   = float(transfer.storage.ledger[receiver_address])
+                    doorman             = doorman_receiver
+                smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
+                
+                if smvk_users > 0:
+                    avg_smvk_per_user   = smvk_total_supply / smvk_users
+                    smvk_history_data   = models.SMVKHistoryData(
+                        timestamp           = timestamp,
+                        doorman             = doorman,
+                        smvk_total_supply   = smvk_total_supply,
+                        avg_smvk_by_user    = avg_smvk_per_user
+                    )
+                    await smvk_history_data.save()

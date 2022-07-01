@@ -1,0 +1,96 @@
+
+from dipdup.context import HandlerContext
+from mavryk.types.break_glass.parameter.sign_action import SignActionParameter
+from mavryk.types.break_glass.storage import BreakGlassStorage
+from dipdup.models import Transaction
+from dateutil import parser
+import mavryk.models as models
+
+async def on_break_glass_sign_action(
+    ctx: HandlerContext,
+    sign_action: Transaction[SignActionParameter, BreakGlassStorage],
+) -> None:
+
+    # Get operation info
+    break_glass_address     = sign_action.data.target_address
+    signer_address          = sign_action.data.sender_address
+    action_id               = int(sign_action.parameter.__root__)
+    action_record_storage   = sign_action.storage.actionsLedger[sign_action.parameter.__root__]
+    signer_count            = int(action_record_storage.signersCount)
+    status                  = action_record_storage.status
+    executed                = action_record_storage.executed
+    executed_timestamp      = action_record_storage.executedDateTime
+    executed_level          = int(action_record_storage.executedLevel)
+    council_members         = sign_action.storage.councilMembers
+    admin                   = sign_action.storage.admin
+    glass_broken            = sign_action.storage.glassBroken
+
+    # Select correct status
+    status_type = models.ActionStatus.PENDING
+    if status == "FLUSHED":
+        status_type = models.ActionStatus.FLUSHED
+    elif status == "EXECUTED":
+        status_type = models.ActionStatus.EXECUTED
+
+    # Update record
+    break_glass                 = await models.BreakGlass.get(address   = break_glass_address)
+    break_glass.admin           = admin
+    break_glass.glass_broken    = glass_broken
+    await break_glass.save()
+    action_record           = await models.BreakGlassActionRecord.get(
+        break_glass = break_glass,
+        id          = action_id
+    )
+    action_record.status            = status_type
+    action_record.signers_count     = signer_count
+    action_record.executed          = executed
+    action_record.executed_datetime = parser.parse(executed_timestamp)
+    action_record.executed_level    = executed_level
+    await action_record.save()
+
+    # Update the status if there are multiple records (flush)
+    if len(sign_action.storage.actionsLedger) > 1:
+        for single_action_id in sign_action.storage.actionsLedger:
+            action_status           = sign_action.storage.actionsLedger[single_action_id].status
+            single_action_record    = await models.BreakGlassActionRecord.get(
+                break_glass = break_glass,
+                id          = single_action_id
+            )
+            # Select correct status
+            status_type = models.ActionStatus.PENDING
+            if action_status == "FLUSHED":
+                status_type = models.ActionStatus.FLUSHED
+            elif action_status == "EXECUTED":
+                status_type = models.ActionStatus.EXECUTED
+            single_action_record.status            = status_type
+            await single_action_record.save()
+
+    # Update council members
+    council_members_records         = await models.BreakGlassCouncilMember.all()
+    for council_member_record in council_members_records:
+        # Get user from council member
+        member_user     = await council_member_record.user.first()
+        
+        # Check if remove
+        if not member_user.address in council_members:
+            await council_member_record.delete()
+        else:
+            # Change or update records
+            member_info             = council_members[member_user.address]
+            updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
+                break_glass = break_glass,
+                user        = member_user
+            )
+            updated_member.name     = member_info.name
+            updated_member.website  = member_info.website 
+            updated_member.image    = member_info.image
+            await updated_member.save() 
+    
+    # Create signature record
+    user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
+    await user.save()
+    signer_record           = await models.BreakGlassActionRecordSigner(
+        break_glass_action_record   = action_record,
+        signer                      = user
+    )
+    await signer_record.save()

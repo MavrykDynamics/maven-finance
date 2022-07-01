@@ -1,0 +1,48 @@
+
+from mavryk.types.emergency_governance.storage import EmergencyGovernanceStorage
+from dipdup.models import Transaction
+from mavryk.types.emergency_governance.parameter.vote_for_emergency_control import VoteForEmergencyControlParameter
+from dipdup.context import HandlerContext
+from dateutil import parser
+import mavryk.models as models
+
+async def on_emergency_governance_vote_for_emergency_control(
+    ctx: HandlerContext,
+    vote_for_emergency_control: Transaction[VoteForEmergencyControlParameter, EmergencyGovernanceStorage],
+) -> None:
+
+    # Get operation values
+    emergency_address           = vote_for_emergency_control.data.target_address
+    voter_address               = vote_for_emergency_control.data.sender_address
+    emergency_id                = int(vote_for_emergency_control.storage.currentEmergencyGovernanceId)
+    emergency_storage           = vote_for_emergency_control.storage.emergencyGovernanceLedger[vote_for_emergency_control.storage.currentEmergencyGovernanceId]
+    voter_storage               = emergency_storage.voters[voter_address]
+    timestamp                   = vote_for_emergency_control.data.timestamp
+    total_smvk_votes            = float(emergency_storage.totalStakedMvkVotes)
+    smvk_amount                 = float(voter_storage.nat)
+    executed                    = emergency_storage.executed
+    executed_datetime           = parser.parse(emergency_storage.executedDateTime)
+    executed_level              = int(emergency_storage.executedLevel)
+
+    # Create and update record
+    emergency                   = await models.EmergencyGovernance.get(address  = emergency_address)
+    emergency_record            = await models.EmergencyGovernanceRecord.get(
+        emergency_governance        = emergency,
+        id                          = emergency_id
+    )
+    emergency_record.total_smvk_votes      = total_smvk_votes
+    emergency_record.executed              = executed
+    emergency_record.executed_timestamp    = executed_datetime
+    emergency_record.executed_level        = executed_level
+    await emergency_record.save()
+
+    voter, _                       = await models.MavrykUser.get_or_create(address  = voter_address)
+    await voter.save()
+
+    emergency_vote_record       = models.EmergencyGovernanceVote(
+        timestamp                   = timestamp,
+        emergency_governance_record = emergency_record,
+        voter                       = voter,
+        smvk_amount                 = smvk_amount
+    )
+    await emergency_vote_record.save()
