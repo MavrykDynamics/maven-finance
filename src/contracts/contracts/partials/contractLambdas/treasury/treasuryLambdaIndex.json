@@ -41,38 +41,26 @@
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseTransfer"
+      "name": "lambdaTogglePauseEntrypoint"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseMintMvkAndTransfer"
-    },
-    {
-      "index": 12,
-      "name": "lambdaTogglePauseStakeMvk"
-    },
-    {
-      "index": 13,
-      "name": "lambdaTogglePauseUnstakeMvk"
-    },
-    {
-      "index": 14,
       "name": "lambdaTransfer"
     },
     {
-      "index": 15,
+      "index": 12,
       "name": "lambdaMintMvkAndTransfer"
     },
     {
-      "index": 16,
+      "index": 13,
       "name": "lambdaUpdateMvkOperators"
     },
     {
-      "index": 17,
+      "index": 14,
       "name": "lambdaStakeMvk"
     },
     {
-      "index": 18,
+      "index": 15,
       "name": "lambdaUnstakeMvk"
     }
 ]

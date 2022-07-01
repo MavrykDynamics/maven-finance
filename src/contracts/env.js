@@ -25,6 +25,12 @@ module.exports = {
       secretKey: bob.sk,
       port: 8732,
     },
+    jakartanet: {
+      rpc: "https://jakartanet.ecadinfra.com",
+      port: 443,
+      network_id: "*",
+      secretKey: bob.sk,
+    },
     ithacanet: {
       rpc: "https://ithacanet.ecadinfra.com",
       port: 443,

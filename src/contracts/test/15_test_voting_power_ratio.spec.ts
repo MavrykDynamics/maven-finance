@@ -237,29 +237,31 @@
 //     });
 
 //     describe("%updateConfig", async () => {
-//         beforeEach("Set signer to admin", async () => {
-//             await signerFactory(bob.sk)
-//         });
 
-//         it('Admin updates the voting power ratio', async () => {
+//         before("Configure delegation ratio on delegation contract", async () => {
 //             try{
 //                 // Initial Values
-//                 governanceStorage = await governanceInstance.storage();
+//                 await signerFactory(bob.sk)
+//                 delegationStorage   = await delegationInstance.storage();
 //                 const newConfigValue = 5000;
 
 //                 // Operation
-//                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send();
+//                 const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
 //                 await updateConfigOperation.confirmation();
 
 //                 // Final values
-//                 governanceStorage = await governanceInstance.storage();
-//                 const updateConfigValue = governanceStorage.config.votingPowerRatio;
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const updateConfigValue = delegationStorage.config.delegationRatio;
 
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
+//         });
+
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
 //         });
 
 //         it('Admin should be able to call the entrypoint and configure the min proposal round vote percentage required', async () => {

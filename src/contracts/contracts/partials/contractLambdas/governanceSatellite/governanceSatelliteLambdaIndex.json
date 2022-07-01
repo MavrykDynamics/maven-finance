@@ -53,18 +53,22 @@
   },
   {
     "index": 13,
-    "name": "lambdaRegisterAggregator"
+    "name": "lambdaSetAggregatorMaintainer"
   },
   {
     "index": 14,
-    "name": "lambdaUpdateAggregatorStatus"
+    "name": "lambdaRegisterAggregator"
   },
   {
     "index": 15,
-    "name": "lambdaDropAction"
+    "name": "lambdaUpdateAggregatorStatus"
   },
   {
     "index": 16,
+    "name": "lambdaDropAction"
+  },
+  {
+    "index": 17,
     "name": "lambdaVoteForAction"
   }
 ]

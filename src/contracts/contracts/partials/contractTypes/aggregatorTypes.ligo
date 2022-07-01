@@ -1,28 +1,8 @@
-type adminType is address;
-type maintainerType is address;
-
-type metadataType is big_map (string, bytes);
-
-// ------------------------------------------------------------------------------
-// Reference to types in other contracts
-// ------------------------------------------------------------------------------
-
-type aggregatorFactoryConfigType is [@layout:comb] record [
-    aggregatorNameMaxLength   : nat;
-    empty                     : unit;
-]
-
 // ------------------------------------------------------------------------------
 // Contract Specific Action Parameter types
 // ------------------------------------------------------------------------------
 
 type pivotedObservationsType     is map (nat, nat);
-
-// rewards type
-type distributeRewardXtzType is [@layout:comb] record [
-    recipient                   : address;
-    reward                      : nat;
-]
 
 type deviationTriggerInfosType is  [@layout:comb] record [
     oracleAddress               : address;
@@ -54,19 +34,16 @@ type setObservationRevealType is  [@layout:comb] record [
     priceSalted   : nat * string * address;
 ];
 
+type withdrawRewardXtzType            is address;
+type withdrawRewardStakedMvkType      is address;
 
-type setAdminParams                     is address;
-type withdrawRewardXtzParams            is address;
-type withdrawRewardStakedMvkParams      is address;
+type addOracleType                    is address;
+type removeOracleType                 is address;
 
-type isWhiteListedContractParams        is address;
-type addOracleParams                    is address;
-type removeOracleParams                 is address;
-
-type requestRateUpdateParams            is unit;
-type requestRateUpdateDeviationParams   is setObservationCommitType;
-type setObservationCommitParams         is setObservationCommitType;
-type setObservationRevealParams         is setObservationRevealType;
+type requestRateUpdateType            is unit;
+type requestRateUpdateDeviationType   is setObservationCommitType;
+type setObservationCommitType         is setObservationCommitType;
+type setObservationRevealType         is setObservationRevealType;
 
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
@@ -90,28 +67,18 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : aggregatorUpdateConfigActionType;
 ]
 
-type transferDestination is [@layout:comb] record[
-  to_       : address;
-  token_id  : nat;
-  amount    : nat;
+type aggregatorPausableEntrypointType is
+  RequestRateUpdate             of bool
+| RequestRateUpdateDeviation    of bool
+| SetObservationCommit          of bool
+| SetObservationReveal          of bool
+| WithdrawRewardXtz             of bool
+| WithdrawRewardStakedMvk       of bool
+
+type aggregatorTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : aggregatorPausableEntrypointType;
+    empty             : unit
 ];
-
-type transfer is [@layout:comb] record[
-  from_     : address;
-  txs       : list(transferDestination);
-];
-
-type newTransferType is list(transfer);
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey           : string;
-    metadataHash          : bytes; 
-]
-
-type setLambdaType is [@layout:comb] record [
-    name                  : string;
-    func_bytes            : bytes;
-]
 
 // ------------------------------------------------------------------------------
 // Storage Types
@@ -150,8 +117,6 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
     withdrawRewardStakedMvkIsPaused     : bool;
 ]
 
-type lambdaLedgerType is map(string, bytes)
-
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -159,46 +124,41 @@ type lambdaLedgerType is map(string, bytes)
 type aggregatorLambdaActionType is 
 
     // Housekeeping Entrypoints
-  | LambdaSetAdmin                      of setAdminParams
+  | LambdaSetAdmin                      of (address)
   | LambdaSetGovernance                 of (address)
   | LambdaSetMaintainer                 of (address)
   | LambdaSetName                       of (string)
   | LambdaUpdateMetadata                of updateMetadataType
   | LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
-  | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+  | LambdaUpdateGeneralContracts        of updateGeneralContractsType
 
     // Oracle Admin Entrypoints
-  | LambdaAddOracle                     of addOracleParams
-  | LambdaRemoveOracle                  of address
+  | LambdaAddOracle                     of addOracleType
+  | LambdaRemoveOracle                  of removeOracleType
 
     // Pause / Break Glass Entrypoints
   | LambdaPauseAll                      of (unit)
   | LambdaUnpauseAll                    of (unit)
-  | LambdaTogglePauseReqRateUpd         of (unit)
-  | LambdaTogglePauseReqRateUpdDev      of (unit)
-  | LambdaTogglePauseSetObsCommit       of (unit)
-  | LambdaTogglePauseSetObsReveal       of (unit)
-  | LambdaTogglePauseRewardXtz          of (unit)
-  | LambdaTogglePauseRewardSMvk         of (unit)
+  | LambdaTogglePauseEntrypoint         of aggregatorTogglePauseEntrypointType
 
     // Oracle Entrypoints
-  | LambdaRequestRateUpdate             of requestRateUpdateParams
-  | LambdaRequestRateUpdDeviation       of requestRateUpdateDeviationParams
-  | LambdaSetObservationCommit          of setObservationCommitParams
-  | LambdaSetObservationReveal          of setObservationRevealParams
+  | LambdaRequestRateUpdate             of requestRateUpdateType
+  | LambdaRequestRateUpdDeviation       of requestRateUpdateDeviationType
+  | LambdaSetObservationCommit          of setObservationCommitType
+  | LambdaSetObservationReveal          of setObservationRevealType
   
     // Reward Entrypoints
-  | LambdaWithdrawRewardXtz             of withdrawRewardXtzParams
-  | LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkParams
+  | LambdaWithdrawRewardXtz             of withdrawRewardXtzType
+  | LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
-type aggregatorStorage is [@layout:comb] record [
+type aggregatorStorageType is [@layout:comb] record [
     
-    admin                     : adminType;
+    admin                     : address;
     metadata                  : metadataType;
     name                      : string;
     config                    : aggregatorConfigType;
