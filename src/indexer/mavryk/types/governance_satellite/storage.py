@@ -33,7 +33,6 @@ class Config(BaseModel):
     governanceSatelliteApprovalPercentage: str
     governanceSatelliteDurationInDays: str
     governancePurposeMaxLength: str
-    votingPowerRatio: str
 
 
 class VoteItem(BaseModel):

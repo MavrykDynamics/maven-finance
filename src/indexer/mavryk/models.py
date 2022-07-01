@@ -240,7 +240,6 @@ class Governance(Model):
     proposal_round_vote_required            = fields.BigIntField(default=0)
     min_quorum_percentage                   = fields.SmallIntField(default=0)
     min_yay_vote_percentage                 = fields.SmallIntField(default=0)
-    voting_power_ratio                      = fields.SmallIntField(default=0)
     proposal_submission_fee_mutez           = fields.BigIntField(default=0)
     max_proposal_per_satellite              = fields.SmallIntField(default=0)
     blocks_per_minute                       = fields.SmallIntField(default=0)
@@ -271,7 +270,6 @@ class Governance(Model):
 class GovernanceFinancial(Model):
     address                                 = fields.CharField(pk=True, max_length=36)
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_financials')
-    voting_power_ratio                      = fields.SmallIntField(default=0)
     fin_req_approval_percentage             = fields.SmallIntField(default=0)
     fin_req_duration_in_days                = fields.SmallIntField(default=0)
     fin_req_counter                         = fields.BigIntField(default=0)
@@ -283,7 +281,6 @@ class GovernanceSatellite(Model):
     address                                 = fields.CharField(pk=True, max_length=36)
     admin                                   = fields.CharField(max_length=36, default='')
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellites')
-    voting_power_ratio                      = fields.SmallIntField(default=0)
     gov_sat_approval_percentage             = fields.SmallIntField(default=0)
     gov_sat_duration_in_days                = fields.SmallIntField(default=0)
     gov_purpose_max_length                  = fields.SmallIntField(default=0)

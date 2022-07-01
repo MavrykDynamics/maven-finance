@@ -29,21 +29,11 @@ class UpdateConfigActionItem2(BaseModel):
     configSatelliteDurationInDays: Dict[str, Any]
 
 
-class UpdateConfigActionItem3(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configVotingPowerRatio: Dict[str, Any]
-
-
 class UpdateConfigParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
     updateConfigNewValue: str
     updateConfigAction: Union[
-        UpdateConfigActionItem,
-        UpdateConfigActionItem1,
-        UpdateConfigActionItem2,
-        UpdateConfigActionItem3,
+        UpdateConfigActionItem, UpdateConfigActionItem1, UpdateConfigActionItem2
     ]

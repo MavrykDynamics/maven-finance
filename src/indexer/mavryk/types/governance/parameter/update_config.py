@@ -120,13 +120,6 @@ class UpdateConfigActionItem15(BaseModel):
     configSuccessReward: Dict[str, Any]
 
 
-class UpdateConfigActionItem16(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    configVotingPowerRatio: Dict[str, Any]
-
-
 class UpdateConfigParameter(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -149,5 +142,4 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem13,
         UpdateConfigActionItem14,
         UpdateConfigActionItem15,
-        UpdateConfigActionItem16,
     ]
