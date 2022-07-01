@@ -37,9 +37,9 @@ class CouncilActionsLedger(BaseModel):
     initiator: str
     actionType: str
     signers: List[str]
+    executed: bool
     status: str
     signersCount: str
-    executed: bool
     addressMap: Dict[str, str]
     stringMap: Dict[str, str]
     natMap: Dict[str, str]
