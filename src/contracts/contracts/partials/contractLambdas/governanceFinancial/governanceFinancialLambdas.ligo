@@ -84,7 +84,6 @@ block {
                 const updateConfigNewValue  : governanceFinancialUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                        := updateConfigNewValue
                     | ConfigFinancialReqApprovalPct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.financialRequestApprovalPercentage      := updateConfigNewValue
                     | ConfigFinancialReqDurationDays (_v)               -> s.config.financialRequestDurationInDays          := updateConfigNewValue
                 ];
@@ -219,6 +218,13 @@ block {
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
                 s.snapshotStakedMvkTotalSupply  := case balanceView of [
                     Some (value) -> value
@@ -292,7 +298,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                    s := requestSatelliteSnapshot(satelliteSnapshot, votingPowerRatio ,s);
                 };
 
             }
@@ -332,6 +338,13 @@ block {
                         |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
@@ -400,7 +413,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                    s := requestSatelliteSnapshot(satelliteSnapshot, votingPowerRatio ,s);
                 }; 
 
             }
@@ -440,6 +453,13 @@ block {
                         |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
@@ -506,7 +526,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                    s := requestSatelliteSnapshot(satelliteSnapshot, votingPowerRatio ,s);
                 }; 
 
             }

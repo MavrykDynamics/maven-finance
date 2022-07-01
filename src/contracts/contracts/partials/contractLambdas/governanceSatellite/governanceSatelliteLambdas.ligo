@@ -78,7 +78,6 @@ block {
                 const updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigVotingPowerRatio (_v)           -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                       := updateConfigNewValue
                     | ConfigApprovalPercentage (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.governanceSatelliteApprovalPercentage  := updateConfigNewValue
                     | ConfigSatelliteDurationInDays (_v)    -> s.config.governanceSatelliteDurationInDays       := updateConfigNewValue
                     | ConfigPurposeMaxLength (_v)           -> s.config.governancePurposeMaxLength              := updateConfigNewValue  
@@ -157,6 +156,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -260,7 +266,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -292,6 +298,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -394,7 +407,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -426,6 +439,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -528,7 +548,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -560,6 +580,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -662,7 +689,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -702,6 +729,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -804,7 +838,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -837,6 +871,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -930,7 +971,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -963,6 +1004,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -1056,7 +1104,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -1098,6 +1146,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -1191,7 +1246,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -1266,6 +1321,13 @@ block {
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 // get satellite record for initiator
@@ -1360,7 +1422,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }

@@ -109,7 +109,6 @@ type governanceConfigType is [@layout:comb] record [
     minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in SMVK)
     minYayVotePercentage                : nat;  // minimum yay percentage to be achieved from the quorum SMVK
 
-    votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
     proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
     maxProposalsPerSatellite            : nat;  // number of active proposals a satellite can make
 
@@ -136,7 +135,6 @@ type governanceUpdateConfigActionType is
 | ConfigMinProposalRoundVotesReq    of unit
 | ConfigMinQuorumPercentage         of unit
 | ConfigMinYayVotePercentage        of unit
-| ConfigVotingPowerRatio            of unit
 | ConfigProposeFeeMutez             of unit
 | ConfigMaxProposalsPerSatellite    of unit
 | ConfigBlocksPerProposalRound      of unit

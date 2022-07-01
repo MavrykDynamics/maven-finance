@@ -13,11 +13,16 @@ type mintMvkAndTransferType is [@layout:comb] record [
     amt             : nat;
 ]
 
-type treasuryTogglePauseEntrypointType is
-  ToggleTransfer                       of bool   
-| ToggleMintMvkAndTransfer             of bool
-| ToggleStakeMvk                       of bool
-| ToggleUnstakeMvk                     of bool
+type treasuryPausableEntrypointType is
+  Transfer                       of bool   
+| MintMvkAndTransfer             of bool
+| StakeMvk                       of bool
+| UnstakeMvk                     of bool
+
+type treasuryTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : treasuryPausableEntrypointType;
+    empty             : unit
+];
 
 type treasuryLambdaActionType is 
 

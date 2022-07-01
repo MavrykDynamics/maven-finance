@@ -250,15 +250,15 @@ block {
     checkSenderIsAdmin(s);
 
     case delegationLambdaAction of [
-        | LambdaTogglePauseEntrypoint(targetEntrypoint) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-                case targetEntrypoint of [
-                    ToggleDelegateToSatellite (_v)          -> s.breakGlassConfig.delegateToSatelliteIsPaused := _v
-                |   ToggleUndelegateSatellite (_v)          -> s.breakGlassConfig.undelegateFromSatelliteIsPaused := _v
-                |   ToggleRegisterSatellite (_v)            -> s.breakGlassConfig.registerAsSatelliteIsPaused := _v
-                |   ToggleUnregisterSatellite (_v)          -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
-                |   ToggleUpdateSatellite (_v)              -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
-                |   ToggleDistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
+                case params.targetEntrypoint of [
+                    DelegateToSatellite (_v)          -> s.breakGlassConfig.delegateToSatelliteIsPaused := _v
+                |   UndelegateFromSatellite (_v)      -> s.breakGlassConfig.undelegateFromSatelliteIsPaused := _v
+                |   RegisterAsSatellite (_v)          -> s.breakGlassConfig.registerAsSatelliteIsPaused := _v
+                |   UnregisterAsSatellite (_v)        -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
+                |   UpdateSatelliteRecord (_v)        -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
+                |   DistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
                 ]
                 
             }

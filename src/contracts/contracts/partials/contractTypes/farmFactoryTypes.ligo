@@ -43,10 +43,15 @@ type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmFactoryUpdateConfigActionType;
 ]
 
-type farmFactoryTogglePauseEntrypointType is
-  ToggleCreateFarm         of bool
-| ToggleUntrackFarm        of bool
-| ToggleTrackFarm          of bool
+type farmFactoryPausableEntrypointType is
+  CreateFarm         of bool
+| UntrackFarm        of bool
+| TrackFarm          of bool
+
+type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : farmFactoryPausableEntrypointType;
+    empty             : unit
+];
 
 type farmFactoryLambdaActionType is 
 

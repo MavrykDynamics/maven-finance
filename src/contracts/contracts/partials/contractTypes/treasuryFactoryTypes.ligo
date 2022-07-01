@@ -28,10 +28,15 @@ type treasuryFactoryUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: treasuryFactoryUpdateConfigActionType;
 ]
 
-type treasuryFactoryTogglePauseEntrypointType is
-  ToggleCreateTreasury         of bool
-| ToggleTrackTreasury          of bool
-| ToggleUntrackTreasury        of bool
+type treasuryFactoryPausableEntrypointType is
+  CreateTreasury         of bool
+| TrackTreasury          of bool
+| UntrackTreasury        of bool
+
+type treasuryFactoryTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : treasuryFactoryPausableEntrypointType;
+    empty             : unit
+];
 
 type treasuryFactoryLambdaActionType is 
 

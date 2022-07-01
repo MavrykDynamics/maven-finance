@@ -1063,7 +1063,7 @@
 //                 const tokenId                  = 0;
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleTransfer", true).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1087,7 +1087,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleTransfer", false).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1107,7 +1107,7 @@
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleMintMvkAndTransfer", true).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1120,7 +1120,7 @@
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleMintMvkAndTransfer", false).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1139,7 +1139,7 @@
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleStakeMvk", true).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1151,7 +1151,7 @@
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleStakeMvk", false).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1170,7 +1170,7 @@
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleUnstakeMvk", true).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1182,7 +1182,7 @@
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("toggleUnstakeMvk", false).send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1196,7 +1196,7 @@
 //         it('Non-admin should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseEntrypoint("toggleUnstakeMvk", true).send()).to.be.rejected;
+//                 await chai.expect(treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             }

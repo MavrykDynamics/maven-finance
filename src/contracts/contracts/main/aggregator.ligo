@@ -492,13 +492,6 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
   var tempSatellitesMap : map(address, nat) := map [];
   var total: nat := 0n;
 
-  // get votingPowerRatio from governance contract
-  const governanceConfigView : option (governanceConfigType) = Tezos.call_view ("getConfig", unit, s.governanceAddress);
-  const votingPowerRatio : nat = case governanceConfigView of [
-        Some(_config) -> _config.votingPowerRatio
-      | None -> failwith(error_GET_CONFIG_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
-
   // get delegation address from governance general contracts
   const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
   const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
@@ -507,6 +500,13 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
               |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
           ]
       |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+
+  // get votingPowerRatio from governance contract
+  const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+  const votingPowerRatio: nat                     = case configView of [
+          Some (_optionConfig) -> _optionConfig.delegationRatio
+      |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
   ];
 
   // loop over satellite oracles who have committed their price feed data, and calculate total voting power 

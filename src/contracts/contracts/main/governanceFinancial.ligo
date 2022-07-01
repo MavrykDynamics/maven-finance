@@ -332,7 +332,7 @@ case (Tezos.get_entrypoint_opt(
 // Governance Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : governanceFinancialStorageType) : governanceFinancialStorageType is 
+function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; const votingPowerRatio: nat; var s : governanceFinancialStorageType) : governanceFinancialStorageType is 
 block {
     // init variables
     const financialRequestId    : nat     = satelliteSnapshot.requestId;
@@ -340,7 +340,7 @@ block {
     const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
     const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
 
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
+    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / votingPowerRatio);
     const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
     var totalVotingPower : nat := 0n;
     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower

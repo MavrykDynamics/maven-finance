@@ -32,11 +32,16 @@ type doormanUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: doormanUpdateConfigActionType;
 ]
 
-type doormanTogglePauseEntrypointType is
-  ToggleStake             of bool
-| ToggleUnstake           of bool
-| ToggleCompound          of bool
-| ToggleFarmClaim         of bool
+type doormanPausableEntrypointType is
+  Stake             of bool
+| Unstake           of bool
+| Compound          of bool
+| FarmClaim         of bool
+
+type doormanTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : doormanPausableEntrypointType;
+    empty             : unit
+];
 
 type doormanLambdaActionType is 
 

@@ -67,13 +67,18 @@ type aggregatorUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : aggregatorUpdateConfigActionType;
 ]
 
-type aggregatorTogglePauseEntrypointType is
-  ToggleRequestRateUpdate             of bool
-| ToggleRequestRateUpdateDev          of bool
-| ToggleSetObservationCommit          of bool
-| ToggleSetObservationReveal          of bool
-| ToggleWithdrawRewardXtz             of bool
-| ToggleWithdrawRewardStakedMvk       of bool
+type aggregatorPausableEntrypointType is
+  RequestRateUpdate             of bool
+| RequestRateUpdateDeviation    of bool
+| SetObservationCommit          of bool
+| SetObservationReveal          of bool
+| WithdrawRewardXtz             of bool
+| WithdrawRewardStakedMvk       of bool
+
+type aggregatorTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : aggregatorPausableEntrypointType;
+    empty             : unit
+];
 
 // ------------------------------------------------------------------------------
 // Storage Types
