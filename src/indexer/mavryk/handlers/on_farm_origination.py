@@ -37,9 +37,9 @@ async def on_farm_origination(
 
     # Token standard
     lp_token_standard_type  = models.TokenType.OTHER
-    if lp_token_standard == fa2:
+    if type(lp_token_standard) == fa2:
         lp_token_standard_type  = models.TokenType.FA2
-    elif lp_token_standard == fa12:
+    elif type(lp_token_standard) == fa12:
         lp_token_standard_type  = models.TokenType.FA12
     
     governance, _      = await models.Governance.get_or_create(

@@ -11,27 +11,27 @@ async def on_council_update_config(
 ) -> None:
 
     # Get operation values
-    councilAddress          = update_config.data.target_address
-    updatedValue            = int(update_config.parameter.updateConfigNewValue)
-    updateConfigAction      = type(update_config.parameter.updateConfigAction)
+    council_address         = update_config.data.target_address
+    updated_value           = int(update_config.parameter.updateConfigNewValue)
+    update_config_action    = type(update_config.parameter.updateConfigAction)
 
     # Update contract
     council = await models.Council.get(
-        address = councilAddress
+        address = council_address
     )
-    if updateConfigAction == configActionExpiryDays:
-        council.action_expiry_days                  = updatedValue
-    elif updateConfigAction == configCouncilImageMaxLength:
-        council.council_member_image_max_length     = updatedValue
-    elif updateConfigAction == configCouncilNameMaxLength:
-        council.council_member_name_max_length      = updatedValue
-    elif updateConfigAction == configCouncilWebsiteMaxLength:
-        council.council_member_website_max_length   = updatedValue
-    elif updateConfigAction == configRequestPurposeMaxLength:
-        council.request_purpose_max_length          = updatedValue
-    elif updateConfigAction == configRequestTokenNameMaxLength:
-        council.request_token_name_max_length       = updatedValue
-    elif updateConfigAction == configThreshold:
-        council.threshold                           = updatedValue
+    if update_config_action == configActionExpiryDays:
+        council.action_expiry_days                  = updated_value
+    elif update_config_action == configCouncilImageMaxLength:
+        council.council_member_image_max_length     = updated_value
+    elif update_config_action == configCouncilNameMaxLength:
+        council.council_member_name_max_length      = updated_value
+    elif update_config_action == configCouncilWebsiteMaxLength:
+        council.council_member_website_max_length   = updated_value
+    elif update_config_action == configRequestPurposeMaxLength:
+        council.request_purpose_max_length          = updated_value
+    elif update_config_action == configRequestTokenNameMaxLength:
+        council.request_token_name_max_length       = updated_value
+    elif update_config_action == configThreshold:
+        council.threshold                           = updated_value
 
     await council.save()

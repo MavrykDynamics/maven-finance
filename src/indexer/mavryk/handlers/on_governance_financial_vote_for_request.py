@@ -2,7 +2,7 @@
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
-from mavryk.types.governance_financial.parameter.vote_for_request import VoteForRequestParameter, VoteItem as approve, VoteItem1 as disapprove
+from mavryk.types.governance_financial.parameter.vote_for_request import VoteForRequestParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 import mavryk.models as models
 
 async def on_governance_financial_vote_for_request(
@@ -18,14 +18,17 @@ async def on_governance_financial_vote_for_request(
     request_storage     = vote_for_request.storage.financialRequestLedger[vote_for_request.parameter.requestId]
     voter_storage       = request_storage.voters[voter_address]
     timestamp           = vote_for_request.data.timestamp
-    approve_total       = float(request_storage.approveVoteTotal)
-    disapprove_total    = float(request_storage.disapproveVoteTotal)
+    yay_smvk_total      = float(request_storage.yayVoteStakedMvkTotal)
+    nay_smvk_total      = float(request_storage.nayVoteStakedMvkTotal)
+    pass_smvk_total     = float(request_storage.nayVoteStakedMvkTotal)
     executed            = request_storage.executed
 
     # Process vote
     vote_type           = models.GovernanceVoteType.YAY
-    if type(vote) == disapprove:
+    if type(vote) == nay:
         vote_type       = models.GovernanceVoteType.NAY
+    if type(vote) == pass_:
+        vote_type       = models.GovernanceVoteType.PASS
 
     # Create and update records
     governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
@@ -34,8 +37,9 @@ async def on_governance_financial_vote_for_request(
         id                      = request_id
     )
     financial_request.executed              = executed
-    financial_request.approve_vote_total    = approve_total
-    financial_request.disapprove_vote_total = disapprove_total
+    financial_request.yay_vote_smvk_total   = yay_smvk_total
+    financial_request.nay_vote_smvk_total   = nay_smvk_total
+    financial_request.pass_vote_smvk_total  = pass_smvk_total
     await financial_request.save()
     
     voter, _                = await models.MavrykUser.get_or_create(

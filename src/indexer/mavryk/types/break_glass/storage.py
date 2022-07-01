@@ -53,14 +53,14 @@ class BreakGlassStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    mvkTokenAddress: str
-    governanceAddress: str
     metadata: Dict[str, str]
     config: Config
-    glassBroken: bool
-    councilMembers: Dict[str, CouncilMembers]
+    mvkTokenAddress: str
+    governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
+    glassBroken: bool
+    councilMembers: Dict[str, CouncilMembers]
     actionsLedger: Dict[str, ActionsLedger]
     actionCounter: str
     lambdaLedger: Dict[str, str]

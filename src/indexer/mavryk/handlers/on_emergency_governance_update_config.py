@@ -11,27 +11,27 @@ async def on_emergency_governance_update_config(
 ) -> None:
 
     # Get operation values
-    emergencyAddress        = update_config.data.target_address
-    updatedValue            = update_config.parameter.updateConfigNewValue
-    updateConfigAction      = type(update_config.parameter.updateConfigAction)
+    emergency_address       = update_config.data.target_address
+    updated_value           = update_config.parameter.updateConfigNewValue
+    update_config_action    = type(update_config.parameter.updateConfigAction)
 
     # Update contract
     emergency = await models.EmergencyGovernance.get(
-        address = emergencyAddress
+        address = emergency_address
     )
-    if updateConfigAction == configMinStakedMvkForTrigger:
-        emergency.min_smvk_required_to_trigger      = float(updatedValue)
-    elif updateConfigAction == configMinStakedMvkForVoting:
-        emergency.min_smvk_required_to_vote         = float(updatedValue)
-    elif updateConfigAction == configProposalDescMaxLength:
-        emergency.proposal_desc_max_length          = float(updatedValue)
-    elif updateConfigAction == configProposalTitleMaxLength:
-        emergency.proposal_title_max_length         = float(updatedValue)
-    elif updateConfigAction == configRequiredFeeMutez:
-        emergency.required_fee_mutez                = float(updatedValue)
-    elif updateConfigAction == configStakedMvkPercentRequired:
-        emergency.smvk_percentage_required          = int(updatedValue)
-    elif updateConfigAction == configVoteExpiryDays:
-        emergency.vote_expiry_days                  = int(updatedValue)
+    if update_config_action == configMinStakedMvkForTrigger:
+        emergency.min_smvk_required_to_trigger      = float(updated_value)
+    elif update_config_action == configMinStakedMvkForVoting:
+        emergency.min_smvk_required_to_vote         = float(updated_value)
+    elif update_config_action == configProposalDescMaxLength:
+        emergency.proposal_desc_max_length          = float(updated_value)
+    elif update_config_action == configProposalTitleMaxLength:
+        emergency.proposal_title_max_length         = float(updated_value)
+    elif update_config_action == configRequiredFeeMutez:
+        emergency.required_fee_mutez                = float(updated_value)
+    elif update_config_action == configStakedMvkPercentRequired:
+        emergency.smvk_percentage_required          = int(updated_value)
+    elif update_config_action == configVoteExpiryDays:
+        emergency.vote_expiry_days                  = int(updated_value)
 
     await emergency.save()

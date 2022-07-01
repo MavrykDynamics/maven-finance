@@ -37,9 +37,9 @@ class CouncilActionsLedger(BaseModel):
     initiator: str
     actionType: str
     signers: List[str]
+    executed: bool
     status: str
     signersCount: str
-    executed: bool
     addressMap: Dict[str, str]
     stringMap: Dict[str, str]
     natMap: Dict[str, str]
@@ -56,13 +56,13 @@ class CouncilStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    mvkTokenAddress: str
-    governanceAddress: str
     metadata: Dict[str, str]
     config: Config
-    councilMembers: Dict[str, CouncilMembers]
+    mvkTokenAddress: str
+    governanceAddress: str
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
+    councilMembers: Dict[str, CouncilMembers]
     councilActionsLedger: Dict[str, CouncilActionsLedger]
     actionCounter: str
     lambdaLedger: Dict[str, str]
