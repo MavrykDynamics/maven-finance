@@ -41,38 +41,26 @@
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseStake"
+      "name": "lambdaTogglePauseEntrypoint"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseUnstake"
-    },
-    {
-      "index": 12,
-      "name": "lambdaTogglePauseCompound"
-    },
-    {
-      "index": 13,
-      "name": "lambdaTogglePauseFarmClaim"
-    },
-    {
-      "index": 14,
       "name": "lambdaStake"
     },
     {
-      "index": 15,
+      "index": 12,
       "name": "lambdaUnstake"
     },
     {
-      "index": 16,
+      "index": 13,
       "name": "lambdaCompound"
     },
     {
-      "index": 17,
+      "index": 14,
       "name": "lambdaFarmClaim"
     },
     {
-      "index": 18,
+      "index": 15,
       "name": "lambdaNewUnstake"
     }
 ]

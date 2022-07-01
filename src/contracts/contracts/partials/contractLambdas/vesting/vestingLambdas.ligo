@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is
+function lambdaSetAdmin(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is
 block {
     
     checkSenderIsAllowed(s); 
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const vestingLambdaAction : vestingLambdaActionType;  var s : vestingStorage) : return is
+function lambdaSetGovernance(const vestingLambdaAction : vestingLambdaActionType;  var s : vestingStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is
+function lambdaUpdateMetadata(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); 
@@ -64,7 +64,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorage): return is
+function lambdaUpdateWhitelistContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -81,7 +81,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorage): return is
+function lambdaUpdateGeneralContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -98,7 +98,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorage): return is
+function lambdaMistakenTransfer(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -138,7 +138,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addVestee lambda *)
-function lambdaAddVestee(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is 
+function lambdaAddVestee(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -209,7 +209,7 @@ block {
 
 
 (*  removeVestee lambda *)
-function lambdaRemoveVestee(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is 
+function lambdaRemoveVestee(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -236,7 +236,7 @@ block {
 
 
 (*  updateVestee lambda *)
-function lambdaUpdateVestee(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is
+function lambdaUpdateVestee(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is
 block {
 
     // Steps Overview:
@@ -307,7 +307,7 @@ block {
 
 
 (*  toggleVesteeLock lambda *)
-function lambdaToggleVesteeLock(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is 
+function lambdaToggleVesteeLock(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -347,14 +347,14 @@ block {
 // ------------------------------------------------------------------------------
 
 (* claim lambda *)
-function lambdaClaim(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is 
+function lambdaClaim(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
 block {
     // Steps Overview:
     // 1. Check if vestee exists in record
     // 2. Check if vestee is able to claim (current block level > vestee next redemption block)
     // 3. Calculate total claim amount based on when vestee last claimed 
     // 4. Send operations to mint new MVK tokens and update user's balance in MVK ledger
-    // 5. Update vestee records in vestingStorage
+    // 5. Update vestee records in vestingStorageType
 
     var operations : list(operation) := nil;
 

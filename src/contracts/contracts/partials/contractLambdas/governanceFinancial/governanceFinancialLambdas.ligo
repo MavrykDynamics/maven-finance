@@ -11,7 +11,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is
+function lambdaSetAdmin(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -30,7 +30,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is
+function lambdaSetGovernance(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
     
     checkNoAmount(Unit);    // entrypoint should not receive any tez amount
@@ -49,7 +49,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is
+function lambdaUpdateMetadata(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -70,7 +70,7 @@ block {
 
 
 (*  updateConfig lambda *)
-function lambdaUpdateConfig(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function lambdaUpdateConfig(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -84,7 +84,6 @@ block {
                 const updateConfigNewValue  : governanceFinancialUpdateConfigNewValueType   = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                        := updateConfigNewValue
                     | ConfigFinancialReqApprovalPct (_v)                -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.financialRequestApprovalPercentage      := updateConfigNewValue
                     | ConfigFinancialReqDurationDays (_v)               -> s.config.financialRequestDurationInDays          := updateConfigNewValue
                 ];
@@ -98,7 +97,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorage): return is
+function lambdaUpdateGeneralContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorageType): return is
 block {
 
     // check that sender is admin
@@ -116,7 +115,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage): return is
+function lambdaUpdateWhitelistContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -133,7 +132,7 @@ block {
 
 
 (*  updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorage): return is
+function lambdaUpdateWhitelistTokenContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorageType): return is
 block {
 
     // check that sender is admin
@@ -151,7 +150,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorage): return is
+function lambdaMistakenTransfer(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -191,7 +190,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* requestTokens lambda *)
-function lambdaRequestTokens(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function lambdaRequestTokens(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
   
     checkSenderIsCouncilContract(s);
@@ -217,6 +216,13 @@ block {
                         |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
@@ -292,7 +298,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                    s := requestSatelliteSnapshot(satelliteSnapshot, votingPowerRatio ,s);
                 };
 
             }
@@ -304,7 +310,7 @@ block {
 
 
 (* requestMint lambda *)
-function lambdaRequestMint(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function lambdaRequestMint(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
   
   checkSenderIsCouncilContract(s);
@@ -332,6 +338,13 @@ block {
                         |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
@@ -400,7 +413,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                    s := requestSatelliteSnapshot(satelliteSnapshot, votingPowerRatio ,s);
                 }; 
 
             }
@@ -412,7 +425,7 @@ block {
 
 
 (* setContractBaker lambda *)
-function lambdaSetContractBaker(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function lambdaSetContractBaker(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
   
   checkSenderIsCouncilContract(s);
@@ -440,6 +453,13 @@ block {
                         |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
@@ -506,7 +526,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                    s := requestSatelliteSnapshot(satelliteSnapshot, votingPowerRatio ,s);
                 }; 
 
             }
@@ -519,7 +539,7 @@ block {
 
 
 (* dropFinancialRequest lambda *)
-function lambdaDropFinancialRequest(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function lambdaDropFinancialRequest(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
 
   checkSenderIsCouncilContract(s);
@@ -548,31 +568,16 @@ block {
 
 
 (* voteForRequest lambda *)
-function lambdaVoteForRequest(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function lambdaVoteForRequest(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
 
     var operations : list(operation) := nil;
 
     case governanceFinancialLambdaAction of [
         | LambdaVoteForRequest(voteForRequest) -> {
-                
-                // check if satellite exists in the active satellites map
-                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress: address = case generalContractsOptViewDelegation of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
-                case satelliteOptView of [
-                      Some (value) -> case value of [
-                          Some (_satellite) -> skip
-                        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                      ]
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+
+                // check if satellite exists and is not suspended or banned
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
 
                 const financialRequestId : nat = voteForRequest.requestId;
 
@@ -591,13 +596,13 @@ block {
                     | None            -> failwith(error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND)
                 ]; 
 
-                const satelliteSnapshotRecord : financialRequestSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
+                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
                       Some(_record) -> _record
                     | None          -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
 
                 // Save and update satellite's vote record
-                const voteType         : voteForRequestChoiceType   = voteForRequest.vote;
+                const voteType         : voteType   = voteForRequest.vote;
                 const totalVotingPower : nat                        = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted

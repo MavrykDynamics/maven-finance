@@ -7,7 +7,7 @@ type userStakeBalanceRecordType is [@layout:comb] record[
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
-type updateSatelliteBalanceParams is (address)
+type updateSatelliteBalanceType is (address)
 
 type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
@@ -17,13 +17,6 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
 ]
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
-
-type metadata is big_map (string, bytes)
-
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
 
 type doormanConfigType is [@layout:comb] record [
     minMvkAmount     : nat;
@@ -39,6 +32,17 @@ type doormanUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: doormanUpdateConfigActionType;
 ]
 
+type doormanPausableEntrypointType is
+  Stake             of bool
+| Unstake           of bool
+| Compound          of bool
+| FarmClaim         of bool
+
+type doormanTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : doormanPausableEntrypointType;
+    empty             : unit
+];
+
 type doormanLambdaActionType is 
 
   // Housekeeping Lambdas
@@ -46,18 +50,15 @@ type doormanLambdaActionType is
 | LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata              of updateMetadataType
 | LambdaUpdateConfig                of doormanUpdateConfigParamsType
-| LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
-| LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+| LambdaUpdateGeneralContracts      of updateGeneralContractsType
 | LambdaMistakenTransfer            of transferActionType
 | LambdaMigrateFunds                of (address)
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                    of (unit)
 | LambdaUnpauseAll                  of (unit)
-| LambdaTogglePauseStake            of (unit)
-| LambdaTogglePauseUnstake          of (unit)
-| LambdaTogglePauseCompound         of (unit)
-| LambdaTogglePauseFarmClaim        of (unit)
+| LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
   // Doorman Lambdas
 | LambdaStake                       of (nat)
@@ -69,9 +70,9 @@ type doormanLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type doormanStorage is [@layout:comb] record [
+type doormanStorageType is [@layout:comb] record [
   admin                     : address;
-  metadata                  : metadata;
+  metadata                  : metadataType;
   config                    : doormanConfigType;
 
   mvkTokenAddress           : address;

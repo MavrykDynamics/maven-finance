@@ -41,26 +41,18 @@
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseCreateFarm"
+      "name": "lambdaTogglePauseEntrypoint"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseTrackFarm"
-    },
-    {
-      "index": 12,
-      "name": "lambdaTogglePauseUntrackFarm"
-    },
-    {
-      "index": 13,
       "name": "lambdaCreateFarm"
     },
     {
-      "index": 14,
+      "index": 12,
       "name": "lambdaTrackFarm"
     },
     {
-      "index": 15,
+      "index": 13,
       "name": "lambdaUntrackFarm"
     }
 ]

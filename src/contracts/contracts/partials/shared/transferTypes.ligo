@@ -1,12 +1,12 @@
 type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
 
-type tokenId        is nat
-type tokenBalance   is nat
+type tokenIdType        is nat
+type tokenBalanceType   is nat
 
 type transferDestination is [@layout:comb] record[
   to_       : address;
-  token_id  : tokenId;
-  amount    : tokenBalance;
+  token_id  : tokenIdType;
+  amount    : tokenBalanceType;
 ]
 
 type transfer is [@layout:comb] record[

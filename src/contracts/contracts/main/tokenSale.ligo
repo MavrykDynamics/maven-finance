@@ -1,19 +1,26 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
 
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
+
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // TokenSale Types
-#include "../partials/types/tokenSaleTypes.ligo"
-
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+#include "../partials/contractTypes/tokenSaleTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -34,24 +41,7 @@ type tokenSaleAction is
   
   
 const noOperations : list (operation) = nil;
-type return is list (operation) * tokenSaleStorage
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type return is list (operation) * tokenSaleStorageType
 
 
 
@@ -65,7 +55,7 @@ type return is list (operation) * tokenSaleStorage
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAdmin(var s : tokenSaleStorage) : unit is
+function checkSenderIsAdmin(var s : tokenSaleStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
@@ -83,13 +73,13 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 
-function checkTokenSaleHasStarted(var s : tokenSaleStorage) : unit is
+function checkTokenSaleHasStarted(var s : tokenSaleStorageType) : unit is
     if (s.tokenSaleHasStarted = True) then unit
     else failwith(error_TOKEN_SALE_HAS_NOT_STARTED);
 
 
 
-function checkInWhitelistAddresses(const userWalletAddress : address; var s : tokenSaleStorage) : bool is 
+function checkInWhitelistAddresses(const userWalletAddress : address; var s : tokenSaleStorageType) : bool is 
 block {
 
     var inWhitelistAddressesMap : bool := False;
@@ -110,9 +100,6 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 
 
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -130,49 +117,49 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : tokenSaleStorage) : address is
+[@view] function getAdmin(const _: unit; var s : tokenSaleStorageType) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : tokenSaleStorage) : tokenSaleConfigType is
+[@view] function getConfig(const _: unit; var s : tokenSaleStorageType) : tokenSaleConfigType is
   s.config
 
 
 
 (* View: get treasury address *)
-[@view] function getTreasuryAddress(const _: unit; var s : tokenSaleStorage) : address is
+[@view] function getTreasuryAddress(const _: unit; var s : tokenSaleStorageType) : address is
   s.treasuryAddress
 
 
 
 (* View: get treasury address *)
-[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
+[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorageType) : option(bool) is
   Big_map.find_opt(userAddress, s.whitelistedAddresses)
 
 
 
 (* View: get token sale record *)
-[@view] function getTokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorage) : option(tokenSaleRecordType) is
+[@view] function getTokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorageType) : option(tokenSaleRecordType) is
   Big_map.find_opt(userAddress, s.tokenSaleLedger)
 
 
 
 (* View: tokenSaleHasStarted *)
-[@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorage) : bool is
+[@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorageType) : bool is
   s.tokenSaleHasStarted
 
 
 
 (* View: whitelistAmountTotal *)
-[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorageType) : nat is
   s.whitelistAmountTotal
 
 
 
 (* View: overallAmountTotal *)
-[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorageType) : nat is
   s.overallAmountTotal
 
 // ------------------------------------------------------------------------------
@@ -192,7 +179,7 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : tokenSaleStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : tokenSaleStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
@@ -204,7 +191,7 @@ block {
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : tokenSaleStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : tokenSaleStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
@@ -220,7 +207,7 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : tokenSaleUpdateConfigActionType; var s : tokenSaleStorage) : return is 
+function updateConfig(const updateConfigParams : tokenSaleUpdateConfigActionType; var s : tokenSaleStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -248,7 +235,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addToWhitelist entrypoint *)
-function addToWhitelist(const userAddressList : list(address); var s : tokenSaleStorage) : return is
+function addToWhitelist(const userAddressList : list(address); var s : tokenSaleStorageType) : return is
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -264,7 +251,7 @@ block {
 
 
 (*  removeFromWhitelist entrypoint *)
-function removeFromWhitelist(const userAddressList : list(address); var s : tokenSaleStorage) : return is
+function removeFromWhitelist(const userAddressList : list(address); var s : tokenSaleStorageType) : return is
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -280,7 +267,7 @@ block {
 
 
 (*  buyTokens entrypoint *)
-function buyTokens(const amountInTez : nat; var s : tokenSaleStorage) : return is
+function buyTokens(const amountInTez : nat; var s : tokenSaleStorageType) : return is
 block {
     
       // check if sale has started
@@ -367,7 +354,7 @@ block {
 
 
 (* main entrypoint *)
-function main (const action : tokenSaleAction; const s : tokenSaleStorage) : return is 
+function main (const action : tokenSaleAction; const s : tokenSaleStorageType) : return is 
 
     case action of [
 

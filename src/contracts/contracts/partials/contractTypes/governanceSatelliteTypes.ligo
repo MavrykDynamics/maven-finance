@@ -1,37 +1,29 @@
-type counterIdType is nat
-type metadataType is big_map (string, bytes)
-type lambdaLedgerType is map(string, bytes)
+// ------------------------------------------------------------------------------
+// Needed Types
+// ------------------------------------------------------------------------------
+
+// Vote Types
+#include "../shared/voteTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Config Types
 // ------------------------------------------------------------------------------
 
-
 type governanceSatelliteConfigType is [@layout:comb] record [
     governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
     governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength             : nat;
-    votingPowerRatio                       : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
 ]
 
 // ------------------------------------------------------------------------------
 // Governance Satellite Record Types
 // ------------------------------------------------------------------------------
 
-type governanceSatelliteVoteChoiceType is 
-  Yay    of unit
-| Nay    of unit
-| Pass   of unit
-
 type governanceSatelliteVoteType is [@layout:comb] record [
-  vote              : governanceSatelliteVoteChoiceType;
+  vote              : voteType;
   totalVotingPower  : nat; 
   timeVoted         : timestamp;
-] 
-
-type addressMapType   is map(string, address);
-type stringMapType    is map(string, string);
-type natMapType       is map(string, nat);
+]
 
 type governanceSatelliteVotersMapType is map (address, governanceSatelliteVoteType)
 
@@ -59,15 +51,15 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     startDateTime                      : timestamp;           
     expiryDateTime                     : timestamp;               
 ]
-type governanceSatelliteActionLedgerType is big_map (nat, governanceSatelliteActionRecordType);
+type governanceSatelliteActionLedgerType is big_map (actionIdType, governanceSatelliteActionRecordType);
 
 
-type oracleAggregatorPairRecord is [@layout:comb] record [
+type oracleAggregatorPairRecordType is [@layout:comb] record [
   aggregatorPair     : (string * string);   // e.g. BTC-USD
   aggregatorAddress  : address; 
   startDateTime      : timestamp;   
 ]
-type aggregatorPairsMapType is map(address, oracleAggregatorPairRecord)
+type aggregatorPairsMapType is map(address, oracleAggregatorPairRecordType)
 type satelliteOracleRecordType is [@layout:comb] record [
   aggregatorsSubscribed  : nat;                       // total number of aggregators that satellite is providing data for
   aggregatorPairs        : aggregatorPairsMapType;    // map of aggregators that satellite oracle is providing service for
@@ -87,13 +79,8 @@ type aggregatorLedgerType is big_map(address, aggregatorRecordType)
 // Snapshot Types
 // ------------------------------------------------------------------------------
 
-type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
-    totalStakedMvkBalance     : nat;      // log of satellite's total staked mvk balance for this counter
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-]
-type governanceSatelliteSnapshotMapType is map (address, governanceSatelliteSnapshotRecordType)
-type governanceSatelliteSnapshotLedgerType is big_map (counterIdType, governanceSatelliteSnapshotMapType);
+type governanceSatelliteSnapshotMapType is map (address, satelliteSnapshotRecordType)
+type governanceSatelliteSnapshotLedgerType is big_map (actionIdType, governanceSatelliteSnapshotMapType);
 
 type actionSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
@@ -107,17 +94,11 @@ type actionSatelliteSnapshotType is  [@layout:comb] record [
 // Action Parameter Types
 // ------------------------------------------------------------------------------
 
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
-]
-
 type governanceSatelliteUpdateConfigNewValueType is nat
 type governanceSatelliteUpdateConfigActionType is 
   ConfigApprovalPercentage          of unit
 | ConfigSatelliteDurationInDays     of unit
 | ConfigPurposeMaxLength            of unit
-| ConfigVotingPowerRatio            of unit
 
 type governanceSatelliteUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType; 
@@ -169,12 +150,12 @@ type setAggregatorMaintainerActionType is [@layout:comb] record [
 ]
 
 type dropActionType is [@layout:comb] record [
-    dropActionId                : nat;
+    dropActionId                : actionIdType;
 ]
 
 type voteForActionType is [@layout:comb] record [
-    actionId                    : nat;
-    vote                        : governanceSatelliteVoteChoiceType;
+    actionId                    : actionIdType;
+    vote                        : voteType;
 ]
 
 type registerAggregatorActionType is [@layout:comb] record [
@@ -207,8 +188,8 @@ type governanceSatelliteLambdaActionType is
 | LambdaSetGovernance                 of address
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateConfig                  of governanceSatelliteUpdateConfigParamsType
-| LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
-| LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+| LambdaUpdateGeneralContracts        of updateGeneralContractsType
 
   // Satellite Governance
 | LambdaSuspendSatellite              of suspendSatelliteActionType
@@ -236,7 +217,8 @@ type governanceSatelliteLambdaActionType is
 // ------------------------------------------------------------------------------
 
 
-type governanceSatelliteStorage is record [
+type governanceSatelliteStorageType is record [
+
     admin                                   : address;
     metadata                                : metadataType;
     config                                  : governanceSatelliteConfigType;
@@ -257,5 +239,6 @@ type governanceSatelliteStorage is record [
     aggregatorLedger                        : aggregatorLedgerType;
 
     // lambda storage
-    lambdaLedger                            : lambdaLedgerType;             
+    lambdaLedger                            : lambdaLedgerType; 
+            
 ]
