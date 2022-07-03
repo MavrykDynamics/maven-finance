@@ -113,7 +113,14 @@ function convertToContractAddressesType(storage: any): ContractAddressesState {
     breakGlassAddress: { address: storage?.break_glass?.[0]?.address },
     councilAddress: { address: storage?.council?.[0]?.address },
     treasuryAddress: { address: storage?.delegation?.[0]?.address },
+    treasuryFactoryAddress: { address: storage?.treasury_factory?.[0]?.address },
     vestingAddress: { address: storage?.vesting?.[0]?.address },
+    governanceSatelliteAddress: { address: storage?.governance_satellite?.[0]?.address },
+    usdmTokenAddress: { address: storage?.usdm_token?.[0]?.address },
+    usdmTokenControllerAddress: { address: storage?.usdm_token_controller?.[0]?.address },
+    vaultAddress: { address: storage?.vault?.[0]?.address },
+    aggregatorFactoryAddress: { address: storage?.aggregator_factory?.[0]?.address },
+    aggregatorAddress: { address: storage?.aggregator?.[0]?.address },
   }
 }
 
