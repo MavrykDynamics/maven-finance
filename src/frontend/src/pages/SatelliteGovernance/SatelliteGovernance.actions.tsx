@@ -138,3 +138,48 @@ export const banSatellite = (satelliteAddress: string, purpose: string) => async
     })
   }
 }
+
+// Unban Satellite
+export const UNBAN_SATELLITE_REQUEST = 'UNBAN_SATELLITE_REQUEST'
+export const UNBAN_SATELLITE_RESULT = 'UNBAN_SATELLITE_RESULT'
+export const UNBAN_SATELLITE_ERROR = 'UNBAN_SATELLITE_ERROR'
+export const unbanSatellite = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: UNBAN_SATELLITE_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.unbanSatellite(satelliteAddress, purpose).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Unban Satellite...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Unban Satellite done', 'All good :)'))
+
+    dispatch({
+      type: UNBAN_SATELLITE_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: UNBAN_SATELLITE_ERROR,
+      error,
+    })
+  }
+}
