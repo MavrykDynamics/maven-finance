@@ -11,7 +11,7 @@ import { Button } from '../../app/App.components/Button/Button.controller'
 import type { InputStatusType } from '../../app/App.components/Input/Input.controller'
 
 // actions
-import { suspendSatellite, unsuspendSatellite } from './SatelliteGovernance.actions'
+import { suspendSatellite, unsuspendSatellite, banSatellite } from './SatelliteGovernance.actions'
 
 // style
 import { AvailableActionsStyle } from './SatelliteGovernance.style'
@@ -101,6 +101,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
     try {
       if (variant === 'suspendSatellite') await dispatch(suspendSatellite(satelliteAddress, purpose))
       if (variant === 'unsuspendSatellite') await dispatch(unsuspendSatellite(satelliteAddress, purpose))
+      if (variant === 'banSatellite') await dispatch(banSatellite(satelliteAddress, purpose))
       setForm({
         satelliteAddress: '',
         purpose: '',
