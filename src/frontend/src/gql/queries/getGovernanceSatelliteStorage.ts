@@ -8,7 +8,7 @@ export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
       gov_sat_duration_in_days
       governance_id
       governance_satellite_counter
-      voting_power_ratio
+     
     }
     governance_satellite_action_record {
       executed

@@ -93,6 +93,13 @@ export const AvailableActionsStyle = styled.div`
       }
     }
 
+    .banSatellite,
+    .removeOracles {
+      svg {
+        stroke: ${containerColor};
+      }
+    }
+
     h1 {
       margin-top: 0;
       margin-bottom: 0;
