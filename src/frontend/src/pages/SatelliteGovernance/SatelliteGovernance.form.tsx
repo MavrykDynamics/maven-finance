@@ -1,8 +1,17 @@
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { Input } from '../../app/App.components/Input/Input.controller'
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../app/App.components/Button/Button.controller'
+
+// type
+import type { InputStatusType } from '../../app/App.components/Input/Input.controller'
+
+// actions
+import { suspendSatellite } from './SatelliteGovernance.actions'
 
 // style
 import { AvailableActionsStyle } from './SatelliteGovernance.style'
@@ -11,7 +20,7 @@ type Props = {
   variant: string
 }
 
-const FORM_DATA = new Map<string, Record<string, string>>([
+const CONTENT_FORM = new Map<string, Record<string, string>>([
   [
     'suspendSatellite',
     {
@@ -71,17 +80,56 @@ const FORM_DATA = new Map<string, Record<string, string>>([
 ])
 
 export const SatelliteGovernanceForm = ({ variant }: Props) => {
+  const dispatch = useDispatch()
+  const [form, setForm] = useState({
+    satelliteAddress: '',
+    purpose: '',
+  })
+  const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
+    satelliteAddress: '',
+    purpose: '',
+  })
+
   console.log('%c ||||| variant', 'color:yellowgreen', variant)
 
-  const content = FORM_DATA.get(variant)
+  const { satelliteAddress, purpose } = form
 
-  console.log('%c ||||| content', 'color:yellowgreen', content)
+  const content = CONTENT_FORM.get(variant)
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault()
+    try {
+      if (variant === 'suspendSatellite') await dispatch(suspendSatellite(satelliteAddress, purpose))
+      setForm({
+        satelliteAddress: '',
+        purpose: '',
+      })
+      setFormInputStatus({
+        satelliteAddress: '',
+        purpose: '',
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const handleChange = (e: any) => {
+    setForm((prev) => {
+      return { ...prev, [e.target.name]: e.target.value }
+    })
+  }
+
+  const handleBlur = (e: any) => {
+    setFormInputStatus((prev) => {
+      return { ...prev, [e.target.name]: e.target.value ? 'success' : 'error' }
+    })
+  }
 
   if (!variant) return null
 
   return (
     <AvailableActionsStyle>
-      <div className="inputs-block">
+      <form onSubmit={handleSubmit} className="inputs-block">
         <a
           className="info-link"
           href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -95,11 +143,31 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
           <p>Please enter a valid tz1 adress of the satellite to take action on</p>
           <div className="satellite-address">
             <label>Satellite Address</label>
-            <Input value="" onChange={() => null} onBlur={() => null} inputStatus="" />
+            <Input
+              value={satelliteAddress}
+              name="satelliteAddress"
+              required
+              onChange={(e) => {
+                handleChange(e)
+                handleBlur(e)
+              }}
+              onBlur={(e) => handleBlur(e)}
+              inputStatus={formInputStatus.satelliteAddress}
+            />
           </div>
           <div>
             <label>Purpose</label>
-            <TextArea value="" onChange={() => null} onBlur={() => null} inputStatus="" />
+            <TextArea
+              value={purpose}
+              name="purpose"
+              required
+              onChange={(e) => {
+                handleChange(e)
+                handleBlur(e)
+              }}
+              onBlur={(e) => handleBlur(e)}
+              inputStatus={formInputStatus.purpose}
+            />
           </div>
         </div>
         <div className="suspend-satellite-group">
@@ -108,10 +176,10 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
             icon={content?.btnIcon || ''}
             kind="actionPrimary"
             text={content?.btnText || ''}
-            onClick={() => null}
+            type="submit"
           />
         </div>
-      </div>
+      </form>
     </AvailableActionsStyle>
   )
 }
