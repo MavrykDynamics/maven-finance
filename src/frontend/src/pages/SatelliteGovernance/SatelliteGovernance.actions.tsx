@@ -183,3 +183,48 @@ export const unbanSatellite = (satelliteAddress: string, purpose: string) => asy
     })
   }
 }
+
+// Remove all Oracles from Satellite
+export const REMOVE_ORACLES_SATELLITE_REQUEST = 'REMOVE_ORACLES_SATELLITE_REQUEST'
+export const REMOVE_ORACLES_SATELLITE_RESULT = 'REMOVE_ORACLES_SATELLITE_RESULT'
+export const REMOVE_ORACLES_SATELLITE_ERROR = 'REMOVE_ORACLES_SATELLITE_ERROR'
+export const removeOracles = (satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: REMOVE_ORACLES_SATELLITE_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.removeAllSatelliteOracles(satelliteAddress, purpose).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Remove all Oracles from Satellite...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Remove all Oracles from Satellite done', 'All good :)'))
+
+    dispatch({
+      type: REMOVE_ORACLES_SATELLITE_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: REMOVE_ORACLES_SATELLITE_ERROR,
+      error,
+    })
+  }
+}
