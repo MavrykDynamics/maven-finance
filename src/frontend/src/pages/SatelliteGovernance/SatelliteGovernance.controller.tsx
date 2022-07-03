@@ -22,9 +22,13 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 export const SatelliteGovernance = () => {
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
-    { text: 'Test 0', value: 'satelliteFee' },
-    { text: 'Test 1', value: 'totalDelegatedAmount' },
-    { text: 'Test 2', value: 'participation' },
+    { text: 'Suspend Satellite', value: 'suspendSatellite' },
+    { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
+    { text: 'Ban Satellite', value: 'banSatellite' },
+    { text: 'Unban Satellite', value: 'unbanSatellite' },
+    { text: 'Remove Oracles', value: 'removeOracles' },
+    { text: 'Remove from Aggregator', value: 'removeFromAggregator' },
+    { text: 'Add to Aggregator', value: 'addToAggregator' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))

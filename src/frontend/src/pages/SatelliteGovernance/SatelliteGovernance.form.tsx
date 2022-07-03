@@ -11,8 +11,71 @@ type Props = {
   variant: string
 }
 
+const FORM_DATA = new Map<string, Record<string, string>>([
+  [
+    'suspendSatellite',
+    {
+      title: 'Suspend Satellite',
+      btnText: 'Suspend Satellite',
+      btnIcon: 'minus',
+    },
+  ],
+  [
+    'unsuspendSatellite',
+    {
+      title: 'Unsuspend Satellite',
+      btnText: 'Unsuspend Satellite',
+      btnIcon: 'plus',
+    },
+  ],
+  [
+    'banSatellite',
+    {
+      title: 'Ban Satellite',
+      btnText: 'Ban Satellite',
+      btnIcon: 'close-stroke',
+    },
+  ],
+  [
+    'unbanSatellite',
+    {
+      title: 'Unban Satellite',
+      btnText: 'Unban Satellite',
+      btnIcon: 'plus',
+    },
+  ],
+  [
+    'removeOracles',
+    {
+      title: 'Remove all Oracles from Satellite',
+      btnText: 'Remove Oracles',
+      btnIcon: 'close-stroke',
+    },
+  ],
+  [
+    'removeFromAggregator',
+    {
+      title: 'Remove from Aggregator',
+      btnText: 'Remove from Aggregator',
+      btnIcon: 'close-stroke',
+    },
+  ],
+  [
+    'addToAggregator',
+    {
+      title: 'Add Oracle to Aggregator',
+      btnText: 'Add to Aggregator',
+      btnIcon: 'plus',
+    },
+  ],
+])
+
 export const SatelliteGovernanceForm = ({ variant }: Props) => {
   console.log('%c ||||| variant', 'color:yellowgreen', variant)
+
+  const content = FORM_DATA.get(variant)
+
+  console.log('%c ||||| content', 'color:yellowgreen', content)
 
   if (!variant) return null
 
@@ -28,7 +91,7 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
           <Icon id="question" />
         </a>
         <div>
-          <h1>Suspend Satellite</h1>
+          <h1>{content?.title}</h1>
           <p>Please enter a valid tz1 adress of the satellite to take action on</p>
           <div className="satellite-address">
             <label>Satellite Address</label>
@@ -40,7 +103,13 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
           </div>
         </div>
         <div className="suspend-satellite-group">
-          <Button icon="minus" kind="actionPrimary" text="Suspend Satellite" onClick={() => null} />
+          <Button
+            className={variant}
+            icon={content?.btnIcon || ''}
+            kind="actionPrimary"
+            text={content?.btnText || ''}
+            onClick={() => null}
+          />
         </div>
       </div>
     </AvailableActionsStyle>

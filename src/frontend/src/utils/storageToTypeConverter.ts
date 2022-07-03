@@ -573,7 +573,7 @@ function convertToGovernanceStorageType(storage: {
       successReward: calcWithoutPrecision(currentGovernance.success_reward),
       minQuorumPercentage: currentGovernance.min_quorum_percentage,
       minQuorumMvkTotal: currentGovernance.min_yay_vote_percentage,
-      votingPowerRatio: currentGovernance.voting_power_ratio,
+      votingPowerRatio: currentGovernance.voting_power_ratio ?? 0,
       proposalSubmissionFee: currentGovernance.proposal_submission_fee, // 10 tez
       minimumStakeReqPercentage: currentGovernance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
       maxProposalsPerDelegate: currentGovernance.max_proposal_per_delegate,
