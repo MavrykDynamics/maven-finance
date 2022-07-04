@@ -13,16 +13,22 @@ import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
+import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 
 // style
 import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'
+import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
 
 export const SatelliteGovernance = () => {
   const itemsForDropDown = [
+    { text: 'Chose action', value: '' },
     { text: 'Suspend Satellite', value: 'suspendSatellite' },
-    { text: 'Test 0', value: 'satelliteFee' },
-    { text: 'Test 1', value: 'totalDelegatedAmount' },
-    { text: 'Test 2', value: 'participation' },
+    { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
+    { text: 'Ban Satellite', value: 'banSatellite' },
+    { text: 'Unban Satellite', value: 'unbanSatellite' },
+    { text: 'Remove Oracles', value: 'removeOracles' },
+    { text: 'Remove from Aggregator', value: 'removeFromAggregator' },
+    { text: 'Add to Aggregator', value: 'addToAggregator' },
   ]
 
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
@@ -107,8 +113,8 @@ export const SatelliteGovernance = () => {
           </div>
         </article>
 
-        <AvailableActionsStyle>
-          <div className="dropdown-block">
+        <DropdownCard className="satellite-governance-dropdown">
+          <DropdownWrap>
             <h2>Available Actions</h2>
             <DropDown
               clickOnDropDown={handleClickDropdown}
@@ -120,33 +126,9 @@ export const SatelliteGovernance = () => {
               onBlur={() => {}}
               clickOnItem={(e) => handleOnClickDropdownItem(e)}
             />
-          </div>
-          <div className="inputs-block">
-            <a
-              className="info-link"
-              href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Icon id="question" />
-            </a>
-            <div>
-              <h1>Suspend Satellite</h1>
-              <p>Please enter a valid tz1 adress of the satellite to take action on</p>
-              <div className="satellite-address">
-                <label>Satellite Address</label>
-                <Input value="" onChange={() => null} onBlur={() => null} inputStatus="" />
-              </div>
-              <div>
-                <label>Purpose</label>
-                <TextArea value="" onChange={() => null} onBlur={() => null} inputStatus="" />
-              </div>
-            </div>
-            <div className="suspend-satellite-group">
-              <Button icon="minus" kind="actionPrimary" text="Suspend Satellite" onClick={() => null} />
-            </div>
-          </div>
-        </AvailableActionsStyle>
+          </DropdownWrap>
+          <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
+        </DropdownCard>
         <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
       </SatelliteGovernanceStyled>
       <SatelliteGovernanceCard

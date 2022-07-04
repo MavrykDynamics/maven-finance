@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
@@ -22,14 +23,19 @@ type StageThreeFormProps = {
   locked: boolean
   accountPkh?: string
 }
+
+export const PAYMENTS_TYPES = ['XTZ', 'MVK']
+
 const INIT_TABLE_DATA = [
-  ['', '', '', ''],
-  ['', '', '', ''],
+  ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)'],
+  ['', '', '', PAYMENTS_TYPES[0]],
 ]
 
 export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
   const dispatch = useDispatch()
-
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { fee, address } = governanceStorage
+  const successReward = governanceStorage.config.successReward
   const [tableData, setTableData] = useState(INIT_TABLE_DATA)
   const [tableJson, setTableJson] = useState('')
   const [form, setForm] = useState<ProposalFinancialRequestForm>({
@@ -69,6 +75,8 @@ export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
     <StageThreeFormView
       locked={locked}
       form={form}
+      fee={fee}
+      successReward={successReward}
       setForm={setForm}
       tableData={tableData}
       setTableData={setTableData}

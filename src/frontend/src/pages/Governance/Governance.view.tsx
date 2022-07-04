@@ -5,6 +5,9 @@ import Time from 'react-pure-time'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
+// types
+import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
+
 // actions
 import {
   getGovernanceStorage,
@@ -15,7 +18,13 @@ import {
 } from './Governance.actions'
 
 // helpers
-import { normalizeProposalStatus } from './Governance.helpers'
+import {
+  normalizeProposalStatus,
+  normalizeTokenStandart,
+  getShortByte,
+  getProposalStatusInfo,
+} from './Governance.helpers'
+import { calcWithoutPrecision, calcWithoutMu } from '../../utils/calcFunctions'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -39,6 +48,7 @@ import {
   RightSideSubHeader,
 } from './Governance.style'
 import { EmptyContainer } from '../../app/App.style'
+import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -76,22 +86,33 @@ export const GovernanceView = ({
   const [votingEnding, setVotingEnding] = useState<string>('')
   const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  const { governanceStorage } = useSelector((state: State) => state.governance)
 
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
-    abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-    againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-    forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-    passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
-    unusedVotesMVKTotal:
-      mvkTokenStorage.totalSupply -
-      (rightSideContent?.abstainMvkTotal ?? 0) +
-      (rightSideContent?.downvoteMvkTotal ?? 0) +
-      (rightSideContent?.upvoteMvkTotal ?? 0),
+    abstainVotesMVKTotal: 0,
+    againstVotesMVKTotal: 0,
+    forVotesMVKTotal: 0,
+    passVotesMVKTotal: 0,
+    unusedVotesMVKTotal: 0,
   })
+
+  useEffect(() => {
+    setVoteStatistics({
+      abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
+      againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
+      forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
+      passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
+      unusedVotesMVKTotal:
+        mvkTokenStorage.totalSupply -
+        (rightSideContent?.abstainMvkTotal ?? 0) +
+        (rightSideContent?.downvoteMvkTotal ?? 0) +
+        (rightSideContent?.upvoteMvkTotal ?? 0),
+    })
+  }, [mvkTokenStorage.totalSupply, rightSideContent])
 
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
@@ -165,8 +186,10 @@ export const GovernanceView = ({
 
   // TODO correct conditions
   const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
+
   const isVisibleOngoingVoiting =
     !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'VOTING'
+
   const isVisibleOngoingTimeLock =
     !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'TIME_LOCK'
   const isVisibleNextProposal =
@@ -185,13 +208,24 @@ export const GovernanceView = ({
     history: false,
   })
 
-  const rightSideContentStatus = normalizeProposalStatus(
+  const statusInfo = getProposalStatusInfo(
     governancePhase,
-    rightSideContent?.status ?? 0,
-    Boolean(rightSideContent?.executed),
-    Boolean(rightSideContent?.locked),
-    !isVisibleHistoryProposal,
+    rightSideContent,
+    governanceStorage.timelockProposalId,
+    !onProposalHistoryPage,
+    governanceStorage.cycleHighestVotedProposalId,
+    governanceStorage.cycleCounter,
   )
+
+  // const rightSideContentStatus = normalizeProposalStatus(
+  //   governancePhase,
+  //   rightSideContent?.status ?? 0,
+  //   Boolean(rightSideContent?.executed),
+  //   Boolean(rightSideContent?.locked),
+  //   !isVisibleHistoryProposal,
+  // )
+
+  const rightSideContentStatus = statusInfo.statusFlag
 
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
   const someVisible = Object.values(visibleLists).some((item) => item)
@@ -239,6 +273,8 @@ export const GovernanceView = ({
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
+
+  // console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
 
   return (
     <GovernanceStyled>
@@ -344,12 +380,101 @@ export const GovernanceView = ({
             </article>
           ) : null}
 
+          <article>
+            <RightSideSubHeader>Source Code</RightSideSubHeader>
+            <RightSideSubContent>{rightSideContent.sourceCode || 'No link to source code given'}</RightSideSubContent>
+          </article>
+
+          <article>
+            <RightSideSubHeader>Meta-Data</RightSideSubHeader>
+            {rightSideContent.proposalData?.length ? (
+              <ol className="proposal-list">
+                {rightSideContent.proposalData.map((item: ProposalDataType, i: number) => {
+                  const unique = `proposalDataItem${item.id}`
+                  return (
+                    <li key={item.id}>
+                      <div>
+                        <div>
+                          <b className="proposal-list-title">Title: </b>
+                          <span className="proposal-list-title-valie">{item.title}</span>
+                        </div>
+                        <div>
+                          <b className="proposal-list-title">Bytes: </b>
+                          <span className="proposal-list-bites">
+                            <input type="checkbox" className="byte-input" id={unique} />
+                            <span className="byte">
+                              {item.bytes} <label htmlFor={unique}>hide</label>
+                            </span>
+                            <span className="short-byte">
+                              {getShortByte(item.bytes)} <label htmlFor={unique}>see all</label>
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
+            ) : (
+              <RightSideSubContent>No proposal meta-data given</RightSideSubContent>
+            )}
+          </article>
+
+          <article className="payment-data">
+            <RightSideSubHeader>Payment Data</RightSideSubHeader>
+            {rightSideContent.proposalPayments?.length ? (
+              <TableGridWrap>
+                <div className="table-wrap">
+                  <table>
+                    <tr>
+                      <td>Address</td>
+                      <td>Title</td>
+                      <td>Amount</td>
+                      <td>Payment Type (XTZ/MVK)</td>
+                    </tr>
+                    {rightSideContent.proposalPayments.map((item: ProposalPaymentType, i: number) => {
+                      const paymentType = normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)
+
+                      const amount =
+                        paymentType === 'MVK'
+                          ? calcWithoutPrecision(item.token_amount)
+                          : calcWithoutMu(item.token_amount)
+
+                      return (
+                        <tr key={item.id}>
+                          <td>
+                            <TzAddress tzAddress={item.to__id} hasIcon={false} isBold={true} />
+                          </td>
+                          <td>{item.title}</td>
+                          <td>{amount}</td>
+                          <td>{paymentType}</td>
+                        </tr>
+                      )
+                    })}
+                  </table>
+                </div>
+              </TableGridWrap>
+            ) : (
+              <RightSideSubContent>No payment data given</RightSideSubContent>
+            )}
+          </article>
+
           {rightSideContent.proposerId ? (
             <article>
               <RightSideSubHeader>Proposer</RightSideSubHeader>
               <RightSideSubContent>
                 <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
               </RightSideSubContent>
+            </article>
+          ) : null}
+
+          {rightSideContent.governanceId ? (
+            <article>
+              <h4>Governance Info</h4>
+              <div className="governance-contract">
+                <p>Governance Contract</p>
+                <TzAddress tzAddress={rightSideContent.governanceId} hasIcon={false} isBold={true} />
+              </div>
             </article>
           ) : null}
 

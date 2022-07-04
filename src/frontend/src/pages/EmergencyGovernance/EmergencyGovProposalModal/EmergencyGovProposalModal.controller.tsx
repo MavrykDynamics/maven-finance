@@ -20,6 +20,8 @@ export const EmergencyGovProposalModal = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
+  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { fee, address } = governanceStorage
 
   const [form, setForm] = useState<EmergencyGovernanceProposalForm>({
     title: '',
@@ -78,6 +80,7 @@ export const EmergencyGovProposalModal = () => {
     <EmergencyGovProposalModalView
       loading={loading}
       showing={showing}
+      fee={fee}
       submitEmergencyGovProposalCallback={submitEmergencyGovProposalCallback}
       cancelCallback={cancelCallback}
       form={form}

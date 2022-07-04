@@ -12,6 +12,7 @@ import { State } from '../../../reducers'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from '../Governance.controller'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { calcWithoutPrecision } from '../../../utils/calcFunctions'
 
 type VotingAreaProps = {
   ready: boolean
@@ -45,10 +46,10 @@ export const VotingArea = ({
     dispatch(connect({ forcePermission: false }))
   }
 
-  const totalMVKVotedCalculated =
-    voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
+  // const totalMVKVotedCalculated =
+  //   voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
 
-  const totalMVKVoted = isNaN(totalMVKVotedCalculated) ? 0 : totalMVKVotedCalculated
+  const totalMVKVoted = isNaN(selectedProposal.passVoteMvkTotal) ? 0 : selectedProposal.passVoteMvkTotal
 
   const dividedPassVoteMvkTotal = totalMVKVoted / 1_000_000_000
 
@@ -56,7 +57,7 @@ export const VotingArea = ({
     <>
       {ready && governancePhase === 'VOTING' && accountPkhIsSatellite ? (
         <VotingBar
-          totalMVKVoted={totalMVKVoted}
+          totalMVKVoted={dividedPassVoteMvkTotal}
           totalCirculatingMVKSupply={mvkTokenStorage.totalSupply}
           voteStatistics={voteStatistics}
           loading={loading}

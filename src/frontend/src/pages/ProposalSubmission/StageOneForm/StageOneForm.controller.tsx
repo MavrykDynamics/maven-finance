@@ -38,9 +38,9 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const [validForm, setValidForm] = useState<ValidSubmitProposalForm>({
     title: false,
     description: false,
-    ipfs: false,
-    successMVKReward: false,
-    invoiceTable: false,
+    ipfs: true,
+    successMVKReward: true,
+    invoiceTable: true,
     sourceCodeLink: false,
   })
   const [formInputStatus, setFormInputStatus] = useState<SubmitProposalFormInputStatus>({

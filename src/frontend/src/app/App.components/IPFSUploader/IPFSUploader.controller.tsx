@@ -11,6 +11,7 @@ import { isHexadecimalByteString } from '../../../utils/validatorFunctions'
 export type IPFSUploaderStatusType = 'success' | 'error' | '' | undefined
 export type IPFSUploaderTypeFile = 'document' | 'image'
 type IPFSUploaderProps = {
+  className?: string
   title?: string
   typeFile: IPFSUploaderTypeFile
   listNumber?: number
@@ -32,6 +33,7 @@ export const IPFSUploader = ({
   setIpfsImageUrl,
   formInputStatus,
   setFormInputStatus,
+  className,
 }: IPFSUploaderProps) => {
   const dispatch = useDispatch()
   const [isUploading, setIsUploading] = useState(false)
@@ -69,6 +71,7 @@ export const IPFSUploader = ({
   return (
     <IPFSUploaderView
       typeFile={typeFile}
+      className={className}
       title={title}
       disabled={disabled}
       listNumber={listNumber}

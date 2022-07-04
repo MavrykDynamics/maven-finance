@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // helpers
-import { normalizeProposalStatus } from '../Governance.helpers'
+import { normalizeProposalStatus, getProposalStatusInfo } from '../Governance.helpers'
 
 // view
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
@@ -30,7 +30,7 @@ export const ProposalsView = ({
   isProposalPhase,
   firstVisible,
 }: ProposalsViewProps) => {
-  const { governancePhase } = useSelector((state: State) => state.governance)
+  const { governancePhase, governanceStorage } = useSelector((state: State) => state.governance)
   const location = useLocation()
 
   useEffect(() => {
@@ -49,24 +49,28 @@ export const ProposalsView = ({
     <ProposalListContainer>
       <h1>{listTitle}</h1>
       {proposalsList.length &&
-        proposalsList.map((value, index) => {
-          const contentStatus = normalizeProposalStatus(
+        proposalsList.map((proposal, index) => {
+          const statusInfo = getProposalStatusInfo(
             governancePhase,
-            value?.status ?? 0,
-            Boolean(value?.executed),
-            Boolean(value?.locked),
+            proposal,
+            governanceStorage.timelockProposalId,
             isProposalPhase,
+            governanceStorage.cycleHighestVotedProposalId,
+            governanceStorage.cycleCounter,
           )
-          const dividedPassVoteMvkTotal = value.passVoteMvkTotal / 1_000_000_000
+
+          const contentStatus = statusInfo.statusFlag
+
+          const dividedPassVoteMvkTotal = proposal.passVoteMvkTotal ? proposal.passVoteMvkTotal / 1_000_000_000 : 0
           return (
             <ProposalListItem
-              key={value.id}
-              onClick={() => handleItemSelect(value)}
-              selected={selectedProposal ? selectedProposal.id === value.id : value.id === 1}
+              key={proposal.id}
+              onClick={() => handleItemSelect(proposal)}
+              selected={selectedProposal ? selectedProposal.id === proposal.id : proposal.id === 1}
             >
               <ProposalItemLeftSide>
                 <span>{index + 1}</span>
-                <h4>{value.title}</h4>
+                <h4>{proposal.title}</h4>
               </ProposalItemLeftSide>
               {isProposalPhase && (
                 <CommaNumber className="proposal-voted-mvk" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />

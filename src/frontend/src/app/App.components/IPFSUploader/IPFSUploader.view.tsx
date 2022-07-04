@@ -35,6 +35,7 @@ type IPFSUploaderViewProps = {
   onBlur: () => void
   ipfsUploaderStatus?: IPFSUploaderStatusType
   errorMessage?: string
+  className?: string
 }
 
 const IMG_MAX_SIZE = 20
@@ -53,6 +54,7 @@ export const IPFSUploaderView = ({
   onBlur,
   ipfsUploaderStatus,
   errorMessage,
+  className,
 }: IPFSUploaderViewProps) => {
   let status = ipfsUploaderStatus !== undefined ? ipfsUploaderStatus : 'none'
   const dispatch = useDispatch()
@@ -73,10 +75,11 @@ export const IPFSUploaderView = ({
   }
 
   return (
-    <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
-      {title && listNumber && (
+    <IPFSUploaderStyled className={className} id={'ipfsUploaderContainer'}>
+      {title && (
         <label>
-          {listNumber} - {title}
+          {listNumber ? `${listNumber} - ` : null}
+          {title}
         </label>
       )}
       <div style={{ opacity: disabled ? 0.4 : 1 }}>

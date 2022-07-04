@@ -1,4 +1,9 @@
 import { Redirect, Route, Switch } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
+// pages
+import ProtectedRoute from './ProtectedRoute'
 import { Doorman } from '../../../pages/Doorman/Doorman.controller'
 import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
 import { Satellites } from '../../../pages/Satellites/Satellites.controller'
@@ -7,16 +12,14 @@ import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetai
 import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
 import { Governance } from '../../../pages/Governance/Governance.controller'
 import { BreakGlass } from '../../../pages/BreakGlass/BreakGlass.controller'
-import ProtectedRoute from './ProtectedRoute'
 import { ProposalSubmission } from '../../../pages/ProposalSubmission/ProposalSubmission.controller'
 import { Treasury } from '../../../pages/Treasury/Treasury.controller'
 import { Loans } from '../../../pages/Loans/Loans.controller'
 import { Farms } from '../../../pages/Farms/Farms.controller'
 import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 import { Admin } from '../../../pages/Admin/Admin.controller'
-import { useSelector } from 'react-redux'
-import { State } from '../../../reducers'
 import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
+import { Council } from '../../../pages/Council/Council.controller'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -65,7 +68,7 @@ export const AppRoutes = () => {
         <EmergencyGovernance />
       </Route>
       <Route exact path="/mavryk-council">
-        <Governance />
+        <Council />
       </Route>
       <ProtectedRoute
         path="/submit-proposal"

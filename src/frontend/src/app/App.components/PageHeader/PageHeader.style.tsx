@@ -77,6 +77,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
   right: ${({ page }) => {
     switch (page) {
       case 'governance':
+      case 'council':
       case 'break glass':
       case 'emergency governance':
       case 'proposal submission':
@@ -88,6 +89,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
   width: ${({ page }) => {
     switch (page) {
       case 'governance':
+      case 'council':
       case 'dashboard':
       case 'staking':
         return 'fit-content'
@@ -106,6 +108,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'emergency governance':
         return '130px'
       case 'governance':
+      case 'council':
       case 'proposal submission':
         return '156px'
       case 'satellite-governance':
@@ -119,6 +122,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'satellites':
         return '-20px'
       case 'governance':
+      case 'council':
       case 'proposal submission':
         return '6px'
       case 'emergency governance':

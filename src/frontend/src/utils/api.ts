@@ -25,7 +25,7 @@ export async function getChainInfo(): Promise<any> {
 }
 
 export async function getTreasuryDataByAddress(treasuryAddress: string): Promise<any> {
-  return await axios.get(`https://api.${process.env.REACT_APP_API_NETWORK || 'better-call.dev'}/v1/account/${process.env.REACT_APP_API_NETWORK || 'ithacanet'}/${treasuryAddress}/token_balances`).then((response: any) => {
+  return await axios.get(`https://api.better-call.dev/v1/account/${process.env.REACT_APP_API_NETWORK || 'ithacanet'}/${treasuryAddress}/token_balances`).then((response: any) => {
     return response.data
   })
 }

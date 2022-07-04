@@ -3,7 +3,6 @@ query GetUserInfo ($_eq: String = "") {
   mavryk_user(where: {address: {_eq: $_eq}}) {
     address
     mvk_balance
-    participation_fees_per_share
     smvk_balance
     delegation_records {
       satellite_record {
