@@ -49,6 +49,12 @@ h1 {
   }
 }
 
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
 button {
   background: none;
   border: none;

@@ -11,6 +11,7 @@ export const SatelliteGovernanceStyled = styled.section`
   }
 
   .tab-buttons {
+    margin-top: 30px;
     margin-bottom: 30px;
     width: 536px;
     justify-content: unset;
@@ -123,6 +124,12 @@ export const AvailableActionsStyle = styled.div`
       padding-left: 8px;
       margin-bottom: 5px;
       display: block;
+    }
+
+    fieldset {
+      display: grid;
+      grid-template-columns: 0.5fr 0.5fr;
+      gap: 20px;
     }
   }
 ` // AvailableActionsStyle
