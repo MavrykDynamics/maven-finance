@@ -1,5 +1,7 @@
 const axios = require('axios').default
 
+console.log('%c ||||| process.env.REACT_APP_API_NETWORK', 'color:yellowgreen', process.env.REACT_APP_API_NETWORK);
+
 export async function getContractBigmapKeys(contractAddress: string, name: string): Promise<any> {
   return await axios
     .get(
