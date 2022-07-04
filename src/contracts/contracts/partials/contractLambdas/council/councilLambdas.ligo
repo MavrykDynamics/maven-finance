@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s); // check that sender is admin
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case councilLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -30,8 +30,8 @@ block {
 function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorageType) : return is
 block {
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case councilLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case councilLambdaAction of [
         | LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -100,8 +100,7 @@ block {
 function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
 block {
     
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin
     
     case councilLambdaAction of [
         | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -118,8 +117,7 @@ block {
 function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
 block {
     
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin
     
     case councilLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -136,13 +134,18 @@ block {
 function lambdaUpdateCouncilMemberInfo(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (name, image, website) and check max length is not exceeded
+    // 3. Update Council Member info 
+
     case councilLambdaAction of [
         | LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
                 
                 // Check if sender is a member of the council
                 var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
-                    Some (_info) -> _info
-                |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+                        Some (_info) -> _info
+                    |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];
                 
                 // Validate inputs
@@ -177,10 +180,12 @@ block {
 function lambdaCouncilActionAddMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if new Council Member to be added is not already in the Council 
+    // 3. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: addCouncilMember
+    // 4. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -188,8 +193,8 @@ block {
         | LambdaCouncilActionAddMember(newCouncilMember) -> {
 
                 // Validate inputs
-                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
@@ -202,9 +207,9 @@ block {
                         ("councilMemberAddress" : string) -> newCouncilMember.memberAddress
                     ];
                 const stringMap           : stringMapType      = map [
-                        ("councilMemberName": string) -> newCouncilMember.memberName;
-                        ("councilMemberImage": string) -> newCouncilMember.memberImage;
-                        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
+                        ("councilMemberName"    : string) -> newCouncilMember.memberName;
+                        ("councilMemberImage"   : string) -> newCouncilMember.memberImage;
+                        ("councilMemberWebsite" : string) -> newCouncilMember.memberWebsite
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
@@ -245,10 +250,13 @@ block {
 function lambdaCouncilActionRemoveMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check that Address to be removed is a Council Member
+    // 3. Check that Council Threshold will not be affected with the removal of the Council Member
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: removeCouncilMember
+    // 4. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -308,10 +316,14 @@ block {
 function lambdaCouncilActionChangeMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (name, image, website) and check max length is not exceeded
+    // 3. Check that new Council Member to be added is not already in the Council
+    // 4. Check that old Council Member to be removed is in the Council
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: changeCouncilMember
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -319,8 +331,8 @@ block {
         | LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
@@ -334,13 +346,13 @@ block {
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
                 const addressMap          : addressMapType     = map [
-                    ("oldCouncilMemberAddress" : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-                    ("newCouncilMemberAddress" : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
+                    ("oldCouncilMemberAddress"  : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
+                    ("newCouncilMemberAddress"  : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
                 const stringMap           : stringMapType      = map [
-                    ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
+                    ("newCouncilMemberName"     : string) -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberWebsite"  : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                    ("newCouncilMemberImage"    : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
@@ -380,9 +392,10 @@ block {
 function lambdaCouncilActionSetBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
     // 2. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: setBaker
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
@@ -437,10 +450,13 @@ block {
 function lambdaCouncilActionUpdateBlocksPerMinute(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check that new blocks per minute will not break the system (cannot be zero)
+    // 3. Check that provided contract has an updateBlocksPerMinute entrypoint
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: updateBlocksPerMinute
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -451,7 +467,7 @@ block {
                 if councilActionUpdateBlocksPerMinParam.newBlocksPerMinute = 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE)
                 else skip;
 
-                // Check if the provided contract has a updateBlocksPerMinute entrypoint
+                // Check if the provided contract has an updateBlocksPerMinute entrypoint
                 const _checkEntrypoint: contract(nat)    = sendUpdateBlocksPerMinuteParams(councilActionUpdateBlocksPerMinParam.contractAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -508,17 +524,21 @@ block {
 function lambdaCouncilActionAddVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract address from the General Contracts Map on the Governance Contract
+    // 3. Check if addVestee entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee already exists
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: addVestee
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         | LambdaCouncilActionAddVestee(addVesteeParams) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -527,6 +547,8 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+                
+                // Check if addVestee entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
 
                 // init parameters
@@ -594,17 +616,21 @@ block {
 function lambdaCouncilActionRemoveVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Check if removeVestee entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee exists on the Vesting Contract
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: removeVestee
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         | LambdaCouncilActionRemoveVestee(vesteeAddress) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -613,9 +639,11 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if removeVestee entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(address) = sendRemoveVesteeParams(vestingAddress);
 
-                // Check if the vestee already exists
+                // Check if the vestee exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
@@ -670,17 +698,21 @@ block {
 function lambdaCouncilActionUpdateVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Check if updateVestee entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee exists on the Vesting Contract
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: updateVestee
+    // 6. Increment action counter
     
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         | LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -689,6 +721,8 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if updateVestee entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(updateVesteeType)  = sendUpdateVesteeParams(vestingAddress);
 
                 // init parameters
@@ -697,7 +731,7 @@ block {
                 const newCliffInMonths          : nat      = updateVesteeParams.newCliffInMonths;
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
-                // Check if the vestee already exists
+                // Check if the vestee exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
@@ -756,17 +790,21 @@ block {
 function lambdaCouncilActionToggleVesteeLock(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Check if toggleVesteeLock entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee exists on the Vesting Contract
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: toggleVesteeLock
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         | LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -775,9 +813,11 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if toggleVesteeLock entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(address) = sendToggleVesteeLockParams(vestingAddress);
 
-                // Check if the vestee already exists
+                // Check if the vestee exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
                     Some (_value) -> case _value of [
@@ -839,10 +879,13 @@ block {
 function lambdaCouncilActionTransfer(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (purpose) does not exceed max length
+    // 3. Check if tokenType provided is correct
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: transfer
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -852,7 +895,7 @@ block {
                 // Validate inputs
                 if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // Check if type is correct
+                // Check if token type is correct
                 if councilActionTransferParams.tokenType = "FA12" or
                 councilActionTransferParams.tokenType = "FA2" or
                 councilActionTransferParams.tokenType = "TEZ" then skip
@@ -910,10 +953,15 @@ block {
 function lambdaCouncilActionRequestTokens(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (purpose, token name) does not exceed max length
+    // 3. Get Governance Financial Address from the General Contracts Map on the Governance Contract 
+    // 4. Check if requestTokens entrypoint exists on the Governance Financial Contract 
+    // 5. Check if tokenType provided is correct
+    // 6. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: requestTokens
+    // 7. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -924,7 +972,7 @@ block {
                 if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // Check if entrypoint exist on Governance Contract
+                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                 const governanceFinancialAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -933,6 +981,8 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if requestTokens entrypoint exists on the Governance Financial Contract 
                 const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(governanceFinancialAddress);
 
                 // Check if type is correct
@@ -994,10 +1044,14 @@ block {
 function lambdaCouncilActionRequestMint(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (purpose) does not exceed max length
+    // 3. Get Governance Financial Address from the General Contracts Map on the Governance Contract 
+    // 4. Check if requestTokens entrypoint exists on the Governance Financial Contract 
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: requestMint
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -1007,7 +1061,7 @@ block {
                 // Validate inputs
                 if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // Check if entrypoint exists on Governance Contract
+                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                 const governanceFinancialAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -1016,6 +1070,8 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if requestTokens entrypoint exists on the Governance Financial Contract 
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -1067,17 +1123,20 @@ block {
 function lambdaCouncilActionSetContractBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Governance Financial Address from the General Contracts Map on the Governance Contract 
+    // 3. Check if setContractBaker entrypoint exists on the Governance Financial Contract 
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: setContractBaker
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         | LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
-                // Check if entrypoint exist on Governance contract
+                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
                 const governanceFinancialAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
@@ -1086,7 +1145,9 @@ block {
                         ]
                 |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(governanceFinancialAddress);
+
+                // Check if setContractBaker entrypoint exists on the Governance Financial Contract 
+                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendSetContractBakerParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = councilActionSetContractBakerParams.keyHash; 
 
@@ -1133,10 +1194,12 @@ block {
 function lambdaCouncilActionDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if Financial Request exists
+    // 3. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: dropFinancialRequest
+    // 4. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -1204,17 +1267,19 @@ block {
 function lambdaFlushAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if Council Action exists
+    // 3. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: flushAction
+    // 4. Increment action counter
     
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
         | LambdaFlushAction(actionId) -> {
                 
-                // Check if council action
+                // Check if council action exists
                 const _request: councilActionRecordType = case Big_map.find_opt(actionId, s.councilActionsLedger) of [
                         Some (_action) -> _action
                     |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
@@ -1271,6 +1336,15 @@ block {
 function lambdaSignAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if Council Action exists
+    //      - check that council action has not been flushed
+    //      - check that council action has not expired
+    //      - check if council member has already signed for the action
+    // 3. Update signers and signersCount for Council Action record
+    // 4. Execute action is signers threshold has been reached     
+    
     checkSenderIsCouncilMember(s);
 
     var operations : list(operation) := nil;
@@ -1278,6 +1352,7 @@ block {
     case councilLambdaAction of [
         | LambdaSignAction(actionId) -> {
                 
+                // check if council action exists
                 var _councilActionRecord : councilActionRecordType := case s.councilActionsLedger[actionId] of [
                       Some(_record) -> _record
                     | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
@@ -1289,7 +1364,7 @@ block {
                 // check if council action has expired
                 if Tezos.now > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
-                // check if signer already signer
+                // check if signer has already signed
                 if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
@@ -1881,7 +1956,7 @@ block {
                         const setContractBakerOperation : operation = Tezos.transaction(
                             setContractBakerParams,
                             0tez, 
-                            sendContractBakerParams(governanceFinancialAddress)
+                            sendSetContractBakerParams(governanceFinancialAddress)
                         );
 
                         operations := setContractBakerOperation # operations;

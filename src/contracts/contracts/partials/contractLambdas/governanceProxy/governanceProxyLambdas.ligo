@@ -13,7 +13,7 @@ function lambdaSetAdmin(const governanceProxyLambdaAction : governanceProxyLambd
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s); 
+    checkSenderIsAdminOrGovernance(s); 
 
     case governanceProxyLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s);
+    checkSenderIsAdminOrGovernance(s);
 
     case governanceProxyLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

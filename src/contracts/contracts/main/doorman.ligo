@@ -94,27 +94,31 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : doormanStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(var s : doormanStorageType) : unit is
   if (Tezos.sender = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+  else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
+// Allowed Senders: MVK Token Address
 function checkSenderIsMvkTokenContract(var s : doormanStorageType) : unit is
 block{
   const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
-    else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
+  else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
 } with unit
 
 
 
+// Allowed Senders: Delegation Contract
 function checkSenderIsDelegationContract(var s : doormanStorageType) : unit is
 block{
   const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
@@ -126,11 +130,12 @@ block{
   |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = delegationAddress) then skip
-    else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
+  else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
 } with unit
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
@@ -139,20 +144,21 @@ block{
     const governanceSatelliteAddress: address = case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
                 Some (_contract)    -> _contract
-            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+              | None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
             ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     if Tezos.sender = governanceSatelliteAddress then skip
-      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+  else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -165,25 +171,25 @@ function checkNoAmount(const _p : unit) : unit is
 
 function checkStakeIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
+  else unit;
 
 
 
 function checkUnstakeIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
+  else unit;
 
 
 
 function checkCompoundIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
+  else unit;
 
 
 
 function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
-    else unit;
+  else unit;
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End

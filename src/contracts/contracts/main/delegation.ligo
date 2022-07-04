@@ -82,42 +82,28 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : delegationStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(var s : delegationStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+  if (Tezos.sender = s.admin) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
+// Allowed Senders: Self
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.self_address) then unit
-    else failwith(error_ONLY_SELF_ALLOWED);
+  if (Tezos.sender = Tezos.self_address) then unit
+  else failwith(error_ONLY_SELF_ALLOWED);
 
 
 
-function checkUserIsSatellite(const userAddress: address; var s : delegationStorageType) : unit is 
-  if (Map.mem(userAddress, s.satelliteLedger)) then unit
-  else failwith(error_ONLY_SATELLITE_ALLOWED);
-
-
-
-function checkUserIsNotSatellite(const userAddress: address; var s : delegationStorageType) : unit is 
-  if (Map.mem(userAddress, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
-  else unit;
-
-
-
-function checkUserIsNotDelegate(const userAddress: address; var s : delegationStorageType) : unit is 
-  if (Big_map.mem(userAddress, s.delegateLedger)) then failwith(error_DELEGATE_NOT_ALLOWED)
-  else unit;
-
-
-
+// Allowed Senders: Doorman Contract
 function checkSenderIsDoormanContract(var s : delegationStorageType) : unit is
 block{
   const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
@@ -134,6 +120,7 @@ block{
 
 
 
+// Allowed Senders: Governance Contract 
 function checkSenderIsGovernanceContract(var s : delegationStorageType) : unit is
 block{
   const governanceAddress : address = s.governanceAddress;
@@ -143,6 +130,7 @@ block{
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : delegationStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
@@ -156,12 +144,34 @@ block{
     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     if Tezos.sender = governanceSatelliteAddress then skip
-      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
 
 
 
+// Check User is a Satellite
+function checkUserIsSatellite(const userAddress: address; var s : delegationStorageType) : unit is 
+  if (Map.mem(userAddress, s.satelliteLedger)) then unit
+  else failwith(error_ONLY_SATELLITE_ALLOWED);
+
+
+
+// Check User is not a Satellite
+function checkUserIsNotSatellite(const userAddress: address; var s : delegationStorageType) : unit is 
+  if (Map.mem(userAddress, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+  else unit;
+
+
+
+// Check User is not delegated to a satellite
+function checkUserIsNotDelegate(const userAddress: address; var s : delegationStorageType) : unit is 
+  if (Big_map.mem(userAddress, s.delegateLedger)) then failwith(error_DELEGATE_NOT_ALLOWED)
+  else unit;
+
+
+
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
   else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
