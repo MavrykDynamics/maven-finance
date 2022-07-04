@@ -80,36 +80,37 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-
-
-function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
-
-
-
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(const s: treasuryStorageType): unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
+function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
+  if (Tezos.sender = s.admin) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+
+
+// Allowed Senders: Admin, Governance Financial Contract
 function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorageType): unit is
-    block{
-        const governanceFinancialAddress: address = case s.whitelistContracts["governanceFinancial"] of [
-              Some (_address) -> _address
-          |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED): address)
-        ];
-        if (Tezos.sender = s.admin or Tezos.sender = governanceFinancialAddress) then skip
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-    } with(unit)
+block{
+    const governanceFinancialAddress: address = case s.whitelistContracts["governanceFinancial"] of [
+          Some (_address) -> _address
+      |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED): address)
+    ];
+    if (Tezos.sender = s.admin or Tezos.sender = governanceFinancialAddress) then skip
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+} with(unit)
 
 
 
+// Allowed Senders: Admin, Governance Contract, Treasury Factory Contract
 function checkSenderIsGovernanceOrFactory(const s: treasuryStorageType): unit is
 block {
     
-    // First check because a treasury without a factory should still be accessible
     if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress
     then skip
     else{
@@ -124,6 +125,7 @@ block {
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);

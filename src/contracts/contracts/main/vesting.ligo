@@ -84,30 +84,35 @@ const thirty_days    : int              = one_day * 30;
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : vestingStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(var s : vestingStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+  if (Tezos.sender = s.admin) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
+// Allowed Senders: Admin, Council Contract
 function checkSenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
-    block{
-        const councilAddress: address = case s.whitelistContracts["council"] of [
-              Some (_address) -> _address
-          |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
-        ];
-        if Tezos.sender = councilAddress or Tezos.sender = s.admin then skip
-        else failwith(error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
-    } with (unit)
+block{
+    const councilAddress: address = case s.whitelistContracts["council"] of [
+          Some (_address) -> _address
+      |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
+    ];
+    if Tezos.sender = councilAddress or Tezos.sender = s.admin then skip
+    else failwith(error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
+} with (unit)
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vestingStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
@@ -121,15 +126,16 @@ block{
     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     if Tezos.sender = governanceSatelliteAddress then skip
-      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+  if (Tezos.amount = 0tez) then unit
+  else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
