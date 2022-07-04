@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { Page } from 'styles'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -20,6 +22,7 @@ import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGov
 import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
 
 export const SatelliteGovernance = () => {
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
     { text: 'Suspend Satellite', value: 'suspendSatellite' },
@@ -112,23 +115,25 @@ export const SatelliteGovernance = () => {
             </p>
           </div>
         </article>
+        {accountPkh ? (
+          <DropdownCard className="satellite-governance-dropdown">
+            <DropdownWrap>
+              <h2>Available Actions</h2>
+              <DropDown
+                clickOnDropDown={handleClickDropdown}
+                placeholder={ddItems[0]}
+                onChange={handleSelect}
+                isOpen={ddIsOpen}
+                itemSelected={chosenDdItem?.text}
+                items={ddItems}
+                onBlur={() => {}}
+                clickOnItem={(e) => handleOnClickDropdownItem(e)}
+              />
+            </DropdownWrap>
+            <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
+          </DropdownCard>
+        ) : null}
 
-        <DropdownCard className="satellite-governance-dropdown">
-          <DropdownWrap>
-            <h2>Available Actions</h2>
-            <DropDown
-              clickOnDropDown={handleClickDropdown}
-              placeholder={ddItems[0]}
-              onChange={handleSelect}
-              isOpen={ddIsOpen}
-              itemSelected={chosenDdItem?.text}
-              items={ddItems}
-              onBlur={() => {}}
-              clickOnItem={(e) => handleOnClickDropdownItem(e)}
-            />
-          </DropdownWrap>
-          <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
-        </DropdownCard>
         <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
       </SatelliteGovernanceStyled>
       <SatelliteGovernanceCard

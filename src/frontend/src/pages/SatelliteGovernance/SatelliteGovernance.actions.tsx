@@ -228,3 +228,97 @@ export const removeOracles = (satelliteAddress: string, purpose: string) => asyn
     })
   }
 }
+
+// Remove from Aggregator
+export const REMOVE_FROM_AGGREGATOR_REQUEST = 'REMOVE_FROM_AGGREGATOR_REQUEST'
+export const REMOVE_FROM_AGGREGATOR_RESULT = 'REMOVE_FROM_AGGREGATOR_RESULT'
+export const REMOVE_FROM_AGGREGATOR_ERROR = 'REMOVE_FROM_AGGREGATOR_ERROR'
+export const removeOracleInAggregator =
+  (oracleAddress: string, satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: REMOVE_FROM_AGGREGATOR_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .removeOracleInAggregator(oracleAddress, satelliteAddress, purpose)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Remove from Aggregator...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Remove from Aggregator done', 'All good :)'))
+
+      dispatch({
+        type: REMOVE_FROM_AGGREGATOR_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REMOVE_FROM_AGGREGATOR_ERROR,
+        error,
+      })
+    }
+  }
+
+// Add Oracle to Aggregator
+export const ADD_FROM_AGGREGATOR_REQUEST = 'ADD_FROM_AGGREGATOR_REQUEST'
+export const ADD_FROM_AGGREGATOR_RESULT = 'ADD_FROM_AGGREGATOR_RESULT'
+export const ADD_FROM_AGGREGATOR_ERROR = 'ADD_FROM_AGGREGATOR_ERROR'
+export const addOracleToAggregator =
+  (oracleAddress: string, satelliteAddress: string, purpose: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      dispatch({
+        type: ADD_FROM_AGGREGATOR_REQUEST,
+      })
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.addOracleToAggregator(oracleAddress, satelliteAddress, purpose).send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Add Oracle to Aggregator...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Add Oracle to Aggregator done', 'All good :)'))
+
+      dispatch({
+        type: ADD_FROM_AGGREGATOR_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: ADD_FROM_AGGREGATOR_ERROR,
+        error,
+      })
+    }
+  }
