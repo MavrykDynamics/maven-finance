@@ -12,12 +12,8 @@
 // Shared Methods
 #include "../partials/shared/sharedMethods.ligo"
 
-// ------------------------------------------------------------------------------
-// Common Types
-// ------------------------------------------------------------------------------
-
-// Transfer Types : transferDestinationType
-#include "../partials/shared/transferTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -41,6 +37,7 @@ type governanceSatelliteAction is
     |   UpdateConfig                  of governanceSatelliteUpdateConfigParamsType
     |   UpdateWhitelistContracts      of updateWhitelistContractsType
     |   UpdateGeneralContracts        of updateGeneralContractsType
+    |   MistakenTransfer              of transferActionType
 
         // Satellite Governance
     |   SuspendSatellite              of suspendSatelliteActionType
@@ -57,6 +54,9 @@ type governanceSatelliteAction is
     |   SetAggregatorMaintainer       of setAggregatorMaintainerActionType    
     |   RegisterAggregator            of registerAggregatorActionType
     |   UpdateAggregatorStatus        of updateAggregatorStatusActionType
+
+        // Mistaken Transfer Governance
+    |   MistakenTransferFix           of mistakenTransferFixParamsType
 
         // Governance Vote Actions
     |   DropAction                    of dropActionType
@@ -98,7 +98,18 @@ function checkSenderIsAdmin(const s : governanceSatelliteStorageType) : unit is
 
 
 
-// Check that no Tezos is sent to the entrypoint
+// Allowed Senders : Admin, Self
+function checkSenderIsAdminOrSelf(var s : governanceSatelliteStorageType) : unit is
+block{
+    if Tezos.sender = s.admin then skip
+    else {
+        if Tezos.sender = Tezos.self_address then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    }
+} with unit
+
+
+
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -219,6 +230,17 @@ function getSetMaintainerInAggregatorEntrypoint(const contractAddress : address)
                 Some(contr) -> contr
             |   None        -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
+
+
+
+// helper function to get mistaken transfer entrypoint in contract
+function getMistakenTransferEntrypoint(const contractAddress : address) : contract(transferActionType) is
+case (Tezos.get_entrypoint_opt(
+      "%mistakenTransfer",
+      contractAddress) : option(contract(transferActionType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_MISTAKEN_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
+];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -373,7 +395,7 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init council lambda action
+    // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
     // init response
@@ -392,7 +414,7 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init council lambda action
+    // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
@@ -411,7 +433,7 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init council lambda action
+    // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
     // init response
@@ -430,7 +452,7 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init council lambda action
+    // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
@@ -449,7 +471,7 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init council lambda action
+    // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
     // init response
@@ -468,11 +490,30 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init council lambda action
+    // init governance satellite lambda action
     const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceSatelliteStorageType): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance satellite lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);  
 
 } with response
 
@@ -697,6 +738,33 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Mistaken Transfer Governance Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  mistakenTransferFix entrypoint  *)
+function mistakenTransferFix(const mistakenTransferFixParams : mistakenTransferFixParamsType; var s : governanceSatelliteStorageType) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransferFix"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance satellite lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaMistakenTransferFix(mistakenTransferFixParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Mistaken Transfer Governance Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Governance Actions Entrypoints Begin
 // ------------------------------------------------------------------------------
 
@@ -791,6 +859,7 @@ block{
         |   UpdateConfig(parameters)                  -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer(parameters)              -> mistakenTransfer(parameters, s)
 
             // Satellite Governance 
         |   SuspendSatellite(parameters)              -> suspendSatellite(parameters, s)
@@ -808,11 +877,14 @@ block{
         |   RegisterAggregator(parameters)            -> registerAggregator(parameters, s)
         |   UpdateAggregatorStatus(parameters)        -> updateAggregatorStatus(parameters, s)
 
+            // Mistaken Transfer Governance
+        |   MistakenTransferFix(parameters)           -> mistakenTransferFix(parameters, s)
+
             // Governance Actions
         |   DropAction(parameters)                    -> dropAction(parameters, s)
         |   VoteForAction(parameters)                 -> voteForAction(parameters, s)
 
             // Lambda Entrypoints
-        |   SetLambda(parameters)                       -> setLambda(parameters, s)
+        |   SetLambda(parameters)                     -> setLambda(parameters, s)
     ]
 )

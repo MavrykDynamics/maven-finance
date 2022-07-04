@@ -25,50 +25,58 @@
     },
     {
         "index": 6,
-        "name": "lambdaSuspendSatellite"
+        "name": "lambdaMistakenTransfer"
     },
     {
         "index": 7,
-        "name": "lambdaUnsuspendSatellite"
+        "name": "lambdaSuspendSatellite"
     },
     {
         "index": 8,
-        "name": "lambdaBanSatellite"
+        "name": "lambdaUnsuspendSatellite"
     },
     {
         "index": 9,
-        "name": "lambdaUnbanSatellite"
+        "name": "lambdaBanSatellite"
     },
     {
         "index": 10,
-        "name": "lambdaRemoveAllSatelliteOracles"
+        "name": "lambdaUnbanSatellite"
     },
     {
         "index": 11,
-        "name": "lambdaAddOracleToAggregator"
+        "name": "lambdaRemoveAllSatelliteOracles"
     },
     {
         "index": 12,
-        "name": "lambdaRemoveOracleInAggregator"
+        "name": "lambdaAddOracleToAggregator"
     },
     {
         "index": 13,
-        "name": "lambdaSetAggregatorMaintainer"
+        "name": "lambdaRemoveOracleInAggregator"
     },
     {
         "index": 14,
-        "name": "lambdaRegisterAggregator"
+        "name": "lambdaSetAggregatorMaintainer"
     },
     {
         "index": 15,
-        "name": "lambdaUpdateAggregatorStatus"
+        "name": "lambdaRegisterAggregator"
     },
     {
         "index": 16,
-        "name": "lambdaDropAction"
+        "name": "lambdaUpdateAggregatorStatus"
     },
     {
         "index": 17,
+        "name": "lambdaMistakenTransferFix"
+    },
+    {
+        "index": 18,
+        "name": "lambdaDropAction"
+    },
+    {
+        "index": 19,
         "name": "lambdaVoteForAction"
-    }
+  }
 ]

@@ -39,6 +39,8 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     stringMap                          : stringMapType;
     natMap                             : natMapType;
 
+    transferList                       : transferActionType; 
+
     yayVoteStakedMvkTotal              : nat;
     nayVoteStakedMvkTotal              : nat;
     passVoteStakedMvkTotal             : nat;
@@ -176,6 +178,12 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
     newStatus                   : string;
 ]
 
+type mistakenTransferFixParamsType is [@layout:comb] record [
+    targetContractAddress   : address;
+    purpose                 : string;
+    transferList            : transferActionType;
+]
+
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -191,6 +199,7 @@ type governanceSatelliteLambdaActionType is
     |   LambdaUpdateConfig                  of governanceSatelliteUpdateConfigParamsType
     |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
 
         // Satellite Governance
     |   LambdaSuspendSatellite              of suspendSatelliteActionType
@@ -207,6 +216,9 @@ type governanceSatelliteLambdaActionType is
     |   LambdaSetAggregatorMaintainer       of setAggregatorMaintainerActionType
     |   LambdaRegisterAggregator            of registerAggregatorActionType     // callback from aggregator factory in creating aggregator contract
     |   LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
+
+        // Mistaken Transfer Governance
+    |   LambdaMistakenTransferFix           of mistakenTransferFixParamsType
 
         // Governance Actions
     |   LambdaVoteForAction                 of voteForActionType

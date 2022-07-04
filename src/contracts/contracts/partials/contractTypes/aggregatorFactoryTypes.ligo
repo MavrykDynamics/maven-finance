@@ -99,6 +99,7 @@ type aggregatorFactoryLambdaActionType is
     |   LambdaUpdateConfig                  of aggregatorFactoryUpdateConfigParamsType
     |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
 
         // Pause / Break Glass Entrypoints
     |   LambdaPauseAll                      of (unit)
