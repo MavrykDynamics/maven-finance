@@ -24,7 +24,9 @@ export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps)
     <ContractCardWrapper className={isActive ? 'active' : ''} onClick={onClick}>
       <ContractCardTopSection>
         <div className="card-title">
-          <div className="truncate-title">{title}</div>
+          <div className="truncate-title" title={title}>
+            {title}
+          </div>
         </div>
 
         <div className="card-flag-wrapper">

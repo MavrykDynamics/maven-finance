@@ -1,16 +1,14 @@
+import { TreasuryType } from 'utils/TypesAndInterfaces/Treasury';
 import { SET_TREASURY_STORAGE } from '../pages/Treasury/Treasury.actions'
-import { TreasuryStorage } from '../utils/TypesAndInterfaces/Treasury'
 
 export interface TreasuryState {
-  treasuryStorage: TreasuryStorage | any
-}
-
-export interface TreasuryAddressesType {
-  treasuryAddresses: Array<string>
+  treasuryStorage: Array<TreasuryType>
+  treasuryFactoryAddress: string
 }
 
 const treasuryDefaultState: TreasuryState = {
-  treasuryStorage: {},
+  treasuryStorage: [],
+  treasuryFactoryAddress: ''
 }
 
 export function treasury(state = treasuryDefaultState, action: any): TreasuryState {
@@ -18,7 +16,8 @@ export function treasury(state = treasuryDefaultState, action: any): TreasurySta
     case SET_TREASURY_STORAGE : 
       return {
         ...state,
-        treasuryStorage: action.theasuryData
+        treasuryStorage: action.treasuryStorage,
+        treasuryFactoryAddress: action.treasuryFactoryAddress
       }
     default:
       return state

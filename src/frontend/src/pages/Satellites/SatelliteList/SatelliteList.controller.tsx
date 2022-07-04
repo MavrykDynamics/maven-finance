@@ -8,7 +8,7 @@ type SatelliteListProps = {
   satellitesList: SatelliteRecord[]
   loading: boolean
   delegateCallback: (satelliteAddress: string) => void
-  undelegateCallback: (satelliteAddress: string) => void
+  undelegateCallback: () => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
 }

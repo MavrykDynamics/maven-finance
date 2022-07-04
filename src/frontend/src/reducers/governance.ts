@@ -75,6 +75,7 @@ const defaultGovernanceStorage: GovernanceStorage = {
   tempFlag: 0,
   timelockProposalId: 0,
   cycleCounter: 0,
+  cycleHighestVotedProposalId: 0,
 }
 const governanceDefaultState: GovernanceState = {
   governanceStorage: getItemFromStorage('GovernanceStorage') || defaultGovernanceStorage,

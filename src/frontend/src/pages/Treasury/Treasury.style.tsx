@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../styles/interfaces'
 
 import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor } from 'styles'
 
@@ -8,6 +7,10 @@ export const TreasuryViewStyle = styled(Card)`
   grid-template-columns: auto 254px 184px;
   gap: 50px;
   padding-bottom: 33px;
+
+  .content-wrapper {
+    max-width: 480px;
+  }
 
   header {
     display: flex;
@@ -19,6 +22,10 @@ export const TreasuryViewStyle = styled(Card)`
 
     h1 {
       margin: 0;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
@@ -29,6 +36,22 @@ export const TreasuryViewStyle = styled(Card)`
     font-size: 18px;
     line-height: 18px;
     padding-bottom: 13px;
+    white-space: nowrap;
+  }
+
+  .factory_address {
+    display: flex;
+
+    .text {
+      color: #8d86eb;
+      opacity: 0.7;
+      margin-right: 20px;
+    }
+
+    .tzAddressToClick {
+      font-size: 12px;
+      color: #86d4c9;
+    }
   }
 
   .assets-block {
@@ -48,6 +71,10 @@ export const TreasuryViewStyle = styled(Card)`
 
   .right-text {
     text-align: right;
+
+    &.value {
+      padding-right: 0;
+    }
   }
 
   .asset-name {
@@ -88,8 +115,8 @@ export const TreasuryViewStyle = styled(Card)`
   }
 
   .asset-lables {
-    padding-top: 25px;
-    max-height: 248px;
+    padding-top: 20px;
+    max-height: 242px;
     overflow: auto;
     padding-right: 16px;
   }
@@ -98,7 +125,6 @@ export const TreasuryViewStyle = styled(Card)`
     background: linear-gradient(90deg, #0d61ff 0%, rgba(133, 211, 200, 0) 100%);
     padding-top: 1px;
     padding-bottom: 1px;
-    margin-bottom: 6px;
     border-bottom-left-radius: 6px;
     border-top-left-radius: 6px;
     margin: 11px 0;
@@ -114,6 +140,15 @@ export const TreasuryViewStyle = styled(Card)`
     margin-left: 8px;
     line-height: 40px;
     padding-left: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .asset-persent {
+      font-size: 16px;
+      line-height: 24px;
+      color: ${skyColor};
+    }
   }
 
   .assets-map {
@@ -123,10 +158,10 @@ export const TreasuryViewStyle = styled(Card)`
 ` //TreasuryViewStyle
 
 export const TreasuryActiveStyle = styled.section`` //TreasuryActiveStyle
-export const TreasurySelectStyle = styled(Card)`
+export const TreasurySelectStyle = styled(Card)<{ isSelectedTreasury?: boolean }>`
   display: flex;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-bottom-left-radius: ${({ isSelectedTreasury }) => (isSelectedTreasury ? 0 : '10px')};
+  border-bottom-right-radius: ${({ isSelectedTreasury }) => (isSelectedTreasury ? 0 : '10px')};
   align-items: center;
   margin-top: 20px;
   padding-top: 17px;

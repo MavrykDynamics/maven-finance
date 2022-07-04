@@ -67,28 +67,10 @@ export const SatelliteGovernanceStyled = styled.section`
   }
 ` // SatelliteGovernanceStyled
 
-export const AvailableActionsStyle = styled(Card)`
+export const AvailableActionsStyle = styled.div`
   padding: 0;
-  margin-bottom: 30px;
-
-  h2 {
-    font-weight: 600;
-    font-size: 22px;
-    line-height: 22px;
-    color: ${headerColor};
-
-    & + div {
-      width: 450px;
-      margin-right: 0;
-    }
-  }
-
-  .dropdown-block {
-    display: flex;
-    border-bottom: 1px solid ${royalPurpleColor};
-    padding: 16px 30px;
-    align-items: center;
-  }
+  margin-top: 0;
+  border-top: 1px solid ${royalPurpleColor};
 
   .satellite-address {
     margin-bottom: 19px;
@@ -108,6 +90,13 @@ export const AvailableActionsStyle = styled(Card)`
 
       svg {
         stroke: transparent;
+      }
+    }
+
+    .banSatellite,
+    .removeOracles {
+      svg {
+        stroke: ${containerColor};
       }
     }
 

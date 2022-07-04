@@ -117,7 +117,7 @@ export const StageTwoFormView = ({
         </FormTitleContainer>
         <div>
           <label>2- Proposal Success Reward</label>
-          <FormTitleEntry>{successReward}</FormTitleEntry>
+          <FormTitleEntry>{successReward} MVK</FormTitleEntry>
         </div>
         <div>
           <label>3- Fee</label>
@@ -161,13 +161,6 @@ export const StageTwoFormView = ({
       </div>
 
       <FormButtonContainer>
-        <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          onClick={handleLockProposal}
-          kind="actionSecondary"
-        />
         <Button
           icon="bytes"
           className="bytes"

@@ -1,11 +1,10 @@
 import { Button } from 'app/App.components/Button/Button.controller'
-import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../../app/App.components/Button/Button.constants'
@@ -35,10 +34,10 @@ type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (satelliteAddress: string) => void
-  undelegateCallback: (satelliteAddress: string) => void
+  undelegateCallback: () => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
-  isDetaisPage?: boolean
+  isDetailsPage?: boolean
   className?: string
   children?: React.ReactNode
 }
@@ -49,7 +48,7 @@ export const SatelliteListCard = ({
   undelegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
-  isDetaisPage = false,
+  isDetailsPage = false,
   children = null,
   className = '',
 }: SatelliteListCardViewProps) => {
@@ -57,6 +56,7 @@ export const SatelliteListCard = ({
   const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const sMvkBalance = satellite.sMvkBalance
+  console.log(totalDelegatedMVK, sMvkBalance)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
@@ -77,7 +77,7 @@ export const SatelliteListCard = ({
           icon="man-close"
           kind={ACTION_SECONDARY}
           loading={loading}
-          onClick={() => undelegateCallback(satellite.address)}
+          onClick={() => undelegateCallback()}
         />
       ) : null}
     </>
@@ -128,7 +128,7 @@ export const SatelliteListCard = ({
           </SatelliteTextGroup>
 
           <SatelliteProfileDetails>
-            {isDetaisPage ? (
+            {isDetailsPage ? (
               <SatelliteTextGroup className="voted">
                 <SatelliteMainText>
                   <Time value={lastVotedTimestamp} format="M d\t\h, Y" />

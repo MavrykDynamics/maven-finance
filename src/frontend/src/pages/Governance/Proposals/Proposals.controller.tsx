@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux'
-
+import { useLocation } from 'react-router-dom'
 import { State } from '../../../reducers'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
 import { ProposalsView } from './Proposals.view'
@@ -20,6 +20,8 @@ export const Proposals = ({
   type,
   firstVisible,
 }: ProposalsProps) => {
+  const location = useLocation()
+
   const { governancePhase } = useSelector((state: State) => state.governance)
   let proposalListTitle = '',
     isProposalPhase = false
@@ -43,13 +45,15 @@ export const Proposals = ({
     proposalListTitle = 'Past Proposals'
     isProposalPhase = false
   }
+
+  const onProposalHistoryPage = location.pathname === '/proposal-history'
   return (
     <ProposalsView
       listTitle={title || proposalListTitle}
       proposalsList={proposalsList}
       handleItemSelect={handleItemSelect}
       selectedProposal={selectedProposal}
-      isProposalPhase={isProposalPhase}
+      isProposalPhase={!onProposalHistoryPage}
       firstVisible={firstVisible}
     />
   )

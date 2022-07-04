@@ -19,6 +19,8 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   position: sticky;
   top: 0;
   left: 0;
+  z-index: 30;
+
   .mobile-logo {
     display: none;
   }
@@ -49,7 +51,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
       display: flex;
       display: flex;
       background: ${backdropColor};
-      z-index: 10;
+      z-index: 30;
       align-items: flex-start;
       .burger-menu {
         margin: 21px 29px 0 auto;

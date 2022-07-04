@@ -10,7 +10,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     border-collapse: collapse;
   }
 
+  tr:hover {
+    .delete-button {
+      display: block;
+    }
+  }
+
   td {
+    position: relative;
     background-color: ${darkColor};
     height: 40px;
     border: 1px solid ${royalPurpleColor};
@@ -36,16 +43,20 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     }
   }
 
+  td,
   input {
     color: ${cyanColor};
-    background-color: transparent;
-    width: 100%;
-    text-align: center;
-    height: 100%;
     padding-left: 8px;
     padding-right: 8px;
-    border: none;
     font-size: 14px;
+    text-align: center;
+  }
+
+  input {
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
   }
 
   button {
@@ -67,6 +78,8 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:first-child {
       td {
         border-top: none;
+        font-weight: 700;
+        color: ${headerColor};
 
         &:first-child {
           border-top-left-radius: 10px;
@@ -113,14 +126,20 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   }
 
   .delete-button-wrap {
-    height: 0;
-    width: 100%;
+    height: 100%;
+    width: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .delete-button {
-    width: 100%;
-
+    width: 40px;
     margin-top: 0;
+    position: absolute;
+    right: -34px;
+    transform: translateY(-50%);
+    top: 50%;
     display: none;
 
     svg {
@@ -129,6 +148,33 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
       fill: ${cyanColor};
       margin-bottom: 4px;
       display: inline-block;
+    }
+  }
+
+  .table-drop {
+    position: relative;
+  }
+
+  .table-drop-btn-cur {
+    color: inherit;
+    font-size: inherit;
+    position: relative;
+
+    & + div {
+      top: 16px;
+      z-index: 2;
+    }
+
+    &::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 4px 4px 0 4px;
+      border-color: ${cyanColor} transparent transparent transparent;
+      position: absolute;
+      right: -16px;
+      top: 6px;
     }
   }
 ` //TableGridWrap

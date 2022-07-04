@@ -239,6 +239,7 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('startNextRound contract', contract)
+    console.log('%c ||||| executePastProposal', 'color:yellowgreen', executePastProposal)
     const transaction = await contract?.methods.startNextRound(executePastProposal).send()
     console.log('startNextRound transaction', transaction)
 

@@ -2,11 +2,7 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
-import {
-  DELEGATION_STORAGE_QUERY,
-  DELEGATION_STORAGE_QUERY_NAME,
-  DELEGATION_STORAGE_QUERY_VARIABLE,
-} from '../../gql/queries'
+import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 
@@ -54,10 +50,20 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
     return
   }
 
+  if (state.user.user.myMvkTokenBalance === 0 && state.user.user.mySMvkTokenBalance === 0) {
+    dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please buy MVK and stake it'))
+    return
+  }
+
+  if (state.user.user.mySMvkTokenBalance === 0) {
+    dispatch(showToaster(ERROR, 'Unable to Delegate', 'Please stake your MVK'))
+    return
+  }
+
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
+    const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh, satelliteAddress).send()
     console.log('transaction', transaction)
 
     dispatch({
@@ -91,7 +97,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
 export const UNDELEGATE_REQUEST = 'UNSTAKE_REQUEST'
 export const UNDELEGATE_RESULT = 'UNSTAKE_RESULT'
 export const UNDELEGATE_ERROR = 'UNSTAKE_ERROR'
-export const undelegate = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
+export const undelegate = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -107,7 +113,7 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
   try {
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.undelegateFromSatellite(satelliteAddress).send()
+    const transaction = await contract?.methods.undelegateFromSatellite(state.wallet.accountPkh).send()
     console.log('transaction', transaction)
 
     dispatch({

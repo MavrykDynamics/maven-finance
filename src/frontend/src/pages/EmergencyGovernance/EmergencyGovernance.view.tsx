@@ -70,7 +70,6 @@ export const EmergencyGovernanceView = ({
   useEffect(() => {
     handleGetTimestampByLevel(selectedProposal?.currentCycleEndLevel ?? 0)
   }, [selectedProposal?.currentCycleEndLevel])
-
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
@@ -127,37 +126,37 @@ export const EmergencyGovernanceView = ({
         </p>
       </EmergencyGovernanceCard>
 
-      {emergencyGovernanceActive && accountPkh ? (
+      {/* {emergencyGovernanceActive && accountPkh ? (
         emergencyGovernanceCardActive
       ) : (
-        <EmergencyGovernanceCard>
-          <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
-            <Icon id="question" />
-          </a>
-          <CardContent>
-            <CardContentLeftSide>
-              <h1>Trigger Emergency Governance Vote</h1>
-              <p>
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
-                industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
-                scrambled it to make ...
-              </p>
-            </CardContentLeftSide>
-            <CardContentRightSide>
-              {accountPkh ? (
-                <Button
-                  text={'Trigger Vote'}
-                  kind={ACTION_PRIMARY}
-                  icon={'auction'}
-                  onClick={handleTriggerEmergencyProposal}
-                />
-              ) : (
-                <ConnectWallet className="connect-wallet" type={'main-menu'} />
-              )}
-            </CardContentRightSide>
-          </CardContent>
-        </EmergencyGovernanceCard>
-      )}
+      )} */}
+      <EmergencyGovernanceCard>
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+        <CardContent>
+          <CardContentLeftSide>
+            <h1>Trigger Emergency Governance Vote</h1>
+            <p>
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+              industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
+              scrambled it to make ...
+            </p>
+          </CardContentLeftSide>
+          <CardContentRightSide>
+            {accountPkh ? (
+              <Button
+                text={'Trigger Vote'}
+                kind={ACTION_PRIMARY}
+                icon={'auction'}
+                onClick={handleTriggerEmergencyProposal}
+              />
+            ) : (
+              <ConnectWallet className="connect-wallet" type={'main-menu'} />
+            )}
+          </CardContentRightSide>
+        </CardContent>
+      </EmergencyGovernanceCard>
 
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>

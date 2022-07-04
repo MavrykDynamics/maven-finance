@@ -32,10 +32,8 @@ import {
   ProposalStatusType,
 } from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
+import { TreasuryType } from './TypesAndInterfaces/Treasury'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
-import { ProposalStatus } from './TypesAndInterfaces/Governance'
-import { TreasuryAddressesType } from 'reducers/treasury';
-
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -96,9 +94,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
   return res
 }
 
-function convertToTreasuryAddressType(storage: any): TreasuryAddressesType {
+function convertToTreasuryAddressType(storage: any): {treasuryAddresses: Array<TreasuryType>, treasuryFactoryAddress: string} {
   return {
-    treasuryAddresses: storage?.treasury
+    treasuryAddresses: storage?.treasury,
+    treasuryFactoryAddress: storage?.treasury_factory[0].address
   }
 }
 
@@ -114,7 +113,14 @@ function convertToContractAddressesType(storage: any): ContractAddressesState {
     breakGlassAddress: { address: storage?.break_glass?.[0]?.address },
     councilAddress: { address: storage?.council?.[0]?.address },
     treasuryAddress: { address: storage?.delegation?.[0]?.address },
+    treasuryFactoryAddress: { address: storage?.treasury_factory?.[0]?.address },
     vestingAddress: { address: storage?.vesting?.[0]?.address },
+    governanceSatelliteAddress: { address: storage?.governance_satellite?.[0]?.address },
+    usdmTokenAddress: { address: storage?.usdm_token?.[0]?.address },
+    usdmTokenControllerAddress: { address: storage?.usdm_token_controller?.[0]?.address },
+    vaultAddress: { address: storage?.vault?.[0]?.address },
+    aggregatorFactoryAddress: { address: storage?.aggregator_factory?.[0]?.address },
+    aggregatorAddress: { address: storage?.aggregator?.[0]?.address },
   }
 }
 
@@ -526,6 +532,7 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
+    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : []
   }
 }
 
@@ -546,9 +553,6 @@ function convertGovernanceRound(round: number): GovernanceRoundType {
   return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : 'TIME_LOCK'
 }
 
-function convertActualFee(feeMutez: number): number {
-  return feeMutez / 1_000_0000
-}
 
 function convertToGovernanceStorageType(storage: {
   governance: any
@@ -569,12 +573,14 @@ function convertToGovernanceStorageType(storage: {
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
     address: currentGovernance.address,
-    fee: currentGovernance.proposal_submission_fee_mutez ? convertActualFee(Number(currentGovernance.proposal_submission_fee_mutez)) : 0,
+    fee: currentGovernance.proposal_submission_fee_mutez
+      ? calcWithoutMu(currentGovernance.proposal_submission_fee_mutez)
+      : 0,
     config: {
-      successReward: currentGovernance.success_reward,
+      successReward: calcWithoutPrecision(currentGovernance.success_reward),
       minQuorumPercentage: currentGovernance.min_quorum_percentage,
-      minQuorumMvkTotal: currentGovernance.min_quorum_mvk_total,
-      votingPowerRatio: currentGovernance.voting_power_ratio,
+      minQuorumMvkTotal: currentGovernance.min_yay_vote_percentage,
+      votingPowerRatio: currentGovernance.voting_power_ratio ?? 0,
       proposalSubmissionFee: currentGovernance.proposal_submission_fee, // 10 tez
       minimumStakeReqPercentage: currentGovernance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
       maxProposalsPerDelegate: currentGovernance.max_proposal_per_delegate,
@@ -598,8 +604,9 @@ function convertToGovernanceStorageType(storage: {
     snapshotLedger: satelliteSnapshotLedger,
     startLevel: currentGovernance.start_level,
     tempFlag: currentGovernance.start_level,
-    timelockProposalId: currentGovernance.timelock_proposal,
+    timelockProposalId: currentGovernance.timelock_proposal_id,
     cycleCounter: currentGovernance.cycle_counter,
+    cycleHighestVotedProposalId: currentGovernance.cycle_highest_voted_proposal_id,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,
@@ -660,24 +667,24 @@ function convertGovernanceFinancialRequestVoteToInterface(
 
 function convertGovernanceProposalRecordToInterface(
   governance_proposal_record: {
-    abstain_mvk_total: any
+    pass_vote_smvk_total: any
     current_cycle_end_level: any
     current_cycle_start_level: any
     current_round_proposal: any
     cycle: any
     description: any
-    down_vote_mvk_total: any
+    nay_vote_smvk_total: any
     id: any
     executed: any
     invoice: any
     locked: any
     min_proposal_round_vote_pct: any
-    pass_vote_mvk_total: any
+    proposal_vote_smvk_total: any
     min_quorum_percentage: any
-    min_quorum_mvk_total: any
+    min_yay_vote_percentage: any
     min_proposal_round_vote_req: any
     proposer_id: any
-    quorum_mvk_total: any
+    quorum_smvk_total: any
     source_code: any
     round_highest_voted_proposal: any
     start_datetime: any
@@ -685,7 +692,7 @@ function convertGovernanceProposalRecordToInterface(
     success_reward: any
     timelock_proposal: any
     title: any
-    up_vote_mvk_total: any
+    yay_vote_smvk_total: any
     votes: {
       current_round_vote: any
       governance_proposal_record_id: any
@@ -701,8 +708,8 @@ function convertGovernanceProposalRecordToInterface(
   const governanceProposalRecords: ProposalRecordType[] = []
   if (Array.isArray(governance_proposal_record)) {
     governance_proposal_record.forEach((record) => {
-      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)      
-      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)      
+      const newProposalRecord = convertGovernanceProposalRecordItemToStorageType(record)
+      newProposalRecord.votes = convertGovernanceProposalVoteToInterface(record.votes)
       governanceProposalRecords.push(newProposalRecord)
     })
   }
@@ -761,6 +768,8 @@ function convertGovernanceSatelliteSnapshotRecordsToInterface(
 }
 
 export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
+
+
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
@@ -773,23 +782,28 @@ export function convertGovernanceProposalRecordItemToStorageType(item: any): Pro
     executed: item.executed,
     locked: item.locked,
     timelockProposal: item.timelock_proposal,
-    passVoteMvkTotal: item.pass_vote_mvk_total,
-    upvoteMvkTotal: item.up_vote_mvk_total,
-    downvoteMvkTotal: item.down_vote_count,
-    abstainMvkTotal: item.abstain_mvk_total,
+    sourceCode: item.source_code,
+    passVoteMvkTotal: item.proposal_vote_smvk_total,
+    upvoteMvkTotal: item.yay_vote_smvk_total,
+    downvoteMvkTotal: item.nay_vote_count,
+    abstainMvkTotal: item.pass_vote_smvk_total,
     votes: convertGovernanceProposalVoteToInterface(item.votes),
     minProposalRoundVoteRequirement: item.min_proposal_round_vote_req,
     minProposalRoundVotePercentage: item.min_proposal_round_vote_pct,
     minQuorumPercentage: item.min_quorum_percentage,
-    minQuorumMvkTotal: item.min_quorum_mvk_total,
-    quorumMvkTotal: item.quorum_mvk_total,
-    currentRoundProposal: item.quorum_mvk_total,
+    minQuorumMvkTotal: item.min_yay_vote_percentage,
+    quorumMvkTotal: item.quorum_smvk_total,
+    currentRoundProposal: item.current_round_proposal,
     currentCycleStartLevel: item.current_cycle_start_level,
     currentCycleEndLevel: item.current_cycle_end_level,
     roundHighestVotedProposal: item.round_highest_voted_proposal,
     cycle: item.cycle,
+    proposalData: item.proposal_data,
+    proposalPayments: item.proposal_payments,
+    governanceId: item.governance_id,
     details: item.details,
     invoiceTable: item.invoice_table,
+    paymentProcessed: item.payment_processed,
   }
   // @ts-ignore
   return convertData

@@ -44,9 +44,35 @@ export interface ProposalVote {
   voterId: string
   votingPower: number
 }
+
+export interface ProposalDataType {
+  bytes: string
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
+}
+
+
+
+export type TokenStandardType =  0 | 1 | 2 | 3
+export type PaymentType =  "XTZ" | "MVK"
+
+export interface ProposalPaymentType {
+  governance_proposal_record_id: number
+  id: number
+  record_internal_id: number
+  title: string
+  to__id: string
+  token_address: string
+  token_amount: string
+  token_id: string
+  token_standard: 0 | 1 | 2 | 3
+}
+
 export interface ProposalRecordType {
   id: number
-
+  paymentProcessed?: boolean
   proposerId: string
   status: number
   title: string // title
@@ -57,7 +83,7 @@ export interface ProposalRecordType {
   executed: boolean // true / false
   locked: boolean // true / false   For updating of the proposal metadata
   timelockProposal: any
-
+  sourceCode?: string
   passVoteMvkTotal: number // proposal round pass vote total mvk from satellites who voted pass
   upvoteMvkTotal: number // voting round: upvotes MVK total
   downvoteMvkTotal: number // voting round: downvotes MVK total
@@ -76,7 +102,9 @@ export interface ProposalRecordType {
 
   roundHighestVotedProposal: string
   cycle: number
-
+  proposalData?: ProposalDataType[]
+  proposalPayments?: ProposalPaymentType[]
+  governanceId?: string
   //To possibly add:
   details: string
   invoiceTable: string
@@ -117,6 +145,7 @@ export interface GovernanceStorage {
   financialRequestCounter?: number
   tempFlag: number
   cycleCounter: number
+  cycleHighestVotedProposalId: number
 }
 
 export interface FinancialRequestRecord {
