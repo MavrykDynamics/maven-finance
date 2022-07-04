@@ -15,6 +15,7 @@ export interface CouncilPastAction {
   start_datetime: string
   status: number
   action_type: string
+  council_action_record_parameters: Record<string, string>[]
 }
 
 
