@@ -137,6 +137,7 @@ type aggregatorLambdaActionType is
     |   LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
     |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
 
         // Oracle Admin Entrypoints
     |   LambdaAddOracle                     of addOracleType

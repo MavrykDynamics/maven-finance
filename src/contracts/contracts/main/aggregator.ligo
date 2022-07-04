@@ -12,12 +12,8 @@
 // Shared Methods
 #include "../partials/shared/sharedMethods.ligo"
 
-// ------------------------------------------------------------------------------
-// Common Types
-// ------------------------------------------------------------------------------
-
-// Transfer Types : transferDestinationType
-#include "../partials/shared/transferTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -50,6 +46,7 @@ type aggregatorAction is
     |   UpdateConfig                         of aggregatorUpdateConfigParamsType
     |   UpdateWhitelistContracts             of updateWhitelistContractsType
     |   UpdateGeneralContracts               of updateGeneralContractsType
+    |   MistakenTransfer                     of transferActionType
 
         // Admin Oracle Entrypoints
     |   AddOracle                            of addOracleType
@@ -142,8 +139,26 @@ block {
 
 
 
-// Allowed Senders : Admin, Governance Contract, Governance Satellite Contract, Aggregator Factory Contract
-function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s : aggregatorStorageType) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorStorageType) : unit is
+block{
+  if Tezos.sender = s.admin then skip
+  else {
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+    const governanceSatelliteAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    if Tezos.sender = governanceSatelliteAddress then skip
+      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+  }
+} with unit
+
+
+
+function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
     if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress then skip
@@ -980,6 +995,25 @@ block {
 
 } with response
 
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: aggregatorStorageType): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1300,6 +1334,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorageType)
         |   UpdateConfig (parameters)                       -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)             -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)                   -> mistakenTransfer(parameters, s)
 
             // Admin Oracle Entrypoints
         |   AddOracle (parameters)                          -> addOracle(parameters, s)
