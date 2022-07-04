@@ -54,6 +54,11 @@ const COUNCIL_ACTIONS_PARAMS = `
   start_datetime
   status
   action_type
+  council_action_record_parameters {
+    id
+    name
+    value
+  }
 `
 
 export const COUNCIL_PAST_ACTIONS_QUERY = `

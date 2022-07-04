@@ -37,7 +37,6 @@ export const CouncilPendingStyled = styled(Card)`
 
   .sign-btn {
     width: 185px;
-    float: right;
 
     svg {
       stroke: transparent;
@@ -46,15 +45,27 @@ export const CouncilPendingStyled = styled(Card)`
   }
 
   .parameters {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    display: flex;
+    justify-content: space-between;
     padding-bottom: 20px;
+    gap: 16px;
 
-    div {
+    article {
+      max-width: 138px;
+    }
+
+    .parameters-value,
+    .parameters-value p {
       color: ${cyanColor};
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+      text-overflow: ellipsis;
+      display: block;
     }
 
     p {
