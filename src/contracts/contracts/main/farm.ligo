@@ -95,38 +95,34 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
+function checkSenderIsAllowed(const s: farmStorageType): unit is
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
-function getDepositorDeposit(const depositor: depositorType; const s: farmStorageType): option(depositorRecordType) is
-    Big_map.find_opt(depositor, s.depositors)
 
-
-
+// Allowed Senders: Admin
 function checkSenderIsAdmin(const s: farmStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
-function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
-  else unit
-
-
-
+// Allowed Senders: Council, Farm Factory Contract
 function checkSenderIsCouncilOrFarmFactory(const s: farmStorageType): unit is
 block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
         Some (_address) -> _address
-    |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
+      | None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
     if Tezos.sender = councilAddress then skip
     else {
       const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
-              Some (_address) -> _address
-          |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND): address)
+            Some (_address) -> _address
+          | None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND): address)
       ];
       if Tezos.sender = farmFactoryAddress then skip
       else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
@@ -136,21 +132,15 @@ block {
 
 
 
-function checkSenderIsAllowed(const s: farmStorageType): unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
+// Allowed Senders: Admin, Governance Contract, Farm Factory Contract
 function checkSenderIsGovernanceOrFactory(const s: farmStorageType): unit is
 block {
 
-    // First check because a farm without a facory should still be accessible
     if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
     else{
         const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
-                Some (_address) -> _address
-            |   None -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED): address)
+              Some (_address) -> _address
+            | None -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED): address)
         ];
         if Tezos.sender = farmFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED);
     };
@@ -159,6 +149,7 @@ block {
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
@@ -167,27 +158,41 @@ block{
     const governanceSatelliteAddress: address = case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
                 Some (_contract)    -> _contract
-            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+              | None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
             ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     if Tezos.sender = governanceSatelliteAddress then skip
-      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
 
 
 
+// Check that farm is open
+function checkFarmIsOpen(const s: farmStorageType): unit is 
+  if not s.open then failwith(error_FARM_CLOSED)
+  else unit
+
+
+
+// Check that farm is initiated
 function checkFarmIsInit(const s: farmStorageType): unit is 
   if not s.init then failwith(error_FARM_NOT_INITIATED)
   else unit
 
 
 
-function checkFarmIsOpen(const s: farmStorageType): unit is 
-  if not s.open then failwith(error_FARM_CLOSED)
-  else unit
+// Get the Deposit of a user
+function getDepositorDeposit(const depositor: depositorType; const s: farmStorageType): option(depositorRecordType) is
+  Big_map.find_opt(depositor, s.depositors)
 
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p: unit): unit is
+  if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+  else unit
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -200,16 +205,16 @@ function checkFarmIsOpen(const s: farmStorageType): unit is
 // ------------------------------------------------------------------------------
 
 function checkDepositIsNotPaused(var s : farmStorageType) : unit is
-    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
-    else unit;
+  if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
+  else unit;
 
 function checkWithdrawIsNotPaused(var s : farmStorageType) : unit is
-    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
-    else unit;
+  if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
+  else unit;
 
 function checkClaimIsNotPaused(var s : farmStorageType) : unit is
-    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
-    else unit;
+  if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
+  else unit;
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End

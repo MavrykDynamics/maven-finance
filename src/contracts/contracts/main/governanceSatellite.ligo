@@ -84,18 +84,21 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : governanceSatelliteStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(const s: governanceSatelliteStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);

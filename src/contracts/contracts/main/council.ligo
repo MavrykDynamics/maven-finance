@@ -95,28 +95,32 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : councilStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(var s : councilStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+  if (Tezos.sender = s.admin) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
+// Allowed Senders: Council Member address
 function checkSenderIsCouncilMember(var s : councilStorageType) : unit is
-    if Map.mem(Tezos.sender, s.councilMembers) then unit 
-        else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
+  if Map.mem(Tezos.sender, s.councilMembers) then unit 
+  else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
-        else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
+  if (Tezos.amount = 0tez) then unit
+  else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -132,9 +136,9 @@ function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : cont
   case (Tezos.get_entrypoint_opt(
       "%updateBlocksPerMinute",
       contractAddress) : option(contract(nat))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND) : contract(nat))
-];
+        Some(contr) -> contr
+      | None -> (failwith(error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND) : contract(nat))
+    ];
 
 
 
@@ -142,9 +146,9 @@ function sendAddVesteeParams(const contractAddress : address) : contract(addVest
   case (Tezos.get_entrypoint_opt(
       "%addVestee",
       contractAddress) : option(contract(addVesteeType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
-];
+          Some(contr) -> contr
+        | None -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
+      ];
 
 
 
@@ -152,9 +156,9 @@ function sendRemoveVesteeParams(const contractAddress : address) : contract(addr
   case (Tezos.get_entrypoint_opt(
       "%removeVestee",
       contractAddress) : option(contract(address))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
-];
+          Some(contr) -> contr
+        | None -> (failwith(error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
+      ];
 
 
 
@@ -162,9 +166,9 @@ function sendUpdateVesteeParams(const contractAddress : address) : contract(upda
 case (Tezos.get_entrypoint_opt(
     "%updateVestee",
     contractAddress) : option(contract(updateVesteeType))) of [
-Some(contr) -> contr
-| None -> (failwith(error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(updateVesteeType))
-];
+        Some(contr) -> contr
+      | None -> (failwith(error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(updateVesteeType))
+    ];
 
 
 
@@ -172,9 +176,9 @@ function sendToggleVesteeLockParams(const contractAddress : address) : contract(
 case (Tezos.get_entrypoint_opt(
     "%toggleVesteeLock",
     contractAddress) : option(contract(address))) of [
-Some(contr) -> contr
-| None -> (failwith(error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
-];
+        Some(contr) -> contr
+      | None -> (failwith(error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
+    ];
 
 
 
@@ -182,9 +186,9 @@ function sendRequestTokensParams(const contractAddress : address) : contract(cou
   case (Tezos.get_entrypoint_opt(
       "%requestTokens",
       contractAddress) : option(contract(councilActionRequestTokensType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestTokensType))
-];
+          Some(contr) -> contr
+        | None -> (failwith(error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestTokensType))
+      ];
 
 
 
@@ -192,9 +196,9 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
   case (Tezos.get_entrypoint_opt(
       "%requestMint",
       contractAddress) : option(contract(councilActionRequestMintType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestMintType))
-];
+          Some(contr) -> contr
+        | None -> (failwith(error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestMintType))
+      ];
 
 
 
@@ -202,18 +206,18 @@ function sendDropFinancialRequestParams(const contractAddress : address) : contr
   case (Tezos.get_entrypoint_opt(
       "%dropFinancialRequest",
       contractAddress) : option(contract(nat))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat))
-];
+          Some(contr) -> contr
+        | None -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat))
+      ];
 
 
-function sendContractBakerParams(const contractAddress : address) : contract(councilActionSetContractBakerType) is
+function sendSetContractBakerParams(const contractAddress : address) : contract(councilActionSetContractBakerType) is
   case (Tezos.get_entrypoint_opt(
       "%setContractBaker",
       contractAddress) : option(contract(councilActionSetContractBakerType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionSetContractBakerType))
-];
+          Some(contr) -> contr
+        | None -> (failwith(error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionSetContractBakerType))
+      ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End

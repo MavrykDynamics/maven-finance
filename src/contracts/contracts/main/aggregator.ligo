@@ -95,22 +95,24 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : aggregatorStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(const s: aggregatorStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatellite(const s: aggregatorStorageType): unit is
 block {
 
-    // First check because a aggregator without a factory should still be accessible
     if Tezos.sender = s.admin then skip
     else{
         const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
@@ -125,10 +127,10 @@ block {
 
 
 
+// Allowed Senders: Admin, Governance Contract, Governance Satellite Contract, Aggregator Factory Contract
 function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
-    // First check because a aggregator without a factory should still be accessible
     if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
@@ -148,10 +150,10 @@ block {
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract, Aggregator Factory Contract
 function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
-    // First check because a aggregator without a factory should still be accessible
     if Tezos.sender = s.admin then skip
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
@@ -171,18 +173,21 @@ block {
 
 
 
+// Allowed Senders: Maintainer address
 function checkMaintainership(const s: aggregatorStorageType): unit is
   if Tezos.sender =/= s.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
   else unit
 
 
 
+// Allowed Senders: Oracle address
 function checkSenderIsOracle(const s: aggregatorStorageType): unit is
   if not Map.mem(Tezos.sender, s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
   else unit
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
@@ -190,7 +195,6 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
-
 
 function getDeviationTriggerBanOracle(const addressKey: address; const deviationTriggerBan: deviationTriggerBanType) : timestamp is
   case Map.find_opt(addressKey, deviationTriggerBan) of [

@@ -82,8 +82,8 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : farmFactoryStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
         
 
 
@@ -142,20 +142,20 @@ block{
 // ------------------------------------------------------------------------------
 
 function checkCreateFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
-    if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
-    else unit;
+  if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
+  else unit;
 
 
 
 function checkTrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
-    if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
-    else unit;
+  if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
+  else unit;
 
 
 
 function checkUntrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
-    if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
-    else unit;
+  if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
+  else unit;
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
