@@ -33,46 +33,50 @@
     },
     {
         "index": 8,
-        "name": "lambdaAddOracle"
+        "name": "lambdaMistakenTransfer"
     },
     {
         "index": 9,
-        "name": "lambdaRemoveOracle"
+        "name": "lambdaAddOracle"
     },
     {
         "index": 10,
-        "name": "lambdaPauseAll"
+        "name": "lambdaRemoveOracle"
     },
     {
         "index": 11,
-        "name": "lambdaUnpauseAll"
+        "name": "lambdaPauseAll"
     },
     {
         "index": 12,
-        "name": "lambdaTogglePauseEntrypoint"
+        "name": "lambdaUnpauseAll"
     },
     {
         "index": 13,
-        "name": "lambdaRequestRateUpdate"
+        "name": "lambdaTogglePauseEntrypoint"
     },
     {
         "index": 14,
-        "name": "lambdaRequestRateUpdateDeviation"
+        "name": "lambdaRequestRateUpdate"
     },
     {
         "index": 15,
-        "name": "lambdaSetObservationCommit"
+        "name": "lambdaRequestRateUpdateDeviation"
     },
     {
         "index": 16,
-        "name": "lambdaSetObservationReveal"
+        "name": "lambdaSetObservationCommit"
     },
     {
         "index": 17,
-        "name": "lambdaWithdrawRewardXtz"
+        "name": "lambdaSetObservationReveal"
     },
     {
         "index": 18,
+        "name": "lambdaWithdrawRewardXtz"
+    },
+    {
+        "index": 19,
         "name": "lambdaWithdrawRewardStakedMvk"
-    }  
+  }  
 ]
