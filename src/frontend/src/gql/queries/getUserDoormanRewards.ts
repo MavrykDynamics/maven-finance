@@ -1,14 +1,17 @@
 export const USER_DOORMAN_REWARDS_QUERY = `
-  query GetUserDoormanRewards ($_eq: String = "") {
+  query GetUserDoormanRewards($_eq: String = "") {
     doorman {
       unclaimed_rewards
       accumulated_fees_per_share
-      stake_accounts(where: {address: {_eq: $_eq}}) {
-        address
+      stake_accounts(where: {user_id: {_eq: $_eq}}) {
         participation_fees_per_share
         smvk_balance
-        mvk_balance
+        user_id
       }
+    }
+    mavryk_user(where: {address: {_eq: $_eq}}) {
+      address
+      mvk_balance
     }
   }
 `
