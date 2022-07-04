@@ -47,7 +47,7 @@ spec:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
-              value: https://api.ithacanet.tzkt.io
+              value: https://api.jakartanet.tzkt.io
           image: tezosdynamics/mavryk-indexer:v0.4.0
           imagePullPolicy: Always
           volumeMounts:
@@ -84,7 +84,7 @@ spec:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
-              value: https://api.ithacanet.tzkt.io
+              value: https://api.jakartanet.tzkt.io
           image: tezosdynamics/mavryk-indexer:v0.4.0
           imagePullPolicy: Always
           volumeMounts:
