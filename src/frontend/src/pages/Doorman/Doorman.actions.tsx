@@ -20,7 +20,7 @@ import {
   USER_SATELLITE_REWARDS_QUERY_NAME,
   USER_SATELLITE_REWARDS_QUERY_VARIABLES,
 } from 'gql/queries'
-import { calcUsersDoormanRewards, calcUsersSatelliteRewards, calcWithoutPrecision } from '../../utils/calcFunctions'
+import { calcUsersDoormanRewards, calcUsersFarmRewards, calcUsersSatelliteRewards, calcWithoutPrecision } from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
@@ -396,8 +396,15 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       mySatelliteRewardsData: userSatelliteRewardsData,
     }
 
-    userInfo.myDoormanRewardsData = calcUsersDoormanRewards(userInfo)
+    userInfo.myDoormanRewardsData   = calcUsersDoormanRewards(userInfo)
     userInfo.mySatelliteRewardsData = calcUsersSatelliteRewards(userInfo)
+    userInfo.myFarmRewardsData      = calcUsersFarmRewards(userInfo)
+
+    const estimatedRewardsForNextCompound = userInfo.myDoormanRewardsData.myAvailableDoormanRewards + userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
+    console.log("EXIT FEE REWARDS: ", userInfo.myDoormanRewardsData.myAvailableDoormanRewards)
+    console.log("SATELLITE REWARDS: ", userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards)
+    console.log("REWARDS ESTIMATION: ", estimatedRewardsForNextCompound)
+
     console.log('%c res getUserData()', 'color:orange', userInfo)
 
     setItemInStorage('UserData', userInfo)

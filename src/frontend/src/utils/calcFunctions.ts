@@ -1,4 +1,4 @@
-import { PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
+import { FIXED_POINT_ACCURACY, PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
 import {
   UserData,
   UserDoormanRewardsData,
@@ -45,23 +45,28 @@ export function calcWithoutMu(amount: string): number {
 
 export function calcUsersDoormanRewards(userInfo: UserData): UserDoormanRewardsData {
   const { myMvkTokenBalance, mySMvkTokenBalance, myDoormanRewardsData } = userInfo
-  let usersAvailableDoormanRewards = 0
   /*
      TODO: For Tristan - Doorman rewards calculation
    */
+  const currentFeesPerShare          = myDoormanRewardsData.generalAccumulatedFeesPerShare - myDoormanRewardsData.myParticipationFeesPerShare
+  const usersAvailableDoormanRewards = (mySMvkTokenBalance * PRECISION_NUMBER * currentFeesPerShare) / FIXED_POINT_ACCURACY
 
-  myDoormanRewardsData.myAvailableDoormanRewards = calcWithoutPrecision(String(usersAvailableDoormanRewards))
+  myDoormanRewardsData.myAvailableDoormanRewards = calcWithoutPrecision(String(Math.trunc(usersAvailableDoormanRewards)))
   return myDoormanRewardsData
 }
 
 export function calcUsersFarmRewards(userInfo: UserData): UserFarmRewardsData[] {
   const { myMvkTokenBalance, mySMvkTokenBalance, myFarmRewardsData } = userInfo
   const newFarmRewardsData: UserFarmRewardsData[] = []
+
+  console.log("HEY I'M HERE FARM")
+  console.log(myFarmRewardsData)
   myFarmRewardsData.forEach((farmAccount) => {
     let usersAvailableFarmRewards = 0
     /*
        TODO: For Tristan - Farm rewards calculation
      */
+     console.log(myFarmRewardsData)
 
     farmAccount.myAvailableFarmRewards = usersAvailableFarmRewards
     newFarmRewardsData.push(farmAccount)
@@ -72,11 +77,12 @@ export function calcUsersFarmRewards(userInfo: UserData): UserFarmRewardsData[] 
 
 export function calcUsersSatelliteRewards(userInfo: UserData): UserSatelliteRewardsData {
   const { myMvkTokenBalance, mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
-  let usersAvailableSatelliteRewards = 0
   /*
      TODO: For Tristan - Satellite rewards calculation
    */
+  const satelliteRewardRatio  = mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
+  const usersAvailableSatelliteRewards = (mySatelliteRewardsData.unpaid + satelliteRewardRatio * mySMvkTokenBalance * PRECISION_NUMBER) / FIXED_POINT_ACCURACY
 
-  mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(String(usersAvailableSatelliteRewards))
+  mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(String(Math.trunc(usersAvailableSatelliteRewards)))
   return mySatelliteRewardsData
 }
