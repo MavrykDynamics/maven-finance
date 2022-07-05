@@ -63,12 +63,27 @@ type delegationAction is
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
 
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 const noOperations : list (operation) = nil;
 type return is list (operation) * delegationStorageType
 
 // delegation contract methods lambdas
 type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegationStorageType) -> return
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Constants Begin
+//
+// ------------------------------------------------------------------------------
+
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
+
+// ------------------------------------------------------------------------------
+//
+// Constants End
+//
+// ------------------------------------------------------------------------------
 
 
 
@@ -110,9 +125,9 @@ block{
   const doormanAddress: address = case generalContractsOptView of [
       Some (_optionContract) -> case _optionContract of [
               Some (_contract)    -> _contract
-          |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
           ]
-  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -139,9 +154,9 @@ block{
     const governanceSatelliteAddress: address = case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
                 Some (_contract)    -> _contract
-            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+              | None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
             ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     if Tezos.sender = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -189,28 +204,28 @@ function updateRewards(const userAddress: address; var s: delegationStorageType)
   block{
     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
       var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-        Some (_record) -> _record
-      | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+          Some (_record) -> _record
+        | None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
       ];
 
       const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
       const doormanAddress: address = case generalContractsOptView of [
           Some (_optionContract) -> case _optionContract of [
-                  Some (_contract)    -> _contract
-              |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-              ]
-      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                Some (_contract)    -> _contract
+              | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+        | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
 
       const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
       const stakedMvkBalance: nat = case stakedMvkBalanceView of [
           Some (value) -> value
-        | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+        | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
       ];
 
       const _satelliteReferenceRewardsRecord: satelliteRewardsType  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
-        Some (_referenceRecord) -> _referenceRecord
-      | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
+          Some (_referenceRecord) -> _referenceRecord
+        | None                    -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
       ];
 
       // Calculate satellite unclaim rewards
@@ -221,6 +236,7 @@ function updateRewards(const userAddress: address; var s: delegationStorageType)
       satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
       satelliteRewardsRecord.unpaid                          := satelliteRewardsRecord.unpaid + satelliteRewards;
       s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
+
     } else skip;
 
   } with(s)
@@ -233,36 +249,42 @@ function updateRewards(const userAddress: address; var s: delegationStorageType)
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check that the %delegateToSatellite entrypoint is not paused
 function checkDelegateToSatelliteIsNotPaused(var s : delegationStorageType) : unit is
   if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
     
 
+// helper function to check that the %undelegateFromSatellite entrypoint is not paused
 function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorageType) : unit is
   if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %registerAsSatellite entrypoint is not paused
 function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorageType) : unit is
   if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %unregisterAsSatellite entrypoint is not paused
 function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorageType) : unit is
   if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %updateSatelliteRecord entrypoint is not paused
 function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorageType) : unit is
   if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %distributeReward entrypoint is not paused
 function checkDistributeRewardIsNotPaused(var s : delegationStorageType) : unit is
   if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
@@ -275,26 +297,29 @@ function checkDistributeRewardIsNotPaused(var s : delegationStorageType) : unit 
 // Satellite Status Helper Functions
 // ------------------------------------------------------------------------------
 
+// helper function to check that a specified satellite is not suspended
 function checkSatelliteIsNotSuspended(const satelliteAddress: address; var s : delegationStorageType) : unit is
   case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
-    Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else unit
-  | None              -> failwith(error_SATELLITE_NOT_FOUND)
+      Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else unit
+    | None              -> failwith(error_SATELLITE_NOT_FOUND)
   ];
 
 
 
+// helper function to check that a specified satellite is not banned
 function checkSatelliteIsNotBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
   case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
-    Some (_satellite) -> if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
-  | None              -> failwith(error_SATELLITE_NOT_FOUND)
+      Some (_satellite) -> if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
+    | None              -> failwith(error_SATELLITE_NOT_FOUND)
   ];
 
 
 
+// helper function to check that a specified satellite is not suspended or banned
 function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
   case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
-    Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
-  | None              -> failwith(error_SATELLITE_NOT_FOUND)
+      Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
+    | None              -> failwith(error_SATELLITE_NOT_FOUND)
   ];
 
 // ------------------------------------------------------------------------------
@@ -305,6 +330,7 @@ function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; v
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to %delegatetoSatellite entrypoint on the Delegation contract
 function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : contract(delegateToSatelliteType) is
   case (Tezos.get_entrypoint_opt(
       "%delegateToSatellite",
@@ -315,6 +341,7 @@ function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : c
 
 
 
+// helper function to %undelegateFromSatellite entrypoint on the Delegation contract
 function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
       "%undelegateFromSatellite",
@@ -325,6 +352,7 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
 
 
 
+// helper function to %transfer entrypoint on a Treasury contract
 function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
   case (Tezos.get_entrypoint_opt(
       "%transfer",
