@@ -76,6 +76,12 @@ export const SatelliteGovernanceCardTitleTextGroup = styled.div<{ theme: MavrykT
     margin-left: auto;
     justify-content: center;
   }
+
+  .first-big-letter {
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
 `
 
 export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; theme: MavrykTheme }>`

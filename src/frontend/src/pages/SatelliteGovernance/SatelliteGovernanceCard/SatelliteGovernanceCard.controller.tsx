@@ -8,6 +8,7 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { VotingArea } from '../../Governance/VotingArea/VotingArea.controller'
+import { getSeparateSnakeCase } from '../../../utils/parse'
 
 import {
   SatelliteGovernanceArrowButton,
@@ -17,24 +18,16 @@ import {
   SatelliteGovernanceCardTopSection,
 } from './SatelliteGovernanceCard.style'
 
-type SatelliteGovernanceCardType = {
-  id: number
-  title: string
-  startTimestamp: string
-  proposerId: string
-  description: string
-  executed: boolean
-}
-
 type Props = {
-  satelliteGovernanceCard: SatelliteGovernanceCardType
   satellite: string
   date: string
   executed: boolean
   status: number
+  purpose: string
+  governanceType: string
 }
 
-export const SatelliteGovernanceCard = ({ satelliteGovernanceCard, satellite, date, executed, status }: Props) => {
+export const SatelliteGovernanceCard = ({ satellite, date, executed, status, purpose, governanceType }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const ref = useRef(null)
@@ -63,10 +56,7 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard, satellite, da
     : ProposalStatus.ACTIVE
 
   return (
-    <SatelliteGovernanceCardStyled
-      key={String(satelliteGovernanceCard.title + satelliteGovernanceCard.id)}
-      onClick={open}
-    >
+    <SatelliteGovernanceCardStyled onClick={open}>
       <SatelliteGovernanceCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Date</h3>
@@ -76,7 +66,7 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard, satellite, da
         </SatelliteGovernanceCardTitleTextGroup>
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Action</h3>
-          <p>{satelliteGovernanceCard.title}</p>
+          <p className="first-big-letter">{getSeparateSnakeCase(governanceType)}</p>
         </SatelliteGovernanceCardTitleTextGroup>
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Satellite</h3>
@@ -109,7 +99,7 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard, satellite, da
         <div className={'description accordion ' + `${expanded}`} ref={ref}>
           <div>
             <h3>Purpose</h3>
-            <p>{satelliteGovernanceCard.description}</p>
+            <p>{purpose}</p>
             <Link to="/">View Satellite</Link>
           </div>
           <div>
