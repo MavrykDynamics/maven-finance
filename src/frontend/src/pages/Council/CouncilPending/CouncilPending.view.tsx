@@ -46,14 +46,81 @@ export const CouncilPendingView = (props: Props) => {
 
   console.log('%c ||||| council_action_record_parameters', 'color:yellowgreen', council_action_record_parameters)
 
-  const isaddVestee = action_type === 'addVestee'
+  const isAddVestee = action_type === 'addVestee'
   const vesteeAddress = council_action_record_parameters.find((item) => item.name === 'vesteeAddress')?.value || ''
   const cliffInMonths = council_action_record_parameters.find((item) => item.name === 'cliffInMonths')?.value || ''
   const vestingInMonths = council_action_record_parameters.find((item) => item.name === 'vestingInMonths')?.value || ''
   const totalAllocatedAmount =
     council_action_record_parameters.find((item) => item.name === 'totalAllocatedAmount')?.value || ''
 
-  if (isaddVestee) {
+  const isRequestTokens = action_type === 'requestTokens'
+  const treasuryAddress = council_action_record_parameters.find((item) => item.name === 'treasuryAddress')?.value || ''
+  const tokenAmount = council_action_record_parameters.find((item) => item.name === 'tokenAmount')?.value || ''
+  const tokenContractAddress =
+    council_action_record_parameters.find((item) => item.name === 'tokenContractAddress')?.value || ''
+  const tokenType = council_action_record_parameters.find((item) => item.name === 'tokenType')?.value || ''
+  const tokenId = council_action_record_parameters.find((item) => item.name === 'tokenId')?.value || ''
+  const purpose = council_action_record_parameters.find((item) => item.name === 'purpose')?.value || ''
+
+  if (isRequestTokens) {
+    return (
+      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <h3>{getSeparateCamelCase(action_type)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Treasury Address</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={treasuryAddress} hasIcon={false} />
+            </span>
+          </article>
+          <article>
+            <p>Token Contract Address</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
+            </span>
+          </article>
+          {tokenAmount ? (
+            <article>
+              <p>Total Amount</p>
+              <span className="parameters-value">
+                <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+              </span>
+            </article>
+          ) : null}
+          <article>
+            <p>Signed</p>
+            <span className="parameters-value">
+              {signers_count}/{num_council_members}
+            </span>
+          </article>
+        </div>
+
+        <div className="parameters">
+          {tokenType ? (
+            <article>
+              <p>Token Type</p>
+              <span className="parameters-value">{tokenType}</span>
+            </article>
+          ) : null}
+          {tokenId ? (
+            <article>
+              <p>Token ID</p>
+              <span className="parameters-value">{tokenId}</span>
+            </article>
+          ) : null}
+          {purpose ? (
+            <article>
+              <p>Purpose for Request</p>
+              <button className="parameters-btn">Read Request</button>
+            </article>
+          ) : null}
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+      </CouncilPendingStyled>
+    )
+  }
+  if (isAddVestee) {
     return (
       <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
         <h3>{getSeparateCamelCase(action_type)}</h3>
@@ -61,7 +128,7 @@ export const CouncilPendingView = (props: Props) => {
           <article>
             <p>Adress</p>
             <span className="parameters-value">
-              <TzAddress tzAddress={vesteeAddress || initiator_id} hasIcon={false} />
+              <TzAddress tzAddress={vesteeAddress} hasIcon={false} />
             </span>
           </article>
           {totalAllocatedAmount ? (
