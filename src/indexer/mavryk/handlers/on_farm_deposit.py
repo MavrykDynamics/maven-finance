@@ -29,7 +29,7 @@ async def on_farm_deposit(
     farm                            = await models.Farm.get(
         address = farm_address
     )
-    farm.lp_balance                 = lp_token_balance
+    farm.lp_token_balance           = lp_token_balance
     farm.accumulated_mvk_per_share  = accumulated_rewards_per_share
     farm.last_block_update          = last_block_update
     farm.open                       = open
@@ -46,8 +46,8 @@ async def on_farm_deposit(
         user = user,
         farm = farm
     )
-    farm_account.deposited_amount               = balance
-    farm_account.participation_rewards_per_share     = participation_rewards_per_share 
-    farm_account.unclaimed_rewards              = unclaimed_rewards
-    farm_account.claimed_rewards                = claimed_rewards
+    farm_account.deposited_amount                       = balance
+    farm_account.participation_rewards_per_share        = participation_rewards_per_share 
+    farm_account.unclaimed_rewards                      = unclaimed_rewards
+    farm_account.claimed_rewards                        = claimed_rewards
     await farm_account.save()
