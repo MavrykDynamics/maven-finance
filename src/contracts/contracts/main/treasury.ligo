@@ -140,24 +140,28 @@ function checkNoAmount(const _p : unit) : unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check that the %transfer entrypoint is not paused
 function checkTransferIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %mintMvkAndTransfer entrypoint is not paused
 function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %stakeMvk entrypoint is not paused
 function checkStakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.stakeMvkIsPaused then failwith(error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %unstakeMvk entrypoint is not paused
 function checkUnstakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
     if s.breakGlassConfig.unstakeMvkIsPaused then failwith(error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
@@ -172,6 +176,7 @@ function checkUnstakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to get mint entrypoint from specified token contract address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
@@ -203,6 +208,7 @@ function mintTokens(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
 

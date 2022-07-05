@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s); 
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -30,7 +30,8 @@ block {
 function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkSenderIsAllowed(s);
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
@@ -47,8 +48,8 @@ block {
 function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdminOrGovernanceFinancial(s); 
+    checkNoAmount(Unit);                            // entrypoint should not receive any tez amount  
+    checkSenderIsAdminOrGovernanceFinancial(s);     // check that sender is admin or the Governance Financial Contract address
 
     var operations : list(operation) := nil;
 
@@ -68,32 +69,39 @@ block {
 function lambdaSetName(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s);
+    // Steps Overview:
+    // 1. Check if sender is admin
+    // 2. Get Treasury Factory Contract address from the General Contracts Map on the Governance Contract
+    // 3. Get the Treasury Factory Contract Config
+    // 4. Get the nameMaxLength parameter from the Treasury Factory Contract Config
+    // 5. Validate input (name does not exceed max length) and update the Treasury Contract name
+
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case treasuryLambdaAction of [
         | LambdaSetName(updatedName) -> {
 
-                // Get treasury factory address
+                // Get Treasury Factory Address from the General Contracts map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
                 const treasuryFactoryAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
-                        |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                          | None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // Get the treasury factory config
+                // Get the Treasury Factory Contract Config
                 const configView : option (treasuryFactoryConfigType) = Tezos.call_view ("getConfig", unit, treasuryFactoryAddress);
                 const treasuryFactoryConfig: treasuryFactoryConfigType = case configView of [
                     Some (_config) -> _config
-                |   None -> failwith (error_GET_CONFIG_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                  | None           -> failwith (error_GET_CONFIG_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
                 ];
 
-                // Check get the name config param from the treasury factory
+                // Get the nameMaxLength parameter from the Treasury Factory Contract Config
                 const treasuryNameMaxLength: nat    = treasuryFactoryConfig.treasuryNameMaxLength;
 
-                // Validate inputs and update the name
+                // Validate input and update the Treasury name
                 if String.length(updatedName) > treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
                 
             }
@@ -108,7 +116,7 @@ block {
 function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryLambdaAction of [
         | LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -129,7 +137,7 @@ block {
 function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
 block {
     
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryLambdaAction of [
         | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
@@ -146,7 +154,7 @@ block {
 function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
@@ -163,7 +171,7 @@ block {
 function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin 
 
     case treasuryLambdaAction of [
         | LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
@@ -189,8 +197,7 @@ block {
 function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
     
-    // check that sender is admin or treasury factory
-    checkSenderIsGovernanceOrFactory(s);
+    checkSenderIsGovernanceOrFactory(s); // check that sender is admin, Governance Contract address or Treasury Factory Contract address
 
     case treasuryLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -220,8 +227,7 @@ block {
 function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    // check that sender is admin or treasury factory
-    checkSenderIsGovernanceOrFactory(s);
+    checkSenderIsGovernanceOrFactory(s); // check that sender is admin, Governance Contract address or Treasury Factory Contract address
 
     case treasuryLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -251,8 +257,8 @@ block {
 function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    checkNoAmount(Unit);
-    checkSenderIsAdmin(s);
+    checkNoAmount(Unit);    // entrypoint should not receive any tez amount    
+    checkSenderIsAdmin(s);  // check that sender is admin 
 
     case treasuryLambdaAction of [
         | LambdaTogglePauseEntrypoint(params) -> {
@@ -287,13 +293,16 @@ function lambdaTransfer(const treasuryLambdaAction : treasuryLambdaActionType; v
 block {
     
     // Steps Overview:
-    // 1. Check that sender is in whitelist (governance)
-    // 2. Send transfer operation from Treasury account to user account
+    // 1. Check if sender is whitelisted (e.g. governance)
+    // 2. Check that transfer entrypoint is not paused (e.g. if glass broken)
+    // 3. Check that tokens to be transferred are in the Whitelisted Token Contracts map
+    // 4. Create and excecute transfer operations 
 
+    // check if sender is whitelisted
     if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-      else skip;
+    else skip;
 
-    // break glass check
+    // check that transfer entrypoint is not paused (e.g. if glass broken)
     checkTransferIsNotPaused(s);
 
     var operations : list(operation) := nil;
@@ -314,6 +323,8 @@ block {
                     const amt          : tokenAmountType  = destination.amount;
                     const from_        : address          = Tezos.self_address; // treasury
                     
+                    // Create transfer token operation
+                    // - check that token to be transferred are in the Whitelisted Token Contracts map
                     const transferTokenOperation : operation = case token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
                         | Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
@@ -338,19 +349,20 @@ block {
 (* mintMvkAndTransfer lambda *)
 function lambdaMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
-    
+
     // Steps Overview:
-    // 1. Check that sender is in whitelist (governance)
-    // 2. Send mint operation to MVK Token Contract
+    // 1. Check if sender is whitelisted (governance)
+    // 2. Check that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)
+    // 3. Create and execute mint operation to MVK Token Contract
+
+    // check if sender is whitelisted
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    else skip;
 
     // break glass check
     checkMintMvkAndTransferIsNotPaused(s);
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-      else skip;
-
     var operations : list(operation) := nil;
-
 
     case treasuryLambdaAction of [
         | LambdaMintMvkAndTransfer(mintMvkAndTransferParams) -> {
@@ -379,20 +391,20 @@ block {
 (* updateMvkOperators lambda *)
 function lambdaUpdateMvkOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
-    
-    // Steps Overview:
-    // 1. Check that sender is admin
-    // 2. Update operators of this treasury to the mvk token contract
 
-    checkSenderIsAdmin(s);
+    // Steps Overview:
+    // 1. Check if sender is admin
+    // 2. Update operators of Treasury Contract on the MVK Token contract 
+    //    - required to set Doorman Contract as an operator for staking/unstaking 
+
+    checkSenderIsAdmin(s); // check that sender is admin 
 
     var operations : list(operation) := nil;
-
 
     case treasuryLambdaAction of [
         | LambdaUpdateMvkOperators(updateOperatorsParams) -> {
                 
-                // Get update_operators entrypoint in doorman
+                // Get %update_operators entrypoint in MVK Token Contract
                 const updateEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%update_operators",
                     s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
@@ -419,15 +431,17 @@ block {
 (* stakeMvk lambda *)
 function lambdaStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
-    
+
     // Steps Overview:
-    // 1. Check that sender is admin
-    // 2. Send stake operation to Doorman Contract
+    // 1. Check if sender is admin
+    // 2. Check that %stakeMvk entrypoint is not paused (e.g. if glass broken)
+    // 3. Get Doorman Contract address from the General Contracts Map on the Governance Contract
+    // 4. Get stake entrypoint in the Doorman Contract
+    // 5. Create and send stake operation to the Doorman Contract
 
-    // break glass check
-    checkStakeMvkIsNotPaused(s);
+    checkSenderIsAdmin(s);       // check that sender is admin
 
-    checkSenderIsAdmin(s);
+    checkStakeMvkIsNotPaused(s); // check that %stakeMvk entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
 
@@ -435,24 +449,25 @@ block {
     case treasuryLambdaAction of [
         | LambdaStakeMvk(stakeAmount) -> {
                 
-                // Get doorman address
+                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
-                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                          | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // Get stake entrypoint in doorman
+                // Get stake entrypoint in the Doorman Contract
                 const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%stake",
                     doormanAddress) : option(contract(nat))) of [
-                            Some (contr)    -> contr
-                        |   None            -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
-                ];
+                        Some (contr)    -> contr
+                      | None            -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                    ];
 
+                // Create and send stake operation
                 const stakeOperation : operation = Tezos.transaction(
                     (stakeAmount),
                     0tez, 
@@ -472,18 +487,19 @@ block {
 (* unstakeMvk lambda *)
 function lambdaUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
-    
+
     // Steps Overview:
-    // 1. Check that sender is admin
-    // 2. Send stake operation to Doorman Contract
+    // 1. Check if sender is admin
+    // 2. Check that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
+    // 3. Get Doorman Contract address from the General Contracts Map on the Governance Contract
+    // 4. Get unstake entrypoint in the Doorman Contract
+    // 5. Create and send unstake operation to the Doorman Contract
+    
+    checkSenderIsAdmin(s);         // check that sender is admin
 
-    // break glass check
-    checkUnstakeMvkIsNotPaused(s);
-
-    checkSenderIsAdmin(s);
+    checkUnstakeMvkIsNotPaused(s); // check that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
-
 
     case treasuryLambdaAction of [
         | LambdaUnstakeMvk(unstakeAmount) -> {
@@ -493,19 +509,20 @@ block {
                 const doormanAddress: address = case generalContractsOptView of [
                     Some (_optionContract) -> case _optionContract of [
                             Some (_contract)    -> _contract
-                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                          | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in doorman
                 const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%unstake",
                     doormanAddress) : option(contract(nat))) of [
-                            Some (contr)    -> contr
-                        |   None            -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
-                ];
+                        Some (contr)    -> contr
+                      | None            -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                    ];
 
+                // Create and send unstake operation
                 const unstakeOperation : operation = Tezos.transaction(
                     (unstakeAmount),
                     0tez, 

@@ -363,6 +363,7 @@ block{
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
 block {
 

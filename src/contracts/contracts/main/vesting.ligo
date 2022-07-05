@@ -147,22 +147,22 @@ function checkNoAmount(const _p : unit) : unit is
 // Entrypoint / General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get mint entrypoint from token address
+// helper function to get %mint entrypoint from MVK Token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
       token_address) : option(contract(mintType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
-  ];
+          Some(contr) -> contr
+        | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+      ];
 
 
 
-(* Helper function to mint mvk tokens *)
+// helper function to mint mvk tokens 
 function mintTokens(
-  const to_ : address;
-  const amount_ : nat;
-  const tokenAddress : address) : operation is
+  const to_           : address;
+  const amount_       : nat;
+  const tokenAddress  : address) : operation is
   Tezos.transaction(
     (to_, amount_),
     0tez,
@@ -179,6 +179,7 @@ function mintTokens(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
 block {
 

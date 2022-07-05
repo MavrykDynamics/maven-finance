@@ -168,6 +168,7 @@ function checkNoAmount(const _p : unit) : unit is
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 

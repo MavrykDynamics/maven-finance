@@ -136,17 +136,25 @@ function checkCreateAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) 
     if s.breakGlassConfig.createAggregatorIsPaused then failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
+
+
 function checkTrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.trackAggregatorIsPaused then failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
+
+
 
 function checkUntrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.untrackAggregatorIsPaused then failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
+
+
 function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.distributeRewardXtzIsPaused then failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
+
+
 
 function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)

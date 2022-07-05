@@ -137,7 +137,7 @@ block {
     // Steps Overview:
     // 1. Check if sender is a Council Member
     // 2. Validate inputs (name, image, website) and check max length is not exceeded
-    // 3. Update Council Member info 
+    // 3. Update Council Member info with new info provided
 
     case councilLambdaAction of [
         | LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
@@ -149,8 +149,8 @@ block {
                 ];
                 
                 // Validate inputs
-                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.name)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.image)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Update member info
@@ -182,10 +182,11 @@ block {
 
     // Steps Overview:
     // 1. Check if sender is a Council Member
-    // 2. Check if new Council Member to be added is not already in the Council 
-    // 3. Create and save new council action record, set the sender as a signer of the action
+    // 2. Validate inputs (name, image, website) and check max length is not exceeded
+    // 3. Check if new Council Member to be added is not already in the Council 
+    // 4. Create and save new council action record, set the sender as a signer of the action
     //      - Action Type: addCouncilMember
-    // 4. Increment action counter
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -253,7 +254,7 @@ block {
     // Steps Overview:
     // 1. Check if sender is a Council Member
     // 2. Check that Address to be removed is a Council Member
-    // 3. Check that Council Threshold will not be affected with the removal of the Council Member
+    // 3. Check that Council (Signing) Threshold will not be affected with the removal of the Council Member
     // 4. Create and save new council action record, set the sender as a signer of the action
     //      - Action Type: removeCouncilMember
     // 4. Increment action counter
@@ -1341,9 +1342,9 @@ block {
     // 2. Check if Council Action exists
     //      - check that council action has not been flushed
     //      - check that council action has not expired
-    //      - check if council member has already signed for the action
+    //      - check if council member has already signed for this action
     // 3. Update signers and signersCount for Council Action record
-    // 4. Execute action is signers threshold has been reached     
+    // 4. Execute action if signers threshold has been reached     
     
     checkSenderIsCouncilMember(s);
 
@@ -1364,7 +1365,7 @@ block {
                 // check if council action has expired
                 if Tezos.now > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
-                // check if signer has already signed
+                // check if council member has already signed for this action
                 if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
