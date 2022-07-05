@@ -3,6 +3,10 @@ import { Card, cyanColor, skyColor, royalPurpleColor, headerColor } from 'styles
 
 import { MavrykTheme } from '../../styles/interfaces'
 
+export const FinancialRequestsStyled = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+`
+
 export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   width: calc(50% - 30px);
@@ -13,7 +17,7 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
   flex-shrink: 0;
   margin-left: 30px;
   position: relative;
-  padding-bottom: 55px;
+  padding-bottom: 86px;
 
   &::after {
     position: absolute;
@@ -32,46 +36,57 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
     height: 1px;
     background-color: ${({ theme }) => theme.cardBorderColor};
     margin-top: 16px;
-    margin-bottom: 40px;
   }
 
-  .payment-data {
-    margin-bottom: 25px;
+  .info_section_wrapper {
+    display: flex;
+    column-gap: 50px;
   }
 
-  .proposal-list {
-    padding-left: 20px;
-    font-size: 14px;
-    line-height: 21px;
-    font-weight: 400;
-    margin-bottom: 30px;
+  .info_section {
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
 
-    li {
-      margin-bottom: 6px;
+    .list {
+      display: flex;
+      flex-direction: column;
+      row-gap: 6px;
+      margin-top: 6px;
+      width: 100%;
+
+      .list_item {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        p {
+          margin: 0;
+        }
+      }
     }
-
-    label {
-      text-decoration: underline;
-      color: ${headerColor};
-      cursor: pointer;
-      position: relative;
-      top: -1px;
-    }
   }
+`
 
-  .proposal-list-title {
-    font-weight: 700;
-    color: ${skyColor};
-  }
+export const InfoBlockTitle = styled.div<{ theme: MavrykTheme }>`
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 18px;
+  color: #8d86eb;
+`
 
-  .proposal-list-title-valie {
-    color: ${cyanColor};
-  }
+export const InfoBlockDescr = styled.div<{ theme: MavrykTheme }>`
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
+  color: #77a4f2;
+  margin-top: 5px;
+`
 
-  .proposal-list-bites {
-    word-break: break-all;
-    color: ${skyColor};
-  }
+export const InfoBlockListValue = styled.div<{ fontColor: string; theme: MavrykTheme }>`
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 12px;
+  color: ${({ fontColor }) => fontColor};
 `
 
 export const FinancialRequestsContainer = styled.div<{ theme: MavrykTheme }>`
