@@ -23,15 +23,18 @@ type SatelliteGovernanceCardType = {
   startTimestamp: string
   proposerId: string
   description: string
-  dropped: boolean
   executed: boolean
 }
 
 type Props = {
   satelliteGovernanceCard: SatelliteGovernanceCardType
+  satellite: string
+  date: string
+  executed: boolean
+  status: number
 }
 
-export const SatelliteGovernanceCard = ({ satelliteGovernanceCard }: Props) => {
+export const SatelliteGovernanceCard = ({ satelliteGovernanceCard, satellite, date, executed, status }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const ref = useRef(null)
@@ -47,7 +50,17 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard }: Props) => {
   const handleProposalRoundVote = () => {}
   const handleVotingRoundVote = () => {}
 
-  const status = satelliteGovernanceCard.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
+  const timeNow = Date.now()
+  const expirationDatetime = new Date(date).getTime()
+  const isEndedVotingTime = expirationDatetime > timeNow
+
+  const statusFlag = executed
+    ? ProposalStatus.EXECUTED
+    : status === 1
+    ? ProposalStatus.DROPPED
+    : isEndedVotingTime
+    ? ProposalStatus.ONGOING
+    : ProposalStatus.ACTIVE
 
   return (
     <SatelliteGovernanceCardStyled
@@ -58,8 +71,7 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard }: Props) => {
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Date</h3>
           <p>
-            Nov 11th, 2022
-            {/* <Time value={satelliteGovernanceCard.startTimestamp} format="M d\t\h, Y, H:m \U\T\C" /> */}
+            <Time value={date} format="M d\t\h, Y" />
           </p>
         </SatelliteGovernanceCardTitleTextGroup>
         <SatelliteGovernanceCardTitleTextGroup>
@@ -69,7 +81,7 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard }: Props) => {
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Satellite</h3>
           <p>
-            <TzAddress tzAddress={satelliteGovernanceCard.proposerId} hasIcon={false} />
+            <TzAddress tzAddress={satellite} hasIcon={false} />
           </p>
         </SatelliteGovernanceCardTitleTextGroup>
         <SatelliteGovernanceArrowButton>
@@ -84,7 +96,7 @@ export const SatelliteGovernanceCard = ({ satelliteGovernanceCard }: Props) => {
           )}
         </SatelliteGovernanceArrowButton>
         <SatelliteGovernanceCardTitleTextGroup className={'statusFlag'}>
-          <StatusFlag status={status} text={status} />
+          <StatusFlag status={statusFlag} text={statusFlag} />
         </SatelliteGovernanceCardTitleTextGroup>
       </SatelliteGovernanceCardTopSection>
 

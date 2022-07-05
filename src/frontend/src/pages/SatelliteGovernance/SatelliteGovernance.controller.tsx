@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -16,34 +16,50 @@ import { Button } from '../../app/App.components/Button/Button.controller'
 import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
+import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
+
+// actions
+import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 
 // style
 import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'
 import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
 
+const itemsForDropDown = [
+  { text: 'Chose action', value: '' },
+  { text: 'Suspend Satellite', value: 'suspendSatellite' },
+  { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
+  { text: 'Ban Satellite', value: 'banSatellite' },
+  { text: 'Unban Satellite', value: 'unbanSatellite' },
+  { text: 'Remove Oracles', value: 'removeOracles' },
+  { text: 'Remove from Aggregator', value: 'removeFromAggregator' },
+  { text: 'Add to Aggregator', value: 'addToAggregator' },
+]
+
 export const SatelliteGovernance = () => {
+  const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
+  const { governanceSatelliteStorage } = useSelector((state: State) => state.governance)
   const satelliteLedger = delegationStorage?.satelliteLedger
-
   const { totalOracleNetworks } = oraclesStorage
-
-  const satelliteLedgerActive = satelliteLedger.filter((item) => item.active)
-  const itemsForDropDown = [
-    { text: 'Chose action', value: '' },
-    { text: 'Suspend Satellite', value: 'suspendSatellite' },
-    { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
-    { text: 'Ban Satellite', value: 'banSatellite' },
-    { text: 'Unban Satellite', value: 'unbanSatellite' },
-    { text: 'Remove Oracles', value: 'removeOracles' },
-    { text: 'Remove from Aggregator', value: 'removeFromAggregator' },
-    { text: 'Add to Aggregator', value: 'addToAggregator' },
-  ]
-
+  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+  const satelliteLedgerActive = useMemo(() => satelliteLedger.filter((item) => item.active), [satelliteLedger])
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const governanceSatelliteActionRecord = governanceSatelliteStorage.governance_satellite_action_record
+
+  const ongoingActions = governanceSatelliteActionRecord.reduce((acc, cur: any) => {
+    const timeNow = Date.now()
+    const expirationDatetime = new Date(cur.expiration_datetime).getTime()
+    if (expirationDatetime > timeNow) {
+      acc++
+    }
+    return acc
+  }, 0)
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -59,6 +75,10 @@ export const SatelliteGovernance = () => {
     setDdIsOpen(!ddIsOpen)
     handleSelect(chosenItem)
   }
+
+  useEffect(() => {
+    dispatch(getGovernanceSatelliteStorage())
+  }, [dispatch])
 
   return (
     <Page>
@@ -96,7 +116,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Delegated MVK</h3>
             <p>
-              2,300,000,000+{' '}
+              <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -110,7 +130,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Ongoing Actions</h3>
             <p>
-              350{' '}
+              {ongoingActions}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -143,42 +163,28 @@ export const SatelliteGovernance = () => {
 
         <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
       </SatelliteGovernanceStyled>
-      <SatelliteGovernanceCard
-        satelliteGovernanceCard={{
-          id: 0,
-          title: 'Suspend Satellite',
-          startTimestamp: 'string',
-          proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-          description:
-            'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-          dropped: false,
-          executed: true,
-        }}
-      />
-      <SatelliteGovernanceCard
-        satelliteGovernanceCard={{
-          id: 0,
-          title: 'Suspend Satellite',
-          startTimestamp: 'string',
-          proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-          description:
-            'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-          dropped: false,
-          executed: true,
-        }}
-      />
-      <SatelliteGovernanceCard
-        satelliteGovernanceCard={{
-          id: 0,
-          title: 'Suspend Satellite',
-          startTimestamp: 'string',
-          proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-          description:
-            'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-          dropped: false,
-          executed: true,
-        }}
-      />
+
+      {governanceSatelliteActionRecord.map((item: any) => {
+        return (
+          <SatelliteGovernanceCard
+            key={item.id}
+            satellite={item.governance_satellite_id}
+            date={item.expiration_datetime}
+            executed={item.executed}
+            status={item.status}
+            satelliteGovernanceCard={{
+              id: 0,
+              title: 'Suspend Satellite',
+              startTimestamp: 'string',
+              proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
+              description:
+                'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
+
+              executed: true,
+            }}
+          />
+        )
+      })}
     </Page>
   )
 }

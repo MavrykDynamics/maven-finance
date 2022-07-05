@@ -2,6 +2,42 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
+import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
+
+// gql
+import {
+  GOVERNANCE_SATELLITE_STORAGE_QUERY,
+  GOVERNANCE_SATELLITE_STORAGE_QUERY_NAME,
+  GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE,
+} from '../../gql/queries/getGovernanceSatelliteStorage'
+
+//getGovernanceSatelliteStorage
+export const GET_GOVERNANCE_SATELLITE_STORAGE = 'GET_GOVERNANCE_SATELLITE_STORAGE'
+export const getGovernanceSatelliteStorage = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  try {
+    const governanceSatelliteStorage = await fetchFromIndexerWithPromise(
+      GOVERNANCE_SATELLITE_STORAGE_QUERY,
+      GOVERNANCE_SATELLITE_STORAGE_QUERY_NAME,
+      GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE,
+    )
+
+    console.log('%c ||||| governanceSatelliteStorage', 'color:red', governanceSatelliteStorage)
+
+    dispatch({
+      type: GET_GOVERNANCE_SATELLITE_STORAGE,
+      governanceSatelliteStorage,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: GET_GOVERNANCE_SATELLITE_STORAGE,
+      error,
+    })
+  }
+}
 
 // Suspend Satellite
 export const SUSPEND_SATELLITE_REQUEST = 'SUSPEND_SATELLITE_REQUEST'
