@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { createPortal } from 'react-dom'
+import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
 // components
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // helpers
 import { getSeparateCamelCase } from '../../../utils/parse'
@@ -27,6 +31,7 @@ type Props = {
 
 export const CouncilPendingView = (props: Props) => {
   const dispatch = useDispatch()
+  const [showing, setShowing] = useState(false)
   const {
     executed_datetime,
     action_type,
@@ -62,62 +67,91 @@ export const CouncilPendingView = (props: Props) => {
   const tokenId = council_action_record_parameters.find((item) => item.name === 'tokenId')?.value || ''
   const purpose = council_action_record_parameters.find((item) => item.name === 'purpose')?.value || ''
 
+  const modal = (
+    <ModalStyled showing={true}>
+      <ModalMask
+        showing={true}
+        onClick={() => {
+          setShowing(false)
+        }}
+      />
+      <ModalCard>
+        <ModalClose
+          onClick={() => {
+            setShowing(false)
+          }}
+        >
+          <Icon id="error" />
+        </ModalClose>
+        <ModalCardContent style={{ width: 586 }}>
+          <h1>Purpose for Request</h1>
+          <p>{purpose}</p>
+        </ModalCardContent>
+      </ModalCard>
+    </ModalStyled>
+  )
+
   if (isRequestTokens) {
     return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
-        <div className="parameters">
-          <article>
-            <p>Treasury Address</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={treasuryAddress} hasIcon={false} />
-            </span>
-          </article>
-          <article>
-            <p>Token Contract Address</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
-            </span>
-          </article>
-          {tokenAmount ? (
+      <>
+        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <h3>{getSeparateCamelCase(action_type)}</h3>
+          <div className="parameters">
             <article>
-              <p>Total Amount</p>
+              <p>Treasury Address</p>
               <span className="parameters-value">
-                <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+                <TzAddress tzAddress={treasuryAddress} hasIcon={false} />
               </span>
             </article>
-          ) : null}
-          <article>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signers_count}/{num_council_members}
-            </span>
-          </article>
-        </div>
+            <article>
+              <p>Token Contract Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
+              </span>
+            </article>
+            {tokenAmount ? (
+              <article>
+                <p>Total Amount</p>
+                <span className="parameters-value">
+                  <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+                </span>
+              </article>
+            ) : null}
+            <article>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signers_count}/{num_council_members}
+              </span>
+            </article>
+          </div>
 
-        <div className="parameters">
-          {tokenType ? (
-            <article>
-              <p>Token Type</p>
-              <span className="parameters-value">{tokenType}</span>
-            </article>
-          ) : null}
-          {tokenId ? (
-            <article>
-              <p>Token ID</p>
-              <span className="parameters-value">{tokenId}</span>
-            </article>
-          ) : null}
-          {purpose ? (
-            <article>
-              <p>Purpose for Request</p>
-              <button className="parameters-btn">Read Request</button>
-            </article>
-          ) : null}
+          <div className="parameters">
+            {tokenType ? (
+              <article>
+                <p>Token Type</p>
+                <span className="parameters-value">{tokenType}</span>
+              </article>
+            ) : null}
+            {tokenId ? (
+              <article>
+                <p>Token ID</p>
+                <span className="parameters-value">{tokenId}</span>
+              </article>
+            ) : null}
+            {purpose ? (
+              <article>
+                <p>Purpose for Request</p>
+                <button className="parameters-btn" onClick={() => setShowing(true)}>
+                  Read Request
+                </button>
+              </article>
+            ) : null}
 
-          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-        </div>
-      </CouncilPendingStyled>
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+          </div>
+        </CouncilPendingStyled>
+        {showing ? createPortal(modal, document?.body) : null}
+      </>
     )
   }
   if (isAddVestee) {

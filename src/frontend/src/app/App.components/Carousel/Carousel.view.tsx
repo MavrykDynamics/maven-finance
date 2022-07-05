@@ -10,7 +10,7 @@ type Props = {
 
 const Carousel = (props: Props) => {
   const { children, itemLength } = props
-  const options: any = { containScroll: 'keepSnaps', dragFree: true }
+  const options: any = { containScroll: 'trimSnaps', dragFree: true }
   // for scroll 3 items
   // const [viewportRef, embla] = useEmblaCarousel({ loop: false, slidesToScroll: 3, skipSnaps: false })
   // for Variable Widths
