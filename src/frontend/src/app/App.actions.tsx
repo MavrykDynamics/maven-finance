@@ -43,7 +43,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const farmFactoryStorage = storageToTypeConverter('farmFactory', res[4]?.farm_factory[0])
   const emergencyGovernanceStorage = storageToTypeConverter('emergencyGovernance', res[5]?.emergency_governance[0])
   const breakGlassStorage = storageToTypeConverter('breakGlass', res[6]?.break_glass[0])
-  const councilStorage = storageToTypeConverter('council', res[7]?.council[0])
+  const councilStorage = storageToTypeConverter('council', res[7]?.council?.[0])
   const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
   const oraclesStorage = res[10]

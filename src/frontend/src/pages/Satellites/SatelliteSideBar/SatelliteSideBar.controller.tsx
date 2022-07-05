@@ -36,7 +36,7 @@ export function checkIfUserIsSatellite(accountPkh?: string, satelliteLedger?: Sa
   return accountPkh && satelliteLedger ? satelliteLedger.some((record) => record.address === accountPkh) : false
 }
 
-function getTotalDelegatedMVK(satelliteLedger: SatelliteRecord[]): number {
+export function getTotalDelegatedMVK(satelliteLedger: SatelliteRecord[]): number {
   if (!satelliteLedger) return 0
   return satelliteLedger.reduce((sum, current) => sum + Number(current.totalDelegatedAmount + current.sMvkBalance), 0)
 }
