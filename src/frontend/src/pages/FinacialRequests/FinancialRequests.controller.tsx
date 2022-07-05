@@ -17,16 +17,20 @@ import { GovernanceTopBar } from 'pages/Governance/GovernanceTopBar/GovernanceTo
 
 //styles
 import { Page } from 'styles'
+import { FinancialRequestsView } from './FinancialRequests.view'
 
 export const FinancialRequests = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
 
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+  const {
+    governanceStorage: { financialRequestLedger, currentRoundEndLevel },
+    governancePhase,
+  } = useSelector((state: State) => state.governance)
   const { headData } = useSelector((state: State) => state.preferences)
 
-  const daysLeftOfPeriod = calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
+  const daysLeftOfPeriod = calcTimeToBlock(headData?.knownLevel, currentRoundEndLevel)
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
@@ -54,6 +58,12 @@ export const FinancialRequests = () => {
         isInEmergencyGovernance={false}
         loading={loading}
         handleMoveNextRound={handleMoveNextRound}
+      />
+      <FinancialRequestsView
+        financialRequestsList={financialRequestLedger}
+        ready={ready}
+        loading={loading}
+        accountPkh={accountPkh}
       />
     </Page>
   )
