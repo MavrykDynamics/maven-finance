@@ -24,7 +24,10 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 export const SatelliteGovernance = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const satelliteLedger = delegationStorage?.satelliteLedger
+
+  const { totalOracleNetworks } = oraclesStorage
 
   const satelliteLedgerActive = satelliteLedger.filter((item) => item.active)
   const itemsForDropDown = [
@@ -79,7 +82,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Oracle Networks</h3>
             <p>
-              920+{' '}
+              {totalOracleNetworks}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
