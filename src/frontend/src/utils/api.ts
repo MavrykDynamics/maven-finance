@@ -1,11 +1,8 @@
 const axios = require('axios').default
 
-console.log('%c ||||| process.env.REACT_APP_API_NETWORK', 'color:yellowgreen', process.env.REACT_APP_API_NETWORK);
-
 // const network = process.env.REACT_APP_API_NETWORK
 const network = 'jakartanet'
 
-console.log('%c ||||| network', 'color:yellowgreen', network);
 
 export async function getContractBigmapKeys(contractAddress: string, name: string): Promise<any> {
   return await axios
