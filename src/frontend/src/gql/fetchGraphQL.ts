@@ -29,6 +29,9 @@ import {
   VESTING_STORAGE_QUERY,
   VESTING_STORAGE_QUERY_NAME,
   VESTING_STORAGE_QUERY_VARIABLE,
+  ORACLE_STORAGE_QUERY,
+  ORACLE_STORAGE_QUERY_NAME,
+  ORACLE_STORAGE_QUERY_VARIABLE
 } from './queries'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, any>) {
@@ -142,5 +145,6 @@ export async function getInitialData() {
       GOVERNANCE_STORAGE_QUERY_NAME,
       GOVERNANCE_STORAGE_QUERY_VARIABLE,
     ),
+    fetchFromIndexerWithPromise(ORACLE_STORAGE_QUERY, ORACLE_STORAGE_QUERY_NAME, ORACLE_STORAGE_QUERY_VARIABLE),
   ])
 }
