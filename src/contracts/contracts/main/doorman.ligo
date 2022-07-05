@@ -169,24 +169,28 @@ function checkNoAmount(const _p : unit) : unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check that the %stake entrypoint is not paused
 function checkStakeIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %unstake entrypoint is not paused
 function checkUnstakeIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %compound entrypoint is not paused
 function checkCompoundIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
   else unit;
 
 
 
+// helper function to check that the %farmClaim entrypoint is not paused
 function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
   if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
   else unit;
@@ -200,7 +204,7 @@ function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to update satellite's balance
+// helper function to update a user's staked MVK balance
 function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceType) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
@@ -267,7 +271,7 @@ block{
         ]
     ];
 
-    // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
+    // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
     if userRecord.balance > 0n then {
 
       // Get delegation contract
@@ -284,8 +288,8 @@ block{
       // Get the user satelliteRewards record
       const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
       const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
-        Some (_v) -> True
-      | None -> False
+          Some (_v) -> True
+        | None -> False
       ];
 
       // If user never delegated or registered as a satellite, it does not calculates its rewards
@@ -293,25 +297,25 @@ block{
       if userHasSatelliteRewards then
       block{
         const satelliteRewardsOpt: option(satelliteRewardsType) = case satelliteRewardsOptView of [
-          Some (value) -> value
-        | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            Some (value) -> value
+          | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
         ];
 
         satelliteUnpaidRewards := case satelliteRewardsOpt of [
           Some (_rewards) -> block{
             const getUserReferenceRewardOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
             const getUserReferenceRewardOpt: option(satelliteRewardsType) = case getUserReferenceRewardOptView of [
-              Some (value) -> value
-            | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                Some (value) -> value
+              | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
             ];
             
             // Calculate the user unclaimed rewards
             const satelliteReward: nat  = case getUserReferenceRewardOpt of [
-              Some (_referenceRewards) -> block{
-                const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-                const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
-              } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-            | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
+                Some (_referenceRewards) -> block{
+                  const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
+                  const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
+                } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
+              | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
             ];
           } with (satelliteReward)
         | None -> 0n
@@ -323,10 +327,10 @@ block{
       // -- Exit fee rewards -- //
       // Calculate what fees the user missed since his/her last claim
       const currentFeesPerShare: nat = abs(s.accumulatedFeesPerShare - userRecord.participationFeesPerShare);
+
       // Calculate the user reward based on his sMVK
       const exitFeeRewards: nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
 
-      
       // Increase the user balance
       userRecord.totalExitFeeRewardsClaimed   := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
       userRecord.totalSatelliteRewardsClaimed := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
@@ -334,9 +338,11 @@ block{
       s.unclaimedRewards                      := abs(s.unclaimedRewards - exitFeeRewards);
     }
     else skip;
+
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
-    // Update the doormanStorageType
+    
+    // Update storage: user stake balance ledger
     s.userStakeBalanceLedger[userAddress]  := userRecord;
 
 } with (s)
@@ -351,6 +357,7 @@ block{
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 
 block {
 

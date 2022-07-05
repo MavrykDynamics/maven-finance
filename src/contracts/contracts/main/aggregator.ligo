@@ -81,7 +81,21 @@ type return is list (operation) * aggregatorStorageType
 // aggregator contract methods lambdas
 type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggregatorStorageType) -> return
 
+
+
+// ------------------------------------------------------------------------------
+//
+// Constants Begin
+//
+// ------------------------------------------------------------------------------
+
 const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
+
+// ------------------------------------------------------------------------------
+//
+// Constants End
+//
+// ------------------------------------------------------------------------------
 
 
 
@@ -249,21 +263,31 @@ function checkRequestRateUpdateIsNotPaused(var s : aggregatorStorageType) : unit
     if s.breakGlassConfig.requestRateUpdateIsPaused then failwith(error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
+
+
 function checkRequestRateUpdateDeviationIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then failwith(error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
+
+
 
 function checkSetObservationCommitIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.setObservationCommitIsPaused then failwith(error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
+
+
 function checkSetObservationRevealIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.setObservationRevealIsPaused then failwith(error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
+
+
 function checkWithdrawRewardXtzIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardXtzIsPaused then failwith(error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
+
+
 
 function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then failwith(error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
@@ -574,41 +598,10 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
 
 
 // ------------------------------------------------------------------------------
-// Transfer Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: nat; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: fa2TransferType = list[
-            record[
-                from_=from_;
-                txs=list[
-                    record[
-                        to_=to_;
-                        token_id=tokenId;
-                        amount=tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
-              Some (c) -> c
-          |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(fa2TransferType))
-        ];
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-// ------------------------------------------------------------------------------
-// Transfer Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is 
 block {
 

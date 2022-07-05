@@ -133,18 +133,21 @@ function checkNoAmount(const _p: unit): unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check that the %createTreasury entrypoint is not paused
 function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
     if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %trackTreasury entrypoint is not paused
 function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
     if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %untrackTreasury entrypoint is not paused
 function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
     if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
@@ -159,6 +162,7 @@ function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : u
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block {
 
@@ -365,9 +369,6 @@ block {
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
 
 } with response
-
-
-
 
 
 

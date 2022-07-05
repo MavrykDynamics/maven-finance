@@ -132,6 +132,7 @@ function checkNoAmount(const _p : unit) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to update blocksPerMinute on a specified contract
 function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : contract(nat) is
   case (Tezos.get_entrypoint_opt(
       "%updateBlocksPerMinute",
@@ -142,6 +143,7 @@ function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : cont
 
 
 
+// helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
 function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
   case (Tezos.get_entrypoint_opt(
       "%addVestee",
@@ -152,6 +154,7 @@ function sendAddVesteeParams(const contractAddress : address) : contract(addVest
 
 
 
+// helper function to %removeVestee entrypoint to remove a vestee on the Vesting contract
 function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
       "%removeVestee",
@@ -162,6 +165,7 @@ function sendRemoveVesteeParams(const contractAddress : address) : contract(addr
 
 
 
+// helper function to %updateVestee entrypoint to update a vestee on the Vesting contract
 function sendUpdateVesteeParams(const contractAddress : address) : contract(updateVesteeType) is
 case (Tezos.get_entrypoint_opt(
     "%updateVestee",
@@ -172,6 +176,7 @@ case (Tezos.get_entrypoint_opt(
 
 
 
+// helper function to %toggleVesteeLock entrypoint to lock or unlock a vestee on the Vesting contract
 function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
 case (Tezos.get_entrypoint_opt(
     "%toggleVesteeLock",
@@ -182,6 +187,7 @@ case (Tezos.get_entrypoint_opt(
 
 
 
+// helper function to %requestTokens entrypoint on the Governance Financial contract
 function sendRequestTokensParams(const contractAddress : address) : contract(councilActionRequestTokensType) is
   case (Tezos.get_entrypoint_opt(
       "%requestTokens",
@@ -192,6 +198,7 @@ function sendRequestTokensParams(const contractAddress : address) : contract(cou
 
 
 
+// helper function to %requestMint entrypoint on the Governance Financial contract
 function sendRequestMintParams(const contractAddress : address) : contract(councilActionRequestMintType) is
   case (Tezos.get_entrypoint_opt(
       "%requestMint",
@@ -202,6 +209,7 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
 
 
 
+// helper function to %dropFinancialRequest entrypoint on the Governance Financial contract
 function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
   case (Tezos.get_entrypoint_opt(
       "%dropFinancialRequest",
@@ -211,6 +219,8 @@ function sendDropFinancialRequestParams(const contractAddress : address) : contr
       ];
 
 
+
+// helper function to %setContractBaker entrypoint on the Governance Financial contract
 function sendSetContractBakerParams(const contractAddress : address) : contract(councilActionSetContractBakerType) is
   case (Tezos.get_entrypoint_opt(
       "%setContractBaker",
@@ -229,6 +239,7 @@ function sendSetContractBakerParams(const contractAddress : address) : contract(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
@@ -859,7 +870,7 @@ function main (const action : councilAction; const s : councilStorageType) : ret
     case action of [
       
           // Default Entrypoint to Receive Tez
-          Default(_params)                              -> ((nil : list(operation)), s)
+          Default(_parameters)                          -> ((nil : list(operation)), s)
 
         // Housekeeping Actions
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
