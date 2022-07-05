@@ -29,7 +29,7 @@ async def on_farm_withdraw(
     farm                            = await models.Farm.get(
         address = farm_address
     )
-    farm.lp_balance                 = lp_token_balance
+    farm.lp_token_balance           = lp_token_balance
     farm.accumulated_mvk_per_share  = accumulated_rewards_per_share
     farm.last_block_update          = last_block_update
     farm.open                       = open
