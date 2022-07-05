@@ -92,6 +92,15 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     },
   ],
   [
+    'financial requests',
+    {
+      title: 'Financial Requests',
+      subText: 'Vote on the Mavryk Council financial actions',
+      foregroundImageSrc: '/images/gov-main-header-fg.svg',
+      backgroundImageSrc: '/images/dapp-header-bg.svg',
+    },
+  ],
+  [
     'council',
     {
       title: 'Mavryk Council',
