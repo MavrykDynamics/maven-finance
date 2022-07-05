@@ -7,11 +7,15 @@ export interface UserDoormanRewardsData {
 
 export interface UserFarmRewardsData {
   farmId: string
-  generalAccumulatedFeesPerShare: number
+  generalAccumulatedRewardsPerShare: number
   blocksPerMinute: number
   currentRewardPerBlock: number
   lastBlockUpdate: number
   generalTotalRewards: number
+  generalPaidReward: number
+  generalUnpaidReward: number
+  infinite: boolean
+  totalLPTokenDeposited: number
   myDepositedAmount: number
   myParticipationRewardsPerShare: number
   myAvailableFarmRewards: number

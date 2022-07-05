@@ -55,20 +55,30 @@ export function calcUsersDoormanRewards(userInfo: UserData): UserDoormanRewardsD
   return myDoormanRewardsData
 }
 
-export function calcUsersFarmRewards(userInfo: UserData): UserFarmRewardsData[] {
+export function calcUsersFarmRewards(userInfo: UserData, currentBlockLevel: number): UserFarmRewardsData[] {
   const { myMvkTokenBalance, mySMvkTokenBalance, myFarmRewardsData } = userInfo
   const newFarmRewardsData: UserFarmRewardsData[] = []
 
   console.log("HEY I'M HERE FARM")
-  console.log(myFarmRewardsData)
   myFarmRewardsData.forEach((farmAccount) => {
-    let usersAvailableFarmRewards = 0
     /*
        TODO: For Tristan - Farm rewards calculation
      */
-     console.log(myFarmRewardsData)
 
-    farmAccount.myAvailableFarmRewards = usersAvailableFarmRewards
+    // Update farm general values
+    const blockMultiplier                 = currentBlockLevel - farmAccount.lastBlockUpdate
+    const suspectedRewards                = blockMultiplier * farmAccount.currentRewardPerBlock
+    const totalClaimedRewards             = farmAccount.generalPaidReward + farmAccount.generalUnpaidReward
+    const totalFarmRewards                = suspectedRewards * totalClaimedRewards
+    const totalPlannedRewards             = farmAccount.generalTotalRewards
+    const reward                          = totalFarmRewards > totalPlannedRewards && !farmAccount.infinite ? totalPlannedRewards - totalClaimedRewards : suspectedRewards;
+    const tempAccumulatedRewardsPerShare  = farmAccount.generalAccumulatedRewardsPerShare + ((reward * FIXED_POINT_ACCURACY) / farmAccount.totalLPTokenDeposited)
+
+    // Update user unclaimed rewards
+    const currentRewardsPerShare          = tempAccumulatedRewardsPerShare - farmAccount.myParticipationRewardsPerShare
+    const usersAvailableFarmRewards       = (currentRewardsPerShare * farmAccount.myDepositedAmount) / FIXED_POINT_ACCURACY
+
+    farmAccount.myAvailableFarmRewards = calcWithoutPrecision(String(usersAvailableFarmRewards))
     newFarmRewardsData.push(farmAccount)
   })
 
