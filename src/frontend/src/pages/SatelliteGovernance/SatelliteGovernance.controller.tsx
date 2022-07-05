@@ -172,16 +172,8 @@ export const SatelliteGovernance = () => {
             date={item.expiration_datetime}
             executed={item.executed}
             status={item.status}
-            satelliteGovernanceCard={{
-              id: 0,
-              title: 'Suspend Satellite',
-              startTimestamp: 'string',
-              proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-              description:
-                'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-
-              executed: true,
-            }}
+            purpose={item.governance_purpose}
+            governanceType={item.governance_type}
           />
         )
       })}
