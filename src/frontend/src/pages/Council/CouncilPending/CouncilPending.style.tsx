@@ -44,6 +44,13 @@ export const CouncilPendingStyled = styled(Card)`
     }
   }
 
+  .parameters-btn {
+    color: ${headerColor};
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
+  }
+
   .parameters {
     display: flex;
     justify-content: space-between;
@@ -51,7 +58,6 @@ export const CouncilPendingStyled = styled(Card)`
     gap: 16px;
 
     article {
-      max-width: 138px;
     }
 
     .parameters-value,
