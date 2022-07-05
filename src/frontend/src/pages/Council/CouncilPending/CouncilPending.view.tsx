@@ -11,6 +11,7 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // helpers
 import { getSeparateCamelCase } from '../../../utils/parse'
+import { calcWithoutPrecision, calcWithoutMu } from '../../../utils/calcFunctions'
 
 // actions
 import { sign } from '../Council.actions'
@@ -67,6 +68,8 @@ export const CouncilPendingView = (props: Props) => {
   const tokenId = council_action_record_parameters.find((item) => item.name === 'tokenId')?.value || ''
   const purpose = council_action_record_parameters.find((item) => item.name === 'purpose')?.value || ''
 
+  const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
+
   const modal = (
     <ModalStyled showing={true}>
       <ModalMask
@@ -96,7 +99,7 @@ export const CouncilPendingView = (props: Props) => {
       <>
         <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
           <h3>{getSeparateCamelCase(action_type)}</h3>
-          <div className="parameters">
+          <div className="parameters grid">
             <article>
               <p>Treasury Address</p>
               <span className="parameters-value">
@@ -109,23 +112,25 @@ export const CouncilPendingView = (props: Props) => {
                 <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
               </span>
             </article>
-            {tokenAmount ? (
+            {calculateTokenAmount ? (
               <article>
                 <p>Total Amount</p>
                 <span className="parameters-value">
-                  <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+                  <CommaNumber value={calculateTokenAmount} loading={false} endingText={'MVK'} />
                 </span>
               </article>
             ) : null}
-            <article>
-              <p>Signed</p>
-              <span className="parameters-value">
-                {signers_count}/{num_council_members}
-              </span>
+            <article className="signed-article">
+              <div>
+                <p>Signed</p>
+                <span className="parameters-value">
+                  {signers_count}/{num_council_members}
+                </span>
+              </div>
             </article>
           </div>
 
-          <div className="parameters">
+          <div className="parameters grid">
             {tokenType ? (
               <article>
                 <p>Token Type</p>
@@ -173,11 +178,13 @@ export const CouncilPendingView = (props: Props) => {
               </span>
             </article>
           ) : null}
-          <article>
-            <p>Signed</p>
-            <span className="parameters-value">
-              {signers_count}/{num_council_members}
-            </span>
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signers_count}/{num_council_members}
+              </span>
+            </div>
           </article>
         </div>
 
