@@ -23,6 +23,10 @@ import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/Dr
 
 export const SatelliteGovernance = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const satelliteLedger = delegationStorage?.satelliteLedger
+
+  const satelliteLedgerActive = satelliteLedger.filter((item) => item.active)
   const itemsForDropDown = [
     { text: 'Chose action', value: '' },
     { text: 'Suspend Satellite', value: 'suspendSatellite' },
@@ -61,7 +65,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Active Satellites</h3>
             <p>
-              350{' '}
+              {satelliteLedgerActive?.length}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
