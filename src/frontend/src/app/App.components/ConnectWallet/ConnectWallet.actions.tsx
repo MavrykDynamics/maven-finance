@@ -5,6 +5,8 @@ import { getUserData } from '../../../pages/Doorman/Doorman.actions'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 
+console.table(process.env)
+
 // const network = process.env.REACT_APP_API_NETWORK
 const network = 'jakartanet'
 
