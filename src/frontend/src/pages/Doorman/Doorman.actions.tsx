@@ -13,6 +13,9 @@ import {
   USER_DOORMAN_REWARDS_QUERY,
   USER_DOORMAN_REWARDS_QUERY_NAME,
   USER_DOORMAN_REWARDS_QUERY_VARIABLES,
+  USER_FARM_REWARDS_QUERY,
+  USER_FARM_REWARDS_QUERY_NAME,
+  USER_FARM_REWARDS_QUERY_VARIABLES,
   USER_INFO_QUERY,
   USER_INFO_QUERY_NAME,
   USER_INFO_QUERY_VARIABLES,
@@ -24,7 +27,7 @@ import { calcUsersDoormanRewards, calcUsersFarmRewards, calcUsersSatelliteReward
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { UserData, UserDoormanRewardsData, UserSatelliteRewardsData } from '../../utils/TypesAndInterfaces/User'
+import { UserData, UserDoormanRewardsData, UserSatelliteRewardsData, UserFarmRewardsData } from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
@@ -340,7 +343,8 @@ export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
 export const SET_USER_DATA = 'SET_USER_DATA'
 export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+  const state: State      = getState()
+  const currentBlockLevel = state.preferences.headData.level
   try {
     const userInfoFromIndexer = fetchFromIndexer(
         USER_INFO_QUERY,
@@ -356,11 +360,17 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
         USER_SATELLITE_REWARDS_QUERY,
         USER_SATELLITE_REWARDS_QUERY_NAME,
         USER_SATELLITE_REWARDS_QUERY_VARIABLES(accountPkh),
+      ),
+      userFarmsRewardsFromIndexer = fetchFromIndexer(
+        USER_FARM_REWARDS_QUERY,
+        USER_FARM_REWARDS_QUERY_NAME,
+        USER_FARM_REWARDS_QUERY_VARIABLES(accountPkh),
       )
-    const [userInfoAfterPromise, userDoormanRewardsAfterPromise, userSatelliteRewardsAfterPromise] = await Promise.all([
+    const [userInfoAfterPromise, userDoormanRewardsAfterPromise, userSatelliteRewardsAfterPromise, userFarmsRewardsAfterPromise] = await Promise.all([
       userInfoFromIndexer,
       userDoormanRewardsFromIndexer,
       userSatelliteRewardsFromIndexer,
+      userFarmsRewardsFromIndexer
     ])
 
     const userInfoData = userInfoAfterPromise.mavryk_user[0]
@@ -383,6 +393,24 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
           ?.satellite_accumulated_reward_per_share || 0,
       myAvailableSatelliteRewards: 0,
     }
+    var userFarmsRewardsData: UserFarmRewardsData[] = []
+    userFarmsRewardsAfterPromise.farm.forEach((farm: any) => {
+      userFarmsRewardsData.push({
+        farmId: farm.address,
+        generalAccumulatedRewardsPerShare: farm.accumulated_rewards_per_share,
+        blocksPerMinute: farm.blocks_per_minute,
+        currentRewardPerBlock: farm.current_reward_per_block,
+        lastBlockUpdate: farm.last_block_update,
+        generalTotalRewards: farm.total_rewards,
+        generalPaidReward: farm.paid_rewards,
+        generalUnpaidReward: farm.unpaid_rewards,
+        totalLPTokenDeposited: farm.lp_token_balance,
+        infinite: farm.infinite,
+        myDepositedAmount: farm.farm_accounts[0].deposited_amount,
+        myParticipationRewardsPerShare: farm.farm_accounts[0].participation_rewards_per_share,
+        myAvailableFarmRewards: 0
+      })
+    })
 
     const userInfo: UserData = {
       myAddress: userInfoData?.address,
@@ -392,17 +420,18 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
         ? userInfoData?.delegation_records[0].satellite_record?.user_id
         : '',
       myDoormanRewardsData: userDoormanRewardsData,
-      myFarmRewardsData: state.user.user.myFarmRewardsData,
+      myFarmRewardsData: userFarmsRewardsData,
       mySatelliteRewardsData: userSatelliteRewardsData,
     }
 
     userInfo.myDoormanRewardsData   = calcUsersDoormanRewards(userInfo)
     userInfo.mySatelliteRewardsData = calcUsersSatelliteRewards(userInfo)
-    userInfo.myFarmRewardsData      = calcUsersFarmRewards(userInfo)
+    userInfo.myFarmRewardsData      = calcUsersFarmRewards(userInfo, currentBlockLevel)
 
     const estimatedRewardsForNextCompound = userInfo.myDoormanRewardsData.myAvailableDoormanRewards + userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
     console.log("EXIT FEE REWARDS: ", userInfo.myDoormanRewardsData.myAvailableDoormanRewards)
     console.log("SATELLITE REWARDS: ", userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards)
+    console.log("FARM REWARDS: ", userInfo.myFarmRewardsData)
     console.log("REWARDS ESTIMATION: ", estimatedRewardsForNextCompound)
 
     console.log('%c res getUserData()', 'color:orange', userInfo)
