@@ -5,6 +5,9 @@ import { getUserData } from '../../../pages/Doorman/Doorman.actions'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 
+// const network = process.env.REACT_APP_API_NETWORK
+const network = 'jakartanet'
+
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {
   /*
@@ -41,7 +44,7 @@ export const connect =
         dispatch(showToaster(ERROR, 'Temple Wallet not available', ''))
         throw new Error('Temple Wallet not available')
       } else {
-        await state.wallet.wallet?.connect((process.env.REACT_APP_NETWORK || 'hangzhounet') as TempleDAppNetwork, {
+        await state.wallet.wallet?.connect((network || 'hangzhounet') as TempleDAppNetwork, {
           forcePermission,
         })
         const tzs = state.wallet.wallet?.toTezos()
