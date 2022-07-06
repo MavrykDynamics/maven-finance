@@ -18,6 +18,12 @@ variable "size" {
     description = "Droplet size to use"
 }
 
+variable "import_ssh_keys" {
+    type        = bool
+    default     = false
+    description = "Whether or not import the ssh keys into the created droplet"
+}
+
 variable "vpc_id" {
     type        = string
     description = "The ID of the VPC where the droplet will be located"

@@ -1,0 +1,43 @@
+---
+- name: Restart PostgreSQL
+  ansible.builtin.systemd:
+    name: postgresql
+    state: restarted
+    enabled: yes
+
+- name: Update repositories cache and install requirements
+  ansible.builtin.apt:
+    pkg:
+      - python3-pip
+      - libpq-dev
+    update_cache: yes
+
+- name: Make sure psycopg2 is installed
+  pip:
+    name: psycopg2
+    state: present
+
+- name: Create the dipdup database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: dipdup
+    state: present
+
+- name: Create the dipdup user
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    db: dipdup
+    name: dipdup
+    password: lookup('env', 'POSTGRES_PASSWORD')
+
+- name: Grant privs to dipdup user on dipdup database
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_privs:
+    db: dipdup
+    state: present
+    privs: ALL
+    type: database
+    role: dipdup
