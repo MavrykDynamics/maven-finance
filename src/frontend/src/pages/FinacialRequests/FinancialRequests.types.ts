@@ -31,9 +31,12 @@ export type FinancialRequestBody = {
   yay_vote_smvk_total: number
 }
 
+// TODO: make it generic
 export type FRListProps = {
   listTitle: string
-  listItemsGenerator: () => Array<JSX.Element>
-  hasItems: boolean
+  items: Array<FinancialRequestBody>
   noItemsText: string
+  name: string
+  handleItemSelect: (arg0: FinancialRequestBody) => void
+  selectedItem?: FinancialRequestBody
 }
