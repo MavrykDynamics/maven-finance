@@ -22,6 +22,9 @@ advanced:
     rollback: ignore
 
 contracts:
+  liquidity_baking:
+    address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
+    typename: liquidity_baking
   mvk:
     address: KT1KgUQ26ciUCrkZrDoV26ezvW2TiZTjZ1TQ
     typename: mvk
@@ -72,15 +75,18 @@ contracts:
     typename: treasury_factory
 
 datasources:
-  tzkt:
+  tzkt_testnet:
     kind: tzkt
-    url: ${TZKT_URL:-changeme}
+    url: ${TZKT_TESTNET_URL:-changeme}
+  tzkt_mainnet:
+    kind: tzkt
+    url: ${TZKT_MAINNET_URL:-changeme}
 
 templates:
   # Template for Farm Factory
   farm_template:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -146,7 +152,7 @@ templates:
   # Template for treasury Factory
   treasury_template:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -192,7 +198,7 @@ templates:
   # Template for aggregator factory
   aggregator_template:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -269,10 +275,40 @@ templates:
             entrypoint: withdrawRewardStakedMvk
 
 indexes:
+  # Liquidity Baking contract indexes
+  liquidity_baking:
+    kind: operation
+    datasource: tzkt_mainnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - liquidity_baking
+    handlers:
+      - callback: on_liquidity_baking_add_liquidity
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: addLiquidity
+      - callback: on_liquidity_baking_remove_liquidity
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: removeLiquidity
+      - callback: on_liquidity_baking_token_to_xtz
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: tokenToXtz
+      - callback: on_liquidity_baking_xtz_to_token
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: xtzToToken
+      - callback: on_liquidity_baking_token_to_token
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: tokenToToken
   # MVK Token contract indexes
   mvk:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -322,7 +358,7 @@ indexes:
   # Governance contract indexes
   governance:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -408,7 +444,7 @@ indexes:
   # Doorman contract indexes
   doorman:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -477,7 +513,7 @@ indexes:
   # Farm contract indexes
   farm:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -547,7 +583,7 @@ indexes:
   # Farm Factory contract indexes
   farm_factory:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -613,7 +649,7 @@ indexes:
   # Delegation contract indexes
   delegation:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -691,7 +727,7 @@ indexes:
   # Vesting contract indexes
   vesting:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -741,7 +777,7 @@ indexes:
   # Emergency Governance contract indexes
   emergency_governance:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -787,7 +823,7 @@ indexes:
   # Council contract indexes
   council:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -889,7 +925,7 @@ indexes:
   # Break Glass contract indexes
   break_glass:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -975,7 +1011,7 @@ indexes:
   # Governance Financial contract indexes
   governance_financial:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1033,7 +1069,7 @@ indexes:
   # Governance Satellite contract indexes
   governance_satellite:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1111,7 +1147,7 @@ indexes:
   # Aggregator contract indexes
   aggregator:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1193,7 +1229,7 @@ indexes:
   # Aggregator Factory contract indexes
   aggregator_factory:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1250,7 +1286,7 @@ indexes:
   # Treasury contract indexes
   treasury:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1300,7 +1336,7 @@ indexes:
   # Treasury Factory contract indexes
   treasury_factory:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
