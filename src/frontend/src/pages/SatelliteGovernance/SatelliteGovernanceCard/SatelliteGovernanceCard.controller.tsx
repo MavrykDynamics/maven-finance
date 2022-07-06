@@ -1,14 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import * as React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 import { Link, useLocation } from 'react-router-dom'
+import { State } from 'reducers'
 
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { VotingArea } from '../../Governance/VotingArea/VotingArea.controller'
+import { Button } from '../../../app/App.components/Button/Button.controller'
+
 import { getSeparateSnakeCase } from '../../../utils/parse'
+
+// action
+import { dropAction } from '../SatelliteGovernance.actions'
 
 import {
   SatelliteGovernanceArrowButton,
@@ -23,11 +30,24 @@ type Props = {
   date: string
   executed: boolean
   status: number
+  id: number
   purpose: string
   governanceType: string
+  linkAdress: string
 }
 
-export const SatelliteGovernanceCard = ({ satellite, date, executed, status, purpose, governanceType }: Props) => {
+export const SatelliteGovernanceCard = ({
+  id,
+  satellite,
+  date,
+  executed,
+  status,
+  purpose,
+  governanceType,
+  linkAdress,
+}: Props) => {
+  const dispatch = useDispatch()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const ref = useRef(null)
@@ -43,6 +63,10 @@ export const SatelliteGovernanceCard = ({ satellite, date, executed, status, pur
   const handleProposalRoundVote = () => {}
   const handleVotingRoundVote = () => {}
 
+  const handleClick = async () => {
+    await dispatch(dropAction(id, open))
+  }
+
   const timeNow = Date.now()
   const expirationDatetime = new Date(date).getTime()
   const isEndedVotingTime = expirationDatetime > timeNow
@@ -56,8 +80,13 @@ export const SatelliteGovernanceCard = ({ satellite, date, executed, status, pur
     : ProposalStatus.ACTIVE
 
   return (
-    <SatelliteGovernanceCardStyled onClick={open}>
-      <SatelliteGovernanceCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
+    <SatelliteGovernanceCardStyled>
+      <SatelliteGovernanceCardTopSection
+        onClick={open}
+        className={expanded ? 'show' : 'hide'}
+        height={accordionHeight}
+        ref={ref}
+      >
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Date</h3>
           <p>
@@ -90,17 +119,25 @@ export const SatelliteGovernanceCard = ({ satellite, date, executed, status, pur
         </SatelliteGovernanceCardTitleTextGroup>
       </SatelliteGovernanceCardTopSection>
 
-      <SatelliteGovernanceCardDropDown
-        onClick={open}
-        className={expanded ? 'show' : 'hide'}
-        height={accordionHeight}
-        ref={ref}
-      >
+      <SatelliteGovernanceCardDropDown className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <div className={'description accordion ' + `${expanded}`} ref={ref}>
           <div>
             <h3>Purpose</h3>
             <p>{purpose}</p>
-            <Link to="/satellite-details/">View Satellite</Link>
+            {linkAdress ? (
+              <Link className={'view-satellite'} to={`/satellite-details/${linkAdress}`}>
+                View Satellite
+              </Link>
+            ) : null}
+            {statusFlag === ProposalStatus.ONGOING ? (
+              <Button
+                text="Drop Action"
+                className="brop-btn"
+                icon="close-stroke"
+                kind={'actionSecondary'}
+                onClick={handleClick}
+              />
+            ) : null}
           </div>
           <div>
             <h3>Vote Satistics</h3>

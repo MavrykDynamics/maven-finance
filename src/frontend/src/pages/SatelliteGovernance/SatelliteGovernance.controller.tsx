@@ -3,6 +3,9 @@ import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
+// types
+import type { GovernanceSatelliteItem } from '../../reducers/governance'
+
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 
@@ -39,6 +42,22 @@ const itemsForDropDown = [
   { text: 'Add to Aggregator', value: 'addToAggregator' },
 ]
 
+const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+  return list.filter((item: any) => {
+    const timeNow = Date.now()
+    const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    return expirationDatetime > timeNow && item.status !== 1
+  })
+}
+
+const getPastActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+  return list.filter((item: any) => {
+    const timeNow = Date.now()
+    const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    return expirationDatetime < timeNow
+  })
+}
+
 export const SatelliteGovernance = () => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
@@ -55,26 +74,15 @@ export const SatelliteGovernance = () => {
   const [activeTab, setActiveTab] = useState('ongoing')
   const governanceSatelliteActionRecord = governanceSatelliteStorage.governance_satellite_action_record
 
-  const ongoingActionsAmount = governanceSatelliteActionRecord.reduce((acc, cur: any) => {
-    const timeNow = Date.now()
-    const expirationDatetime = new Date(cur.expiration_datetime).getTime()
-    if (expirationDatetime > timeNow) {
-      acc++
-    }
-    return acc
-  }, 0)
+  const ongoingActionsAmount = getOngoingActionsList(governanceSatelliteActionRecord).length
 
   const [separateRecord, setSeparateRecord] = useState<Record<string, unknown>[]>([])
 
   useEffect(() => {
-    const filterOngoing = governanceSatelliteActionRecord.filter((item: any) => {
-      const timeNow = Date.now()
-      const expirationDatetime = new Date(item.expiration_datetime).getTime()
-      return expirationDatetime > timeNow
-    })
-
-    setSeparateRecord(filterOngoing)
-    setActiveTab('ongoing')
+    const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
+    const filterPast = getPastActionsList(governanceSatelliteActionRecord)
+    setSeparateRecord(filterOngoing.length ? filterOngoing : filterPast)
+    setActiveTab(filterOngoing.length ? 'ongoing' : 'past')
   }, [governanceSatelliteActionRecord])
 
   const handleClickDropdown = () => {
@@ -95,23 +103,14 @@ export const SatelliteGovernance = () => {
   const handleTabChange = (tabId: string) => {
     if (tabId === 'ongoing') {
       setActiveTab('ongoing')
-      const filterOngoing = governanceSatelliteActionRecord.filter((item: any) => {
-        const timeNow = Date.now()
-        const expirationDatetime = new Date(item.expiration_datetime).getTime()
-        return expirationDatetime > timeNow
-      })
+      const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
 
       setSeparateRecord(filterOngoing)
     }
 
     if (tabId === 'past') {
       setActiveTab('past')
-      const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
-        const timeNow = Date.now()
-        const expirationDatetime = new Date(item.expiration_datetime).getTime()
-        return expirationDatetime < timeNow
-      })
-
+      const filterPast = getPastActionsList(governanceSatelliteActionRecord)
       setSeparateRecord(filterPast)
     }
 
@@ -225,15 +224,18 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {separateRecord.map((item: any) => {
+        const linkAdress = item.governance_satellite_action_parameters?.[0]?.value || ''
         return (
           <SatelliteGovernanceCard
             key={item.id}
+            id={item.id}
             satellite={item.governance_satellite_id}
             date={item.expiration_datetime}
             executed={item.executed}
             status={item.status}
             purpose={item.governance_purpose}
             governanceType={item.governance_type}
+            linkAdress={linkAdress}
           />
         )
       })}

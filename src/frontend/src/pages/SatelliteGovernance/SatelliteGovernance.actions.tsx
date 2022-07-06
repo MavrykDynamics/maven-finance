@@ -23,7 +23,9 @@ export const getGovernanceSatelliteStorage = () => async (dispatch: any, getStat
       GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE,
     )
 
-    dispatch({
+    console.log('%c ||||| governanceSatelliteStorage', 'color:yellowgreen', governanceSatelliteStorage)
+
+    await dispatch({
       type: GET_GOVERNANCE_SATELLITE_STORAGE,
       governanceSatelliteStorage,
     })
@@ -67,13 +69,13 @@ export const suspendSatellite = (satelliteAddress: string, purpose: string) => a
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Suspend Satellite done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Suspend Satellite done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: SUSPEND_SATELLITE_RESULT,
     })
 
-    dispatch(getGovernanceSatelliteStorage())
+    await dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -111,17 +113,17 @@ export const unsuspendSatellite =
       const transaction = await contract?.methods.unsuspendSatellite(satelliteAddress, purpose).send()
       console.log('transaction', transaction)
 
-      dispatch(showToaster(INFO, 'Unsuspend Satellite...', 'Please wait 30s'))
+      await dispatch(showToaster(INFO, 'Unsuspend Satellite...', 'Please wait 30s'))
 
       const done = await transaction?.confirmation()
       console.log('done', done)
-      dispatch(showToaster(SUCCESS, 'Unsuspend Satellite done', 'All good :)'))
+      await dispatch(showToaster(SUCCESS, 'Unsuspend Satellite done', 'All good :)'))
 
-      dispatch({
+      await dispatch({
         type: UNSUSPEND_SATELLITE_RESULT,
       })
 
-      dispatch(getGovernanceSatelliteStorage())
+      await dispatch(getGovernanceSatelliteStorage())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -158,17 +160,17 @@ export const banSatellite = (satelliteAddress: string, purpose: string) => async
     const transaction = await contract?.methods.banSatellite(satelliteAddress, purpose).send()
     console.log('transaction', transaction)
 
-    dispatch(showToaster(INFO, 'Ban Satellite...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Ban Satellite...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Ban Satellite done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Ban Satellite done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: BAN_SATELLITE_RESULT,
     })
 
-    dispatch(getGovernanceSatelliteStorage())
+    await dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -205,17 +207,17 @@ export const unbanSatellite = (satelliteAddress: string, purpose: string) => asy
     const transaction = await contract?.methods.unbanSatellite(satelliteAddress, purpose).send()
     console.log('transaction', transaction)
 
-    dispatch(showToaster(INFO, 'Unban Satellite...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Unban Satellite...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Unban Satellite done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Unban Satellite done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: UNBAN_SATELLITE_RESULT,
     })
 
-    dispatch(getGovernanceSatelliteStorage())
+    await dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -252,17 +254,17 @@ export const removeOracles = (satelliteAddress: string, purpose: string) => asyn
     const transaction = await contract?.methods.removeAllSatelliteOracles(satelliteAddress, purpose).send()
     console.log('transaction', transaction)
 
-    dispatch(showToaster(INFO, 'Remove all Oracles from Satellite...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Remove all Oracles from Satellite...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Remove all Oracles from Satellite done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Remove all Oracles from Satellite done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: REMOVE_ORACLES_SATELLITE_RESULT,
     })
 
-    dispatch(getGovernanceSatelliteStorage())
+    await dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -308,11 +310,11 @@ export const removeOracleInAggregator =
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Remove from Aggregator done', 'All good :)'))
 
-      dispatch({
+      await dispatch({
         type: REMOVE_FROM_AGGREGATOR_RESULT,
       })
 
-      dispatch(getGovernanceSatelliteStorage())
+      await dispatch(getGovernanceSatelliteStorage())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -350,17 +352,17 @@ export const addOracleToAggregator =
       const transaction = await contract?.methods.addOracleToAggregator(oracleAddress, satelliteAddress, purpose).send()
       console.log('transaction', transaction)
 
-      dispatch(showToaster(INFO, 'Add Oracle to Aggregator...', 'Please wait 30s'))
+      await dispatch(showToaster(INFO, 'Add Oracle to Aggregator...', 'Please wait 30s'))
 
       const done = await transaction?.confirmation()
       console.log('done', done)
-      dispatch(showToaster(SUCCESS, 'Add Oracle to Aggregator done', 'All good :)'))
+      await dispatch(showToaster(SUCCESS, 'Add Oracle to Aggregator done', 'All good :)'))
 
-      dispatch({
+      await dispatch({
         type: ADD_FROM_AGGREGATOR_RESULT,
       })
 
-      dispatch(getGovernanceSatelliteStorage())
+      await dispatch(getGovernanceSatelliteStorage())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -370,3 +372,51 @@ export const addOracleToAggregator =
       })
     }
   }
+
+// Drop Action
+export const DROP_ACTION_REQUEST = 'DROP_ACTION_REQUEST'
+export const DROP_ACTION_RESULT = 'DROP_ACTION_RESULT'
+export const DROP_ACTION_ERROR = 'DROP_ACTION_ERROR'
+export const dropAction = (actionId: number, callback: () => void) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: DROP_ACTION_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.dropAction(actionId).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Drop Action...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    await dispatch(showToaster(SUCCESS, 'Drop Action done', 'All good :)'))
+
+    await dispatch({
+      type: DROP_ACTION_RESULT,
+    })
+
+    await dispatch(getGovernanceSatelliteStorage())
+    callback()
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: DROP_ACTION_ERROR,
+      error,
+    })
+  }
+}

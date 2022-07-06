@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, royalPurpleColor, cyanColor, boxShadowColor } from 'styles'
+import { Card, royalPurpleColor, cyanColor, boxShadowColor, headerColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -145,5 +145,18 @@ export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; them
   }
   &.hide {
     height: 0; /* changed */
+  }
+
+  .view-satellite {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${headerColor};
+  }
+
+  .brop-btn {
+    width: 250px;
+    margin-top: 40px;
+    display: block;
   }
 `
