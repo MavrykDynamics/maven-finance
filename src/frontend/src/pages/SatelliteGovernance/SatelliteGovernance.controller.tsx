@@ -10,10 +10,12 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
-import { Input } from '../../app/App.components/Input/Input.controller'
-import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
-import { Button } from '../../app/App.components/Button/Button.controller'
-import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import {
+  ButtonLoadingIcon,
+  ButtonStyled,
+  ButtonText,
+  SlidingTabButtonsStyled,
+} from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.style'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
@@ -50,6 +52,7 @@ export const SatelliteGovernance = () => {
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [activeTab, setActiveTab] = useState('ongoing')
   const governanceSatelliteActionRecord = governanceSatelliteStorage.governance_satellite_action_record
 
   const ongoingActionsAmount = governanceSatelliteActionRecord.reduce((acc, cur: any) => {
@@ -71,6 +74,7 @@ export const SatelliteGovernance = () => {
     })
 
     setSeparateRecord(filterOngoing)
+    setActiveTab('ongoing')
   }, [governanceSatelliteActionRecord])
 
   const handleClickDropdown = () => {
@@ -88,10 +92,9 @@ export const SatelliteGovernance = () => {
     handleSelect(chosenItem)
   }
 
-  const handleTabChange = (tabId?: number) => {
-    console.log('%c ||||| tabId', 'color:yellowgreen', tabId)
-
-    if (tabId === 1) {
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'ongoing') {
+      setActiveTab('ongoing')
       const filterOngoing = governanceSatelliteActionRecord.filter((item: any) => {
         const timeNow = Date.now()
         const expirationDatetime = new Date(item.expiration_datetime).getTime()
@@ -101,7 +104,8 @@ export const SatelliteGovernance = () => {
       setSeparateRecord(filterOngoing)
     }
 
-    if (tabId === 2) {
+    if (tabId === 'past') {
+      setActiveTab('past')
       const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
         const timeNow = Date.now()
         const expirationDatetime = new Date(item.expiration_datetime).getTime()
@@ -111,7 +115,8 @@ export const SatelliteGovernance = () => {
       setSeparateRecord(filterPast)
     }
 
-    if (tabId === 3) {
+    if (tabId === 'my') {
+      setActiveTab('my')
       const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
         return accountPkh === item.initiator_id
       })
@@ -204,7 +209,19 @@ export const SatelliteGovernance = () => {
           </DropdownCard>
         ) : null}
 
-        <SlidingTabButtons className="tab-buttons" onClick={handleTabChange} type={'satelliteGovernance'} />
+        <SlidingTabButtonsStyled className="tab-buttons">
+          <ButtonStyled buttonActive={activeTab === 'ongoing'} onClick={() => handleTabChange('ongoing')}>
+            <ButtonText>Ongoing Actions</ButtonText>
+          </ButtonStyled>
+          <ButtonStyled buttonActive={activeTab === 'past'} onClick={() => handleTabChange('past')}>
+            <ButtonText>Past Actions</ButtonText>
+          </ButtonStyled>
+          {accountPkh ? (
+            <ButtonStyled buttonActive={activeTab === 'my'} onClick={() => handleTabChange('my')}>
+              <ButtonText>My Actions</ButtonText>
+            </ButtonStyled>
+          ) : null}
+        </SlidingTabButtonsStyled>
       </SatelliteGovernanceStyled>
 
       {separateRecord.map((item: any) => {

@@ -23,8 +23,6 @@ export const getGovernanceSatelliteStorage = () => async (dispatch: any, getStat
       GOVERNANCE_SATELLITE_STORAGE_QUERY_VARIABLE,
     )
 
-    console.log('%c ||||| governanceSatelliteStorage', 'color:red', governanceSatelliteStorage)
-
     dispatch({
       type: GET_GOVERNANCE_SATELLITE_STORAGE,
       governanceSatelliteStorage,
@@ -74,6 +72,8 @@ export const suspendSatellite = (satelliteAddress: string, purpose: string) => a
     dispatch({
       type: SUSPEND_SATELLITE_RESULT,
     })
+
+    dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -120,6 +120,8 @@ export const unsuspendSatellite =
       dispatch({
         type: UNSUSPEND_SATELLITE_RESULT,
       })
+
+      dispatch(getGovernanceSatelliteStorage())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -165,6 +167,8 @@ export const banSatellite = (satelliteAddress: string, purpose: string) => async
     dispatch({
       type: BAN_SATELLITE_RESULT,
     })
+
+    dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -210,6 +214,8 @@ export const unbanSatellite = (satelliteAddress: string, purpose: string) => asy
     dispatch({
       type: UNBAN_SATELLITE_RESULT,
     })
+
+    dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -255,6 +261,8 @@ export const removeOracles = (satelliteAddress: string, purpose: string) => asyn
     dispatch({
       type: REMOVE_ORACLES_SATELLITE_RESULT,
     })
+
+    dispatch(getGovernanceSatelliteStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -303,6 +311,8 @@ export const removeOracleInAggregator =
       dispatch({
         type: REMOVE_FROM_AGGREGATOR_RESULT,
       })
+
+      dispatch(getGovernanceSatelliteStorage())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -349,6 +359,8 @@ export const addOracleToAggregator =
       dispatch({
         type: ADD_FROM_AGGREGATOR_RESULT,
       })
+
+      dispatch(getGovernanceSatelliteStorage())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))

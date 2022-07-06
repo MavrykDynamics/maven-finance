@@ -10,7 +10,6 @@ import {
   PRIMARY,
   FARMS,
   GOV_PROPOSAL_SUBMISSION_FORM,
-  SATELLITE_GOVERNANCE,
 } from './SlidingTabButtons.constants'
 import { SlidingTabButtonsView } from './SlidingTabButtons.view'
 
@@ -51,20 +50,6 @@ export const SlidingTabButtons = ({ type, kind, onClick, loading, className = ''
           { text: 'LIVE', id: 1, active: true, ref: firstButtonRef },
           { text: 'FINISHED', id: 2, active: false, ref: secondButtonRef },
         ])
-        break
-      case SATELLITE_GOVERNANCE:
-        if (accountPkh) {
-          setTabValues([
-            { text: 'Ongoing Actions', id: 1, active: true, ref: firstButtonRef },
-            { text: 'Past Actions', id: 2, active: false, ref: secondButtonRef },
-            { text: 'My Actions', id: 3, active: false, ref: thirdButtonRef },
-          ])
-        } else {
-          setTabValues([
-            { text: 'Ongoing Actions', id: 1, active: true, ref: firstButtonRef },
-            { text: 'Past Actions', id: 2, active: false, ref: secondButtonRef },
-          ])
-        }
         break
     }
   }, [type, accountPkh])
