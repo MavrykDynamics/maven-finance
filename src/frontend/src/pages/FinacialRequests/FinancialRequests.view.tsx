@@ -159,45 +159,22 @@ export const FinancialRequestsView = ({
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
 
-  // GENERATING LIST ITEMS
-  const ongoingItemsListGenerator = () =>
-    ongoing.map((request) => (
-      <FRSListItem
-        onClickHandler={() => handleItemSelect(request)}
-        id={request.id}
-        title={request.request_type}
-        status={''}
-        selected={rightSideContent?.id === request.id}
-        additionalText="voted MVK"
-        dividedPassVoteMvkTotal={request.token_amount}
-      />
-    ))
-
-  const pastItemsListGenerator = () =>
-    past.map((request) => (
-      <FRSListItem
-        onClickHandler={() => handleItemSelect(request)}
-        id={request.id}
-        title={request.request_type}
-        status={''}
-        selected={rightSideContent?.id === request.id}
-      />
-    ))
-
   return (
     <FinancialRequestsStyled>
       <FinancialRequestsContainer>
         <FRList
           listTitle="Ongoing Requests"
-          listItemsGenerator={ongoingItemsListGenerator}
-          hasItems={Boolean(ongoing.length)}
           noItemsText="No requests to show"
+          items={ongoing}
+          handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
+          name={'ongoing_requests'}
         />
         <FRList
           listTitle="Past Requests"
-          listItemsGenerator={pastItemsListGenerator}
-          hasItems={Boolean(past.length)}
           noItemsText="No requests to show"
+          items={past}
+          name={'past_requests'}
+          handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
         />
       </FinancialRequestsContainer>
 
