@@ -52,7 +52,7 @@ export const SatelliteGovernance = () => {
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
   const governanceSatelliteActionRecord = governanceSatelliteStorage.governance_satellite_action_record
 
-  const ongoingActions = governanceSatelliteActionRecord.reduce((acc, cur: any) => {
+  const ongoingActionsAmount = governanceSatelliteActionRecord.reduce((acc, cur: any) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(cur.expiration_datetime).getTime()
     if (expirationDatetime > timeNow) {
@@ -60,6 +60,18 @@ export const SatelliteGovernance = () => {
     }
     return acc
   }, 0)
+
+  const [separateRecord, setSeparateRecord] = useState<Record<string, unknown>[]>([])
+
+  useEffect(() => {
+    const filterOngoing = governanceSatelliteActionRecord.filter((item: any) => {
+      const timeNow = Date.now()
+      const expirationDatetime = new Date(item.expiration_datetime).getTime()
+      return expirationDatetime > timeNow
+    })
+
+    setSeparateRecord(filterOngoing)
+  }, [governanceSatelliteActionRecord])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -74,6 +86,37 @@ export const SatelliteGovernance = () => {
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
     handleSelect(chosenItem)
+  }
+
+  const handleTabChange = (tabId?: number) => {
+    console.log('%c ||||| tabId', 'color:yellowgreen', tabId)
+
+    if (tabId === 1) {
+      const filterOngoing = governanceSatelliteActionRecord.filter((item: any) => {
+        const timeNow = Date.now()
+        const expirationDatetime = new Date(item.expiration_datetime).getTime()
+        return expirationDatetime > timeNow
+      })
+
+      setSeparateRecord(filterOngoing)
+    }
+
+    if (tabId === 2) {
+      const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
+        const timeNow = Date.now()
+        const expirationDatetime = new Date(item.expiration_datetime).getTime()
+        return expirationDatetime < timeNow
+      })
+
+      setSeparateRecord(filterPast)
+    }
+
+    if (tabId === 3) {
+      const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
+        return accountPkh === item.initiator_id
+      })
+      setSeparateRecord(filterPast)
+    }
   }
 
   useEffect(() => {
@@ -130,7 +173,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Ongoing Actions</h3>
             <p>
-              {ongoingActions}{' '}
+              {ongoingActionsAmount}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -161,10 +204,10 @@ export const SatelliteGovernance = () => {
           </DropdownCard>
         ) : null}
 
-        <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
+        <SlidingTabButtons className="tab-buttons" onClick={handleTabChange} type={'satelliteGovernance'} />
       </SatelliteGovernanceStyled>
 
-      {governanceSatelliteActionRecord.map((item: any) => {
+      {separateRecord.map((item: any) => {
         return (
           <SatelliteGovernanceCard
             key={item.id}
