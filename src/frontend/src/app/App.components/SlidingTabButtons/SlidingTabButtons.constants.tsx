@@ -1,6 +1,7 @@
 export const GOV_PROPOSAL_SUBMISSION_FORM = 'GovProposalSubmissionForm'
 export const FARMS = 'Farms'
-export type SlidingTabButtonTypes = 'GovProposalSubmissionForm' | 'Farms' | undefined
+export const SATELLITE_GOVERNANCE = 'satelliteGovernance'
+export type SlidingTabButtonTypes = 'GovProposalSubmissionForm' | 'Farms' | 'satelliteGovernance' | undefined
 
 export const PRIMARY = 'primary'
 export const SECONDARY = 'secondary'

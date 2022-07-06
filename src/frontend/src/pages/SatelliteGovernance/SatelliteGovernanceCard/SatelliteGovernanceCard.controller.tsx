@@ -100,7 +100,7 @@ export const SatelliteGovernanceCard = ({ satellite, date, executed, status, pur
           <div>
             <h3>Purpose</h3>
             <p>{purpose}</p>
-            <Link to="/">View Satellite</Link>
+            <Link to="/satellite-details/">View Satellite</Link>
           </div>
           <div>
             <h3>Vote Satistics</h3>
