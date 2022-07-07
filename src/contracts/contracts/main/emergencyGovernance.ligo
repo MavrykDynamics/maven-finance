@@ -154,6 +154,7 @@ function checkNoAmount(const _p : unit) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to %breakGlass entrypoint on specified contract
 function triggerBreakGlass(const contractAddress : address) : contract(unit) is
   case (Tezos.get_entrypoint_opt(
       "%breakGlass",
@@ -269,7 +270,6 @@ block {
 (* View: get the lambda ledger *)
 [@view] function getLambdaLedger(const _: unit; var s : emergencyGovernanceStorageType) : lambdaLedgerType is
   s.lambdaLedger
-
 
 // ------------------------------------------------------------------------------
 //

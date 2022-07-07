@@ -20,8 +20,8 @@ block {
 
     case breakGlassLambdaAction of [
         | LambdaBreakGlass(_parameters) -> {
-                s.glassBroken := True; 
-            }
+            s.glassBroken := True; 
+          }
         | _ -> skip
     ];
 
@@ -45,8 +45,8 @@ block {
 
     case breakGlassLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
-                s.admin := newAdminAddress;
-            }
+            s.admin := newAdminAddress;
+          }
         | _ -> skip
     ];
 
@@ -62,8 +62,8 @@ block {
 
     case breakGlassLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
-                s.governanceAddress := newGovernanceAddress;
-            }
+            s.governanceAddress := newGovernanceAddress;
+          }
         | _ -> skip
     ];
 
@@ -106,7 +106,7 @@ block {
 
                 case updateConfigAction of [
                       ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_SIZE_EXCEEDED) else s.config.threshold                 := updateConfigNewValue
-                    | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+                    | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays                  := updateConfigNewValue  
                     | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue  
                     | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
                     | ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
@@ -128,8 +128,8 @@ block {
 
     case breakGlassLambdaAction of [
         | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-            }
+            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+          }
         | _ -> skip
     ];
 
@@ -145,8 +145,8 @@ block {
 
     case breakGlassLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-            }
+            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+          }
         | _ -> skip
     ];
 
@@ -159,7 +159,7 @@ function lambdaMistakenTransfer(const breakGlassLambdaAction : breakGlassLambdaA
 block {
 
     // Steps Overview:    
-    // 1. Check that sender is from Admin or the the Governance Satellite Contract
+    // 1. Check that sender is admin or from the Governance Satellite Contract
     // 2. Create and execute transfer operations based on the params sent
 
     var operations : list(operation) := nil;
@@ -167,17 +167,16 @@ block {
     case breakGlassLambdaAction of [
         | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is the governanceSatellite contract
+                // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
                   block{
-                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
-                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                      | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                      | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                      | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -205,8 +204,8 @@ block {
 
                 // Check if sender is a member of the council
                 var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
-                        Some (_info) -> _info
-                    |   None         -> failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED)
+                    Some (_info) -> _info
+                  | None         -> failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED)
                 ];
 
                 // Validate inputs
@@ -256,8 +255,8 @@ block {
         | LambdaAddCouncilMember(newCouncilMember) -> {
                 
                 // Validate inputs
-                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
@@ -265,12 +264,12 @@ block {
                 else skip;
 
                 const addressMap : addressMapType     = map [
-                    ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
+                  ("councilMemberAddress"  : string) -> newCouncilMember.memberAddress;
                 ];
                 const stringMap : stringMapType      = map [
-                    ("councilMemberName": string) -> newCouncilMember.memberName;
-                    ("councilMemberImage": string) -> newCouncilMember.memberImage;
-                    ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
+                  ("councilMemberName"     : string) -> newCouncilMember.memberName;
+                  ("councilMemberImage"    : string) -> newCouncilMember.memberImage;
+                  ("councilMemberWebsite"  : string) -> newCouncilMember.memberWebsite
                 ];
                 const emptyNatMap : natMapType       = map [];
 
@@ -333,7 +332,7 @@ block {
                 else skip;
 
                 const addressMap : addressMapType     = map [
-                    ("councilMemberAddress"         : string) -> councilMemberAddress;
+                  ("councilMemberAddress"         : string) -> councilMemberAddress;
                 ];
                 const emptyStringMap : stringMapType  = map [];
                 const emptyNatMap : natMapType        = map [];
@@ -390,8 +389,8 @@ block {
         | LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
@@ -403,13 +402,13 @@ block {
                 else skip;
 
                 const addressMap : addressMapType     = map [
-                    ("oldCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-                    ("newCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
+                  ("oldCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.oldCouncilMemberAddress;
+                  ("newCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
                 const stringMap : stringMapType      = map [
-                    ("newCouncilMemberName"    : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite" : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage"   : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
+                  ("newCouncilMemberName"     : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
+                  ("newCouncilMemberWebsite"  : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                  ("newCouncilMemberImage"    : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap : natMapType        = map [];
 
@@ -648,14 +647,14 @@ block {
                 const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
                 const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
                     Some (value) -> value
-                  | None -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
                 const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
                 const governanceProxyAddress: address = case governanceProxyAddressView of [
                     Some (value) -> value
-                  | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];  
                 
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
@@ -663,8 +662,8 @@ block {
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                 const addressMap   : addressMapType      = map [
-                    ("newAdminAddress"       : string) -> newAdminAddress;
-                    ("targetContractAddress" : string) -> targetContractAddress;
+                  ("newAdminAddress"       : string) -> newAdminAddress;
+                  ("targetContractAddress" : string) -> targetContractAddress;
                 ];
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap      : natMapType      = map [];
@@ -727,14 +726,14 @@ block {
                 const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
                 const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
                     Some (value) -> value
-                |   None -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
                 const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
                 const governanceProxyAddress: address = case governanceProxyAddressView of [
                     Some (value) -> value
-                | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                  | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
@@ -742,7 +741,7 @@ block {
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
                 const addressMap   : addressMapType      = map [
-                    ("newAdminAddress" : string) -> newAdminAddress;
+                  ("newAdminAddress" : string) -> newAdminAddress;
                 ];
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap  : natMapType          = map [];
@@ -861,8 +860,8 @@ block {
                 
                 // Check if action to be flushed exists
                 const actionToFlush: breakGlassActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
-                        Some (_action) -> _action
-                    |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                    Some (_action) -> _action
+                  | None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 // Check if action has already been flushed or executed
@@ -875,7 +874,7 @@ block {
                 const emptyAddressMap  : addressMapType      = map [];
                 const emptyStringMap   : stringMapType       = map [];
                 const natMap           : natMapType          = map [
-                    ("actionId" : string) -> actionId;
+                  ("actionId" : string) -> actionId;
                 ];
 
                 var actionRecord : breakGlassActionRecordType := record[
@@ -933,8 +932,8 @@ block {
                 
                 // check if action exists
                 var _actionRecord : breakGlassActionRecordType := case s.actionsLedger[actionId] of [
-                    | Some(_record) -> _record
-                    | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                  | Some(_record) -> _record
+                  | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 // check that break glass action has not been flushed
@@ -967,13 +966,13 @@ block {
                         // fetch params begin ---
                         const flushedActionId : nat = case _actionRecord.natMap["actionId"] of [
                             Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         var flushedActionRecord : breakGlassActionRecordType := case s.actionsLedger[flushedActionId] of [     
                             Some(_record) -> _record
-                            | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                         ];
 
                         // Check if action was previously flushed or executed
@@ -996,30 +995,30 @@ block {
                         // fetch params begin ---
                         const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
                             Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+                          | None           -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                         ];
 
                         const councilMemberName : string = case _actionRecord.stringMap["councilMemberName"] of [
                             Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberImage : string = case _actionRecord.stringMap["councilMemberImage"] of [
                             Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberWebsite : string = case _actionRecord.stringMap["councilMemberWebsite"] of [
                             Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         
                         
                         // Validate inputs
-                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                         if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const councilMemberInfo: councilMemberInfoType  = record[
@@ -1042,7 +1041,7 @@ block {
                         // fetch params begin ---
                         const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
                             Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1066,33 +1065,33 @@ block {
                         // fetch params begin ---
                         const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of [
                             Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of [
                             Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberName : string = case _actionRecord.stringMap["newCouncilMemberName"] of [
                             Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberImage : string = case _actionRecord.stringMap["newCouncilMemberImage"] of [
                             Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberWebsite : string = case _actionRecord.stringMap["newCouncilMemberWebsite"] of [
                             Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                         if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
@@ -1104,9 +1103,9 @@ block {
                         else skip;
 
                         const councilMemberInfo: councilMemberInfoType  = record[
-                            name=councilMemberName;
-                            image=councilMemberImage;
-                            website=councilMemberWebsite;
+                            name    = councilMemberName;
+                            image   = councilMemberImage;
+                            website = councilMemberWebsite;
                         ];
 
                         s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
@@ -1157,8 +1156,8 @@ block {
                         //  - iterate over contracts map with operation to unpause all entrypoints
                         for _contractName -> contractAddress in map generalContracts block {
                             case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                                  Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                                | None        -> skip
+                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                              | None        -> skip
                             ];
                         };    
 

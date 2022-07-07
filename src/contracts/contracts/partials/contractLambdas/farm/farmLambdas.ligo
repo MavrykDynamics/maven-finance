@@ -193,7 +193,7 @@ block {
     case farmLambdaAction of [
         | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is the governanceSatellite contract
+                // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Get LP Token address
