@@ -364,7 +364,7 @@ block {
 (*  mistakenTransfer entrypoint *)
 function mistakenTransfer(const destinationParams: transferActionType; var store: mvkTokenStorageType): return is
 block {
-    // Check if the sender is the governanceSatellite contract
+    // Check if the sender is admin or the Governance Satellite Contract
     checkSenderIsAdminOrGovernanceSatelliteContract(store);
 
     // Operations list

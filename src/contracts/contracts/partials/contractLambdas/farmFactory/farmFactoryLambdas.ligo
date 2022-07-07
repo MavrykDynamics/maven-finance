@@ -130,7 +130,7 @@ block {
     case farmFactoryLambdaAction of [
         | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is the governanceSatellite contract
+                // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations

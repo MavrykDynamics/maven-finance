@@ -12,7 +12,7 @@ type satelliteRewardsType is [@layout:comb] record [
 type delegateRecordType is [@layout:comb] record [
     satelliteAddress                : address;
     delegatedDateTime               : timestamp;
-    delegatedSMvkBalance            : nat;
+    delegatedStakedMvkBalance       : nat;
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
