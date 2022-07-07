@@ -51,7 +51,7 @@ export const GovernanceTopBarView = ({
           </GovTopBarSidewaysArrowIcon>
           <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText>
 
-          {timeLeftInPhase >= 0 ? (
+          {timeLeftInPhase > 0 ? (
             <div className="right-block">
               {typeof timeLeftInPhase === 'number' ? (
                 <TimeLeftArea>{Math.round(timeLeftInPhase)} days remaining</TimeLeftArea>
