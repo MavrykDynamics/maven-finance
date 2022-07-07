@@ -41,7 +41,8 @@ const FRVoting = ({ ready, loading, selectedRequest }: FRVotingProps) => {
     againstVotes: selectedRequest.nay_vote_smvk_total,
     unUsedVotes:
       selectedRequest.snapshot_smvk_total_supply -
-      (selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total),
+      selectedRequest.pass_vote_smvk_total -
+      selectedRequest.nay_vote_smvk_total,
     quorum: selectedRequest.smvk_percentage_for_approval / 100,
   })
 
