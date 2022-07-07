@@ -6,8 +6,6 @@ import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { FRListItemProps } from '../FinancialRequests.types'
 import { FRListItem, ListItemLeftSide } from './FRList.styles'
 
-// TODO: statusssssss
-
 const FRSListItem = ({
   id,
   title,
@@ -26,7 +24,7 @@ const FRSListItem = ({
       {additionalText && dividedPassVoteMvkTotal && (
         <CommaNumber className="proposal-voted-mvk" value={dividedPassVoteMvkTotal} endingText={additionalText} />
       )}
-      <StatusFlag text={'ONGOING'} status={'primary'} />
+      <StatusFlag text={status} status={status} />
     </FRListItem>
   )
 }

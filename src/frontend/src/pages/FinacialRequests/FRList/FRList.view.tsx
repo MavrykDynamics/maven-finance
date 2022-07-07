@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 import Pagination from '../Pagination/Pagination.view'
 import FRSListItem from './FRSListItem.view'
 
-import { getPageNumber } from '../FinancialRequests.helpers'
+import { getPageNumber, getRequestStatus } from '../FinancialRequests.helpers'
 import { ITEMS_PER_PAGE, PAGINATION_SIDE_RIGHT } from '../FinancialRequests.consts'
 
 import { FRListProps } from '../FinancialRequests.types'
@@ -28,16 +28,18 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
         <h1>{listTitle}</h1>
       </GovRightContainerTitleArea>
       {items.length ? (
-        itemsToShow.map((item) => (
-          <FRSListItem
-            onClickHandler={() => handleItemSelect(item)}
-            id={item.id}
-            title={item.request_type}
-            // TODO: add status generating, and correct title after Sam answers
-            status={''}
-            selected={selectedItem?.id === item.id}
-          />
-        ))
+        itemsToShow.map((item) => {
+          const financiaRequestTitle = `${item.request_type} ${item.request_purpose.substring(0, 20)}…`
+          return (
+            <FRSListItem
+              onClickHandler={() => handleItemSelect(item)}
+              id={item.id}
+              title={financiaRequestTitle}
+              status={getRequestStatus(item)}
+              selected={selectedItem?.id === item.id}
+            />
+          )
+        })
       ) : (
         <EmptyContainer>
           <img src="/images/not-found.svg" alt=" No proposals to show" />

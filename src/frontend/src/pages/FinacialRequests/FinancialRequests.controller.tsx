@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 // types
@@ -23,7 +23,7 @@ export const FinancialRequests = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
 
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { ready } = useSelector((state: State) => state.wallet)
   const {
     governanceStorage: { financialRequestLedger, currentRoundEndLevel },
     governancePhase,
@@ -59,12 +59,7 @@ export const FinancialRequests = () => {
         loading={loading}
         handleMoveNextRound={handleMoveNextRound}
       />
-      <FinancialRequestsView
-        financialRequestsList={financialRequestLedger}
-        ready={ready}
-        loading={loading}
-        accountPkh={accountPkh}
-      />
+      <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
     </Page>
   )
 }
