@@ -15,6 +15,11 @@ hasura:
   admin_secret: ${ADMIN_SECRET:-changeme}
   select_limit: 1000
 
+prometheus:
+  host: 0.0.0.0
+  port: 9090
+  update_interval: 5
+
 advanced:
   reindex:
     manual: wipe
