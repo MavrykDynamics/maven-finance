@@ -141,6 +141,7 @@ export const Council = () => {
                           initiator_id={item.initiator_id}
                           num_council_members={councilMembers.length}
                           councilPendingActionsLength={councilPendingActions?.length}
+                          council_action_record_parameters={item.council_action_record_parameters}
                         />
                       ))}
                     </Carousel>

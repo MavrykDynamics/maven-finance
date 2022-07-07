@@ -17,6 +17,8 @@ import {
   banSatellite,
   unbanSatellite,
   removeOracles,
+  removeOracleInAggregator,
+  addOracleToAggregator,
 } from './SatelliteGovernance.actions'
 
 // style
@@ -88,19 +90,21 @@ const CONTENT_FORM = new Map<string, Record<string, string>>([
 export const SatelliteGovernanceForm = ({ variant }: Props) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState({
+    oracleAddress: '',
     satelliteAddress: '',
     purpose: '',
   })
   const [formInputStatus, setFormInputStatus] = useState<Record<string, InputStatusType>>({
+    oracleAddress: '',
     satelliteAddress: '',
     purpose: '',
   })
 
-  console.log('%c ||||| variant', 'color:yellowgreen', variant)
-
-  const { satelliteAddress, purpose } = form
+  const { oracleAddress, satelliteAddress, purpose } = form
 
   const content = CONTENT_FORM.get(variant)
+
+  const isFieldOracleAdress = variant === 'removeFromAggregator' || variant === 'addToAggregator'
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -110,11 +114,16 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
       if (variant === 'banSatellite') await dispatch(banSatellite(satelliteAddress, purpose))
       if (variant === 'unbanSatellite') await dispatch(unbanSatellite(satelliteAddress, purpose))
       if (variant === 'removeOracles') await dispatch(removeOracles(satelliteAddress, purpose))
+      if (variant === 'removeFromAggregator')
+        await dispatch(removeOracleInAggregator(oracleAddress, satelliteAddress, purpose))
+      if (variant === 'addToAggregator') await dispatch(addOracleToAggregator(oracleAddress, satelliteAddress, purpose))
       setForm({
+        oracleAddress: '',
         satelliteAddress: '',
         purpose: '',
       })
       setFormInputStatus({
+        oracleAddress: '',
         satelliteAddress: '',
         purpose: '',
       })
@@ -151,20 +160,40 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
         <div>
           <h1>{content?.title}</h1>
           <p>Please enter a valid tz1 adress of the satellite to take action on</p>
-          <div className="satellite-address">
-            <label>Satellite Address</label>
-            <Input
-              value={satelliteAddress}
-              name="satelliteAddress"
-              required
-              onChange={(e) => {
-                handleChange(e)
-                handleBlur(e)
-              }}
-              onBlur={(e) => handleBlur(e)}
-              inputStatus={formInputStatus.satelliteAddress}
-            />
-          </div>
+          <fieldset>
+            <div className="satellite-address">
+              <label>Satellite Address</label>
+              <Input
+                value={satelliteAddress}
+                name="satelliteAddress"
+                required
+                onChange={(e) => {
+                  handleChange(e)
+                  handleBlur(e)
+                }}
+                onBlur={(e) => handleBlur(e)}
+                inputStatus={formInputStatus.satelliteAddress}
+              />
+            </div>
+            {isFieldOracleAdress ? (
+              <div className="satellite-address">
+                <label>Oracle Address</label>
+                <Input
+                  value={oracleAddress}
+                  name="oracleAddress"
+                  required
+                  onChange={(e) => {
+                    handleChange(e)
+                    handleBlur(e)
+                  }}
+                  onBlur={(e) => handleBlur(e)}
+                  inputStatus={formInputStatus.oracleAddress}
+                />
+              </div>
+            ) : (
+              <div />
+            )}
+          </fieldset>
           <div>
             <label>Purpose</label>
             <TextArea

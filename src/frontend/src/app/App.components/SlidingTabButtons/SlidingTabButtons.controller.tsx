@@ -1,6 +1,8 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { Ref, useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 import {
   SlidingTabButtonStyle,
@@ -28,6 +30,7 @@ type SlidingTabButtonsProps = {
 }
 
 export const SlidingTabButtons = ({ type, kind, onClick, loading, className = '' }: SlidingTabButtonsProps) => {
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const [tabValues, setTabValues] = useState<TabItem[]>([])
   const firstButtonRef = useRef(),
     secondButtonRef = useRef(),
@@ -49,7 +52,7 @@ export const SlidingTabButtons = ({ type, kind, onClick, loading, className = ''
         ])
         break
     }
-  }, [type])
+  }, [type, accountPkh])
   const [clicked, setClicked] = useState(false)
 
   const setActive = (itemId: number, tabId: number) => itemId === tabId

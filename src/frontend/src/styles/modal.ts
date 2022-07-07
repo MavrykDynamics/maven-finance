@@ -39,6 +39,11 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   max-width: 90vw;
   border: 1px solid ${cyanColor};
   padding: 30px;
+  overflow: auto;
+
+  p {
+    line-height: 1.4;
+  }
 
   h1 {
     font-weight: 700;

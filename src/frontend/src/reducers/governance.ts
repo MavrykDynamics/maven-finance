@@ -27,12 +27,18 @@ import {
   SUBMIT_FINANCIAL_DATA_REQUEST,
   PROPOSAL_UPDATE_RESULT,
 } from '../pages/ProposalSubmission/ProposalSubmission.actions'
+import {GET_GOVERNANCE_SATELLITE_STORAGE} from 'pages/SatelliteGovernance/SatelliteGovernance.actions'
 import { MichelsonMap } from '@taquito/taquito'
 import { getItemFromStorage } from '../utils/storage'
 
 const PROPOSAL = 'PROPOSAL',
   VOTING = 'VOTING',
   TIME_LOCK = 'TIME_LOCK'
+export type GovernanceSatelliteItem = Record<string, unknown>[]
+export type GovernanceSatellite = {
+  governance_satellite: GovernanceSatelliteItem
+  governance_satellite_action_record: GovernanceSatelliteItem
+}
 export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
   currentRoundProposals: CurrentRoundProposalsStorageType
@@ -43,6 +49,7 @@ export interface GovernanceState {
   pastProposals?: any
   vote?: number
   error?: any
+  governanceSatelliteStorage: GovernanceSatellite
 }
 const defaultgovernanceConfig: GovernanceConfig = {
   blocksPerMinute: 0,
@@ -81,10 +88,19 @@ const governanceDefaultState: GovernanceState = {
   governanceStorage: getItemFromStorage('GovernanceStorage') || defaultGovernanceStorage,
   governancePhase: 'PROPOSAL',
   currentRoundProposals: [],
+  governanceSatelliteStorage: {
+    governance_satellite: [],
+    governance_satellite_action_record: [],
+  },
 }
 
 export function governance(state = governanceDefaultState, action: any): GovernanceState {
   switch (action.type) {
+    case GET_GOVERNANCE_SATELLITE_STORAGE:
+      return {
+        ...state,
+        governanceSatelliteStorage: action.governanceSatelliteStorage,
+      }
     case GET_CURRENT_ROUND_PROPOSALS:
       return {
         ...state,
