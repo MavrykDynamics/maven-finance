@@ -25,22 +25,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_HOST
+                  key: POSTGRES_HOST_PROD
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PORT
+                  key: POSTGRES_PORT_PROD
             - name: POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_USERNAME
+                  key: POSTGRES_USERNAME_PROD
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PASSWORD
+                  key: POSTGRES_PASSWORD_PROD
             - name: ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
@@ -62,22 +62,22 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_HOST
+                  key: POSTGRES_HOST_PROD
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PORT
+                  key: POSTGRES_PORT_PROD
             - name: POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_USERNAME
+                  key: POSTGRES_USERNAME_PROD
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PASSWORD
+                  key: POSTGRES_PASSWORD_PROD
             - name: ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
