@@ -98,6 +98,10 @@ export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; them
   overflow: hidden;
   position: relative;
 
+  .purpose {
+    word-break: break-all;
+  }
+
   .description {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -158,5 +162,34 @@ export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; them
     width: 250px;
     margin-top: 40px;
     display: block;
+  }
+
+  .voting-ends {
+    color: ${cyanColor};
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    margin-top: 10px;
+    display: block;
+  }
+
+  .voting-buttons {
+    margin-bottom: 20px;
+    margin-top: 64px;
+    justify-content: space-between;
+    padding-top: 0;
+
+    button {
+      width: 31%;
+    }
+  }
+
+  .voting-block {
+    width: 440px;
+    margin-left: auto;
+  }
+
+  .voting-bar {
+    margin-bottom: 54px;
   }
 `

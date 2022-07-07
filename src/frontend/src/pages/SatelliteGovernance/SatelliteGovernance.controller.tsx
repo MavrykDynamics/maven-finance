@@ -225,6 +225,7 @@ export const SatelliteGovernance = () => {
 
       {separateRecord.map((item: any) => {
         const linkAdress = item.governance_satellite_action_parameters?.[0]?.value || ''
+
         return (
           <SatelliteGovernanceCard
             key={item.id}
@@ -236,6 +237,11 @@ export const SatelliteGovernance = () => {
             purpose={item.governance_purpose}
             governanceType={item.governance_type}
             linkAdress={linkAdress}
+            yayVotesSmvkTotal={item.yay_vote_smvk_total}
+            nayVotesSmvkTotal={item.nay_vote_smvk_total}
+            snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}
+            passVoteSmvkTotal={item.pass_vote_smvk_total}
+            smvkPercentageForApproval={item.smvk_percentage_for_approval}
           />
         )
       })}
