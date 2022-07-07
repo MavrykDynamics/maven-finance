@@ -39,7 +39,7 @@ class DelegateLedger(BaseModel):
 
     satelliteAddress: str
     delegatedDateTime: str
-    delegatedSMvkBalance: str
+    delegatedStakedMvkBalance: str
 
 
 class SatelliteLedger(BaseModel):

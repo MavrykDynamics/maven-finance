@@ -200,16 +200,34 @@ function checkNoAmount(const _p : unit) : unit is
 // Rewards Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to update rewards
 function updateRewards(const userAddress: address; var s: delegationStorageType): delegationStorageType is
   block{
+
+    // Steps Overview:
+    // 1. Check if user is recorded in the Satellite Rewards Ledger
+    // 2. Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Get user's staked MVK balance from the Doorman Contract
+    // 4. Get satellite rewards record of satellite that user is delegated to
+    // 5. Calculate satellite unclaimed rewards
+    //    - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
+    //    - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio
+    // 6. Update user's satellite rewards record 
+    //    - set participationRewardsPerShare to satellite's accumulatedRewardsPerShare
+    //    - increment user's unpaid rewards by the calculated rewards
+
+    // Check if user is recorded in the Satellite Rewards Ledger
     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
-      var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+
+      // Get user's satellite rewards record
+      var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
           Some (_record) -> _record
         | None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
       ];
 
+      // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
       const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-      const doormanAddress: address = case generalContractsOptView of [
+      const doormanAddress : address = case generalContractsOptView of [
           Some (_optionContract) -> case _optionContract of [
                 Some (_contract)    -> _contract
               | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
@@ -217,22 +235,30 @@ function updateRewards(const userAddress: address; var s: delegationStorageType)
         | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
       ];
 
+      // Get user's staked MVK balance from the Doorman Contract
       const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-      const stakedMvkBalance: nat = case stakedMvkBalanceView of [
+      const stakedMvkBalance : nat = case stakedMvkBalanceView of [
           Some (value) -> value
         | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
       ];
 
-      const _satelliteReferenceRewardsRecord: satelliteRewardsType  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
+      // Get satellite rewards record of satellite that user is delegated to
+      const _satelliteReferenceRewardsRecord : satelliteRewardsType  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
           Some (_referenceRecord) -> _referenceRecord
         | None                    -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
       ];
 
-      // Calculate satellite unclaim rewards
-      const satelliteRewardsRatio: nat  = abs(_satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
-      const satelliteRewards: nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+      // Calculate satellite unclaimed rewards
+      // - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
+      // - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio
+      
+      const satelliteRewardsRatio : nat  = abs(_satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+      const satelliteRewards : nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
 
-      // Update satellite
+      // Update user's satellite rewards record 
+      // - set participationRewardsPerShare to satellite's accumulatedRewardsPerShare
+      // - increment user's unpaid rewards by the calculated rewards
+
       satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
       satelliteRewardsRecord.unpaid                          := satelliteRewardsRecord.unpaid + satelliteRewards;
       s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
@@ -371,6 +397,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 // Satellite Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to get a satellite's record
 function getSatelliteRecord (const satelliteAddress : address; const s : delegationStorageType) : satelliteRecordType is
 block {
 
@@ -406,6 +433,7 @@ block {
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is 
 block {
 

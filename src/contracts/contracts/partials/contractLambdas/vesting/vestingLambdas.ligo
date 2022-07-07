@@ -16,8 +16,8 @@ block {
 
     case vestingLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
-                s.admin := newAdminAddress;
-            }
+            s.admin := newAdminAddress;
+          }
         | _ -> skip
     ];
 
@@ -33,8 +33,8 @@ block {
 
     case vestingLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
-                s.governanceAddress := newGovernanceAddress;
-            }
+            s.governanceAddress := newGovernanceAddress;
+          }
         | _ -> skip
     ];
 
@@ -71,8 +71,8 @@ block {
     
     case vestingLambdaAction of [
         | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-            }
+            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+          }
         | _ -> skip
     ];
 
@@ -88,8 +88,8 @@ block {
     
     case vestingLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-            }
+            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+          }
         | _ -> skip
     ];
 
@@ -102,7 +102,7 @@ function lambdaMistakenTransfer(const vestingLambdaAction : vestingLambdaActionT
 block {
 
     // Steps Overview:    
-    // 1. Check that sender is from Admin or the the Governance Satellite Contract
+    // 1. Check that sender is admin or from the Governance Satellite Contract
     // 2. Create and execute transfer operations based on the params sent
 
     var operations : list(operation) := nil;
@@ -110,13 +110,12 @@ block {
     case vestingLambdaAction of [
         | LambdaMistakenTransfer(destinationParams) -> {
 
-                // Check if the sender is the governanceSatellite contract
+                // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
                   block{
-                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
                         | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
@@ -231,8 +230,8 @@ block {
                 checkSenderIsCouncilOrAdmin(s);
 
                 var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                    | Some(_record) -> _record
-                    | None -> failwith(error_VESTEE_NOT_FOUND)
+                  | Some(_record) -> _record
+                  | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 remove vesteeAddress from map s.vesteeLedger;
@@ -277,8 +276,8 @@ block {
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                    | Some(_record) -> _record
-                    | None -> failwith(error_VESTEE_NOT_FOUND)
+                  | Some(_record) -> _record
+                  | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
@@ -335,8 +334,8 @@ block {
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                    | Some(_record) -> _record
-                    | None          -> failwith(error_VESTEE_NOT_FOUND)
+                  | Some(_record) -> _record
+                  | None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 // Toggle vestee status
@@ -386,8 +385,8 @@ block {
                 
                 // Get sender's vestee record from ledger
                 var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
-                    | Some(_record) -> _record
-                    | None -> failwith(error_VESTEE_NOT_FOUND)
+                  | Some(_record) -> _record
+                  | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 // check that vestee's status is not locked

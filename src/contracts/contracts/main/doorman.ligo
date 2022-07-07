@@ -340,7 +340,7 @@ block{
     else skip;
 
     // Set the user's participationFeesPerShare 
-    userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
+    userRecord.participationFeesPerShare   := s.accumulatedFeesPerShare;
     
     // Update storage: user stake balance ledger
     s.userStakeBalanceLedger[userAddress]  := userRecord;
