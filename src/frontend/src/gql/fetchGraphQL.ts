@@ -29,6 +29,9 @@ import {
   VESTING_STORAGE_QUERY,
   VESTING_STORAGE_QUERY_NAME,
   VESTING_STORAGE_QUERY_VARIABLE,
+  ORACLE_STORAGE_QUERY,
+  ORACLE_STORAGE_QUERY_NAME,
+  ORACLE_STORAGE_QUERY_VARIABLE
 } from './queries'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, any>) {
@@ -51,7 +54,7 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
   const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql'
   const gqlAPINetwork = process.env.NODE_ENV === 'development' ? developmentAPI : prodictionAPI
 
-  // console.log('%c ||||| gqlAPINetwork', 'color:yellowgreen', gqlAPINetwork);
+  //  console.log('%c ||||| gqlAPINetwork', 'color:yellowgreen', gqlAPINetwork);
 
   return new Promise<any>((resolve, reject) => {
     fetch(gqlAPINetwork, {
@@ -142,5 +145,6 @@ export async function getInitialData() {
       GOVERNANCE_STORAGE_QUERY_NAME,
       GOVERNANCE_STORAGE_QUERY_VARIABLE,
     ),
+    fetchFromIndexerWithPromise(ORACLE_STORAGE_QUERY, ORACLE_STORAGE_QUERY_NAME, ORACLE_STORAGE_QUERY_VARIABLE),
   ])
 }

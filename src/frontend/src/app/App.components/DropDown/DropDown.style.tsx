@@ -143,7 +143,6 @@ export const DropdownCard = styled(Card)`
   }
 
   &.satellite-governance-dropdown {
-    margin-bottom: 30px;
     margin-top: 30px;
   }
 `
