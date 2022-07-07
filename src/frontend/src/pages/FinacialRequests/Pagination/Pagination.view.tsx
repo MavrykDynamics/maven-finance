@@ -6,39 +6,25 @@ import { Input } from 'app/App.components/Input/Input.controller'
 
 import { PaginationArrow, PaginationWrapper } from './Pagination.style'
 
-import { ITEMS_PER_PAGE } from '../FinancialRequests.helpers'
+import { PAGINATION_SIDE_RIGHT, ITEMS_PER_PAGE } from '../FinancialRequests.consts'
+import { updatePageInUrl } from '../FinancialRequests.helpers'
 
-const Pagination = ({
-  itemsCount,
-  side = 'right',
-  listName,
-}: {
-  itemsCount: number
-  side?: 'right' | 'left'
-  listName: string
-}) => {
-  const history = useHistory()
+import { PaginationProps } from '../FinancialRequests.types'
+
+const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: PaginationProps) => {
   const { pathname, search } = useLocation()
   const { page = {}, ...rest } = qs.parse(search, { ignoreQueryPrefix: true })
+
   const currentPage = (page as any)?.[listName] || 1
+  const pagesCount = itemsCount / ITEMS_PER_PAGE
 
   const [inputValue, setInputValue] = useState(currentPage)
+  const history = useHistory()
 
-  // TODO: remove if newPage === 1
-  const generateNewUrl = (newPage: number) => {
-    const newQueryParams = {
-      ...rest,
-      page: {
-        ...(page as Record<string, string>),
-        [listName]: newPage,
-      },
-    }
-    return pathname + qs.stringify(newQueryParams, { addQueryPrefix: true })
-  }
+  const generateNewUrl = (newPage: number) => updatePageInUrl({ page, newPage, listName, pathname, restQP: rest })
 
-  // TODO: review it
   useEffect(() => {
-    if (inputValue && inputValue >= 1 && inputValue <= pages && (page as any)?.[listName]) {
+    if (inputValue) {
       history.push(generateNewUrl(inputValue))
     }
   }, [inputValue])
@@ -47,23 +33,27 @@ const Pagination = ({
     setInputValue(currentPage)
   }, [currentPage])
 
-  const pages = itemsCount / ITEMS_PER_PAGE
-  return pages > 1 ? (
+  return pagesCount > 1 ? (
     <PaginationWrapper side={side}>
       Page
       <div className="input_wrapper">
         <Input
           onChange={(e) => {
-            if (e.target.value <= pages) {
+            if (e.target.value <= pagesCount) {
               setInputValue(e.target.value)
             }
           }}
-          onBlur={() => {}}
+          onKeyDown={(e: React.KeyboardEvent) => {
+            if ((!inputValue && e.key === '0') || e.key === '-') e.preventDefault()
+          }}
+          onBlur={() => {
+            if (!inputValue && !inputValue !== currentPage) setInputValue(currentPage)
+          }}
           type={'number'}
           value={inputValue}
         />
       </div>
-      of {pages}
+      of {pagesCount}
       <PaginationArrow
         onClick={() => {
           if (currentPage > 1) {
@@ -78,7 +68,7 @@ const Pagination = ({
       <PaginationArrow
         isRight
         onClick={() => {
-          if (currentPage < pages) {
+          if (currentPage < pagesCount) {
             history.push(generateNewUrl(+currentPage + 1))
           }
         }}

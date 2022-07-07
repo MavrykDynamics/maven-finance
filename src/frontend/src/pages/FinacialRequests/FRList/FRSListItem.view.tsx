@@ -1,8 +1,12 @@
-import { ListItem } from '@mui/material'
+import React from 'react'
+
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
-import React from 'react'
+
+import { FRListItemProps } from '../FinancialRequests.types'
 import { FRListItem, ListItemLeftSide } from './FRList.styles'
+
+// TODO: statusssssss
 
 const FRSListItem = ({
   id,
@@ -12,15 +16,7 @@ const FRSListItem = ({
   selected = false,
   onClickHandler,
   status,
-}: {
-  id: number
-  title: string
-  additionalText?: string
-  onClickHandler?: () => void
-  selected?: boolean
-  dividedPassVoteMvkTotal?: number
-  status: string
-}) => {
+}: FRListItemProps) => {
   return (
     <FRListItem selected={selected} onClick={onClickHandler}>
       <ListItemLeftSide>
