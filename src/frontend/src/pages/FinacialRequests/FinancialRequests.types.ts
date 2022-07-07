@@ -1,3 +1,4 @@
+import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import {PAGINATION_SIDE_RIGHT, PAGINATION_SIDE_LEFT} from './FinancialRequests.consts'
 
 export type FinancialRequestBody = {
@@ -49,7 +50,7 @@ export type FRListItemProps = {
   onClickHandler?: () => void
   selected?: boolean
   dividedPassVoteMvkTotal?: number
-  status: string
+  status: ProposalStatus
 }
 
 export type PaginationPlacementVariants = typeof PAGINATION_SIDE_RIGHT | typeof PAGINATION_SIDE_LEFT

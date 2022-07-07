@@ -1,4 +1,6 @@
 import qs from "qs"
+import moment from "moment"
+import { ProposalStatus } from "utils/TypesAndInterfaces/Governance"
 import { FinancialRequestBody } from "./FinancialRequests.types"
 
 export const distinctRequestsByExecuting = (mixedUpRequests: Array<FinancialRequestBody>): {
@@ -38,5 +40,19 @@ export const updatePageInUrl = ({page, newPage, listName, pathname, restQP}: {pa
   }
   return pathname + qs.stringify(newQueryParams, { addQueryPrefix: true })
 }
+
+export const getRequestStatus = (request: FinancialRequestBody) => {
+  if(!request.executed) {
+    if (new Date(request.expiration_datetime).getTime() < +Date.now()) {
+      return  ProposalStatus.ONGOING
+    } else {
+      return  ProposalStatus.DEFEATED
+    }
+  } else {
+    return  ProposalStatus.EXECUTED
+  }
+}
+
+export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format("MMMM Do hh:mm Z")
 
 

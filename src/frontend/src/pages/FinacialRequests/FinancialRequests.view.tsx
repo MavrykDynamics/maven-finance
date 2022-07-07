@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-
-// @ts-ignore
-import Time from 'react-pure-time'
+import React, { useState } from 'react'
 
 // helpers, actions
-import { calcTimeToBlock } from '../../utils/calcFunctions'
+import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
 
 // types
-import { State } from 'reducers'
-import { ProposalRecordType, CurrentRoundProposalsStorageType } from '../../utils/TypesAndInterfaces/Governance'
+import { FinancialRequestBody } from './FinancialRequests.types'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
-import { GovernancePhase } from '../../reducers/governance'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
-import { Button } from 'app/App.components/Button/Button.controller'
-import { VoteStatistics } from 'pages/Governance/Governance.controller'
+import FRList from './FRList/FRList.view'
+import FRVoting from './FRVoting/FRVoting.view'
 
 // styles
-import { GovernanceStyled, GovRightContainerTitleArea, RightSideSubContent } from 'pages/Governance/Governance.style'
-import { EmptyContainer } from '../../app/App.style'
+import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import {
   FinancialRequestsContainer,
   FinancialRequestsStyled,
@@ -31,133 +23,25 @@ import {
   InfoBlockTitle,
   InfoBlockListValue,
 } from './FinancialRequests.style'
-import { VotingArea } from 'pages/Governance/VotingArea/VotingArea.controller'
-import { FinancialRequestBody } from './FinancialRequests.types'
-import { proposalRoundVote, votingRoundVote } from 'pages/Governance/Governance.actions'
-import FRList from './FRList/FRList.view'
-import { distinctRequestsByExecuting } from './FinancialRequests.helpers'
-import FRSListItem from './FRList/FRSListItem.view'
 
 type FinancialRequestsViewProps = {
   ready: boolean
   loading: boolean
-  accountPkh: string | undefined
   financialRequestsList: Array<FinancialRequestBody>
 }
 
-export const FinancialRequestsView = ({
-  ready,
-  loading,
-  accountPkh,
-  financialRequestsList,
-}: FinancialRequestsViewProps) => {
-  const dispatch = useDispatch()
-  const location = useLocation()
-  const onProposalHistoryPage = location.pathname === '/proposal-history'
-  const [votingEnding, setVotingEnding] = useState<string>('')
+export const FinancialRequestsView = ({ ready, loading, financialRequestsList }: FinancialRequestsViewProps) => {
   const [rightSideContent, setRightSideContent] = useState<FinancialRequestBody | undefined>(undefined)
-  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  const { governanceStorage } = useSelector((state: State) => state.governance)
-
-  const isExecuteProposal = true
-
-  const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
-    abstainVotesMVKTotal: 0,
-    againstVotesMVKTotal: 0,
-    forVotesMVKTotal: 0,
-    passVotesMVKTotal: 0,
-    unusedVotesMVKTotal: 0,
-  })
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 
-  // useEffect(() => {
-  //   setVoteStatistics({
-  //     abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-  //     againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-  //     forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-  //     passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
-  //     unusedVotesMVKTotal:
-  //       mvkTokenStorage.totalSupply -
-  //       (rightSideContent?.abstainMvkTotal ?? 0) +
-  //       (rightSideContent?.downvoteMvkTotal ?? 0) +
-  //       (rightSideContent?.upvoteMvkTotal ?? 0),
-  //   })
-  // }, [mvkTokenStorage.totalSupply, rightSideContent])
-
-  // VOTING STAFF
-
-  const handleClickExecuteProposal = () => {
-    // if (rightSideContent?.id) {
-    //   handleOpenModalMoveNextRound(rightSideContent.id)
-    // }
-  }
-
-  const handleProposalRoundVote = (proposalId: number) => {
-    console.log('Here in Proposal round vote', proposalId)
-    //TODO: Adjust for the number of votes / voting power each satellite has
-    setVoteStatistics({
-      ...voteStatistics,
-      passVotesMVKTotal: voteStatistics.passVotesMVKTotal + 1,
-    })
-    dispatch(proposalRoundVote(proposalId))
-  }
-
-  const handleVotingRoundVote = (vote: string) => {
-    let voteType
-    switch (vote) {
-      case 'FOR':
-        voteType = 1
-        setVoteStatistics({
-          ...voteStatistics,
-          forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
-        })
-        break
-      case 'AGAINST':
-        voteType = 0
-        setVoteStatistics({
-          ...voteStatistics,
-          againstVotesMVKTotal: voteStatistics.againstVotesMVKTotal + 1,
-        })
-        break
-      case 'ABSTAIN':
-      default:
-        voteType = 2
-        setVoteStatistics({
-          ...voteStatistics,
-          abstainVotesMVKTotal: voteStatistics.abstainVotesMVKTotal + 1,
-        })
-        break
-    }
-    setVoteStatistics({
-      ...voteStatistics,
-      unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
-    })
-    dispatch(votingRoundVote(voteType))
-  }
-
-  const handleItemSelect = (chosenProposal: FinancialRequestBody | undefined) => {
-    if (chosenProposal) {
-      setRightSideContent(chosenProposal.id !== rightSideContent?.id ? chosenProposal : undefined)
-      // if (chosenProposal.passVoteMvkTotal) {
-      //   setVoteStatistics({
-      //     passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-      //     forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
-      //     againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
-      //     abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
-      //     unusedVotesMVKTotal:
-      //       mvkTokenStorage.totalSupply -
-      //       (chosenProposal?.abstainMvkTotal ?? 0) +
-      //       (chosenProposal?.downvoteMvkTotal ?? 0) +
-      //       (chosenProposal?.upvoteMvkTotal ?? 0),
-      //   })
-      // }
+  const handleItemSelect = (selectedRequest: FinancialRequestBody | undefined) => {
+    if (selectedRequest) {
+      setRightSideContent(selectedRequest.id !== rightSideContent?.id ? selectedRequest : undefined)
     }
   }
 
-  const timeNow = Date.now()
-  const votingTime = new Date(votingEnding).getTime()
-  const isEndedVotingTime = votingTime < timeNow
+  const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
 
   return (
     <FinancialRequestsStyled>
@@ -182,13 +66,16 @@ export const FinancialRequestsView = ({
 
       {rightSideContent && (
         <FinancialRequestsRightContainer>
-          <GovRightContainerTitleArea>
-            <h1>
-              Transfer Tokens to{' '}
-              <TzAddress tzAddress={rightSideContent.governance_financial_id} hasIcon={false}></TzAddress>
-            </h1>
-            <StatusFlag text={'EXECUTED'} />
+          <GovRightContainerTitleArea className="financial-request">
+            <h1>{`${rightSideContent.request_type} ${rightSideContent.request_purpose}`}</h1>
+            <StatusFlag text={rightItemStatus} status={rightItemStatus} />
           </GovRightContainerTitleArea>
+
+          <div className="voting_ending">
+            Voting ending on {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime)}
+          </div>
+
+          <FRVoting ready={ready} loading={loading} selectedRequest={rightSideContent} />
 
           <hr />
 
@@ -237,7 +124,7 @@ export const FinancialRequestsView = ({
 
           <div className="info_section">
             <InfoBlockTitle>Date Requested</InfoBlockTitle>
-            <InfoBlockDescr>{rightSideContent.expiration_datetime}</InfoBlockDescr>
+            <InfoBlockDescr>{getDate_MDHMTZ_Format(rightSideContent.requested_datetime)}</InfoBlockDescr>
           </div>
 
           <div className="info_section">

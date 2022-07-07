@@ -51,4 +51,10 @@ export const VotingButtonsContainer = styled.div`
       width: 40%;
     }
   }
+
+  &.FRVoting {
+    > button {
+      width: 45%;
+    }
+  }
 `
