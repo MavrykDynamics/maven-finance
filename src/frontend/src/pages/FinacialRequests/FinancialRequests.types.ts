@@ -1,3 +1,5 @@
+import {PAGINATION_SIDE_RIGHT, PAGINATION_SIDE_LEFT} from './FinancialRequests.consts'
+
 export type FinancialRequestBody = {
   executed: boolean
   expiration_datetime: string
@@ -31,7 +33,6 @@ export type FinancialRequestBody = {
   yay_vote_smvk_total: number
 }
 
-// TODO: make it generic
 export type FRListProps = {
   listTitle: string
   items: Array<FinancialRequestBody>
@@ -39,4 +40,22 @@ export type FRListProps = {
   name: string
   handleItemSelect: (arg0: FinancialRequestBody) => void
   selectedItem?: FinancialRequestBody
+}
+
+export type FRListItemProps = {
+  id: number
+  title: string
+  additionalText?: string
+  onClickHandler?: () => void
+  selected?: boolean
+  dividedPassVoteMvkTotal?: number
+  status: string
+}
+
+export type PaginationPlacementVariants = typeof PAGINATION_SIDE_RIGHT | typeof PAGINATION_SIDE_LEFT
+
+export type PaginationProps = {
+  itemsCount: number
+  side?: PaginationPlacementVariants
+  listName: string
 }

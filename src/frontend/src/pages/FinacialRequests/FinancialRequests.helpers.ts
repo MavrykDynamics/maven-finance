@@ -1,3 +1,4 @@
+import qs from "qs"
 import { FinancialRequestBody } from "./FinancialRequests.types"
 
 export const distinctRequestsByExecuting = (mixedUpRequests: Array<FinancialRequestBody>): {
@@ -17,29 +18,24 @@ export const distinctRequestsByExecuting = (mixedUpRequests: Array<FinancialRequ
   }
 }
 
+export const getPageNumber = (search: string, listName: string): number => {
+  const { page = {} } = qs.parse(search, { ignoreQueryPrefix: true })
+  return Number((page as Record<string, string>)?.[listName]) || 1
+}
 
-export const getPageNumber = (paramsPage?: string): number =>
-  paramsPage ? +paramsPage.split('-')[1] : 1;
-
-  export function replacePageNumber({
-    base,
-    currentPage,
-    newPage,
-    listName,
-    numberClear = false,
-  }: {
-    base: string;
-    listName: string;
-    currentPage: number;
-    newPage: number;
-    numberClear?: boolean;
-  }) {
-    const [url = '', params = ''] = base.split('?');
-    if (!base.includes('page')) {
-      return `${url}${url.endsWith('/') ? '' : '/'}?page=${`${listName}|${newPage}`}&${params ? `${params}` : ''}`;
-    }
-    return base.replace(`page=${`${listName}|${currentPage}`}`, numberClear ? '' : `page=${`${listName}|${newPage.toString()}`}`);
+export const updatePageInUrl = ({page, newPage, listName, pathname, restQP}: {page: any, newPage: number, listName: string, pathname: string, restQP: any}) => {
+  const newPageParams = {
+    ...(page as Record<string, string>),
+    [listName]: newPage,
   }
 
-export const ITEMS_PER_PAGE = 1
+  if (newPage === 1) delete newPageParams[listName]
+
+  const newQueryParams = {
+    ...restQP,
+    page: newPageParams,
+  }
+  return pathname + qs.stringify(newQueryParams, { addQueryPrefix: true })
+}
+
 
