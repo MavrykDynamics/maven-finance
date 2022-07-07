@@ -113,7 +113,7 @@ class Farm(Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
     farm_factory                            = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True)
-    name                                    = fields.CharField(max_length=255, default='')
+    name                                    = fields.TextField(default='')
     blocks_per_minute                       = fields.SmallIntField(default=0)
     force_rewards_from_transfer             = fields.BooleanField(default=False)
     infinite                                = fields.BooleanField(default=False)
@@ -300,7 +300,7 @@ class Aggregator(Model):
     token_1_symbol                          = fields.CharField(max_length=32, default='')
     deviation_trigger_round_price           = fields.BigIntField(default=0)
     creation_timestamp                      = fields.DatetimeField(null=True)
-    name                                    = fields.CharField(max_length=255, default='')
+    name                                    = fields.TextField(default='')
     decimals                                = fields.SmallIntField(default=0)
     number_blocks_delay                     = fields.BigIntField(default=0)
     deviation_trigger_ban_duration          = fields.BigIntField(default=0)
@@ -400,7 +400,7 @@ class Treasury(Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='treasuries', null=True)
     treasury_factory                        = fields.ForeignKeyField('models.TreasuryFactory', related_name='treasuries', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True)
-    name                                    = fields.CharField(max_length=255, default='')
+    name                                    = fields.TextField(default='')
     transfer_paused                         = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused            = fields.BooleanField(default=False)
     stake_mvk_paused                        = fields.BooleanField(default=False)
@@ -470,10 +470,10 @@ class SatelliteRecord(Model):
     delegation                              = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
     status                                  = fields.IntEnumField(enum_type=SatelliteStatus, default=SatelliteStatus.ACTIVE)
     fee                                     = fields.SmallIntField(default=0)
-    name                                    = fields.CharField(max_length=255, default="")
-    description                             = fields.CharField(max_length=255, default="")
-    image                                   = fields.CharField(max_length=255, default="")
-    website                                 = fields.CharField(max_length=255, default="")
+    name                                    = fields.TextField(default="")
+    description                             = fields.TextField(default="")
+    image                                   = fields.TextField(default="")
+    website                                 = fields.TextField(default="")
 
     class Meta:
         table = 'satellite_record'
@@ -491,9 +491,9 @@ class CouncilCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='council_council_member')
     council                                 = fields.ForeignKeyField('models.Council', related_name='council_council_members')
-    name                                    = fields.CharField(max_length=255)
-    website                                 = fields.CharField(max_length=255)
-    image                                   = fields.CharField(max_length=255)
+    name                                    = fields.TextField(default="")
+    website                                 = fields.TextField(default="")
+    image                                   = fields.TextField(default="")
 
     class Meta:
         table = 'council_council_member'
@@ -525,8 +525,8 @@ class CouncilActionRecordSigner(Model):
 class CouncilActionRecordParameter(Model):
     id                                      = fields.BigIntField(pk=True)
     council_action                          = fields.ForeignKeyField('models.CouncilActionRecord', related_name='council_action_record_parameters')
-    name                                    = fields.CharField(max_length=255)
-    value                                   = fields.CharField(max_length=255)
+    name                                    = fields.TextField(default="")
+    value                                   = fields.TextField(default="")
 
     class Meta:
         table = 'council_action_record_parameter'
@@ -559,8 +559,8 @@ class EmergencyGovernanceRecord(Model):
     proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer')
     executed                                = fields.BooleanField(default=False)
     dropped                                 = fields.BooleanField(default=False)
-    title                                   = fields.CharField(max_length=255)
-    description                             = fields.CharField(max_length=255)
+    title                                   = fields.TextField(default="")
+    description                             = fields.TextField(default="")
     total_smvk_votes                        = fields.FloatField(default=0)
     smvk_percentage_required                = fields.FloatField(default=0)
     smvk_required_for_trigger               = fields.FloatField(default=0)
@@ -587,9 +587,9 @@ class BreakGlassCouncilMember(Model):
     id                                      = fields.BigIntField(pk=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_council_member')
     break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_council_members')
-    name                                    = fields.CharField(max_length=255)
-    website                                 = fields.CharField(max_length=255)
-    image                                   = fields.CharField(max_length=255)
+    name                                    = fields.TextField(default="")
+    website                                 = fields.TextField(default="")
+    image                                   = fields.TextField(default="")
 
     class Meta:
         table = 'break_glass_council_member'
@@ -621,8 +621,8 @@ class BreakGlassActionRecordSigner(Model):
 class BreakGlassActionRecordParameter(Model):
     id                                      = fields.BigIntField(pk=True)
     break_glass_action_record               = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='break_glass_action_record_parameters')
-    name                                    = fields.CharField(max_length=255)
-    value                                   = fields.CharField(max_length=255)
+    name                                    = fields.TextField(default="")
+    value                                   = fields.TextField(default="")
 
     class Meta:
         table = 'break_glass_action_record_parameter'
@@ -633,9 +633,9 @@ class GovernanceProposalRecord(Model):
     proposer                                = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_proposer')
     status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus)
     execution_counter                       = fields.SmallIntField(default=0)
-    title                                   = fields.CharField(max_length=255)
-    description                             = fields.CharField(max_length=255)
-    invoice                                 = fields.CharField(max_length=255)
+    title                                   = fields.TextField(default="")
+    description                             = fields.TextField(default="")
+    invoice                                 = fields.TextField(default="")
     source_code                             = fields.TextField(default="")
     executed                                = fields.BooleanField(default=False)
     locked                                  = fields.BooleanField(default=False)
@@ -668,7 +668,7 @@ class GovernanceProposalRecordData(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
     governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_data')
-    title                                   = fields.CharField(max_length=255)
+    title                                   = fields.TextField(default="")
     bytes                                   = fields.TextField(default="")
 
     class Meta:
@@ -678,7 +678,7 @@ class GovernanceProposalRecordPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
     governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_payments')
-    title                                   = fields.CharField(max_length=255)
+    title                                   = fields.TextField(default="")
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_payments', null=True)
     token_address                           = fields.CharField(max_length=36, default="")
     token_id                                = fields.CharField(max_length=36, default="")
@@ -722,11 +722,11 @@ class GovernanceFinancialRequestRecord(Model):
     executed                                = fields.BooleanField()
     token_contract_address                  = fields.CharField(max_length=36)
     token_amount                            = fields.FloatField(default=0.0)
-    token_name                              = fields.CharField(max_length=255)
+    token_name                              = fields.TextField()
     token_id                                = fields.SmallIntField(default=0)
     token_type                              = fields.CharField(max_length=12)
-    request_purpose                         = fields.CharField(max_length=255)
-    key_hash                                = fields.CharField(max_length=255, null=True)
+    request_purpose                         = fields.TextField(default="")
+    key_hash                                = fields.TextField(default="", null=True)
     yay_vote_smvk_total                     = fields.FloatField(default=0.0)
     nay_vote_smvk_total                     = fields.FloatField(default=0.0)
     pass_vote_smvk_total                    = fields.FloatField(default=0.0)
@@ -768,7 +768,7 @@ class GovernanceSatelliteActionRecord(Model):
     governance_type                         = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
     executed                                = fields.BooleanField()
-    governance_purpose                      = fields.CharField(max_length=255)
+    governance_purpose                      = fields.TextField() #TODO: Should I reuse CharField instead?
     yay_vote_smvk_total                     = fields.FloatField(default=0.0)
     nay_vote_smvk_total                     = fields.FloatField(default=0.0)
     pass_vote_smvk_total                    = fields.FloatField(default=0.0)
@@ -795,8 +795,8 @@ class GovernanceSatelliteActionRecordVote(Model):
 class GovernanceSatelliteActionRecordParameter(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='governance_satellite_action_parameters')
-    name                                    = fields.CharField(max_length=255)
-    value                                   = fields.CharField(max_length=255)
+    name                                    = fields.TextField(default="")
+    value                                   = fields.TextField(default="")
 
     class Meta:
         table = 'governance_satellite_action_record_parameter'
