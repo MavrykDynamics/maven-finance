@@ -44,39 +44,39 @@ export function calcWithoutMu(amount: string): number {
 }
 
 export function calcUsersDoormanRewards(userInfo: UserData): UserDoormanRewardsData {
-  const { myMvkTokenBalance, mySMvkTokenBalance, myDoormanRewardsData } = userInfo
-  /*
-     TODO: For Tristan - Doorman rewards calculation
-   */
-  const currentFeesPerShare          = myDoormanRewardsData.generalAccumulatedFeesPerShare - myDoormanRewardsData.myParticipationFeesPerShare
-  const usersAvailableDoormanRewards = (mySMvkTokenBalance * PRECISION_NUMBER * currentFeesPerShare) / FIXED_POINT_ACCURACY
-
-  myDoormanRewardsData.myAvailableDoormanRewards = calcWithoutPrecision(String(Math.trunc(usersAvailableDoormanRewards)))
+  const { mySMvkTokenBalance, myDoormanRewardsData } = userInfo
+  const currentFeesPerShare =
+    myDoormanRewardsData.generalAccumulatedFeesPerShare - myDoormanRewardsData.myParticipationFeesPerShare
+  const usersAvailableDoormanRewards =
+    (mySMvkTokenBalance * PRECISION_NUMBER * currentFeesPerShare) / FIXED_POINT_ACCURACY
+  myDoormanRewardsData.myAvailableDoormanRewards = calcWithoutPrecision(
+    String(Math.trunc(usersAvailableDoormanRewards)),
+  )
   return myDoormanRewardsData
 }
 
 export function calcUsersFarmRewards(userInfo: UserData, currentBlockLevel: number): UserFarmRewardsData[] {
-  const { myMvkTokenBalance, mySMvkTokenBalance, myFarmRewardsData } = userInfo
+  const { myFarmRewardsData } = userInfo
   const newFarmRewardsData: UserFarmRewardsData[] = []
 
-  console.log("HEY I'M HERE FARM")
   myFarmRewardsData.forEach((farmAccount) => {
-    /*
-       TODO: For Tristan - Farm rewards calculation
-     */
-
     // Update farm general values
-    const blockMultiplier                 = currentBlockLevel - farmAccount.lastBlockUpdate
-    const suspectedRewards                = blockMultiplier * farmAccount.currentRewardPerBlock
-    const totalClaimedRewards             = farmAccount.generalPaidReward + farmAccount.generalUnpaidReward
-    const totalFarmRewards                = suspectedRewards * totalClaimedRewards
-    const totalPlannedRewards             = farmAccount.generalTotalRewards
-    const reward                          = totalFarmRewards > totalPlannedRewards && !farmAccount.infinite ? totalPlannedRewards - totalClaimedRewards : suspectedRewards;
-    const tempAccumulatedRewardsPerShare  = farmAccount.generalAccumulatedRewardsPerShare + ((reward * FIXED_POINT_ACCURACY) / farmAccount.totalLPTokenDeposited)
+    const blockMultiplier = currentBlockLevel - farmAccount.lastBlockUpdate
+    const suspectedRewards = blockMultiplier * farmAccount.currentRewardPerBlock
+    const totalClaimedRewards = farmAccount.generalPaidReward + farmAccount.generalUnpaidReward
+    const totalFarmRewards = suspectedRewards * totalClaimedRewards
+    const totalPlannedRewards = farmAccount.generalTotalRewards
+    const reward =
+      totalFarmRewards > totalPlannedRewards && !farmAccount.infinite
+        ? totalPlannedRewards - totalClaimedRewards
+        : suspectedRewards
+    const tempAccumulatedRewardsPerShare =
+      farmAccount.generalAccumulatedRewardsPerShare +
+      (reward * FIXED_POINT_ACCURACY) / farmAccount.totalLPTokenDeposited
 
     // Update user unclaimed rewards
-    const currentRewardsPerShare          = tempAccumulatedRewardsPerShare - farmAccount.myParticipationRewardsPerShare
-    const usersAvailableFarmRewards       = (currentRewardsPerShare * farmAccount.myDepositedAmount) / FIXED_POINT_ACCURACY
+    const currentRewardsPerShare = tempAccumulatedRewardsPerShare - farmAccount.myParticipationRewardsPerShare
+    const usersAvailableFarmRewards = (currentRewardsPerShare * farmAccount.myDepositedAmount) / FIXED_POINT_ACCURACY
 
     farmAccount.myAvailableFarmRewards = calcWithoutPrecision(String(usersAvailableFarmRewards))
     newFarmRewardsData.push(farmAccount)
@@ -86,13 +86,14 @@ export function calcUsersFarmRewards(userInfo: UserData, currentBlockLevel: numb
 }
 
 export function calcUsersSatelliteRewards(userInfo: UserData): UserSatelliteRewardsData {
-  const { myMvkTokenBalance, mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
-  /*
-     TODO: For Tristan - Satellite rewards calculation
-   */
-  const satelliteRewardRatio  = mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
-  const usersAvailableSatelliteRewards = (mySatelliteRewardsData.unpaid + satelliteRewardRatio * mySMvkTokenBalance * PRECISION_NUMBER) / FIXED_POINT_ACCURACY
-
-  mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(String(Math.trunc(usersAvailableSatelliteRewards)))
+  const { mySMvkTokenBalance, mySatelliteRewardsData } = userInfo
+  const satelliteRewardRatio =
+    mySatelliteRewardsData.satelliteAccumulatedRewardPerShare - mySatelliteRewardsData.participationRewardsPerShare
+  const usersAvailableSatelliteRewards =
+    (mySatelliteRewardsData.unpaid + satelliteRewardRatio * mySMvkTokenBalance * PRECISION_NUMBER) /
+    FIXED_POINT_ACCURACY
+  mySatelliteRewardsData.myAvailableSatelliteRewards = calcWithoutPrecision(
+    String(Math.trunc(usersAvailableSatelliteRewards)),
+  )
   return mySatelliteRewardsData
 }
