@@ -23,11 +23,21 @@ import {
   USER_SATELLITE_REWARDS_QUERY_NAME,
   USER_SATELLITE_REWARDS_QUERY_VARIABLES,
 } from 'gql/queries'
-import { calcUsersDoormanRewards, calcUsersFarmRewards, calcUsersSatelliteRewards, calcWithoutPrecision } from '../../utils/calcFunctions'
+import {
+  calcUsersDoormanRewards,
+  calcUsersFarmRewards,
+  calcUsersSatelliteRewards,
+  calcWithoutPrecision,
+} from '../../utils/calcFunctions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { UserData, UserDoormanRewardsData, UserSatelliteRewardsData, UserFarmRewardsData } from '../../utils/TypesAndInterfaces/User'
+import {
+  UserData,
+  UserDoormanRewardsData,
+  UserFarmRewardsData,
+  UserSatelliteRewardsData,
+} from '../../utils/TypesAndInterfaces/User'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
@@ -343,7 +353,7 @@ export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
 export const SET_USER_DATA = 'SET_USER_DATA'
 export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
 export const getUserData = (accountPkh: string) => async (dispatch: any, getState: any) => {
-  const state: State      = getState()
+  const state: State = getState()
   const currentBlockLevel = state.preferences.headData.level
   try {
     const userInfoFromIndexer = fetchFromIndexer(
@@ -366,11 +376,16 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
         USER_FARM_REWARDS_QUERY_NAME,
         USER_FARM_REWARDS_QUERY_VARIABLES(accountPkh),
       )
-    const [userInfoAfterPromise, userDoormanRewardsAfterPromise, userSatelliteRewardsAfterPromise, userFarmsRewardsAfterPromise] = await Promise.all([
+    const [
+      userInfoAfterPromise,
+      userDoormanRewardsAfterPromise,
+      userSatelliteRewardsAfterPromise,
+      userFarmsRewardsAfterPromise,
+    ] = await Promise.all([
       userInfoFromIndexer,
       userDoormanRewardsFromIndexer,
       userSatelliteRewardsFromIndexer,
-      userFarmsRewardsFromIndexer
+      userFarmsRewardsFromIndexer,
     ])
 
     const userInfoData = userInfoAfterPromise.mavryk_user[0]
@@ -408,7 +423,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
         infinite: farm.infinite,
         myDepositedAmount: farm.farm_accounts[0].deposited_amount,
         myParticipationRewardsPerShare: farm.farm_accounts[0].participation_rewards_per_share,
-        myAvailableFarmRewards: 0
+        myAvailableFarmRewards: 0,
       })
     })
 
@@ -424,15 +439,17 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       mySatelliteRewardsData: userSatelliteRewardsData,
     }
 
-    userInfo.myDoormanRewardsData   = calcUsersDoormanRewards(userInfo)
+    userInfo.myDoormanRewardsData = calcUsersDoormanRewards(userInfo)
     userInfo.mySatelliteRewardsData = calcUsersSatelliteRewards(userInfo)
-    userInfo.myFarmRewardsData      = calcUsersFarmRewards(userInfo, currentBlockLevel)
+    userInfo.myFarmRewardsData = calcUsersFarmRewards(userInfo, currentBlockLevel)
 
-    const estimatedRewardsForNextCompound = userInfo.myDoormanRewardsData.myAvailableDoormanRewards + userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
-    console.log("EXIT FEE REWARDS: ", userInfo.myDoormanRewardsData.myAvailableDoormanRewards)
-    console.log("SATELLITE REWARDS: ", userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards)
-    console.log("FARM REWARDS: ", userInfo.myFarmRewardsData)
-    console.log("REWARDS ESTIMATION: ", estimatedRewardsForNextCompound)
+    const estimatedRewardsForNextCompound =
+      userInfo.myDoormanRewardsData.myAvailableDoormanRewards +
+      userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards
+    console.log('%c Exit Fee rewards: ', 'color:blue', userInfo.myDoormanRewardsData.myAvailableDoormanRewards)
+    console.log('Satellite rewards: ', 'color:blue', userInfo.mySatelliteRewardsData.myAvailableSatelliteRewards)
+    console.log('Farm rewards: ', 'color:green', userInfo.myFarmRewardsData)
+    console.log('Estimated Compound rewards: ', 'color:red', estimatedRewardsForNextCompound)
 
     console.log('%c res getUserData()', 'color:orange', userInfo)
 
