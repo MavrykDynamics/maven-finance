@@ -5,6 +5,7 @@ export const distinctRequestsByExecuting = (mixedUpRequests: Array<FinancialRequ
   ongoing: Array<FinancialRequestBody>,past : Array<FinancialRequestBody>
 } => {
   const ongoing: Array<FinancialRequestBody> = [], past: Array<FinancialRequestBody> = []
+  if(!mixedUpRequests) return { ongoing, past }
 
   mixedUpRequests.forEach(request => {
     if(request.executed){
