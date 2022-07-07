@@ -418,3 +418,51 @@ export const dropAction = (actionId: number, callback: () => void) => async (dis
     })
   }
 }
+
+// Vote YES
+export const VOTE_FOR_ACTION_REQUEST = 'VOTE_FOR_ACTION_REQUEST'
+export const VOTE_FOR_ACTION_RESULT = 'VOTE_FOR_ACTION_RESULT'
+export const VOTE_FOR_ACTION_ERROR = 'VOTE_FOR_ACTION_ERROR'
+export const voteForAction = (actionId: number, callback: () => void) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+  console.log('%c ||||| voteForAction actionId', 'color:yellowgreen', actionId)
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    dispatch({
+      type: VOTE_FOR_ACTION_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceSatelliteAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.voteForAction(actionId).send()
+    console.log('transaction', transaction)
+
+    dispatch(showToaster(INFO, 'Vote YES...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    await dispatch(showToaster(SUCCESS, 'Vote YES done', 'All good :)'))
+
+    await dispatch({
+      type: VOTE_FOR_ACTION_RESULT,
+    })
+
+    await dispatch(getGovernanceSatelliteStorage())
+    callback()
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: VOTE_FOR_ACTION_ERROR,
+      error,
+    })
+  }
+}

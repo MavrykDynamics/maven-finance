@@ -71,6 +71,16 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: any, g
   const state: State = getState()
 
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
     dispatch({
       type: PROPOSAL_ROUND_VOTING_REQUEST,
       proposalId: proposalId,
@@ -108,6 +118,16 @@ export const votingRoundVote = (vote: number) => async (dispatch: any, getState:
   const state: State = getState()
 
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
     dispatch({
       type: VOTING_ROUND_VOTING_REQUEST,
       vote: vote,
@@ -138,10 +158,6 @@ export const votingRoundVote = (vote: number) => async (dispatch: any, getState:
   }
 }
 
-// export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
-// export const START_PROPOSAL_ROUND_RESULT = 'START_PROPOSAL_ROUND_RESULT'
-// export const START_PROPOSAL_ROUND_ERROR = 'START_PROPOSAL_ROUND_ERROR'
-
 export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
 export const START_PROPOSAL_ROUND_RESULT = 'VOTING_ROUND_VOTING_RESULT'
 export const START_PROPOSAL_ROUND_ERROR = 'VOTING_ROUND_VOTING_ERROR'
@@ -149,6 +165,16 @@ export const startProposalRound = () => async (dispatch: any, getState: any) => 
   const state: State = getState()
 
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
     dispatch({
       type: START_PROPOSAL_ROUND_REQUEST,
     })
@@ -185,9 +211,20 @@ export const startVotingRound = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
     dispatch({
       type: START_VOTING_ROUND_REQUEST,
     })
+
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.startProposalRound().send()
@@ -239,14 +276,22 @@ export const START_NEXT_ROUND_ERROR = 'START_NEXT_ROUND_ERROR'
 export const startNextRound = (executePastProposal: boolean) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
     dispatch({
       type: START_NEXT_ROUND_REQUEST,
     })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-    console.log('startNextRound contract', contract)
-    console.log('%c ||||| executePastProposal', 'color:yellowgreen', executePastProposal)
+
     const transaction = await contract?.methods.startNextRound(executePastProposal).send()
-    console.log('startNextRound transaction', transaction)
 
     dispatch(showToaster(INFO, 'Request Next round start...', 'Please wait 30s'))
 

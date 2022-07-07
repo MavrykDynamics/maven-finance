@@ -10,12 +10,13 @@ import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.co
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { VotingArea } from '../../Governance/VotingArea/VotingArea.controller'
+import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 
 import { getSeparateSnakeCase } from '../../../utils/parse'
 
 // action
-import { dropAction } from '../SatelliteGovernance.actions'
+import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
 
 import {
   SatelliteGovernanceArrowButton,
@@ -24,6 +25,7 @@ import {
   SatelliteGovernanceCardTitleTextGroup,
   SatelliteGovernanceCardTopSection,
 } from './SatelliteGovernanceCard.style'
+import { VotingAreaStyled, VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 
 type Props = {
   satellite: string
@@ -34,6 +36,11 @@ type Props = {
   purpose: string
   governanceType: string
   linkAdress: string
+  smvkPercentageForApproval: number
+  yayVotesSmvkTotal: number
+  nayVotesSmvkTotal: number
+  passVoteSmvkTotal: number
+  snapshotSmvkTotalSupply: number
 }
 
 export const SatelliteGovernanceCard = ({
@@ -45,6 +52,11 @@ export const SatelliteGovernanceCard = ({
   purpose,
   governanceType,
   linkAdress,
+  smvkPercentageForApproval,
+  yayVotesSmvkTotal,
+  nayVotesSmvkTotal,
+  passVoteSmvkTotal,
+  snapshotSmvkTotalSupply,
 }: Props) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
@@ -61,7 +73,12 @@ export const SatelliteGovernanceCard = ({
   }, [expanded])
 
   const handleProposalRoundVote = () => {}
-  const handleVotingRoundVote = () => {}
+  const handleVotingRoundVote = (type: string) => {
+    console.log('%c ||||| type', 'color:yellowgreen', type)
+    if (type === 'FOR') {
+      dispatch(voteForAction(id, open))
+    }
+  }
 
   const handleClick = async () => {
     await dispatch(dropAction(id, open))
@@ -69,13 +86,13 @@ export const SatelliteGovernanceCard = ({
 
   const timeNow = Date.now()
   const expirationDatetime = new Date(date).getTime()
-  const isEndedVotingTime = expirationDatetime > timeNow
+  const isEndingVotingTime = expirationDatetime > timeNow
 
   const statusFlag = executed
     ? ProposalStatus.EXECUTED
     : status === 1
     ? ProposalStatus.DROPPED
-    : isEndedVotingTime
+    : isEndingVotingTime
     ? ProposalStatus.ONGOING
     : ProposalStatus.ACTIVE
 
@@ -123,7 +140,7 @@ export const SatelliteGovernanceCard = ({
         <div className={'description accordion ' + `${expanded}`} ref={ref}>
           <div>
             <h3>Purpose</h3>
-            <p>{purpose}</p>
+            <p className="purpose">{purpose}</p>
             {linkAdress ? (
               <Link className={'view-satellite'} to={`/satellite-details/${linkAdress}`}>
                 View Satellite
@@ -139,15 +156,28 @@ export const SatelliteGovernanceCard = ({
               />
             ) : null}
           </div>
-          <div>
+          <div className="voting-block">
             <h3>Vote Satistics</h3>
-            {/* <VotingArea
-              ready={true}
-              loading={true}
-              accountPkh={'1111'}
-              handleProposalRoundVote={handleProposalRoundVote}
-              handleVotingRoundVote={handleVotingRoundVote}
-            /> */}
+            <b className="voting-ends">
+              Voting {!isEndingVotingTime ? 'ended' : 'ending'} in{' '}
+              <Time value={date} format="M d\t\h, Y, H:m:s \C\E\R\T" />
+            </b>
+            <div className="voting-bar">
+              <VotingBarBlockView
+                yayVotesSmvkTotal={yayVotesSmvkTotal}
+                nayVotesSmvkTotal={nayVotesSmvkTotal}
+                passVoteSmvkTotal={passVoteSmvkTotal}
+                snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
+                smvkPercentageForApproval={smvkPercentageForApproval}
+              />
+            </div>
+            {statusFlag === ProposalStatus.ONGOING ? (
+              <VotingButtonsContainer className="voting-buttons">
+                <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('FOR')} kind={'votingFor'} />
+                <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('ABSTAIN')} kind={'votingAbstain'} />
+                <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('AGAINST')} kind={'votingAgainst'} />
+              </VotingButtonsContainer>
+            ) : null}
           </div>
         </div>
       </SatelliteGovernanceCardDropDown>

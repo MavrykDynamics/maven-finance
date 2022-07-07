@@ -51,7 +51,7 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
 // console.log('%c ||||| process.env', 'color:yellowgreen', process.env);
   const developmentAPI = process.env.REACT_APP_DEV_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
 
-  const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql'
+  const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
   const gqlAPINetwork = process.env.NODE_ENV === 'development' ? developmentAPI : prodictionAPI
 
    console.log('%c ||||| gqlAPINetwork', 'color:yellowgreen', gqlAPINetwork);
