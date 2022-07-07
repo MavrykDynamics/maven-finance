@@ -64,12 +64,6 @@ export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
       text-overflow: ellipsis;
     }
   }
-
-  &.financial-request {
-    > div {
-      min-width: 7%;
-    }
-  }
 `
 
 export const VotingFor = styled.div<{ width: number; theme: MavrykTheme }>`
