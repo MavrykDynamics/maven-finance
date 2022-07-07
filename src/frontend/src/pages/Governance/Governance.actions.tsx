@@ -38,7 +38,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     type: GET_GOVERNANCE_STORAGE,
     governanceStorage: convertedStorage,
   })
-  console.log('%c ||||| convertedStorage.currentRound', 'color:yellowgreen', convertedStorage.currentRound)
+
   dispatch({
     type: SET_GOVERNANCE_PHASE,
     phase: convertedStorage.currentRound,
