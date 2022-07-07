@@ -21,6 +21,7 @@ import {
   VotingAbstention,
   VotingAgainst,
 } from 'pages/Governance/VotingArea/VotingBar/VotingBar.style'
+import { PRECISION_NUMBER } from 'utils/constants'
 
 type FRVotingProps = {
   ready: boolean
@@ -39,10 +40,11 @@ const FRVoting = ({ ready, loading, selectedRequest }: FRVotingProps) => {
     totalVotes: selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total,
     forVotes: selectedRequest.pass_vote_smvk_total,
     againstVotes: selectedRequest.nay_vote_smvk_total,
-    unUsedVotes:
-      selectedRequest.snapshot_smvk_total_supply -
-      selectedRequest.pass_vote_smvk_total -
-      selectedRequest.nay_vote_smvk_total,
+    unUsedVotes: Math.round(
+      selectedRequest.snapshot_smvk_total_supply / PRECISION_NUMBER -
+        selectedRequest.pass_vote_smvk_total -
+        selectedRequest.nay_vote_smvk_total,
+    ),
     quorum: selectedRequest.smvk_percentage_for_approval / 100,
   })
 
@@ -84,7 +86,7 @@ const FRVoting = ({ ready, loading, selectedRequest }: FRVotingProps) => {
         <QuorumBar width={votingStats.quorum}>
           Quorum <b>{votingStats.quorum.toFixed(2)}%</b>
         </QuorumBar>
-        <VotingBarStyled className="financial-request">
+        <VotingBarStyled>
           <Tooltip title={`${votingStats.forVotes} Approve votes`}>
             <VotingFor width={forVotesWidth}>
               <CommaNumber value={votingStats.forVotes} />
