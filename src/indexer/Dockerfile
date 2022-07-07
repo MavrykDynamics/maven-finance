@@ -10,3 +10,5 @@ RUN poetry config virtualenvs.create false && poetry install --no-dev
 ADD mavryk /mavryk/mavryk/
 
 ENTRYPOINT ["poetry", "run", "dipdup"]
+
+EXPOSE 9090/tcp
