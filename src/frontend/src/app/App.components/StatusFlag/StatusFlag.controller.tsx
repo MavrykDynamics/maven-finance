@@ -37,6 +37,7 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
   if (!Object.values(ProposalStatus).includes(status as ProposalStatus)) {
     kind = status as StatusFlagStyle
   }
+
   return <StatusFlagView kind={kind} text={text} />
 }
 StatusFlag.defaultProps = {

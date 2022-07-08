@@ -21,7 +21,10 @@ type VotingAreaProps = {
   accountPkh: string | undefined
   handleProposalRoundVote: (proposalId: number) => void
   handleVotingRoundVote: (vote: string) => void
-  selectedProposal: ProposalRecordType
+  selectedProposal: {
+    passVoteMvkTotal: number
+    id: number | string
+  }
   voteStatistics: VoteStatistics
 }
 export const VotingArea = ({

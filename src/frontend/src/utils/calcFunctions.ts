@@ -18,7 +18,9 @@ export function calcExitFee(totalMvkSupply: number | undefined, totalStakedMVK: 
   return fee
 }
 
-export function calcTimeToBlock(currentBlockLevel: number, endBlockLevel: number) {
+export function calcTimeToBlock(currentBlockLevel?: number, endBlockLevel?: number) {
+  if(!currentBlockLevel || !endBlockLevel) return 0
+  
   const blockFrequency = SECONDS_PER_BLOCK //seconds
   const blocksToGo = endBlockLevel - currentBlockLevel
   const minutesUntilEndBlockReached = blocksToGo / (60 / blockFrequency)

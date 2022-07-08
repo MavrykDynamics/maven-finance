@@ -20,6 +20,7 @@ import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 import { Admin } from '../../../pages/Admin/Admin.controller'
 import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
 import { Council } from '../../../pages/Council/Council.controller'
+import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -63,6 +64,9 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/break-glass">
         <BreakGlass />
+      </Route>
+      <Route exact path="/financial-requests">
+        <FinancialRequests />
       </Route>
       <Route exact path="/emergency-governance">
         <EmergencyGovernance />
