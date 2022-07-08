@@ -60,9 +60,10 @@ export const CouncilPendingView = (props: Props) => {
   const isRequestTokens = action_type === 'requestTokens'
   const isAddCouncilMember = action_type === 'addCouncilMember'
   const isUpdateVestee = action_type === 'updateVestee'
+  const isChangeCouncilMember = action_type === 'changeCouncilMember'
   const purpose = findActionByName('purpose')
 
-  if (isUpdateVestee) {
+  if (isChangeCouncilMember) {
     console.log('%c ||||| action_type', 'color:green', action_type)
     console.log('%c ||||| council_action_record_parameters', 'color:green', council_action_record_parameters)
   }
@@ -311,6 +312,75 @@ export const CouncilPendingView = (props: Props) => {
                 </button>
               </article>
             ) : null}
+
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+          </div>
+        </CouncilPendingStyled>
+        {showing ? createPortal(modal, document?.body) : null}
+      </>
+    )
+  }
+
+  // 3/3
+  if (isChangeCouncilMember) {
+    const newCouncilMemberAddress = findActionByName('newCouncilMemberAddress')
+    const oldCouncilMemberAddress = findActionByName('oldCouncilMemberAddress')
+    const newCouncilMemberName = findActionByName('newCouncilMemberName')
+    const newCouncilMemberWebsite = findActionByName('newCouncilMemberWebsite')
+    const newCouncilMemberImage = findActionByName('newCouncilMemberImage')
+
+    return (
+      <>
+        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <h3>{getSeparateCamelCase(action_type)}</h3>
+          <div className="parameters grid">
+            <article>
+              <p>New Council Member Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={newCouncilMemberAddress} hasIcon={false} />
+              </span>
+            </article>
+            <article>
+              <p>Old Council Member Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={oldCouncilMemberAddress} hasIcon={false} />
+              </span>
+            </article>
+
+            <article>
+              <p>New Name</p>
+              <span className="parameters-value">{newCouncilMemberName}</span>
+            </article>
+
+            <article className="signed-article">
+              <div>
+                <p>Signed</p>
+                <span className="parameters-value">
+                  {signers_count}/{num_council_members}
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <div className="parameters grid">
+            {newCouncilMemberWebsite ? (
+              <article>
+                <p>New Council Member Website</p>
+                <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
+                  Visit Website
+                </a>
+              </article>
+            ) : null}
+
+            {newCouncilMemberImage ? (
+              <article className="parameters-img">
+                <AvatarStyle>
+                  <img src={newCouncilMemberImage} />
+                </AvatarStyle>
+              </article>
+            ) : null}
+
+            <article />
 
             <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
           </div>

@@ -8,6 +8,7 @@ export const CouncilPendingStyled = styled(Card)`
   padding-bottom: 28px;
   min-width: 237px;
 
+  // 2/3
   &.addVestee,
   &.addCouncilMember,
   &.updateVestee {
@@ -23,11 +24,21 @@ export const CouncilPendingStyled = styled(Card)`
     }
   }
 
+  // 3/3
   &.requestTokens {
     min-width: 750px;
     .parameters {
       display: grid;
       grid-template-columns: 130px 144px 150px 186px;
+      align-items: center;
+    }
+  }
+  // 3/3
+  &.changeCouncilMember {
+    min-width: 750px;
+    .parameters {
+      display: grid;
+      grid-template-columns: 180px 180px 100px 186px;
       align-items: center;
     }
   }
