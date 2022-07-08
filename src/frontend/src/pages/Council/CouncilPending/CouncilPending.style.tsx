@@ -9,7 +9,8 @@ export const CouncilPendingStyled = styled(Card)`
   min-width: 237px;
 
   &.addVestee,
-  &.addCouncilMember {
+  &.addCouncilMember,
+  &.updateVestee {
     min-width: 532px;
     .parameters {
       display: grid;
@@ -80,8 +81,9 @@ export const CouncilPendingStyled = styled(Card)`
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
-      white-space: nowrap;
-      overflow: hidden;
+      /* white-space: nowrap; */
+      /* overflow: hidden; */
+      word-break: break-all;
       width: 100%;
       max-width: 100%;
       text-overflow: ellipsis;
