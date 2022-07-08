@@ -29,7 +29,7 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
       </GovRightContainerTitleArea>
       {items.length ? (
         itemsToShow.map((item) => {
-          const financiaRequestTitle = `${item.request_type} ${item.request_purpose.substring(0, 20)}…`
+          const financiaRequestTitle = `${item.request_type} ${item.request_purpose}`
           return (
             <FRSListItem
               onClickHandler={() => handleItemSelect(item)}

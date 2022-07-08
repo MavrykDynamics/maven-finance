@@ -17,7 +17,7 @@ const FRSListItem = ({
 }: FRListItemProps) => {
   return (
     <FRListItem selected={selected} onClick={onClickHandler}>
-      <ListItemLeftSide>
+      <ListItemLeftSide className="financial-request">
         <span>{id + 1}</span>
         <h4>{title}</h4>
       </ListItemLeftSide>
