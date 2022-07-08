@@ -45,7 +45,6 @@ const Carousel = (props: Props) => {
     </svg>
   )
 
-  console.log('%c ||||| selectedIndex', 'color:yellowgreen', selectedIndex)
   return (
     <CarouselStyle>
       <small className="selected">

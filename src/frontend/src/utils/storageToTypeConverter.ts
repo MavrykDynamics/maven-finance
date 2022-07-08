@@ -568,7 +568,7 @@ function convertToGovernanceStorageType(storage: {
     storage?.governance_satellite_snapshot_record,
   )
 
-  const currentGovernance = storage?.governance?.[1] || {}
+  const currentGovernance = storage?.governance?.[0] || {}
 
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
