@@ -106,14 +106,14 @@ export const CouncilPendingView = (props: Props) => {
               <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
             </span>
           </article>
-          {totalAllocatedAmount ? (
-            <article>
-              <p>Total Allocated Amount</p>
-              <span className="parameters-value">
-                <CommaNumber value={+totalAllocatedAmount} loading={false} endingText={'MVK'} />
-              </span>
-            </article>
-          ) : null}
+
+          <article>
+            <p>Total Allocated Amount</p>
+            <span className="parameters-value">
+              <CommaNumber value={+totalAllocatedAmount} loading={false} endingText={'MVK'} />
+            </span>
+          </article>
+
           <article className="signed-article">
             <div>
               <p>Signed</p>
@@ -125,18 +125,15 @@ export const CouncilPendingView = (props: Props) => {
         </div>
 
         <div className="parameters">
-          {cliffInMonths ? (
-            <article>
-              <p>Cliff Period</p>
-              <span className="parameters-value">{cliffInMonths} months</span>
-            </article>
-          ) : null}
-          {vestingInMonths ? (
-            <article>
-              <p>Vesting Period</p>
-              <span className="parameters-value">{vestingInMonths} months</span>
-            </article>
-          ) : null}
+          <article>
+            <p>Cliff Period</p>
+            <span className="parameters-value">{cliffInMonths} months</span>
+          </article>
+
+          <article>
+            <p>Vesting Period</p>
+            <span className="parameters-value">{vestingInMonths} months</span>
+          </article>
 
           <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
         </div>
@@ -199,6 +196,56 @@ export const CouncilPendingView = (props: Props) => {
     )
   }
 
+  // 2/3
+  if (isUpdateVestee) {
+    const newCliffInMonths = findActionByName('newCliffInMonths')
+    const newVestingInMonths = findActionByName('newVestingInMonths')
+    const newTotalAllocatedAmount = findActionByName('newTotalAllocatedAmount')
+    return (
+      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <h3>{getSeparateCamelCase(action_type)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Adress</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
+            </span>
+          </article>
+
+          <article>
+            <p>New Total Amount</p>
+            <span className="parameters-value">
+              <CommaNumber value={+newTotalAllocatedAmount} loading={false} endingText={'MVK'} />
+            </span>
+          </article>
+
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signers_count}/{num_council_members}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          <article>
+            <p>New Cliff Period</p>
+            <span className="parameters-value">{newCliffInMonths} months</span>
+          </article>
+
+          <article>
+            <p>New Vesting Period</p>
+            <span className="parameters-value">{newVestingInMonths} months</span>
+          </article>
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+      </CouncilPendingStyled>
+    )
+  }
+
   // 3/3
   if (isRequestTokens) {
     const treasuryAddress =
@@ -227,14 +274,14 @@ export const CouncilPendingView = (props: Props) => {
                 <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
               </span>
             </article>
-            {calculateTokenAmount ? (
-              <article>
-                <p>Total Amount</p>
-                <span className="parameters-value">
-                  <CommaNumber value={calculateTokenAmount} loading={false} endingText={'MVK'} />
-                </span>
-              </article>
-            ) : null}
+
+            <article>
+              <p>Total Amount</p>
+              <span className="parameters-value">
+                <CommaNumber value={calculateTokenAmount} loading={false} endingText={'MVK'} />
+              </span>
+            </article>
+
             <article className="signed-article">
               <div>
                 <p>Signed</p>
@@ -246,18 +293,16 @@ export const CouncilPendingView = (props: Props) => {
           </div>
 
           <div className="parameters grid">
-            {tokenType ? (
-              <article>
-                <p>Token Type</p>
-                <span className="parameters-value">{tokenType}</span>
-              </article>
-            ) : null}
-            {tokenId ? (
-              <article>
-                <p>Token ID</p>
-                <span className="parameters-value">{tokenId}</span>
-              </article>
-            ) : null}
+            <article>
+              <p>Token Type</p>
+              <span className="parameters-value">{tokenType}</span>
+            </article>
+
+            <article>
+              <p>Token ID</p>
+              <span className="parameters-value">{tokenId}</span>
+            </article>
+
             {purpose ? (
               <article>
                 <p>Purpose for Request</p>
