@@ -35,7 +35,7 @@ export const Treasury = () => {
     )
     .map((item) => ({
       ...item,
-      text: item.text.toUpperCase(),
+      text: item.text,
     }))
 
   const ddItems = useMemo(() => itemsForDropDown.map((item) => item.text), [itemsForDropDown])
