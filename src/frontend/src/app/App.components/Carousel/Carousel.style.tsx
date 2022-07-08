@@ -5,6 +5,16 @@ export const CarouselStyle = styled.div`
   position: relative;
   margin-left: auto;
   margin-right: auto;
+
+  .selected {
+    position: absolute;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${headerColor};
+    right: 16px;
+    top: -50px;
+  }
 `
 
 export const CarouselViewport = styled.div`
