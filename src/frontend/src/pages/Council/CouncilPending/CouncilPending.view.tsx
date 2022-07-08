@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { createPortal } from 'react-dom'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
@@ -18,6 +18,7 @@ import { sign } from '../Council.actions'
 
 // style
 import { CouncilPendingStyled } from './CouncilPending.style'
+import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 
 type Props = {
   executed_datetime: string
@@ -50,25 +51,21 @@ export const CouncilPendingView = (props: Props) => {
     }
   }
 
-  console.log('%c ||||| council_action_record_parameters', 'color:yellowgreen', council_action_record_parameters)
+  const findActionByName = useCallback(
+    (name: string) => council_action_record_parameters.find((item) => item.name === name)?.value || '',
+    [council_action_record_parameters],
+  )
 
   const isAddVestee = action_type === 'addVestee'
-  const vesteeAddress = council_action_record_parameters.find((item) => item.name === 'vesteeAddress')?.value || ''
-  const cliffInMonths = council_action_record_parameters.find((item) => item.name === 'cliffInMonths')?.value || ''
-  const vestingInMonths = council_action_record_parameters.find((item) => item.name === 'vestingInMonths')?.value || ''
-  const totalAllocatedAmount =
-    council_action_record_parameters.find((item) => item.name === 'totalAllocatedAmount')?.value || ''
-
   const isRequestTokens = action_type === 'requestTokens'
-  const treasuryAddress = council_action_record_parameters.find((item) => item.name === 'treasuryAddress')?.value || ''
-  const tokenAmount = council_action_record_parameters.find((item) => item.name === 'tokenAmount')?.value || ''
-  const tokenContractAddress =
-    council_action_record_parameters.find((item) => item.name === 'tokenContractAddress')?.value || ''
-  const tokenType = council_action_record_parameters.find((item) => item.name === 'tokenType')?.value || ''
-  const tokenId = council_action_record_parameters.find((item) => item.name === 'tokenId')?.value || ''
-  const purpose = council_action_record_parameters.find((item) => item.name === 'purpose')?.value || ''
+  const isAddCouncilMember = action_type === 'addCouncilMember'
+  const isUpdateVestee = action_type === 'updateVestee'
+  const purpose = findActionByName('purpose')
 
-  const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
+  if (isUpdateVestee) {
+    console.log('%c ||||| action_type', 'color:green', action_type)
+    console.log('%c ||||| council_action_record_parameters', 'color:green', council_action_record_parameters)
+  }
 
   const modal = (
     <ModalStyled showing={true}>
@@ -94,7 +91,125 @@ export const CouncilPendingView = (props: Props) => {
     </ModalStyled>
   )
 
+  // 2/3
+  if (isAddVestee) {
+    const cliffInMonths = findActionByName('cliffInMonths')
+    const vestingInMonths = findActionByName('vestingInMonths')
+    const totalAllocatedAmount = findActionByName('totalAllocatedAmount')
+    return (
+      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <h3>{getSeparateCamelCase(action_type)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Adress</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
+            </span>
+          </article>
+          {totalAllocatedAmount ? (
+            <article>
+              <p>Total Allocated Amount</p>
+              <span className="parameters-value">
+                <CommaNumber value={+totalAllocatedAmount} loading={false} endingText={'MVK'} />
+              </span>
+            </article>
+          ) : null}
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signers_count}/{num_council_members}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          {cliffInMonths ? (
+            <article>
+              <p>Cliff Period</p>
+              <span className="parameters-value">{cliffInMonths} months</span>
+            </article>
+          ) : null}
+          {vestingInMonths ? (
+            <article>
+              <p>Vesting Period</p>
+              <span className="parameters-value">{vestingInMonths} months</span>
+            </article>
+          ) : null}
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+      </CouncilPendingStyled>
+    )
+  }
+
+  // 2/3
+  if (isAddCouncilMember) {
+    const councilMemberName = findActionByName('councilMemberName')
+    const councilMemberWebsite = findActionByName('councilMemberWebsite')
+    const councilMemberImage = findActionByName('councilMemberImage')
+    return (
+      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <h3>{getSeparateCamelCase(action_type)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Adress</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
+            </span>
+          </article>
+          {councilMemberName ? (
+            <article>
+              <p>Member Name</p>
+              <span className="parameters-value">{councilMemberName}</span>
+            </article>
+          ) : null}
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signers_count}/{num_council_members}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          {councilMemberWebsite ? (
+            <article>
+              <p>Member Website</p>
+              <a className="parameters-btn" href={councilMemberWebsite} target="_blank" rel="noreferrer">
+                Visit Website
+              </a>
+            </article>
+          ) : null}
+
+          {councilMemberImage ? (
+            <article className="parameters-img">
+              <AvatarStyle>
+                <img src={councilMemberImage} />
+              </AvatarStyle>
+            </article>
+          ) : null}
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+      </CouncilPendingStyled>
+    )
+  }
+
+  // 3/3
   if (isRequestTokens) {
+    const treasuryAddress =
+      council_action_record_parameters.find((item) => item.name === 'treasuryAddress')?.value || ''
+    const tokenAmount = council_action_record_parameters.find((item) => item.name === 'tokenAmount')?.value || ''
+    const tokenContractAddress =
+      council_action_record_parameters.find((item) => item.name === 'tokenContractAddress')?.value || ''
+    const tokenType = council_action_record_parameters.find((item) => item.name === 'tokenType')?.value || ''
+    const tokenId = council_action_record_parameters.find((item) => item.name === 'tokenId')?.value || ''
+
+    const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
     return (
       <>
         <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
@@ -157,54 +272,6 @@ export const CouncilPendingView = (props: Props) => {
         </CouncilPendingStyled>
         {showing ? createPortal(modal, document?.body) : null}
       </>
-    )
-  }
-  if (isAddVestee) {
-    return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
-        <div className="parameters">
-          <article>
-            <p>Adress</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={vesteeAddress} hasIcon={false} />
-            </span>
-          </article>
-          {totalAllocatedAmount ? (
-            <article>
-              <p>Total Allocated Amount</p>
-              <span className="parameters-value">
-                <CommaNumber value={+totalAllocatedAmount} loading={false} endingText={'MVK'} />
-              </span>
-            </article>
-          ) : null}
-          <article className="signed-article">
-            <div>
-              <p>Signed</p>
-              <span className="parameters-value">
-                {signers_count}/{num_council_members}
-              </span>
-            </div>
-          </article>
-        </div>
-
-        <div className="parameters">
-          {cliffInMonths ? (
-            <article>
-              <p>Cliff Period</p>
-              <span className="parameters-value">{cliffInMonths} months</span>
-            </article>
-          ) : null}
-          {vestingInMonths ? (
-            <article>
-              <p>Vesting Period</p>
-              <span className="parameters-value">{vestingInMonths} months</span>
-            </article>
-          ) : null}
-
-          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-        </div>
-      </CouncilPendingStyled>
     )
   }
 

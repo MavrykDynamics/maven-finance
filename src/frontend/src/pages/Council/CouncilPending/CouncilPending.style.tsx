@@ -8,7 +8,8 @@ export const CouncilPendingStyled = styled(Card)`
   padding-bottom: 28px;
   min-width: 237px;
 
-  &.addVestee {
+  &.addVestee,
+  &.addCouncilMember {
     min-width: 532px;
     .parameters {
       display: grid;
@@ -100,6 +101,19 @@ export const CouncilPendingStyled = styled(Card)`
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+  }
+
+  .parameters-img {
+    figure {
+      height: 50px;
+      width: 50px;
+    }
+    img {
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 50%;
     }
   }
 `
