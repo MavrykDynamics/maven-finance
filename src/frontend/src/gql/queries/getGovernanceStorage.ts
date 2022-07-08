@@ -13,7 +13,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       next_proposal_id
       proposal_round_vote_percentage
       proposal_round_vote_required
- 
       success_reward
       current_blocks_per_proposal_round
       current_blocks_per_timelock_round
