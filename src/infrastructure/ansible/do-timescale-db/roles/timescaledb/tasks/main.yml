@@ -25,6 +25,11 @@
     name: timescaledb-2-postgresql-14
     update_cache: yes
 
+- name: Install Promscale extension
+  ansible.builtin.apt:
+    name: promscale-extension-postgresql-14
+    update_cache: yes
+
 - name: Configure TimescaleDB
   ansible.builtin.shell:
     cmd: timescaledb-tune
@@ -35,3 +40,8 @@
       y
       y
       y
+
+- name: Add Promscale apt signing key
+  ansible.builtin.apt_key:
+    url: https://packagecloud.io/timescale/timescaledb/gpgkey
+    state: present

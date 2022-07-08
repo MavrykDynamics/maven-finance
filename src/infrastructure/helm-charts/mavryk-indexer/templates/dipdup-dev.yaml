@@ -96,7 +96,7 @@ spec:
               mountPath: /mavryk/dipdup.yml
               subPath: dipdup.yml
       containers:
-        - name: dipdup
+        - name: dipdup-dev
           args: ['-c', 'dipdup.yml', 'run']
           env:
             - name: POSTGRES_HOST
