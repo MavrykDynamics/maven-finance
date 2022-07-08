@@ -125,9 +125,7 @@ export const Council = () => {
           <div className="council-actions">
             {isPendingSignature && isPendindList ? (
               <>
-                <h1>
-                  Pending Signature<small>({councilPendingActions.length})</small>
-                </h1>
+                <h1>Pending Signature</h1>
                 <article className="pending">
                   <div className="pending-items">
                     <Carousel itemLength={councilPendingActions?.length} key={sliderKey}>

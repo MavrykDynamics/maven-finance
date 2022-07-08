@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, royalPurpleColor, cyanColor, boxShadowColor } from 'styles'
+import { Card, royalPurpleColor, cyanColor, boxShadowColor, headerColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -76,6 +76,12 @@ export const SatelliteGovernanceCardTitleTextGroup = styled.div<{ theme: MavrykT
     margin-left: auto;
     justify-content: center;
   }
+
+  .first-big-letter {
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
 `
 
 export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; theme: MavrykTheme }>`
@@ -91,6 +97,10 @@ export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; them
   transition: height 0.3s ease-in-out;
   overflow: hidden;
   position: relative;
+
+  .purpose {
+    word-break: break-all;
+  }
 
   .description {
     display: grid;
@@ -139,5 +149,47 @@ export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; them
   }
   &.hide {
     height: 0; /* changed */
+  }
+
+  .view-satellite {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${headerColor};
+  }
+
+  .brop-btn {
+    width: 250px;
+    margin-top: 40px;
+    display: block;
+  }
+
+  .voting-ends {
+    color: ${cyanColor};
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    margin-top: 10px;
+    display: block;
+  }
+
+  .voting-buttons {
+    margin-bottom: 20px;
+    margin-top: 64px;
+    justify-content: space-between;
+    padding-top: 0;
+
+    button {
+      width: 31%;
+    }
+  }
+
+  .voting-block {
+    width: 440px;
+    margin-left: auto;
+  }
+
+  .voting-bar {
+    margin-bottom: 54px;
   }
 `

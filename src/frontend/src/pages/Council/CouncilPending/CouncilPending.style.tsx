@@ -8,11 +8,39 @@ export const CouncilPendingStyled = styled(Card)`
   padding-bottom: 28px;
   min-width: 237px;
 
-  &.addVestee {
-    min-width: 494px;
+  // 2/3
+  &.addVestee,
+  &.addCouncilMember,
+  &.updateVestee {
+    min-width: 532px;
+    .parameters {
+      display: grid;
+      grid-template-columns: 130px 144px 150px;
+      align-items: center;
+    }
+
+    .sign-btn {
+      margin-left: -32px;
+    }
   }
+
+  // 3/3
   &.requestTokens {
     min-width: 750px;
+    .parameters {
+      display: grid;
+      grid-template-columns: 130px 144px 150px 186px;
+      align-items: center;
+    }
+  }
+  // 3/3
+  &.changeCouncilMember {
+    min-width: 750px;
+    .parameters {
+      display: grid;
+      grid-template-columns: 180px 180px 100px 186px;
+      align-items: center;
+    }
   }
 
   &.more {
@@ -57,17 +85,16 @@ export const CouncilPendingStyled = styled(Card)`
     padding-bottom: 20px;
     gap: 16px;
 
-    article {
-    }
-
     .parameters-value,
     .parameters-value p {
+      margin: 0;
       color: ${cyanColor};
       font-weight: 600;
       font-size: 16px;
       line-height: 16px;
-      white-space: nowrap;
-      overflow: hidden;
+      /* white-space: nowrap; */
+      /* overflow: hidden; */
+      word-break: break-all;
       width: 100%;
       max-width: 100%;
       text-overflow: ellipsis;
@@ -81,6 +108,25 @@ export const CouncilPendingStyled = styled(Card)`
       color: ${skyColor};
       margin-top: 0;
       margin-bottom: 10px;
+    }
+
+    .signed-article {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .parameters-img {
+    figure {
+      height: 50px;
+      width: 50px;
+    }
+    img {
+      height: 50px;
+      width: 50px;
+      object-fit: cover;
+      border-radius: 50%;
     }
   }
 `

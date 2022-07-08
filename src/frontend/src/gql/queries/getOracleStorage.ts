@@ -8,7 +8,6 @@ export const ORACLE_STORAGE_QUERY = `
       decimals
       deviation_reward_amount_smvk
       deviation_reward_amount_xtz
-      deviation_trigger_amount
       deviation_trigger_ban_duration
       deviation_trigger_oracle_id
       deviation_trigger_round_price

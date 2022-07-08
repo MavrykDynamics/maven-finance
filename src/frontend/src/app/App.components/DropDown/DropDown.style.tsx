@@ -27,6 +27,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
   cursor: pointer;
+  text-transform: capitalize;
 
   span {
     width: 50px;
@@ -87,6 +88,7 @@ export const DropDownListItem = styled.li`
   padding-right: 10px;
   cursor: pointer;
   justify-content: space-between;
+  text-transform: capitalize;
 
   svg {
     stroke: ${({ theme }) => theme.headerColor};

@@ -71,15 +71,25 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: any, g
   const state: State = getState()
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.proposalRoundVote(proposalId).send()
-    console.log('transaction', transaction)
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
 
     dispatch({
       type: PROPOSAL_ROUND_VOTING_REQUEST,
       proposalId: proposalId,
     })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.proposalRoundVote(proposalId).send()
+    console.log('transaction', transaction)
+
     dispatch(showToaster(INFO, 'Proposal Vote executing...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -108,15 +118,25 @@ export const votingRoundVote = (vote: number) => async (dispatch: any, getState:
   const state: State = getState()
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.votingRoundVote(vote).send()
-    console.log('transaction', transaction)
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
 
     dispatch({
       type: VOTING_ROUND_VOTING_REQUEST,
       vote: vote,
     })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.votingRoundVote(vote).send()
+    console.log('transaction', transaction)
+
     dispatch(showToaster(INFO, 'Voting...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -138,10 +158,6 @@ export const votingRoundVote = (vote: number) => async (dispatch: any, getState:
   }
 }
 
-// export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
-// export const START_PROPOSAL_ROUND_RESULT = 'START_PROPOSAL_ROUND_RESULT'
-// export const START_PROPOSAL_ROUND_ERROR = 'START_PROPOSAL_ROUND_ERROR'
-
 export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
 export const START_PROPOSAL_ROUND_RESULT = 'VOTING_ROUND_VOTING_RESULT'
 export const START_PROPOSAL_ROUND_ERROR = 'VOTING_ROUND_VOTING_ERROR'
@@ -149,14 +165,24 @@ export const startProposalRound = () => async (dispatch: any, getState: any) => 
   const state: State = getState()
 
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    dispatch({
+      type: START_PROPOSAL_ROUND_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.startProposalRound().send()
     console.log('transaction', transaction)
 
-    dispatch({
-      type: START_PROPOSAL_ROUND_REQUEST,
-    })
     dispatch(showToaster(INFO, 'Request Proposal round start...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -185,14 +211,25 @@ export const startVotingRound = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    dispatch({
+      type: START_VOTING_ROUND_REQUEST,
+    })
+
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.startProposalRound().send()
     console.log('transaction', transaction)
 
-    dispatch({
-      type: START_VOTING_ROUND_REQUEST,
-    })
     dispatch(showToaster(INFO, 'Request Voting round start...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -233,19 +270,29 @@ export const getTimestampByLevel = async (level: number): Promise<string> => {
   return ''
 }
 
+export const START_NEXT_ROUND_REQUEST = 'START_NEXT_ROUND_REQUEST'
+export const START_NEXT_ROUND_RESULT = 'START_NEXT_ROUND_RESULT'
 export const START_NEXT_ROUND_ERROR = 'START_NEXT_ROUND_ERROR'
 export const startNextRound = (executePastProposal: boolean) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
-    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-    console.log('startNextRound contract', contract)
-    console.log('%c ||||| executePastProposal', 'color:yellowgreen', executePastProposal)
-    const transaction = await contract?.methods.startNextRound(executePastProposal).send()
-    console.log('startNextRound transaction', transaction)
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
 
     dispatch({
-      type: START_NEXT_ROUND_ERROR,
+      type: START_NEXT_ROUND_REQUEST,
     })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+
+    const transaction = await contract?.methods.startNextRound(executePastProposal).send()
+
     dispatch(showToaster(INFO, 'Request Next round start...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -253,8 +300,9 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
     dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
 
     dispatch({
-      type: START_NEXT_ROUND_ERROR,
+      type: START_NEXT_ROUND_RESULT,
     })
+    dispatch(getGovernanceStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -265,17 +313,20 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
   }
 }
 
+export const EXECUTE_PROPOSAL_REQUEST = 'EXECUTE_PROPOSAL_REQUEST'
+export const EXECUTE_PROPOSAL_RESULT = 'EXECUTE_PROPOSAL_RESULT'
+export const EXECUTE_PROPOSAL_ERROR = 'EXECUTE_PROPOSAL_ERROR'
 export const executeProposal = (proposalId: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
+    dispatch({
+      type: EXECUTE_PROPOSAL_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('Execute Proposal contract', contract)
     const transaction = await contract?.methods.processProposalPayment(proposalId).send()
     console.log('Execute Proposal transaction', transaction)
 
-    dispatch({
-      type: START_NEXT_ROUND_ERROR,
-    })
     dispatch(showToaster(INFO, 'Request Execute Proposal round start...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -283,13 +334,14 @@ export const executeProposal = (proposalId: number) => async (dispatch: any, get
     dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
 
     dispatch({
-      type: START_NEXT_ROUND_ERROR,
+      type: EXECUTE_PROPOSAL_RESULT,
     })
+    dispatch(getGovernanceStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: START_NEXT_ROUND_ERROR,
+      type: EXECUTE_PROPOSAL_ERROR,
       error,
     })
   }

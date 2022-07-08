@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+
+// types
+import type { GovernanceSatelliteItem } from '../../reducers/governance'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -10,33 +13,77 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
-import { Input } from '../../app/App.components/Input/Input.controller'
-import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
-import { Button } from '../../app/App.components/Button/Button.controller'
-import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import {
+  ButtonLoadingIcon,
+  ButtonStyled,
+  ButtonText,
+  SlidingTabButtonsStyled,
+} from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.style'
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
+import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
+
+// actions
+import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 
 // style
 import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'
 import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
 
-export const SatelliteGovernance = () => {
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const itemsForDropDown = [
-    { text: 'Chose action', value: '' },
-    { text: 'Suspend Satellite', value: 'suspendSatellite' },
-    { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
-    { text: 'Ban Satellite', value: 'banSatellite' },
-    { text: 'Unban Satellite', value: 'unbanSatellite' },
-    { text: 'Remove Oracles', value: 'removeOracles' },
-    { text: 'Remove from Aggregator', value: 'removeFromAggregator' },
-    { text: 'Add to Aggregator', value: 'addToAggregator' },
-  ]
+const itemsForDropDown = [
+  { text: 'Chose action', value: '' },
+  { text: 'Suspend Satellite', value: 'suspendSatellite' },
+  { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
+  { text: 'Ban Satellite', value: 'banSatellite' },
+  { text: 'Unban Satellite', value: 'unbanSatellite' },
+  { text: 'Remove Oracles', value: 'removeOracles' },
+  { text: 'Remove from Aggregator', value: 'removeFromAggregator' },
+  { text: 'Add to Aggregator', value: 'addToAggregator' },
+]
 
+const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+  return list.filter((item: any) => {
+    const timeNow = Date.now()
+    const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    return expirationDatetime > timeNow && item.status !== 1
+  })
+}
+
+const getPastActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+  return list.filter((item: any) => {
+    const timeNow = Date.now()
+    const expirationDatetime = new Date(item.expiration_datetime).getTime()
+    return expirationDatetime < timeNow
+  })
+}
+
+export const SatelliteGovernance = () => {
+  const dispatch = useDispatch()
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { oraclesStorage } = useSelector((state: State) => state.oracles)
+  const { governanceSatelliteStorage } = useSelector((state: State) => state.governance)
+  const satelliteLedger = delegationStorage?.satelliteLedger
+  const { totalOracleNetworks } = oraclesStorage
+  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+  const satelliteLedgerActive = useMemo(() => satelliteLedger.filter((item) => item.active), [satelliteLedger])
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
+  const [activeTab, setActiveTab] = useState('ongoing')
+  const governanceSatelliteActionRecord = governanceSatelliteStorage.governance_satellite_action_record
+
+  const ongoingActionsAmount = getOngoingActionsList(governanceSatelliteActionRecord).length
+
+  const [separateRecord, setSeparateRecord] = useState<Record<string, unknown>[]>([])
+
+  useEffect(() => {
+    const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
+    const filterPast = getPastActionsList(governanceSatelliteActionRecord)
+    setSeparateRecord(filterOngoing.length ? filterOngoing : filterPast)
+    setActiveTab(filterOngoing.length ? 'ongoing' : 'past')
+  }, [governanceSatelliteActionRecord])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -53,6 +100,33 @@ export const SatelliteGovernance = () => {
     handleSelect(chosenItem)
   }
 
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'ongoing') {
+      setActiveTab('ongoing')
+      const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
+
+      setSeparateRecord(filterOngoing)
+    }
+
+    if (tabId === 'past') {
+      setActiveTab('past')
+      const filterPast = getPastActionsList(governanceSatelliteActionRecord)
+      setSeparateRecord(filterPast)
+    }
+
+    if (tabId === 'my') {
+      setActiveTab('my')
+      const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
+        return accountPkh === item.initiator_id
+      })
+      setSeparateRecord(filterPast)
+    }
+  }
+
+  useEffect(() => {
+    dispatch(getGovernanceSatelliteStorage())
+  }, [dispatch])
+
   return (
     <Page>
       <PageHeader page={'satellite-governance'} kind={PRIMARY} />
@@ -61,7 +135,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Active Satellites</h3>
             <p>
-              350{' '}
+              {satelliteLedgerActive?.length}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -75,7 +149,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Oracle Networks</h3>
             <p>
-              920+{' '}
+              {totalOracleNetworks}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -89,7 +163,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Total Delegated MVK</h3>
             <p>
-              2,300,000,000+{' '}
+              <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -103,7 +177,7 @@ export const SatelliteGovernance = () => {
           <div className="satellite-governance-info">
             <h3>Ongoing Actions</h3>
             <p>
-              350{' '}
+              {ongoingActionsAmount}{' '}
               <a
                 className="info-link"
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -134,44 +208,43 @@ export const SatelliteGovernance = () => {
           </DropdownCard>
         ) : null}
 
-        <SlidingTabButtons className="tab-buttons" onClick={() => null} type={'GovProposalSubmissionForm'} />
+        <SlidingTabButtonsStyled className="tab-buttons">
+          <ButtonStyled buttonActive={activeTab === 'ongoing'} onClick={() => handleTabChange('ongoing')}>
+            <ButtonText>Ongoing Actions</ButtonText>
+          </ButtonStyled>
+          <ButtonStyled buttonActive={activeTab === 'past'} onClick={() => handleTabChange('past')}>
+            <ButtonText>Past Actions</ButtonText>
+          </ButtonStyled>
+          {accountPkh ? (
+            <ButtonStyled buttonActive={activeTab === 'my'} onClick={() => handleTabChange('my')}>
+              <ButtonText>My Actions</ButtonText>
+            </ButtonStyled>
+          ) : null}
+        </SlidingTabButtonsStyled>
       </SatelliteGovernanceStyled>
-      <SatelliteGovernanceCard
-        satelliteGovernanceCard={{
-          id: 0,
-          title: 'Suspend Satellite',
-          startTimestamp: 'string',
-          proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-          description:
-            'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-          dropped: false,
-          executed: true,
-        }}
-      />
-      <SatelliteGovernanceCard
-        satelliteGovernanceCard={{
-          id: 0,
-          title: 'Suspend Satellite',
-          startTimestamp: 'string',
-          proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-          description:
-            'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-          dropped: false,
-          executed: true,
-        }}
-      />
-      <SatelliteGovernanceCard
-        satelliteGovernanceCard={{
-          id: 0,
-          title: 'Suspend Satellite',
-          startTimestamp: 'string',
-          proposerId: 'KT1GqPZTDFbv3VnLATFZNh87YWk8iarg2Xqm',
-          description:
-            'Satellite tz1V...8HAJ has acted in good faith and wishes to return to being an active part of governance following their usage of inappropiate images as their satellite image',
-          dropped: false,
-          executed: true,
-        }}
-      />
+
+      {separateRecord.map((item: any) => {
+        const linkAdress = item.governance_satellite_action_parameters?.[0]?.value || ''
+
+        return (
+          <SatelliteGovernanceCard
+            key={item.id}
+            id={item.id}
+            satellite={item.governance_satellite_id}
+            date={item.expiration_datetime}
+            executed={item.executed}
+            status={item.status}
+            purpose={item.governance_purpose}
+            governanceType={item.governance_type}
+            linkAdress={linkAdress}
+            yayVotesSmvkTotal={item.yay_vote_smvk_total}
+            nayVotesSmvkTotal={item.nay_vote_smvk_total}
+            snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}
+            passVoteSmvkTotal={item.pass_vote_smvk_total}
+            smvkPercentageForApproval={item.smvk_percentage_for_approval}
+          />
+        )
+      })}
     </Page>
   )
 }

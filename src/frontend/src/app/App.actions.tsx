@@ -15,6 +15,7 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
+import { GET_ORACLES_STORAGE } from '../pages/Oracles/Oracles.actions'
 import {
   CONTRACT_ADDRESSES_QUERY,
   CONTRACT_ADDRESSES_QUERY_NAME,
@@ -42,9 +43,10 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const farmFactoryStorage = storageToTypeConverter('farmFactory', res[4]?.farm_factory[0])
   const emergencyGovernanceStorage = storageToTypeConverter('emergencyGovernance', res[5]?.emergency_governance[0])
   const breakGlassStorage = storageToTypeConverter('breakGlass', res[6]?.break_glass[0])
-  const councilStorage = storageToTypeConverter('council', res[7]?.council[0])
+  const councilStorage = storageToTypeConverter('council', res[7]?.council?.[0])
   const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
+  const oraclesStorage = res[10]
 
   // if (addressesStorage) updateContractAddresses(addressesStorage)
 
@@ -109,6 +111,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   })
 
   dispatch({ type: SET_PAST_PROPOSALS, pastProposals: governanceStorage.proposalLedger })
+  dispatch({ type: GET_ORACLES_STORAGE, oraclesStorage })
 }
 
 export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'

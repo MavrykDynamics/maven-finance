@@ -68,7 +68,7 @@ export const PropSubmissionTopBarView = ({
                 {governancePhase.substring(1).toLocaleLowerCase()}
               </PropSubTopBarValueText>
             </CurrentPhaseContainer>
-            {timeLeftInPhase >= 0 ? (
+            {timeLeftInPhase > 0 ? (
               <TimeLeftAreaWrap>
                 {typeof timeLeftInPhase === 'number' ? (
                   <TimeLeftArea>{Math.ceil(timeLeftInPhase)} days remaining</TimeLeftArea>
