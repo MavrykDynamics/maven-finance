@@ -36,6 +36,10 @@ const FRVoting = ({ ready, loading, selectedRequest }: FRVotingProps) => {
     dispatch(connect({ forcePermission: false }))
   }
 
+  // TODO: remove logs, after fix voting output
+  console.log('%c Financial requests voting debug: selected request: ', 'color: #7716ff; font-size: 18px;')
+  console.table(selectedRequest)
+
   const [votingStats, setVoteStatistics] = useState({
     totalVotes: selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total,
     forVotes: selectedRequest.pass_vote_smvk_total,
