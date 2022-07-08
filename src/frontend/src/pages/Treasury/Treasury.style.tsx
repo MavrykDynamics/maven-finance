@@ -26,6 +26,7 @@ export const TreasuryViewStyle = styled(Card)`
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-transform: capitalize;
     }
   }
 
