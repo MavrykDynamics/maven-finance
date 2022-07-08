@@ -146,62 +146,50 @@ export const CouncilPendingView = (props: Props) => {
     const councilMemberWebsite = findActionByName('councilMemberWebsite')
     const councilMemberImage = findActionByName('councilMemberImage')
     return (
-      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
-        <h3>{getSeparateCamelCase(action_type)}</h3>
-        <div className="parameters">
-          <article>
-            <p>Adress</p>
-            <span className="parameters-value">
-              <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
-            </span>
-          </article>
-          {councilMemberName ? (
+      <>
+        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <h3>{getSeparateCamelCase(action_type)}</h3>
+          <div className="parameters">
             <article>
-              <p>Member Name</p>
-              <span className="parameters-value">{councilMemberName}</span>
-            </article>
-          ) : null}
-          <article className="signed-article">
-            <div>
-              <p>Signed</p>
+              <p>Adress</p>
               <span className="parameters-value">
-                {signers_count}/{num_council_members}
+                <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
               </span>
-            </div>
-          </article>
-        </div>
-
-        <div className="parameters">
-          {councilMemberWebsite ? (
-            <article>
-              <p>Member Website</p>
-              <a className="parameters-btn" href={councilMemberWebsite} target="_blank" rel="noreferrer">
-                Visit Website
-              </a>
             </article>
-          ) : null}
-
-          {councilMemberImage ? (
-            <article className="parameters-img">
-              <AvatarStyle>
-                <img src={councilMemberImage} />
-              </AvatarStyle>
+            {councilMemberName ? (
+              <article>
+                <p>Member Name</p>
+                <span className="parameters-value">{councilMemberName}</span>
+              </article>
+            ) : null}
+            <article className="signed-article">
+              <div>
+                <p>Signed</p>
+                <span className="parameters-value">
+                  {signers_count}/{num_council_members}
+                </span>
+              </div>
             </article>
           </div>
 
           <div className="parameters">
-            {tokenType ? (
+            {councilMemberWebsite ? (
               <article>
-                <p>Token Type</p>
-                <span className="parameters-value">{tokenType}</span>
+                <p>Member Website</p>
+                <a className="parameters-btn" href={councilMemberWebsite} target="_blank" rel="noreferrer">
+                  Visit Website
+                </a>
               </article>
             ) : null}
-            {tokenId ? (
-              <article>
-                <p>Token ID</p>
-                <span className="parameters-value">{tokenId}</span>
+
+            {councilMemberImage ? (
+              <article className="parameters-img">
+                <AvatarStyle>
+                  <img src={councilMemberImage} />
+                </AvatarStyle>
               </article>
             ) : null}
+
             {purpose ? (
               <article>
                 <p>Purpose for Request</p>
