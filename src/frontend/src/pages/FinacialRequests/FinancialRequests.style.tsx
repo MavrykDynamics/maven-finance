@@ -36,7 +36,7 @@ export const FinancialRequestsRightContainer = styled(Card)<{ theme: MavrykTheme
     font-weight: 600;
     font-size: 12px;
     line-height: 12px;
-    color: #86d4c9;
+    color: ${cyanColor};
   }
 
   hr {
@@ -79,14 +79,14 @@ export const InfoBlockTitle = styled.div<{ theme: MavrykTheme }>`
   font-weight: 600;
   font-size: 18px;
   line-height: 18px;
-  color: #8d86eb;
+  color: ${headerColor};
 `
 
 export const InfoBlockDescr = styled.div<{ theme: MavrykTheme }>`
   font-weight: 400;
   font-size: 14px;
   line-height: 21px;
-  color: #77a4f2;
+  color: ${skyColor};
   margin-top: 5px;
 `
 
