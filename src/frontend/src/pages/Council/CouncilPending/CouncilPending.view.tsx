@@ -61,12 +61,10 @@ export const CouncilPendingView = (props: Props) => {
   const isAddCouncilMember = action_type === 'addCouncilMember'
   const isUpdateVestee = action_type === 'updateVestee'
   const isChangeCouncilMember = action_type === 'changeCouncilMember'
+  const isTransfer = action_type === 'transfer'
+  const isRequestMint = action_type === 'requestMint'
+  const isDropFinancialRequest = action_type === 'dropFinancialRequest'
   const purpose = findActionByName('purpose')
-
-  if (isChangeCouncilMember) {
-    console.log('%c ||||| action_type', 'color:green', action_type)
-    console.log('%c ||||| council_action_record_parameters', 'color:green', council_action_record_parameters)
-  }
 
   const modal = (
     <ModalStyled showing={true}>
@@ -249,13 +247,11 @@ export const CouncilPendingView = (props: Props) => {
 
   // 3/3
   if (isRequestTokens) {
-    const treasuryAddress =
-      council_action_record_parameters.find((item) => item.name === 'treasuryAddress')?.value || ''
-    const tokenAmount = council_action_record_parameters.find((item) => item.name === 'tokenAmount')?.value || ''
-    const tokenContractAddress =
-      council_action_record_parameters.find((item) => item.name === 'tokenContractAddress')?.value || ''
-    const tokenType = council_action_record_parameters.find((item) => item.name === 'tokenType')?.value || ''
-    const tokenId = council_action_record_parameters.find((item) => item.name === 'tokenId')?.value || ''
+    const treasuryAddress = findActionByName('treasuryAddress')
+    const tokenAmount = findActionByName('tokenAmount')
+    const tokenContractAddress = findActionByName('tokenContractAddress')
+    const tokenType = findActionByName('tokenType')
+    const tokenId = findActionByName('tokenId')
 
     const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
     return (
@@ -335,13 +331,13 @@ export const CouncilPendingView = (props: Props) => {
           <h3>{getSeparateCamelCase(action_type)}</h3>
           <div className="parameters grid">
             <article>
-              <p>New Council Member Address</p>
+              <p>New Address</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={newCouncilMemberAddress} hasIcon={false} />
               </span>
             </article>
             <article>
-              <p>Old Council Member Address</p>
+              <p>Old Address</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={oldCouncilMemberAddress} hasIcon={false} />
               </span>
@@ -365,7 +361,7 @@ export const CouncilPendingView = (props: Props) => {
           <div className="parameters grid">
             {newCouncilMemberWebsite ? (
               <article>
-                <p>New Council Member Website</p>
+                <p>New Website</p>
                 <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
                   Visit Website
                 </a>
@@ -390,16 +386,154 @@ export const CouncilPendingView = (props: Props) => {
     )
   }
 
+  // 3/3
+  if (isTransfer) {
+    const receiverAddress = findActionByName('receiverAddress')
+    const tokenContractAddress = findActionByName('tokenContractAddress')
+    const tokenAmount = findActionByName('tokenAmount')
+    const tokenType = findActionByName('tokenType')
+    const tokenId = findActionByName('tokenId')
+
+    const calculateTokenAmount = calcWithoutPrecision(tokenAmount)
+    return (
+      <>
+        <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+          <h3>{getSeparateCamelCase(action_type)}</h3>
+          <div className="parameters grid">
+            <article>
+              <p>Receiver Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={receiverAddress} hasIcon={false} />
+              </span>
+            </article>
+            <article>
+              <p>Token Contract Address</p>
+              <span className="parameters-value">
+                <TzAddress tzAddress={tokenContractAddress} hasIcon={false} />
+              </span>
+            </article>
+
+            <article>
+              <p>Total Amount</p>
+              <span className="parameters-value">
+                <CommaNumber value={calculateTokenAmount} loading={false} endingText={'MVK'} />
+              </span>
+            </article>
+
+            <article className="signed-article">
+              <div>
+                <p>Signed</p>
+                <span className="parameters-value">
+                  {signers_count}/{num_council_members}
+                </span>
+              </div>
+            </article>
+          </div>
+
+          <div className="parameters grid">
+            <article>
+              <p>Token Type</p>
+              <span className="parameters-value">{tokenType}</span>
+            </article>
+
+            <article>
+              <p>Token ID</p>
+              <span className="parameters-value">{tokenId}</span>
+            </article>
+
+            {purpose ? (
+              <article>
+                <p>Purpose for Request</p>
+                <button className="parameters-btn" onClick={() => setShowing(true)}>
+                  Read Request
+                </button>
+              </article>
+            ) : null}
+
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+          </div>
+        </CouncilPendingStyled>
+        {showing ? createPortal(modal, document?.body) : null}
+      </>
+    )
+  }
+
+  // 2/3
+  if (isRequestMint) {
+    const tokenAmount = findActionByName('tokenAmount')
+    return (
+      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <h3>{getSeparateCamelCase(action_type)}</h3>
+        <div className="parameters">
+          <article>
+            <p>Adress</p>
+            <span className="parameters-value">
+              <TzAddress tzAddress={findActionByName('treasuryAddress')} hasIcon={false} />
+            </span>
+          </article>
+
+          <article>
+            <p>Token Amount</p>
+            <span className="parameters-value">
+              <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
+            </span>
+          </article>
+
+          <article className="signed-article">
+            <div>
+              <p>Signed</p>
+              <span className="parameters-value">
+                {signers_count}/{num_council_members}
+              </span>
+            </div>
+          </article>
+        </div>
+
+        <div className="parameters">
+          {purpose ? (
+            <article>
+              <p>Purpose for Request</p>
+              <button className="parameters-btn" onClick={() => setShowing(true)}>
+                Read Request
+              </button>
+            </article>
+          ) : null}
+
+          <article />
+
+          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+        </div>
+        {showing ? createPortal(modal, document?.body) : null}
+      </CouncilPendingStyled>
+    )
+  }
+
+  // 1/3
+  if (isDropFinancialRequest) {
+    return (
+      <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
+        <h3>{getSeparateCamelCase(action_type)}</h3>
+        <div className="parameters">
+          <div>
+            <p>Request ID</p>
+            <span className="parameters-value">{findActionByName('requestId')}</span>
+          </div>
+          <div>
+            <p>Signed</p>
+            <span className="parameters-value">
+              {signers_count}/{num_council_members}
+            </span>
+          </div>
+        </div>
+        <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+      </CouncilPendingStyled>
+    )
+  }
+
   return (
     <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
       <h3>{getSeparateCamelCase(action_type)}</h3>
       <div className="parameters">
-        <div>
-          <p>Adress</p>
-          <span className="parameters-value">
-            <TzAddress tzAddress={initiator_id} hasIcon={false} />
-          </span>
-        </div>
         <div>
           <p>Signed</p>
           <span className="parameters-value">
