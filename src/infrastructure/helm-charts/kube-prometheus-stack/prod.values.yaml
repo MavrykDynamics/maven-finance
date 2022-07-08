@@ -669,12 +669,18 @@ kube-prometheus-stack:
     ingress:
       ## If true, Grafana Ingress will be created
       ##
-      enabled: false
+      enabled: true
 
       ## Annotations for Grafana Ingress
       ##
       annotations:
-        {}
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/enable-cors: 'true'
+        nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+        nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+
         # kubernetes.io/ingress.class: nginx
         # kubernetes.io/tls-acme: "true"
 
@@ -687,7 +693,8 @@ kube-prometheus-stack:
       ##
       # hosts:
       #   - grafana.domain.com
-      hosts: []
+      hosts:
+        - grafana.mavryk.finance
 
       ## Path for grafana ingress
       path: /
@@ -695,7 +702,10 @@ kube-prometheus-stack:
       ## TLS configuration for grafana Ingress
       ## Secret must be manually created in the namespace
       ##
-      tls: []
+      tls:
+        - hosts:
+            - grafana.mavryk.finance
+          secretName: grafana-tls
       # - secretName: grafana-general-tls
       #   hosts:
       #   - grafana.example.com

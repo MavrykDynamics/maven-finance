@@ -171,13 +171,15 @@ cert-manager:
     enabled: true
     servicemonitor:
       enabled: true
+      namespace: kube-prometheus-stack
       prometheusInstance: default
       targetPort: 9402
       path: /metrics
       interval: 60s
       scrapeTimeout: 30s
-      labels: {}
-      honorLabels: false
+      labels:
+        release: 'prod'
+      honorLabels: true
 
   # Use these variables to configure the HTTP_PROXY environment variables
   # http_proxy: "http://proxy:8080"
