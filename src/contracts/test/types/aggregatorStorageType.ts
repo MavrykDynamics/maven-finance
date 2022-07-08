@@ -48,7 +48,6 @@ export type aggregatorStorageType = {
   
   deviationTriggerInfos: {
     oracleAddress   : string;
-    amount          : BigNumber;
     roundPrice      : BigNumber;
   };
 

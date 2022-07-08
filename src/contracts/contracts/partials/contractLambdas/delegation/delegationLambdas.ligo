@@ -1097,11 +1097,10 @@ function lambdaUpdateSatelliteStatus(const delegationLambdaAction : delegationLa
 block {
 
     // Steps Overview: 
-    // 1. Check that %distributeReward entrypoint is not paused (e.g. glass broken)
-    // 2. Check sender is from a whitelisted contract
-    // 3. Get satellite record
-    // 4. Update satellite record with new status
-    // 5. Update storage - satellite record
+    // 1. Check sender is from a whitelisted contract
+    // 2. Get satellite record
+    // 3. Update satellite record with new status
+    // 4. Update storage - satellite record
 
     // Check sender is admin or from a whitelisted contract (e.g. Governance, Governance Satellite, Aggregator Factory, Doorman, Treasury)
     if s.admin = Tezos.sender or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
