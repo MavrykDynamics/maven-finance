@@ -187,11 +187,35 @@ export const CouncilPendingView = (props: Props) => {
                 <img src={councilMemberImage} />
               </AvatarStyle>
             </article>
-          ) : null}
+          </div>
 
-          <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
-        </div>
-      </CouncilPendingStyled>
+          <div className="parameters">
+            {tokenType ? (
+              <article>
+                <p>Token Type</p>
+                <span className="parameters-value">{tokenType}</span>
+              </article>
+            ) : null}
+            {tokenId ? (
+              <article>
+                <p>Token ID</p>
+                <span className="parameters-value">{tokenId}</span>
+              </article>
+            ) : null}
+            {purpose ? (
+              <article>
+                <p>Purpose for Request</p>
+                <button className="parameters-btn" onClick={() => setShowing(true)}>
+                  Read Request
+                </button>
+              </article>
+            ) : null}
+
+            <Button text="Sign" className="sign-btn" kind={'actionPrimary'} icon="sign" onClick={handleSign} />
+          </div>
+        </CouncilPendingStyled>
+        {showing ? createPortal(modal, document?.body) : null}
+      </>
     )
   }
 
