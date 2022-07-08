@@ -70,17 +70,17 @@ export const getCouncilPendingActionsStorage = () => async (dispatch: any, getSt
       COUNCIL_PENDING_ACTIONS_NAME,
       COUNCIL_PENDING_ACTIONS_VARIABLE,
     )
-    // const councilPendingActions = storage?.council_action_record?.length
-    //   ? storage?.council_action_record.filter((item: any) => {
-    //       const timeNow = Date.now()
-    //       const expirationDatetime = new Date(item.expiration_datetime).getTime()
-    //       const isEndedVotingTime = expirationDatetime > timeNow
-    //       const isNoSameAccountPkh = accountPkh !== item.initiator_id
-    //       return isEndedVotingTime && isNoSameAccountPkh
-    //     })
-    //   : []
+    const councilPendingActions = storage?.council_action_record?.length
+      ? storage?.council_action_record.filter((item: any) => {
+          const timeNow = Date.now()
+          const expirationDatetime = new Date(item.expiration_datetime).getTime()
+          const isEndedVotingTime = expirationDatetime > timeNow
+          const isNoSameAccountPkh = accountPkh !== item.initiator_id
+          return isEndedVotingTime && isNoSameAccountPkh
+        })
+      : []
 
-    const councilPendingActions = storage?.council_action_record
+    //const councilPendingActions = storage?.council_action_record
 
     dispatch({
       type: GET_COUNCIL_PENDING_ACTIONS_STORAGE,

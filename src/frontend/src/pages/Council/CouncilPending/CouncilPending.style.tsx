@@ -11,7 +11,8 @@ export const CouncilPendingStyled = styled(Card)`
   // 2/3
   &.addVestee,
   &.addCouncilMember,
-  &.updateVestee {
+  &.updateVestee,
+  &.requestMint {
     min-width: 532px;
     .parameters {
       display: grid;
@@ -25,7 +26,8 @@ export const CouncilPendingStyled = styled(Card)`
   }
 
   // 3/3
-  &.requestTokens {
+  &.requestTokens,
+  &.transfer {
     min-width: 750px;
     .parameters {
       display: grid;
