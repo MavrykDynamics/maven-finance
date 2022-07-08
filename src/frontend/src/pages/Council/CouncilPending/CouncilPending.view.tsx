@@ -95,12 +95,13 @@ export const CouncilPendingView = (props: Props) => {
     const cliffInMonths = findActionByName('cliffInMonths')
     const vestingInMonths = findActionByName('vestingInMonths')
     const totalAllocatedAmount = findActionByName('totalAllocatedAmount')
+    const calculateTokenAmount = calcWithoutPrecision(totalAllocatedAmount)
     return (
       <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
         <h3>{getSeparateCamelCase(action_type)}</h3>
         <div className="parameters">
           <article>
-            <p>Adress</p>
+            <p>Vestee Address</p>
             <span className="parameters-value">
               <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
             </span>
@@ -125,12 +126,12 @@ export const CouncilPendingView = (props: Props) => {
 
         <div className="parameters">
           <article>
-            <p>Cliff Period</p>
+            <p>Cliff In Months</p>
             <span className="parameters-value">{cliffInMonths} months</span>
           </article>
 
           <article>
-            <p>Vesting Period</p>
+            <p>Vesting In Months</p>
             <span className="parameters-value">{vestingInMonths} months</span>
           </article>
 
@@ -151,14 +152,14 @@ export const CouncilPendingView = (props: Props) => {
           <h3>{getSeparateCamelCase(action_type)}</h3>
           <div className="parameters">
             <article>
-              <p>Adress</p>
+              <p>Council Member Address</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={findActionByName('councilMemberAddress')} hasIcon={false} />
               </span>
             </article>
             {councilMemberName ? (
               <article>
-                <p>Member Name</p>
+                <p>Council Member Name</p>
                 <span className="parameters-value">{councilMemberName}</span>
               </article>
             ) : null}
@@ -175,7 +176,7 @@ export const CouncilPendingView = (props: Props) => {
           <div className="parameters">
             {councilMemberWebsite ? (
               <article>
-                <p>Member Website</p>
+                <p>Council Member Website</p>
                 <a className="parameters-btn" href={councilMemberWebsite} target="_blank" rel="noreferrer">
                   Visit Website
                 </a>
@@ -212,19 +213,20 @@ export const CouncilPendingView = (props: Props) => {
     const newCliffInMonths = findActionByName('newCliffInMonths')
     const newVestingInMonths = findActionByName('newVestingInMonths')
     const newTotalAllocatedAmount = findActionByName('newTotalAllocatedAmount')
+    const calculateTokenAmount = calcWithoutPrecision(newTotalAllocatedAmount)
     return (
       <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
         <h3>{getSeparateCamelCase(action_type)}</h3>
         <div className="parameters">
           <article>
-            <p>Adress</p>
+            <p>Vestee Address</p>
             <span className="parameters-value">
               <TzAddress tzAddress={findActionByName('vesteeAddress')} hasIcon={false} />
             </span>
           </article>
 
           <article>
-            <p>New Total Amount</p>
+            <p>New Total Allocated Amount</p>
             <span className="parameters-value">
               <CommaNumber value={+newTotalAllocatedAmount} loading={false} endingText={'MVK'} />
             </span>
@@ -242,12 +244,12 @@ export const CouncilPendingView = (props: Props) => {
 
         <div className="parameters">
           <article>
-            <p>New Cliff Period</p>
+            <p>New Cliff In Months</p>
             <span className="parameters-value">{newCliffInMonths} months</span>
           </article>
 
           <article>
-            <p>New Vesting Period</p>
+            <p>New Vesting In Months</p>
             <span className="parameters-value">{newVestingInMonths} months</span>
           </article>
 
@@ -285,9 +287,9 @@ export const CouncilPendingView = (props: Props) => {
             </article>
 
             <article>
-              <p>Total Amount</p>
+              <p>Token Amount</p>
               <span className="parameters-value">
-                <CommaNumber value={calculateTokenAmount} loading={false} endingText={'MVK'} />
+                <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
               </span>
             </article>
 
@@ -343,20 +345,20 @@ export const CouncilPendingView = (props: Props) => {
           <h3>{getSeparateCamelCase(action_type)}</h3>
           <div className="parameters grid">
             <article>
-              <p>New Address</p>
+              <p>New Counci lMember Address</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={newCouncilMemberAddress} hasIcon={false} />
               </span>
             </article>
             <article>
-              <p>Old Address</p>
+              <p>Old Counci lMember Address</p>
               <span className="parameters-value">
                 <TzAddress tzAddress={oldCouncilMemberAddress} hasIcon={false} />
               </span>
             </article>
 
             <article>
-              <p>New Name</p>
+              <p>New Counci lMember Name</p>
               <span className="parameters-value">{newCouncilMemberName}</span>
             </article>
 
@@ -373,7 +375,7 @@ export const CouncilPendingView = (props: Props) => {
           <div className="parameters grid">
             {newCouncilMemberWebsite ? (
               <article>
-                <p>New Website</p>
+                <p>New Counci lMember Website</p>
                 <a className="parameters-btn" href={newCouncilMemberWebsite} target="_blank" rel="noreferrer">
                   Visit Website
                 </a>
@@ -428,7 +430,7 @@ export const CouncilPendingView = (props: Props) => {
             <article>
               <p>Total Amount</p>
               <span className="parameters-value">
-                <CommaNumber value={calculateTokenAmount} loading={false} endingText={'MVK'} />
+                <CommaNumber value={+tokenAmount} loading={false} endingText={'MVK'} />
               </span>
             </article>
 
@@ -473,12 +475,13 @@ export const CouncilPendingView = (props: Props) => {
   // 2/3
   if (isRequestMint) {
     const tokenAmount = findActionByName('tokenAmount')
+
     return (
       <CouncilPendingStyled className={`${action_type} ${councilPendingActionsLength > 1 ? 'more' : ''}`}>
         <h3>{getSeparateCamelCase(action_type)}</h3>
         <div className="parameters">
           <article>
-            <p>Adress</p>
+            <p>Treasury Address</p>
             <span className="parameters-value">
               <TzAddress tzAddress={findActionByName('treasuryAddress')} hasIcon={false} />
             </span>

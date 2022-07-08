@@ -10,6 +10,7 @@ type Props = {
 
 const Carousel = (props: Props) => {
   const { children, itemLength } = props
+  const [selectedIndex, setSelectedIndex] = useState(0)
   const options: any = { containScroll: 'trimSnaps', dragFree: true }
   // for scroll 3 items
   // const [viewportRef, embla] = useEmblaCarousel({ loop: false, slidesToScroll: 3, skipSnaps: false })
@@ -24,7 +25,8 @@ const Carousel = (props: Props) => {
     if (!embla) return
     setPrevBtnEnabled(embla.canScrollPrev())
     setNextBtnEnabled(embla.canScrollNext())
-  }, [embla])
+    setSelectedIndex(embla.selectedScrollSnap())
+  }, [embla, selectedIndex])
 
   useEffect(() => {
     if (!embla) return
@@ -42,8 +44,13 @@ const Carousel = (props: Props) => {
       <use xlinkHref="/icons/sprites.svg#arrow-down" />
     </svg>
   )
+
+  console.log('%c ||||| selectedIndex', 'color:yellowgreen', selectedIndex)
   return (
     <CarouselStyle>
+      <small className="selected">
+        {selectedIndex + 1} from {itemLength}
+      </small>
       <CarouselViewport ref={viewportRef}>
         <CarouselContainer>{children}</CarouselContainer>
       </CarouselViewport>
