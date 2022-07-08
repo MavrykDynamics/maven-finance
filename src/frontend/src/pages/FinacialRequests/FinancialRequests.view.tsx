@@ -23,6 +23,7 @@ import {
   InfoBlockTitle,
   InfoBlockListValue,
 } from './FinancialRequests.style'
+import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 
 type FinancialRequestsViewProps = {
   ready: boolean
@@ -72,7 +73,8 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
           </GovRightContainerTitleArea>
 
           <div className="voting_ending">
-            Voting ending on {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime)}
+            Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
+            {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime)}
           </div>
 
           <FRVoting ready={ready} loading={loading} selectedRequest={rightSideContent} />
