@@ -111,8 +111,8 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : aggregatorStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+  if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+  else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
@@ -127,15 +127,15 @@ function checkSenderIsAdmin(const s: aggregatorStorageType): unit is
 function checkSenderIsAdminOrGovernanceSatellite(const s: aggregatorStorageType): unit is
 block {
 
-    if Tezos.sender = s.admin then skip
-    else{
-        const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
-                Some (_address) -> _address
-            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
-        ];
+  if Tezos.sender = s.admin then skip
+  else{
+      const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
+          Some (_address) -> _address
+        | None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
+      ];
 
-        if Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
-    };
+      if Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
+  };
 
 } with(unit)
 
@@ -145,20 +145,20 @@ block {
 function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
-    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
-    else {
-        const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
-                Some (_address) -> _address
-            |   None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND): address)
-        ];
+  if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
+  else {
+      const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
+          Some (_address) -> _address
+        | None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND): address)
+      ];
 
-        const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
-                Some (_address) -> _address
-            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
-        ];
+      const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
+          Some (_address) -> _address
+        | None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
+      ];
 
-        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
-    };
+      if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+  };
 
 } with(unit)
 
@@ -168,20 +168,20 @@ block {
 function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
-    if Tezos.sender = s.admin then skip
-    else {
-        const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
-                Some (_address) -> _address
-            |   None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND): address)
-        ];
+  if Tezos.sender = s.admin then skip
+  else {
+      const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
+          Some (_address) -> _address
+        | None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND): address)
+      ];
 
-        const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
-                Some (_address) -> _address
-            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
-        ];
+      const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
+          Some (_address) -> _address
+        | None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND): address)
+      ];
 
-        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
-    };
+      if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+  };
 
 } with(unit)
 
@@ -203,13 +203,14 @@ function checkSenderIsOracle(const s: aggregatorStorageType): unit is
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
-    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+  if (Tezos.amount = 0tez) then unit
+  else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+// helper function to get oracle that has been banned from triggering a deviation round
 function getDeviationTriggerBanOracle(const addressKey: address; const deviationTriggerBan: deviationTriggerBanType) : timestamp is
   case Map.find_opt(addressKey, deviationTriggerBan) of [
       Some (v) -> (v)
@@ -217,6 +218,7 @@ function getDeviationTriggerBanOracle(const addressKey: address; const deviation
   ]
 
 
+// helper function to check that oracle is not banned from triggering a deviation round
 function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorageType): unit is 
   if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
   else unit
@@ -229,26 +231,30 @@ function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorageTyp
 // Satellite Status Helper Functions
 // ------------------------------------------------------------------------------
 
+// helper function to check that satellite is not suspended or banned
 function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : aggregatorStorageType) : unit is
   block{
+
+    // Get Delegation Contract address from the General Contracts Map on the Governance Contract
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
     const delegationAddress: address = case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
-                Some (_contract)    -> _contract
-            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-            ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+              Some (_contract)    -> _contract
+            | None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+          ]
+      | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
+
+    // Get Satellite Record and check status from on-chain view %getSatelliteOpt on Delegation Contract
     const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
     case satelliteOptView of [
-      Some (value) -> case value of [
-          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
-      ]
-
-    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-
+        Some (value) -> case value of [
+            Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
+          | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
+        ]
+      | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
+
   } with (unit)
 
 // ------------------------------------------------------------------------------
@@ -259,36 +265,42 @@ function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; v
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check that the %requestRateUpdate entrypoint is not paused
 function checkRequestRateUpdateIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.requestRateUpdateIsPaused then failwith(error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %requestRateUpdateDeviation entrypoint is not paused
 function checkRequestRateUpdateDeviationIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then failwith(error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %setObservationCommit entrypoint is not paused
 function checkSetObservationCommitIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.setObservationCommitIsPaused then failwith(error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %setObservationReveal entrypoint is not paused
 function checkSetObservationRevealIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.setObservationRevealIsPaused then failwith(error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %withdrawRewardXtz entrypoint is not paused
 function checkWithdrawRewardXtzIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardXtzIsPaused then failwith(error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
 
 
+// helper function to check that the %withdrawRewardStakedMvk entrypoint is not paused
 function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then failwith(error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
@@ -333,51 +345,60 @@ case (Tezos.get_entrypoint_opt(
 // Oracle Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check that address belongs to an oracle
 function isOracleAddress(const contractAddress: address; const oracleAddresses: oracleAddressesType): bool is
   Map.mem(contractAddress, oracleAddresses)
 
 
 
+// helper function to check that round sent is equal to current round
 function checkIfCorrectRound(const round: nat; const s: aggregatorStorageType): unit is
   if round =/= s.round then failwith(error_WRONG_ROUND_NUMBER)
   else unit
 
 
 
+// helper function to check that last round has been completed
 function checkIfLastRoundCompleted(const s: aggregatorStorageType): unit is
   if s.lastCompletedRoundPrice.round =/= s.round then failwith(error_LAST_ROUND_IS_NOT_COMPLETE)
   else unit
 
 
 
+// helper function to check if oracle is able to set an observation commit now
 function checkIfTimeToCommit(const s: aggregatorStorageType): unit is
   if (s.switchBlock =/= 0n and Tezos.level > s.switchBlock) then failwith(error_YOU_CANNOT_COMMIT_NOW)
   else unit
 
 
 
+// helper function to check if oracle is able to set an observation reveal now
 function checkIfTimeToReveal(const s: aggregatorStorageType): unit is
   if (s.switchBlock = 0n or Tezos.level <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
   else unit
 
 
 
+// helper function to check if oracle has already set an observation commit
 function checkIfOracleAlreadyAnsweredCommit(const s: aggregatorStorageType): unit is
   if (Map.mem(Tezos.sender, s.observationCommits)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT)
   else unit
 
 
 
+// helper function to check if oracle has already set an observation reveal
 function checkIfOracleAlreadyAnsweredReveal(const s: aggregatorStorageType): unit is
   if (Map.mem(Tezos.sender, s.observationReveals)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL)
   else unit
 
 
 
+// helper function to hash bytes input
 function hasherman (const s : bytes) : bytes is Crypto.sha256 (s)
 
 
 
+// helper function to get an oracle's observation commit 
 function getObservationCommit(const addressKey: address; const observationCommits: observationCommitsType) : bytes is
   case Map.find_opt(addressKey, observationCommits) of [
       Some (v) -> (v)
@@ -385,7 +406,7 @@ function getObservationCommit(const addressKey: address; const observationCommit
   ]
 
 
-
+// helper function to get observations price utils
 function getObservationsPriceUtils(const price: nat; const myMap: pivotedObservationsType) : nat is
   case Map.find_opt(price, myMap) of [
       Some (v) -> (v+1n)
@@ -394,6 +415,7 @@ function getObservationsPriceUtils(const price: nat; const myMap: pivotedObserva
 
 
 
+// helper function to get observations price 
 function getObservationsPrice(const addressKey: address; const observationReveals: observationRevealsType) : nat is
   case Map.find_opt(addressKey, observationReveals) of [
       Some (v) -> (v)
@@ -401,6 +423,8 @@ function getObservationsPrice(const addressKey: address; const observationReveal
   ]
 
 
+
+// helper function to pivot observations for calculation of median later
 function pivotObservationMap (var m : observationRevealsType) : pivotedObservationsType is block {
   (*
     Build a map of form:
@@ -419,6 +443,7 @@ function pivotObservationMap (var m : observationRevealsType) : pivotedObservati
 
 
 
+// helper function to get median price
 function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) : nat is block {
   (*
     m is a map: observationValue -> observationCount, sorted by observation value
@@ -498,6 +523,7 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
 // Reward Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to get oracle's staked MVK reward amount 
 function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggregatorStorageType) : nat is
   case Map.find_opt(oracleAddress, s.oracleRewardStakedMvk) of [
       Some (v) -> (v)
@@ -506,6 +532,7 @@ function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggrega
 
 
 
+// helper function to get oracle's XTZ reward amount 
 function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorStorageType) : nat is
   case Map.find_opt(oracleAddress, s.oracleRewardXtz) of [
       Some (v) -> (v)
@@ -514,27 +541,28 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
 
 
 
+// helper function to update specified oracle's staked MVK rewards
 function updateRewardsStakedMvk (const senderAddress : address; var s: aggregatorStorageType) : aggregatorStorageType is block {
 
   // init params
   var tempSatellitesMap : map(address, nat) := map [];
   var total: nat := 0n;
 
-  // get delegation address from governance general contracts
+  // Get Delegation Contract address from the General Contracts Map on the Governance Contract
   const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
   const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
-          Some (_optionContract) -> case _optionContract of [
-                  Some (_contract)    -> _contract
-              |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+        Some (_optionContract) -> case _optionContract of [
+              Some (_contract)    -> _contract
+            | None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
           ]
-      |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+      | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
-  // get votingPowerRatio from governance contract
+  // Get delegation ratio from Delegation contract config through on-chain view (delegationRatio equivalent to votingPowerRatio)
   const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
   const votingPowerRatio: nat                     = case configView of [
-          Some (_optionConfig) -> _optionConfig.delegationRatio
-      |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+      Some (_optionConfig) -> _optionConfig.delegationRatio
+    | None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
   ];
 
   // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
@@ -542,7 +570,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
   // N.B.: may result in slight discrepancies if some oracles do not reveal their price feed data
   for oracleAddress -> _value in map s.observationCommits block {
 
-    // view call getSatelliteOpt to delegation contract
+    // View call getSatelliteOpt to delegation contract
     const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
     const satelliteOpt : satelliteRecordType = case satelliteOptView of [
         Some (optionView) -> case optionView of [
@@ -552,7 +580,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
       | None -> failwith(error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
-    // get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
+    // Get total sum of all satellite oracles total voting power (to be used as denominator to determine each oracle's share of staked MVK rewards)
     if (satelliteOpt.status = "ACTIVE") then {
 
       // totalVotingPower calculation

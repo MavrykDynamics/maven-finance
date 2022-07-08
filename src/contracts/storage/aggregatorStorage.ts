@@ -23,7 +23,7 @@ const config = {
   decimals                            : new BigNumber(8),
   numberBlocksDelay                   : new BigNumber(2),
   
-  deviationTriggerBanDuration        : new BigNumber(86400), // one day
+  deviationTriggerBanDuration         : new BigNumber(86400), // one day
   perThousandDeviationTrigger         : new BigNumber(2),
   percentOracleThreshold              : new BigNumber(49),
 
@@ -58,7 +58,6 @@ const oracleAddresses = MichelsonMap.fromLiteral({});
 
 const deviationTriggerInfos = {
   oracleAddress   : oracleMaintainer.pkh,
-  amount          : new BigNumber(0),
   roundPrice      : new BigNumber(0),
 }
 
