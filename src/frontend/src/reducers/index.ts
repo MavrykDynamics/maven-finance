@@ -20,6 +20,7 @@ import { preferences, PreferencesState } from './preferences'
 import { modal, ModalState } from './modal'
 import { user, UserState } from './user'
 import { contractAddresses, ContractAddressesState } from './contractAddresses'
+import { oracles, OraclesState } from './oracles'
 
 export const reducers = combineReducers({
   loading,
@@ -42,6 +43,7 @@ export const reducers = combineReducers({
   modal,
   user,
   contractAddresses,
+  oracles,
 })
 
 export interface State {
@@ -65,4 +67,5 @@ export interface State {
   modal: ModalState
   user: UserState
   contractAddresses: ContractAddressesState
+  oracles: OraclesState
 }

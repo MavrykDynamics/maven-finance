@@ -10,7 +10,7 @@ export const GOVERNANCE_SATELLITE_STORAGE_QUERY = `
       governance_satellite_counter
      
     }
-    governance_satellite_action_record {
+    governance_satellite_action_record(order_by: {expiration_datetime: desc}) {
       executed
       expiration_datetime
       governance_purpose
