@@ -53,8 +53,9 @@ export const VotingButtonsContainer = styled.div`
   }
 
   &.FRVoting {
+    justify-content: space-between;
     > button {
-      width: 45%;
+      width: 48.5%;
     }
   }
 `

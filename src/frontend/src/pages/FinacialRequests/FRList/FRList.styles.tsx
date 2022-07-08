@@ -24,6 +24,15 @@ export const ListItemLeftSide = styled.div<{ theme: MavrykTheme }>`
     color: ${cyanColor};
     padding-right: 8px;
   }
+
+  &.financial-request {
+    h4 {
+      max-width: 335px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 `
 
 export const FRListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
