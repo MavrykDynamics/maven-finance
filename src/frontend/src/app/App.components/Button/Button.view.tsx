@@ -13,7 +13,7 @@ type ButtonViewProps = {
   clickCallback: () => void
   clicked: boolean
   type?: ButtonTypes
-  loading: boolean
+  loading?: boolean
   glassBroken?: boolean
   disabled?: boolean
 }

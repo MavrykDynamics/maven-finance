@@ -39,7 +39,7 @@ export const FinancialRequests = () => {
   // NEXT ROUND MODALS STAFF
   // const [visibleModal, setVisibleModal] = useState(false)
   const handleMoveNextRound = () => {
-    dispatch(startNextRound(false))
+    dispatch(startNextRound(true))
   }
   // const handleExecuteProposal = (id: number) => {
   //   dispatch(executeProposal(id))

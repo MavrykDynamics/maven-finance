@@ -14,7 +14,7 @@ type ButtonProps = {
   kind?: ButtonStyle
   onClick?: () => void
   type?: ButtonTypes
-  loading: boolean
+  loading?: boolean
   disabled?: boolean
 }
 
