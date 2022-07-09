@@ -100,7 +100,6 @@ export const VotingArea = ({
               onClick={() => handleProposalRoundVote(Number(selectedProposal.id))}
               type={SUBMIT}
               kind="actionPrimary"
-              loading={loading}
             />
           </div>
         )}

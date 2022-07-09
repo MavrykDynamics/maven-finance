@@ -14,17 +14,17 @@ export const submitProposal =
     const state: State = getState()
 
     if (!state.wallet.ready) {
-      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return
     }
 
     if (state.loading) {
-      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
       return
     }
 
     try {
-      dispatch({
+      await dispatch({
         type: SUBMIT_PROPOSAL_REQUEST,
         form: form,
       })
@@ -40,22 +40,22 @@ export const submitProposal =
         .send({ amount })
       console.log('transaction', transaction)
 
-      dispatch({
+      await dispatch({
         type: SUBMIT_PROPOSAL_RESULT,
         form: form,
       })
-      dispatch(showToaster(INFO, 'Submitting proposal...', 'Please wait 30s'))
+      await dispatch(showToaster(INFO, 'Submitting proposal...', 'Please wait 30s'))
 
       const done = await transaction?.confirmation()
       console.log('done', done)
-      dispatch(showToaster(SUCCESS, 'Proposal Submitted.', 'All good :)'))
+      await dispatch(showToaster(SUCCESS, 'Proposal Submitted.', 'All good :)'))
 
-      dispatch({
+      await dispatch({
         type: SUBMIT_PROPOSAL_RESULT,
       })
-      dispatch(getGovernanceStorage())
-      dispatch(getDelegationStorage())
-      dispatch(getCurrentRoundProposals())
+      await dispatch(getGovernanceStorage())
+      await dispatch(getDelegationStorage())
+      await dispatch(getCurrentRoundProposals())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -124,44 +124,44 @@ export const LOCK_PROPOSAL_RESULT = 'LOCK_PROPOSAL_RESULT'
 export const LOCK_PROPOSAL_ERROR = 'LOCK_PROPOSAL_ERROR'
 export const lockProposal = (proposalId: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
-  dispatch({
-    type: LOCK_PROPOSAL_REQUEST,
-    proposalId: proposalId,
-  })
 
   if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
   if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     return
   }
 
   try {
+    await dispatch({
+      type: LOCK_PROPOSAL_REQUEST,
+      proposalId: proposalId,
+    })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
 
     const transaction = await contract?.methods.lockProposal(proposalId).send()
     console.log('transaction', transaction)
 
-    dispatch({
+    await dispatch({
       type: LOCK_PROPOSAL_RESULT,
       proposalId: proposalId,
     })
-    dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: LOCK_PROPOSAL_RESULT,
     })
-    dispatch(getGovernanceStorage())
-    dispatch(getDelegationStorage())
-    dispatch(getCurrentRoundProposals())
+    await dispatch(getGovernanceStorage())
+    await dispatch(getDelegationStorage())
+    await dispatch(getCurrentRoundProposals())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))

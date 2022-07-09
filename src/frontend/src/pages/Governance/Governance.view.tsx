@@ -361,7 +361,6 @@ export const GovernanceView = ({
                 text="Execute Proposal"
                 onClick={handleClickExecuteProposal}
                 kind="actionPrimary"
-                loading={loading}
               />
             ) : null}
           </div>
