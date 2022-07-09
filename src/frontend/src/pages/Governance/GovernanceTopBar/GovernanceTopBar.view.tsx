@@ -54,7 +54,7 @@ export const GovernanceTopBarView = ({
           {timeLeftInPhase > 0 ? (
             <div className="right-block">
               {typeof timeLeftInPhase === 'number' ? (
-                <TimeLeftArea>{Math.round(timeLeftInPhase)} days remaining</TimeLeftArea>
+                <TimeLeftArea>{Math.ceil(timeLeftInPhase)} days remaining</TimeLeftArea>
               ) : (
                 <TimeLeftArea>
                   Ends {timeLeftInPhase.toLocaleDateString('en-GB')} at {timeLeftInPhase.toLocaleTimeString('en-GB')}
