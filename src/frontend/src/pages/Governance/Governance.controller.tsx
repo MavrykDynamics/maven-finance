@@ -65,10 +65,11 @@ export const Governance = () => {
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isVotingRound = governancePhase === 'VOTING'
+  const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
   const ongoingProposals = currentRoundProposalsList.filter(
     (item) =>
-      isVotingRound &&
+      (isVotingRound || isTimeLockRound) &&
       Boolean(item.currentRoundProposal) &&
       Boolean(item.id === governanceStorage.cycleHighestVotedProposalId),
   )
