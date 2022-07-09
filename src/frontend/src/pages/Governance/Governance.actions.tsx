@@ -303,6 +303,7 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
       type: START_NEXT_ROUND_RESULT,
     })
     dispatch(getGovernanceStorage())
+    dispatch(getCurrentRoundProposals())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))

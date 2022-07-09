@@ -65,7 +65,6 @@ export const GovernanceTopBarView = ({
             <Button
               icon="man-running"
               text={'Move to next round'}
-              loading={loading}
               kind="actionSecondary"
               className="move-to-next"
               disabled={!accountPkh}
