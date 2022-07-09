@@ -129,14 +129,14 @@ export const GovernanceView = ({
     let voteType
     switch (vote) {
       case 'FOR':
-        voteType = 1
+        voteType = 'yay'
         setVoteStatistics({
           ...voteStatistics,
           forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
         })
         break
       case 'AGAINST':
-        voteType = 0
+        voteType = 'nay'
         setVoteStatistics({
           ...voteStatistics,
           againstVotesMVKTotal: voteStatistics.againstVotesMVKTotal + 1,
@@ -144,7 +144,7 @@ export const GovernanceView = ({
         break
       case 'ABSTAIN':
       default:
-        voteType = 2
+        voteType = 'abstain'
         setVoteStatistics({
           ...voteStatistics,
           abstainVotesMVKTotal: voteStatistics.abstainVotesMVKTotal + 1,
