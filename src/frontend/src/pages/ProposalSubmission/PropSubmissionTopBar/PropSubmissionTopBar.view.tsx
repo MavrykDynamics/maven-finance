@@ -45,7 +45,7 @@ export const PropSubmissionTopBarView = ({
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const handleMoveNextRound = () => {
-    dispatch(startNextRound(false))
+    dispatch(startNextRound(true))
   }
   const isInExecution =
     governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'

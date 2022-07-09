@@ -31,7 +31,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     GOVERNANCE_STORAGE_QUERY_NAME,
     GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
-
+  console.log('%c ||||| storage', 'color:yellowgreen', storage)
   const convertedStorage = storageToTypeConverter('governance', storage)
 
   dispatch({
@@ -293,17 +293,17 @@ export const startNextRound = (executePastProposal: boolean) => async (dispatch:
 
     const transaction = await contract?.methods.startNextRound(executePastProposal).send()
 
-    dispatch(showToaster(INFO, 'Request Next round start...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Request Next round start...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: START_NEXT_ROUND_RESULT,
     })
-    dispatch(getGovernanceStorage())
-    dispatch(getCurrentRoundProposals())
+    await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
