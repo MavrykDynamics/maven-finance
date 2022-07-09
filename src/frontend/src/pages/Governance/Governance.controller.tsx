@@ -61,6 +61,7 @@ export const Governance = () => {
   //   const currentRoundProposal = Boolean(Number(item.currentRoundProposal))
   //   return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
   // })
+  console.log('%c ||||| currentRoundProposals', 'color:yellowgreen', currentRoundProposals)
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
   const isProposalRound = governancePhase === 'PROPOSAL'
   const isVotingRound = governancePhase === 'VOTING'

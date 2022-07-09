@@ -9,10 +9,17 @@ export const ProposalSubmission = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { pastProposals, governancePhase } = useSelector((state: State) => state.governance)
+  const { pastProposals, governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
-  // TODO change after submit
-  const locked = false
+
+  const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
+
+  const findUserCurrentRoundProposal = accountPkh
+    ? currentRoundProposalsList.find((item) => item.proposerId === accountPkh)
+    : null
+
+  console.log('%c ||||| findUserCurrentRoundProposal', 'color:yellowgreen', findUserCurrentRoundProposal)
+  const locked = Boolean(findUserCurrentRoundProposal?.locked)
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
@@ -31,6 +38,8 @@ export const ProposalSubmission = () => {
       governancePhase={governancePhase}
       isInEmergencyGovernance={false}
       locked={locked}
+      proposalId={findUserCurrentRoundProposal?.id}
+      proposalTitle={findUserCurrentRoundProposal?.title || ''}
     />
   )
 }

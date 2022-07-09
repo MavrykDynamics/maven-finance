@@ -54,12 +54,12 @@ type StageTwoFormViewProps = {
   locked: boolean
   form: ProposalUpdateForm
   fee: number
+  proposalId: number | undefined
   successReward: number
   setForm: (form: ProposalUpdateForm) => void
   formInputStatus: ProposalUpdateFormInputStatus
   handleOnBlur: any
   handleUpdateProposal: () => void
-  handleLockProposal: () => void
 }
 export const StageTwoFormView = ({
   locked,
@@ -70,7 +70,7 @@ export const StageTwoFormView = ({
   formInputStatus,
   handleOnBlur,
   handleUpdateProposal,
-  handleLockProposal,
+  proposalId,
 }: StageTwoFormViewProps) => {
   const handleCreateNewByte = () => {
     setForm({
@@ -153,11 +153,11 @@ export const StageTwoFormView = ({
             />
           </article>
         ))}
-        <StyledTooltip placement="top" title="Insert new bytes pair">
+        {/* <StyledTooltip placement="top" title="Insert new bytes pair">
           <button onClick={handleCreateNewByte} className="step-plus-bytes">
             +
           </button>
-        </StyledTooltip>
+        </StyledTooltip> */}
       </div>
 
       <FormButtonContainer>
