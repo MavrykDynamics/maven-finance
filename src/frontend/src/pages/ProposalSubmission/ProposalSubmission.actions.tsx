@@ -4,7 +4,7 @@ import governanceAddress from 'deployments/governanceAddress.json'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 import { ProposalUpdateForm, SubmitProposalForm } from '../../utils/TypesAndInterfaces/Forms'
-import { getGovernanceStorage } from '../Governance/Governance.actions'
+import { getGovernanceStorage, getCurrentRoundProposals } from '../Governance/Governance.actions'
 
 export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
@@ -12,7 +12,6 @@ export const SUBMIT_PROPOSAL_ERROR = 'SUBMIT_PROPOSAL_ERROR'
 export const submitProposal =
   (form: SubmitProposalForm, amount: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
     const state: State = getState()
-    console.log('Got to here in submitProposal')
 
     if (!state.wallet.ready) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
@@ -25,18 +24,16 @@ export const submitProposal =
     }
 
     try {
+      dispatch({
+        type: SUBMIT_PROPOSAL_REQUEST,
+        form: form,
+      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-      console.log('submitProposal contract', contract)
 
       const proposalName = form.title
       const proposalDesc = form.description
       const proposalIpfs = form.ipfs
       const proposalSourceCode = form.sourceCodeLink
-      console.log('%c ||||| .propose -> proposalName', 'color:yellowgreen', proposalName)
-      console.log('%c ||||| .propose -> proposalDesc', 'color:yellowgreen', proposalDesc)
-      console.log('%c ||||| .propose -> proposalIpfs', 'color:yellowgreen', proposalIpfs)
-      console.log('%c ||||| .propose -> proposalSourceCode', 'color:yellowgreen', proposalSourceCode)
-      console.log('%c ||||| .send -> amount', 'color:yellowgreen', amount)
 
       const transaction = await contract?.methods
         .propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode)
@@ -44,7 +41,7 @@ export const submitProposal =
       console.log('transaction', transaction)
 
       dispatch({
-        type: SUBMIT_PROPOSAL_REQUEST,
+        type: SUBMIT_PROPOSAL_RESULT,
         form: form,
       })
       dispatch(showToaster(INFO, 'Submitting proposal...', 'Please wait 30s'))
@@ -58,6 +55,7 @@ export const submitProposal =
       })
       dispatch(getGovernanceStorage())
       dispatch(getDelegationStorage())
+      dispatch(getCurrentRoundProposals())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -75,7 +73,6 @@ export const updateProposal =
   (form: ProposalUpdateForm, proposalId: number | undefined, accountPkh?: string) =>
   async (dispatch: any, getState: any) => {
     const state: State = getState()
-    console.log('Got to here in updateProposal')
 
     if (!state.wallet.ready) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
@@ -88,6 +85,10 @@ export const updateProposal =
     }
 
     try {
+      dispatch({
+        type: PROPOSAL_UPDATE_REQUEST,
+        form,
+      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
 
       const dataName = form.proposalBytes[0].title
@@ -95,10 +96,6 @@ export const updateProposal =
       const transaction = await contract?.methods.updateProposalData(proposalId, dataName, packedParam).send()
       console.log('transaction', transaction)
 
-      dispatch({
-        type: PROPOSAL_UPDATE_REQUEST,
-        form,
-      })
       dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
 
       const done = await transaction?.confirmation()
@@ -111,6 +108,7 @@ export const updateProposal =
 
       dispatch(getGovernanceStorage())
       dispatch(getDelegationStorage())
+      dispatch(getCurrentRoundProposals())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))
@@ -126,7 +124,10 @@ export const LOCK_PROPOSAL_RESULT = 'LOCK_PROPOSAL_RESULT'
 export const LOCK_PROPOSAL_ERROR = 'LOCK_PROPOSAL_ERROR'
 export const lockProposal = (proposalId: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
-  console.log('Got to here in lockProposal')
+  dispatch({
+    type: LOCK_PROPOSAL_REQUEST,
+    proposalId: proposalId,
+  })
 
   if (!state.wallet.ready) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
@@ -146,7 +147,7 @@ export const lockProposal = (proposalId: number, accountPkh?: string) => async (
     console.log('transaction', transaction)
 
     dispatch({
-      type: LOCK_PROPOSAL_REQUEST,
+      type: LOCK_PROPOSAL_RESULT,
       proposalId: proposalId,
     })
     dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
@@ -160,6 +161,7 @@ export const lockProposal = (proposalId: number, accountPkh?: string) => async (
     })
     dispatch(getGovernanceStorage())
     dispatch(getDelegationStorage())
+    dispatch(getCurrentRoundProposals())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -174,7 +176,15 @@ export const SUBMIT_FINANCIAL_DATA_REQUEST = 'SUBMIT_FINANCIAL_DATA_REQUEST'
 export const SUBMIT_FINANCIAL_DATA_RESULT = 'SUBMIT_FINANCIAL_DATA_RESULT'
 export const SUBMIT_FINANCIAL_DATA_ERROR = 'SUBMIT_FINANCIAL_DATA_ERROR'
 export const submitFinancialRequestData =
-  (financialRequestData: string, accountPkh?: string) => async (dispatch: any, getState: any) => {
+  (
+    proposalId: number,
+    dataName: string,
+    receiverAddress: string,
+    amount: number,
+    tokenType: string,
+    tokenContractAddress?: string,
+  ) =>
+  async (dispatch: any, getState: any) => {
     const state: State = getState()
     console.log('Got to here in submitFinancialRequestData')
 
@@ -188,29 +198,53 @@ export const submitFinancialRequestData =
       return
     }
 
+    console.log('%c ||||| proposalId', 'color:yellowgreen', proposalId)
+    console.log('%c ||||| dataName', 'color:yellowgreen', dataName)
+    console.log('%c ||||| receiverAddress', 'color:yellowgreen', receiverAddress)
+    console.log('%c ||||| amount', 'color:yellowgreen', amount)
+    console.log('%c ||||| tokenType', 'color:yellowgreen', tokenType)
+    console.log('%c ||||| tokenContractAddress', 'color:yellowgreen', tokenContractAddress)
+
     try {
+      dispatch({
+        type: SUBMIT_FINANCIAL_DATA_REQUEST,
+        proposalId: proposalId,
+      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
 
-      // TODO: finish implementation once the financial request methods are set up in contract
-      // const transaction = await contract?.methods.lockProposal(financialRequestData).send()
-      // console.log('transaction', transaction)
-      //
-      // dispatch({
-      //   type: SUBMIT_FINANCIAL_DATA_REQUEST,
-      //   proposalId: proposalId,
-      // })
-      // dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
-      //
-      // const done = await transaction?.confirmation()
-      // console.log('done', done)
-      // dispatch(showToaster(SUCCESS, 'Proposal locked.', 'All good :)'))
-      //
-      // dispatch({
-      //   type: SUBMIT_FINANCIAL_DATA_RESULT,
-      // })
+      const transaction =
+        tokenType === 'XTZ'
+          ? await contract?.methods
+              .updatePaymentData(proposalId, dataName, receiverAddress, amount * 1_000_000, tokenType)
+              .send()
+          : tokenType === 'MVK'
+          ? await contract?.methods
+              .updatePaymentData(
+                proposalId,
+                dataName,
+                receiverAddress,
+                amount * 1_000_000_000,
+                tokenType,
+                tokenContractAddress,
+                0,
+              )
+              .send()
+          : null
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, 'Submit Financial Request...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Submit Financial Request.', 'All good :)'))
+
+      dispatch({
+        type: SUBMIT_FINANCIAL_DATA_RESULT,
+      })
       dispatch(getGovernanceStorage())
       dispatch(getDelegationStorage())
+      dispatch(getCurrentRoundProposals())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))

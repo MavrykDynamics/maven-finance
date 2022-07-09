@@ -18,7 +18,6 @@ export const ProposalSubmission = () => {
     ? currentRoundProposalsList.find((item) => item.proposerId === accountPkh)
     : null
 
-  console.log('%c ||||| findUserCurrentRoundProposal', 'color:yellowgreen', findUserCurrentRoundProposal)
   const locked = Boolean(findUserCurrentRoundProposal?.locked)
 
   useEffect(() => {

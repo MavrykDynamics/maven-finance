@@ -83,7 +83,12 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                     {isFirstRow ? (
                       colValue
                     ) : !isLastColumn ? (
-                      <input onFocus={() => setOpenDrop('')} value={colValue} onChange={(e) => handleChange(e, i, j)} />
+                      <input
+                        onFocus={() => setOpenDrop('')}
+                        value={colValue}
+                        type={j === 2 ? 'number' : 'text'}
+                        onChange={(e) => handleChange(e, i, j)}
+                      />
                     ) : (
                       <div className="table-drop">
                         <button onClick={() => handleToggleDrop(i, j)} className="table-drop-btn-cur">
@@ -122,13 +127,13 @@ export default function TableGrid({ tableData, setTableData }: Props) {
           ))}
         </table>
       </div>
-      {!isMaxRows ? (
+      {/* {!isMaxRows ? (
         <StyledTooltip placement="top" title="Insert 1 row bottom">
           <button className="btn-add-row" onClick={handleAddRow}>
             +
           </button>
         </StyledTooltip>
-      ) : null}
+      ) : null} */}
     </TableGridWrap>
   )
 }
