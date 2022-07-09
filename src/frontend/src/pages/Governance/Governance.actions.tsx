@@ -114,7 +114,7 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: any, g
 export const VOTING_ROUND_VOTING_REQUEST = 'VOTING_ROUND_VOTING_REQUEST'
 export const VOTING_ROUND_VOTING_RESULT = 'VOTING_ROUND_VOTING_RESULT'
 export const VOTING_ROUND_VOTING_ERROR = 'VOTING_ROUND_VOTING_ERROR'
-export const votingRoundVote = (vote: number) => async (dispatch: any, getState: any) => {
+export const votingRoundVote = (vote: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {

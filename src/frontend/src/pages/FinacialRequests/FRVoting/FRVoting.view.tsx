@@ -56,7 +56,7 @@ const FRVoting = ({ ready, loading, selectedRequest }: FRVotingProps) => {
     let voteType
     switch (vote) {
       case 'FOR':
-        voteType = 1
+        voteType = 'yay'
         setVoteStatistics({
           ...votingStats,
           forVotes: +votingStats.forVotes + 1,
@@ -65,7 +65,7 @@ const FRVoting = ({ ready, loading, selectedRequest }: FRVotingProps) => {
         break
       case 'AGAINST':
       default:
-        voteType = 0
+        voteType = 'abstain'
         setVoteStatistics({
           ...votingStats,
           againstVotes: +votingStats.againstVotes + 1,

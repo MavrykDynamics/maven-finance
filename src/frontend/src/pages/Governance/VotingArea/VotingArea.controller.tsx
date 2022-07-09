@@ -76,26 +76,18 @@ export const VotingArea = ({
 
         {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
           <VotingButtonsContainer>
-            <Button
-              text={'Vote YES'}
-              onClick={() => handleVotingRoundVote('FOR')}
-              type={SUBMIT}
-              kind={'votingFor'}
-              loading={loading}
-            />
+            <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('FOR')} type={SUBMIT} kind={'votingFor'} />
             <Button
               text={'Vote PASS'}
               onClick={() => handleVotingRoundVote('ABSTAIN')}
               type={SUBMIT}
               kind={'votingAbstain'}
-              loading={loading}
             />
             <Button
               text={'Vote NO'}
               onClick={() => handleVotingRoundVote('AGAINST')}
               type={SUBMIT}
               kind={'votingAgainst'}
-              loading={loading}
             />
           </VotingButtonsContainer>
         )}
