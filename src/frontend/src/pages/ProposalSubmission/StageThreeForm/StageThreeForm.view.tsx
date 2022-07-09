@@ -65,6 +65,9 @@ export const StageThreeFormView = ({
   const handleLockProposal = () => {
     if (proposalId) dispatch(lockProposal(proposalId, accountPkh as any))
   }
+
+  const enebleSubmit = tableData[1].every((item) => Boolean(item))
+
   return (
     <SubmissionStyled>
       <FormHeaderGroup>
@@ -91,22 +94,26 @@ export const StageThreeFormView = ({
           <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
-      <label>3- Enter Proposal Bytes Data</label>
+      <label>3- Enter Proposal Data</label>
       <FormTableGrid>
         <TableGrid tableData={tableData} setTableData={setTableData} />
       </FormTableGrid>
       {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
-        <Button
-          icon="lock"
-          className="lock"
-          text={'Lock Proposal'}
-          disabled={!proposalId}
-          onClick={handleLockProposal}
-          kind="actionSecondary"
-        />
+        {!locked ? (
+          <Button
+            icon="lock"
+            className="lock"
+            text={'Lock Proposal'}
+            disabled={!proposalId}
+            onClick={handleLockProposal}
+            kind="actionSecondary"
+          />
+        ) : null}
+
         <Button
           icon="financial"
+          disabled={!enebleSubmit}
           className="financial"
           kind="actionPrimary"
           text={'Submit Financial Request'}

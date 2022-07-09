@@ -21,7 +21,6 @@ import { StageThreeFormView } from './StageThreeForm.view'
 
 type StageThreeFormProps = {
   locked: boolean
-  accountPkh?: string
   proposalId: number | undefined
   proposalTitle: string
 }
@@ -33,9 +32,10 @@ const INIT_TABLE_DATA = [
   ['', '', '', PAYMENTS_TYPES[0]],
 ]
 
-export const StageThreeForm = ({ locked, accountPkh, proposalTitle, proposalId }: StageThreeFormProps) => {
+export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThreeFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { fee, address } = governanceStorage
   const successReward = governanceStorage.config.successReward
   const [tableData, setTableData] = useState(INIT_TABLE_DATA)
@@ -59,16 +59,21 @@ export const StageThreeForm = ({ locked, accountPkh, proposalTitle, proposalId }
   }
 
   const handleSubmitFinancialRequestData = () => {
-    const jsonStringTable = JSON.stringify(tableData)
-    const flatTable = tableData.flat()
-    const isEmptyFlatTable = flatTable.every((elem) => !elem)
-    const isStringcontainsCode = containsCode(JSON.stringify(tableData))
-    const isValidJsonString = !isStringcontainsCode && !isEmptyFlatTable
-    const formIsValid = validateFormAndThrowErrors(dispatch, {
-      financialData: isValidJsonString,
-    })
-    if (formIsValid) {
-      dispatch(submitFinancialRequestData(jsonStringTable, accountPkh as any))
+    // const jsonStringTable = JSON.stringify(tableData)
+    // const flatTable = tableData.flat()
+    // const isEmptyFlatTable = flatTable.every((elem) => !elem)
+    // const isStringcontainsCode = containsCode(JSON.stringify(tableData))
+    // const isValidJsonString = !isStringcontainsCode && !isEmptyFlatTable
+    // const formIsValid = validateFormAndThrowErrors(dispatch, {
+    //   financialData: isValidJsonString,
+    // })
+    const dataName = tableData[1][1]
+    const receiverAddress = tableData[1][0]
+
+    const amount = +tableData[1][2]
+    const tokenType = tableData[1][3]
+    if (proposalId) {
+      dispatch(submitFinancialRequestData(proposalId, dataName, receiverAddress, amount, tokenType, accountPkh as any))
     }
   }
 
