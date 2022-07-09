@@ -16,6 +16,8 @@ import { lockProposal, updateProposal } from '../ProposalSubmission.actions'
 type StageTwoFormProps = {
   locked: boolean
   accountPkh?: string
+  proposalId: number | undefined
+  proposalTitle: string
 }
 
 export const PROPOSAL_BYTE = {
@@ -24,13 +26,13 @@ export const PROPOSAL_BYTE = {
   data: '',
 }
 
-export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
+export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const { fee, address } = governanceStorage
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<ProposalUpdateForm>({
-    title: 'Hello There',
+    title: proposalTitle,
     proposalBytes: [PROPOSAL_BYTE],
   })
 
@@ -44,20 +46,16 @@ export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
   const handleOnBlur = (index: number, text: string, type: string) => {
     const validityCheckResult = type === 'data' ? isHexadecimalByteString(text) : Boolean(text)
 
-    // setValidForm({ ...validForm, proposalBytes: validityCheckResult })
-    // const updatedState = { ...validForm, proposalBytes: validityCheckResult }
-    // setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
+    setValidForm({ ...validForm, proposalBytes: validityCheckResult })
+    const updatedState = { ...validForm, proposalBytes: validityCheckResult }
+    setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
   }
 
-  const handleUpdateProposal = () => {
+  const handleUpdateProposal = async () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (true || formIsValid) dispatch(updateProposal(form, accountPkh as any))
-  }
-
-  const handleLockProposal = () => {
-    console.log('Here in lock proposal')
-    // TODO implement
-    dispatch(lockProposal(1, accountPkh as any))
+    if (formIsValid) {
+      await dispatch(updateProposal(form, proposalId, accountPkh as any))
+    }
   }
 
   return (
@@ -65,12 +63,12 @@ export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
       locked={locked}
       form={form}
       fee={fee}
+      proposalId={proposalId}
       successReward={successReward}
       setForm={setForm}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
       handleUpdateProposal={handleUpdateProposal}
-      handleLockProposal={handleLockProposal}
     />
   )
 }

@@ -1,3 +1,6 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 // types
 import type { TableListType } from '../../../app/App.components/TableGrid/TableGrid.types'
 
@@ -9,7 +12,7 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import TableGrid from '../../../app/App.components/TableGrid/TableGrid.view'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
-
+import { lockProposal, updateProposal } from '../ProposalSubmission.actions'
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
@@ -40,6 +43,7 @@ type StageThreeFormViewProps = {
   setTableJson: (input: string) => void
   fee: number
   successReward: number
+  proposalId: number | undefined
 }
 export const StageThreeFormView = ({
   tableData,
@@ -53,7 +57,14 @@ export const StageThreeFormView = ({
   handleSubmitFinancialRequestData,
   fee,
   successReward,
+  proposalId,
 }: StageThreeFormViewProps) => {
+  const dispatch = useDispatch()
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+
+  const handleLockProposal = () => {
+    if (proposalId) dispatch(lockProposal(proposalId, accountPkh as any))
+  }
   return (
     <SubmissionStyled>
       <FormHeaderGroup>
@@ -90,8 +101,8 @@ export const StageThreeFormView = ({
           icon="lock"
           className="lock"
           text={'Lock Proposal'}
-          //onClick={handleLockProposal}
-          onClick={() => null}
+          disabled={!proposalId}
+          onClick={handleLockProposal}
           kind="actionSecondary"
         />
         <Button

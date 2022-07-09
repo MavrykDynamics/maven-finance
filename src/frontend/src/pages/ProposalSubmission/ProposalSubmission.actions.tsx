@@ -72,7 +72,8 @@ export const PROPOSAL_UPDATE_REQUEST = 'PROPOSAL_UPDATE_REQUEST'
 export const PROPOSAL_UPDATE_RESULT = 'PROPOSAL_UPDATE_RESULT'
 export const PROPOSAL_UPDATE_ERROR = 'PROPOSAL_UPDATE_ERROR'
 export const updateProposal =
-  (form: ProposalUpdateForm, accountPkh?: string) => async (dispatch: any, getState: any) => {
+  (form: ProposalUpdateForm, proposalId: number | undefined, accountPkh?: string) =>
+  async (dispatch: any, getState: any) => {
     const state: State = getState()
     console.log('Got to here in updateProposal')
 
@@ -88,12 +89,10 @@ export const updateProposal =
 
     try {
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
-      console.log('contract', contract)
 
-      const transaction = await contract?.methods
-        // TODO implement
-        .addUpdateProposalData(1, form.title, form.proposalBytes)
-        .send()
+      const dataName = form.proposalBytes[0].title
+      const packedParam = form.proposalBytes[0].data
+      const transaction = await contract?.methods.updateProposalData(proposalId, dataName, packedParam).send()
       console.log('transaction', transaction)
 
       dispatch({

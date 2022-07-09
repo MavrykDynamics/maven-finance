@@ -61,7 +61,6 @@ export type ProposalUpdateFormInputStatus = {
 
 export type ProposalFinancialRequestForm = {
   title: string
-  proposalId: number
   financialData: {
     rows?: any[]
     columns?: any[]

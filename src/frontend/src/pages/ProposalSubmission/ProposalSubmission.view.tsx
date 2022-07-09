@@ -20,16 +20,24 @@ type ProposalSubmissionViewProps = {
   activeTab: number
   handleChangeTab: (tabId: number) => void
   locked: boolean
+  proposalId: number | undefined
+  proposalTitle: string
 }
-export const ProposalSubmissionView = ({ locked, activeTab, handleChangeTab }: ProposalSubmissionViewProps) => {
+export const ProposalSubmissionView = ({
+  locked,
+  activeTab,
+  handleChangeTab,
+  proposalId,
+  proposalTitle,
+}: ProposalSubmissionViewProps) => {
   return (
     <Page>
       <PageHeader page={'proposal submission'} kind={PRIMARY} />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       <ProposalSubmissionForm>
         {activeTab === 1 && <StageOneForm locked={locked} />}
-        {activeTab === 2 && <StageTwoForm locked={locked} />}
-        {activeTab === 3 && <StageThreeForm locked={locked} />}
+        {activeTab === 2 && <StageTwoForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
+        {activeTab === 3 && <StageThreeForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
       </ProposalSubmissionForm>
     </Page>
   )

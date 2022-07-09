@@ -22,6 +22,8 @@ import { StageThreeFormView } from './StageThreeForm.view'
 type StageThreeFormProps = {
   locked: boolean
   accountPkh?: string
+  proposalId: number | undefined
+  proposalTitle: string
 }
 
 export const PAYMENTS_TYPES = ['XTZ', 'MVK']
@@ -31,7 +33,7 @@ const INIT_TABLE_DATA = [
   ['', '', '', PAYMENTS_TYPES[0]],
 ]
 
-export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
+export const StageThreeForm = ({ locked, accountPkh, proposalTitle, proposalId }: StageThreeFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const { fee, address } = governanceStorage
@@ -39,8 +41,7 @@ export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
   const [tableData, setTableData] = useState(INIT_TABLE_DATA)
   const [tableJson, setTableJson] = useState('')
   const [form, setForm] = useState<ProposalFinancialRequestForm>({
-    title: 'Hello There',
-    proposalId: 234,
+    title: proposalTitle,
     financialData: { jsonString: tableJson },
   })
   const [validForm, setValidForm] = useState<ValidFinancialRequestForm>({
@@ -84,6 +85,7 @@ export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
       handleSubmitFinancialRequestData={handleSubmitFinancialRequestData}
+      proposalId={proposalId}
     />
   )
 }
