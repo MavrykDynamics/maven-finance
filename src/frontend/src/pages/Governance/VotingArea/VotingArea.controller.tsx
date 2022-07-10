@@ -26,6 +26,7 @@ type VotingAreaProps = {
     id: number | string
   }
   voteStatistics: VoteStatistics
+  isAbleToMakeProposalRoundVote?: boolean
 }
 export const VotingArea = ({
   ready,
@@ -36,6 +37,7 @@ export const VotingArea = ({
   handleVotingRoundVote,
   selectedProposal,
   voteStatistics,
+  isAbleToMakeProposalRoundVote,
 }: VotingAreaProps) => {
   const dispatch = useDispatch()
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
@@ -92,7 +94,8 @@ export const VotingArea = ({
           </VotingButtonsContainer>
         )}
 
-        {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
+        {/* {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && !isVisibleHistoryProposal && ( */}
+        {ready && isAbleToMakeProposalRoundVote && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
             <Button

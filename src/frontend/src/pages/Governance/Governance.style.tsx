@@ -64,6 +64,7 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   .voting-proposal {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   article {

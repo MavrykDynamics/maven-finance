@@ -15,6 +15,7 @@ import {
   votingRoundVote,
   getCurrentRoundProposals,
   getTimestampByLevel,
+  processProposalPayment,
 } from './Governance.actions'
 
 // helpers
@@ -58,6 +59,7 @@ type GovernanceViewProps = {
   nextProposals: CurrentRoundProposalsStorageType
   pastProposals: CurrentRoundProposalsStorageType
   watingProposals: CurrentRoundProposalsStorageType
+  waitingForPaymentToBeProcessed: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
   userIsSatellite: boolean
   handleOpenModalMoveNextRound: any
@@ -78,6 +80,7 @@ export const GovernanceView = ({
   handleOpenModalMoveNextRound,
   timeLeftInPhase,
   handleExecuteProposal,
+  waitingForPaymentToBeProcessed,
 }: GovernanceViewProps) => {
   const dispatch = useDispatch()
   const blockRef = useRef<any>(null)
@@ -158,6 +161,10 @@ export const GovernanceView = ({
     dispatch(votingRoundVote(voteType))
   }
 
+  const handleClickProcessPayment = () => {
+    if (rightSideContent?.id) dispatch(processProposalPayment(rightSideContent.id))
+  }
+
   const _handleItemSelect = (chosenProposal: ProposalRecordType | undefined) => {
     if (chosenProposal) {
       setRightSideContent(chosenProposal)
@@ -184,9 +191,6 @@ export const GovernanceView = ({
     </EmptyContainer>
   )
 
-  // TODO correct conditions
-  const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
-
   const isVisibleOngoingVoiting =
     !onProposalHistoryPage && Boolean(ongoingProposals?.length) && governancePhase === 'VOTING'
 
@@ -197,8 +201,6 @@ export const GovernanceView = ({
   const isVisibleHistoryProposal = onProposalHistoryPage && Boolean(pastProposals?.length)
   const isExecuted = rightSideContent?.executed
   const isMinusLeftTime = timeLeftInPhase <= 0
-  const isExecuteProposal =
-    !isExecuted && isMinusLeftTime && accountPkh && !isProposalRound && !isVotingRound && !isTimeLockRound
 
   const [visibleLists, setVisibleLists] = useState<Record<string, boolean>>({
     wating: false,
@@ -217,13 +219,13 @@ export const GovernanceView = ({
     governanceStorage.cycleCounter,
   )
 
-  // const rightSideContentStatus = normalizeProposalStatus(
-  //   governancePhase,
-  //   rightSideContent?.status ?? 0,
-  //   Boolean(rightSideContent?.executed),
-  //   Boolean(rightSideContent?.locked),
-  //   !isVisibleHistoryProposal,
-  // )
+  const isExecuteProposal = statusInfo.anyUserCanExecuteProposal && accountPkh
+  const isPaymentProposal = statusInfo.anyUserCanProcessProposalPayment && accountPkh
+  const isVisibleWating = !onProposalHistoryPage && Boolean(watingProposals?.length)
+  const isVisibleWatingPayment = !onProposalHistoryPage && Boolean(waitingForPaymentToBeProcessed?.length)
+  const isAbleToMakeProposalRoundVote = statusInfo.satelliteAbleToMakeProposalRoundVote
+
+  console.log('%c ||||| statusInfo', 'color:yellowgreen', statusInfo)
 
   const rightSideContentStatus = statusInfo.statusFlag
 
@@ -286,6 +288,16 @@ export const GovernanceView = ({
               handleItemSelect={_handleItemSelect}
               selectedProposal={rightSideContent}
               title="Waiting for Execution"
+              type="wating"
+              firstVisible={firstVisibleProposal === 'wating'}
+            />
+          )}
+          {isVisibleWatingPayment && (
+            <Proposals
+              proposalsList={waitingForPaymentToBeProcessed}
+              handleItemSelect={_handleItemSelect}
+              selectedProposal={rightSideContent}
+              title="Waiting For Payment To Be Processed"
               type="wating"
               firstVisible={firstVisibleProposal === 'wating'}
             />
@@ -353,13 +365,21 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               voteStatistics={voteStatistics}
               isVisibleHistoryProposal={isVisibleHistoryProposal}
+              isAbleToMakeProposalRoundVote={isAbleToMakeProposalRoundVote}
             />
-
             {isExecuteProposal ? (
               <Button
                 className="execute-proposal"
                 text="Execute Proposal"
                 onClick={handleClickExecuteProposal}
+                kind="actionPrimary"
+              />
+            ) : null}
+            {isPaymentProposal ? (
+              <Button
+                className="execute-proposal"
+                text="Process Payment"
+                onClick={handleClickProcessPayment}
                 kind="actionPrimary"
               />
             ) : null}

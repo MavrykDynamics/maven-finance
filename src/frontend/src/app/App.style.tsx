@@ -21,7 +21,7 @@ export const LoaderStyled = styled.div<{ theme: MavrykTheme }>`
   transition: background-color 0.15s ease-in-out;
   background-color: #08062880;
   display: flex;
-  z-index: 6;
+  z-index: 12;
   justify-content: center;
   align-items: center;
   text-align: center;
