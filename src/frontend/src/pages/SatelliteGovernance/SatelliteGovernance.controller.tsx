@@ -46,7 +46,7 @@ const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelli
   return list.filter((item: any) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime).getTime()
-    return expirationDatetime > timeNow && item.status !== 1
+    return expirationDatetime > timeNow && item.status !== 1 && !item.executed
   })
 }
 
