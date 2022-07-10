@@ -137,7 +137,6 @@ export const CouncilFormAddCouncilMember = () => {
         imageIpfsUrl={newMemberImage}
         className="form-ipfs"
         setIpfsImageUrl={(e: any) => {
-          console.log('%c ||||| e', 'color:yellowgreen', e)
           setForm({ ...form, newMemberImage: e })
           setFormInputStatus({ ...formInputStatus, newMemberImage: Boolean(e) ? 'success' : 'error' })
         }}

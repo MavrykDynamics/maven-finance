@@ -198,13 +198,6 @@ export const submitFinancialRequestData =
       return
     }
 
-    console.log('%c ||||| proposalId', 'color:yellowgreen', proposalId)
-    console.log('%c ||||| dataName', 'color:yellowgreen', dataName)
-    console.log('%c ||||| receiverAddress', 'color:yellowgreen', receiverAddress)
-    console.log('%c ||||| amount', 'color:yellowgreen', amount)
-    console.log('%c ||||| tokenType', 'color:yellowgreen', tokenType)
-    console.log('%c ||||| tokenContractAddress', 'color:yellowgreen', tokenContractAddress)
-
     try {
       dispatch({
         type: SUBMIT_FINANCIAL_DATA_REQUEST,

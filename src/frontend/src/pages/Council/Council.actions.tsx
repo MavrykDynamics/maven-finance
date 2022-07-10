@@ -118,7 +118,6 @@ export const sign = (actionID: number) => async (dispatch: any, getState: any) =
       type: SIGN_REQUEST,
     })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.councilAddress.address)
-    console.log('%c ||||| actionID', 'color:yellowgreen', actionID)
     console.log('contract', contract)
     const transaction = await contract?.methods.signAction(actionID).send()
     console.log('transaction', transaction)

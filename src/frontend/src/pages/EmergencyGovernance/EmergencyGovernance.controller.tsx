@@ -41,8 +41,6 @@ export const EmergencyGovernance = () => {
 
   const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger
 
-  console.log('%c ||||| emergencyGovernanceLedger', 'color:yellowgreen', emergencyGovernanceLedger)
-
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())

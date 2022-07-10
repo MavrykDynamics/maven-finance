@@ -426,7 +426,7 @@ export const VOTE_FOR_ACTION_ERROR = 'VOTE_FOR_ACTION_ERROR'
 export const voteForAction =
   (actionId: number, voteType: string, callback: () => void) => async (dispatch: any, getState: any) => {
     const state: State = getState()
-    console.log('%c ||||| voteForAction actionId', 'color:yellowgreen', actionId)
+
     if (!state.wallet.ready) {
       dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
       return

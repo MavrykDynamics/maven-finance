@@ -108,13 +108,6 @@ export const getVestingStorage = (accountPkh?: string) => async (dispatch: any, 
   try {
     const state: State = getState()
 
-    console.log('%c ||||| state', 'color:yellowgreen', state)
-
-    // if (!accountPkh) {
-    //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-    //   return
-    // }
-    console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
     const contract = accountPkh
       ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
       : await new TezosToolkit(

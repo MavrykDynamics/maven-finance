@@ -80,9 +80,7 @@ export const Council = () => {
     setDdIsOpen(!ddIsOpen)
   }
 
-  const handleSelect = (item: any) => {
-    console.log('%c ||||| item', 'color:yellowgreen', item)
-  }
+  const handleSelect = (item: any) => {}
 
   const handleOnClickDropdownItem = (e: any) => {
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
