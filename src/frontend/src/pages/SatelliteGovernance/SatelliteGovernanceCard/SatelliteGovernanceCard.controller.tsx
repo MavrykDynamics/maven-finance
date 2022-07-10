@@ -72,12 +72,8 @@ export const SatelliteGovernanceCard = ({
     setAccordionHeight(getHeight)
   }, [expanded])
 
-  const handleProposalRoundVote = () => {}
   const handleVotingRoundVote = (type: string) => {
-    console.log('%c ||||| type', 'color:yellowgreen', type)
-    if (type === 'FOR') {
-      dispatch(voteForAction(id, open))
-    }
+    dispatch(voteForAction(id, type, open))
   }
 
   const handleClick = async () => {
@@ -173,9 +169,9 @@ export const SatelliteGovernanceCard = ({
             </div>
             {statusFlag === ProposalStatus.ONGOING ? (
               <VotingButtonsContainer className="voting-buttons">
-                <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('FOR')} kind={'votingFor'} />
-                <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('ABSTAIN')} kind={'votingAbstain'} />
-                <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('AGAINST')} kind={'votingAgainst'} />
+                <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
+                <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
+                <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
               </VotingButtonsContainer>
             ) : null}
           </div>

@@ -216,7 +216,7 @@ export const submitFinancialRequestData =
       const transaction =
         tokenType === 'XTZ'
           ? await contract?.methods
-              .updatePaymentData(proposalId, dataName, receiverAddress, amount * 1_000_000, tokenType)
+              .updatePaymentData(proposalId, dataName, receiverAddress, amount * 1_000_000, 'tez')
               .send()
           : tokenType === 'MVK'
           ? await contract?.methods
@@ -225,7 +225,7 @@ export const submitFinancialRequestData =
                 dataName,
                 receiverAddress,
                 amount * 1_000_000_000,
-                tokenType,
+                'fa2',
                 tokenContractAddress,
                 0,
               )
