@@ -29,7 +29,7 @@ export function oracles(state = oraclesDefaultState, action: any): OraclesState 
         oraclesStorage: {
           ...state.oraclesStorage,
           ...action.oraclesStorage,
-          totalOracleNetworks: action.oraclesStorage.aggregator ? getTotalOracleNetworks(action.oraclesStorage.aggregator) : 0,
+          totalOracleNetworks: action.oraclesStorage?.aggregator ? getTotalOracleNetworks(action.oraclesStorage.aggregator) : 0,
         },
       }
     default:
