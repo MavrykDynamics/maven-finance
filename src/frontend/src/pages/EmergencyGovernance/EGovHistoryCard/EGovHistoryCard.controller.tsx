@@ -37,8 +37,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
   const status = emergencyGovernance.executed ? ProposalStatus.EXECUTED : ProposalStatus.DROPPED
 
-  console.log('%c ||||| emergencyGovernance', 'color:yellowgreen', emergencyGovernance)
-
   const currentData = emergencyGovernance.executed
     ? emergencyGovernance.executedTimestamp
     : emergencyGovernance.startTimestamp

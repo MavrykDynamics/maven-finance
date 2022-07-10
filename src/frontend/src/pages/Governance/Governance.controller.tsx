@@ -83,9 +83,6 @@ export const Governance = () => {
       item?.proposalPayments?.length > 0,
   ) as ProposalRecordType[]
 
-  console.log('%c ||||| watingProposals', 'color:red', watingProposals)
-  console.log('%c ||||| waitingForPaymentToBeProcessed', 'color:red', waitingForPaymentToBeProcessed)
-
   const handleMoveNextRound = () => {
     dispatch(startNextRound(true))
   }

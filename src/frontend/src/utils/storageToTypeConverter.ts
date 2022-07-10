@@ -550,7 +550,6 @@ function convertToVestingStorageType(storage: any): VestingStorage {
 }
 
 function convertGovernanceRound(round: number): GovernanceRoundType {
-  console.log('%c ||||| round', 'color:red', round);
   return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : 'EXECUTION'
 }
 

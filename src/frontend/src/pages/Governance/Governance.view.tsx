@@ -225,8 +225,6 @@ export const GovernanceView = ({
   const isVisibleWatingPayment = !onProposalHistoryPage && Boolean(waitingForPaymentToBeProcessed?.length)
   const isAbleToMakeProposalRoundVote = statusInfo.satelliteAbleToMakeProposalRoundVote
 
-  console.log('%c ||||| statusInfo', 'color:yellowgreen', statusInfo)
-
   const rightSideContentStatus = statusInfo.statusFlag
 
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
