@@ -25,19 +25,16 @@ export const EmergencyGovProposalModal = () => {
 
   const [form, setForm] = useState<EmergencyGovernanceProposalForm>({
     title: '',
-    amountMVKtoTriggerBreakGlass: 0,
     description: '',
     screenshots: '',
   })
   const [validForm, setValidForm] = useState<ValidEmergencyGovernanceProposalForm>({
     title: false,
-    amountMVKtoTriggerBreakGlass: false,
     description: false,
     screenshots: false,
   })
   const [formInputStatus, setFormInputStatus] = useState<EmergencyGovernanceProposalFormInputStatus>({
     title: '',
-    amountMVKtoTriggerBreakGlass: '',
     description: '',
     screenshots: '',
   })
@@ -59,14 +56,6 @@ export const EmergencyGovProposalModal = () => {
         setValidForm({ ...validForm, description: validityCheckResult })
         updatedState = { ...validForm, description: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, description: updatedState.description ? 'success' : 'error' })
-        break
-      case 'MVK_TRIGGER_AMOUNT':
-        setValidForm({ ...validForm, amountMVKtoTriggerBreakGlass: form.amountMVKtoTriggerBreakGlass >= 0 })
-        updatedState = { ...validForm, amountMVKtoTriggerBreakGlass: form.amountMVKtoTriggerBreakGlass >= 0 }
-        setFormInputStatus({
-          ...formInputStatus,
-          amountMVKtoTriggerBreakGlass: updatedState.amountMVKtoTriggerBreakGlass ? 'success' : 'error',
-        })
         break
     }
   }

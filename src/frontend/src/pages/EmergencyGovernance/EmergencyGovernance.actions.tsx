@@ -69,15 +69,15 @@ export const submitEmergencyGovernanceProposal =
     }
 
     try {
+      dispatch({
+        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
+        emergencyGovernanceProposal: form,
+      })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.emergencyGovernanceAddress.address)
       console.log('contract', contract)
       const transaction = await contract?.methods.triggerEmergencyControl(form.title, form.description).send()
       console.log('transaction', transaction)
 
-      dispatch({
-        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
-        emergencyGovernanceProposal: form,
-      })
       dispatch(showToaster(INFO, 'Submitting emergency proposal...', 'Please wait 30s'))
       dispatch({
         type: HIDE_EXIT_FEE_MODAL,
