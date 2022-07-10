@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Page, ModalStyled } from 'styles'
-
+import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { State } from '../../reducers'
@@ -55,12 +55,7 @@ export const Governance = () => {
     dispatch(getDelegationStorage())
   }, [dispatch])
 
-  // const mockPastroposalsList = MOCK_PAST_PROPOSAL_LIST?.values ? Array.from(MOCK_PAST_PROPOSAL_LIST.values()) : []
-  // const proposalLedger = governanceStorage.proposalLedger
-  // const pastProposalsList = proposalLedger.filter((item: any) => {
-  //   const currentRoundProposal = Boolean(Number(item.currentRoundProposal))
-  //   return !currentRoundProposal && item.cycle < governanceStorage.cycleCounter
-  // })
+  const proposalLedger = governanceStorage.proposalLedger
 
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -73,13 +68,26 @@ export const Governance = () => {
       Boolean(item.currentRoundProposal) &&
       Boolean(item.id === governanceStorage.cycleHighestVotedProposalId),
   )
+  const proposalLedgerList = proposalLedger?.values ? Array.from(proposalLedger.values()) : []
 
-  const watingProposals = currentRoundProposalsList.filter(
-    (item) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
-  )
+  const watingProposals = proposalLedgerList.filter(
+    (item: any) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
+  ) as ProposalRecordType[]
+
+  const waitingForPaymentToBeProcessed = proposalLedgerList.filter(
+    (item: any) =>
+      isProposalRound &&
+      governanceStorage.timelockProposalId === item.id &&
+      item?.executed &&
+      !item.paymentProcessed &&
+      item?.proposalPayments?.length > 0,
+  ) as ProposalRecordType[]
+
+  console.log('%c ||||| watingProposals', 'color:red', watingProposals)
+  console.log('%c ||||| waitingForPaymentToBeProcessed', 'color:red', waitingForPaymentToBeProcessed)
 
   const handleMoveNextRound = () => {
-    dispatch(startNextRound(false))
+    dispatch(startNextRound(true))
   }
   const handleExecuteProposal = (id: number) => {
     dispatch(executeProposal(id))
@@ -120,6 +128,7 @@ export const Governance = () => {
         ongoingProposals={ongoingProposals}
         nextProposals={currentRoundProposalsList}
         watingProposals={watingProposals}
+        waitingForPaymentToBeProcessed={waitingForPaymentToBeProcessed}
         pastProposals={pastProposals}
         governancePhase={governancePhase}
         timeLeftInPhase={daysLeftOfPeriod}

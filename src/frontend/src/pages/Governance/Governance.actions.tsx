@@ -320,29 +320,65 @@ export const EXECUTE_PROPOSAL_ERROR = 'EXECUTE_PROPOSAL_ERROR'
 export const executeProposal = (proposalId: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
-    dispatch({
+    await dispatch({
       type: EXECUTE_PROPOSAL_REQUEST,
     })
     const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('Execute Proposal contract', contract)
-    const transaction = await contract?.methods.processProposalPayment(proposalId).send()
+    const transaction = await contract?.methods.executeProposal().send()
     console.log('Execute Proposal transaction', transaction)
 
-    dispatch(showToaster(INFO, 'Request Execute Proposal round start...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Request Execute Proposal round start...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
 
-    dispatch({
+    await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
+    await dispatch({
       type: EXECUTE_PROPOSAL_RESULT,
     })
-    dispatch(getGovernanceStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
       type: EXECUTE_PROPOSAL_ERROR,
+      error,
+    })
+  }
+}
+
+export const PROCESS_PAYMENT_REQUEST = 'PROCESS_PAYMENT_REQUEST'
+export const PROCESS_PAYMENT_RESULT = 'PROCESS_PAYMENT_RESULT'
+export const PROCESS_PAYMENT_ERROR = 'PROCESS_PAYMENT_ERROR'
+export const processProposalPayment = (proposalId: number) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+  try {
+    await dispatch({
+      type: PROCESS_PAYMENT_REQUEST,
+    })
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+    console.log('Process Proposal Payment contract', contract)
+    const transaction = await contract?.methods.processProposalPayment(proposalId).send()
+    console.log('Process Proposal Payment transaction', transaction)
+
+    await dispatch(showToaster(INFO, 'Process Proposal Payment round start...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    await dispatch(showToaster(SUCCESS, 'Process Proposal Payment confirmed', 'All good :)'))
+
+    await dispatch(getGovernanceStorage())
+    await dispatch(getCurrentRoundProposals())
+    await dispatch({
+      type: PROCESS_PAYMENT_RESULT,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: PROCESS_PAYMENT_ERROR,
       error,
     })
   }
