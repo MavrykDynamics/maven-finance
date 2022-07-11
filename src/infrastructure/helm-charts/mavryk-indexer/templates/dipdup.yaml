@@ -52,45 +52,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: docker-pull-credentials
-      initContainers:
-        - name: empty-db
-          args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
-          env:
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_HOST_PROD
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PORT_PROD
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_USERNAME_PROD
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PASSWORD_PROD
-            - name: ADMIN_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: TZKT_TESTNET_URL
-              value: https://api.jakartanet.tzkt.io
-            - name: TZKT_MAINNET_URL
-              value: https://api.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.5.1
-          imagePullPolicy: Always
-          volumeMounts:
-            - name: config-volume
-              mountPath: /mavryk/dipdup.yml
-              subPath: dipdup.yml
       containers:
         - name: dipdup
           args: ['-c', 'dipdup.yml', 'run']
@@ -124,7 +85,7 @@ spec:
               value: https://api.jakartanet.tzkt.io
             - name: TZKT_MAINNET_URL
               value: https://api.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.5.1
+          image: tezosdynamics/mavryk-indexer:v0.5.2
           imagePullPolicy: Always
           ports:
             - name: metrics
@@ -172,6 +133,8 @@ data:
         manual: wipe
         migration: exception
         rollback: ignore
+        config_modified: wipe
+        schema_modified: wipe
 
     contracts:
       liquidity_baking:
