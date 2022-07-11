@@ -1,7 +1,7 @@
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -121,10 +121,10 @@ const ListWithSatellites = ({
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
-  const paginatedItemsList = useMemo(
-    () => satellitesList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [currentPage, satellitesList],
-  )
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return satellitesList.slice(from, to)
+  }, [currentPage, satellitesList])
 
   return (
     <SatelliteListStyled>

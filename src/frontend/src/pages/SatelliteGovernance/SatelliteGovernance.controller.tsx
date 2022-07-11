@@ -9,8 +9,11 @@ import type { GovernanceSatelliteItem } from '../../reducers/governance'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import {
+  getSateliteGovernanceListName,
+  calculateSlicePositions,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
@@ -128,14 +131,14 @@ export const SatelliteGovernance = () => {
     dispatch(getGovernanceSatelliteStorage())
   }, [dispatch])
 
-  const listName = useMemo(() => `${activeTab}SateliteGovernanceList`, [activeTab])
+  const listName = useMemo(() => getSateliteGovernanceListName(activeTab), [activeTab])
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
-  const paginatedItemsList = useMemo(
-    () => separateRecord.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [currentPage, separateRecord],
-  )
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return separateRecord.slice(from, to)
+  }, [currentPage, separateRecord])
 
   return (
     <Page>
