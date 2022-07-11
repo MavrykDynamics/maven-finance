@@ -25,6 +25,8 @@ advanced:
     manual: wipe
     migration: exception
     rollback: ignore
+    config_modified: wipe
+    schema_modified: wipe
 
 contracts:
   liquidity_baking:
