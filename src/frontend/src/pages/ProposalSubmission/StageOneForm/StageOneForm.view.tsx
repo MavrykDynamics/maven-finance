@@ -88,18 +88,6 @@ export const StageOneFormView = ({
           inputStatus={formInputStatus.sourceCodeLink}
         />
       </div>
-      {/* <div className="document-uploader-wrap">
-        <IPFSUploader
-          typeFile="document"
-          imageIpfsUrl={form.ipfs}
-          setIpfsImageUrl={(e: any) => {
-            setForm({ ...form, ipfs: e })
-            handleOnBlur(e, 'IPFS')
-          }}
-          title={'Upload Invoice Document'}
-          listNumber={6}
-        />
-      </div> */}
       <FormButtonContainer>
         <Button icon="auction" kind="actionPrimary" text={'Submit Proposal'} onClick={handleSubmitProposal} />
       </FormButtonContainer>

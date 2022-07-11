@@ -364,6 +364,7 @@ export const GovernanceView = ({
               voteStatistics={voteStatistics}
               isVisibleHistoryProposal={isVisibleHistoryProposal}
               isAbleToMakeProposalRoundVote={isAbleToMakeProposalRoundVote}
+              isEndedVotingTime={isEndedVotingTime}
             />
             {isExecuteProposal ? (
               <Button
