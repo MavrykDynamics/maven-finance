@@ -52,10 +52,12 @@ export type ProposalUpdateForm = {
   proposalBytes: ProposalBytesType[]
 }
 export type ValidProposalUpdateForm = {
+  title: boolean | undefined
   proposalBytes: boolean | undefined
 }
 
 export type ProposalUpdateFormInputStatus = {
+  title: InputStatusType
   proposalBytes: InputStatusType
 }
 

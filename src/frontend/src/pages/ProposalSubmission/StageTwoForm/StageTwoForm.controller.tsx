@@ -37,19 +37,32 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
   })
 
   const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
+    title: false,
     proposalBytes: false,
   })
   const [formInputStatus, setFormInputStatus] = useState<ProposalUpdateFormInputStatus>({
+    title: '',
     proposalBytes: '',
   })
 
   const handleOnBlur = (index: number, text: string, type: string) => {
-    const validityCheckResult = type === 'data' ? isHexadecimalByteString(text) : Boolean(text)
+    const validityCheckResultData = Boolean(text)
+    const validityCheckResultText = Boolean(text)
 
-    setValidForm({ ...validForm, proposalBytes: validityCheckResult })
-    const updatedState = { ...validForm, proposalBytes: validityCheckResult }
-    setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
+    if (type === 'title') {
+      setValidForm({ ...validForm, title: validityCheckResultText })
+      const updatedState = { ...validForm, title: validityCheckResultText }
+      setFormInputStatus({ ...formInputStatus, title: updatedState.title ? 'success' : 'error' })
+    }
+
+    if (type === 'data') {
+      setValidForm({ ...validForm, proposalBytes: validityCheckResultData })
+      const updatedState = { ...validForm, proposalBytes: validityCheckResultData }
+      setFormInputStatus({ ...formInputStatus, proposalBytes: updatedState.proposalBytes ? 'success' : 'error' })
+    }
   }
+
+  console.log('%c ||||| formInputStatus', 'color:yellowgreen', formInputStatus)
 
   const handleUpdateProposal = async () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
