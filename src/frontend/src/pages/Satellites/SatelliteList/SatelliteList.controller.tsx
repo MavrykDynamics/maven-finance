@@ -11,6 +11,7 @@ type SatelliteListProps = {
   undelegateCallback: () => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
+  listName: string
 }
 
 export const SatelliteList = ({
@@ -20,6 +21,7 @@ export const SatelliteList = ({
   undelegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
+  listName,
 }: SatelliteListProps) => {
   const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(satellitesList)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(satellitesList)
@@ -92,6 +94,7 @@ export const SatelliteList = ({
       userStakedBalance={userStakedBalance}
       satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
       satelliteFound={satelliteFound}
+      listName={listName}
     />
   )
 }
