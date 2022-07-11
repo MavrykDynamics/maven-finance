@@ -25,6 +25,8 @@ export const PropSubmissionTopBar = ({ value, valueCallback }: PropSubmissionTop
     if (valueCallback) valueCallback(tabId)
   }
 
+  console.log('%c ||||| timeToEndOfPhase', 'color:yellowgreen', timeToEndOfPhase)
+
   return (
     <PropSubmissionTopBarView
       loading={loading}

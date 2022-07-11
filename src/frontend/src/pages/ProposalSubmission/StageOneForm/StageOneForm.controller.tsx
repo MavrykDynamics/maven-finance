@@ -78,7 +78,8 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
       case 'SOURCE_CODE_LINK':
         validityCheckResult = isValidHttpUrl(form.sourceCodeLink)
         setValidForm({ ...validForm, sourceCodeLink: validityCheckResult, invoiceTable: validityCheckResult })
-        updatedState = { ...validForm, invoiceTable: validityCheckResult }
+        updatedState = { ...validForm, sourceCodeLink: validityCheckResult, invoiceTable: validityCheckResult }
+        console.log('%c ||||| updatedState', 'color:yellowgreen', updatedState)
         setFormInputStatus({ ...formInputStatus, sourceCodeLink: updatedState.sourceCodeLink ? 'success' : 'error' })
         break
       case 'IPFS':
@@ -90,6 +91,8 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) dispatch(submitProposal(form, fee, accountPkh as string))
   }
+
+  console.log('%c ||||| formInputStatus', 'color:yellowgreen', formInputStatus)
 
   return (
     <StageOneFormView

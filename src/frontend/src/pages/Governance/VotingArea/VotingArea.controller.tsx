@@ -27,6 +27,7 @@ type VotingAreaProps = {
   }
   voteStatistics: VoteStatistics
   isAbleToMakeProposalRoundVote?: boolean
+  isEndedVotingTime?: boolean
 }
 export const VotingArea = ({
   ready,
@@ -38,6 +39,7 @@ export const VotingArea = ({
   selectedProposal,
   voteStatistics,
   isAbleToMakeProposalRoundVote,
+  isEndedVotingTime,
 }: VotingAreaProps) => {
   const dispatch = useDispatch()
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
@@ -76,23 +78,27 @@ export const VotingArea = ({
           </div>
         )}
 
-        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && !isVisibleHistoryProposal && (
-          <VotingButtonsContainer>
-            <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('FOR')} type={SUBMIT} kind={'votingFor'} />
-            <Button
-              text={'Vote PASS'}
-              onClick={() => handleVotingRoundVote('ABSTAIN')}
-              type={SUBMIT}
-              kind={'votingAbstain'}
-            />
-            <Button
-              text={'Vote NO'}
-              onClick={() => handleVotingRoundVote('AGAINST')}
-              type={SUBMIT}
-              kind={'votingAgainst'}
-            />
-          </VotingButtonsContainer>
-        )}
+        {ready &&
+          governancePhase === 'VOTING' &&
+          accountPkhIsSatellite &&
+          !isVisibleHistoryProposal &&
+          !isEndedVotingTime && (
+            <VotingButtonsContainer>
+              <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('FOR')} type={SUBMIT} kind={'votingFor'} />
+              <Button
+                text={'Vote PASS'}
+                onClick={() => handleVotingRoundVote('ABSTAIN')}
+                type={SUBMIT}
+                kind={'votingAbstain'}
+              />
+              <Button
+                text={'Vote NO'}
+                onClick={() => handleVotingRoundVote('AGAINST')}
+                type={SUBMIT}
+                kind={'votingAgainst'}
+              />
+            </VotingButtonsContainer>
+          )}
 
         {/* {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && !isVisibleHistoryProposal && ( */}
         {ready && isAbleToMakeProposalRoundVote && (
