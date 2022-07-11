@@ -16,10 +16,10 @@ block {
     checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
-            s.admin := newAdminAddress;
-          }
-        | _ -> skip
+        |   LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -34,10 +34,10 @@ block {
     checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case treasuryLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
-            s.governanceAddress := newGovernanceAddress;
-          }
-        | _ -> skip
+        |   LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -54,11 +54,11 @@ block {
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        | LambdaSetBaker(keyHash) -> {
-            const setBakerOperation  : operation = Tezos.set_delegate(keyHash);
-            operations := setBakerOperation # operations;
-          }
-        | _ -> skip
+        |   LambdaSetBaker(keyHash) -> {
+                const setBakerOperation  : operation = Tezos.set_delegate(keyHash);
+                operations := setBakerOperation # operations;
+            }
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -73,39 +73,39 @@ block {
     // 1. Check if sender is admin
     // 2. Get Treasury Factory Contract address from the General Contracts Map on the Governance Contract
     // 3. Get the Treasury Factory Contract Config
-    // 4. Get the nameMaxLength parameter from the Treasury Factory Contract Config
+    // 4. Get the treasuryNameMaxLength parameter from the Treasury Factory Contract Config
     // 5. Validate input (name does not exceed max length) and update the Treasury Contract name
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case treasuryLambdaAction of [
-        | LambdaSetName(updatedName) -> {
+        |   LambdaSetName(updatedName) -> {
 
-              // Get Treasury Factory Address from the General Contracts map on the Governance Contract
-              const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-              const treasuryFactoryAddress: address = case generalContractsOptView of [
-                  Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                      | None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                    ]
-                | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-              ];
+                // Get Treasury Factory Address from the General Contracts map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
+                const treasuryFactoryAddress: address = case generalContractsOptView of [
+                    Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
 
-              // Get the Treasury Factory Contract Config
-              const configView : option (treasuryFactoryConfigType) = Tezos.call_view ("getConfig", unit, treasuryFactoryAddress);
-              const treasuryFactoryConfig: treasuryFactoryConfigType = case configView of [
-                  Some (_config) -> _config
-                | None           -> failwith (error_GET_CONFIG_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-              ];
+                // Get the Treasury Factory Contract Config
+                const configView : option (treasuryFactoryConfigType) = Tezos.call_view ("getConfig", unit, treasuryFactoryAddress);
+                const treasuryFactoryConfig: treasuryFactoryConfigType = case configView of [
+                        Some (_config) -> _config
+                    |   None           -> failwith (error_GET_CONFIG_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
+                ];
 
-              // Get the nameMaxLength parameter from the Treasury Factory Contract Config
-              const treasuryNameMaxLength: nat    = treasuryFactoryConfig.treasuryNameMaxLength;
+                // Get the treasuryNameMaxLength parameter from the Treasury Factory Contract Config
+                const treasuryNameMaxLength: nat    = treasuryFactoryConfig.treasuryNameMaxLength;
 
-              // Validate input and update the Treasury name
-              if String.length(updatedName) > treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
+                // Validate input and update the Treasury name
+                if String.length(updatedName) > treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else s.name  := updatedName;
               
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -119,15 +119,15 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
-              const metadataKey   : string = updateMetadataParams.metadataKey;
-              const metadataHash  : bytes  = updateMetadataParams.metadataHash;
-              
-              s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -141,10 +141,10 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -158,10 +158,10 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -175,10 +175,10 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case treasuryLambdaAction of [
-        | LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-            s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
+                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+            }
+        |   _ -> skip
     ];
 
 
@@ -195,13 +195,14 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll lambda *)
-function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
+function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkSenderIsGovernanceOrFactory(s); // check that sender is admin, Governance Contract address or Treasury Factory Contract address
+    // check that sender is admin, Governance Contract address or Treasury Factory Contract address
+    checkSenderIsGovernanceOrFactory(s); 
 
     case treasuryLambdaAction of [
-        | LambdaPauseAll(_parameters) -> {
+        |   LambdaPauseAll(_parameters) -> {
                 
                 // set all pause configs to True
                 if s.breakGlassConfig.transferIsPaused then skip
@@ -217,7 +218,7 @@ block {
                 else s.breakGlassConfig.unstakeMvkIsPaused := True;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -228,10 +229,11 @@ block {
 function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
-    checkSenderIsGovernanceOrFactory(s); // check that sender is admin, Governance Contract address or Treasury Factory Contract address
+    // check that sender is admin, Governance Contract address or Treasury Factory Contract address
+    checkSenderIsGovernanceOrFactory(s);
 
     case treasuryLambdaAction of [
-        | LambdaUnpauseAll(_parameters) -> {
+        |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
                 if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
@@ -247,7 +249,7 @@ block {
                 else skip;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -262,17 +264,17 @@ block {
     checkSenderIsAdmin(s);  // check that sender is admin 
 
     case treasuryLambdaAction of [
-        | LambdaTogglePauseEntrypoint(params) -> {
+        |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                    Transfer (_v)             -> s.breakGlassConfig.transferIsPaused := _v
-                  | MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused := _v
-                  | StakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused := _v
-                  | UnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused := _v
+                        Transfer (_v)             -> s.breakGlassConfig.transferIsPaused            := _v
+                    |   MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused  := _v
+                    |   StakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused            := _v
+                    |   UnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused          := _v
                 ]
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -308,27 +310,26 @@ block {
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        | LambdaTransfer(transferTokenParams) -> {
+        |   LambdaTransfer(transferTokenParams) -> {
                 
-                // const txs : list(transferDestinationType)   = transferTokenParams.txs;
-                const txs : list(transferDestinationType)   = transferTokenParams;
+                const txs : list(transferDestinationType) = transferTokenParams;
                 
-                const whitelistTokenContracts   : whitelistTokenContractsType   = s.whitelistTokenContracts;
+                const whitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
                 function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
                 block {
 
                     const token        : tokenType        = destination.token;
-                    const to_          : ownerType            = destination.to_;
+                    const to_          : ownerType        = destination.to_;
                     const amt          : tokenAmountType  = destination.amount;
                     const from_        : address          = Tezos.self_address; // treasury
                     
                     // Create transfer token operation
                     // - check that token to be transferred are in the Whitelisted Token Contracts map
                     const transferTokenOperation : operation = case token of [
-                      | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
-                      | Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
-                      | Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                        |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
+                        |   Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
+                        |   Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
 
                     accumulator := transferTokenOperation # accumulator;
@@ -339,7 +340,7 @@ block {
                 operations := List.fold(transferAccumulator, txs, emptyOperation);
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -364,7 +365,7 @@ block {
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        | LambdaMintMvkAndTransfer(mintMvkAndTransferParams) -> {
+        |   LambdaMintMvkAndTransfer(mintMvkAndTransferParams) -> {
                 
                 const to_    : address   = mintMvkAndTransferParams.to_;
                 const amt    : nat       = mintMvkAndTransferParams.amt;
@@ -380,7 +381,7 @@ block {
                 operations := mintMvkTokensOperation # operations;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -401,15 +402,15 @@ block {
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        | LambdaUpdateMvkOperators(updateOperatorsParams) -> {
+        |   LambdaUpdateMvkOperators(updateOperatorsParams) -> {
                 
                 // Get %update_operators entrypoint in MVK Token Contract
                 const updateEntrypoint = case (Tezos.get_entrypoint_opt(
-                  "%update_operators",
-                  s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
-                      Some (contr)    -> contr
-                    | None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
-                  ];
+                    "%update_operators",
+                    s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
+                    ];
 
                 const updateOperation : operation = Tezos.transaction(
                     (updateOperatorsParams),
@@ -420,7 +421,7 @@ block {
                 operations := updateOperation # operations;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -451,19 +452,19 @@ block {
                 // Get Doorman Contract address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                          Some (_contract)    -> _contract
-                        | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                      ]
-                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in the Doorman Contract
                 const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%stake",
                     doormanAddress) : option(contract(nat))) of [
-                        Some (contr)    -> contr
-                      | None            -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
                     ];
 
                 // Create and send stake operation
@@ -476,7 +477,7 @@ block {
                 operations := stakeOperation # operations;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -495,30 +496,29 @@ block {
     // 5. Create and send unstake operation to the Doorman Contract
     
     checkSenderIsAdmin(s);         // check that sender is admin
-
     checkUnstakeMvkIsNotPaused(s); // check that %unstakeMvk entrypoint is not paused (e.g. if glass broken)
 
     var operations : list(operation) := nil;
 
     case treasuryLambdaAction of [
-        | LambdaUnstakeMvk(unstakeAmount) -> {
+        |   LambdaUnstakeMvk(unstakeAmount) -> {
                 
                 // Get doorman address
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                          Some (_contract)    -> _contract
-                        | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                      ]
-                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in doorman
                 const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%unstake",
                     doormanAddress) : option(contract(nat))) of [
-                        Some (contr)    -> contr
-                      | None            -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
                     ];
 
                 // Create and send unstake operation
@@ -531,7 +531,7 @@ block {
                 operations := unstakeOperation # operations;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)

@@ -15,10 +15,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case delegationLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
+        |   LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
     
 } with (noOperations, s)
@@ -32,10 +32,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case delegationLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
+        |    LambdaSetGovernance(newGovernanceAddress) -> {
                 s.governanceAddress := newGovernanceAddress;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -49,14 +49,14 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case delegationLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey : string = updateMetadataParams.metadataKey;
                 const metadataHash : bytes = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -70,22 +70,22 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case delegationLambdaAction of [
-        | LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigParams) -> {
                 
                 const updateConfigAction    : delegationUpdateConfigActionType   = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : delegationUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                      ConfigDelegationRatio (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.delegationRatio          := updateConfigNewValue
-                    | ConfigMinimumStakedMvkBalance (_v) -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minimumStakedMvkBalance  := updateConfigNewValue
-                    | ConfigMaxSatellites (_v)           -> s.config.maxSatellites                     := updateConfigNewValue
-                    | ConfigSatNameMaxLength (_v)        -> s.config.satelliteNameMaxLength            := updateConfigNewValue
-                    | ConfigSatDescMaxLength (_v)        -> s.config.satelliteDescriptionMaxLength     := updateConfigNewValue
-                    | ConfigSatImageMaxLength (_v)       -> s.config.satelliteImageMaxLength           := updateConfigNewValue
-                    | ConfigSatWebsiteMaxLength (_v)     -> s.config.satelliteWebsiteMaxLength         := updateConfigNewValue
+                        ConfigDelegationRatio (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.delegationRatio          := updateConfigNewValue
+                    |   ConfigMinimumStakedMvkBalance (_v) -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minimumStakedMvkBalance  := updateConfigNewValue
+                    |   ConfigMaxSatellites (_v)           -> s.config.maxSatellites                     := updateConfigNewValue
+                    |   ConfigSatNameMaxLength (_v)        -> s.config.satelliteNameMaxLength            := updateConfigNewValue
+                    |   ConfigSatDescMaxLength (_v)        -> s.config.satelliteDescriptionMaxLength     := updateConfigNewValue
+                    |   ConfigSatImageMaxLength (_v)       -> s.config.satelliteImageMaxLength           := updateConfigNewValue
+                    |   ConfigSatWebsiteMaxLength (_v)     -> s.config.satelliteWebsiteMaxLength         := updateConfigNewValue
                 ];
             }
-        | _ -> skip
+        |   _ -> skip
     ];
   
 } with (noOperations, s)
@@ -93,16 +93,16 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorageType): return is
+function lambdaUpdateWhitelistContracts(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); // check that sender is admin
 
     case delegationLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -110,16 +110,16 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorageType): return is
+function lambdaUpdateGeneralContracts(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin
 
     case delegationLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -127,7 +127,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const delegationLambdaAction : delegationLambdaActionType; var s: delegationStorageType): return is
+function lambdaMistakenTransfer(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -137,25 +137,25 @@ block {
     var operations : list(operation) := nil;
 
     case delegationLambdaAction of [
-        | LambdaMistakenTransfer(destinationParams) -> {
+        |   LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
-                  block{
-                    const transferTokenOperation : operation = case transferParam.token of [
-                      | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                      | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                      | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with(transferTokenOperation # operationList);
+                function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
+                    block{
+                        const transferTokenOperation : operation = case transferParam.token of [
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        ];
+                    } with (transferTokenOperation # operationList);
                 
                 operations  := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -181,28 +181,28 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case delegationLambdaAction of [
-        | LambdaPauseAll(_parameters) -> {
+        |   LambdaPauseAll(_parameters) -> {
                 
-            if s.breakGlassConfig.delegateToSatelliteIsPaused then skip
-            else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
+                if s.breakGlassConfig.delegateToSatelliteIsPaused then skip
+                else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
 
-            if s.breakGlassConfig.undelegateFromSatelliteIsPaused then skip
-            else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
+                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then skip
+                else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
 
-            if s.breakGlassConfig.registerAsSatelliteIsPaused then skip
-            else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
+                if s.breakGlassConfig.registerAsSatelliteIsPaused then skip
+                else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
 
-            if s.breakGlassConfig.unregisterAsSatelliteIsPaused then skip
-            else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
+                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then skip
+                else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
 
-            if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
-            else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
+                if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
+                else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
 
-            if s.breakGlassConfig.distributeRewardIsPaused then skip
-            else s.breakGlassConfig.distributeRewardIsPaused := True;
+                if s.breakGlassConfig.distributeRewardIsPaused then skip
+                else s.breakGlassConfig.distributeRewardIsPaused := True;
 
-          }
-        | _ -> skip
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -221,28 +221,28 @@ block {
 
     // set all pause configs to False
     case delegationLambdaAction of [
-        | LambdaUnpauseAll(_parameters) -> {
+        |   LambdaUnpauseAll(_parameters) -> {
             
-            if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-            else skip;
+                if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-            else skip;
+                if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-            else skip;
+                if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-            else skip;
+                if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-            else skip;
+                if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
-            else skip;
+                if s.breakGlassConfig.distributeRewardIsPaused then s.breakGlassConfig.distributeRewardIsPaused := False
+                else skip;
             
-          }
-        | _ -> skip
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -260,19 +260,19 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin
 
     case delegationLambdaAction of [
-        | LambdaTogglePauseEntrypoint(params) -> {
+        |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                    DelegateToSatellite (_v)          -> s.breakGlassConfig.delegateToSatelliteIsPaused := _v
-                  | UndelegateFromSatellite (_v)      -> s.breakGlassConfig.undelegateFromSatelliteIsPaused := _v
-                  | RegisterAsSatellite (_v)          -> s.breakGlassConfig.registerAsSatelliteIsPaused := _v
-                  | UnregisterAsSatellite (_v)        -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
-                  | UpdateSatelliteRecord (_v)        -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
-                  | DistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
+                        DelegateToSatellite (_v)          -> s.breakGlassConfig.delegateToSatelliteIsPaused := _v
+                    |   UndelegateFromSatellite (_v)      -> s.breakGlassConfig.undelegateFromSatelliteIsPaused := _v
+                    |   RegisterAsSatellite (_v)          -> s.breakGlassConfig.registerAsSatelliteIsPaused := _v
+                    |   UnregisterAsSatellite (_v)        -> s.breakGlassConfig.unregisterAsSatelliteIsPaused := _v
+                    |   UpdateSatelliteRecord (_v)        -> s.breakGlassConfig.updateSatelliteRecordIsPaused := _v
+                    |   DistributeReward (_v)             -> s.breakGlassConfig.distributeRewardIsPaused := _v
                 ]
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -315,137 +315,137 @@ block {
     var operations : list(operation) := nil;
 
     case delegationLambdaAction of [
-        | LambdaDelegateToSatellite(delegateToSatelliteParams) -> {
+        |   LambdaDelegateToSatellite(delegateToSatelliteParams) -> {
 
-            // Init parameters
-            const userAddress       : address = delegateToSatelliteParams.userAddress;
-            const satelliteAddress  : address = delegateToSatelliteParams.satelliteAddress;
+                // Init parameters
+                const userAddress       : address = delegateToSatelliteParams.userAddress;
+                const satelliteAddress  : address = delegateToSatelliteParams.satelliteAddress;
 
-            // Check if the sender is the user specified in parameters, or the Delegation Contract
-            if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip
-            else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
+                // Check if the sender is the user specified in parameters, or the Delegation Contract
+                if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip
+                else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
 
-            // Check that user is not a satellite
-            checkUserIsNotSatellite(userAddress, s);
+                // Check that user is not a satellite
+                checkUserIsNotSatellite(userAddress, s);
 
-            // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
-            s := updateRewards(userAddress, s);
-            
-            // Verify that satellite exists
-            var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
-                Some(_val) -> _val
-              | None       -> failwith(error_SATELLITE_NOT_FOUND)
-            ];
-
-            // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-            const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-            const doormanAddress: address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                      Some (_contract)    -> _contract
-                    | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                  ]
-              | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
-
-            // --------------------------------------------------------------
-            //
-            // Enable redelegation to another satellite if a user is already delegated to a satellite  
-            //
-            // ---------------------------------------------------------------
-
-            // Check if user is delegated to a satellite or not
-            if Big_map.mem(userAddress, s.delegateLedger) then block {
-
-                // ------------------------------------------------
-                // User is already delegated to one satellite
-                // ------------------------------------------------
-              
-                // Get user's delegate record
-                var delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
-                    Some(_delegateRecord) -> _delegateRecord
-                  | None                  -> failwith(error_DELEGATE_NOT_FOUND) // failwith should not be reached as conditional check has already cleared
-                ];
-
-                // Temp variable for current satellite to be replaced
-                const previousSatellite : address = delegateRecord.satelliteAddress; 
-
-                // Check that new satellite is not the same as previously delegated satellite
-                if previousSatellite = satelliteAddress then failwith(error_ALREADY_DELEGATED_SATELLITE)
-                else skip;
-
-                // Create operation to delegate to new satellite
-                const delegateToSatelliteOperation : operation = Tezos.transaction(
-                    (delegateToSatelliteParams),
-                    0tez, 
-                    getDelegateToSatelliteEntrypoint(Tezos.self_address)
-                );
-
-                operations  := delegateToSatelliteOperation # operations;
-
-                // Create operation to undelegate from previous satellite
-                const undelegateFromSatelliteOperation : operation = Tezos.transaction(
-                    (userAddress),
-                    0tez, 
-                    getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
-                );
-
-                operations  := undelegateFromSatelliteOperation # operations;
-
-            } else block {
-
-                // ------------------------------------------------
-                // User is not delegated to any satellite
-                // ------------------------------------------------
-
-                // Get user's staked MVK balance from the Doorman Contract
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                const stakedMvkBalance : nat = case stakedMvkBalanceView of [
-                    Some (value) -> value
-                  | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-                ];
-
-                // Get satellite record
-                var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
+                // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
+                s := updateRewards(userAddress, s);
                 
-                // Create and save new delegate record for user
-                var delegateRecord : delegateRecordType := record [
-                    satelliteAddress              = satelliteAddress;
-                    delegatedDateTime             = Tezos.now;
-                    delegatedStakedMvkBalance     = stakedMvkBalance;
+                // Verify that satellite exists
+                var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
+                        Some(_val) -> _val
+                    |   None       -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
 
-                s.delegateLedger[userAddress] := delegateRecord;
-
-                // Get satellite's rewards record
-                var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
-                    Some (_record) -> _record
-                  | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // Update or create new rewards record for user (delegate)
-                var delegateRewardsRecord: satelliteRewardsType := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                    Some(_record) -> _record
-                  | None -> record[
-                        unpaid                                  = 0n;
-                        paid                                    = 0n;
-                        participationRewardsPerShare            = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                        satelliteAccumulatedRewardsPerShare     = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                        satelliteReferenceAddress               = satelliteAddress;
-                    ]
-                ];
-                delegateRewardsRecord.participationRewardsPerShare              := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                delegateRewardsRecord.satelliteReferenceAddress                 := satelliteAddress;
-                s.satelliteRewardsLedger[userAddress]                          := delegateRewardsRecord;
+                // --------------------------------------------------------------
+                //
+                // Enable redelegation to another satellite if a user is already delegated to a satellite  
+                //
+                // ---------------------------------------------------------------
 
-                // Update satellite's total delegated amount (increment by user's staked MVK balance)
-                satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
+                // Check if user is delegated to a satellite or not
+                if Big_map.mem(userAddress, s.delegateLedger) then block {
+
+                    // ------------------------------------------------
+                    // User is already delegated to one satellite
+                    // ------------------------------------------------
                 
-                // Update satellite record in storage
-                s.satelliteLedger[satelliteAddress] := satelliteRecord;
+                    // Get user's delegate record
+                    var delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
+                            Some(_delegateRecord) -> _delegateRecord
+                        |   None                  -> failwith(error_DELEGATE_NOT_FOUND) // failwith should not be reached as conditional check has already cleared
+                    ];
 
+                    // Temp variable for current satellite to be replaced
+                    const previousSatellite : address = delegateRecord.satelliteAddress; 
+
+                    // Check that new satellite is not the same as previously delegated satellite
+                    if previousSatellite = satelliteAddress then failwith(error_ALREADY_DELEGATED_SATELLITE)
+                    else skip;
+
+                    // Create operation to delegate to new satellite
+                    const delegateToSatelliteOperation : operation = Tezos.transaction(
+                        (delegateToSatelliteParams),
+                        0tez, 
+                        getDelegateToSatelliteEntrypoint(Tezos.self_address)
+                    );
+
+                    operations  := delegateToSatelliteOperation # operations;
+
+                    // Create operation to undelegate from previous satellite
+                    const undelegateFromSatelliteOperation : operation = Tezos.transaction(
+                        (userAddress),
+                        0tez, 
+                        getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
+                    );
+
+                    operations  := undelegateFromSatelliteOperation # operations;
+
+                } else block {
+
+                    // ------------------------------------------------
+                    // User is not delegated to any satellite
+                    // ------------------------------------------------
+
+                    // Get user's staked MVK balance from the Doorman Contract
+                    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                    const stakedMvkBalance : nat = case stakedMvkBalanceView of [
+                            Some (value) -> value
+                        |   None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+                    ];
+
+                    // Get satellite record
+                    var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
+                    
+                    // Create and save new delegate record for user
+                    var delegateRecord : delegateRecordType := record [
+                        satelliteAddress              = satelliteAddress;
+                        delegatedDateTime             = Tezos.now;
+                        delegatedStakedMvkBalance     = stakedMvkBalance;
+                    ];
+
+                    s.delegateLedger[userAddress] := delegateRecord;
+
+                    // Get satellite's rewards record
+                    var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
+                            Some (_record) -> _record
+                        |   None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+                    ];
+
+                    // Update or create new rewards record for user (delegate)
+                    var delegateRewardsRecord: satelliteRewardsType := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+                            Some(_record) -> _record
+                        |   None -> record [
+                                unpaid                                  = 0n;
+                                paid                                    = 0n;
+                                participationRewardsPerShare            = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                                satelliteAccumulatedRewardsPerShare     = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                                satelliteReferenceAddress               = satelliteAddress;
+                            ]
+                    ];
+                    delegateRewardsRecord.participationRewardsPerShare              := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    delegateRewardsRecord.satelliteReferenceAddress                 := satelliteAddress;
+                    s.satelliteRewardsLedger[userAddress]                          := delegateRewardsRecord;
+
+                    // Update satellite's total delegated amount (increment by user's staked MVK balance)
+                    satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
+                    
+                    // Update satellite record in storage
+                    s.satelliteLedger[satelliteAddress] := satelliteRecord;
+
+                }
             }
-        }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -473,7 +473,7 @@ block {
     checkUndelegateFromSatelliteIsNotPaused(s); // check that %undelegateFromSatellite entrypoint is not paused (e.g. glass broken)
 
     case delegationLambdaAction of [
-        | LambdaUndelegateFromSatellite(userAddress) -> {
+        |   LambdaUndelegateFromSatellite(userAddress) -> {
 
                 // Check if sender is self (Delegation Contract) or userAddress -> Needed now because a user can compound for another user, so onStakeChange needs to reference a userAddress
                 if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip 
@@ -484,25 +484,25 @@ block {
 
                 // Get user's delegate record
                 var _delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
-                    Some(_val) -> _val
-                  | None -> failwith(error_DELEGATE_NOT_FOUND)
+                        Some(_val) -> _val
+                    |   None -> failwith(error_DELEGATE_NOT_FOUND)
                 ];
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                          Some (_contract)    -> _contract
-                        | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                      ]
-                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                    Some (value) -> value
-                  | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                        Some (value) -> value
+                    |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
                 
                 // Init empty satellite record - for type checking
@@ -522,8 +522,8 @@ block {
 
                 // Get satellite record
                 var _satelliteRecord : satelliteRecordType := case s.satelliteLedger[_delegateRecord.satelliteAddress] of [
-                      None          -> emptySatelliteRecord
-                    | Some(_record) -> _record
+                        None          -> emptySatelliteRecord
+                    |   Some(_record) -> _record
                 ];
 
                 // Check if satellite exists and is not inactive (if satellite does not exist, it will return "INACTIVE" from the empty satellite record above)
@@ -546,7 +546,7 @@ block {
                 remove (userAddress : address) from map s.delegateLedger;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -582,7 +582,7 @@ block {
     checkRegisterAsSatelliteIsNotPaused(s); // check that %registerAsSatellite entrypoint is not paused (e.g. glass broken)
 
     case delegationLambdaAction of [
-        | LambdaRegisterAsSatellite(registerAsSatelliteParams) -> {
+        |   LambdaRegisterAsSatellite(registerAsSatelliteParams) -> {
 
                 // Init user address
                 const userAddress : address  = Tezos.sender;
@@ -599,18 +599,18 @@ block {
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress : address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                          Some (_contract)    -> _contract
-                        | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                      ]
-                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance : nat = case stakedMvkBalanceView of [
-                    Some (value) -> value
-                  | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                        Some (value) -> value
+                    |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Check if user's staked MVK balance has reached the minimum staked MVK amount required to be a satellite
@@ -635,42 +635,42 @@ block {
 
                 // Create new satellite record
                 const satelliteRecord: satelliteRecordType = case Map.find_opt(userAddress, s.satelliteLedger) of [
-                      Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
-                    | None -> record [            
-                          status                = "ACTIVE";
-                          stakedMvkBalance      = stakedMvkBalance;
-                          satelliteFee          = satelliteFee;
-                          totalDelegatedAmount  = 0n;
+                        Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
+                    |   None -> record [            
+                            status                = "ACTIVE";
+                            stakedMvkBalance      = stakedMvkBalance;
+                            satelliteFee          = satelliteFee;
+                            totalDelegatedAmount  = 0n;
 
-                          name                  = name;
-                          description           = description;
-                          image                 = image;
-                          website               = website;
-                          
-                          registeredDateTime    = Tezos.now;
-                      ]
-                    ];
+                            name                  = name;
+                            description           = description;
+                            image                 = image;
+                            website               = website;
+                            
+                            registeredDateTime    = Tezos.now;
+                        ]
+                ];
 
                 // Save new satellite record
                 s.satelliteLedger[userAddress] := satelliteRecord;
 
                 // Update or create a satellite rewards record
                 var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                    Some (_rewards) -> _rewards
-                  | None -> record[
-                      unpaid                                      = 0n;
-                      paid                                        = 0n;
-                      participationRewardsPerShare                = 0n;
-                      satelliteAccumulatedRewardsPerShare         = 0n;
-                      satelliteReferenceAddress                   = userAddress
-                  ]
+                        Some (_rewards) -> _rewards
+                    |   None -> record [
+                            unpaid                                      = 0n;
+                            paid                                        = 0n;
+                            participationRewardsPerShare                = 0n;
+                            satelliteAccumulatedRewardsPerShare         = 0n;
+                            satelliteReferenceAddress                   = userAddress
+                        ]
                 ];
                 satelliteRewardsRecord.participationRewardsPerShare        := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
                 s.satelliteRewardsLedger[userAddress]                      := satelliteRewardsRecord;
                 
             }
-        | _ -> skip
-    ];
+        |   _ -> skip
+    ];  
 
 } with (noOperations, s)
 
@@ -691,7 +691,7 @@ block {
     checkUnregisterAsSatelliteIsNotPaused(s); // check that %unregisterAsSatellite entrypoint is not paused (e.g. glass broken)
 
     case delegationLambdaAction of [
-        | LambdaUnregisterAsSatellite(userAddress) -> {
+        |   LambdaUnregisterAsSatellite(userAddress) -> {
 
                 // Check if sender is self (Delegation Contract) or userAddress
                 if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip 
@@ -709,7 +709,7 @@ block {
                 // remove sender from satellite ledger
                 remove (userAddress : address) from map s.satelliteLedger;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -732,7 +732,7 @@ block {
     checkUpdateSatelliteRecordIsNotPaused(s); // check that %updateSatelliteRecord entrypoint is not paused (e.g. glass broken)
 
     case delegationLambdaAction of [
-        | LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
+        |   LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
 
                 // Init user address
                 const userAddress : address  = Tezos.sender;
@@ -745,8 +745,8 @@ block {
                 
                 // Get satellite record
                 var satelliteRecord : satelliteRecordType := case s.satelliteLedger[userAddress] of [
-                    Some(_val) -> _val
-                  | None       -> failwith(error_SATELLITE_NOT_FOUND)
+                        Some(_val) -> _val
+                    |   None       -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
 
                 // Init updated satellite record params
@@ -776,7 +776,7 @@ block {
                 s.satelliteLedger[userAddress] := satelliteRecord;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -814,7 +814,7 @@ block {
     if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     case delegationLambdaAction of [
-        | LambdaDistributeReward(distributeRewardParams) -> {
+        |   LambdaDistributeReward(distributeRewardParams) -> {
                 
             // Init variables from parameters (eligible satellites set, and total reward)
             const eligibleSatellites : set(address) = distributeRewardParams.eligibleSatellites;
@@ -823,33 +823,33 @@ block {
             // Get Satellite Treasury Address from the General Contracts Map on the Governance Contract
             const generalContractsOptViewSatelliteTreasury : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "satelliteTreasury", s.governanceAddress);
             const treasuryAddress : address = case generalContractsOptViewSatelliteTreasury of [
-                Some (_optionContract) -> case _optionContract of [
-                      Some (_contract)    -> _contract
-                    | None                -> failwith (error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND)
-                  ]
-              | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND)
+                    ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
             // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
             const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
             const doormanAddress : address = case generalContractsOptViewDoorman of [
-                Some (_optionContract) -> case _optionContract of [
-                      Some (_contract)    -> _contract
-                    | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                  ]
-              | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    Some (_optionContract) -> case _optionContract of [
+                            Some (_contract)    -> _contract
+                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                    ]
+                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
             ];
 
             // Send the rewards from the Satellite Treasury Contract to the Doorman Contract
             const transferParam : transferActionType = list[
-                record[
-                  to_   = doormanAddress;
-                  amount = totalReward;
-                  token = (Fa2 (record [
-                        tokenContractAddress = s.mvkTokenAddress;
-                        tokenId              = 0n;
-                    ]) : tokenType
-                  );                
+                record [
+                    to_   = doormanAddress;
+                    amount = totalReward;
+                    token = (Fa2 (record [
+                            tokenContractAddress = s.mvkTokenAddress;
+                            tokenId              = 0n;
+                        ]) : tokenType
+                    );                
                 ]
             ];
 
@@ -871,14 +871,14 @@ block {
                     
                     // Get satellite record
                     var satelliteRecord : satelliteRecordType  := case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
-                        Some (_record) -> _record
-                      | None           -> failwith(error_SATELLITE_NOT_FOUND)
+                            Some (_record) -> _record
+                        |   None           -> failwith(error_SATELLITE_NOT_FOUND)
                     ];
 
                     // Get satellite rewards record
                     var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
-                        Some (_record) -> _record
-                      | None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+                            Some (_record) -> _record
+                        |   None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                     ];
 
                     // Calculate satellite fee portion of reward
@@ -904,7 +904,7 @@ block {
                 }
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -955,16 +955,16 @@ block {
     var operations: list(operation) := nil;
 
     case delegationLambdaAction of [
-        | LambdaOnStakeChange(userAddress) -> {
+        |   LambdaOnStakeChange(userAddress) -> {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                          Some (_contract)    -> _contract
-                        | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                      ]
-                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Check that sender is the Doorman Contract
@@ -978,14 +978,14 @@ block {
 
                     // Get user's satellite rewards record
                     var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                        Some (_record) -> _record
-                      | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+                            Some (_record) -> _record
+                        |   None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                     ];
 
                     // Get satellite's rewards record (that user is delegated to)
                     var _satelliteReferenceRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
-                        Some (_record) -> _record
-                      | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
+                            Some (_record) -> _record
+                        |   None           -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
                     ];
 
                     // Update user's satellite rewards record - empty pending rewards
@@ -1012,80 +1012,82 @@ block {
                     // Get user's staked MVK balance from the Doorman Contract
                     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                        Some (value) -> value
-                      | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                            Some (value) -> value
+                        |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                     ];
 
                     // Get user's satellite record
                     var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
-                        Some (_satellite) -> _satellite
-                      | None -> failwith(error_SATELLITE_NOT_FOUND)
+                            Some (_satellite) -> _satellite
+                        |   None              -> failwith(error_SATELLITE_NOT_FOUND)
                     ];
 
                     // Update user's satellite record staked MVK balance and storage in satelliteLedger
                     satelliteRecord.stakedMvkBalance  := stakedMvkBalance;
                     s.satelliteLedger[userAddress]    := satelliteRecord;
                 }
+
                 else block {
 
-                  // check if user has delegated to a satellite
-                  const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
+                    // check if user has delegated to a satellite
+                    const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
                 
-                  if userIsDelegator then block {
+                    if userIsDelegator then block {
                     
-                    // Get user's delegate record
-                    var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
-                        Some (_delegate) -> _delegate
-                      | None -> failwith(error_DELEGATE_NOT_FOUND)
-                    ];
-
-                    // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
-                    const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
-
-                    if userHasActiveSatellite then block {
-
-                        // Get user's staked MVK balance from the Doorman Contract
-                        const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                        const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                            Some (value) -> value
-                          | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                        // Get user's delegate record
+                        var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
+                                Some (_delegate) -> _delegate
+                            |   None             -> failwith(error_DELEGATE_NOT_FOUND)
                         ];
 
-                        // Get satellite record of satellite that user is delegated to
-                        var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
-                            Some (_delegatedSatellite) -> _delegatedSatellite
-                          | None -> failwith(error_SATELLITE_NOT_FOUND)
-                        ];
+                        // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
+                        const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
 
-                        // Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
-                        const stakeAmount: nat = abs(_delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
+                        if userHasActiveSatellite then block {
 
-                        // Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
-                        // - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
-                        // - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
-                        // - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
-                        if stakedMvkBalance > _delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
-                        else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
-                        else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
+                            // Get user's staked MVK balance from the Doorman Contract
+                            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                            const stakedMvkBalance: nat = case stakedMvkBalanceView of [
+                                    Some (value) -> value
+                                |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                            ];
 
-                        // Update storage (user's delegate record and his delegated satellite record)
-                        _delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
-                        s.delegateLedger   := Big_map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
-                        s.satelliteLedger  := Map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
-                    } 
+                            // Get satellite record of satellite that user is delegated to
+                            var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
+                                    Some (_delegatedSatellite) -> _delegatedSatellite
+                                |   None                       -> failwith(error_SATELLITE_NOT_FOUND)
+                            ];
 
-                    // Force User to undelegate if he does not have an active satellite anymore
-                    else operations := Tezos.transaction(
-                          (userAddress), 
-                          0tez, 
-                          getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
-                        ) # operations;
-                  }
-                else skip
+                            // Calculate difference between user's staked MVK balance in delegate record and his current staked MVK balance
+                            const stakeAmount: nat = abs(_delegatorRecord.delegatedStakedMvkBalance - stakedMvkBalance);
+
+                            // Check if there has been a positive or negative change in user's staked MVK balance and adjust satellite's total delegated amount correspondingly
+                            // - If there is a positive change in user's staked MVK balance, increment userSatellite's total delegated amount by the difference (stakeAmount)
+                            // - Else If stakeAmount is greater than userSatellite's total delegated amount then fail with error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT
+                            // - Else, there is a negative change in user's staked MVK balance, so decrement userSatellite's total delegated amount by the difference (stakeAmount)
+                            if stakedMvkBalance > _delegatorRecord.delegatedStakedMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
+                            else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
+                            else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
+
+                            // Update storage (user's delegate record and his delegated satellite record)
+                            _delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
+                            s.delegateLedger   := Big_map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
+                            s.satelliteLedger  := Map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
+                        } 
+
+                        // Force User to undelegate if he does not have an active satellite anymore
+                        else operations := Tezos.transaction(
+                            (userAddress), 
+                            0tez, 
+                            getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
+                            ) # operations;
+                        }
+
+                    else skip
                 }
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -1106,7 +1108,7 @@ block {
     if s.admin = Tezos.sender or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     case delegationLambdaAction of [
-        | LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {
+        |   LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {
                 
                 // Init variables from parameters
                 const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
@@ -1114,8 +1116,8 @@ block {
 
                 // Get satellite record 
                 var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
-                    Some(_record) -> _record 
-                  | None -> failwith(error_SATELLITE_NOT_FOUND)
+                        Some(_record) -> _record 
+                    |   None          -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
             
                 // Update satellite with new status
@@ -1125,7 +1127,7 @@ block {
                 s.satelliteLedger[satelliteAddress] := satelliteRecord;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
