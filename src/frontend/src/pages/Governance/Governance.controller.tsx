@@ -45,7 +45,6 @@ export const Governance = () => {
       ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
       : 0
 
-  console.log('%c ||||| timeToEndOfPeriod', 'color:yellowgreen', timeToEndOfPeriod)
   const currentDate = new Date()
   const [periodEndsOn, _] = useState<Date>(new Date(currentDate.getTime() + timeToEndOfPeriod * (1000 * 60 * 60 * 24)))
   const daysLeftOfPeriod = timeToEndOfPeriod
