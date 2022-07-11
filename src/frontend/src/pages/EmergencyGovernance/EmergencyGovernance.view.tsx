@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 
@@ -28,6 +28,10 @@ import { EmergencyGovernancePastProposal } from './mockEGovProposals'
 import { VotingArea } from '../Governance/VotingArea/VotingArea.controller'
 import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from '../Governance/Governance.controller'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { useLocation } from 'react-router'
 
 type Props = {
   ready: boolean
@@ -73,6 +77,16 @@ export const EmergencyGovernanceView = ({
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
+
+  const EMERGENCY_GOVERNANCE_LIST_NAME = 'emergencyGovernanceHistoryList'
+
+  const { pathname, search } = useLocation()
+  const currentPage = getPageNumber(search, EMERGENCY_GOVERNANCE_LIST_NAME)
+
+  const paginatedItemsList = useMemo(
+    () => emergencyGovernanceLedger.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [currentPage, emergencyGovernanceLedger],
+  )
 
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
@@ -160,9 +174,11 @@ export const EmergencyGovernanceView = ({
 
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
-        {emergencyGovernanceLedger.map((emergencyGovernance, index) => {
+        {paginatedItemsList.map((emergencyGovernance, index) => {
           return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
         })}
+
+        <Pagination itemsCount={emergencyGovernanceLedger.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
       </EmergencyGovernHistory>
     </>
   )
