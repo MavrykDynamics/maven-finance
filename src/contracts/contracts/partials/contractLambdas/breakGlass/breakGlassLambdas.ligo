@@ -19,10 +19,10 @@ block {
     checkSenderIsEmergencyGovernanceContract(s);
 
     case breakGlassLambdaAction of [
-        | LambdaBreakGlass(_parameters) -> {
-            s.glassBroken := True; 
-          }
-        | _ -> skip
+        |   LambdaBreakGlass(_parameters) -> {
+                s.glassBroken := True; 
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -44,10 +44,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case breakGlassLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
-            s.admin := newAdminAddress;
-          }
-        | _ -> skip
+        |   LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -61,10 +61,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case breakGlassLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
-            s.governanceAddress := newGovernanceAddress;
-          }
-        | _ -> skip
+        |   LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -78,14 +78,14 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case breakGlassLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes  = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -99,21 +99,21 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin
   
     case breakGlassLambdaAction of [
-        | LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigParams) -> {
                 
                 const updateConfigAction    : breakGlassUpdateConfigActionType   = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_SIZE_EXCEEDED) else s.config.threshold                 := updateConfigNewValue
-                    | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays                  := updateConfigNewValue  
-                    | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue  
-                    | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
-                    | ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
+                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_SIZE_EXCEEDED) else s.config.threshold                 := updateConfigNewValue
+                    |   ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays                  := updateConfigNewValue  
+                    |   ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue  
+                    |   ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
+                    |   ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
                 ];
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -121,16 +121,16 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorageType): return is
+function lambdaUpdateWhitelistContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case breakGlassLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -138,16 +138,16 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorageType): return is
+function lambdaUpdateGeneralContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case breakGlassLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -155,7 +155,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorageType): return is
+function lambdaMistakenTransfer(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -165,25 +165,25 @@ block {
     var operations : list(operation) := nil;
 
     case breakGlassLambdaAction of [
-        | LambdaMistakenTransfer(destinationParams) -> {
+        |   LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
-                  block{
-                    const transferTokenOperation : operation = case transferParam.token of [
-                      | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                      | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                      | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with(transferTokenOperation # operationList);
+                function transferOperationFold(const transferParam : transferDestinationType; const operationList: list(operation)) : list(operation) is
+                    block{
+                        const transferTokenOperation : operation = case transferParam.token of [
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
+                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        ];
+                    } with(transferTokenOperation # operationList);
                 
                 operations  := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -200,12 +200,12 @@ block {
     // 3. Update Council Member info with new info provided
 
     case breakGlassLambdaAction of [
-        | LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
+        |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
-                    Some (_info) -> _info
-                  | None         -> failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED)
+                var councilMember : councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
+                        Some (_info) -> _info
+                    |   None         -> failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED)
                 ];
 
                 // Validate inputs
@@ -222,7 +222,7 @@ block {
                 s.councilMembers[Tezos.sender]  := councilMember;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -252,7 +252,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaAddCouncilMember(newCouncilMember) -> {
+        |   LambdaAddCouncilMember(newCouncilMember) -> {
                 
                 // Validate inputs
                 if String.length(newCouncilMember.memberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -264,12 +264,12 @@ block {
                 else skip;
 
                 const addressMap : addressMapType     = map [
-                  ("councilMemberAddress"  : string) -> newCouncilMember.memberAddress;
+                    ("councilMemberAddress"  : string) -> newCouncilMember.memberAddress;
                 ];
                 const stringMap : stringMapType      = map [
-                  ("councilMemberName"     : string) -> newCouncilMember.memberName;
-                  ("councilMemberImage"    : string) -> newCouncilMember.memberImage;
-                  ("councilMemberWebsite"  : string) -> newCouncilMember.memberWebsite
+                    ("councilMemberName"     : string) -> newCouncilMember.memberName;
+                    ("councilMemberImage"    : string) -> newCouncilMember.memberImage;
+                    ("councilMemberWebsite"  : string) -> newCouncilMember.memberWebsite
                 ];
                 const emptyNatMap : natMapType       = map [];
 
@@ -299,7 +299,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -321,7 +321,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaRemoveCouncilMember(councilMemberAddress) -> {
+        |   LambdaRemoveCouncilMember(councilMemberAddress) -> {
                 
                 // Check if council member is in the council
                 if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
@@ -332,7 +332,7 @@ block {
                 else skip;
 
                 const addressMap : addressMapType     = map [
-                  ("councilMemberAddress"         : string) -> councilMemberAddress;
+                    ("councilMemberAddress"         : string) -> councilMemberAddress;
                 ];
                 const emptyStringMap : stringMapType  = map [];
                 const emptyNatMap : natMapType        = map [];
@@ -363,7 +363,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;    
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -386,7 +386,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
+        |   LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
                 if String.length(councilActionChangeMemberParams.newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
@@ -402,13 +402,13 @@ block {
                 else skip;
 
                 const addressMap : addressMapType     = map [
-                  ("oldCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-                  ("newCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.newCouncilMemberAddress;
+                    ("oldCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.oldCouncilMemberAddress;
+                    ("newCouncilMemberAddress"  : string)  -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
                 const stringMap : stringMapType      = map [
-                  ("newCouncilMemberName"     : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
-                  ("newCouncilMemberWebsite"  : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                  ("newCouncilMemberImage"    : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
+                    ("newCouncilMemberName"     : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberWebsite"  : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                    ("newCouncilMemberImage"    : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap : natMapType        = map [];
 
@@ -438,7 +438,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -468,7 +468,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaPauseAllEntrypoints(_parameters) -> {
+        |   LambdaPauseAllEntrypoints(_parameters) -> {
                 
                 const emptyAddressMap  : addressMapType      = map [];
                 const emptyStringMap   : stringMapType       = map [];
@@ -500,7 +500,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -522,7 +522,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaUnpauseAllEntrypoints(_parameters) -> {
+        |   LambdaUnpauseAllEntrypoints(_parameters) -> {
                 
                 const emptyAddressMap  : addressMapType      = map [];
                 const emptyStringMap   : stringMapType       = map [];
@@ -554,7 +554,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n; 
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -576,7 +576,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaPropagateBreakGlass(_parameters) -> {
+        |   LambdaPropagateBreakGlass(_parameters) -> {
 
                 const emptyAddressMap  : addressMapType  = map [];
                 const emptyStringMap   : stringMapType   = map [];
@@ -608,7 +608,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -635,7 +635,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaSetSingleContractAdmin(setSingleContractParams) -> {
+        |   LambdaSetSingleContractAdmin(setSingleContractParams) -> {
 
                 const newAdminAddress        : address = setSingleContractParams.newContractAdmin;
                 const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
@@ -645,16 +645,16 @@ block {
 
                 // Get whitelist developers map from the Governance Contract
                 const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
-                    Some (value) -> value
-                  | None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
+                        Some (value) -> value
+                    |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
                 const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress: address = case governanceProxyAddressView of [
-                    Some (value) -> value
-                  | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                const governanceProxyAddress : address = case governanceProxyAddressView of [
+                        Some (value) -> value
+                    |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];  
                 
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
@@ -662,8 +662,8 @@ block {
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                 const addressMap   : addressMapType      = map [
-                  ("newAdminAddress"       : string) -> newAdminAddress;
-                  ("targetContractAddress" : string) -> targetContractAddress;
+                    ("newAdminAddress"       : string) -> newAdminAddress;
+                    ("targetContractAddress" : string) -> targetContractAddress;
                 ];
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap      : natMapType      = map [];
@@ -694,7 +694,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -720,20 +720,20 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaSetAllContractsAdmin(newAdminAddress) -> {
+        |   LambdaSetAllContractsAdmin(newAdminAddress) -> {
 
                 // Get whitelist developers map from the Governance Contract
                 const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
-                    Some (value) -> value
-                  | None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
+                        Some (value) -> value
+                    |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
                 const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress: address = case governanceProxyAddressView of [
-                    Some (value) -> value
-                  | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                const governanceProxyAddress : address = case governanceProxyAddressView of [
+                        Some (value) -> value
+                    |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
@@ -741,7 +741,7 @@ block {
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
                 const addressMap   : addressMapType      = map [
-                  ("newAdminAddress" : string) -> newAdminAddress;
+                    ("newAdminAddress" : string) -> newAdminAddress;
                 ];
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap  : natMapType          = map [];
@@ -772,7 +772,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -794,7 +794,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaRemoveBreakGlassControl(_parameters) -> {
+        |   LambdaRemoveBreakGlassControl(_parameters) -> {
                 
                 const emptyAddressMap  : addressMapType      = map [];
                 const emptyStringMap   : stringMapType       = map [];
@@ -826,7 +826,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -856,12 +856,12 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaFlushAction(actionId) -> {
+        |   LambdaFlushAction(actionId) -> {
                 
                 // Check if action to be flushed exists
                 const actionToFlush: breakGlassActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
-                    Some (_action) -> _action
-                  | None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                        Some (_action) -> _action
+                    |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 // Check if action has already been flushed or executed
@@ -874,7 +874,7 @@ block {
                 const emptyAddressMap  : addressMapType      = map [];
                 const emptyStringMap   : stringMapType       = map [];
                 const natMap           : natMapType          = map [
-                  ("actionId" : string) -> actionId;
+                    ("actionId" : string) -> actionId;
                 ];
 
                 var actionRecord : breakGlassActionRecordType := record[
@@ -903,7 +903,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -928,12 +928,12 @@ block {
     var operations : list(operation) := nil;
 
     case breakGlassLambdaAction of [
-        | LambdaSignAction(actionId) -> {
+        |   LambdaSignAction(actionId) -> {
                 
                 // check if action exists
                 var _actionRecord : breakGlassActionRecordType := case s.actionsLedger[actionId] of [
-                  | Some(_record) -> _record
-                  | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                    |   Some(_record) -> _record
+                    |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 // check that break glass action has not been flushed
@@ -965,14 +965,14 @@ block {
 
                         // fetch params begin ---
                         const flushedActionId : nat = case _actionRecord.natMap["actionId"] of [
-                            Some(_nat) -> _nat
-                          | None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         var flushedActionRecord : breakGlassActionRecordType := case s.actionsLedger[flushedActionId] of [     
-                            Some(_record) -> _record
-                          | None          -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                                Some(_record) -> _record
+                            |   None          -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                         ];
 
                         // Check if action was previously flushed or executed
@@ -994,23 +994,23 @@ block {
 
                         // fetch params begin ---
                         const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
-                            Some(_address) -> _address
-                          | None           -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                         ];
 
                         const councilMemberName : string = case _actionRecord.stringMap["councilMemberName"] of [
-                            Some(_string) -> _string
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberImage : string = case _actionRecord.stringMap["councilMemberImage"] of [
-                            Some(_string) -> _string
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberWebsite : string = case _actionRecord.stringMap["councilMemberWebsite"] of [
-                            Some(_string) -> _string
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1040,8 +1040,8 @@ block {
 
                         // fetch params begin ---
                         const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
-                            Some(_address) -> _address
-                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1064,28 +1064,28 @@ block {
 
                         // fetch params begin ---
                         const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of [
-                            Some(_address) -> _address
-                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of [
-                            Some(_address) -> _address
-                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberName : string = case _actionRecord.stringMap["newCouncilMemberName"] of [
-                            Some(_string) -> _string
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberImage : string = case _actionRecord.stringMap["newCouncilMemberImage"] of [
-                            Some(_string) -> _string
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberWebsite : string = case _actionRecord.stringMap["newCouncilMemberWebsite"] of [
-                            Some(_string) -> _string
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1122,17 +1122,17 @@ block {
 
                         // Get General Contracts map from the Governance Contract
                         const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
-                        const generalContracts: generalContractsType = case generalContractsView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const generalContracts : generalContractsType = case generalContractsView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Pause all entrypoints in all contracts in the General Contracts map
                         //  - iterate over contracts map with operation to pause all entrypoints
                         for _contractName -> contractAddress in map generalContracts block {
                             case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                              | None        -> skip
+                                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                                |   None        -> skip
                             ];
                         };    
 
@@ -1147,17 +1147,17 @@ block {
 
                         // Get General Contracts map from the Governance Contract
                         const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
-                        const generalContracts: generalContractsType = case generalContractsView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const generalContracts : generalContractsType = case generalContractsView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Unpause all entrypoints in all contracts in the General Contracts map
                         //  - iterate over contracts map with operation to unpause all entrypoints
                         for _contractName -> contractAddress in map generalContracts block {
                             case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                              | None        -> skip
+                                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                                |   None        -> skip
                             ];
                         };    
 
@@ -1172,8 +1172,8 @@ block {
 
                         // Check if the %propagateBreakGlass entrypoint exists on the Governance Contract
                         const propagateBreakGlassEntrypoint: contract(unit) = case (Tezos.get_entrypoint_opt("%propagateBreakGlass", s.governanceAddress) : option(contract(unit))) of [
-                            Some (contr)        -> contr
-                          | None                -> failwith(error_PROPAGATE_BREAK_GLASS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                                Some (contr)        -> contr
+                            |   None                -> failwith(error_PROPAGATE_BREAK_GLASS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Create operation to trigger propagateBreakGlass entrypoint on the Governance Contract
@@ -1196,28 +1196,28 @@ block {
 
                         // fetch params begin ---
                         const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                            Some(_address) -> _address
-                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of [
-                            Some(_address) -> _address
-                          | None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Get whitelist developers map from the Governance Contract
                         const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                        const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
                         const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                        const governanceProxyAddress: address = case governanceProxyAddressView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const governanceProxyAddress : address = case governanceProxyAddressView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
@@ -1244,23 +1244,23 @@ block {
 
                         // fetch params begin ---
                         const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                           Some(_address) -> _address
-                          | None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Get whitelist developers map from the Governance Contract
                         const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
-                        const whitelistDevelopers: whitelistDevelopersType = case whitelistDevelopersView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
                         
                         // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
                         const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                        const governanceProxyAddress: address = case governanceProxyAddressView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const governanceProxyAddress : address = case governanceProxyAddressView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
@@ -1276,13 +1276,13 @@ block {
 
                         // Get General Contracts map from the Governance Contract
                         const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
-                        const generalContracts: generalContractsType = case generalContractsView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const generalContracts : generalContractsType = case generalContractsView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Create a set to remove duplicate contract addresses (as General Contracts map may contain duplicate addresses)
-                        var uniqueContracts: set(address) := (Set.empty: set(address));
+                        var uniqueContracts : set(address) := (Set.empty: set(address));
                         
                         function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
                             // Add address to the set except self
@@ -1292,10 +1292,10 @@ block {
 
                         // Reset all contracts admin to the new admin address
                         //  - iterate over unique contracts set with setAdmin operation
-                        function setAdminFold(const operationList: list(operation); const singleContractAddress: address) : list(operation) is
+                        function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
                             case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
-                                Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
-                              | None                -> operationList
+                                    Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
+                                |   None                -> operationList
                             ];
 
                         operations := Set.fold(setAdminFold, uniqueContracts, operations);
@@ -1315,9 +1315,9 @@ block {
 
                         // Get Governance proxy address from the General Contracts map on the Governance Contract
                         const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                        const governanceProxyAddress: address = case governanceProxyAddressView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const governanceProxyAddress : address = case governanceProxyAddressView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Set admin of the Break Glass contract to the Governance Proxy Contract
@@ -1325,13 +1325,13 @@ block {
 
                         // Get General Contracts map from the Governance Contract
                         const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
-                        const generalContracts: generalContractsType = case generalContractsView of [
-                            Some (value) -> value
-                          | None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        const generalContracts : generalContractsType = case generalContractsView of [
+                                Some (value) -> value
+                            |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         // Create a set to remove duplicate contract addresses (as General Contracts map may contain duplicate addresses)
-                        var uniqueContracts: set(address)    := (Set.empty: set(address));
+                        var uniqueContracts : set(address)    := (Set.empty: set(address));
 
                         function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
                             // Add address to the set except self
@@ -1341,10 +1341,10 @@ block {
 
                         // Reset all contracts admin to Governance Proxy contract
                         //  - iterate over unique contracts set with operation to set admin as the Governance Proxy Contract
-                        function setAdminFold(const operationList: list(operation); const singleContractAddress: address) : list(operation) is
+                        function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
                             case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
-                                Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
-                              | None                -> operationList
+                                    Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
+                                |   None                -> operationList
                             ];
                         operations := Set.fold(setAdminFold, uniqueContracts, operations);
 
@@ -1366,7 +1366,7 @@ block {
 
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)

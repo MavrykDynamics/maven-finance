@@ -16,10 +16,10 @@ block {
     checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
 
     case aggregatorLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
-            s.admin := newAdminAddress;
-          }
-        | _ -> skip
+        |   LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -34,10 +34,10 @@ block {
     checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
 
     case aggregatorLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
-            s.governanceAddress := newGovernanceAddress;
-          }
-        | _ -> skip
+        |   LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -52,10 +52,10 @@ block {
     checkSenderIsAdminOrGovernanceSatellite(s); // check that sender is admin or the Governance Satellite Contract address 
 
     case aggregatorLambdaAction of [
-        | LambdaSetMaintainer(newMaintainerAddress) -> {
-            s.maintainer := newMaintainerAddress;
-          }
-        | _ -> skip
+        |   LambdaSetMaintainer(newMaintainerAddress) -> {
+                s.maintainer := newMaintainerAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -78,12 +78,12 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
-        | LambdaSetName(updatedName) -> {
+        |   LambdaSetName(updatedName) -> {
 
                 // Get aggregator factory address
                 const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                      Some(_address) -> _address
-                    | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                        Some(_address) -> _address
+                    |   None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                 ];
             
                 // Get aggregator name max length from factory contract
@@ -98,7 +98,7 @@ block {
                 s.name := updatedName;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -113,14 +113,14 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes  = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -129,35 +129,35 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
-        | LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigParams) -> {
 
                 const updateConfigAction    : aggregatorUpdateConfigActionType   = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : aggregatorUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                  | ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
-                  | ConfigNumberBlocksDelay (_v)         -> s.config.numberBlocksDelay                    := updateConfigNewValue
-                  
-                  | ConfigDevTriggerBanDuration (_v)     -> s.config.deviationTriggerBanDuration          := updateConfigNewValue
-                  | ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
-                  | ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
+                    |   ConfigDecimals (_v)                  -> s.config.decimals                             := updateConfigNewValue
+                    |   ConfigNumberBlocksDelay (_v)         -> s.config.numberBlocksDelay                    := updateConfigNewValue
+                    
+                    |   ConfigDevTriggerBanDuration (_v)     -> s.config.deviationTriggerBanDuration          := updateConfigNewValue
+                    |   ConfigPerThousandDevTrigger (_v)     -> s.config.perThousandDeviationTrigger          := updateConfigNewValue
+                    |   ConfigPercentOracleThreshold (_v)    -> s.config.percentOracleThreshold               := updateConfigNewValue
 
-                  | ConfigRequestRateDevDepositFee (_v)  -> s.config.requestRateDeviationDepositFee       := updateConfigNewValue
-                  
-                  | ConfigDeviationRewardStakedMvk (_v)  -> s.config.deviationRewardStakedMvk             := updateConfigNewValue
-                  | ConfigDeviationRewardAmountXtz (_v)  -> s.config.deviationRewardAmountXtz             := updateConfigNewValue
-                  | ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
-                  | ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
+                    |   ConfigRequestRateDevDepositFee (_v)  -> s.config.requestRateDeviationDepositFee       := updateConfigNewValue
+                    
+                    |   ConfigDeviationRewardStakedMvk (_v)  -> s.config.deviationRewardStakedMvk             := updateConfigNewValue
+                    |   ConfigDeviationRewardAmountXtz (_v)  -> s.config.deviationRewardAmountXtz             := updateConfigNewValue
+                    |   ConfigRewardAmountStakedMvk (_v)     -> s.config.rewardAmountStakedMvk                := updateConfigNewValue
+                    |   ConfigRewardAmountXtz (_v)           -> s.config.rewardAmountXtz                      := updateConfigNewValue
                 ];
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -165,17 +165,17 @@ block{
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case aggregatorLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -183,17 +183,17 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case aggregatorLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -209,23 +209,23 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
-function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
 
     case aggregatorLambdaAction of [
-        | LambdaAddOracle(oracleAddress) -> {
+        |   LambdaAddOracle(oracleAddress) -> {
                 
                 if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_ALREADY_ADDED_TO_AGGREGATOR)
                 else block{
-                  checkSenderIsAdminOrGovernanceSatellite(s);
-                  const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
-                  s.oracleAddresses := updatedWhiteListedContract;
-                }
+                    checkSenderIsAdminOrGovernanceSatellite(s);
+                    const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
+                    s.oracleAddresses := updatedWhiteListedContract;
+                }   
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -233,23 +233,23 @@ block {
 
 
 (*  removeOracle entrypoint  *)
-function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaRemoveOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
 
     case aggregatorLambdaAction of [
-        | LambdaRemoveOracle(oracleAddress) -> {
+        |   LambdaRemoveOracle(oracleAddress) -> {
                 
                 if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith (error_ORACLE_NOT_PRESENT_IN_AGGREGATOR)
                 else block{
-                  checkSenderIsAdminOrGovernanceSatellite(s);
-                  const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
-                  s.oracleAddresses := updatedWhiteListedContract;
+                    checkSenderIsAdminOrGovernanceSatellite(s);
+                    const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
+                    s.oracleAddresses := updatedWhiteListedContract;
                 }
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -265,7 +265,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
+function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
     
     // entrypoint should not receive any tez amount   
@@ -275,29 +275,29 @@ block {
     checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
-        | LambdaPauseAll(_parameters) -> {
-              
-            // set all pause configs to True
-            if s.breakGlassConfig.requestRateUpdateIsPaused then skip
-            else s.breakGlassConfig.requestRateUpdateIsPaused := True;
+        |   LambdaPauseAll(_parameters) -> {
+                
+                // set all pause configs to True
+                if s.breakGlassConfig.requestRateUpdateIsPaused then skip
+                else s.breakGlassConfig.requestRateUpdateIsPaused := True;
 
-            if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then skip
-            else s.breakGlassConfig.requestRateUpdateDeviationIsPaused := True;
+                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then skip
+                else s.breakGlassConfig.requestRateUpdateDeviationIsPaused := True;
 
-            if s.breakGlassConfig.setObservationCommitIsPaused then skip
-            else s.breakGlassConfig.setObservationCommitIsPaused := True;
+                if s.breakGlassConfig.setObservationCommitIsPaused then skip
+                else s.breakGlassConfig.setObservationCommitIsPaused := True;
 
-            if s.breakGlassConfig.setObservationRevealIsPaused then skip
-            else s.breakGlassConfig.setObservationRevealIsPaused := True;
+                if s.breakGlassConfig.setObservationRevealIsPaused then skip
+                else s.breakGlassConfig.setObservationRevealIsPaused := True;
 
-            if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
-            else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
+                if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
+                else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
 
-            if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
-            else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
+                else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
 
-          }
-        | _ -> skip
+            }
+        |   _ -> skip
     ];
     
 } with (noOperations, s)
@@ -305,7 +305,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
+function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
     // entrypoint should not receive any tez amount   
@@ -315,29 +315,29 @@ block {
     checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(s);
 
     case aggregatorLambdaAction of [
-        | LambdaUnpauseAll(_parameters) -> {
+        |   LambdaUnpauseAll(_parameters) -> {
                 
-            // set all pause configs to False
-            if s.breakGlassConfig.requestRateUpdateIsPaused then s.breakGlassConfig.requestRateUpdateIsPaused := False
-            else skip;
+                // set all pause configs to False
+                if s.breakGlassConfig.requestRateUpdateIsPaused then s.breakGlassConfig.requestRateUpdateIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then s.breakGlassConfig.requestRateUpdateDeviationIsPaused := False
-            else skip;
+                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then s.breakGlassConfig.requestRateUpdateDeviationIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.setObservationCommitIsPaused then s.breakGlassConfig.setObservationCommitIsPaused := False
-            else skip;
+                if s.breakGlassConfig.setObservationCommitIsPaused then s.breakGlassConfig.setObservationCommitIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.setObservationRevealIsPaused then s.breakGlassConfig.setObservationRevealIsPaused := False
-            else skip;
+                if s.breakGlassConfig.setObservationRevealIsPaused then s.breakGlassConfig.setObservationRevealIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
-            else skip;
+                if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
+                else skip;
 
-            if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
-            else skip;
+                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
+                else skip;
 
-          }
-        | _ -> skip
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -345,26 +345,26 @@ block {
 
 
 (*  togglePauseEntrypoint lambda *)
-function lambdaTogglePauseEntrypoint(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType) : return is
+function lambdaTogglePauseEntrypoint(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block {
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case aggregatorLambdaAction of [
-        | LambdaTogglePauseEntrypoint(params) -> {
+        |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                    RequestRateUpdate (_v)              -> s.breakGlassConfig.requestRateUpdateIsPaused           := _v
-                  | RequestRateUpdateDeviation (_v)     -> s.breakGlassConfig.requestRateUpdateDeviationIsPaused  := _v
-                  | SetObservationCommit (_v)           -> s.breakGlassConfig.setObservationCommitIsPaused        := _v
-                  | SetObservationReveal (_v)           -> s.breakGlassConfig.setObservationRevealIsPaused        := _v
-                  | WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
-                  | WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused     := _v
+                        RequestRateUpdate (_v)              -> s.breakGlassConfig.requestRateUpdateIsPaused           := _v
+                    |   RequestRateUpdateDeviation (_v)     -> s.breakGlassConfig.requestRateUpdateDeviationIsPaused  := _v
+                    |   SetObservationCommit (_v)           -> s.breakGlassConfig.setObservationCommitIsPaused        := _v
+                    |   SetObservationReveal (_v)           -> s.breakGlassConfig.setObservationRevealIsPaused        := _v
+                    |   WithdrawRewardXtz (_v)              -> s.breakGlassConfig.withdrawRewardXtzIsPaused           := _v
+                    |   WithdrawRewardStakedMvk (_v)        -> s.breakGlassConfig.withdrawRewardStakedMvkIsPaused     := _v
                 ]
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -382,7 +382,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  requestRateUpdate entrypoint  *)
-function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
@@ -404,7 +404,7 @@ block{
     checkMaintainership(s);               // check that sender is the maintainer address
 
     case aggregatorLambdaAction of [
-        | LambdaRequestRateUpdate(_parameters) -> {
+        |   LambdaRequestRateUpdate(_parameters) -> {
                 
                 // init params for new round
                 const newRound          : nat                     = s.round + 1n;
@@ -420,8 +420,8 @@ block{
                     
                     // Reset deviationTriggerInfos for a new deviation round
                     newDeviationTriggerInfos := record[
-                      oracleAddress = Tezos.sender;
-                      roundPrice    = 0n;
+                        oracleAddress = Tezos.sender;
+                        roundPrice    = 0n;
                     ];
 
                     // // Init parameters for significant deviation boundaries check
@@ -461,7 +461,7 @@ block{
                     const lastCompletedRoundPriceToThousands   : nat = lastCompletedRoundPrice * 1000n;
                     const lastCompletedRoundPriceDifferential  : nat = lastCompletedRoundPrice * s.config.perThousandDeviationTrigger;
 
-                    // If s.config.perThousandDeviationTrigger is 2, calculate 100.2% and 99.8% of last completed round price
+                    // If s.config.perThousandDeviationTrigger is 5, calculate 100.25% and 99.75% of last completed round price
                     const upperBound : nat = (lastCompletedRoundPriceToThousands + lastCompletedRoundPriceDifferential) / 1000n;
                     const lowerBound : nat = abs(lastCompletedRoundPriceToThousands - lastCompletedRoundPriceDifferential) / 1000n;
 
@@ -470,7 +470,7 @@ block{
                     //
                     //                  non-significant change
                     //                 <---------------------->  
-                    //   -------- 99.8% -------- 100% -------- 100.2% --------
+                    //   -------- 99.9% -------- 100% -------- 100.1% --------
                     //                       last price     
                     //
                     //  check if deviation round price has significantly deviated from last completed round price 
@@ -478,22 +478,22 @@ block{
                     //  - i.e. deviation trigger round price falls within the non-significant change area
 
                     if ( 
-                      (upperBound > deviationTriggerRoundPrice)
-                      and
-                      (lowerBound < deviationTriggerRoundPrice)
+                        (upperBound > deviationTriggerRoundPrice)
+                        and
+                        (lowerBound < deviationTriggerRoundPrice)
                     ) then {
 
-                          // if price did not significantly deviate, impose a penalty on the oracle that triggered the deviation round
-                          // - exception will be the maintainer address 
-                          // check that maintainer should not be banned
+                        // if price did not significantly deviate, impose a penalty on the oracle that triggered the deviation round
+                        // - exception will be the maintainer address 
+                        // check that maintainer should not be banned
 
-                          if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
+                        if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                             // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
                             const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                             s.deviationTriggerBan := updatedDeviationTriggerBan;
 
-                          } else skip;
+                        } else skip;
 
                     } else skip;
 
@@ -507,7 +507,7 @@ block{
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -515,7 +515,7 @@ block{
 
 
 (*  requestRateUpdateDeviation entrypoint  *)
-function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
@@ -537,7 +537,7 @@ block{
     checkRequestRateUpdateDeviationIsNotPaused(s);
 
     case aggregatorLambdaAction of [
-        | LambdaRequestRateUpdDeviation(params) -> {
+        |   LambdaRequestRateUpdDeviation(params) -> {
 
                 checkSenderIsOracle(s);
                 checkIfCorrectRound(abs(params.roundId - 1), s);
@@ -555,7 +555,7 @@ block{
                 const newRound               : nat                    = s.round + 1n;
                 const emptyMapReveals        : observationRevealsType = map [];
                 const newObservationCommits  : observationCommitsType = map [
-                  ((Tezos.sender : address)) -> params.sign
+                    ((Tezos.sender : address)) -> params.sign
                 ];
                 
                 // Get previous round deviation trigger
@@ -602,7 +602,7 @@ block{
                 const lastCompletedRoundPriceToThousands   : nat = lastCompletedRoundPrice * 1000n;
                 const lastCompletedRoundPriceDifferential  : nat = lastCompletedRoundPrice * s.config.perThousandDeviationTrigger;
 
-                // If s.config.perThousandDeviationTrigger is 2, calculate 100.2% and 99.8% of last completed round price
+                // If s.config.perThousandDeviationTrigger is 5, calculate 100.25% and 99.75% of last completed round price
                 const upperBound : nat = (lastCompletedRoundPriceToThousands + lastCompletedRoundPriceDifferential) / 1000n;
                 const lowerBound : nat = abs(lastCompletedRoundPriceToThousands - lastCompletedRoundPriceDifferential) / 1000n;
 
@@ -614,32 +614,32 @@ block{
                 //   -------- 99.8% -------- 100% -------- 100.2% --------
                 //                       last price     
                 //
-                //  check if deviation round price has significantly deviated from last completed round price 
+                //  check if deviation roundint() price has significantly deviated from last completed round price 
                 //  - e.g. by more than 0.2% if perThousandDeviationTrigger is 2
                 //  - i.e. deviation trigger round price falls within the non-significant change area
 
                 if ( 
-                  (upperBound > deviationTriggerRoundPrice)
-                  and
-                  (lowerBound < deviationTriggerRoundPrice)
+                    (upperBound > deviationTriggerRoundPrice)
+                    and 
+                    (lowerBound < deviationTriggerRoundPrice)
                 ) then {
 
                       // if price did not significantly deviate, impose a penalty on the oracle that triggered the deviation round
                       // - exception will be the maintainer address 
                       // check that maintainer should not be banned
 
-                      if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
+                    if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                         // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
                         const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                         s.deviationTriggerBan := updatedDeviationTriggerBan;
 
-                      } else skip;
+                    } else skip;
 
                 } else skip;
 
                 // Set new deviation trigger info
-                const newDeviationTriggerInfos: deviationTriggerInfosType = record[
+                const newDeviationTriggerInfos : deviationTriggerInfosType = record[
                     oracleAddress = Tezos.sender;
                     roundPrice    = s.lastCompletedRoundPrice.price;
                 ];
@@ -652,8 +652,8 @@ block{
                 if deviationRewardStakedMvk =/= 0n then {
 
                     var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.sender] of [
-                        Some (_amount) -> (_amount) 
-                      | None -> 0n 
+                            Some (_amount) -> (_amount) 
+                        |   None -> 0n 
                     ];
                     s.oracleRewardStakedMvk[Tezos.sender]   := currentOracleStakedMvkRewards + deviationRewardStakedMvk;
                     
@@ -663,8 +663,8 @@ block{
                 if deviationRewardXtz =/= 0n then {
 
                     var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
-                        Some (_amount) -> (_amount) 
-                      | None -> 0n 
+                            Some (_amount) -> (_amount) 
+                        |   None -> 0n 
                     ];
                     s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + deviationRewardXtz;
 
@@ -679,7 +679,7 @@ block{
                 s.switchBlock             := 0n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -687,7 +687,7 @@ block{
 
 
 (*  setObservationCommit entrypoint  *)
-function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
@@ -711,7 +711,7 @@ block{
     checkNoAmount(Unit);
 
     case aggregatorLambdaAction of [
-        | LambdaSetObservationCommit(params) -> {
+        |   LambdaSetObservationCommit(params) -> {
 
                 checkSenderIsOracle(s);
                 checkIfTimeToCommit(s);
@@ -731,7 +731,7 @@ block{
 
                 // Update switchBlock from zero if threshold is reached and sufficient oracles have committed 
                 if ((percentOracleResponse >= s.config.percentOracleThreshold) and s.switchBlock = 0n) then {
-                  newSwitchBlock := Tezos.level + s.config.numberBlocksDelay;
+                    newSwitchBlock := Tezos.level + s.config.numberBlocksDelay;
                 } else skip;
 
                 // Update storage with observation commits and switch block
@@ -739,7 +739,7 @@ block{
                 s.switchBlock         := newSwitchBlock;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -747,7 +747,7 @@ block{
 
 
 (*  setObservationReveal entrypoint  *)
-function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
@@ -775,7 +775,7 @@ block{
     checkNoAmount(Unit);
 
     case aggregatorLambdaAction of [
-        | LambdaSetObservationReveal(params) -> {
+        |   LambdaSetObservationReveal(params) -> {
 
                 checkSenderIsOracle(s);
                 checkIfTimeToReveal(s);
@@ -813,8 +813,8 @@ block{
                 // Set XTZ reward for oracle
                 const rewardAmountXtz        : nat  = s.config.rewardAmountXtz;
                 var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.sender] of [
-                    Some (_amount) -> (_amount) 
-                  | None -> 0n 
+                        Some (_amount) -> (_amount) 
+                    |   None -> 0n 
                 ];
                 s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + rewardAmountXtz;
 
@@ -828,16 +828,16 @@ block{
                 // Set new completed round price once percentOracleThreshold is reached
                 if (percentOracleResponse >= s.config.percentOracleThreshold) then {
                   
-                  // Calculate median price from price observations submitted
-                  const median: nat = getMedianFromMap(pivotObservationMap(observationsDataUpdated), numberOfObservationForRound);
+                    // Calculate median price from price observations submitted
+                    const median: nat = getMedianFromMap(pivotObservationMap(observationsDataUpdated), numberOfObservationForRound);
 
-                  // Update last completed round price with new median price
-                  newLastCompletedRoundPrice := record [
-                    round                 = s.round;
-                    price                 = median;
-                    percentOracleResponse = percentOracleResponse;
-                    priceDateTime         = Tezos.now;
-                  ];
+                    // Update last completed round price with new median price
+                    newLastCompletedRoundPrice := record [
+                        round                 = s.round;
+                        price                 = median;
+                        percentOracleResponse = percentOracleResponse;
+                        priceDateTime         = Tezos.now;
+                    ];
 
                 } else skip;
 
@@ -846,7 +846,7 @@ block{
                 s.lastCompletedRoundPrice   := newLastCompletedRoundPrice;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -862,7 +862,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  withdrawRewardXtz entrypoint  *)
-function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
   // Steps Overview:
@@ -884,7 +884,7 @@ block{
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        | LambdaWithdrawRewardXtz(oracleAddress) -> {
+        |   LambdaWithdrawRewardXtz(oracleAddress) -> {
 
                 // Check that sender is an oracle registered on the aggregator
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
@@ -899,19 +899,19 @@ block{
                 if (reward > 0n) then {
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                        Some(_address) -> _address
-                      | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                            Some(_address) -> _address
+                        |   None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
                     const distributeRewardXtzParams : distributeRewardXtzType = record [
-                      recipient = oracleAddress;
-                      reward    = reward;
+                        recipient = oracleAddress;
+                        reward    = reward;
                     ];
 
                     const distributeRewardXtzOperation : operation = Tezos.transaction(
-                      distributeRewardXtzParams,
-                      0tez,
-                      getDistributeRewardXtzInFactoryEntrypoint(factoryAddress)
+                        distributeRewardXtzParams,
+                        0tez,
+                        getDistributeRewardXtzInFactoryEntrypoint(factoryAddress)
                     );
 
                     operations := distributeRewardXtzOperation # operations;
@@ -922,7 +922,7 @@ block{
 
                 } else skip;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
     
 } with (operations, s)
@@ -930,7 +930,7 @@ block{
 
 
 (*  withdrawRewardStakedMvk entrypoint  *)
-function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is
 block{
 
     // Steps Overview:
@@ -953,7 +953,7 @@ block{
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        | LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
+        |   LambdaWithdrawRewardStakedMvk(oracleAddress) -> {
                 
                 // Check that sender is an oracle registered on the aggregator
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
@@ -968,19 +968,19 @@ block{
                 if (reward > 0n) then {
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
-                        Some(_address) -> _address
-                      | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                            Some(_address) -> _address
+                        |   None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
                     const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
-                      eligibleSatellites     = set[oracleAddress];
-                      totalStakedMvkReward   = reward;
+                        eligibleSatellites     = set[oracleAddress];
+                        totalStakedMvkReward   = reward;
                     ];
 
                     const distributeRewardMvkOperation : operation = Tezos.transaction(
-                      distributeRewardMvkParams,
-                      0tez,
-                      getDistributeRewardStakedMvkInFactoryEntrypoint(factoryAddress)
+                        distributeRewardMvkParams,
+                        0tez,
+                        getDistributeRewardStakedMvkInFactoryEntrypoint(factoryAddress)
                     );
 
                     operations := distributeRewardMvkOperation # operations;
@@ -992,7 +992,7 @@ block{
                 } else skip;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)

@@ -10,18 +10,22 @@ type depositorRecordType is [@layout:comb] record[
     unclaimedRewards                : tokenBalanceType;
     claimedRewards                  : tokenBalanceType;
 ]
+
 type claimedRewardsType is [@layout:comb] record[
     unpaid: tokenBalanceType;
     paid: tokenBalanceType;
 ]
+
 type plannedRewardsType is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalanceType;
-    totalRewards: tokenBalanceType;
+    totalBlocks : nat;
+    currentRewardPerBlock : tokenBalanceType;
+    totalRewards : tokenBalanceType;
 ]
+
 type lpStandardType is
     Fa12 of unit
 |   Fa2 of unit
+
 type lpTokenType is [@layout:comb] record[
     tokenAddress: address;
     tokenId: nat;
@@ -59,17 +63,17 @@ type initFarmParamsType is [@layout:comb] record[
 (* updateConfig entrypoint inputs *)
 type farmUpdateConfigNewValueType is nat
 type farmUpdateConfigActionType is 
-  ConfigForceRewardFromTransfer of unit
-| ConfigRewardPerBlock of unit
+    ConfigForceRewardFromTransfer of unit
+|   ConfigRewardPerBlock of unit
 type farmUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: farmUpdateConfigNewValueType; 
-  updateConfigAction: farmUpdateConfigActionType;
+    updateConfigNewValue: farmUpdateConfigNewValueType; 
+    updateConfigAction: farmUpdateConfigActionType;
 ]
 
 type farmPausableEntrypointType is
-  Deposit     of bool
-| Withdraw    of bool
-| Claim       of bool
+    Deposit     of bool
+|   Withdraw    of bool
+|   Claim       of bool
 
 type farmTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : farmPausableEntrypointType;

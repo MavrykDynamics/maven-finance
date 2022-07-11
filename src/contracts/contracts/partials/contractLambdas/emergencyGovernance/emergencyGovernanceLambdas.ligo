@@ -16,10 +16,10 @@ block {
     checkSenderIsAllowed(s);  // check that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
+        |   LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -34,10 +34,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
+        |   LambdaSetGovernance(newGovernanceAddress) -> {
                 s.governanceAddress := newGovernanceAddress;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -51,14 +51,14 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes  = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -73,23 +73,23 @@ block {
   checkSenderIsAdmin(s); // check that sender is admin 
 
   case emergencyGovernanceLambdaAction of [
-        | LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigParams) -> {
                 
                 const updateConfigAction    : emergencyUpdateConfigActionType   = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : emergencyUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
-                  | ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
-                  | ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
-                  | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
-                  | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
-                  | ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
-                  | ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
+                        ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
+                    |   ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
+                    |   ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n     then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
+                    |   ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
+                    |   ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 10_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW)  else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+                    |   ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
+                    |   ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
                 ];
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -97,16 +97,16 @@ block {
 
 
 (* updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType): return is
+function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -114,16 +114,16 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType): return is
+function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case emergencyGovernanceLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -131,7 +131,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType): return is
+function lambdaMistakenTransfer(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -141,25 +141,25 @@ block {
     var operations : list(operation) := nil;
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaMistakenTransfer(destinationParams) -> {
+        |   LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
-                  block{
-                    const transferTokenOperation : operation = case transferParam.token of [
-                      | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                      | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                      | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with(transferTokenOperation # operationList);
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
+                    block{
+                        const transferTokenOperation : operation = case transferParam.token of [
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
+                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        ];
+                    } with(transferTokenOperation # operationList);
                 
                 operations  := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -194,108 +194,108 @@ block {
     var operations : list(operation) := nil;
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
+        |   LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
 
-            const userAddress: address  = Tezos.sender;
+                const userAddress: address  = Tezos.sender;
+                    
+                // check that there is no currently active emergency governance being voted on
+                if s.currentEmergencyGovernanceId = 0n 
+                then skip
+                else failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
+
+                // check if tez sent is equal to the required fee
+                if Tezos.amount =/= s.config.requiredFeeMutez 
+                then failwith(error_TEZ_FEE_NOT_PAID) 
+                else skip;
+            
+                // Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "taxTreasury", s.governanceAddress);
+                const treasuryAddress: address = case generalContractsOptViewTax of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TAX_TREASURY_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Transfer fee to Treasury
+                const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
+                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+
+                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get user's staked MVK balance from the Doorman Contract
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+                const stakedMvkBalance: nat = case stakedMvkBalanceView of [
+                        Some (value) -> value
+                    |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                ];
                 
-            // check that there is no currently active emergency governance being voted on
-            if s.currentEmergencyGovernanceId = 0n 
-            then skip
-            else failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
+                // Check if user has sufficient staked MVK to trigger emergency control
+                if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
+                then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED) 
+                else skip;
 
-            // check if tez sent is equal to the required fee
-            if Tezos.amount =/= s.config.requiredFeeMutez 
-            then failwith(error_TEZ_FEE_NOT_PAID) 
-            else skip;
-            
-            // Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
-            const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "taxTreasury", s.governanceAddress);
-            const treasuryAddress: address = case generalContractsOptViewTax of [
-                Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                  | None                -> failwith (error_TAX_TREASURY_CONTRACT_NOT_FOUND)
-                ]
-              | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
+                // Get Total Staked MVK supply 
+                // - N.B. Total Staked MVK Supply is equivalent to the Doorman Contract's balance on the MVK Token Contract
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const stakedMvkTotalSupply: nat = case balanceView of [
+                        Some (value) -> value
+                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
 
-            // Transfer fee to Treasury
-            const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-            const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+                // Calculate min staked MVK required for break glass to be triggered
+                var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
 
-            // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-            const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-            const doormanAddress: address = case generalContractsOptViewDoorman of [
-                Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                  | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                ]
-              | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
+                // Init emergency control parameters
+                const title        : string  =  triggerEmergencyControlParams.title;
+                const description  : string  =  triggerEmergencyControlParams.description;
 
-            // Get user's staked MVK balance from the Doorman Contract
-            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-            const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                Some (value) -> value
-              | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
-            ];
-            
-            // Check if user has sufficient staked MVK to trigger emergency control
-            if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
-            then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED) 
-            else skip;
+                // Validate inputs - does not exceed max length
+                if String.length(title)       > s.config.proposalTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(description) > s.config.proposalDescMaxLength  then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-            // Get Total Staked MVK supply 
-            // - N.B. Total Staked MVK Supply is equivalent to the Doorman Contract's balance on the MVK Token Contract
-            const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-            const stakedMvkTotalSupply: nat = case balanceView of [
-                Some (value) -> value
-              | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-            ];
+                // Init empty voters map
+                const emptyVotersMap : voterMapType = map[];
 
-            // Calculate min staked MVK required for break glass to be triggered
-            var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
+                // Create new emergency governance record
+                var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
+                    proposerAddress                  = userAddress;
+                    executed                         = False;
+                    dropped                          = False;
 
-            // Init emergency control parameters
-            const title        : string  =  triggerEmergencyControlParams.title;
-            const description  : string  =  triggerEmergencyControlParams.description;
+                    title                            = title;
+                    description                      = description; 
+                    voters                           = emptyVotersMap;
+                    totalStakedMvkVotes              = 0n;
+                    stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+                    stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
 
-            // Validate inputs - does not exceed max length
-            if String.length(title)       > s.config.proposalTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-            if String.length(description) > s.config.proposalDescMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                    startDateTime                    = Tezos.now;
+                    startLevel                       = Tezos.level;             
+                    executedDateTime                 = Tezos.now;
+                    executedLevel                    = Tezos.level;
+                    expirationDateTime               = Tezos.now + (86_400 * s.config.voteExpiryDays);
+                ];
 
-            // Init empty voters map
-            const emptyVotersMap : voterMapType = map[];
+                // Update storage (counters and new emergency governance)
+                s.emergencyGovernanceLedger[s.nextEmergencyGovernanceId] := newEmergencyGovernanceRecord;
+                s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceId;
+                s.nextEmergencyGovernanceId := s.nextEmergencyGovernanceId + 1n;
 
-            // Create new emergency governance record
-            var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
-                proposerAddress                  = userAddress;
-                executed                         = False;
-                dropped                          = False;
-
-                title                            = title;
-                description                      = description; 
-                voters                           = emptyVotersMap;
-                totalStakedMvkVotes              = 0n;
-                stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
-                stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
-
-                startDateTime                    = Tezos.now;
-                startLevel                       = Tezos.level;             
-                executedDateTime                 = Tezos.now;
-                executedLevel                    = Tezos.level;
-                expirationDateTime               = Tezos.now + (86_400 * s.config.voteExpiryDays);
-              ];
-
-              // Update storage (counters and new emergency governance)
-              s.emergencyGovernanceLedger[s.nextEmergencyGovernanceId] := newEmergencyGovernanceRecord;
-              s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceId;
-              s.nextEmergencyGovernanceId := s.nextEmergencyGovernanceId + 1n;
-
-              // add to operations
-              operations := list[transferFeeToTreasuryOperation];               
+                // add to operations
+                operations := list[transferFeeToTreasuryOperation];               
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -328,7 +328,7 @@ block {
     var operations : list(operation) := nil;
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaVoteForEmergencyControl(_parameters) -> {
+        |   LambdaVoteForEmergencyControl(_parameters) -> {
 
                 const userAddress: address  = Tezos.sender;
                 
@@ -338,8 +338,8 @@ block {
 
                 // Get current Emergency Governance Record
                 var _emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [
-                  | None            -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
-                  | Some(_instance) -> _instance
+                    |   None            -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
+                    |   Some(_instance) -> _instance
                 ];
 
                 // Check that emergency governance has not been dropped
@@ -356,18 +356,18 @@ block {
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
                 const doormanAddress: address = case generalContractsOptViewDoorman of [
-                    Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                      | None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                    ]
-                  | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                    Some (value) -> value
-                  | None         -> failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
+                        Some (value) -> value
+                    |   None         -> failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
 
                 // Check if user has min required staked MVK to vote for emergency governance
@@ -387,11 +387,11 @@ block {
                     // Get Break Glass Contract Address from the General Contracts Map on the Governance Contract
                     const generalContractsOptViewBreakGlass : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "breakGlass", s.governanceAddress);
                     const breakGlassContractAddress: address = case generalContractsOptViewBreakGlass of [
-                        Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                          | None                -> failwith (error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                        ]
-                      | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            Some (_optionContract) -> case _optionContract of [
+                                    Some (_contract)    -> _contract
+                                |   None                -> failwith (error_BREAK_GLASS_CONTRACT_NOT_FOUND)
+                            ]
+                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                     ];
                     const governanceContractAddress : address = s.governanceAddress;
 
@@ -422,7 +422,7 @@ block {
                 } else skip;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -444,7 +444,7 @@ block {
     checkNoAmount(Unit); // entrypoint should not receive any tez amount  
 
     case emergencyGovernanceLambdaAction of [
-        | LambdaDropEmergencyGovernance(_parameters) -> {
+        |   LambdaDropEmergencyGovernance(_parameters) -> {
                 
                 // Check that there is an active emergency governance
                 if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
@@ -452,8 +452,8 @@ block {
 
                 // Get current Emergency Governance Record
                 var emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
-                  | None            -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
-                  | Some(_instance) -> _instance
+                    |   None            -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
+                    |   Some(_instance) -> _instance
                 ];
 
                 // Check that emergency governance has not been executed
@@ -472,7 +472,7 @@ block {
                 s.currentEmergencyGovernanceId := 0n; 
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
