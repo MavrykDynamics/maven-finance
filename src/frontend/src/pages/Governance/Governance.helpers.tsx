@@ -48,7 +48,7 @@ export const getProposalStatusInfo = (
           showWaitingForExecutionHeader = true
           anyUserCanExecuteProposal = true // Already passed the voting and just waiting to be executed
         } else if (!proposal.paymentProcessed && proposal?.proposalPayments && proposal?.proposalPayments?.length > 0) {
-          statusFlag = ProposalStatus.EXECUTED
+          statusFlag = ProposalStatus.WAITING
           showWaitingForPaymentToBeProcessedHeader = true
           anyUserCanProcessProposalPayment = true // Already executed and just need the payment to be processed
         } else {
