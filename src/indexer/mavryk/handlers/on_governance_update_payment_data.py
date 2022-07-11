@@ -34,7 +34,7 @@ async def on_governance_update_payment_data(
         token_address   = token.fa2.tokenContractAddress
         token_id        = int(token.fa2.tokenId)
     elif type(token) == tez:
-        token_standard  = models.TokenType.TEZ
+        token_standard  = models.TokenType.XTZ
 
     # Update or create record
     user, _         = await models.MavrykUser.get_or_create(address = receiver_address)
