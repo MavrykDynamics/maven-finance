@@ -1,13 +1,16 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+import { useLocation } from 'react-router'
 
 // type
 import type { CouncilMember } from '../../utils/TypesAndInterfaces/Council'
 import type { CouncilPastAction } from '../../reducers/council'
 
-// actions
+// actions, consts
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
+import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -30,6 +33,7 @@ import { CouncilFormTransferTokens } from './CouncilForms/CouncilFormTransferTok
 import { CouncilFormRequestTokens } from './CouncilForms/CouncilFormRequestTokens.view'
 import { CouncilFormRequestTokenMint } from './CouncilForms/CouncilFormRequestTokenMint.view'
 import { CouncilFormDropFinancialRequest } from './CouncilForms/CouncilFormDropFinancialRequest.view'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // styles
 import { Page } from 'styles'
@@ -72,6 +76,8 @@ export const Council = () => {
     { text: 'Drop Financial Request', value: 'dropFinancialRequest' },
   ]
 
+  const COUNSIL_LIST_NAME = 'counsilPastActionsList'
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
@@ -101,6 +107,14 @@ export const Council = () => {
   useEffect(() => {
     setIsPendingSignature(Boolean(isUserInCouncilMembers))
   }, [isUserInCouncilMembers])
+
+  const { pathname, search } = useLocation()
+  const currentPage = getPageNumber(search, COUNSIL_LIST_NAME)
+
+  const paginatedItemsList = useMemo(
+    () => curentCouncilPastActions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [currentPage, curentCouncilPastActions],
+  )
 
   return (
     <Page>
@@ -179,7 +193,7 @@ export const Council = () => {
                 <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
                   {isPendingSignature ? 'My ' : null}Past Council Actions
                 </h1>
-                {curentCouncilPastActions.map((item: CouncilPastAction) => (
+                {paginatedItemsList.map((item: CouncilPastAction) => (
                   <CouncilPastActionView
                     executed_datetime={item.executed_datetime}
                     key={item.id}
@@ -188,6 +202,7 @@ export const Council = () => {
                     num_council_members={councilMembers.length}
                   />
                 ))}
+                <Pagination itemsCount={curentCouncilPastActions.length} listName={COUNSIL_LIST_NAME} />
               </>
             ) : null}
           </div>

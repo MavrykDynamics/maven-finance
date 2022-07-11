@@ -288,6 +288,7 @@ export const GovernanceView = ({
               title="Waiting for Execution"
               type="wating"
               firstVisible={firstVisibleProposal === 'wating'}
+              listName="proposalsWaitingList"
             />
           )}
           {isVisibleWatingPayment && (
@@ -298,6 +299,7 @@ export const GovernanceView = ({
               title="Waiting For Payment To Be Processed"
               type="wating"
               firstVisible={firstVisibleProposal === 'wating'}
+              listName="historyProposalsList"
             />
           )}
           {isVisibleOngoingVoiting && (
@@ -307,6 +309,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="ongoingVoiting"
               firstVisible={firstVisibleProposal === 'ongoingVoiting'}
+              listName="proposalsWaitingForPaymentList"
             />
           )}
           {isVisibleOngoingTimeLock && (
@@ -316,6 +319,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="ongoingTimeLock"
               firstVisible={firstVisibleProposal === 'ongoingTimeLock'}
+              listName="ongoingTimelockProposalsList"
             />
           )}
           {isVisibleNextProposal && (
@@ -325,6 +329,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="next"
               firstVisible={firstVisibleProposal === 'next'}
+              listName="nextProposalsList"
             />
           )}
           {isVisibleHistoryProposal && (
@@ -334,6 +339,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="history"
               firstVisible={firstVisibleProposal === 'history'}
+              listName="historyProposalsList"
             />
           )}
         </GovernanceLeftContainer>

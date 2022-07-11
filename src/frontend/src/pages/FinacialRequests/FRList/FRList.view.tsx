@@ -17,7 +17,7 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, name)
 
-  const itemsToShow = useMemo(
+  const paginatedItemsList = useMemo(
     () => items.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
     [currentPage, items],
   )
@@ -27,8 +27,8 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
       <GovRightContainerTitleArea>
         <h1>{listTitle}</h1>
       </GovRightContainerTitleArea>
-      {items.length ? (
-        itemsToShow.map((item) => {
+      {paginatedItemsList.length ? (
+        paginatedItemsList.map((item) => {
           const financiaRequestTitle = `${item.request_type} ${item.request_purpose}`
           return (
             <FRSListItem

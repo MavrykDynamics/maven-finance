@@ -121,7 +121,7 @@ const ListWithSatellites = ({
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
-  const itemsToShow = useMemo(
+  const paginatedItemsList = useMemo(
     () => satellitesList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
     [currentPage, satellitesList],
   )
@@ -153,7 +153,7 @@ const ListWithSatellites = ({
       {satelliteFound === false ? (
         <EmptySatelliteList />
       ) : (
-        itemsToShow?.map((item, index) => {
+        paginatedItemsList?.map((item, index) => {
           return (
             <SatelliteListCard
               key={String(index + item.address)}
