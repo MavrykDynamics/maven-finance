@@ -9,8 +9,8 @@ import type { CouncilPastAction } from '../../reducers/council'
 
 // actions, consts
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
-import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { COUNSIL_LIST_NAME, calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -76,8 +76,6 @@ export const Council = () => {
     { text: 'Drop Financial Request', value: 'dropFinancialRequest' },
   ]
 
-  const COUNSIL_LIST_NAME = 'counsilPastActionsList'
-
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
@@ -111,10 +109,10 @@ export const Council = () => {
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, COUNSIL_LIST_NAME)
 
-  const paginatedItemsList = useMemo(
-    () => curentCouncilPastActions.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [currentPage, curentCouncilPastActions],
-  )
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, COUNSIL_LIST_NAME)
+    return curentCouncilPastActions.slice(from, to)
+  }, [currentPage, curentCouncilPastActions])
 
   return (
     <Page>

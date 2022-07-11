@@ -5,7 +5,6 @@ import { State } from 'reducers'
 
 // helpers
 import { getProposalStatusInfo } from '../Governance.helpers'
-import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // view
@@ -16,6 +15,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // style
 import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
+import { calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -49,10 +49,10 @@ export const ProposalsView = ({
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
-  const paginatedItemsList = useMemo(
-    () => proposalsList.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [currentPage, proposalsList],
-  )
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return proposalsList.slice(from, to)
+  }, [currentPage, proposalsList])
 
   if (!proposalsList.length) {
     return null
