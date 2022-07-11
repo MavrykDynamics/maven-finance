@@ -136,7 +136,7 @@ export const StageTwoFormView = ({
                 value={item.title}
                 onChange={(e: any) => handleChangeTitle(item.id, e.target.value)}
                 onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'title')}
-                inputStatus={formInputStatus.proposalBytes}
+                inputStatus={formInputStatus.title}
               />
             </div>
 
