@@ -9,16 +9,16 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
     
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address 
     
     case treasuryFactoryLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
-            s.admin := newAdminAddress;
-          }
-        | _ -> skip
+        |   LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -32,10 +32,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case treasuryFactoryLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
-            s.governanceAddress := newGovernanceAddress;
-          }
-        | _ -> skip
+        |   LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -49,15 +49,15 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryFactoryLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
-              const metadataKey   : string = updateMetadataParams.metadataKey;
-              const metadataHash  : bytes  = updateMetadataParams.metadataHash;
-              
-              s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -71,37 +71,34 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case treasuryFactoryLambdaAction of [
-        | LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigParams) -> {
                 
                 const updateConfigAction    : treasuryFactoryUpdateConfigActionType   = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : treasuryFactoryUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                  | ConfigTreasuryNameMaxLength (_v)     -> s.config.treasuryNameMaxLength         := updateConfigNewValue
-                  | Empty (_v)                           -> skip
+                    |   ConfigTreasuryNameMaxLength (_v)     -> s.config.treasuryNameMaxLength         := updateConfigNewValue
+                    |   Empty (_v)                           -> skip
                 ];
             }
-        | _ -> skip
+        |   _ -> skip
     ];
   
 } with (noOperations, s)
 
 
 
-
-
-
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaUpdateWhitelistContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case treasuryFactoryLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -109,16 +106,16 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaUpdateGeneralContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case treasuryFactoryLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -126,16 +123,16 @@ block {
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaUpdateWhitelistTokenContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); // check that sender is admin 
 
     case treasuryFactoryLambdaAction of [
-        | LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
-            s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
+                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -143,7 +140,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaMistakenTransfer(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -153,25 +150,27 @@ block {
     var operations : list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
-        | LambdaMistakenTransfer(destinationParams) -> {
+        |   LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
-                  block{
-                    const transferTokenOperation : operation = case transferParam.token of [
-                      | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                      | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                      | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
-                    ];
-                  } with(transferTokenOperation # operationList);
+                function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
+                    block{
+
+                        const transferTokenOperation : operation = case transferParam.token of [
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
+                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        ];
+
+                    } with(transferTokenOperation # operationList);
                 
                 operations  := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -187,7 +186,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll lambda *)
-function lambdaPauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaPauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -197,10 +196,10 @@ block {
 
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
-    var operations: list(operation) := nil;
+    var operations : list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
-        | LambdaPauseAll(_parameters) -> {
+        |   LambdaPauseAll(_parameters) -> {
                 
                 // set all pause configs to True
                 if s.breakGlassConfig.createTreasuryIsPaused then skip
@@ -214,14 +213,14 @@ block {
 
                 for treasuryAddress in set s.trackedTreasuries
                 block {
-                    case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of [
-                        Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-                      | None -> skip
+                    case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                        |   None -> skip
                     ];
                 };
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -229,7 +228,7 @@ block {
 
 
 (* unpauseAll lambda *)
-function lambdaUnpauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is
+function lambdaUnpauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -239,10 +238,10 @@ block {
 
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
-    var operations: list(operation) := nil;
+    var operations : list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
-        | LambdaUnpauseAll(_parameters) -> {
+        |   LambdaUnpauseAll(_parameters) -> {
                 
                 // set all pause configs to False
                 if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
@@ -256,14 +255,14 @@ block {
 
                 for treasuryAddress in set s.trackedTreasuries
                 block {
-                    case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of [
-                        Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-                      | None -> skip
+                    case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress) : option(contract(unit))) of [
+                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                        |   None -> skip
                     ];
                 };
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -271,7 +270,7 @@ block {
 
 
 (*  togglePauseEntrypoint lambda *)
-function lambdaTogglePauseEntrypoint(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType) : return is
+function lambdaTogglePauseEntrypoint(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -281,16 +280,16 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin
 
     case treasuryFactoryLambdaAction of [
-        | LambdaTogglePauseEntrypoint(params) -> {
+        |   LambdaTogglePauseEntrypoint(params) -> {
 
                 case params.targetEntrypoint of [
-                    CreateTreasury (_v)       -> s.breakGlassConfig.createTreasuryIsPaused   := _v
-                  | TrackTreasury (_v)        -> s.breakGlassConfig.trackTreasuryIsPaused    := _v
-                  | UntrackTreasury (_v)      -> s.breakGlassConfig.untrackTreasuryIsPaused  := _v
+                        CreateTreasury (_v)       -> s.breakGlassConfig.createTreasuryIsPaused   := _v
+                    |   TrackTreasury (_v)        -> s.breakGlassConfig.trackTreasuryIsPaused    := _v
+                    |   UntrackTreasury (_v)      -> s.breakGlassConfig.untrackTreasuryIsPaused  := _v
                 ]
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -306,7 +305,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createTreasury lambda *)
-function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is 
+function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block{
 
     // Steps Overview:    
@@ -327,24 +326,24 @@ block{
     checkSenderIsAdmin(s);              // check that sender is admin
     checkCreateTreasuryIsNotPaused(s);  // check that %createTreasury entrypoint is not paused (e.g. glass broken)
 
-    var operations: list(operation) := nil;
+    var operations : list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
-        | LambdaCreateTreasury(createTreasuryParams) -> {
+        |   LambdaCreateTreasury(createTreasuryParams) -> {
                 
                 // Check treasury name length
                 if String.length(createTreasuryParams.name) > s.config.treasuryNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Get Governance Proxy Contract Address from the Governance Contract
                 const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-                const governanceProxyAddress: address = case governanceProxyAddressView of [
-                    Some (value) -> value
-                  | None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                const governanceProxyAddress : address = case governanceProxyAddressView of [
+                        Some (value) -> value
+                    |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
                 // Add TreasuryFactory Address and Governance Proxy Address to whitelistContracts of created treasury
                 const treasuryWhitelistContracts : whitelistContractsType = map[
-                    ("treasuryFactory") -> (Tezos.self_address: address);
+                    ("treasuryFactory") -> (Tezos.self_address : address);
                     ("governanceProxy") -> (governanceProxyAddress);
                 ];
 
@@ -372,7 +371,7 @@ block{
                 const treasuryLambdaLedger : lambdaLedgerType = s.treasuryLambdaLedger;
 
                 // Prepare Treasury storage
-                const originatedTreasuryStorage : treasuryStorageType = record[
+                const originatedTreasuryStorage : treasuryStorageType = record [
                     
                     admin                     = s.admin;                         // admin will be the Treasury Factory admin (i.e. Governance Proxy contract)
                     metadata                  = treasuryMetadata;
@@ -404,13 +403,13 @@ block{
                 if createTreasuryParams.addToGeneralContracts then {
                     
                     const updateGeneralMapRecord : updateGeneralContractsType = record [
-                      generalContractName    = createTreasuryParams.name;
-                      generalContractAddress = treasuryOrigination.1;
+                        generalContractName    = createTreasuryParams.name;
+                        generalContractAddress = treasuryOrigination.1;
                     ];
 
-                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsType))) of [
-                        Some (contr) -> contr
-                      | None         -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress) : option(contract(updateGeneralContractsType))) of [
+                            Some (contr) -> contr
+                        |   None         -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
                     ];
 
                     // updateContractGeneralMap operation
@@ -428,15 +427,15 @@ block{
                 operations := treasuryOrigination.0 # operations;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
-} with(operations, s)
+} with (operations, s)
 
 
 
 (* trackTreasury lambda *)
-function lambdaTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is 
+function lambdaTrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block{
 
     // Steps Overview:    
@@ -448,23 +447,23 @@ block{
     checkTrackTreasuryIsNotPaused(s);   // check that %trackTreasury entrypoint is not paused (e.g. glass broken)
 
     case treasuryFactoryLambdaAction of [
-        | LambdaTrackTreasury(treasuryContract) -> {
+        |   LambdaTrackTreasury(treasuryContract) -> {
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                    True  -> (failwith(error_TREASURY_ALREADY_TRACKED): set(address))
-                  | False -> Set.add(treasuryContract, s.trackedTreasuries)
+                        True  -> (failwith(error_TREASURY_ALREADY_TRACKED) : set(address))
+                    |   False -> Set.add(treasuryContract, s.trackedTreasuries)
                 ];
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 
 
 (* untrackTreasury lambda *)
-function lambdaUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorageType): return is 
+function lambdaUntrackTreasury(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block{
 
     // Steps Overview:    
@@ -476,18 +475,18 @@ block{
     checkUntrackTreasuryIsNotPaused(s);  // check that %untrackTreasury entrypoint is not paused (e.g. glass broken)
 
     case treasuryFactoryLambdaAction of [
-        | LambdaUntrackTreasury(treasuryContract) -> {
+        |   LambdaUntrackTreasury(treasuryContract) -> {
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                    True  -> Set.remove(treasuryContract, s.trackedTreasuries)
-                  | False -> (failwith(error_TREASURY_NOT_TRACKED): set(address))
+                        True  -> Set.remove(treasuryContract, s.trackedTreasuries)
+                    |   False -> (failwith(error_TREASURY_NOT_TRACKED) : set(address))
                 ];
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Treasury Factory Lambdas End
