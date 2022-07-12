@@ -44,6 +44,10 @@ export const PaginationArrow = styled.div<{ isRight?: boolean }>`
   cursor: pointer;
   transition: 0.5s all;
   margin-left: 10px;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 
   ${({ isRight }) =>
     isRight

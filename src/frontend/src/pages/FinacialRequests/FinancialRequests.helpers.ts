@@ -27,12 +27,11 @@ export const getPageNumber = (search: string, listName: string): number => {
 }
 
 export const updatePageInUrl = ({page, newPage, listName, pathname, restQP}: {page: any, newPage: number, listName: string, pathname: string, restQP: any}) => {
-  const newPageParams = {
-    ...(page as Record<string, string>),
-    [listName]: newPage,
+  const { [listName]: removedEl, ...newPageParams} = page as Record<string, string>
+  
+  if(Number(newPage) !== 1){
+    newPageParams[listName] = newPage.toString()
   }
-
-  if (newPage === 1) delete newPageParams[listName]
 
   const newQueryParams = {
     ...restQP,

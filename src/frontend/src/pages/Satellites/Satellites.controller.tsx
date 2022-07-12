@@ -52,6 +52,7 @@ export const Satellites = () => {
           undelegateCallback={undelegateCallback}
           userStakedBalance={user.mySMvkTokenBalance}
           satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
+          listName="satellitesOverviewList"
         />
         <SatelliteSideBar />
       </PageContent>
