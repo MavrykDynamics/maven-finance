@@ -10,7 +10,7 @@ export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
 export const SUBMIT_PROPOSAL_ERROR = 'SUBMIT_PROPOSAL_ERROR'
 export const submitProposal =
-  (form: SubmitProposalForm, amount: number, accountPkh?: string) => async (dispatch: any, getState: any) => {
+  (form: SubmitProposalForm, amount: number, callback: () => void) => async (dispatch: any, getState: any) => {
     const state: State = getState()
 
     if (!state.wallet.ready) {
@@ -48,6 +48,7 @@ export const submitProposal =
 
       const done = await transaction?.confirmation()
       console.log('done', done)
+      callback?.()
       await dispatch(showToaster(SUCCESS, 'Proposal Submitted.', 'All good :)'))
 
       await dispatch({
@@ -70,7 +71,7 @@ export const PROPOSAL_UPDATE_REQUEST = 'PROPOSAL_UPDATE_REQUEST'
 export const PROPOSAL_UPDATE_RESULT = 'PROPOSAL_UPDATE_RESULT'
 export const PROPOSAL_UPDATE_ERROR = 'PROPOSAL_UPDATE_ERROR'
 export const updateProposal =
-  (form: ProposalUpdateForm, proposalId: number | undefined, accountPkh?: string) =>
+  (form: ProposalUpdateForm, proposalId: number | undefined, callback: () => void) =>
   async (dispatch: any, getState: any) => {
     const state: State = getState()
 
@@ -100,6 +101,7 @@ export const updateProposal =
 
       const done = await transaction?.confirmation()
       console.log('done', done)
+      callback?.()
       dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
 
       dispatch({
@@ -145,11 +147,6 @@ export const lockProposal = (proposalId: number, accountPkh?: string) => async (
 
     const transaction = await contract?.methods.lockProposal(proposalId).send()
     console.log('transaction', transaction)
-
-    await dispatch({
-      type: LOCK_PROPOSAL_RESULT,
-      proposalId: proposalId,
-    })
     await dispatch(showToaster(INFO, 'Locking proposal...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
@@ -183,6 +180,7 @@ export const submitFinancialRequestData =
     amount: number,
     tokenType: string,
     tokenContractAddress?: string,
+    callback?: () => void,
   ) =>
   async (dispatch: any, getState: any) => {
     const state: State = getState()
@@ -229,6 +227,7 @@ export const submitFinancialRequestData =
       dispatch(showToaster(INFO, 'Submit Financial Request...', 'Please wait 30s'))
 
       const done = await transaction?.confirmation()
+      callback?.()
       console.log('done', done)
       dispatch(showToaster(SUCCESS, 'Submit Financial Request.', 'All good :)'))
 

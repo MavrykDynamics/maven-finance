@@ -13,6 +13,7 @@ import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { GovernancePhase } from '../../../reducers/governance'
+import { getSeparateSnakeCase } from '../../../utils/parse'
 
 import {
   CurrentPhaseContainer,
@@ -63,10 +64,7 @@ export const PropSubmissionTopBarView = ({
           <PropSubTopBarTimeContainer>
             <CurrentPhaseContainer>
               <PropSubTopBarPhaseText>Current Phase: </PropSubTopBarPhaseText>
-              <PropSubTopBarValueText>
-                {governancePhase.substring(0, 1)}
-                {governancePhase.substring(1).toLocaleLowerCase()}
-              </PropSubTopBarValueText>
+              <PropSubTopBarValueText>{getSeparateSnakeCase(governancePhase)}</PropSubTopBarValueText>
             </CurrentPhaseContainer>
             {timeLeftInPhase > 0 ? (
               <TimeLeftAreaWrap>

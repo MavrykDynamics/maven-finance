@@ -1,3 +1,6 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 import { Button } from '../../../app/App.components/Button/Button.controller'
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -72,6 +75,9 @@ export const StageTwoFormView = ({
   handleUpdateProposal,
   proposalId,
 }: StageTwoFormViewProps) => {
+  const { governancePhase } = useSelector((state: State) => state.governance)
+  const isProposalRound = governancePhase === 'PROPOSAL'
+  const disabled = !isProposalRound || !form.title
   const handleCreateNewByte = () => {
     setForm({
       ...form,
@@ -101,7 +107,9 @@ export const StageTwoFormView = ({
   return (
     <>
       <FormHeaderGroup>
-        <h1>Stage 2</h1>
+        <h1>
+          Stage 2 {!isProposalRound ? <span className="label">Only accessible during proposal round</span> : null}
+        </h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
@@ -137,6 +145,7 @@ export const StageTwoFormView = ({
                 onChange={(e: any) => handleChangeTitle(item.id, e.target.value)}
                 onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'title')}
                 inputStatus={formInputStatus.title}
+                disabled={disabled}
               />
             </div>
 
@@ -150,6 +159,7 @@ export const StageTwoFormView = ({
               onChange={(e: any) => handleChangeData(item.id, e.target.value)}
               onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'data')}
               inputStatus={formInputStatus.proposalBytes}
+              disabled={disabled}
             />
           </article>
         ))}
@@ -166,6 +176,7 @@ export const StageTwoFormView = ({
           className="bytes"
           text="Submit Bytes"
           kind="actionPrimary"
+          disabled={disabled}
           onClick={handleUpdateProposal}
         />
       </FormButtonContainer>
