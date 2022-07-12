@@ -80,6 +80,19 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     ],
   },
   {
+    title: 'Oracles',
+    id: 10,
+    path: '/oracles',
+    icon: 'oracleLogo',
+    protectedRoute: false,
+    subPages: [
+      { id: 10179, subTitle: 'Overview', subPath: '/oracles', protectedRoute: false },
+      { id: 10471, subTitle: 'Data Feeds', subPath: '/data-feeds', protectedRoute: false },
+      { id: 10587, subTitle: 'Users', subPath: '/users', protectedRoute: false },
+      { id: 101812, subTitle: 'Operators', subPath: '/operators', protectedRoute: false },
+    ],
+  },
+  {
     title: 'Loans',
     id: 7,
     path: '/loans',
