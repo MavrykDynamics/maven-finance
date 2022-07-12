@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-import { Card, headerColor } from '../../styles'
+import { Card, headerColor, downColor } from '../../styles'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
@@ -87,6 +87,13 @@ export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
   h1 {
     margin: 0;
     margin-right: auto;
+
+    .label {
+      color: ${downColor};
+      font-weight: normal;
+      font-size: 16px;
+      padding-left: 16px;
+    }
   }
 `
 
@@ -94,7 +101,7 @@ export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
   align-items: flex-start;
   margin-bottom: 27px;
   display: grid;
-  grid-template-columns: 1fr 1fr 170px;
+  grid-template-columns: 517px 1fr 170px;
   column-gap: 30px;
 `
 export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``
@@ -181,6 +188,10 @@ export const ProposalSubmissionInvoiceImage = styled.div`
 export const FormTableGrid = styled.div`
   padding-top: 10px;
   margin-bottom: auto;
+
+  &.disabled {
+    pointer-events: none;
+  }
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`

@@ -59,6 +59,9 @@ export const StageThreeFormView = ({
   successReward,
   proposalId,
 }: StageThreeFormViewProps) => {
+  const { governancePhase } = useSelector((state: State) => state.governance)
+  const isProposalRound = governancePhase === 'PROPOSAL'
+  const disabled = !isProposalRound || !form.title
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
@@ -71,7 +74,9 @@ export const StageThreeFormView = ({
   return (
     <SubmissionStyled>
       <FormHeaderGroup>
-        <h1>Stage 3</h1>
+        <h1>
+          Stage 3 {!isProposalRound ? <span className="label">Only accessible during proposal round</span> : null}
+        </h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
@@ -95,7 +100,7 @@ export const StageThreeFormView = ({
         </div>
       </FormTitleAndFeeContainer>
       <label>3- Enter Proposal Data</label>
-      <FormTableGrid>
+      <FormTableGrid className={disabled ? 'disabled' : ''}>
         <TableGrid tableData={tableData} setTableData={setTableData} />
       </FormTableGrid>
       {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
@@ -105,7 +110,7 @@ export const StageThreeFormView = ({
             icon="lock"
             className="lock"
             text={'Lock Proposal'}
-            disabled={!proposalId}
+            disabled={!proposalId || disabled}
             onClick={handleLockProposal}
             kind="actionSecondary"
           />
@@ -113,7 +118,7 @@ export const StageThreeFormView = ({
 
         <Button
           icon="financial"
-          disabled={!enebleSubmit}
+          disabled={!enebleSubmit || disabled}
           className="financial"
           kind="actionPrimary"
           text={'Submit Financial Request'}

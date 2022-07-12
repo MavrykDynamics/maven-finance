@@ -60,6 +60,7 @@ export const PropSubTopBarValueText = styled.span`
   line-height: 16px;
   color: ${cyanColor};
   padding-left: 26px;
+  text-transform: capitalize;
 `
 export const PropSubTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
   margin: 0 auto;

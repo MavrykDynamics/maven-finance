@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -34,7 +34,8 @@ const INIT_TABLE_DATA = [
 
 export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThreeFormProps) => {
   const dispatch = useDispatch()
-  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+  const isProposalRound = governancePhase === 'PROPOSAL'
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { fee, address } = governanceStorage
   const successReward = governanceStorage.config.successReward
@@ -58,6 +59,23 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThree
     setFormInputStatus({ ...formInputStatus, financialData: updatedState.financialData ? 'success' : 'error' })
   }
 
+  const clearState = (): void => {
+    setForm({
+      title: proposalTitle,
+      financialData: { jsonString: tableJson },
+    })
+    setValidForm({
+      financialData: false,
+    })
+    setFormInputStatus({
+      financialData: '',
+    })
+  }
+
+  useEffect(() => {
+    if (!isProposalRound) clearState()
+  }, [isProposalRound])
+
   const handleSubmitFinancialRequestData = () => {
     // const jsonStringTable = JSON.stringify(tableData)
     // const flatTable = tableData.flat()
@@ -73,7 +91,17 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThree
     const amount = +tableData[1][2]
     const tokenType = tableData[1][3]
     if (proposalId) {
-      dispatch(submitFinancialRequestData(proposalId, dataName, receiverAddress, amount, tokenType, accountPkh as any))
+      dispatch(
+        submitFinancialRequestData(
+          proposalId,
+          dataName,
+          receiverAddress,
+          amount,
+          tokenType,
+          accountPkh as any,
+          clearState,
+        ),
+      )
     }
   }
 
