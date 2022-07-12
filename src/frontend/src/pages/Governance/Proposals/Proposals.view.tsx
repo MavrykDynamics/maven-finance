@@ -1,18 +1,21 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 // helpers
-import { normalizeProposalStatus, getProposalStatusInfo } from '../Governance.helpers'
+import { getProposalStatusInfo } from '../Governance.helpers'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 
 // view
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // style
 import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
+import { calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -21,6 +24,7 @@ type ProposalsViewProps = {
   selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
   firstVisible: boolean
+  listName: string
 }
 export const ProposalsView = ({
   listTitle,
@@ -29,6 +33,7 @@ export const ProposalsView = ({
   selectedProposal,
   isProposalPhase,
   firstVisible,
+  listName,
 }: ProposalsViewProps) => {
   const { governancePhase, governanceStorage } = useSelector((state: State) => state.governance)
   const location = useLocation()
@@ -41,6 +46,14 @@ export const ProposalsView = ({
     handleItemSelect(undefined)
   }, [location.pathname, proposalsList])
 
+  const { pathname, search } = useLocation()
+  const currentPage = getPageNumber(search, listName)
+
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return proposalsList.slice(from, to)
+  }, [currentPage, proposalsList])
+
   if (!proposalsList.length) {
     return null
   }
@@ -48,8 +61,8 @@ export const ProposalsView = ({
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {proposalsList.length &&
-        proposalsList.map((proposal, index) => {
+      {paginatedItemsList.length &&
+        paginatedItemsList.map((proposal, index) => {
           const statusInfo = getProposalStatusInfo(
             governancePhase,
             proposal,
@@ -79,6 +92,7 @@ export const ProposalsView = ({
             </ProposalListItem>
           )
         })}
+      <Pagination itemsCount={proposalsList.length} listName={listName} />
     </ProposalListContainer>
   )
 }

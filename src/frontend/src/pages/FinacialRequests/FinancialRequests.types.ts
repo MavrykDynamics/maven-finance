@@ -1,5 +1,5 @@
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
-import {PAGINATION_SIDE_RIGHT, PAGINATION_SIDE_LEFT} from './FinancialRequests.consts'
+import { PAGINATION_SIDE_RIGHT, PAGINATION_SIDE_LEFT } from './Pagination/pagination.consts'
 
 export type FinancialRequestBody = {
   executed: boolean
@@ -37,7 +37,7 @@ export type FinancialRequestBody = {
 export type FRListProps = {
   listTitle: string
   items: Array<FinancialRequestBody>
-  noItemsText: string
+  noItemsText?: string
   name: string
   handleItemSelect: (arg0: FinancialRequestBody) => void
   selectedItem?: FinancialRequestBody

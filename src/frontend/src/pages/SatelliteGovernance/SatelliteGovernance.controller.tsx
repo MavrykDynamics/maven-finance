@@ -2,19 +2,24 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+import { useLocation } from 'react-router'
 
 // types
 import type { GovernanceSatelliteItem } from '../../reducers/governance'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import {
+  getSateliteGovernanceListName,
+  calculateSlicePositions,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import Icon from '../../app/App.components/Icon/Icon.view'
 import { DropDown } from '../../app/App.components/DropDown/DropDown.controller'
 import {
-  ButtonLoadingIcon,
   ButtonStyled,
   ButtonText,
   SlidingTabButtonsStyled,
@@ -22,6 +27,7 @@ import {
 import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGovernanceCard.controller'
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // actions
 import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
@@ -125,6 +131,15 @@ export const SatelliteGovernance = () => {
     dispatch(getGovernanceSatelliteStorage())
   }, [dispatch])
 
+  const listName = useMemo(() => getSateliteGovernanceListName(activeTab), [activeTab])
+  const { pathname, search } = useLocation()
+  const currentPage = getPageNumber(search, listName)
+
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return separateRecord.slice(from, to)
+  }, [currentPage, separateRecord])
+
   return (
     <Page>
       <PageHeader page={'satellite-governance'} kind={PRIMARY} />
@@ -221,7 +236,7 @@ export const SatelliteGovernance = () => {
         </SlidingTabButtonsStyled>
       </SatelliteGovernanceStyled>
 
-      {separateRecord.map((item: any) => {
+      {paginatedItemsList.map((item: any) => {
         const linkAdress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
         return (
@@ -243,6 +258,8 @@ export const SatelliteGovernance = () => {
           />
         )
       })}
+
+      <Pagination itemsCount={separateRecord.length} listName={listName} />
     </Page>
   )
 }
