@@ -21,6 +21,7 @@ import { Admin } from '../../../pages/Admin/Admin.controller'
 import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
 import { Council } from '../../../pages/Council/Council.controller'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
+import Oracles from 'pages/Oracles/Oracles.controller'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -84,6 +85,9 @@ export const AppRoutes = () => {
       />
       <Route exact path="/treasury">
         <Treasury />
+      </Route>
+      <Route exact path="/oracles">
+        <Oracles />
       </Route>
       <Route exact path="/loans">
         <Loans />

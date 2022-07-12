@@ -13,6 +13,42 @@ type SatelliteSideBarProps = {
   satelliteFactory: string
   isButton: boolean
 }
+
+export const SateliteSideBarFAQ = () => (
+  <SideBarFaq>
+    <h2>Satellite FAQ</h2>
+    <FAQLink>
+      <a href="https://mavryk.finance/litepaper#satellite-delegations" target="_blank" rel="noreferrer">
+        What is vote delegation and how does it work?
+      </a>
+    </FAQLink>
+    <FAQLink>
+      <a
+        href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
+        target="_blank"
+        rel="noreferrer"
+      >
+        What are the requirements for becoming a Satellite?
+      </a>
+    </FAQLink>
+    <FAQLink>
+      <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
+        MVK token holder’s delegation agreement
+      </a>
+    </FAQLink>
+    <FAQLink>
+      <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
+        The MVK holder’s guide to delegation
+      </a>
+    </FAQLink>
+    <FAQLink>
+      <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
+        Recognized delegate code of conduct
+      </a>
+    </FAQLink>
+  </SideBarFaq>
+)
+
 export const SatelliteSideBarView = ({
   userIsSatellite,
   numberOfSatellites,
@@ -53,38 +89,7 @@ export const SatelliteSideBarView = ({
         </SideBarItem>
       </SideBarSection>
 
-      <SideBarFaq>
-        <h2>Satellite FAQ</h2>
-        <FAQLink>
-          <a href="https://mavryk.finance/litepaper#satellite-delegations" target="_blank" rel="noreferrer">
-            What is vote delegation and how does it work?
-          </a>
-        </FAQLink>
-        <FAQLink>
-          <a
-            href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
-            target="_blank"
-            rel="noreferrer"
-          >
-            What are the requirements for becoming a Satellite?
-          </a>
-        </FAQLink>
-        <FAQLink>
-          <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
-            MVK token holder’s delegation agreement
-          </a>
-        </FAQLink>
-        <FAQLink>
-          <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
-            The MVK holder’s guide to delegation
-          </a>
-        </FAQLink>
-        <FAQLink>
-          <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
-            Recognized delegate code of conduct
-          </a>
-        </FAQLink>
-      </SideBarFaq>
+      <SateliteSideBarFAQ />
     </SatelliteSideBarStyled>
   )
 }
