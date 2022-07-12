@@ -15,7 +15,7 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // style
 import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
-import { calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { calculateSlicePositions, LIST_NAMES_MAPPER } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -82,7 +82,7 @@ export const ProposalsView = ({
               selected={selectedProposal ? selectedProposal.id === proposal.id : proposal.id === 1}
             >
               <ProposalItemLeftSide>
-                <span>{index + 1}</span>
+                <span>{index + 1 + (Number(currentPage) - 1) * LIST_NAMES_MAPPER[listName]}</span>
                 <h4>{proposal.title}</h4>
               </ProposalItemLeftSide>
               {isProposalPhase && (
