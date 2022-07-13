@@ -15,6 +15,10 @@ import {
 } from '../../../utils/TypesAndInterfaces/Forms'
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+
+// hooks
+import useGovernence from '../../Governance/UseGovernance'
+
 // styles
 import {
   FormButtonContainer,
@@ -75,8 +79,9 @@ export const StageTwoFormView = ({
   handleUpdateProposal,
   proposalId,
 }: StageTwoFormViewProps) => {
+  const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
-  const isProposalRound = governancePhase === 'PROPOSAL'
+  const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   const disabled = !isProposalRound || !form.title
   const handleCreateNewByte = () => {
     setForm({
