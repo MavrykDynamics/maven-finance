@@ -280,6 +280,7 @@ export const GovernanceView = ({
 
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
+  const timeFormat = new Date(votingEnding).getHours() + ':' + new Date(votingEnding).getMinutes()
   const isEndedVotingTime = votingTime < timeNow
 
   // console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
@@ -362,8 +363,8 @@ export const GovernanceView = ({
           </GovRightContainerTitleArea>
           {votingEnding ? (
             <RightSideSubContent id="votingDeadline">
-              Voting {isEndedVotingTime ? 'ended' : 'ending'} on <Time value={votingEnding} format="F d\t\h, H:m" />{' '}
-              CEST
+              Voting {isEndedVotingTime ? 'ended' : 'ending'} on <Time value={votingTime} format="F d\t\h" />{' '}
+              {timeFormat} CEST
             </RightSideSubContent>
           ) : null}
 
