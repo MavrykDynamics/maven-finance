@@ -10,21 +10,21 @@
 // ------------------------------------------------------------------------------
 
 type proposalMetadataType is [@layout:comb] record[
-  title : string;
-  data  : bytes;
+    title : string;
+    data  : bytes;
 ]
 type paymentMetadataType is [@layout:comb] record[
-  title       : string;
-  transaction : transferDestinationType;
+    title       : string;
+    transaction : transferDestinationType;
 ]
 
 type newProposalType is [@layout:comb] record [
-  title              : string;
-  description        : string;
-  invoice            : string; // IPFS file
-  sourceCode         : string;
-  proposalMetadata   : option(list(proposalMetadataType));
-  paymentMetadata    : option(list(paymentMetadataType));
+    title              : string;
+    description        : string;
+    invoice            : string; 
+    sourceCode         : string;
+    proposalMetadata   : option(list(proposalMetadataType));
+    paymentMetadata    : option(list(paymentMetadataType));
 ]
 
 // Stores all voter data during proposal round
@@ -33,8 +33,8 @@ type proposalVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
 type votingRoundVoteType is [@layout:comb] record [
-  vote  : voteType;
-  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
+    vote  : voteType;
+    empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
 type votingRoundRecordType is (nat * timestamp * voteType)   // 1 is Yay, 0 is Nay, 2 is pass * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundRecordType)
@@ -129,26 +129,26 @@ type governanceConfigType is [@layout:comb] record [
 type governanceUpdateConfigNewValueType is nat
 
 type governanceUpdateConfigActionType is 
-  ConfigSuccessReward               of unit
-| ConfigCycleVotersReward           of unit
-| ConfigMinProposalRoundVotePct     of unit
-| ConfigMinProposalRoundVotesReq    of unit
-| ConfigMinQuorumPercentage         of unit
-| ConfigMinYayVotePercentage        of unit
-| ConfigProposeFeeMutez             of unit
-| ConfigMaxProposalsPerSatellite    of unit
-| ConfigBlocksPerProposalRound      of unit
-| ConfigBlocksPerVotingRound        of unit
-| ConfigBlocksPerTimelockRound      of unit
-| ConfigProposalDatTitleMaxLength   of unit
-| ConfigProposalTitleMaxLength      of unit
-| ConfigProposalDescMaxLength       of unit
-| ConfigProposalInvoiceMaxLength    of unit
-| ConfigProposalCodeMaxLength       of unit
+        ConfigSuccessReward               of unit
+    |   ConfigCycleVotersReward           of unit
+    |   ConfigMinProposalRoundVotePct     of unit
+    |   ConfigMinProposalRoundVotesReq    of unit
+    |   ConfigMinQuorumPercentage         of unit
+    |   ConfigMinYayVotePercentage        of unit
+    |   ConfigProposeFeeMutez             of unit
+    |   ConfigMaxProposalsPerSatellite    of unit
+    |   ConfigBlocksPerProposalRound      of unit
+    |   ConfigBlocksPerVotingRound        of unit
+    |   ConfigBlocksPerTimelockRound      of unit
+    |   ConfigProposalDatTitleMaxLength   of unit
+    |   ConfigProposalTitleMaxLength      of unit
+    |   ConfigProposalDescMaxLength       of unit
+    |   ConfigProposalInvoiceMaxLength    of unit
+    |   ConfigProposalCodeMaxLength       of unit
 
 type governanceUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: governanceUpdateConfigNewValueType; 
-  updateConfigAction: governanceUpdateConfigActionType;
+    updateConfigNewValue: governanceUpdateConfigNewValueType; 
+    updateConfigAction: governanceUpdateConfigActionType;
 ]
 
 
@@ -158,9 +158,9 @@ type governanceUpdateConfigParamsType is [@layout:comb] record [
 
 
 type roundType       is
-| Proposal                  of unit
-| Voting                    of unit
-| Timelock                  of unit
+    |   Proposal                  of unit
+    |   Voting                    of unit
+    |   Timelock                  of unit
 
 type currentCycleInfoType is [@layout:comb] record[
     round                       : roundType;               // proposal, voting, timelock
@@ -182,15 +182,15 @@ type currentCycleInfoType is [@layout:comb] record[
 // ------------------------------------------------------------------------------
 
 type updateProposalDataType is [@layout:comb] record [
-  proposalId         : actionIdType;
-  title              : string;
-  proposalBytes      : bytes;
+    proposalId         : actionIdType;
+    title              : string;
+    proposalBytes      : bytes;
 ]
 
 type updatePaymentDataType is [@layout:comb] record [
-  proposalId         : actionIdType;
-  title              : string;
-  paymentTransaction : transferDestinationType;
+    proposalId         : actionIdType;
+    title              : string;
+    paymentTransaction : transferDestinationType;
 ]
 
 type setContractAdminType is [@layout:comb] record [
@@ -212,34 +212,34 @@ type whitelistDevelopersType is set(address)
 
 type governanceLambdaActionType is 
   
-  // Break Glass Entrypoint
-| LambdaBreakGlass                            of (unit)
-| LambdaPropagateBreakGlass                   of (unit)
+        // Break Glass Entrypoint
+    |   LambdaBreakGlass                            of (unit)
+    |   LambdaPropagateBreakGlass                   of (unit)
 
-  // Housekeeping Lambdas
-| LambdaSetAdmin                              of address
-| LambdaSetGovernanceProxy                    of address
-| LambdaUpdateMetadata                        of updateMetadataType
-| LambdaUpdateConfig                          of governanceUpdateConfigParamsType
-| LambdaUpdateGeneralContracts                of updateGeneralContractsType
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
-| LambdaUpdateWhitelistDevelopers             of (address)
-| LambdaMistakenTransfer                      of transferActionType
-| LambdaSetContractAdmin                      of setContractAdminType
-| LambdaSetContractGovernance                 of setContractGovernanceType
+        // Housekeeping Lambdas
+    |   LambdaSetAdmin                              of address
+    |   LambdaSetGovernanceProxy                    of address
+    |   LambdaUpdateMetadata                        of updateMetadataType
+    |   LambdaUpdateConfig                          of governanceUpdateConfigParamsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
+    |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateWhitelistDevelopers             of (address)
+    |   LambdaMistakenTransfer                      of transferActionType
+    |   LambdaSetContractAdmin                      of setContractAdminType
+    |   LambdaSetContractGovernance                 of setContractGovernanceType
 
-  // Governance Cycle Lambdas
-| LambdaStartNextRound                        of (bool)
-| LambdaPropose                               of newProposalType
-| LambdaProposalRoundVote                     of actionIdType
-| LambdaUpdateProposalData                 of updateProposalDataType
-| LambdaUpdatePaymentData                  of updatePaymentDataType
-| LambdaLockProposal                          of actionIdType
-| LambdaVotingRoundVote                       of votingRoundVoteType
-| LambdaExecuteProposal                       of (unit)
-| LambdaProcessProposalPayment                of actionIdType
-| LambdaProcessProposalSingleData             of (unit)
-| LambdaDropProposal                          of actionIdType
+        // Governance Cycle Lambdas
+    |   LambdaStartNextRound                        of (bool)
+    |   LambdaPropose                               of newProposalType
+    |   LambdaProposalRoundVote                     of actionIdType
+    |   LambdaUpdateProposalData                 of updateProposalDataType
+    |   LambdaUpdatePaymentData                  of updatePaymentDataType
+    |   LambdaLockProposal                          of actionIdType
+    |   LambdaVotingRoundVote                       of votingRoundVoteType
+    |   LambdaExecuteProposal                       of (unit)
+    |   LambdaProcessProposalPayment                of actionIdType
+    |   LambdaProcessProposalSingleData             of (unit)
+    |   LambdaDropProposal                          of actionIdType
 
 
 // ------------------------------------------------------------------------------
@@ -263,15 +263,14 @@ type governanceStorageType is [@layout:comb] record [
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;
     
-    // current round state variables - will be flushed periodically
-    currentCycleInfo                  : currentCycleInfoType;
+    currentCycleInfo                  : currentCycleInfoType;       // current round state variables - will be flushed periodically
 
-    nextProposalId                    : nat;                    // counter of next proposal id
-    cycleCounter                      : nat;                    // counter of current cycle 
-    cycleHighestVotedProposalId       : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
-    timelockProposalId                : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
+    nextProposalId                    : nat;                        // counter of next proposal id
+    cycleCounter                      : nat;                        // counter of current cycle 
+    cycleHighestVotedProposalId       : nat;                        // set to 0 if there is no proposal currently, if not set to proposal id
+    timelockProposalId                : nat;                        // set to 0 if there is proposal in timelock, if not set to proposal id
 
     // lambda storage
-    lambdaLedger                      : lambdaLedgerType;             // governance contract lambdas
+    lambdaLedger                      : lambdaLedgerType;           // governance contract lambdas
 
 ]

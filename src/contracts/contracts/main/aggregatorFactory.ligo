@@ -108,11 +108,13 @@ function checkSenderIsAdmin(const s: aggregatorFactoryStorageType) : unit is
 // Check that Sender is a tracked Aggregator address
 function checkInTrackedAggregators(const aggregatorAddress : address; const s : aggregatorFactoryStorageType) : bool is 
 block {
+
     var inTrackedAggregatorsMap : bool := False;
     for _key -> value in map s.trackedAggregators block {
         if aggregatorAddress = value then inTrackedAggregatorsMap := True
         else skip;
     }
+    
 } with inTrackedAggregatorsMap
 
 
@@ -178,11 +180,13 @@ function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStor
 // helper function to %addOracle entrypoint in a specified Aggregator Contract
 function addOracleOperation(const aggregatorAddress: address; const satelliteAddress: address) : operation is
 block{
+
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%addOracle", aggregatorAddress) : option(contract(address))) of [
                 Some (c) -> c
             |   None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
+
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
 
 
@@ -190,18 +194,20 @@ block{
 // helper function to %removeOracle entrypoint in a specified Aggregator Contract
 function removeOracleOperation(const aggregatorAddress: address; const satelliteAddress: address) : operation is
 block{
+
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%removeOracle", aggregatorAddress) : option(contract(address))) of [
                 Some (c) -> c
             |   None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
+
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
 
 
 
 // helper function to get transfer entrypoint in treasury contract
 function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%transfer",
         contractAddress) : option(contract(transferActionType))) of [
                 Some(contr) -> contr
@@ -212,7 +218,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 
 // helper function to get distributeReward entrypoint in delegation contract
 function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
-case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%distributeReward",
         contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
                 Some(contr) -> contr
@@ -222,7 +228,7 @@ case (Tezos.get_entrypoint_opt(
 
 // helper function to get registerAggregator entrypoint in governanceSatellite contract
 function getRegisterAggregatorInGovernanceSatelliteEntrypoint(const contractAddress : address) : contract(registerAggregatorActionType) is
-case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%registerAggregator",
         contractAddress) : option(contract(registerAggregatorActionType))) of [
                 Some(contr) -> contr
@@ -703,37 +709,37 @@ block{
 
 (* main entrypoint *)
 function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorageType) : return is
-    block{
+block{
 
-        checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-    } with (
-        case action of [
+} with (
+    case action of [
 
-                // Housekeeping Entrypoints
-            |   SetAdmin (parameters)                         -> setAdmin(parameters, s)
-            |   SetGovernance (parameters)                    -> setGovernance(parameters, s)
-            |   UpdateMetadata (parameters)                   -> updateMetadata(parameters, s)
-            |   UpdateConfig (parameters)                     -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
+            // Housekeeping Entrypoints
+        |   SetAdmin (parameters)                         -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)                    -> setGovernance(parameters, s)
+        |   UpdateMetadata (parameters)                   -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                     -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
 
-                // Pause / Break Glass Entrypoints
-            |   PauseAll (_parameters)                        -> pauseAll(s)
-            |   UnpauseAll (_parameters)                      -> unpauseAll(s)
-            |   TogglePauseEntrypoint (parameters)           -> togglePauseEntrypoint(parameters, s)
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                        -> pauseAll(s)
+        |   UnpauseAll (_parameters)                      -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)           -> togglePauseEntrypoint(parameters, s)
 
-                // Aggregator Factory Entrypoints  
-            |   CreateAggregator (parameters)                 -> createAggregator(parameters, s)
-            |   TrackAggregator (parameters)                  -> trackAggregator(parameters, s)
-            |   UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
+            // Aggregator Factory Entrypoints  
+        |   CreateAggregator (parameters)                 -> createAggregator(parameters, s)
+        |   TrackAggregator (parameters)                  -> trackAggregator(parameters, s)
+        |   UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
 
-                // Aggregator Entrypoints
-            |   DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
-            |   DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
+            // Aggregator Entrypoints
+        |   DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
+        |   DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
 
-                // Lambda Entrypoints
-            |   SetLambda (parameters)                        -> setLambda(parameters, s)
-            |   SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
-        ]
-    )
+            // Lambda Entrypoints
+        |   SetLambda (parameters)                        -> setLambda(parameters, s)
+        |   SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
+    ]
+)

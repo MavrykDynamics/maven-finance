@@ -89,16 +89,17 @@ type delegationBreakGlassConfigType is record [
 
 type delegationUpdateConfigNewValueType is nat
 type delegationUpdateConfigActionType is 
-  ConfigMinimumStakedMvkBalance of unit
-| ConfigDelegationRatio         of unit
-| ConfigMaxSatellites           of unit
-| ConfigSatNameMaxLength        of unit
-| ConfigSatDescMaxLength        of unit
-| ConfigSatImageMaxLength       of unit
-| ConfigSatWebsiteMaxLength     of unit
+        ConfigMinimumStakedMvkBalance of unit
+    |   ConfigDelegationRatio         of unit
+    |   ConfigMaxSatellites           of unit
+    |   ConfigSatNameMaxLength        of unit
+    |   ConfigSatDescMaxLength        of unit
+    |   ConfigSatImageMaxLength       of unit
+    |   ConfigSatWebsiteMaxLength     of unit
+
 type delegationUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: delegationUpdateConfigNewValueType; 
-  updateConfigAction: delegationUpdateConfigActionType;
+    updateConfigNewValue: delegationUpdateConfigNewValueType; 
+    updateConfigAction: delegationUpdateConfigActionType;
 ]
 
 type delegateToSatelliteType is [@layout:comb] record [
@@ -117,12 +118,12 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
 ]
 
 type delegationPausableEntrypointType is
-  DelegateToSatellite             of bool
-| UndelegateFromSatellite         of bool
-| RegisterAsSatellite             of bool
-| UnregisterAsSatellite           of bool
-| UpdateSatelliteRecord           of bool
-| DistributeReward                of bool
+        DelegateToSatellite             of bool
+    |   UndelegateFromSatellite         of bool
+    |   RegisterAsSatellite             of bool
+    |   UnregisterAsSatellite           of bool
+    |   UpdateSatelliteRecord           of bool
+    |   DistributeReward                of bool
 
 type delegationTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : delegationPausableEntrypointType;
@@ -131,33 +132,33 @@ type delegationTogglePauseEntrypointType is [@layout:comb] record [
 
 type delegationLambdaActionType is 
 
-  // Housekeeping Lambdas
-  LambdaSetAdmin                              of address
-| LambdaSetGovernance                         of (address)
-| LambdaUpdateMetadata                        of updateMetadataType
-| LambdaUpdateConfig                          of delegationUpdateConfigParamsType
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts                of updateGeneralContractsType
-| LambdaMistakenTransfer                      of transferActionType
+        // Housekeeping Lambdas
+        LambdaSetAdmin                              of address
+    |   LambdaSetGovernance                         of (address)
+    |   LambdaUpdateMetadata                        of updateMetadataType
+    |   LambdaUpdateConfig                          of delegationUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
+    |   LambdaMistakenTransfer                      of transferActionType
 
-  // Pause / Break Glass Lambdas
-| LambdaPauseAll                              of (unit)
-| LambdaUnpauseAll                            of (unit)
-| LambdaTogglePauseEntrypoint                 of delegationTogglePauseEntrypointType
+        // Pause / Break Glass Lambdas
+    |   LambdaPauseAll                              of (unit)
+    |   LambdaUnpauseAll                            of (unit)
+    |   LambdaTogglePauseEntrypoint                 of delegationTogglePauseEntrypointType
 
-  // Delegation Lambdas
-| LambdaDelegateToSatellite                   of delegateToSatelliteType
-| LambdaUndelegateFromSatellite               of (address)
+        // Delegation Lambdas
+    |   LambdaDelegateToSatellite                   of delegateToSatelliteType
+    |   LambdaUndelegateFromSatellite               of (address)
 
-  // Satellite Lambdas
-| LambdaRegisterAsSatellite                   of newSatelliteRecordType
-| LambdaUnregisterAsSatellite                 of (address)
-| LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
-| LambdaDistributeReward                      of distributeRewardStakedMvkType
+        // Satellite Lambdas
+    |   LambdaRegisterAsSatellite                   of newSatelliteRecordType
+    |   LambdaUnregisterAsSatellite                 of (address)
+    |   LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
+    |   LambdaDistributeReward                      of distributeRewardStakedMvkType
 
-  // General Lambdas
-| LambdaOnStakeChange                         of onStakeChangeType
-| LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
+        // General Lambdas
+    |   LambdaOnStakeChange                         of onStakeChangeType
+    |   LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
 // ------------------------------------------------------------------------------
 // Storage

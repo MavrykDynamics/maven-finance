@@ -25,18 +25,19 @@ type doormanConfigType is [@layout:comb] record [
 
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
-  ConfigMinMvkAmount          of unit
-| Empty                       of unit
+        ConfigMinMvkAmount          of unit
+    |   Empty                       of unit
+
 type doormanUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: doormanUpdateConfigNewValueType; 
-  updateConfigAction: doormanUpdateConfigActionType;
+    updateConfigNewValue: doormanUpdateConfigNewValueType; 
+    updateConfigAction: doormanUpdateConfigActionType;
 ]
 
 type doormanPausableEntrypointType is
-  Stake             of bool
-| Unstake           of bool
-| Compound          of bool
-| FarmClaim         of bool
+        Stake             of bool
+    |   Unstake           of bool
+    |   Compound          of bool
+    |   FarmClaim         of bool
 
 type doormanTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : doormanPausableEntrypointType;
@@ -45,26 +46,26 @@ type doormanTogglePauseEntrypointType is [@layout:comb] record [
 
 type doormanLambdaActionType is 
 
-  // Housekeeping Lambdas
-  LambdaSetAdmin                    of address
-| LambdaSetGovernance               of (address)
-| LambdaUpdateMetadata              of updateMetadataType
-| LambdaUpdateConfig                of doormanUpdateConfigParamsType
-| LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts      of updateGeneralContractsType
-| LambdaMistakenTransfer            of transferActionType
-| LambdaMigrateFunds                of (address)
+        // Housekeeping Lambdas
+        LambdaSetAdmin                    of address
+    |   LambdaSetGovernance               of (address)
+    |   LambdaUpdateMetadata              of updateMetadataType
+    |   LambdaUpdateConfig                of doormanUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts      of updateGeneralContractsType
+    |   LambdaMistakenTransfer            of transferActionType
+    |   LambdaMigrateFunds                of (address)
 
-  // Pause / Break Glass Lambdas
-| LambdaPauseAll                    of (unit)
-| LambdaUnpauseAll                  of (unit)
-| LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
+        // Pause / Break Glass Lambdas
+    |   LambdaPauseAll                    of (unit)
+    |   LambdaUnpauseAll                  of (unit)
+    |   LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
-  // Doorman Lambdas
-| LambdaStake                       of (nat)
-| LambdaUnstake                     of (nat)
-| LambdaCompound                    of (address)
-| LambdaFarmClaim                   of farmClaimType
+        // Doorman Lambdas
+    |   LambdaStake                       of (nat)
+    |   LambdaUnstake                     of (nat)
+    |   LambdaCompound                    of (address)
+    |   LambdaFarmClaim                   of farmClaimType
 
 // ------------------------------------------------------------------------------
 // Storage
