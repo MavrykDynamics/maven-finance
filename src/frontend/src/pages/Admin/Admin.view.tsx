@@ -10,10 +10,22 @@ type AdminViewProps = {
 export const AdminView = ({ handleChangeGovernancePeriod, handleTrackFarm }: AdminViewProps) => {
   return (
     <AdminStyled>
-      <Button text={'Change to Proposal Period'} onClick={() => handleChangeGovernancePeriod('PROPOSAL')} />
-      <Button text={'Change to Voting Period'} onClick={() => handleChangeGovernancePeriod('VOTING')} />
-      <Button text={'Change to Time-lock Period'} onClick={() => handleChangeGovernancePeriod('TIME_LOCK')} />
-      <Button text={'Track Farm'} onClick={handleTrackFarm} />
+      <Button
+        text={'Change to Proposal Period'}
+        kind="actionPrimary"
+        onClick={() => handleChangeGovernancePeriod('PROPOSAL')}
+      />
+      <Button
+        text={'Change to Voting Period'}
+        kind="actionPrimary"
+        onClick={() => handleChangeGovernancePeriod('VOTING')}
+      />
+      <Button
+        text={'Change to Time-lock Period'}
+        kind="actionPrimary"
+        onClick={() => handleChangeGovernancePeriod('TIME_LOCK')}
+      />
+      <Button text={'Track Farm'} kind="actionPrimary" onClick={handleTrackFarm} />
     </AdminStyled>
   )
 }

@@ -4,6 +4,9 @@ import { State } from 'reducers'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GovernancePhase } from '../../../reducers/governance'
 
+// hooks
+import useGovernence from '../UseGovernance'
+
 import {
   GovernanceTopBarStyled,
   GovTopBarEmergencyGovText,
@@ -17,6 +20,7 @@ export type GovernanceTopBarViewProps = {
   governancePhase: GovernancePhase
   timeLeftInPhase: number | Date
   isInEmergencyGovernance: boolean
+  isExecutionRound?: boolean
   handleMoveToNextRound: () => void
 }
 export const GovernanceTopBarView = ({
@@ -25,17 +29,19 @@ export const GovernanceTopBarView = ({
   timeLeftInPhase,
   isInEmergencyGovernance,
   handleMoveToNextRound,
+  isExecutionRound,
 }: GovernanceTopBarViewProps) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const isInExecution =
-    governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'
+  const { watingProposals } = useGovernence()
+  const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
+
   return (
     <GovernanceTopBarStyled id="governanceTopBar">
       {isInEmergencyGovernance ? (
         <GovTopBarEmergencyGovText>EMERGENCY GOVERNANCE PROTOCOL ACTIVE</GovTopBarEmergencyGovText>
       ) : (
         <>
-          <GovTopBarPhaseText className="first" isCorrectPhase={governancePhase === 'PROPOSAL'}>
+          <GovTopBarPhaseText className="first" isCorrectPhase={!isInExecution && governancePhase === 'PROPOSAL'}>
             Proposal
           </GovTopBarPhaseText>
           <GovTopBarSidewaysArrowIcon>

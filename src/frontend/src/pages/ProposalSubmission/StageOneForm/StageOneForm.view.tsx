@@ -46,9 +46,7 @@ export const StageOneFormView = ({
   return (
     <>
       <FormHeaderGroup>
-        <h1>
-          Stage 1 {!isProposalRound ? <span className="label">Only accessible during proposal round</span> : null}
-        </h1>
+        <h1>Stage 1 {!isProposalRound ? <span className="label">Not accessible in the current round</span> : null}</h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
