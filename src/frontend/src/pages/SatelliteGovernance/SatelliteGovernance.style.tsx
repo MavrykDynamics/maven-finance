@@ -95,7 +95,8 @@ export const AvailableActionsStyle = styled.div`
     }
 
     .banSatellite,
-    .removeOracles {
+    .removeOracles,
+    .removeFromAggregator {
       svg {
         stroke: ${containerColor};
       }
