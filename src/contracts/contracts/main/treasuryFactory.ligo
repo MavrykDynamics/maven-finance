@@ -637,36 +637,36 @@ block{
 
 (* main entrypoint *)
 function main (const action : treasuryFactoryAction; var s : treasuryFactoryStorageType) : return is
-    block{
+block{
+    
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+
+} with(
+
+    case action of [
+
+            // Housekeeping Entrypoints
+            SetAdmin (parameters)                       -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)                  -> setGovernance(parameters, s)
+        |   UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                   -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
+        |   UpdateWhitelistTokenContracts (parameters)  -> updateWhitelistTokenContracts(parameters, s)
+        |   MistakenTransfer (parameters)               -> mistakenTransfer(parameters, s)
         
-        checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                      -> pauseAll(s)
+        |   UnpauseAll (_parameters)                    -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)          -> togglePauseEntrypoint(parameters, s)
 
-    } with(
+            // Treasury Factory Entrypoints
+        |   CreateTreasury (params)                     -> createTreasury(params, s)
+        |   TrackTreasury (params)                      -> trackTreasury(params, s)
+        |   UntrackTreasury (params)                    -> untrackTreasury(params, s)
 
-        case action of [
-
-                // Housekeeping Entrypoints
-                SetAdmin (parameters)                       -> setAdmin(parameters, s)
-            |   SetGovernance (parameters)                  -> setGovernance(parameters, s)
-            |   UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
-            |   UpdateConfig (parameters)                   -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
-            |   UpdateWhitelistTokenContracts (parameters)  -> updateWhitelistTokenContracts(parameters, s)
-            |   MistakenTransfer (parameters)               -> mistakenTransfer(parameters, s)
-            
-                // Pause / Break Glass Entrypoints
-            |   PauseAll (_parameters)                      -> pauseAll(s)
-            |   UnpauseAll (_parameters)                    -> unpauseAll(s)
-            |   TogglePauseEntrypoint (parameters)          -> togglePauseEntrypoint(parameters, s)
-
-                // Treasury Factory Entrypoints
-            |   CreateTreasury (params)                     -> createTreasury(params, s)
-            |   TrackTreasury (params)                      -> trackTreasury(params, s)
-            |   UntrackTreasury (params)                    -> untrackTreasury(params, s)
-
-                // Lambda Entrypoints
-            |   SetLambda (params)                          -> setLambda(params, s)
-            |   SetProductLambda (params)                   -> setProductLambda(params, s)
-        ]
-    )
+            // Lambda Entrypoints
+        |   SetLambda (params)                          -> setLambda(params, s)
+        |   SetProductLambda (params)                   -> setProductLambda(params, s)
+    ]
+)

@@ -318,7 +318,7 @@ function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorageType) 
 
 // helper function to get distributeRewardXtz entrypoint in factory contract
 function getDistributeRewardXtzInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardXtzType) is
-case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%distributeRewardXtz",
         contractAddress) : option(contract(distributeRewardXtzType))) of [
                 Some(contr) -> contr
@@ -329,7 +329,7 @@ case (Tezos.get_entrypoint_opt(
 
 // helper function to get distributeRewardMvk entrypoint in factory contract
 function getDistributeRewardStakedMvkInFactoryEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
-case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%distributeRewardStakedMvk",
         contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
                 Some(contr) -> contr
@@ -1286,6 +1286,7 @@ block{
 
 (* main entrypoint *)
 function main (const action : aggregatorAction; const s : aggregatorStorageType) : return is
+    
     case action of [
 
         |   Default (_parameters)                           -> default(s)

@@ -23,14 +23,15 @@ type breakGlassConfigType is [@layout:comb] record [
 
 type breakGlassUpdateConfigNewValueType is nat
 type breakGlassUpdateConfigActionType is 
-  ConfigThreshold               of unit
-| ConfigActionExpiryDays        of unit
-| ConfigCouncilNameMaxLength    of unit
-| ConfigCouncilWebsiteMaxLength of unit
-| ConfigCouncilImageMaxLength   of unit
+        ConfigThreshold               of unit
+    |   ConfigActionExpiryDays        of unit
+    |   ConfigCouncilNameMaxLength    of unit
+    |   ConfigCouncilWebsiteMaxLength of unit
+    |   ConfigCouncilImageMaxLength   of unit
+
 type breakGlassUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : breakGlassUpdateConfigNewValueType; 
-  updateConfigAction    : breakGlassUpdateConfigActionType;
+    updateConfigNewValue  : breakGlassUpdateConfigNewValueType; 
+    updateConfigAction    : breakGlassUpdateConfigActionType;
 ]
 
 type breakGlassActionRecordType is record [
@@ -58,35 +59,35 @@ type breakGlassActionsLedgerType is big_map(nat, breakGlassActionRecordType)
 
 type breakGlassLambdaActionType is 
 
-    // Break Glass
-| LambdaBreakGlass                    of (unit)
+        // Break Glass
+    |   LambdaBreakGlass                    of (unit)
 
-    // Housekeeping Entrypoints - Glass Broken Not Required
-| LambdaSetAdmin                      of (address)
-| LambdaSetGovernance                 of (address)
-| LambdaUpdateMetadata                of updateMetadataType
-| LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
-| LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts        of updateGeneralContractsType
-| LambdaMistakenTransfer              of transferActionType
-| LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
+        // Housekeeping Entrypoints - Glass Broken Not Required
+    |   LambdaSetAdmin                      of (address)
+    |   LambdaSetGovernance                 of (address)
+    |   LambdaUpdateMetadata                of updateMetadataType
+    |   LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
+    |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
+    |   LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
 
-    // Internal Control of Council Members
-| LambdaAddCouncilMember              of councilActionAddMemberType
-| LambdaRemoveCouncilMember           of address
-| LambdaChangeCouncilMember           of councilActionChangeMemberType
+        // Internal Control of Council Members
+    |   LambdaAddCouncilMember              of councilActionAddMemberType
+    |   LambdaRemoveCouncilMember           of address
+    |   LambdaChangeCouncilMember           of councilActionChangeMemberType
 
-    // Glass Broken Required
-| LambdaPropagateBreakGlass           of (unit)
-| LambdaSetSingleContractAdmin        of setContractAdminType
-| LambdaSetAllContractsAdmin          of (address)               
-| LambdaPauseAllEntrypoints           of (unit)             
-| LambdaUnpauseAllEntrypoints         of (unit)
-| LambdaRemoveBreakGlassControl       of (unit)
+        // Glass Broken Required
+    |   LambdaPropagateBreakGlass           of (unit)
+    |   LambdaSetSingleContractAdmin        of setContractAdminType
+    |   LambdaSetAllContractsAdmin          of (address)               
+    |   LambdaPauseAllEntrypoints           of (unit)             
+    |   LambdaUnpauseAllEntrypoints         of (unit)
+    |   LambdaRemoveBreakGlassControl       of (unit)
 
-    // Council Signing of Actions
-| LambdaFlushAction                   of actionIdType
-| LambdaSignAction                    of actionIdType
+        // Council Signing of Actions
+    |   LambdaFlushAction                   of actionIdType
+    |   LambdaSignAction                    of actionIdType
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -54,16 +54,17 @@ type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [
 
 type councilUpdateConfigNewValueType is nat
 type councilUpdateConfigActionType is 
-  ConfigThreshold                       of unit
-| ConfigActionExpiryDays                of unit
-| ConfigCouncilNameMaxLength            of unit
-| ConfigCouncilWebsiteMaxLength         of unit
-| ConfigCouncilImageMaxLength           of unit
-| ConfigRequestTokenNameMaxLength       of unit
-| ConfigRequestPurposeMaxLength         of unit
+        ConfigThreshold                       of unit
+    |   ConfigActionExpiryDays                of unit
+    |   ConfigCouncilNameMaxLength            of unit
+    |   ConfigCouncilWebsiteMaxLength         of unit
+    |   ConfigCouncilImageMaxLength           of unit
+    |   ConfigRequestTokenNameMaxLength       of unit
+    |   ConfigRequestPurposeMaxLength         of unit
+
 type councilUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : councilUpdateConfigNewValueType; 
-  updateConfigAction    : councilUpdateConfigActionType;
+    updateConfigNewValue  : councilUpdateConfigNewValueType; 
+    updateConfigAction    : councilUpdateConfigActionType;
 ]
 
 type councilActionRequestTokensType is [@layout:comb] record [
@@ -114,40 +115,40 @@ type updateVesteeType is [@layout:comb] record [
 // Council Methods to Lambda Action Type
 type councilLambdaActionType is 
 
-    // Housekeeping Lambdas
-    LambdaSetAdmin                              of address
-  | LambdaSetGovernance                         of address
-  | LambdaUpdateMetadata                        of updateMetadataType
-  | LambdaUpdateConfig                          of councilUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
-  | LambdaUpdateGeneralContracts                of updateGeneralContractsType
-  | LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
+        // Housekeeping Lambdas
+        LambdaSetAdmin                              of address
+    |   LambdaSetGovernance                         of address
+    |   LambdaUpdateMetadata                        of updateMetadataType
+    |   LambdaUpdateConfig                          of councilUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
+    |   LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
 
-    // Council Actions for Internal Control
-  | LambdaCouncilActionAddMember                of councilActionAddMemberType
-  | LambdaCouncilActionRemoveMember             of address
-  | LambdaCouncilActionChangeMember             of councilActionChangeMemberType
-  | LambdaCouncilActionSetBaker                 of setBakerType
+        // Council Actions for Internal Control
+    |   LambdaCouncilActionAddMember                of councilActionAddMemberType
+    |   LambdaCouncilActionRemoveMember             of address
+    |   LambdaCouncilActionChangeMember             of councilActionChangeMemberType
+    |   LambdaCouncilActionSetBaker                 of setBakerType
 
-    // Council Actions for Contracts
-  | LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
+        // Council Actions for Contracts
+    |   LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
 
-    // Council Actions for Vesting
-  | LambdaCouncilActionAddVestee                of addVesteeType
-  | LambdaCouncilActionRemoveVestee             of address
-  | LambdaCouncilActionUpdateVestee             of updateVesteeType
-  | LambdaCouncilToggleVesteeLock               of address
+        // Council Actions for Vesting
+    |   LambdaCouncilActionAddVestee                of addVesteeType
+    |   LambdaCouncilActionRemoveVestee             of address
+    |   LambdaCouncilActionUpdateVestee             of updateVesteeType
+    |   LambdaCouncilToggleVesteeLock               of address
 
-    // Council Actions for Financial Governance
-  | LambdaCouncilActionTransfer                 of councilActionTransferType
-  | LambdaCouncilRequestTokens                  of councilActionRequestTokensType
-  | LambdaCouncilRequestMint                    of councilActionRequestMintType
-  | LambdaCouncilSetContractBaker               of councilActionSetContractBakerType
-  | LambdaCouncilDropFinancialReq               of nat
+        // Council Actions for Financial Governance
+    |   LambdaCouncilActionTransfer                 of councilActionTransferType
+    |   LambdaCouncilRequestTokens                  of councilActionRequestTokensType
+    |   LambdaCouncilRequestMint                    of councilActionRequestMintType
+    |   LambdaCouncilSetContractBaker               of councilActionSetContractBakerType
+    |   LambdaCouncilDropFinancialReq               of nat
 
-    // Council Signing of Actions
-  | LambdaFlushAction                           of actionIdType
-  | LambdaSignAction                            of actionIdType 
+        // Council Signing of Actions
+    |   LambdaFlushAction                           of actionIdType
+    |   LambdaSignAction                            of actionIdType 
 
 // ------------------------------------------------------------------------------
 // Storage
