@@ -57,7 +57,7 @@ export const StageOneFormView = ({
       </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <label>1- Enter Proposal Title</label>
+          <label>1 - Enter Proposal Title</label>
           <Input
             type="text"
             value={form.title}
@@ -68,15 +68,15 @@ export const StageOneFormView = ({
           />
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Success Reward</label>
+          <label>2 - Proposal Success Reward</label>
           <FormTitleEntry>{successReward} MVK</FormTitleEntry>
         </div>
         <div>
-          <label>3- Fee</label>
+          <label>3 - Fee</label>
           <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
-      <label>4- Enter a description</label>
+      <label>4 - Enter a description</label>
       <TextArea
         type="text"
         className="description-textarea"
@@ -87,7 +87,7 @@ export const StageOneFormView = ({
         disabled={!isProposalRound}
       />
       <div className="source-code-input-wrap">
-        <label>5- Please add a link to the source code changes (if you have)</label>
+        <label>5 - Please add a link to the source code changes (if you have)</label>
         <Input
           type="text"
           value={form.sourceCodeLink}
