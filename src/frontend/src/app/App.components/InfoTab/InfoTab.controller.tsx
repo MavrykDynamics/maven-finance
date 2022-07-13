@@ -4,7 +4,7 @@ import { InfoTabStyled } from './InfoTab.style'
 
 type InfoTabProps = {
   title: string
-  value: string
+  value: string | number | JSX.Element
   tipLink: string
   customClassName?: string
 }

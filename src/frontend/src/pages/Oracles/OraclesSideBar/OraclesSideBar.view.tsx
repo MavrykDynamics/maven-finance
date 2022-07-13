@@ -5,8 +5,6 @@ import {
   SatelliteSideBarStyled,
   SideBarSection,
   SideBarItem,
-  SideBarFaq,
-  FAQLink,
 } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.style'
 import { SateliteSideBarFAQ } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.view'
 import React from 'react'
@@ -15,6 +13,7 @@ type OraclesSideBarProps = {
   userIsSatellite: boolean
   numberOfSatellites: number
   totalDelegatedMVK: number
+  totalOracleNetworks: number
   satelliteFactory: string
   isButton: boolean
 }
@@ -24,6 +23,7 @@ const OraclesSideBarView = ({
   isButton,
   totalDelegatedMVK,
   numberOfSatellites,
+  totalOracleNetworks,
 }: OraclesSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
@@ -39,19 +39,19 @@ const OraclesSideBarView = ({
 
         <h2>Info</h2>
         <SideBarItem>
-          <h3>Satellite Contract</h3>
+          <h3>Satellite Contract (fix)</h3>
           <var>
             <CommaNumber value={numberOfSatellites} showDecimal={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Oracle Contract</h3>
+          <h3>Oracle Contract (fix)</h3>
           <var>
             <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Aggregator Contract</h3>
+          <h3>Aggregator Contract (fix)</h3>
           <var>
             <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
           </var>
@@ -67,7 +67,7 @@ const OraclesSideBarView = ({
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>On-Chain Data Points</h3>
+          <h3>On-Chain Data Points (fix)</h3>
           <var>
             <CommaNumber value={numberOfSatellites} showDecimal={false} />
           </var>
@@ -75,7 +75,7 @@ const OraclesSideBarView = ({
         <SideBarItem>
           <h3>Total Oracle Networks</h3>
           <var>
-            <CommaNumber value={numberOfSatellites} showDecimal={false} />
+            <CommaNumber value={totalOracleNetworks} showDecimal={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
@@ -85,11 +85,11 @@ const OraclesSideBarView = ({
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Total Value Secured</h3>
+          <h3>Total Value Secured (fix)</h3>
           <var>-</var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Average Rewards per Oracle</h3>
+          <h3>Average Rewards per Oracle (fix)</h3>
           <var>-</var>
         </SideBarItem>
       </SideBarSection>

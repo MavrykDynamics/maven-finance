@@ -1,4 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
+import { InitialOracleStorageType } from 'pages/Oracles/Oracles.types'
 
 import { ContractAddressesState } from '../reducers/contractAddresses'
 import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
@@ -89,6 +90,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
       res = convertToTreasuryAddressType(storage)
       setItemInStorage('TreasuryAddresses', res)
       break
+    case 'oracle':
+      res = convertToOracleStorageType(storage)
+      setItemInStorage('OracleStorage', res)
+      break
   }
 
   return res
@@ -98,6 +103,15 @@ function convertToTreasuryAddressType(storage: any): {treasuryAddresses: Array<T
   return {
     treasuryAddresses: storage?.treasury,
     treasuryFactoryAddress: storage?.treasury_factory[0].address
+  }
+}
+
+function convertToOracleStorageType(storage: any): InitialOracleStorageType {
+  return {
+    feeds: storage?.aggregator,
+    feedsFactory: storage?.aggregator_factory,
+    oraclesSatellites: storage?.aggregator_oracle_record,
+    totalOracleNetworks: storage?.aggregator ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0) : 0,
   }
 }
 

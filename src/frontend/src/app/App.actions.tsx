@@ -46,7 +46,9 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const councilStorage = storageToTypeConverter('council', res[7]?.council?.[0])
   const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
-  const oraclesStorage = res[10]
+  const oraclesStorage = storageToTypeConverter('oracle', res[10])
+
+  console.log(oraclesStorage)
 
   // if (addressesStorage) updateContractAddresses(addressesStorage)
 
