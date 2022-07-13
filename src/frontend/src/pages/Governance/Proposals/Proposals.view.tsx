@@ -46,13 +46,25 @@ export const ProposalsView = ({
     handleItemSelect(undefined)
   }, [location.pathname, proposalsList])
 
+  const proposalsDuplicated: ProposalRecordType[] = []
+  let proposalListCounter = 0
+  while (proposalsDuplicated.length < 50) {
+    if (proposalListCounter < ProposalListContainer.length) {
+      proposalListCounter++
+    } else {
+      proposalListCounter = 0
+    }
+
+    proposalsDuplicated.push(proposalsList[proposalListCounter])
+  }
+
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, listName)
-    return proposalsList.slice(from, to)
-  }, [currentPage, proposalsList])
+    return proposalsDuplicated.slice(from, to)
+  }, [currentPage, proposalsDuplicated])
 
   if (!proposalsList.length) {
     return null
@@ -92,7 +104,7 @@ export const ProposalsView = ({
             </ProposalListItem>
           )
         })}
-      <Pagination itemsCount={proposalsList.length} listName={listName} />
+      <Pagination itemsCount={proposalsDuplicated.length} listName={listName} />
     </ProposalListContainer>
   )
 }

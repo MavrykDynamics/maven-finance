@@ -7,7 +7,7 @@ import FRSListItem from './FRSListItem.view'
 import { getPageNumber, getRequestStatus } from '../FinancialRequests.helpers'
 import { calculateSlicePositions, PAGINATION_SIDE_RIGHT } from '../Pagination/pagination.consts'
 
-import { FRListProps } from '../FinancialRequests.types'
+import { FinancialRequestBody, FRListProps } from '../FinancialRequests.types'
 
 import { EmptyContainer } from 'app/App.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
@@ -17,10 +17,21 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, name)
 
+  const proposalsDuplicated: FinancialRequestBody[] = []
+  let proposalListCounter = 0
+  while (proposalsDuplicated.length < 50) {
+    if (proposalListCounter < items.length) {
+      proposalListCounter++
+    } else {
+      proposalListCounter = 0
+    }
+    if (items[proposalListCounter]) proposalsDuplicated.push(items[proposalListCounter])
+  }
+
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, name)
-    return items.slice(from, to)
-  }, [currentPage, items])
+    return proposalsDuplicated.slice(from, to)
+  }, [currentPage, proposalsDuplicated])
 
   return paginatedItemsList.length ? (
     <FRListWrapper>
@@ -40,7 +51,7 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
         )
       })}
 
-      <Pagination itemsCount={items.length} side={PAGINATION_SIDE_RIGHT} listName={name} />
+      <Pagination itemsCount={proposalsDuplicated.length} side={PAGINATION_SIDE_RIGHT} listName={name} />
     </FRListWrapper>
   ) : null
 }

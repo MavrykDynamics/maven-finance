@@ -109,10 +109,26 @@ export const Council = () => {
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, COUNSIL_LIST_NAME)
 
+  let proposalsDuplicated: CouncilPastAction[] = []
+  let proposalListCounter = 0
+  while (proposalsDuplicated.length < 50) {
+    if (proposalListCounter + 1 < councilPastActions.length) {
+      proposalListCounter++
+    } else {
+      proposalListCounter = 0
+    }
+
+    proposalsDuplicated.push(councilPastActions[proposalListCounter])
+  }
+
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, COUNSIL_LIST_NAME)
-    return curentCouncilPastActions.slice(from, to)
-  }, [currentPage, curentCouncilPastActions])
+    console.log('from, to', from, to)
+
+    return proposalsDuplicated.slice(from, to)
+  }, [currentPage, proposalsDuplicated])
+
+  console.log('paginatedItemsList', paginatedItemsList)
 
   return (
     <Page>
@@ -191,16 +207,18 @@ export const Council = () => {
                 <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
                   {isPendingSignature ? 'My ' : null}Past Council Actions
                 </h1>
-                {paginatedItemsList.map((item: CouncilPastAction) => (
-                  <CouncilPastActionView
-                    executed_datetime={item.executed_datetime}
-                    key={item.id}
-                    action_type={item.action_type}
-                    signers_count={item.signers_count}
-                    num_council_members={councilMembers.length}
-                  />
-                ))}
-                <Pagination itemsCount={curentCouncilPastActions.length} listName={COUNSIL_LIST_NAME} />
+                {paginatedItemsList.map((item: CouncilPastAction, idx) =>
+                  item ? (
+                    <CouncilPastActionView
+                      executed_datetime={item.executed_datetime}
+                      key={item.id + idx}
+                      action_type={item.action_type}
+                      signers_count={item.signers_count}
+                      num_council_members={councilMembers.length}
+                    />
+                  ) : null,
+                )}
+                <Pagination itemsCount={proposalsDuplicated.length} listName={COUNSIL_LIST_NAME} />
               </>
             ) : null}
           </div>

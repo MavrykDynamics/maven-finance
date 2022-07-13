@@ -83,11 +83,21 @@ export const EmergencyGovernanceView = ({
 
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, EMERGENCY_GOVERNANCE_LIST_NAME)
-
+  const proposalsDuplicated: any[] = []
+  let proposalListCounter = 0
+  while (proposalsDuplicated.length < 50) {
+    if (proposalListCounter < emergencyGovernanceLedger.length) {
+      proposalListCounter++
+    } else {
+      proposalListCounter = 0
+    }
+    if (emergencyGovernanceLedger[proposalListCounter])
+      proposalsDuplicated.push(emergencyGovernanceLedger[proposalListCounter])
+  }
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, EMERGENCY_GOVERNANCE_LIST_NAME)
-    return emergencyGovernanceLedger.slice(from, to)
-  }, [currentPage, emergencyGovernanceLedger])
+    return proposalsDuplicated.slice(from, to)
+  }, [currentPage, proposalsDuplicated])
 
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
@@ -176,10 +186,15 @@ export const EmergencyGovernanceView = ({
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
         {paginatedItemsList.map((emergencyGovernance, index) => {
-          return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
+          return (
+            <EGovHistoryCard
+              key={emergencyGovernance.id + index + Math.random()}
+              emergencyGovernance={emergencyGovernance}
+            />
+          )
         })}
 
-        <Pagination itemsCount={emergencyGovernanceLedger.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
+        <Pagination itemsCount={proposalsDuplicated.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
       </EmergencyGovernHistory>
     </>
   )
