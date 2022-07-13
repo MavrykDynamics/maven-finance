@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import FRSListItem from './OraclesSateliteListItem.view'
-
 import { EmptyContainer } from 'app/App.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { FRListWrapper } from './OraclesList.styles'
@@ -29,7 +27,7 @@ function FRList({ listTitle, items, noItemsText, onClickHandler, name, listType 
         itemsToShow.map((item) => {
           switch (listType) {
             case 'satellites':
-              return <OracleSatelliteListItem />
+              return //<OracleSatelliteListItem />
             case 'feeds':
               return
             case 'oracles':

@@ -8,31 +8,34 @@ import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 import { InfoBlockWrapper } from './Oracles.styles'
 import OraclesSideBar from './OraclesSideBar/OraclesSideBar.controller'
+type OraclesViewProps = {
+  isLoading: boolean
+  tabsInfo: {
+    totalDelegetedMVK: string | number | JSX.Element
+    totalSatelliteOracles: string | number | JSX.Element
+    numberOfDataFeeds: string | number | JSX.Element
+  }
+}
 
-const OraclesView = () => {
-  const loading = useSelector((state: State) => {
-    console.log(state)
-    return state.loading
-  })
-
+const OraclesView = ({ isLoading, tabsInfo }: OraclesViewProps) => {
   return (
     <Page>
-      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'satellites'} kind={PRIMARY} loading={isLoading} />
       <PageContent>
         <InfoBlockWrapper>
           <InfoTab
             title={'Total Delegated MVK'}
-            value={'$64,284,958,904.83'}
+            value={tabsInfo.totalDelegetedMVK}
             tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
           />
           <InfoTab
             title={'Total Satellites & Oracles'}
-            value={'$12'}
+            value={tabsInfo.totalSatelliteOracles}
             tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
           />
           <InfoTab
             title={'Number of Data Feeds'}
-            value={'50+'}
+            value={tabsInfo.numberOfDataFeeds}
             tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
           />
         </InfoBlockWrapper>

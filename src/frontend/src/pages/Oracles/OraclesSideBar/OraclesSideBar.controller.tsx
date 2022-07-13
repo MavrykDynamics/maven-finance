@@ -13,6 +13,10 @@ const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
+  const {
+    oraclesStorage: { totalOracleNetworks },
+  } = useSelector((state: State) => state.oracles)
+
   const satelliteLedger = delegationStorage?.satelliteLedger
   const numSatellites = satelliteLedger?.length || 0
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
@@ -29,6 +33,7 @@ const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
       totalDelegatedMVK={totalDelegatedMVK}
       isButton={isButton}
       satelliteFactory={delegationAddress?.address || ''}
+      totalOracleNetworks={totalOracleNetworks}
     />
   )
 }
