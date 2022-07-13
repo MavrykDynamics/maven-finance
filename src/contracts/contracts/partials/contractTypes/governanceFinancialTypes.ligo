@@ -10,9 +10,9 @@
 // ------------------------------------------------------------------------------
 
 type financialRequestVoteType is [@layout:comb] record [
-  vote              : voteType;
-  totalVotingPower  : nat; 
-  timeVoted         : timestamp;
+    vote              : voteType;
+    totalVotingPower  : nat; 
+    timeVoted         : timestamp;
 ] 
 
 type financialRequestVotersMapType is map (address, financialRequestVoteType)
@@ -70,12 +70,12 @@ type governanceFinancialConfigType is [@layout:comb] record [
 type governanceFinancialUpdateConfigNewValueType is nat
 
 type governanceFinancialUpdateConfigActionType is
-| ConfigFinancialReqApprovalPct     of unit
-| ConfigFinancialReqDurationDays    of unit
+    |   ConfigFinancialReqApprovalPct     of unit
+    |   ConfigFinancialReqDurationDays    of unit
 
 type governanceFinancialUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: governanceFinancialUpdateConfigNewValueType; 
-  updateConfigAction: governanceFinancialUpdateConfigActionType;
+    updateConfigNewValue: governanceFinancialUpdateConfigNewValueType; 
+    updateConfigAction: governanceFinancialUpdateConfigActionType;
 ]
 
 // ------------------------------------------------------------------------------
@@ -94,22 +94,22 @@ type voteForRequestType is [@layout:comb] record [
 
 type governanceFinancialLambdaActionType is 
   
-  // Housekeeping Lambdas
-| LambdaSetAdmin                              of address
-| LambdaSetGovernance                         of address
-| LambdaUpdateMetadata                        of updateMetadataType
-| LambdaUpdateConfig                          of governanceFinancialUpdateConfigParamsType
-| LambdaUpdateGeneralContracts                of updateGeneralContractsType
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
-| LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsType
-| LambdaMistakenTransfer                      of transferActionType
+        // Housekeeping Lambdas
+    |   LambdaSetAdmin                              of address
+    |   LambdaSetGovernance                         of address
+    |   LambdaUpdateMetadata                        of updateMetadataType
+    |   LambdaUpdateConfig                          of governanceFinancialUpdateConfigParamsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
+    |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsType
+    |   LambdaMistakenTransfer                      of transferActionType
 
-  // Financial Governance Lambdas
-| LambdaRequestTokens                         of councilActionRequestTokensType
-| LambdaRequestMint                           of councilActionRequestMintType
-| LambdaSetContractBaker                      of councilActionSetContractBakerType
-| LambdaDropFinancialRequest                  of (nat)
-| LambdaVoteForRequest                        of voteForRequestType
+        // Financial Governance Lambdas
+    |   LambdaRequestTokens                         of councilActionRequestTokensType
+    |   LambdaRequestMint                           of councilActionRequestMintType
+    |   LambdaSetContractBaker                      of councilActionSetContractBakerType
+    |   LambdaDropFinancialRequest                  of (nat)
+    |   LambdaVoteForRequest                        of voteForRequestType
 
 
 // ------------------------------------------------------------------------------

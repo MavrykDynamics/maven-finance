@@ -82,30 +82,30 @@ type farmTogglePauseEntrypointType is [@layout:comb] record [
 
 type farmLambdaActionType is 
 
-  // Housekeeping Entrypoints
-    LambdaSetAdmin                    of (address)
-|   LambdaSetGovernance               of (address)
-|   LambdaSetName                     of (string)
-|   LambdaUpdateMetadata              of updateMetadataType
-|   LambdaUpdateConfig                of farmUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
-|   LambdaUpdateGeneralContracts      of updateGeneralContractsType
-|   LambdaMistakenTransfer            of transferActionType
+        // Housekeeping Entrypoints
+        LambdaSetAdmin                    of (address)
+    |   LambdaSetGovernance               of (address)
+    |   LambdaSetName                     of (string)
+    |   LambdaUpdateMetadata              of updateMetadataType
+    |   LambdaUpdateConfig                of farmUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts      of updateGeneralContractsType
+    |   LambdaMistakenTransfer            of transferActionType
 
-    // Farm Admin Entrypoints
-|   LambdaUpdateBlocksPerMinute       of (nat)
-|   LambdaInitFarm                    of initFarmParamsType
-|   LambdaCloseFarm                   of (unit)
+        // Farm Admin Entrypoints
+    |   LambdaUpdateBlocksPerMinute       of (nat)
+    |   LambdaInitFarm                    of initFarmParamsType
+    |   LambdaCloseFarm                   of (unit)
 
-    // Pause / Break Glass Entrypoints
-|   LambdaPauseAll                    of (unit)
-|   LambdaUnpauseAll                  of (unit)
-|   LambdaTogglePauseEntrypoint       of farmTogglePauseEntrypointType
+        // Pause / Break Glass Entrypoints
+    |   LambdaPauseAll                    of (unit)
+    |   LambdaUnpauseAll                  of (unit)
+    |   LambdaTogglePauseEntrypoint       of farmTogglePauseEntrypointType
 
-    // Farm Entrypoints
-|   LambdaDeposit                     of nat
-|   LambdaWithdraw                    of nat
-|   LambdaClaim                       of address
+        // Farm Entrypoints
+    |   LambdaDeposit                     of nat
+    |   LambdaWithdraw                    of nat
+    |   LambdaClaim                       of address
 
 // ------------------------------------------------------------------------------
 // Storage
