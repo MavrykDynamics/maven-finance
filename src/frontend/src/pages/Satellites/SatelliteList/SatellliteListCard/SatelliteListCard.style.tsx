@@ -1,4 +1,4 @@
-import styled from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro'
 import { Card, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../../../styles/interfaces'
@@ -71,7 +71,7 @@ export const SideBySideImageAndText = styled.div`
   flex-direction: row;
   align-items: center;
 `
-export const SatelliteTextGroup = styled.div`
+export const SatelliteTextGroup = styled.div<{ oracle?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -82,8 +82,15 @@ export const SatelliteTextGroup = styled.div`
   &.voted {
     margin-left: 70px;
   }
+
+  ${({ oracle }) =>
+    oracle
+      ? css`
+          width: 121px;
+        `
+      : ''}
 `
-export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
+export const SatelliteMainText = styled.div<{ theme: MavrykTheme; oracle?: boolean }>`
   color: ${({ theme }) => theme.valueColor};
   font-weight: 700;
   font-size: 14px;
@@ -99,8 +106,17 @@ export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  ${({ oracle, theme }) =>
+    oracle
+      ? css`
+          color: ${theme.headerSkyColor};
+          font-weight: 600;
+          line-height: 21px;
+        `
+      : ''}
 `
-export const SatelliteSubText = styled.div<{ theme: MavrykTheme }>`
+export const SatelliteSubText = styled.div<{ theme: MavrykTheme; oracle?: boolean }>`
   color: ${({ theme }) => theme.headerSkyColor};
   font-weight: 400;
   font-size: 14px;
@@ -110,6 +126,20 @@ export const SatelliteSubText = styled.div<{ theme: MavrykTheme }>`
   &.toClick {
     cursor: copy;
   }
+
+  p {
+    margin: 0;
+  }
+
+  ${({ oracle, theme }) =>
+    oracle
+      ? css`
+          color: ${theme.valueColor};
+          font-weight: 700;
+          font-size: 14px;
+          line-height: 14px;
+        `
+      : ''}
 `
 
 export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme }>`

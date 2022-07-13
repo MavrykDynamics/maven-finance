@@ -1,11 +1,25 @@
-import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
-import { ACTION_SECONDARY, ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+import * as React from 'react'
+import { useSelector } from 'react-redux'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+
+// types
+import { State } from 'reducers'
+import { OracleSatelliteListItemProps } from '../Oracles.types'
+
+// consts, helpers, actions
+import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+
+// view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
-import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+
+//styles
+import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 import {
   SatelliteCard,
   SatelliteCardInner,
@@ -20,149 +34,90 @@ import {
   SatelliteCardButtons,
   SatelliteCardRow,
 } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
-import * as React from 'react'
-/* @ts-ignore */
-import Time from 'react-pure-time'
-import { useSelector } from 'react-redux'
-import { State } from 'reducers'
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
-type SatelliteListCardViewProps = {
-  satellite: SatelliteRecord
-  loading: boolean
-  delegateCallback: (satelliteAddress: string) => void
-  undelegateCallback: () => void
-  userStakedBalance: number
-  satelliteUserIsDelegatedTo: string
-  isDetailsPage?: boolean
-  className?: string
-  children?: React.ReactNode
-}
 export const OracleSatelliteListItem = ({
-  satellite,
+  satelliteOracle,
   loading,
   delegateCallback,
-  undelegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
-  isDetailsPage = false,
-  children = null,
   className = '',
-}: SatelliteListCardViewProps) => {
-  const { governanceStorage } = useSelector((state: State) => state.governance)
-  const proposalLedger = governanceStorage.proposalLedger
-  const totalDelegatedMVK = satellite.totalDelegatedAmount
-  const sMvkBalance = satellite.sMvkBalance
-  console.log(totalDelegatedMVK, sMvkBalance)
-  const myDelegatedMVK = userStakedBalance
-  const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
-  const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
-
-  const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
-    ? satellite.proposalVotingHistory[0].proposalId
-    : null
-
-  const currentlySupportingProposal = proposalLedger?.length
-    ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
-    : null
-
-  const delegationButtons = userIsDelegatedToThisSatellite ? (
-    <>
-      {satellite.active ? (
-        <Button
-          text="Undelegate"
-          icon="man-close"
-          kind={ACTION_SECONDARY}
-          loading={loading}
-          onClick={() => undelegateCallback()}
-        />
-      ) : null}
-    </>
-  ) : (
-    <>
-      {satellite.active ? (
-        <Button
-          text="Delegate"
-          icon="man-check"
-          kind={ACTION_PRIMARY}
-          loading={loading}
-          onClick={() => delegateCallback(satellite.address)}
-        />
-      ) : (
-        <div>
-          <StatusFlag status={DOWN} text={'INACTIVE'} />
-        </div>
-      )}
-    </>
-  )
+}: OracleSatelliteListItemProps) => {
+  const totalDelegatedMVK = satelliteOracle.totalDelegatedAmount
+  const sMvkBalance = satelliteOracle.sMvkBalance
 
   return (
-    <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
+    <SatelliteCard className={className} key={String(`satellite${satelliteOracle.address}`)}>
       <SatelliteCardInner>
         <SatelliteCardTopRow>
           <SideBySideImageAndText>
             <SatelliteProfileImageContainer>
               <AvatarStyle>
-                <SatelliteProfileImage src={satellite.image} />
+                <SatelliteProfileImage src={satelliteOracle.image} />
               </AvatarStyle>
             </SatelliteProfileImageContainer>
+
             <SatelliteTextGroup>
-              <SatelliteMainText>{satellite.name}</SatelliteMainText>
-              <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
+              <SatelliteMainText>{satelliteOracle.name}</SatelliteMainText>
+              <TzAddress tzAddress={satelliteOracle.address} type={'secondary'} hasIcon={true} isBold={true} />
             </SatelliteTextGroup>
           </SideBySideImageAndText>
-          <SatelliteTextGroup>
-            <SatelliteMainText>
+
+          <SatelliteTextGroup oracle>
+            <SatelliteMainText oracle>Delegated MVK</SatelliteMainText>
+            <SatelliteSubText oracle>
               <CommaNumber value={sMvkBalance + totalDelegatedMVK} />
-            </SatelliteMainText>
-            <SatelliteSubText>Delegated MVK</SatelliteSubText>
+            </SatelliteSubText>
           </SatelliteTextGroup>
-          <SatelliteTextGroup>
-            <SatelliteMainText>
-              {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
-            </SatelliteMainText>
-            <SatelliteSubText>Oracle</SatelliteSubText>
+
+          <SatelliteTextGroup oracle>
+            <SatelliteMainText oracle>Free sMVK Space</SatelliteMainText>
+            <SatelliteSubText oracle>TODO: add this field</SatelliteSubText>
           </SatelliteTextGroup>
 
           <SatelliteProfileDetails>
-            {isDetailsPage ? (
-              <SatelliteTextGroup className="voted">
-                <SatelliteMainText>
-                  <Time value={lastVotedTimestamp} format="M d\t\h, Y" />
-                </SatelliteMainText>
-                <SatelliteSubText>Last Voted</SatelliteSubText>
-              </SatelliteTextGroup>
-            ) : (
-              <RoutingButton
-                icon="man"
-                text="Profile Details"
-                kind="transparent"
-                pathName={`/satellite-details/${satellite.address}`}
-              />
-            )}
+            <RoutingButton
+              icon="man"
+              text="Profile Details"
+              kind="transparent"
+              pathName={`/satellite-details/${satelliteOracle.address}`}
+            />
           </SatelliteProfileDetails>
-          <SatelliteTextGroup>
-            <SatelliteMainText>
-              <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
-            </SatelliteMainText>
-            <SatelliteSubText>Participation</SatelliteSubText>
+
+          <SatelliteTextGroup oracle>
+            <SatelliteMainText oracle>Participation</SatelliteMainText>
+            <SatelliteSubText oracle>
+              <CommaNumber value={Number(satelliteOracle.participation || 0)} endingText="%" />
+            </SatelliteSubText>
           </SatelliteTextGroup>
-          <SatelliteTextGroup>
-            <SatelliteMainText>
-              <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
-            </SatelliteMainText>
-            <SatelliteSubText>Signed feeds </SatelliteSubText>
+
+          <SatelliteTextGroup oracle>
+            <SatelliteMainText oracle>Oracle Status</SatelliteMainText>
+            <SatelliteSubText oracle>
+              <CommaNumber value={Number(satelliteOracle.satelliteFee / 100)} endingText="%" />
+            </SatelliteSubText>
           </SatelliteTextGroup>
         </SatelliteCardTopRow>
-        <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
+
+        <SatelliteCardButtons>
+          {satelliteOracle.active ? (
+            <Button
+              text="Delegate"
+              icon="man-check"
+              kind={ACTION_PRIMARY}
+              loading={loading}
+              onClick={() => delegateCallback(satelliteOracle.address)}
+            />
+          ) : (
+            <div>
+              <StatusFlag status={DOWN} text={'INACTIVE'} />
+            </div>
+          )}
+        </SatelliteCardButtons>
       </SatelliteCardInner>
-      {children ? (
-        children
-      ) : currentlySupportingProposal ? (
-        <SatelliteCardRow>
-          Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
-        </SatelliteCardRow>
-      ) : null}
+
+      {/* TODO: add last voted??? */}
+      {true ? <SatelliteCardRow>some news</SatelliteCardRow> : null}
     </SatelliteCard>
   )
 }

@@ -8,8 +8,18 @@ import { OraclesListProps } from '../Oracles.types'
 import { ITEMS_PER_PAGE, PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/FinancialRequests.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import { OracleSatelliteListItem } from './OraclesSateliteListItem.view'
 
-function FRList({ listTitle, items, noItemsText, onClickHandler, name, listType }: OraclesListProps) {
+function OracleList({
+  listTitle,
+  items,
+  noItemsText,
+  onClickHandler,
+  name,
+  listType,
+  additionaldata,
+  loading,
+}: OraclesListProps) {
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, name)
 
@@ -19,7 +29,7 @@ function FRList({ listTitle, items, noItemsText, onClickHandler, name, listType 
   )
 
   return (
-    <FRListWrapper>
+    <FRListWrapper className="oracle">
       <GovRightContainerTitleArea>
         <h1>{listTitle}</h1>
       </GovRightContainerTitleArea>
@@ -27,11 +37,19 @@ function FRList({ listTitle, items, noItemsText, onClickHandler, name, listType 
         itemsToShow.map((item) => {
           switch (listType) {
             case 'satellites':
-              return //<OracleSatelliteListItem />
+              return (
+                <OracleSatelliteListItem
+                  satelliteOracle={item}
+                  loading={loading}
+                  delegateCallback={onClickHandler}
+                  userStakedBalance={additionaldata?.userStakedBalance || 0}
+                  satelliteUserIsDelegatedTo={additionaldata?.satelliteUserIsDelegatedTo || ''}
+                />
+              )
             case 'feeds':
-              return
+              return // feeds listItem component
             case 'oracles':
-              return
+              return // oracle listitem component
           }
         })
       ) : (
@@ -46,4 +64,4 @@ function FRList({ listTitle, items, noItemsText, onClickHandler, name, listType 
   )
 }
 
-export default FRList
+export default OracleList

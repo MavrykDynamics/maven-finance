@@ -7,7 +7,7 @@ export const GET_ORACLES_SATELLITES = 'GET_ORACLES_SATELLITES'
 export const getOracleSatellites = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  const oracleSatellitesFull = state.oracles.oraclesStorage.oraclesSatellites
+  const oracleSatellitesFull = state.oracles.oraclesStorage.oraclesSatellitesIds
     .map(({ oracle_id }) => {
       const satelliteData = state.delegation.delegationStorage.satelliteLedger.find(
         (satellite) => satellite.address === oracle_id,
