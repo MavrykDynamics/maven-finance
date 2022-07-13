@@ -15,6 +15,9 @@ export const EmergencyGovProposalModalContent = styled.div`
     padding-bottom: 9px;
     display: block;
     padding-left: 5px;
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 14px;
   }
 
   .upload-wrap {
