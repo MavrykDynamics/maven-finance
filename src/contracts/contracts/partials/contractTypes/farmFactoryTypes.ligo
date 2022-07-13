@@ -36,17 +36,18 @@ type farmFactoryConfigType is [@layout:comb] record [
 
 type farmFactoryUpdateConfigNewValueType is nat
 type farmFactoryUpdateConfigActionType is 
-  ConfigFarmNameMaxLength of unit
-| Empty                   of unit
+        ConfigFarmNameMaxLength of unit
+    |   Empty                   of unit
+
 type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: farmFactoryUpdateConfigNewValueType; 
-  updateConfigAction: farmFactoryUpdateConfigActionType;
+    updateConfigNewValue: farmFactoryUpdateConfigNewValueType; 
+    updateConfigAction: farmFactoryUpdateConfigActionType;
 ]
 
 type farmFactoryPausableEntrypointType is
-  CreateFarm         of bool
-| UntrackFarm        of bool
-| TrackFarm          of bool
+        CreateFarm         of bool
+    |   UntrackFarm        of bool
+    |   TrackFarm          of bool
 
 type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : farmFactoryPausableEntrypointType;
@@ -55,25 +56,25 @@ type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
 
 type farmFactoryLambdaActionType is 
 
-    // Housekeeping Entrypoints
-    LambdaSetAdmin                    of (address)
-|   LambdaSetGovernance               of (address)
-|   LambdaUpdateMetadata              of updateMetadataType
-|   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
-|   LambdaUpdateGeneralContracts      of updateGeneralContractsType
-|   LambdaMistakenTransfer            of transferActionType
-|   LambdaUpdateBlocksPerMinute       of (nat)
+        // Housekeeping Entrypoints
+        LambdaSetAdmin                    of (address)
+    |   LambdaSetGovernance               of (address)
+    |   LambdaUpdateMetadata              of updateMetadataType
+    |   LambdaUpdateConfig                of farmFactoryUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts      of updateGeneralContractsType
+    |   LambdaMistakenTransfer            of transferActionType
+    |   LambdaUpdateBlocksPerMinute       of (nat)
 
-    // Pause / Break Glass Entrypoints
-|   LambdaPauseAll                    of (unit)
-|   LambdaUnpauseAll                  of (unit)
-|   LambdaTogglePauseEntrypoint       of farmFactoryTogglePauseEntrypointType
+        // Pause / Break Glass Entrypoints
+    |   LambdaPauseAll                    of (unit)
+    |   LambdaUnpauseAll                  of (unit)
+    |   LambdaTogglePauseEntrypoint       of farmFactoryTogglePauseEntrypointType
 
-    // Farm Factory Entrypoints
-|   LambdaCreateFarm                  of createFarmType
-|   LambdaTrackFarm                   of (address)
-|   LambdaUntrackFarm                 of (address)
+        // Farm Factory Entrypoints
+    |   LambdaCreateFarm                  of createFarmType
+    |   LambdaTrackFarm                   of (address)
+    |   LambdaUntrackFarm                 of (address)
 
 
 // ------------------------------------------------------------------------------

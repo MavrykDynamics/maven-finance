@@ -46,22 +46,22 @@ type updateVesteeType is [@layout:comb] record [
 
 type vestingLambdaActionType is 
 
-  // Housekeeping Entrypoints
-| LambdaSetAdmin                      of (address)
-| LambdaSetGovernance                 of (address)
-| LambdaUpdateMetadata                of updateMetadataType
-| LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts        of updateGeneralContractsType
-| LambdaMistakenTransfer              of transferActionType
+        // Housekeeping Entrypoints
+    |   LambdaSetAdmin                      of (address)
+    |   LambdaSetGovernance                 of (address)
+    |   LambdaUpdateMetadata                of updateMetadataType
+    |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
 
-  // Internal Vestee Control Entrypoints
-| LambdaAddVestee                     of (addVesteeType)
-| LambdaRemoveVestee                  of (address)
-| LambdaUpdateVestee                  of (updateVesteeType)
-| LambdaToggleVesteeLock              of (address)
+        // Internal Vestee Control Entrypoints
+    |   LambdaAddVestee                     of (addVesteeType)
+    |   LambdaRemoveVestee                  of (address)
+    |   LambdaUpdateVestee                  of (updateVesteeType)
+    |   LambdaToggleVesteeLock              of (address)
 
-  // Vestee Entrypoints
-| LambdaClaim                         of (unit)
+        // Vestee Entrypoints
+    |   LambdaClaim                         of (unit)
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -934,40 +934,40 @@ block{
 
 (* main entrypoint *)
 function main (const action: farmAction; var s: farmStorageType) : return is
-    block{
-    
+block{
+
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-    } with (
+} with (
 
     case action of [
 
-                // Housekeeping Entrypoints
-                SetAdmin (parameters)                    -> setAdmin(parameters, s)
-            |   SetGovernance (parameters)               -> setGovernance(parameters, s)
-            |   SetName (parameters)                     -> setName(parameters, s)
-            |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
-            |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)
-            |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
+            // Housekeeping Entrypoints
+            SetAdmin (parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)               -> setGovernance(parameters, s)
+        |   SetName (parameters)                     -> setName(parameters, s)
+        |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
-                // Farm Admin Entrypoints
-            |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)
-            |   InitFarm (parameters)                    -> initFarm(parameters, s)
-            |   CloseFarm (_parameters)                  -> closeFarm(s)
+            // Farm Admin Entrypoints
+        |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)
+        |   InitFarm (parameters)                    -> initFarm(parameters, s)
+        |   CloseFarm (_parameters)                  -> closeFarm(s)
 
-                // Pause / Break Glass Entrypoints
-            |   PauseAll (_parameters)                   -> pauseAll(s)
-            |   UnpauseAll (_parameters)                 -> unpauseAll(s)
-            |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                   -> pauseAll(s)
+        |   UnpauseAll (_parameters)                 -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
-                // Farm Entrypoints
-            |   Deposit (parameters)                     -> deposit(parameters, s)
-            |   Withdraw (parameters)                    -> withdraw(parameters, s)
-            |   Claim (parameters)                       -> claim(parameters, s)
+            // Farm Entrypoints
+        |   Deposit (parameters)                     -> deposit(parameters, s)
+        |   Withdraw (parameters)                    -> withdraw(parameters, s)
+        |   Claim (parameters)                       -> claim(parameters, s)
 
-                // Lambda Entrypoints
-            |   SetLambda(parameters)                    -> setLambda(parameters, s)
-        ]
-    )
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                    -> setLambda(parameters, s)
+    ]
+)
