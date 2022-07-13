@@ -79,8 +79,8 @@ export const AvailableActionsStyle = styled.div`
 
   .inputs-block {
     padding-top: 40px;
-    padding-left: 30px;
-    padding-right: 43px;
+    padding-left: 19px;
+    padding-right: 19px;
     padding-bottom: 23px;
     position: relative;
 
@@ -104,6 +104,7 @@ export const AvailableActionsStyle = styled.div`
     h1 {
       margin-top: 0;
       margin-bottom: 0;
+      margin-left: 10px;
     }
 
     p {
@@ -113,6 +114,7 @@ export const AvailableActionsStyle = styled.div`
       color: ${skyColor};
       margin-top: 1px;
       margin-bottom: 17px;
+      margin-left: 10px;
     }
 
     label {
@@ -121,7 +123,7 @@ export const AvailableActionsStyle = styled.div`
       line-height: 21px;
       color: ${headerColor};
       padding-left: 8px;
-      padding-left: 8px;
+      padding-left: 10px;
       margin-bottom: 5px;
       display: block;
     }
