@@ -143,8 +143,8 @@ block {
 
                         const transferTokenOperation : operation = case transferParam.token of [
                             |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
 
                     } with (transferTokenOperation # operationList);
@@ -356,7 +356,7 @@ block{
                 
                 // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
                 const farmWhitelistContract : whitelistContractsType = map[
-                    ("farmFactory")  -> (Tezos.self_address : address);
+                    ("farmFactory")  -> (Tezos.get_self_address() : address);
                     ("council")      -> (councilAddress : address)
                 ];
                 
@@ -429,13 +429,13 @@ block{
 
                     breakGlassConfig        = farmBreakGlassConfig;
 
-                    lastBlockUpdate         = Tezos.level;
+                    lastBlockUpdate         = Tezos.get_level();
                     accumulatedRewardsPerShare  = 0n;
                     claimedRewards          = farmClaimedRewards;
                     depositors              = big_map[];
                     open                    = True ;
                     init                    = True;
-                    initBlock               = Tezos.level;
+                    initBlock               = Tezos.get_level();
 
                     lambdaLedger            = farmLambdaLedger;
                 ];

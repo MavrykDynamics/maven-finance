@@ -302,7 +302,7 @@ block {
     // 4. Create and excecute transfer operations 
 
     // check if sender is whitelisted
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
     else skip;
 
     checkTransferIsNotPaused(s); // check that %transfer entrypoint is not paused (e.g. if glass broken)
@@ -322,7 +322,7 @@ block {
                     const token        : tokenType        = destination.token;
                     const to_          : ownerType        = destination.to_;
                     const amt          : tokenAmountType  = destination.amount;
-                    const from_        : address          = Tezos.self_address; // treasury
+                    const from_        : address          = Tezos.get_self_address(); // treasury
                     
                     // Create transfer token operation
                     // - check that token to be transferred are in the Whitelisted Token Contracts map
@@ -357,7 +357,7 @@ block {
     // 3. Create and execute mint operation to MVK Token Contract
 
     // check if sender is whitelisted
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
     else skip;
 
     checkMintMvkAndTransferIsNotPaused(s); // check that %mintMvkAndTransfer entrypoint is not paused (e.g. if glass broken)

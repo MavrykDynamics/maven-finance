@@ -142,8 +142,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -173,7 +173,7 @@ block {
                 else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
 
                 // Get Doorman MVK balance
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
                 const doormanBalance: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -182,7 +182,7 @@ block {
                 // Create a transfer to transfer all funds
                 const transferParameters: fa2TransferType = list[
                   record[
-                    from_=Tezos.self_address;
+                    from_=Tezos.get_self_address();
                     txs=list[
                       record[
                         to_=destinationAddress;
@@ -334,7 +334,7 @@ block {
         | LambdaStake(stakeAmount) -> {
 
               // Get params
-              const userAddress: address  = Tezos.sender;
+              const userAddress: address  = Tezos.get_sender();
                 
               // Compound user rewards
               s := compoundUserRewards(userAddress, s);
@@ -360,7 +360,7 @@ block {
                   from_=userAddress;
                   txs=list[
                     record[
-                      to_=Tezos.self_address;
+                      to_=Tezos.get_self_address();
                       token_id=0n;
                       amount=stakeAmount;
                     ]
@@ -437,7 +437,7 @@ block {
         | LambdaUnstake(unstakeAmount) -> {
 
                 // Get params
-                const userAddress   : address   = Tezos.sender;
+                const userAddress   : address   = Tezos.get_sender();
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
                 if unstakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
@@ -453,7 +453,7 @@ block {
                 ];
 
                 // Get SMVK Total Supply
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
                 const stakedMvkTotalSupply: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -508,7 +508,7 @@ block {
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
                 const transferParameters: fa2TransferType = list[
                   record[
-                    from_=Tezos.self_address;
+                    from_=Tezos.get_self_address();
                     txs=list[
                       record[
                         to_=userAddress;
@@ -573,7 +573,7 @@ block {
         | LambdaUnstake(unstakeAmount) -> {
                 
                 // Get params
-                const userAddress   : address   = Tezos.sender;
+                const userAddress   : address   = Tezos.get_sender();
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
                 if unstakeAmount < s.config.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
@@ -589,7 +589,7 @@ block {
                 ];
 
                 // Get SMVK Total Supply
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.self_address, 0n), s.mvkTokenAddress);
+                const balanceView : option (nat) = Tezos.call_view ("get_balance", (Tezos.get_self_address(), 0n), s.mvkTokenAddress);
                 const stakedMvkTotalSupply: nat = case balanceView of [
                   Some (value) -> value
                 | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
@@ -644,7 +644,7 @@ block {
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
                 const transferParameters: fa2TransferType = list[
                   record[
-                    from_=Tezos.self_address;
+                    from_=Tezos.get_self_address();
                     txs=list[
                       record[
                         to_=userAddress;
@@ -749,7 +749,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 const forceTransfer  : bool      = farmClaim.2;
 
                 // Get farm address
-                const farmAddress: address = Tezos.sender;
+                const farmAddress: address = Tezos.get_sender();
 
                 // Check if farm address is known to the farmFactory
                 const generalContractsOptViewFarmFactory : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
@@ -845,7 +845,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Mint Tokens
                 if claimAmount > 0n then {
                   const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-                    to_  = Tezos.self_address;
+                    to_  = Tezos.get_self_address();
                     amt  = claimAmount;
                   ];
 
@@ -862,7 +862,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                   // Check if provided treasury exists
                   const transferParam: transferActionType = list[
                     record[
-                      to_   = Tezos.self_address;
+                      to_   = Tezos.get_self_address();
                       token = (Fa2 (record[
                         tokenContractAddress  = mvkTokenAddress;
                         tokenId               = 0n;

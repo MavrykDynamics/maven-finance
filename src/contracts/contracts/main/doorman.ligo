@@ -96,14 +96,14 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : doormanStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(var s : doormanStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
@@ -114,7 +114,7 @@ block{
 
   const mvkTokenAddress : address = s.mvkTokenAddress;
   
-  if (Tezos.sender = mvkTokenAddress) then skip
+  if (Tezos.get_sender() = mvkTokenAddress) then skip
   else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
 
 } with unit
@@ -134,7 +134,7 @@ block{
         |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
-    if (Tezos.sender = delegationAddress) then skip
+    if (Tezos.get_sender() = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
 
 } with unit
@@ -145,7 +145,7 @@ block{
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : doormanStorageType) : unit is
 block{
         
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else {
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
         const governanceSatelliteAddress: address = case generalContractsOptView of [
@@ -156,7 +156,7 @@ block{
             |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
-        if Tezos.sender = governanceSatelliteAddress then skip
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
 
@@ -166,7 +166,7 @@ block{
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------

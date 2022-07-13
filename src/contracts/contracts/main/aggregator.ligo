@@ -112,14 +112,14 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : aggregatorStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(const s: aggregatorStorageType) : unit is
-    if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
@@ -128,14 +128,14 @@ function checkSenderIsAdmin(const s: aggregatorStorageType) : unit is
 function checkSenderIsAdminOrGovernanceSatellite(const s: aggregatorStorageType) : unit is
 block {
 
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else{
         const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
                 Some (_address) -> _address
             |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
         ];
 
-        if Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
+        if Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
     };
 
 } with(unit)
@@ -146,7 +146,7 @@ block {
 function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType) : unit is
 block {
 
-    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress then skip
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
                 Some (_address) -> _address
@@ -158,7 +158,7 @@ block {
             |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
         ];
 
-        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.get_sender() = aggregatorFactoryAddress or Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -169,7 +169,7 @@ block {
 function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType) : unit is
 block {
 
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
                 Some (_address) -> _address
@@ -181,7 +181,7 @@ block {
             |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
         ];
 
-        if Tezos.sender = aggregatorFactoryAddress or Tezos.sender = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.get_sender() = aggregatorFactoryAddress or Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -190,21 +190,21 @@ block {
 
 // Allowed Senders: Maintainer address
 function checkMaintainership(const s: aggregatorStorageType) : unit is
-    if Tezos.sender =/= s.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
+    if Tezos.get_sender() =/= s.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
     else unit
 
 
 
 // Allowed Senders: Oracle address
 function checkSenderIsOracle(const s: aggregatorStorageType) : unit is
-    if not Map.mem(Tezos.sender, s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
+    if not Map.mem(Tezos.get_sender(), s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
     else unit
 
 
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
@@ -215,13 +215,13 @@ function checkNoAmount(const _p : unit) : unit is
 function getDeviationTriggerBanOracle(const addressKey: address; const deviationTriggerBan: deviationTriggerBanType) : timestamp is
     case Map.find_opt(addressKey, deviationTriggerBan) of [
             Some (v) -> (v)
-        |   None -> (Tezos.now)
+        |   None -> (Tezos.get_now())
     ]
 
 
 // helper function to check that oracle is not banned from triggering a deviation round
 function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorageType) : unit is 
-    if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
+    if Tezos.get_now() < (getDeviationTriggerBanOracle(Tezos.get_sender(),s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
     else unit
 
 // ------------------------------------------------------------------------------
@@ -368,28 +368,28 @@ function checkIfLastRoundCompleted(const s: aggregatorStorageType) : unit is
 
 // helper function to check if oracle is able to set an observation commit now
 function checkIfTimeToCommit(const s: aggregatorStorageType) : unit is
-    if (s.switchBlock =/= 0n and Tezos.level > s.switchBlock) then failwith(error_YOU_CANNOT_COMMIT_NOW)
+    if (s.switchBlock =/= 0n and Tezos.get_level() > s.switchBlock) then failwith(error_YOU_CANNOT_COMMIT_NOW)
     else unit
 
 
 
 // helper function to check if oracle is able to set an observation reveal now
 function checkIfTimeToReveal(const s: aggregatorStorageType) : unit is
-    if (s.switchBlock = 0n or Tezos.level <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
+    if (s.switchBlock = 0n or Tezos.get_level() <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
     else unit
 
 
 
 // helper function to check if oracle has already set an observation commit
 function checkIfOracleAlreadyAnsweredCommit(const s: aggregatorStorageType) : unit is
-    if (Map.mem(Tezos.sender, s.observationCommits)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT)
+    if (Map.mem(Tezos.get_sender(), s.observationCommits)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT)
     else unit
 
 
 
 // helper function to check if oracle has already set an observation reveal
 function checkIfOracleAlreadyAnsweredReveal(const s: aggregatorStorageType) : unit is
-    if (Map.mem(Tezos.sender, s.observationReveals)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL)
+    if (Map.mem(Tezos.get_sender(), s.observationReveals)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL)
     else unit
 
 
