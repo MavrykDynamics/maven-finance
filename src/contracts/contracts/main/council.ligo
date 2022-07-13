@@ -134,7 +134,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 // helper function to update blocksPerMinute on a specified contract
 function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : contract(nat) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%updateBlocksPerMinute",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
@@ -145,7 +145,7 @@ function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : cont
 
 // helper function to %addVestee entrypoint to add a new vestee on the Vesting contract
 function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%addVestee",
         contractAddress) : option(contract(addVesteeType))) of [
                 Some(contr) -> contr
@@ -156,7 +156,7 @@ function sendAddVesteeParams(const contractAddress : address) : contract(addVest
 
 // helper function to %removeVestee entrypoint to remove a vestee on the Vesting contract
 function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%removeVestee",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -167,7 +167,7 @@ function sendRemoveVesteeParams(const contractAddress : address) : contract(addr
 
 // helper function to %updateVestee entrypoint to update a vestee on the Vesting contract
 function sendUpdateVesteeParams(const contractAddress : address) : contract(updateVesteeType) is
-case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%updateVestee",
         contractAddress) : option(contract(updateVesteeType))) of [
                 Some(contr) -> contr
@@ -178,7 +178,7 @@ case (Tezos.get_entrypoint_opt(
 
 // helper function to %toggleVesteeLock entrypoint to lock or unlock a vestee on the Vesting contract
 function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
-case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%toggleVesteeLock",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -189,7 +189,7 @@ case (Tezos.get_entrypoint_opt(
 
 // helper function to %requestTokens entrypoint on the Governance Financial contract
 function sendRequestTokensParams(const contractAddress : address) : contract(councilActionRequestTokensType) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%requestTokens",
         contractAddress) : option(contract(councilActionRequestTokensType))) of [
                 Some(contr) -> contr
@@ -200,7 +200,7 @@ function sendRequestTokensParams(const contractAddress : address) : contract(cou
 
 // helper function to %requestMint entrypoint on the Governance Financial contract
 function sendRequestMintParams(const contractAddress : address) : contract(councilActionRequestMintType) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%requestMint",
         contractAddress) : option(contract(councilActionRequestMintType))) of [
                 Some(contr) -> contr
@@ -211,7 +211,7 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
 
 // helper function to %dropFinancialRequest entrypoint on the Governance Financial contract
 function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%dropFinancialRequest",
         contractAddress) : option(contract(nat))) of [
                 Some(contr) -> contr
@@ -222,7 +222,7 @@ function sendDropFinancialRequestParams(const contractAddress : address) : contr
 
 // helper function to %setContractBaker entrypoint on the Governance Financial contract
 function sendSetContractBakerParams(const contractAddress : address) : contract(councilActionSetContractBakerType) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%setContractBaker",
         contractAddress) : option(contract(councilActionSetContractBakerType))) of [
                 Some(contr) -> contr

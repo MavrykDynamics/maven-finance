@@ -10,11 +10,16 @@
 
 function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
 block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map generalContracts block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
+    
+    var inContractAddressMap : bool := False;
+    
+    for _key -> value in map generalContracts block {
+        
+        if contractAddress = value then inContractAddressMap := True
+        else skip;
+
+    }  
+
 } with inContractAddressMap
 
 (* UpdateGeneralContracts Entrypoint *)
@@ -24,17 +29,17 @@ function updateGeneralContractsMap(const updateGeneralContractsParams : updateGe
     const contractName     : string  = updateGeneralContractsParams.generalContractName;
     const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
 
-    const existingAddress: option(address) = case Map.find_opt(contractName, generalContracts) of [
-      Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
-    |  None -> (Some (contractAddress): option(address))
+    const existingAddress : option(address) = case Map.find_opt(contractName, generalContracts) of [
+            Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
+        |   None            -> (Some (contractAddress): option(address))
     ];
     
-    const updatedGeneralContracts: generalContractsType = 
-      Map.update(
-        contractName, 
-        existingAddress,
-        generalContracts
-      );
+    const updatedGeneralContracts : generalContractsType = 
+        Map.update(
+            contractName, 
+            existingAddress,
+            generalContracts
+        );
 
   } with (updatedGeneralContracts)
 

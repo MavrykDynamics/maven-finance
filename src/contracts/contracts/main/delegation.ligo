@@ -125,12 +125,12 @@ block{
 
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
     const doormanAddress: address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
 
     if (Tezos.sender = doormanAddress) then skip
     else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -142,11 +142,11 @@ block{
 // Allowed Senders: Governance Contract 
 function checkSenderIsGovernanceContract(var s : delegationStorageType) : unit is
 block{
-  
-  const governanceAddress : address = s.governanceAddress;
-  
-  if (Tezos.sender = governanceAddress) then skip
-  else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
+    
+    const governanceAddress : address = s.governanceAddress;
+    
+    if (Tezos.sender = governanceAddress) then skip
+    else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 
 } with unit
 
@@ -232,8 +232,8 @@ block{
 
             // Get user's satellite rewards record
             var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-                        Some (_record) -> _record
-                    |   None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
+                    Some (_record) -> _record
+                |   None           -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
             ];
 
             // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
@@ -295,8 +295,8 @@ function checkDelegateToSatelliteIsNotPaused(var s : delegationStorageType) : un
 
 // helper function to check that the %undelegateFromSatellite entrypoint is not paused
 function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorageType) : unit is
-  if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
-  else unit;
+    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
+    else unit;
 
 
 
@@ -994,41 +994,41 @@ block{
 
 (* main entrypoint *)
 function main (const action : delegationAction; const s : delegationStorageType) : return is 
-    block{
+block{
 
-        checkNoAmount(unit); // entrypoints should not receive any tez amount  
+    checkNoAmount(unit); // entrypoints should not receive any tez amount  
 
-    } with (case action of [    
+} with (case action of [    
 
-                // Housekeeping Entrypoints
-                SetAdmin(parameters)                          -> setAdmin(parameters, s) 
-            |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
-            |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
-            |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
-            |   MistakenTransfer(parameters)                  -> mistakenTransfer(parameters, s)
+            // Housekeeping Entrypoints
+            SetAdmin(parameters)                          -> setAdmin(parameters, s) 
+        |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
+        |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
+        |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer(parameters)                  -> mistakenTransfer(parameters, s)
 
-                // Pause / Break Glass Entrypoints
-            |   PauseAll(_parameters)                         -> pauseAll(s)
-            |   UnpauseAll(_parameters)                       -> unpauseAll(s)
-            |   TogglePauseEntrypoint(parameters)            -> togglePauseEntrypoint(parameters, s)
-            
-                // Delegation Entrypoints
-            |   DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
-            |   UndelegateFromSatellite(parameters)           -> undelegateFromSatellite(parameters, s)
-            
-                // Satellite Entrypoints
-            |   RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
-            |   UnregisterAsSatellite(parameters)             -> unregisterAsSatellite(parameters, s)
-            |   UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
-            |   DistributeReward(parameters)                  -> distributeReward(parameters, s)
+            // Pause / Break Glass Entrypoints
+        |   PauseAll(_parameters)                         -> pauseAll(s)
+        |   UnpauseAll(_parameters)                       -> unpauseAll(s)
+        |   TogglePauseEntrypoint(parameters)            -> togglePauseEntrypoint(parameters, s)
+        
+            // Delegation Entrypoints
+        |   DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
+        |   UndelegateFromSatellite(parameters)           -> undelegateFromSatellite(parameters, s)
+        
+            // Satellite Entrypoints
+        |   RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
+        |   UnregisterAsSatellite(parameters)             -> unregisterAsSatellite(parameters, s)
+        |   UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
+        |   DistributeReward(parameters)                  -> distributeReward(parameters, s)
 
-                // General Entrypoints
-            |   OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
-            |   UpdateSatelliteStatus(parameters)             -> updateSatelliteStatus(parameters, s)
+            // General Entrypoints
+        |   OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
+        |   UpdateSatelliteStatus(parameters)             -> updateSatelliteStatus(parameters, s)
 
-                // Lambda Entrypoints
-            |   SetLambda(parameters)                         -> setLambda(parameters, s)    
-        ]
-    )
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                         -> setLambda(parameters, s)    
+    ]
+)

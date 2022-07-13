@@ -4,8 +4,8 @@
 
 type lambdaLedgerType is map(string, bytes)
 type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
+    name                  : string;
+    func_bytes            : bytes;
 ]
 
 // ------------------------------------------------------------------------------
@@ -24,8 +24,8 @@ type updateMetadataType is [@layout:comb] record [
 
 type generalContractsType is map (string, address)
 type updateGeneralContractsType is [@layout:comb] record [
-  generalContractName     : string;
-  generalContractAddress  : address;
+    generalContractName     : string;
+    generalContractAddress  : address;
 ]
 
 // ------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ type updateGeneralContractsType is [@layout:comb] record [
 
 type whitelistContractsType is map (string, address)
 type updateWhitelistContractsType is [@layout:comb] record [
-  whitelistContractName     : string;
-  whitelistContractAddress  : address;
+    whitelistContractName     : string;
+    whitelistContractAddress  : address;
 ]
 
 // ------------------------------------------------------------------------------
@@ -44,6 +44,6 @@ type updateWhitelistContractsType is [@layout:comb] record [
 
 type whitelistTokenContractsType is map (string, address)
 type updateWhitelistTokenContractsType is [@layout:comb] record [
-  tokenContractName     : string;
-  tokenContractAddress  : address;
+    tokenContractName     : string;
+    tokenContractAddress  : address;
 ]

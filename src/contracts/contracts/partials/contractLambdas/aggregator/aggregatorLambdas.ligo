@@ -83,14 +83,14 @@ block {
                 // Get aggregator factory address
                 const aggregatorFactoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
                         Some(_address) -> _address
-                    |   None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                    |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                 ];
             
                 // Get aggregator name max length from factory contract
                 const aggregatorFactoryConfigView : option (aggregatorFactoryConfigType) = Tezos.call_view ("getConfig", unit, aggregatorFactoryAddress);
                 const aggregatorNameMaxLength : nat = case aggregatorFactoryConfigView of [
                         Some (_config) -> _config.aggregatorNameMaxLength
-                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                    |   None           -> failwith (error_GET_CONFIG_VIEW_IN_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                 ];
 
                 // Set new name on aggregator contract if nameMaxLength is not exceeded
@@ -653,7 +653,7 @@ block{
 
                     var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.sender] of [
                             Some (_amount) -> (_amount) 
-                        |   None -> 0n 
+                        |   None           -> 0n 
                     ];
                     s.oracleRewardStakedMvk[Tezos.sender]   := currentOracleStakedMvkRewards + deviationRewardStakedMvk;
                     
@@ -664,7 +664,7 @@ block{
 
                     var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
                             Some (_amount) -> (_amount) 
-                        |   None -> 0n 
+                        |   None           -> 0n 
                     ];
                     s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + deviationRewardXtz;
 
@@ -814,7 +814,7 @@ block{
                 const rewardAmountXtz        : nat  = s.config.rewardAmountXtz;
                 var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.sender] of [
                         Some (_amount) -> (_amount) 
-                    |   None -> 0n 
+                    |   None           -> 0n 
                 ];
                 s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + rewardAmountXtz;
 
@@ -900,7 +900,7 @@ block{
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
                             Some(_address) -> _address
-                        |   None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
                     const distributeRewardXtzParams : distributeRewardXtzType = record [
@@ -969,7 +969,7 @@ block{
 
                     const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
                             Some(_address) -> _address
-                        |   None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                        |   None           -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
                     ];
                     
                     const distributeRewardMvkParams : distributeRewardStakedMvkType = record [
