@@ -12,6 +12,10 @@ import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../util
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+
+// hooks
+import useGovernence from '../../Governance/UseGovernance'
+
 // styles
 import {
   FormButtonContainer,
@@ -41,8 +45,9 @@ export const StageOneFormView = ({
   handleOnBlur,
   handleSubmitProposal,
 }: StageOneFormViewProps) => {
+  const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
-  const isProposalRound = governancePhase === 'PROPOSAL'
+  const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   return (
     <>
       <FormHeaderGroup>
