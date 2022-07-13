@@ -100,21 +100,21 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : delegationStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(var s : delegationStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 // Allowed Senders: Self
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.self_address) then unit
+    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
 
 
@@ -132,7 +132,7 @@ block{
             |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
-    if (Tezos.sender = doormanAddress) then skip
+    if (Tezos.get_sender() = doormanAddress) then skip
     else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
 } with unit
@@ -145,7 +145,7 @@ block{
   
   const governanceAddress : address = s.governanceAddress;
   
-  if (Tezos.sender = governanceAddress) then skip
+  if (Tezos.get_sender() = governanceAddress) then skip
   else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 
 } with unit
@@ -156,7 +156,7 @@ block{
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : delegationStorageType) : unit is
 block{
         
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
@@ -168,7 +168,7 @@ block{
             |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
-        if Tezos.sender = governanceSatelliteAddress then skip
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
 
@@ -199,7 +199,7 @@ function checkUserIsNotDelegate(const userAddress : address; var s : delegationS
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
@@ -423,7 +423,7 @@ block {
         image                 = "";
         website               = "";
 
-        registeredDateTime    = Tezos.now;
+        registeredDateTime    = Tezos.get_now();
     ];
 
     case s.satelliteLedger[satelliteAddress] of [

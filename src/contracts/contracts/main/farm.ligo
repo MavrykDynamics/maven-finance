@@ -97,14 +97,14 @@ const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(const s : farmStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(const s : farmStorageType) : unit is
-    if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
@@ -118,7 +118,7 @@ block {
         |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
     ];
 
-    if Tezos.sender = councilAddress then skip
+    if Tezos.get_sender() = councilAddress then skip
     else {
 
         const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
@@ -126,7 +126,7 @@ block {
             |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND) : address)
         ];
 
-        if Tezos.sender = farmFactoryAddress then skip
+        if Tezos.get_sender() = farmFactoryAddress then skip
         else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
 
     }
@@ -139,7 +139,7 @@ block {
 function checkSenderIsGovernanceOrFactory(const s : farmStorageType) : unit is
 block {
 
-    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress then skip
     else{
 
         const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
@@ -147,7 +147,7 @@ block {
             |   None -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED) : address)
         ];
 
-        if Tezos.sender = farmFactoryAddress then skip 
+        if Tezos.get_sender() = farmFactoryAddress then skip 
         else failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED);
 
     };
@@ -159,7 +159,7 @@ block {
 // Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorageType) : unit is
 block{
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
@@ -171,7 +171,7 @@ block{
             |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
-        if Tezos.sender = governanceSatelliteAddress then skip
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
 
     }
@@ -201,7 +201,7 @@ function getDepositorDeposit(const depositor : depositorType; const s : farmStor
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
     else unit
 
 // ------------------------------------------------------------------------------
@@ -301,10 +301,10 @@ block{
 
     // Close farm if totalBlocks duration has been exceeded
     // Farm remains open if totalBlocks duration has not been exceeded, or if it's an infinite farm
-    s.open := Tezos.level <= lastBlock or s.config.infinite;
+    s.open := Tezos.get_level() <= lastBlock or s.config.infinite;
 
     // Update lastBlockUpdate in farmStorageType
-    s.lastBlockUpdate := Tezos.level;
+    s.lastBlockUpdate := Tezos.get_level();
 
 } with (s)
 
@@ -315,7 +315,7 @@ function updateFarmParameters(var s: farmStorageType) : farmStorageType is
 block{
 
     // Compute the potential reward of this block
-    const multiplier : nat = abs(Tezos.level - s.lastBlockUpdate);
+    const multiplier : nat = abs(Tezos.get_level() - s.lastBlockUpdate);
     const suspectedReward : tokenBalanceType = multiplier * s.config.plannedRewards.currentRewardPerBlock;
 
     // This check is necessary in case the farm unpaid reward was not updated for a long time
@@ -346,7 +346,7 @@ function updateFarm(var s : farmStorageType) : farmStorageType is
 block{
     s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
-        |   False -> case s.lastBlockUpdate = Tezos.level or not s.open of [
+        |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
                     True -> s
                 |   False -> updateFarmParameters(s)
             ]

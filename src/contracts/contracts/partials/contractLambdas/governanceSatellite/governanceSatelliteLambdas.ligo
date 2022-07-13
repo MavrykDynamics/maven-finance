@@ -166,7 +166,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -215,7 +215,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -235,8 +235,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -308,7 +308,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -356,7 +356,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -376,8 +376,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -449,7 +449,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -497,7 +497,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -517,8 +517,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -590,7 +590,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -638,7 +638,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -658,8 +658,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -739,7 +739,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -787,7 +787,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -807,8 +807,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -881,7 +881,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -920,7 +920,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -940,8 +940,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -1014,7 +1014,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -1053,7 +1053,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -1073,8 +1073,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -1156,7 +1156,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -1195,7 +1195,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -1215,8 +1215,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -1264,7 +1264,7 @@ block {
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
 
     // check sender is admin or is whitelisted
-    if Tezos.sender = s.admin or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
+    if Tezos.get_sender() = s.admin or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
     
     case governanceSatelliteLambdaAction of [
         | LambdaRegisterAggregator(registerAggregatorParams) -> {
@@ -1284,7 +1284,7 @@ block {
                 const aggregatorRecord : aggregatorRecordType = record [
                     aggregatorPair    = aggregatorPair;
                     status            = "ACTIVE";
-                    createdTimestamp  = Tezos.now;
+                    createdTimestamp  = Tezos.get_now();
                     oracles           = emptyOracleSet;
                 ];
 
@@ -1331,7 +1331,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -1371,7 +1371,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -1391,8 +1391,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
@@ -1464,7 +1464,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -1478,13 +1478,13 @@ block {
                     | None           -> failwith(error_GOVERNANCE_SATELLITE_ACTION_NOT_FOUND)
                 ];
 
-                if Tezos.sender =/= governanceSatelliteActionRecord.initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
+                if Tezos.get_sender() =/= governanceSatelliteActionRecord.initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
 
                 if governanceSatelliteActionRecord.status    = False then failwith(error_GOVERNANCE_SATELLITE_ACTION_DROPPED) else skip;
 
                 if governanceSatelliteActionRecord.executed then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXECUTED) else skip;
 
-                if Tezos.now > governanceSatelliteActionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
+                if Tezos.get_now() > governanceSatelliteActionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
 
                 governanceSatelliteActionRecord.status := False;
                 s.governanceSatelliteActionLedger[dropActionId] := governanceSatelliteActionRecord;
@@ -1519,7 +1519,7 @@ block {
                 ];
 
                 // get satellite record
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -1538,14 +1538,14 @@ block {
                 if _governanceSatelliteActionRecord.status    = False then failwith(error_GOVERNANCE_SATELLITE_ACTION_DROPPED)  else skip;
                 if _governanceSatelliteActionRecord.executed  = True  then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXECUTED) else skip;
 
-                if Tezos.now > _governanceSatelliteActionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
+                if Tezos.get_now() > _governanceSatelliteActionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
 
                 const governanceSatelliteActionSnapshot : governanceSatelliteSnapshotMapType = case s.governanceSatelliteSnapshotLedger[actionId] of [
                       Some(_snapshot) -> _snapshot
                     | None            -> failwith(error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND)
                 ]; 
 
-                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case governanceSatelliteActionSnapshot[Tezos.sender] of [ 
+                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case governanceSatelliteActionSnapshot[Tezos.get_sender()] of [ 
                       Some(_record) -> _record
                     | None          -> failwith(error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT)
                 ];
@@ -1555,7 +1555,7 @@ block {
                 const totalVotingPower : nat                                 = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted
-                case _governanceSatelliteActionRecord.voters[Tezos.sender] of [
+                case _governanceSatelliteActionRecord.voters[Tezos.get_sender()] of [
                     
                     Some (_voteRecord) -> case _voteRecord.vote of [
 
@@ -1577,10 +1577,10 @@ block {
                 const newVoteRecord : governanceSatelliteVoteType     = record [
                     vote             = voteType;
                     totalVotingPower = totalVotingPower;
-                    timeVoted        = Tezos.now;
+                    timeVoted        = Tezos.get_now();
                 ];
 
-                _governanceSatelliteActionRecord.voters[Tezos.sender] := newVoteRecord;
+                _governanceSatelliteActionRecord.voters[Tezos.get_sender()] := newVoteRecord;
 
                 
                 // Satellite cast vote and governance action is executed if sufficient votes are gathered
@@ -1810,7 +1810,7 @@ block {
                                     satelliteOracleRecord.aggregatorPairs[aggregatorAddress] := record [
                                         aggregatorPair      = aggregatorRecord.aggregatorPair;
                                         aggregatorAddress   = aggregatorAddress;
-                                        startDateTime       = Tezos.now;
+                                        startDateTime       = Tezos.get_now();
                                     ];
 
                                     // update storage

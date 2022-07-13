@@ -147,8 +147,8 @@ block {
                     block{
                         const transferTokenOperation : operation = case transferParam.token of [
                             |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
                     } with (transferTokenOperation # operationList);
                 
@@ -322,7 +322,7 @@ block {
                 const satelliteAddress  : address = delegateToSatelliteParams.satelliteAddress;
 
                 // Check if the sender is the user specified in parameters, or the Delegation Contract
-                if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip
+                if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip
                 else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
 
                 // Check that user is not a satellite
@@ -377,7 +377,7 @@ block {
                     const delegateToSatelliteOperation : operation = Tezos.transaction(
                         (delegateToSatelliteParams),
                         0tez, 
-                        getDelegateToSatelliteEntrypoint(Tezos.self_address)
+                        getDelegateToSatelliteEntrypoint(Tezos.get_self_address())
                     );
 
                     operations  := delegateToSatelliteOperation # operations;
@@ -386,7 +386,7 @@ block {
                     const undelegateFromSatelliteOperation : operation = Tezos.transaction(
                         (userAddress),
                         0tez, 
-                        getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
+                        getUndelegateFromSatelliteEntrypoint(Tezos.get_self_address())
                     );
 
                     operations  := undelegateFromSatelliteOperation # operations;
@@ -410,7 +410,7 @@ block {
                     // Create and save new delegate record for user
                     var delegateRecord : delegateRecordType := record [
                         satelliteAddress              = satelliteAddress;
-                        delegatedDateTime             = Tezos.now;
+                        delegatedDateTime             = Tezos.get_now();
                         delegatedStakedMvkBalance     = stakedMvkBalance;
                     ];
 
@@ -476,7 +476,7 @@ block {
         |   LambdaUndelegateFromSatellite(userAddress) -> {
 
                 // Check if sender is self (Delegation Contract) or userAddress -> Needed now because a user can compound for another user, so onStakeChange needs to reference a userAddress
-                if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip 
+                if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip 
                 else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
 
                 // Update unclaimed rewards for user
@@ -517,7 +517,7 @@ block {
                     image                 = "";
                     website               = "";
 
-                    registeredDateTime    = Tezos.now;
+                    registeredDateTime    = Tezos.get_now();
                 ];
 
                 // Get satellite record
@@ -585,7 +585,7 @@ block {
         |   LambdaRegisterAsSatellite(registerAsSatelliteParams) -> {
 
                 // Init user address
-                const userAddress : address  = Tezos.sender;
+                const userAddress : address  = Tezos.get_sender();
 
                 // check that user is not a delegate
                 checkUserIsNotDelegate(userAddress, s);
@@ -647,7 +647,7 @@ block {
                             image                 = image;
                             website               = website;
                             
-                            registeredDateTime    = Tezos.now;
+                            registeredDateTime    = Tezos.get_now();
                         ]
                 ];
 
@@ -694,7 +694,7 @@ block {
         |   LambdaUnregisterAsSatellite(userAddress) -> {
 
                 // Check if sender is self (Delegation Contract) or userAddress
-                if Tezos.sender = userAddress or Tezos.sender = Tezos.self_address then skip 
+                if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip 
                 else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
 
                 // Check that sender is a satellite
@@ -735,7 +735,7 @@ block {
         |   LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
 
                 // Init user address
-                const userAddress : address  = Tezos.sender;
+                const userAddress : address  = Tezos.get_sender();
 
                 // check satellite is not banned
                 checkSatelliteIsNotBanned(userAddress, s);
@@ -811,7 +811,7 @@ block {
     var operations: list(operation) := nil;
 
     // Check sender is from a whitelisted contract (e.g. Governance, Governance Satellite, Aggregator Factory, Doorman, Treasury)
-    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     case delegationLambdaAction of [
         |   LambdaDistributeReward(distributeRewardParams) -> {
@@ -968,7 +968,7 @@ block {
                 ];
 
                 // Check that sender is the Doorman Contract
-                if doormanAddress = Tezos.sender then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
+                if doormanAddress = Tezos.get_sender() then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
                 // Update user's rewards
                 s := updateRewards(userAddress, s);
@@ -1079,7 +1079,7 @@ block {
                         else operations := Tezos.transaction(
                             (userAddress), 
                             0tez, 
-                            getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
+                            getUndelegateFromSatelliteEntrypoint(Tezos.get_self_address())
                             ) # operations;
                         }
 
@@ -1105,7 +1105,7 @@ block {
     // 4. Update storage - satellite record
 
     // Check sender is admin or from a whitelisted contract (e.g. Governance, Governance Satellite, Aggregator Factory, Doorman, Treasury)
-    if s.admin = Tezos.sender or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+    if s.admin = Tezos.get_sender() or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
     case delegationLambdaAction of [
         |   LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {

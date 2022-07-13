@@ -83,14 +83,14 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : farmFactoryStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
         
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(const s : farmFactoryStorageType) : unit is
-    if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
@@ -104,7 +104,7 @@ block {
         |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
     ];
 
-    if Tezos.sender = councilAddress then skip
+    if Tezos.get_sender() = councilAddress then skip
     else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
 
 } with(unit)
@@ -114,7 +114,7 @@ block {
 // Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorageType) : unit is
 block{
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
@@ -126,7 +126,7 @@ block{
             |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
-        if Tezos.sender = governanceSatelliteAddress then skip
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
 } with unit
@@ -135,7 +135,7 @@ block{
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
     else unit
 
 // ------------------------------------------------------------------------------

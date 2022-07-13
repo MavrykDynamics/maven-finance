@@ -151,8 +151,8 @@ block {
                     block{
                         const transferTokenOperation : operation = case transferParam.token of [
                             |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
-                            |   Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                            |   Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                            |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                            |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
                     } with(transferTokenOperation # operationList);
                 
@@ -196,7 +196,7 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
 
-                const userAddress: address  = Tezos.sender;
+                const userAddress: address  = Tezos.get_sender();
                     
                 // check that there is no currently active emergency governance being voted on
                 if s.currentEmergencyGovernanceId = 0n 
@@ -204,7 +204,7 @@ block {
                 else failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
 
                 // check if tez sent is equal to the required fee
-                if Tezos.amount =/= s.config.requiredFeeMutez 
+                if Tezos.get_amount() =/= s.config.requiredFeeMutez 
                 then failwith(error_TEZ_FEE_NOT_PAID) 
                 else skip;
             
@@ -220,7 +220,7 @@ block {
 
                 // Transfer fee to Treasury
                 const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
@@ -279,11 +279,11 @@ block {
                     stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
                     stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
 
-                    startDateTime                    = Tezos.now;
-                    startLevel                       = Tezos.level;             
-                    executedDateTime                 = Tezos.now;
-                    executedLevel                    = Tezos.level;
-                    expirationDateTime               = Tezos.now + (86_400 * s.config.voteExpiryDays);
+                    startDateTime                    = Tezos.get_now();
+                    startLevel                       = Tezos.get_level();             
+                    executedDateTime                 = Tezos.get_now();
+                    executedLevel                    = Tezos.get_level();
+                    expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
                 ];
 
                 // Update storage (counters and new emergency governance)
@@ -330,7 +330,7 @@ block {
     case emergencyGovernanceLambdaAction of [
         |   LambdaVoteForEmergencyControl(_parameters) -> {
 
-                const userAddress: address  = Tezos.sender;
+                const userAddress: address  = Tezos.get_sender();
                 
                 // Check that there is an active emergency governance
                 if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
@@ -377,7 +377,7 @@ block {
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
                 // Update emergency governance record with new votes
-                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.now);
+                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.get_now());
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
 
@@ -411,8 +411,8 @@ block {
 
                     // Update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Tezos.now;
-                    _emergencyGovernance.executedLevel       := Tezos.level;
+                    _emergencyGovernance.executedDateTime    := Tezos.get_now();
+                    _emergencyGovernance.executedLevel       := Tezos.get_level();
                     
                     // Save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
@@ -461,7 +461,7 @@ block {
                 else skip;
 
                 // Check that sender is the proposer of the emergency governance
-                if emergencyGovernance.proposerAddress =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if emergencyGovernance.proposerAddress =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // Update Emergency Governance Record dropped boolean to true and update storage

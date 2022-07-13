@@ -420,7 +420,7 @@ block{
                     
                     // Reset deviationTriggerInfos for a new deviation round
                     newDeviationTriggerInfos := record[
-                        oracleAddress = Tezos.sender;
+                        oracleAddress = Tezos.get_sender();
                         roundPrice    = 0n;
                     ];
 
@@ -449,7 +449,7 @@ block{
                     //       if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                     //         // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
-                    //         const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
+                    //         const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.get_now() + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                     //         s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                     //       } else skip;
@@ -490,7 +490,7 @@ block{
                         if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                             // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
-                            const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
+                            const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.get_now() + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                             s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                         } else skip;
@@ -501,7 +501,7 @@ block{
 
                 // Update storage with new round parameters
                 s.round                   := newRound;
-                s.roundStart              := Tezos.now;
+                s.roundStart              := Tezos.get_now();
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := emptyMapCommit;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
@@ -543,19 +543,19 @@ block{
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
                 checkOracleIsNotBannedForDeviationTrigger(s);
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // Check if Tez sent is equal to request rate deposit fee (if any)
                 const requestRateDeviationDepositFee : nat = s.config.requestRateDeviationDepositFee;
-                if requestRateDeviationDepositFee =/= 0n and (requestRateDeviationDepositFee * 1mutez) =/= Tezos.amount then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE) 
-                else if requestRateDeviationDepositFee = 0n and Tezos.amount > (requestRateDeviationDepositFee * 1mutez) then failwith(error_NO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE_REQUIRED)
+                if requestRateDeviationDepositFee =/= 0n and (requestRateDeviationDepositFee * 1mutez) =/= Tezos.get_amount() then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE) 
+                else if requestRateDeviationDepositFee = 0n and Tezos.get_amount() > (requestRateDeviationDepositFee * 1mutez) then failwith(error_NO_REQUEST_RATE_DEVIATION_DEPOSIT_FEE_REQUIRED)
                 else skip;
                 
                 // Init new round, empty reveals map, and set new observation commit of sender
                 const newRound               : nat                    = s.round + 1n;
                 const emptyMapReveals        : observationRevealsType = map [];
                 const newObservationCommits  : observationCommitsType = map [
-                    ((Tezos.sender : address)) -> params.sign
+                    ((Tezos.get_sender() : address)) -> params.sign
                 ];
                 
                 // Get previous round deviation trigger
@@ -590,7 +590,7 @@ block{
                 //     if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                 //       // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
-                //       const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
+                //       const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.get_now() + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                 //       s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                 //     } else skip;
@@ -631,7 +631,7 @@ block{
                     if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                         // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
-                        const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.now + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
+                        const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.get_now() + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                         s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                     } else skip;
@@ -640,7 +640,7 @@ block{
 
                 // Set new deviation trigger info
                 const newDeviationTriggerInfos : deviationTriggerInfosType = record[
-                    oracleAddress = Tezos.sender;
+                    oracleAddress = Tezos.get_sender();
                     roundPrice    = s.lastCompletedRoundPrice.price;
                 ];
 
@@ -651,28 +651,28 @@ block{
                 // If deviation reward staked MVK is not 0, then increment oracle staked MVK rewards
                 if deviationRewardStakedMvk =/= 0n then {
 
-                    var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.sender] of [
+                    var currentOracleStakedMvkRewards : nat := case s.oracleRewardStakedMvk[Tezos.get_sender()] of [
                             Some (_amount) -> (_amount) 
                         |   None -> 0n 
                     ];
-                    s.oracleRewardStakedMvk[Tezos.sender]   := currentOracleStakedMvkRewards + deviationRewardStakedMvk;
+                    s.oracleRewardStakedMvk[Tezos.get_sender()]   := currentOracleStakedMvkRewards + deviationRewardStakedMvk;
                     
                 } else skip;
 
                 // If deviation reward XTZ is not 0, then increment oracle XTZ rewards
                 if deviationRewardXtz =/= 0n then {
 
-                    var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.sender] of [
+                    var currentOracleXtzRewards : nat := case s.oracleRewardXtz[Tezos.get_sender()] of [
                             Some (_amount) -> (_amount) 
                         |   None -> 0n 
                     ];
-                    s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + deviationRewardXtz;
+                    s.oracleRewardXtz[Tezos.get_sender()]   := currentOracleXtzRewards + deviationRewardXtz;
 
                 } else skip;
 
                 // Update storage with new round
                 s.round                   := newRound;
-                s.roundStart              := Tezos.now;
+                s.roundStart              := Tezos.get_now();
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := newObservationCommits;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
@@ -717,10 +717,10 @@ block{
                 checkIfTimeToCommit(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredCommit(s);
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
                 
                 // Update Observation Commits map with new observation from oracle
-                const observationsDataUpdated       : observationCommitsType  = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
+                const observationsDataUpdated       : observationCommitsType  = Map.update(( Tezos.get_sender() ), Some( params.sign ), s.observationCommits);
 
                 // Get number of observations 
                 const numberOfObservationsForRound  : nat                     = Map.size (observationsDataUpdated);
@@ -731,7 +731,7 @@ block{
 
                 // Update switchBlock from zero if threshold is reached and sufficient oracles have committed 
                 if ((percentOracleResponse >= s.config.percentOracleThreshold) and s.switchBlock = 0n) then {
-                    newSwitchBlock := Tezos.level + s.config.numberBlocksDelay;
+                    newSwitchBlock := Tezos.get_level() + s.config.numberBlocksDelay;
                 } else skip;
 
                 // Update storage with observation commits and switch block
@@ -781,10 +781,10 @@ block{
                 checkIfTimeToReveal(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
                 
                 // Fetch oracle commit and compare it with bytes of reveal price salted 
-                const oracleCommit  : bytes = getObservationCommit(Tezos.sender, s.observationCommits);
+                const oracleCommit  : bytes = getObservationCommit(Tezos.get_sender(), s.observationCommits);
                 const hashedPack    : bytes = hasherman(Bytes.pack (params.priceSalted));
 
                 // Check if reveal matches commit
@@ -793,7 +793,7 @@ block{
                 else skip;
 
                 // Check if Tezos address is present in commit Hash
-                if (params.priceSalted.2 =/= Tezos.sender)
+                if (params.priceSalted.2 =/= Tezos.get_sender())
                 then failwith(error_TEZOS_ADDRESS_NOT_PRESENT_IN_HASH_COMMIT)
                 else skip;
 
@@ -801,22 +801,22 @@ block{
                 const price                        : nat = params.priceSalted.0;
 
                 // Update observation reveals map
-                const observationsDataUpdated      : observationRevealsType = Map.update(( Tezos.sender ), Some( price ), s.observationReveals);
+                const observationsDataUpdated      : observationRevealsType = Map.update(( Tezos.get_sender() ), Some( price ), s.observationReveals);
                 
                 // -----------------------------------------
                 // Set rewards for oracle
                 // -----------------------------------------
 
                 // Set staked MVK reward for oracle
-                s := updateRewardsStakedMvk(Tezos.sender, s);
+                s := updateRewardsStakedMvk(Tezos.get_sender(), s);
 
                 // Set XTZ reward for oracle
                 const rewardAmountXtz        : nat  = s.config.rewardAmountXtz;
-                var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.sender] of [
+                var currentOracleXtzRewards  : nat := case s.oracleRewardXtz[Tezos.get_sender()] of [
                         Some (_amount) -> (_amount) 
                     |   None -> 0n 
                 ];
-                s.oracleRewardXtz[Tezos.sender]   := currentOracleXtzRewards + rewardAmountXtz;
+                s.oracleRewardXtz[Tezos.get_sender()]   := currentOracleXtzRewards + rewardAmountXtz;
 
                 // Calculate percent threshold of oracles that have revealed vs total oracles 
                 const oracleWhiteListedSize        : nat = Map.size (s.oracleAddresses);
@@ -836,7 +836,7 @@ block{
                         round                 = s.round;
                         price                 = median;
                         percentOracleResponse = percentOracleResponse;
-                        priceDateTime         = Tezos.now;
+                        priceDateTime         = Tezos.get_now();
                     ];
 
                 } else skip;
