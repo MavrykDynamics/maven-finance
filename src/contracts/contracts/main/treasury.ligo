@@ -82,14 +82,14 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 
 // Allowed Senders : Admin, Governance Contract
 function checkSenderIsAllowed(const s : treasuryStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 // Allowed Senders : Admin
 function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
@@ -103,7 +103,7 @@ block{
         |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED) : address)
     ];
     
-    if (Tezos.sender = s.admin or Tezos.sender = governanceFinancialAddress) then skip
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = governanceFinancialAddress) then skip
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 } with(unit)
@@ -114,7 +114,7 @@ block{
 function checkSenderIsGovernanceOrFactory(const s : treasuryStorageType) : unit is
 block {
     
-    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress
     then skip
     else{
 
@@ -123,7 +123,7 @@ block {
             |   None -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
         ];
 
-        if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.get_sender() = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -132,7 +132,7 @@ block {
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------

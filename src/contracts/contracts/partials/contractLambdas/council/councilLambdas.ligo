@@ -143,7 +143,7 @@ block {
         |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
                 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
+                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.get_sender(), s.councilMembers) of [
                         Some (_info) -> _info
                     |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];
@@ -159,7 +159,7 @@ block {
                 councilMember.image     := councilMemberInfo.image;
 
                 // Update storage
-                s.councilMembers[Tezos.sender]  := councilMember;   
+                s.councilMembers[Tezos.get_sender()]  := councilMember;   
 
             }
         |   _ -> skip
@@ -215,9 +215,9 @@ block {
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "addCouncilMember";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -228,11 +228,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -281,9 +281,9 @@ block {
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "removeCouncilMember";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -294,11 +294,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -358,9 +358,9 @@ block {
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "changeCouncilMember";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -371,11 +371,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -409,9 +409,9 @@ block {
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "setBaker";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -422,11 +422,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = setBakerParams;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -482,9 +482,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "updateBlocksPerMinute";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -495,11 +495,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -581,9 +581,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "addVestee";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -594,11 +594,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -663,9 +663,9 @@ block {
                 const emptyNatMap : natMapType        = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "removeVestee";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -676,11 +676,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -755,9 +755,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "updateVestee";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -768,11 +768,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -837,9 +837,9 @@ block {
                 const emptyNatMap : natMapType        = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "toggleVesteeLock";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -850,11 +850,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -918,9 +918,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "transfer";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -931,11 +931,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1009,9 +1009,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "requestTokens";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1022,11 +1022,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1088,9 +1088,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "requestMint";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1101,11 +1101,11 @@ block {
                     natMap                = natMap;     
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1159,9 +1159,9 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "setContractBaker";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1172,11 +1172,11 @@ block {
                     natMap                = emptyNatMap;     
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1225,9 +1225,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "dropFinancialRequest";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1238,11 +1238,11 @@ block {
                     natMap                = natMap;     
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1301,9 +1301,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "flushAction";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1314,11 +1314,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1363,15 +1363,15 @@ block {
                 if _councilActionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED) else skip;
 
                 // check if council action has expired
-                if Tezos.now > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+                if Tezos.get_now() > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
                 // check if council member has already signed for this action
-                if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Set.mem(Tezos.get_sender(), _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := _councilActionRecord.signersCount + 1n;
                 _councilActionRecord.signersCount  := signersCount;
-                _councilActionRecord.signers       := Set.add(Tezos.sender, _councilActionRecord.signers);
+                _councilActionRecord.signers       := Set.add(Tezos.get_sender(), _councilActionRecord.signers);
                 s.councilActionsLedger[actionId]   := _councilActionRecord;
 
                 const actionType : string = _councilActionRecord.actionType;
@@ -1773,7 +1773,7 @@ block {
                         ];
                         // fetch params end ---
 
-                        const from_  : address   = Tezos.self_address;
+                        const from_  : address   = Tezos.get_self_address();
                         const to_    : address   = receiverAddress;
                         const amt    : nat       = tokenAmount;
                         
@@ -2045,8 +2045,8 @@ block {
                     // update council action record status
                     _councilActionRecord.status              := "EXECUTED";
                     _councilActionRecord.executed            := True;
-                    _councilActionRecord.executedDateTime    := Tezos.now;
-                    _councilActionRecord.executedLevel       := Tezos.level;
+                    _councilActionRecord.executedDateTime    := Tezos.get_now();
+                    _councilActionRecord.executedLevel       := Tezos.get_level();
                     
                     // save council action record
                     s.councilActionsLedger[actionId]         := _councilActionRecord;

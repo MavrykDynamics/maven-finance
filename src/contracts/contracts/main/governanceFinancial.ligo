@@ -95,14 +95,14 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 
 // Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : governanceFinancialStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
         
 
 
 // Allowed Senders: Admin
 function checkSenderIsAdmin(var s : governanceFinancialStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
@@ -110,7 +110,7 @@ function checkSenderIsAdmin(var s : governanceFinancialStorageType) : unit is
 // Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceFinancialStorageType) : unit is
 block{
-  if Tezos.sender = s.admin then skip
+  if Tezos.get_sender() = s.admin then skip
   else {
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
     const governanceSatelliteAddress: address = case generalContractsOptView of [
@@ -120,7 +120,7 @@ block{
             ]
       | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
-    if Tezos.sender = governanceSatelliteAddress then skip
+    if Tezos.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
@@ -129,7 +129,7 @@ block{
 
 // Allowed Senders: Self
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.self_address) then unit
+    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
 
 
@@ -146,7 +146,7 @@ block{
     | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   
-  if (Tezos.sender = doormanAddress) then skip
+  if (Tezos.get_sender() = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
 } with unit
@@ -166,7 +166,7 @@ block{
     | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
-  if (Tezos.sender = delegationAddress) then skip
+  if (Tezos.get_sender() = delegationAddress) then skip
   else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
 
 } with unit
@@ -179,7 +179,7 @@ block{
 
   const mvkTokenAddress : address = s.mvkTokenAddress;
 
-  if (Tezos.sender = mvkTokenAddress) then skip
+  if (Tezos.get_sender() = mvkTokenAddress) then skip
   else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
 
 } with unit
@@ -199,7 +199,7 @@ block{
     | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   
-  if (Tezos.sender = councilAddress) then skip
+  if (Tezos.get_sender() = councilAddress) then skip
   else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
 
 } with unit
@@ -219,7 +219,7 @@ block{
     | None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
-  if (Tezos.sender = emergencyGovernanceAddress) then skip
+  if (Tezos.get_sender() = emergencyGovernanceAddress) then skip
   else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
 
 } with unit
@@ -228,7 +228,7 @@ block{
 
 // Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------

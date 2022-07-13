@@ -118,8 +118,8 @@ block {
                   block{
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -181,14 +181,14 @@ block {
                         totalAllocatedAmount = totalAllocatedAmount;                          // totalAllocatedAmount should be in (10^9) - MVK Token decimals
                         claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;        // totalAllocatedAmount should be in (10^9) - MVK Token decimals
                         
-                        startTimestamp       = Tezos.now;                                     // date/time start of when 
+                        startTimestamp       = Tezos.get_now();                                     // date/time start of when 
 
                         vestingMonths        = vestingInMonths;                               // number of months of vesting for total allocaed amount
                         cliffMonths          = cliffInMonths;                                 // number of months for cliff before vestee can claim
 
-                        endCliffDateTime     = Tezos.now + (cliffInMonths * thirty_days);     // calculate end of cliff duration in timestamp based on dateTimeStart
+                        endCliffDateTime     = Tezos.get_now() + (cliffInMonths * thirty_days);     // calculate end of cliff duration in timestamp based on dateTimeStart
                         
-                        endVestingDateTime   = Tezos.now + (vestingInMonths * thirty_days);   // calculate end of vesting duration in timestamp based on dateTimeStart
+                        endVestingDateTime   = Tezos.get_now() + (vestingInMonths * thirty_days);   // calculate end of vesting duration in timestamp based on dateTimeStart
 
                         // updateable variables on claim ----------
 
@@ -200,8 +200,8 @@ block {
                         monthsClaimed            = 0n;                                        // claimed number of months   
                         monthsRemaining          = vestingInMonths;                           // remaining number of months   
                         
-                        nextRedemptionTimestamp  = Tezos.now;                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
-                        lastClaimedTimestamp     = Tezos.now;                                 // timestamp of when vestee last claimed
+                        nextRedemptionTimestamp  = Tezos.get_now();                                 // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
+                        lastClaimedTimestamp     = Tezos.get_now();                                 // timestamp of when vestee last claimed
                     ]
                 ];    
 
@@ -384,7 +384,7 @@ block {
         | LambdaClaim(_parameters) -> {
                 
                 // Get sender's vestee record from ledger
-                var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
+                var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.get_sender()] of [ 
                   | Some(_record) -> _record
                   | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
@@ -398,12 +398,12 @@ block {
                 else skip;
 
                 // check that current timestamp is greater than vestee's next redemption timestamp
-                const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
+                const timestampCheck   : bool = Tezos.get_now() > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
 
                 if timestampCheck then block {
 
                     // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
-                    var numberOfClaimMonths : nat := abs(abs(Tezos.now - _vestee.lastClaimedTimestamp) / thirty_days);
+                    var numberOfClaimMonths : nat := abs(abs(Tezos.get_now() - _vestee.lastClaimedTimestamp) / thirty_days);
 
                     // first claim month
                     if _vestee.lastClaimedTimestamp = _vestee.startTimestamp then numberOfClaimMonths   := numberOfClaimMonths + 1n else skip;
@@ -419,7 +419,7 @@ block {
                     const mvkTokenAddress : address = s.mvkTokenAddress;
 
                     const mintMvkTokensOperation : operation = mintTokens(
-                        Tezos.sender,           // to address
+                        Tezos.get_sender(),           // to address
                         totalClaimAmount,       // amount of mvk Tokens to be minted
                         mvkTokenAddress         // mvkTokenAddress
                     ); 
@@ -442,7 +442,7 @@ block {
 
                     // use vestee start period to calculate next redemption period
                     _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days);
-                    _vestee.lastClaimedTimestamp     := Tezos.now;    
+                    _vestee.lastClaimedTimestamp     := Tezos.get_now();    
 
                     _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  
 
@@ -451,7 +451,7 @@ block {
                     else totalRemainder := abs(_vestee.totalAllocatedAmount - totalClaimAmount);
                     _vestee.totalRemainder           := totalRemainder;
 
-                    s.vesteeLedger[Tezos.sender] := _vestee;
+                    s.vesteeLedger[Tezos.get_sender()] := _vestee;
 
                     // update total vested amount in contract
                     s.totalVestedAmount := s.totalVestedAmount + totalClaimAmount;
