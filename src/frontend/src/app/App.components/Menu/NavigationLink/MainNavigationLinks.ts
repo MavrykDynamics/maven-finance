@@ -55,7 +55,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: '/mavryk-council',
         protectedRoute: false,
       },
-      { id: 561812, subTitle: 'Financial Requests', subPath: '/financial-requests?page', protectedRoute: false },
+      { id: 561812, subTitle: 'Financial Requests', subPath: '/financial-requests', protectedRoute: false },
       {
         id: 59416,
         subTitle: 'Submit Proposal',
