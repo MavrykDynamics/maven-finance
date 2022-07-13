@@ -408,7 +408,7 @@ block {
 
                     const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress) : option(contract(updateGeneralContractsType))) of [
                             Some (contr) -> contr
-                        |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
+                        |   None         -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
                     ];
 
                     // Operation to update General Contracts Map on the Governance Contract

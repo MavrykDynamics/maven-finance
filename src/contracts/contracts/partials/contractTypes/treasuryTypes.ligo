@@ -14,10 +14,10 @@ type mintMvkAndTransferType is [@layout:comb] record [
 ]
 
 type treasuryPausableEntrypointType is
-  Transfer                       of bool   
-| MintMvkAndTransfer             of bool
-| StakeMvk                       of bool
-| UnstakeMvk                     of bool
+        Transfer                       of bool   
+    |   MintMvkAndTransfer             of bool
+    |   StakeMvk                       of bool
+    |   UnstakeMvk                     of bool
 
 type treasuryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : treasuryPausableEntrypointType;
@@ -26,27 +26,27 @@ type treasuryTogglePauseEntrypointType is [@layout:comb] record [
 
 type treasuryLambdaActionType is 
 
-  // Housekeeping Entrypoints
-| LambdaSetAdmin                       of (address)
-| LambdaSetGovernance                  of (address)
-| LambdaSetBaker                       of option(key_hash)
-| LambdaSetName                        of (string)
-| LambdaUpdateMetadata                 of updateMetadataType
-| LambdaUpdateWhitelistContracts       of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts         of updateGeneralContractsType
-| LambdaUpdateWhitelistTokens          of updateWhitelistTokenContractsType
+        // Housekeeping Entrypoints
+    |   LambdaSetAdmin                       of (address)
+    |   LambdaSetGovernance                  of (address)
+    |   LambdaSetBaker                       of option(key_hash)
+    |   LambdaSetName                        of (string)
+    |   LambdaUpdateMetadata                 of updateMetadataType
+    |   LambdaUpdateWhitelistContracts       of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts         of updateGeneralContractsType
+    |   LambdaUpdateWhitelistTokens          of updateWhitelistTokenContractsType
 
-  // Pause / Break Glass Entrypoints
-| LambdaPauseAll                       of (unit)
-| LambdaUnpauseAll                     of (unit)
-| LambdaTogglePauseEntrypoint          of treasuryTogglePauseEntrypointType
+        // Pause / Break Glass Entrypoints
+    |   LambdaPauseAll                       of (unit)
+    |   LambdaUnpauseAll                     of (unit)
+    |   LambdaTogglePauseEntrypoint          of treasuryTogglePauseEntrypointType
 
-  // Treasury Entrypoints
-| LambdaTransfer                       of transferActionType
-| LambdaMintMvkAndTransfer             of mintMvkAndTransferType
-| LambdaUpdateMvkOperators             of updateOperatorsType
-| LambdaStakeMvk                       of (nat)
-| LambdaUnstakeMvk                     of (nat)
+        // Treasury Entrypoints
+    |   LambdaTransfer                       of transferActionType
+    |   LambdaMintMvkAndTransfer             of mintMvkAndTransferType
+    |   LambdaUpdateMvkOperators             of updateOperatorsType
+    |   LambdaStakeMvk                       of (nat)
+    |   LambdaUnstakeMvk                     of (nat)
 
 // ------------------------------------------------------------------------------
 // Storage

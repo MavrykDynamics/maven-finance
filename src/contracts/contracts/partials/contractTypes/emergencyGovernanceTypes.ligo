@@ -35,38 +35,39 @@ type emergencyConfigType is record [
 
 type emergencyUpdateConfigNewValueType is nat
 type emergencyUpdateConfigActionType is 
-  ConfigVoteExpiryDays            of unit
-| ConfigRequiredFeeMutez          of unit
-| ConfigStakedMvkPercentRequired  of unit
-| ConfigMinStakedMvkForVoting     of unit
-| ConfigMinStakedMvkForTrigger    of unit
-| ConfigProposalTitleMaxLength    of unit
-| ConfigProposalDescMaxLength     of unit
+        ConfigVoteExpiryDays            of unit
+    |   ConfigRequiredFeeMutez          of unit
+    |   ConfigStakedMvkPercentRequired  of unit
+    |   ConfigMinStakedMvkForVoting     of unit
+    |   ConfigMinStakedMvkForTrigger    of unit
+    |   ConfigProposalTitleMaxLength    of unit
+    |   ConfigProposalDescMaxLength     of unit
+
 type emergencyUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : emergencyUpdateConfigNewValueType; 
-  updateConfigAction    : emergencyUpdateConfigActionType;
+    updateConfigNewValue  : emergencyUpdateConfigNewValueType; 
+    updateConfigAction    : emergencyUpdateConfigActionType;
 ]
 
 type triggerEmergencyControlType is [@layout:comb] record[
-  title        : string;
-  description  : string;
+    title        : string;
+    description  : string;
 ]
 
 type emergencyGovernanceLambdaActionType is 
 
-  // Housekeeping Entrypoints
-| LambdaSetAdmin                  of (address)
-| LambdaSetGovernance             of (address)
-| LambdaUpdateMetadata            of updateMetadataType
-| LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
-| LambdaUpdateGeneralContracts    of updateGeneralContractsType
-| LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
-| LambdaMistakenTransfer          of transferActionType
+        // Housekeeping Entrypoints
+    |   LambdaSetAdmin                  of (address)
+    |   LambdaSetGovernance             of (address)
+    |   LambdaUpdateMetadata            of updateMetadataType
+    |   LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
+    |   LambdaUpdateGeneralContracts    of updateGeneralContractsType
+    |   LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
+    |   LambdaMistakenTransfer          of transferActionType
 
-  // Emergency Governance Entrypoints
-| LambdaTriggerEmergencyControl   of triggerEmergencyControlType
-| LambdaVoteForEmergencyControl   of (unit)
-| LambdaDropEmergencyGovernance   of (unit)
+        // Emergency Governance Entrypoints
+    |   LambdaTriggerEmergencyControl   of triggerEmergencyControlType
+    |   LambdaVoteForEmergencyControl   of (unit)
+    |   LambdaDropEmergencyGovernance   of (unit)
 
 
 // ------------------------------------------------------------------------------

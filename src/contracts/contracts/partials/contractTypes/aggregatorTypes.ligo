@@ -48,32 +48,32 @@ type setObservationRevealType         is setObservationRevealType;
 (* updateConfig entrypoint inputs *)
 type aggregatorUpdateConfigNewValueType is nat
 type aggregatorUpdateConfigActionType is 
-  ConfigDecimals                      of unit
-| ConfigNumberBlocksDelay             of unit
+        ConfigDecimals                      of unit
+    |   ConfigNumberBlocksDelay             of unit
 
-| ConfigDevTriggerBanDuration         of unit
-| ConfigPerThousandDevTrigger         of unit
-| ConfigPercentOracleThreshold        of unit
+    |   ConfigDevTriggerBanDuration         of unit
+    |   ConfigPerThousandDevTrigger         of unit
+    |   ConfigPercentOracleThreshold        of unit
 
-| ConfigRequestRateDevDepositFee      of unit
+    |   ConfigRequestRateDevDepositFee      of unit
 
-| ConfigDeviationRewardStakedMvk      of unit
-| ConfigDeviationRewardAmountXtz      of unit
-| ConfigRewardAmountStakedMvk         of unit
-| ConfigRewardAmountXtz               of unit
+    |   ConfigDeviationRewardStakedMvk      of unit
+    |   ConfigDeviationRewardAmountXtz      of unit
+    |   ConfigRewardAmountStakedMvk         of unit
+    |   ConfigRewardAmountXtz               of unit
 
 type aggregatorUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : aggregatorUpdateConfigNewValueType; 
-  updateConfigAction    : aggregatorUpdateConfigActionType;
+    updateConfigNewValue  : aggregatorUpdateConfigNewValueType; 
+    updateConfigAction    : aggregatorUpdateConfigActionType;
 ]
 
 type aggregatorPausableEntrypointType is
-  RequestRateUpdate             of bool
-| RequestRateUpdateDeviation    of bool
-| SetObservationCommit          of bool
-| SetObservationReveal          of bool
-| WithdrawRewardXtz             of bool
-| WithdrawRewardStakedMvk       of bool
+        RequestRateUpdate             of bool
+    |   RequestRateUpdateDeviation    of bool
+    |   SetObservationCommit          of bool
+    |   SetObservationReveal          of bool
+    |   WithdrawRewardXtz             of bool
+    |   WithdrawRewardStakedMvk       of bool
 
 type aggregatorTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : aggregatorPausableEntrypointType;
@@ -123,34 +123,34 @@ type aggregatorBreakGlassConfigType is [@layout:comb] record [
 
 type aggregatorLambdaActionType is 
 
-    // Housekeeping Entrypoints
-  | LambdaSetAdmin                      of (address)
-  | LambdaSetGovernance                 of (address)
-  | LambdaSetMaintainer                 of (address)
-  | LambdaSetName                       of (string)
-  | LambdaUpdateMetadata                of updateMetadataType
-  | LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
-  | LambdaUpdateGeneralContracts        of updateGeneralContractsType
+        // Housekeeping Entrypoints
+    |   LambdaSetAdmin                      of (address)
+    |   LambdaSetGovernance                 of (address)
+    |   LambdaSetMaintainer                 of (address)
+    |   LambdaSetName                       of (string)
+    |   LambdaUpdateMetadata                of updateMetadataType
+    |   LambdaUpdateConfig                  of aggregatorUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
 
-    // Oracle Admin Entrypoints
-  | LambdaAddOracle                     of addOracleType
-  | LambdaRemoveOracle                  of removeOracleType
+        // Oracle Admin Entrypoints
+    |   LambdaAddOracle                     of addOracleType
+    |   LambdaRemoveOracle                  of removeOracleType
 
-    // Pause / Break Glass Entrypoints
-  | LambdaPauseAll                      of (unit)
-  | LambdaUnpauseAll                    of (unit)
-  | LambdaTogglePauseEntrypoint         of aggregatorTogglePauseEntrypointType
+        // Pause / Break Glass Entrypoints
+    |   LambdaPauseAll                      of (unit)
+    |   LambdaUnpauseAll                    of (unit)
+    |   LambdaTogglePauseEntrypoint         of aggregatorTogglePauseEntrypointType
 
-    // Oracle Entrypoints
-  | LambdaRequestRateUpdate             of requestRateUpdateType
-  | LambdaRequestRateUpdDeviation       of requestRateUpdateDeviationType
-  | LambdaSetObservationCommit          of setObservationCommitType
-  | LambdaSetObservationReveal          of setObservationRevealType
-  
-    // Reward Entrypoints
-  | LambdaWithdrawRewardXtz             of withdrawRewardXtzType
-  | LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkType
+        // Oracle Entrypoints
+    |   LambdaRequestRateUpdate             of requestRateUpdateType
+    |   LambdaRequestRateUpdDeviation       of requestRateUpdateDeviationType
+    |   LambdaSetObservationCommit          of setObservationCommitType
+    |   LambdaSetObservationReveal          of setObservationRevealType
+    
+        // Reward Entrypoints
+    |   LambdaWithdrawRewardXtz             of withdrawRewardXtzType
+    |   LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage

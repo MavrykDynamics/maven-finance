@@ -641,36 +641,36 @@ block{
 
 (* main entrypoint *)
 function main (const action : farmFactoryAction; var s : farmFactoryStorageType) : return is
-    block{
+block{
+    
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+
+} with(
+
+    case action of [
         
-        checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+            // Housekeeping Entrypoints
+            SetAdmin (parameters)                   -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)              -> setGovernance(parameters, s)
+        |   UpdateMetadata (parameters)             -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)               -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
+        |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)
 
-    } with(
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                  -> pauseAll(s)
+        |   UnpauseAll (_parameters)                -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
-        case action of [
-            
-                // Housekeeping Entrypoints
-                SetAdmin (parameters)                   -> setAdmin(parameters, s)
-            |   SetGovernance (parameters)              -> setGovernance(parameters, s)
-            |   UpdateMetadata (parameters)             -> updateMetadata(parameters, s)
-            |   UpdateConfig (parameters)               -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
-            |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
-            |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)
+            // Farm Factory Entrypoints
+        |   CreateFarm (params)                     -> createFarm(params, s)
+        |   TrackFarm (params)                      -> trackFarm(params, s)
+        |   UntrackFarm (params)                    -> untrackFarm(params, s)
 
-                // Pause / Break Glass Entrypoints
-            |   PauseAll (_parameters)                  -> pauseAll(s)
-            |   UnpauseAll (_parameters)                -> unpauseAll(s)
-            |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
-
-                // Farm Factory Entrypoints
-            |   CreateFarm (params)                     -> createFarm(params, s)
-            |   TrackFarm (params)                      -> trackFarm(params, s)
-            |   UntrackFarm (params)                    -> untrackFarm(params, s)
-
-                // Lambda Entrypoints
-            |   SetLambda (parameters)                  -> setLambda(parameters, s)
-            |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
-        ]
-    )
+            // Lambda Entrypoints
+        |   SetLambda (parameters)                  -> setLambda(parameters, s)
+        |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
+    ]
+)

@@ -151,7 +151,7 @@ function checkGlassIsBroken(var s : breakGlassStorageType) : unit is
 
 // Helper function to set admin entrypoints in contract 
 function setAdminInContract(const contractAddress : address) : contract(address) is
-  case (Tezos.get_entrypoint_opt(
+    case (Tezos.get_entrypoint_opt(
         "%setAdmin",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
@@ -744,45 +744,45 @@ block{
 
 (* main entrypoint *)
 function main (const action : breakGlassAction; const s : breakGlassStorageType) : return is 
-    block {
+block {
 
-        checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-    } with(
+} with(
 
-        case action of [
-            
-                // Break Glass
-            |   BreakGlass(_parameters)               -> breakGlass(s)
-            
-                // Housekeeping Entrypoints - Glass Broken Not Required
-            |   SetAdmin(parameters)                  -> setAdmin(parameters, s)
-            |   SetGovernance(parameters)             -> setGovernance(parameters, s)
-            |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)  
-            |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-            |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-            |   UpdateCouncilMemberInfo(parameters)   -> updateCouncilMemberInfo(parameters, s)
+    case action of [
+        
+            // Break Glass
+        |   BreakGlass(_parameters)               -> breakGlass(s)
+        
+            // Housekeeping Entrypoints - Glass Broken Not Required
+        |   SetAdmin(parameters)                  -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)  
+        |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+        |   UpdateCouncilMemberInfo(parameters)   -> updateCouncilMemberInfo(parameters, s)
 
-                // Break Glass Council Actions - Internal Control of Council Members
-            |   AddCouncilMember(parameters)          -> addCouncilMember(parameters, s)
-            |   RemoveCouncilMember(parameters)       -> removeCouncilMember(parameters, s)
-            |   ChangeCouncilMember(parameters)       -> changeCouncilMember(parameters, s)
-            
-                // Glass Broken Required
-            |   PropagateBreakGlass(_parameters)      -> propagateBreakGlass(s)
-            |   SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters, s)
-            |   SetAllContractsAdmin(parameters)      -> setAllContractsAdmin(parameters, s)
-            |   PauseAllEntrypoints(_parameters)      -> pauseAllEntrypoints(s)
-            |   UnpauseAllEntrypoints(_parameters)    -> unpauseAllEntrypoints(s)
-            |   RemoveBreakGlassControl(_parameters)  -> removeBreakGlassControl(s)
+            // Break Glass Council Actions - Internal Control of Council Members
+        |   AddCouncilMember(parameters)          -> addCouncilMember(parameters, s)
+        |   RemoveCouncilMember(parameters)       -> removeCouncilMember(parameters, s)
+        |   ChangeCouncilMember(parameters)       -> changeCouncilMember(parameters, s)
+        
+            // Glass Broken Required
+        |   PropagateBreakGlass(_parameters)      -> propagateBreakGlass(s)
+        |   SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters, s)
+        |   SetAllContractsAdmin(parameters)      -> setAllContractsAdmin(parameters, s)
+        |   PauseAllEntrypoints(_parameters)      -> pauseAllEntrypoints(s)
+        |   UnpauseAllEntrypoints(_parameters)    -> unpauseAllEntrypoints(s)
+        |   RemoveBreakGlassControl(_parameters)  -> removeBreakGlassControl(s)
 
-                // Council Signing of Actions
-            |   FlushAction(parameters)               -> flushAction(parameters, s)
-            |   SignAction(parameters)                -> signAction(parameters, s)
+            // Council Signing of Actions
+        |   FlushAction(parameters)               -> flushAction(parameters, s)
+        |   SignAction(parameters)                -> signAction(parameters, s)
 
-                // Lambda Entrypoints
-            |   SetLambda(parameters)                 -> setLambda(parameters, s)
-        ]
-    )
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                 -> setLambda(parameters, s)
+    ]
+)

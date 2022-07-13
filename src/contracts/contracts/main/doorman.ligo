@@ -251,8 +251,8 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
     case (Tezos.get_entrypoint_opt(
         "%mintMvkAndTransfer",
         contractAddress) : option(contract(mintMvkAndTransferType))) of [
-            Some(contr) -> contr
-        |   None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
+                Some(contr) -> contr
+            |   None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -280,10 +280,10 @@ block{
             ]
     ];
 
-    // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
+    // Check if the user has more than 0 staked MVK. If he/she hasn't, he cannot earn rewards
     if userRecord.balance > 0n then {
 
-        // Get delegation contract
+        // Get Delegation Contract address from the General Contracts Map on the Governance Contract
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
         const delegationAddress: address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
@@ -294,6 +294,7 @@ block{
         ];
       
         // -- Satellite rewards -- //
+        
         // Get the user satelliteRewards record
         const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
         const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
@@ -837,37 +838,37 @@ block{
 
 (* main entrypoint *)
 function main (const action : doormanAction; const s : doormanStorageType) : return is
-    block {
-        
-        checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+block {
+    
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-    } with(
+} with(
 
-        case action of [
+    case action of [
 
-                // Housekeeping Entrypoints
-                SetAdmin(parameters)                  -> setAdmin(parameters, s)
-            |   SetGovernance(parameters)             -> setGovernance(parameters, s)
-            |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-            |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
-            |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-            |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-            |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
-            |   MigrateFunds(parameters)              -> migrateFunds(parameters, s)
+            // Housekeeping Entrypoints
+            SetAdmin(parameters)                  -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
+        |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+        |   MigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
-                // Pause / Break Glass Entrypoints
-            |   PauseAll(_parameters)                 -> pauseAll(s)
-            |   UnpauseAll(_parameters)               -> unpauseAll(s)
-            |   TogglePauseEntrypoint(parameters)    -> togglePauseEntrypoint(parameters, s)
+            // Pause / Break Glass Entrypoints
+        |   PauseAll(_parameters)                 -> pauseAll(s)
+        |   UnpauseAll(_parameters)               -> unpauseAll(s)
+        |   TogglePauseEntrypoint(parameters)     -> togglePauseEntrypoint(parameters, s)
 
-                // Doorman Entrypoints
-            |   Stake(parameters)                     -> stake(parameters, s)  
-            |   Unstake(parameters)                   -> unstake(parameters, s)
-            |   Compound(parameters)                  -> compound(parameters, s)
-            |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
+            // Doorman Entrypoints
+        |   Stake(parameters)                     -> stake(parameters, s)  
+        |   Unstake(parameters)                   -> unstake(parameters, s)
+        |   Compound(parameters)                  -> compound(parameters, s)
+        |   FarmClaim(parameters)                 -> farmClaim(parameters, s)
 
-                // Lambda Entrypoints
-            |   SetLambda(parameters)                 -> setLambda(parameters, s)
-        ]
-        
-    )
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                 -> setLambda(parameters, s)
+    ]
+    
+)
