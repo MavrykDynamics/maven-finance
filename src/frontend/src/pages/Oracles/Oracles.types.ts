@@ -1,3 +1,5 @@
+import { SatelliteRecord } from "utils/TypesAndInterfaces/Delegation"
+
 export type OraclesListProps = {
   listTitle: string
   items: Array<any>
@@ -6,6 +8,8 @@ export type OraclesListProps = {
   name: string
   onClickHandler: (arg0: any) => void
   selectedItem?: any
+  loading: boolean
+  additionaldata?: Record<string, any>
 }
 
 export type FeedFactory = {
@@ -62,8 +66,18 @@ export type InitialOracleStorageType = {
   feeds: Array<Feed>,
   feedsFactory: Array<FeedFactory>,
   totalOracleNetworks: number,
-  oraclesSatellites: Array<{
+  oraclesSatellitesIds: Array<{
     oracle_id: string
   }>
+}
+
+export type OracleSatelliteListItemProps = {
+  satelliteOracle: SatelliteRecord
+  loading: boolean
+  delegateCallback: (satelliteAddress: string) => void
+  userStakedBalance: number
+  satelliteUserIsDelegatedTo: string
+  isDetailsPage?: boolean
+  className?: string
 }
 

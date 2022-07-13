@@ -6,7 +6,9 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { InfoBlockWrapper } from './Oracles.styles'
+import OracleList from './OraclesList/OraclesList.view'
 import OraclesSideBar from './OraclesSideBar/OraclesSideBar.controller'
 type OraclesViewProps = {
   isLoading: boolean
@@ -15,30 +17,50 @@ type OraclesViewProps = {
     totalSatelliteOracles: string | number | JSX.Element
     numberOfDataFeeds: string | number | JSX.Element
   }
+  delegateCallback: (address: string) => void
+  oracleSatellitesData: {
+    userStakedBalance: number
+    satelliteUserIsDelegatedTo: string
+    items: SatelliteRecord[]
+  }
 }
 
-const OraclesView = ({ isLoading, tabsInfo }: OraclesViewProps) => {
+const OraclesView = ({ isLoading, tabsInfo, oracleSatellitesData, delegateCallback }: OraclesViewProps) => {
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={isLoading} />
       <PageContent>
-        <InfoBlockWrapper>
-          <InfoTab
-            title={'Total Delegated MVK'}
-            value={tabsInfo.totalDelegetedMVK}
-            tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
+        <div className="left-content-wrapper">
+          <InfoBlockWrapper>
+            <InfoTab
+              title={'Total Delegated MVK'}
+              value={tabsInfo.totalDelegetedMVK}
+              tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
+            />
+            <InfoTab
+              title={'Total Satellites & Oracles'}
+              value={tabsInfo.totalSatelliteOracles}
+              tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
+            />
+            <InfoTab
+              title={'Number of Data Feeds'}
+              value={tabsInfo.numberOfDataFeeds}
+              tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
+            />
+          </InfoBlockWrapper>
+
+          <OracleList
+            listTitle={'Top Satellites'}
+            loading={isLoading}
+            items={oracleSatellitesData.items}
+            listType={'satellites'}
+            name={'topSatelitesOracle'}
+            onClickHandler={delegateCallback}
+            additionaldata={oracleSatellitesData}
+            noItemsText={'No oracle-satellites'}
           />
-          <InfoTab
-            title={'Total Satellites & Oracles'}
-            value={tabsInfo.totalSatelliteOracles}
-            tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
-          />
-          <InfoTab
-            title={'Number of Data Feeds'}
-            value={tabsInfo.numberOfDataFeeds}
-            tipLink={'https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle'}
-          />
-        </InfoBlockWrapper>
+        </div>
+
         <OraclesSideBar />
       </PageContent>
     </Page>
