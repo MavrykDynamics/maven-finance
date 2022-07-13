@@ -148,8 +148,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -183,14 +183,14 @@ block {
     case emergencyGovernanceLambdaAction of [
         | LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
 
-            const userAddress: address  = Tezos.sender;
+            const userAddress: address  = Tezos.get_sender();
                 
             if s.currentEmergencyGovernanceId = 0n 
             then skip
             else failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
 
             // check if tez sent is equal to the required fee
-            if Tezos.amount =/= s.config.requiredFeeMutez 
+            if Tezos.get_amount() =/= s.config.requiredFeeMutez 
             then failwith(error_TEZ_FEE_NOT_PAID) 
             else skip;
             
@@ -204,7 +204,7 @@ block {
             ];
 
             const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-            const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+            const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
 
             // check if user has sufficient staked MVK to trigger emergency control
             const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
@@ -255,11 +255,11 @@ block {
                 stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
                 stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
 
-                  startDateTime                    = Tezos.now;
-                  startLevel                       = Tezos.level;             
-                  executedDateTime                 = Tezos.now;
-                  executedLevel                    = Tezos.level;
-                  expirationDateTime               = Tezos.now + (86_400 * s.config.voteExpiryDays);
+                  startDateTime                    = Tezos.get_now();
+                  startLevel                       = Tezos.get_level();             
+                  executedDateTime                 = Tezos.get_now();
+                  executedLevel                    = Tezos.get_level();
+                  expirationDateTime               = Tezos.get_now() + (86_400 * s.config.voteExpiryDays);
               ];
 
               s.emergencyGovernanceLedger[s.nextEmergencyGovernanceId] := newEmergencyGovernanceRecord;
@@ -293,7 +293,7 @@ block {
     case emergencyGovernanceLambdaAction of [
         | LambdaVoteForEmergencyControl(_parameters) -> {
 
-                const userAddress: address  = Tezos.sender;
+                const userAddress: address  = Tezos.get_sender();
                 
                 if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
                 else skip;
@@ -332,7 +332,7 @@ block {
 
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
-                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.now);
+                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.get_now());
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
 
@@ -365,8 +365,8 @@ block {
 
                     // update emergency governance record
                     _emergencyGovernance.executed            := True;
-                    _emergencyGovernance.executedDateTime    := Tezos.now;
-                    _emergencyGovernance.executedLevel       := Tezos.level;
+                    _emergencyGovernance.executedDateTime    := Tezos.get_now();
+                    _emergencyGovernance.executedLevel       := Tezos.get_level();
                     
                     // save emergency governance record
                     s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId]  := _emergencyGovernance;
@@ -408,7 +408,7 @@ block {
                 if emergencyGovernance.executed then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
                 else skip;
 
-                if emergencyGovernance.proposerAddress =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if emergencyGovernance.proposerAddress =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 emergencyGovernance.dropped := True; 

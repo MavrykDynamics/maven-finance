@@ -85,13 +85,13 @@ const thirty_days    : int              = one_day * 30;
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 function checkSenderIsAllowed(var s : vestingStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(var s : vestingStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
@@ -102,7 +102,7 @@ function checkSenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
               Some (_address) -> _address
           |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
         ];
-        if Tezos.sender = councilAddress or Tezos.sender = s.admin then skip
+        if Tezos.get_sender() = councilAddress or Tezos.get_sender() = s.admin then skip
         else failwith(error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
     } with (unit)
 
@@ -110,7 +110,7 @@ function checkSenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
 
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vestingStorageType) : unit is
 block{
-  if Tezos.sender = s.admin then skip
+  if Tezos.get_sender() = s.admin then skip
   else {
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
     const governanceSatelliteAddress: address = case generalContractsOptView of [
@@ -120,7 +120,7 @@ block{
             ]
     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
-    if Tezos.sender = governanceSatelliteAddress then skip
+    if Tezos.get_sender() = governanceSatelliteAddress then skip
       else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
@@ -128,7 +128,7 @@ block{
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------

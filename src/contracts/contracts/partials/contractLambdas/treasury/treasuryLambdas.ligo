@@ -290,7 +290,7 @@ block {
     // 1. Check that sender is in whitelist (governance)
     // 2. Send transfer operation from Treasury account to user account
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
       else skip;
 
     // break glass check
@@ -312,7 +312,7 @@ block {
                     const token        : tokenType        = destination.token;
                     const to_          : ownerType            = destination.to_;
                     const amt          : tokenAmountType  = destination.amount;
-                    const from_        : address          = Tezos.self_address; // treasury
+                    const from_        : address          = Tezos.get_self_address(); // treasury
                     
                     const transferTokenOperation : operation = case token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
@@ -346,7 +346,7 @@ block {
     // break glass check
     checkMintMvkAndTransferIsNotPaused(s);
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
       else skip;
 
     var operations : list(operation) := nil;

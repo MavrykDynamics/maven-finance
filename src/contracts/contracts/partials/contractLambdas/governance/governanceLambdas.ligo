@@ -196,9 +196,9 @@ block {
                     | ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage                    := updateConfigNewValue
                     | ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
                     | ConfigMaxProposalsPerSatellite (_v)               -> s.config.maxProposalsPerSatellite                := updateConfigNewValue
-                    | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound                  := updateConfigNewValue
-                    | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound                    := updateConfigNewValue
-                    | ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound                  := updateConfigNewValue
+                    | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound                  := updateConfigNewValue
+                    | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound                    := updateConfigNewValue
+                    | ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound                  := updateConfigNewValue
                     | ConfigProposalDatTitleMaxLength (_v)              -> s.config.proposalMetadataTitleMaxLength          := updateConfigNewValue
                     | ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
                     | ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
@@ -290,8 +290,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -368,7 +368,7 @@ function lambdaStartNextRound(const governanceLambdaAction : governanceLambdaAct
 block {
 
   // Current round hass not ended
-  if Tezos.level < s.currentCycleInfo.roundEndLevel
+  if Tezos.get_level() < s.currentCycleInfo.roundEndLevel
   then failwith(error_CURRENT_ROUND_NOT_FINISHED) 
   else skip;
 
@@ -438,7 +438,7 @@ block {
                         if s.timelockProposalId =/= 0n and executePastProposal then operations := Tezos.transaction(
                                 (unit), 
                                 0tez, 
-                                getExecuteProposalEntrypoint(Tezos.self_address)
+                                getExecuteProposalEntrypoint(Tezos.get_self_address())
                             ) # operations else skip;
                     }
                 ];
@@ -472,7 +472,7 @@ block {
         | LambdaPropose(newProposal) -> {
 
                 // check if tez sent is equal to the required fee
-                if Tezos.amount =/= s.config.proposalSubmissionFeeMutez 
+                if Tezos.get_amount() =/= s.config.proposalSubmissionFeeMutez 
                 then failwith(error_TEZ_FEE_NOT_PAID) 
                 else skip;
 
@@ -482,15 +482,15 @@ block {
                 ];
 
                 const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
-                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
                 
                 operations  := transferFeeToTreasuryOperation # operations;
 
                 // check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // check if satellite exists in the active satellites map
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -522,7 +522,7 @@ block {
                 const proposalMetadata          : map(nat, option(proposalMetadataType))  = map [];
                 const paymentMetadata           : map(nat, option(paymentMetadataType))   = map [];
 
-                var proposerProposals   : set(nat)             := case s.currentCycleInfo.roundProposers[Tezos.sender] of [
+                var proposerProposals   : set(nat)             := case s.currentCycleInfo.roundProposers[Tezos.get_sender()] of [
                       Some (_proposals) -> _proposals
                     | None              -> Set.empty
                 ];
@@ -531,7 +531,7 @@ block {
                 else failwith(error_MAX_PROPOSAL_REACHED);
 
                 var newProposalRecord : proposalRecordType := record [
-                    proposerAddress                     = Tezos.sender;
+                    proposerAddress                     = Tezos.get_sender();
                     proposalMetadata                    = proposalMetadata;
                     proposalMetadataExecutionCounter    = 0n;
                     paymentMetadata                     = paymentMetadata;
@@ -567,7 +567,7 @@ block {
                     minYayVotePercentage                = s.config.minYayVotePercentage;   // log of min yay votes percentage - capture state at this point
                     quorumCount                         = 0n;                              // log of turnout for voting round - number of satellites who voted
                     quorumStakedMvkTotal                = 0n;                              // log of total positive votes in MVK  
-                    startDateTime                       = Tezos.now;                       // log of when the proposal was proposed
+                    startDateTime                       = Tezos.get_now();                       // log of when the proposal was proposed
 
                     cycle                               = s.cycleCounter;
                     currentCycleStartLevel              = s.currentCycleInfo.roundStartLevel;        // log current round/cycle start level
@@ -579,7 +579,7 @@ block {
 
                 // save proposer proposals
                 proposerProposals                     := Set.add(proposalId, proposerProposals);
-                s.currentCycleInfo.roundProposers[Tezos.sender] := proposerProposals;
+                s.currentCycleInfo.roundProposers[Tezos.get_sender()] := proposerProposals;
 
                 // Add data on creation
                 case newProposal.proposalMetadata of [
@@ -595,7 +595,7 @@ block {
                                     proposalBytes   = metadata.data;
                                 ],
                                 0tez, 
-                                getUpdateProposalDataEntrypoint(Tezos.self_address)
+                                getUpdateProposalDataEntrypoint(Tezos.get_self_address())
                             ) # operationList;
                         
                         operations := List.fold_right(proposalDataOperationAccumulator, _metadataList, operations)
@@ -618,7 +618,7 @@ block {
                                     paymentTransaction      = metadata.transaction;
                                 ],
                                 0tez, 
-                                getUpdatePaymentDataEntrypoint(Tezos.self_address)
+                                getUpdatePaymentDataEntrypoint(Tezos.get_self_address())
                             ) # operationList;
                         
                         operations := List.fold_right(paymentDataOperationAccumulator, _metadataList, operations)
@@ -669,7 +669,7 @@ block {
                 else skip;
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.sender and Tezos.self_address =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if proposalRecord.proposerAddress =/= Tezos.get_sender() and Tezos.get_self_address() =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // check if satellite exists and is not suspended or banned
@@ -745,7 +745,7 @@ block {
                 else skip;
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.sender and Tezos.self_address =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if proposalRecord.proposerAddress =/= Tezos.get_sender() and Tezos.get_self_address() =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // check if satellite exists and is not suspended or banned
@@ -810,7 +810,7 @@ block {
                 ];
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if proposalRecord.proposerAddress =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // check if satellite exists and is not suspended or banned
@@ -851,10 +851,10 @@ block {
         | LambdaProposalRoundVote(proposalId) -> {
                 
                 // check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // check if satellite exists in the active satellites map
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -877,7 +877,7 @@ block {
                 if _proposal.locked = False then failwith(error_PROPOSAL_NOT_LOCKED)
                 else skip;
 
-                const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentCycleInfo.roundVotes);
+                const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.get_sender(), s.currentCycleInfo.roundVotes);
                 if checkIfSatelliteHasVotedFlag = False then block {
                 
                     // satellite has not voted for other proposals
@@ -886,13 +886,13 @@ block {
 
                     _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;    
                     _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
-                    _proposal.proposalVotersMap[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now);
+                    _proposal.proposalVotersMap[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now());
                     
                     // update proposal with new vote
                     s.proposalLedger[proposalId] := _proposal;
 
                     // update current round votes with satellite's address -> proposal id
-                    s.currentCycleInfo.roundVotes[Tezos.sender] := proposalId;
+                    s.currentCycleInfo.roundVotes[Tezos.get_sender()] := proposalId;
 
                     // increment proposal with satellite snapshot's total voting power
                     s.currentCycleInfo.roundProposals[proposalId] := newProposalVoteStakedMvkTotal;
@@ -900,7 +900,7 @@ block {
                 } else block {
 
                     // check if satellite already voted for this proposal
-                    case s.currentCycleInfo.roundVotes[Tezos.sender] of [
+                    case s.currentCycleInfo.roundVotes[Tezos.get_sender()] of [
                         Some (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else skip
                     |   None                -> failwith(error_VOTE_NOT_FOUND)
                     ];
@@ -910,10 +910,10 @@ block {
 
                     _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;
                     _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
-                    _proposal.proposalVotersMap[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now);
+                    _proposal.proposalVotersMap[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now());
 
                     // update previous prospoal begin -----------------
-                    const previousVotedProposalId : nat = case s.currentCycleInfo.roundVotes[Tezos.sender] of [
+                    const previousVotedProposalId : nat = case s.currentCycleInfo.roundVotes[Tezos.get_sender()] of [
                           Some(_id) -> _id
                         | None      -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
@@ -934,7 +934,7 @@ block {
                     _previousProposal.proposalVoteStakedMvkTotal := previousProposalProposalVoteStakedMvkTotal;
 
                     // remove user from previous proposal that he voted on, decrement previously voted proposal by satellite snapshot's total voting power
-                    remove Tezos.sender from map _previousProposal.proposalVotersMap;        
+                    remove Tezos.get_sender() from map _previousProposal.proposalVotersMap;        
                     s.currentCycleInfo.roundProposals[previousVotedProposalId] := previousProposalProposalVoteStakedMvkTotal;
                     // -------- update previous prospoal end ---------
                 
@@ -946,7 +946,7 @@ block {
                     s.currentCycleInfo.roundProposals[proposalId] := newProposalVoteStakedMvkTotal;
 
                     // update current round votes with satellite's address -> new proposal id
-                    s.currentCycleInfo.roundVotes[Tezos.sender] := proposalId;    
+                    s.currentCycleInfo.roundVotes[Tezos.get_sender()] := proposalId;    
                 } 
 
             }
@@ -980,10 +980,10 @@ block {
                 const voteType: voteType   = voteRecord.vote;
 
                 // check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
                 
                 // check if satellite exists in the active satellites map
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
                       None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
                     | Some(snapshot) -> snapshot
                 ];
@@ -1004,11 +1004,11 @@ block {
 
                 // note: currentCycleInfo.roundVotes change in the use of nat from proposal round (from proposal id to vote type)
                 //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
-                const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentCycleInfo.roundVotes);
+                const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.get_sender(), s.currentCycleInfo.roundVotes);
                 if checkIfSatelliteHasVotedFlag = False then block {
                     // satellite has not voted - add new vote
                     
-                    _proposal.voters[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now, voteType);
+                    _proposal.voters[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now(), voteType);
 
                     // set proposal record based on vote type 
                     var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1020,7 +1020,7 @@ block {
                     // satellite has already voted - change of vote
                     
                     // get previous vote
-                    var previousVote : (nat * timestamp * voteType) := case _proposal.voters[Tezos.sender] of [ 
+                    var previousVote : (nat * timestamp * voteType) := case _proposal.voters[Tezos.get_sender()] of [ 
                         | None                -> failwith(error_VOTE_NOT_FOUND)
                         | Some(_previousVote) -> _previousVote
                     ];
@@ -1032,7 +1032,7 @@ block {
                     else skip;
 
                     // save new vote
-                    _proposal.voters[Tezos.sender] := (satelliteSnapshot.totalVotingPower, Tezos.now, voteType);
+                    _proposal.voters[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now(), voteType);
 
                     // set proposal record based on vote type 
                     var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
@@ -1062,7 +1062,7 @@ block {
     // 3. execute proposal - list of operations to run
 
     // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.sender =/= Tezos.self_address) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
     else skip;
 
     // check that there is a highest voted proposal in the current round
@@ -1159,7 +1159,7 @@ block {
                 ];
 
                 // verify that sender is the satellite that proposed the proposal
-                if Tezos.sender =/= proposal.proposerAddress then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if Tezos.get_sender() =/= proposal.proposerAddress then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // check if satellite exists and is not suspended or banned
@@ -1239,7 +1239,7 @@ block {
         | LambdaProcessProposalSingleData(_parameter) -> {
                 
                 // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-                if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.sender =/= Tezos.self_address) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+                if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
                 else skip;
 
                 // check that there is a highest voted proposal in the current round
@@ -1339,7 +1339,7 @@ block {
                 // check if satellite exists and is not suspended or banned
                 checkSatelliteIsNotSuspendedOrBanned(_proposal.proposerAddress, s);
 
-                if _proposal.proposerAddress = Tezos.sender or Tezos.sender = s.admin then block {
+                if _proposal.proposerAddress = Tezos.get_sender() or Tezos.get_sender() = s.admin then block {
                     _proposal.status               := "DROPPED";
                     s.proposalLedger[proposalId]   := _proposal;
 

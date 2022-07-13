@@ -159,8 +159,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -314,7 +314,7 @@ block{
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const treasuryWhitelistContracts : whitelistContractsType = map[
-                    ("treasuryFactory") -> (Tezos.self_address: address);
+                    ("treasuryFactory") -> (Tezos.get_self_address(): address);
                     ("governanceProxy") -> (governanceProxyAddress);
                 ];
                 const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;

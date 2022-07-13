@@ -83,13 +83,13 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 
 
 function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 function checkSenderIsAllowed(const s: treasuryStorageType): unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
@@ -100,7 +100,7 @@ function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorageType): 
               Some (_address) -> _address
           |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED): address)
         ];
-        if (Tezos.sender = s.admin or Tezos.sender = governanceFinancialAddress) then skip
+        if (Tezos.get_sender() = s.admin or Tezos.get_sender() = governanceFinancialAddress) then skip
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
     } with(unit)
 
@@ -110,14 +110,14 @@ function checkSenderIsGovernanceOrFactory(const s: treasuryStorageType): unit is
 block {
     
     // First check because a treasury without a factory should still be accessible
-    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress
     then skip
     else{
         const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
               Some (_address) -> _address
           |   None -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND): address)
         ];
-        if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.get_sender() = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -125,7 +125,7 @@ block {
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------

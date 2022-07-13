@@ -167,8 +167,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -242,7 +242,7 @@ block {
                 if requestTokensParams.tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(requestTokensParams.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
 
                 var newFinancialRequest : financialRequestRecordType := record [
-                    requesterAddress     = Tezos.sender;
+                    requesterAddress     = Tezos.get_sender();
                     requestType          = "TRANSFER";
                     status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                     executed             = False;
@@ -265,8 +265,8 @@ block {
                     stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
                     stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                    requestedDateTime    = Tezos.now;               // log of when the request was submitted
-                    expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+                    requestedDateTime    = Tezos.get_now();               // log of when the request was submitted
+                    expiryDateTime       = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
                 
                 ];
 
@@ -359,7 +359,7 @@ block {
 
                 var newFinancialRequest : financialRequestRecordType := record [
 
-                        requesterAddress     = Tezos.sender;
+                        requesterAddress     = Tezos.get_sender();
                         requestType          = "MINT";
                         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed             = False;
@@ -382,8 +382,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        requestedDateTime    = Tezos.now;               // log of when the request was submitted
-                        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+                        requestedDateTime    = Tezos.get_now();               // log of when the request was submitted
+                        expiryDateTime       = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
                     ];
 
                 const financialRequestId : nat = s.financialRequestCounter;
@@ -472,7 +472,7 @@ block {
 
                 var newFinancialRequest : financialRequestRecordType := record [
 
-                        requesterAddress     = Tezos.sender;
+                        requesterAddress     = Tezos.get_sender();
                         requestType          = "SET_CONTRACT_BAKER";
                         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed             = False;
@@ -495,8 +495,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        requestedDateTime    = Tezos.now;               // log of when the request was submitted
-                        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+                        requestedDateTime    = Tezos.get_now();               // log of when the request was submitted
+                        expiryDateTime       = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
                     ];
 
                 const financialRequestId : nat = s.financialRequestCounter;
@@ -554,7 +554,7 @@ block {
 
                 if financialRequest.executed then failwith(error_FINANCIAL_REQUEST_EXECUTED) else skip;
 
-                if Tezos.now > financialRequest.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
+                if Tezos.get_now() > financialRequest.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
 
                 financialRequest.status := False;
                 s.financialRequestLedger[requestId] := financialRequest;
@@ -577,7 +577,7 @@ block {
         | LambdaVoteForRequest(voteForRequest) -> {
 
                 // check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.sender, s);
+                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 const financialRequestId : nat = voteForRequest.requestId;
 
@@ -589,14 +589,14 @@ block {
                 if _financialRequest.status    = False then failwith(error_FINANCIAL_REQUEST_DROPPED)          else skip;
                 if _financialRequest.executed  = True  then failwith(error_FINANCIAL_REQUEST_EXECUTED) else skip;
 
-                if Tezos.now > _financialRequest.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
+                if Tezos.get_now() > _financialRequest.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
 
                 const financialRequestSnapshot : financialRequestSnapshotMapType = case s.financialRequestSnapshotLedger[financialRequestId] of [
                       Some(_snapshot) -> _snapshot
                     | None            -> failwith(error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND)
                 ]; 
 
-                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
+                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case financialRequestSnapshot[Tezos.get_sender()] of [ 
                       Some(_record) -> _record
                     | None          -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
@@ -606,7 +606,7 @@ block {
                 const totalVotingPower : nat                        = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted
-                case _financialRequest.voters[Tezos.sender] of [
+                case _financialRequest.voters[Tezos.get_sender()] of [
                     
                     Some (_voteRecord) -> case _voteRecord.vote of [
 
@@ -631,10 +631,10 @@ block {
                 const newVoteRecord : financialRequestVoteType     = record [
                     vote             = voteType;
                     totalVotingPower = totalVotingPower;
-                    timeVoted        = Tezos.now;
+                    timeVoted        = Tezos.get_now();
                 ];
 
-                _financialRequest.voters[Tezos.sender] := newVoteRecord;
+                _financialRequest.voters[Tezos.get_sender()] := newVoteRecord;
 
                 // Satellite cast vote and send request to Treasury if enough votes have been gathered
                 case voteType of [

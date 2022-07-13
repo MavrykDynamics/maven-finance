@@ -173,8 +173,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -196,7 +196,7 @@ block {
         | LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
+                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.get_sender(), s.councilMembers) of [
                         Some (_info) -> _info
                     |   None         -> failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED)
                 ];
@@ -207,7 +207,7 @@ block {
                 councilMember.image     := councilMemberInfo.image;
 
                 // Update storage
-                s.councilMembers[Tezos.sender]  := councilMember;
+                s.councilMembers[Tezos.get_sender()]  := councilMember;
                 
             }
         | _ -> skip
@@ -260,23 +260,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "addCouncilMember";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = addressMap;
                     stringMap             = stringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -321,23 +321,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "removeCouncilMember";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = addressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -391,23 +391,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "changeCouncilMember";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = addressMap;
                     stringMap             = stringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -452,23 +452,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "pauseAllEntrypoints";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = emptyAddressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -505,23 +505,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "unpauseAllEntrypoints";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = emptyAddressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -558,23 +558,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "propagateBreakGlass";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = emptyAddressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -622,7 +622,7 @@ block {
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                 const addressMap   : addressMapType      = map [
@@ -634,23 +634,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "setSingleContractAdmin";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = addressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -692,7 +692,7 @@ block {
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
                 const addressMap   : addressMapType      = map [
@@ -703,23 +703,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "setAllContractsAdmin";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = addressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -756,23 +756,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "removeBreakGlassControl";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = emptyAddressMap;
                     stringMap             = emptyStringMap;
                     natMap                = emptyNatMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -830,23 +830,23 @@ block {
 
                 var actionRecord : breakGlassActionRecordType := record[
 
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     status                = "PENDING";
                     actionType            = "flushAction";
                     executed              = False;
 
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
                     signersCount          = 1n;
 
                     addressMap            = emptyAddressMap;
                     stringMap             = emptyStringMap;
                     natMap                = natMap;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.actionsLedger[s.actionCounter] := actionRecord; 
 
@@ -880,15 +880,15 @@ block {
                 // check if break glass action has been flushed
                 if _actionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED) else skip;
 
-                if Tezos.now > _actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+                if Tezos.get_now() > _actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
                 // check if signer already signed
-                if Set.mem(Tezos.sender, _actionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                if Set.mem(Tezos.get_sender(), _actionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for break glass action record
                 var signersCount : nat             := _actionRecord.signersCount + 1n;
                 _actionRecord.signersCount         := signersCount;
-                _actionRecord.signers              := Set.add(Tezos.sender, _actionRecord.signers);
+                _actionRecord.signers              := Set.add(Tezos.get_sender(), _actionRecord.signers);
                 s.actionsLedger[actionId]          := _actionRecord;
 
                 const actionType : string = _actionRecord.actionType;
@@ -1144,7 +1144,7 @@ block {
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
-                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
                         else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         const setSingleContractAdminOperation : operation = Tezos.transaction(
@@ -1181,7 +1181,7 @@ block {
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
-                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
                         else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         // Set self as contract admin
@@ -1200,7 +1200,7 @@ block {
                         var uniqueContracts: set(address)    := (Set.empty: set(address));
                         function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
                             // Add address to the set except self
-                            if generalContract.1 = Tezos.self_address then contractsSet else Set.add(generalContract.1, contractsSet);
+                            if generalContract.1 = Tezos.get_self_address() then contractsSet else Set.add(generalContract.1, contractsSet);
                         uniqueContracts  := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
 
                         // Iterate over set to call setAdmin entrypoint
@@ -1242,7 +1242,7 @@ block {
                         var uniqueContracts: set(address)    := (Set.empty: set(address));
                         function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
                             // Add address to the set except self
-                            if generalContract.1 = Tezos.self_address then contractsSet else Set.add(generalContract.1, contractsSet);
+                            if generalContract.1 = Tezos.get_self_address() then contractsSet else Set.add(generalContract.1, contractsSet);
                         uniqueContracts  := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
 
                         // Iterate over set to call setAdmin entrypoint
@@ -1261,8 +1261,8 @@ block {
                     // update break glass action record status
                     _actionRecord.status              := "EXECUTED";
                     _actionRecord.executed            := True;
-                    _actionRecord.executedDateTime    := Tezos.now;
-                    _actionRecord.executedLevel       := Tezos.level;
+                    _actionRecord.executedDateTime    := Tezos.get_now();
+                    _actionRecord.executedLevel       := Tezos.get_level();
                     
                     // save break glass action record
                     s.actionsLedger[actionId]         := _actionRecord;

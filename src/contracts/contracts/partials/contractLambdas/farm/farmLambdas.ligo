@@ -205,8 +205,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> if token = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> if token.tokenContractAddress = lpTokenAddress then failwith(error_CANNOT_TRANSFER_LP_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -297,7 +297,7 @@ block{
                 
                 // Update farmStorageType
                 s := updateFarm(s);
-                s.initBlock := Tezos.level;
+                s.initBlock := Tezos.get_level();
                 s.config.infinite := initFarmParams.infinite;
                 s.config.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
                 s.config.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
@@ -454,7 +454,7 @@ block{
                 checkFarmIsOpen(s);
 
                 // Depositor address
-                const depositor     : depositorType = Tezos.sender;
+                const depositor     : depositorType = Tezos.get_sender();
 
                 // Check if sender as already a record
                 const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
@@ -489,7 +489,7 @@ block{
                 s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-                const transferOperation: operation = transferLP(depositor, Tezos.self_address, tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
+                const transferOperation: operation = transferLP(depositor, Tezos.get_self_address(), tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
 
                 operations := transferOperation # operations;
 
@@ -519,7 +519,7 @@ block{
                 // Update pool farmStorageType
                 s := updateFarm(s);     
 
-                const depositor: depositorType = Tezos.sender;
+                const depositor: depositorType = Tezos.get_sender();
 
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(depositor, s);
@@ -540,7 +540,7 @@ block{
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
                 const transferOperation: operation = transferLP(
-                    Tezos.self_address,
+                    Tezos.get_self_address(),
                     depositor,
                     tokenAmount,
                     s.config.lpToken.tokenId, 

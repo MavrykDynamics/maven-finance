@@ -139,8 +139,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -323,7 +323,7 @@ block{
                     |   None            -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
                 ];
                 const farmWhitelistContract : whitelistContractsType = map[
-                    ("farmFactory")  -> (Tezos.self_address: address);
+                    ("farmFactory")  -> (Tezos.get_self_address(): address);
                     ("council")      -> (councilAddress: address)
                 ];
                 const farmGeneralContracts : generalContractsType = map[];
@@ -385,13 +385,13 @@ block{
 
                     breakGlassConfig        = farmBreakGlassConfig;
 
-                    lastBlockUpdate         = Tezos.level;
+                    lastBlockUpdate         = Tezos.get_level();
                     accumulatedRewardsPerShare  = 0n;
                     claimedRewards          = farmClaimedRewards;
                     depositors              = big_map[];
                     open                    = True ;
                     init                    = True;
-                    initBlock               = Tezos.level;
+                    initBlock               = Tezos.get_level();
 
                     lambdaLedger            = farmLambdaLedger;
                 ];

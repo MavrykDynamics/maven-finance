@@ -79,19 +79,19 @@ const one_year       : int              = one_day * 365;
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : mvkTokenStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(const store: mvkTokenStorageType): unit is
-  if Tezos.sender =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+  if Tezos.get_sender() =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
 function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+  if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
   else unit
 
 
@@ -101,7 +101,7 @@ function checkSenderIsDoormanContract(const store: mvkTokenStorageType): unit is
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
   } with(case generalContractsOptView of [
         Some (_optionContract) -> case _optionContract of [
-                Some (_contract)    -> if _contract =/= Tezos.sender then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
+                Some (_contract)    -> if _contract =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
             |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
             ]
     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -111,7 +111,7 @@ function checkSenderIsDoormanContract(const store: mvkTokenStorageType): unit is
 
 function checkSenderIsAdminOrGovernanceSatelliteContract(var store : mvkTokenStorageType) : unit is
 block{
-  if Tezos.sender = store.admin then skip
+  if Tezos.get_sender() = store.admin then skip
   else {
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", store.governanceAddress);
     const governanceSatelliteAddress: address = case generalContractsOptView of [
@@ -121,7 +121,7 @@ block{
             ]
     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
-    if Tezos.sender = governanceSatelliteAddress then skip
+    if Tezos.get_sender() = governanceSatelliteAddress then skip
       else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
@@ -149,13 +149,13 @@ function checkBalance(const spenderBalance: tokenBalanceType; const tokenAmount:
 
 
 function checkOwnership(const owner: ownerType): unit is
-  if Tezos.sender =/= owner then failwith("FA2_NOT_OWNER")
+  if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
   else unit
 
 
 
 function checkOperator(const owner: ownerType; const token_id: tokenIdType; const operators: operatorsType): unit is
-  if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
+  if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
   else failwith ("FA2_NOT_OPERATOR")
 
 
@@ -376,8 +376,8 @@ block {
         // Check if token is not MVK (it would break SMVK) before creating the transfer operation
         const transferTokenOperation : operation = case transferParam.token of [
             | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-            | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-            | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+            | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+            | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
         ];
       } with(transferTokenOperation # operationList);
     
@@ -515,7 +515,7 @@ block {
     const mintedTokens      : tokenBalanceType  = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) or Tezos.get_sender() = Tezos.get_self_address() then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorageType
     const tempTotalSupply: tokenBalanceType = store.totalSupply + mintedTokens;
@@ -565,13 +565,13 @@ block {
     const inflation: tokenBalanceType = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
     
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
-    if store.nextInflationTimestamp < Tezos.now then {
+    if store.nextInflationTimestamp < Tezos.get_now() then {
       
       // Set the new maximumSupply
       store.maximumSupply           := store.maximumSupply + inflation;
 
       // Update the next change date
-      store.nextInflationTimestamp  := Tezos.now + one_year;
+      store.nextInflationTimestamp  := Tezos.get_now() + one_year;
     }
     else failwith(error_CANNOT_TRIGGER_INFLATION_NOW);
 

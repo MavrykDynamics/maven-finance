@@ -99,25 +99,25 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 
 
 function checkSenderIsAdmin(var s : governanceStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 function checkSenderIsWhitelistedOrAdmin(var s : governanceStorageType) : unit is
-    if (Tezos.sender = s.admin) or checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then unit
+    if (Tezos.get_sender() = s.admin) or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_WHITELISTED_ADDRESSES_ALLOWED);
 
 
 
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.self_address) then unit
+    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
 
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
@@ -130,7 +130,7 @@ block{
       | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
   ];
   
-  if (Tezos.sender = doormanAddress) then skip
+  if (Tezos.get_sender() = doormanAddress) then skip
   else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
 } with unit
@@ -145,7 +145,7 @@ block{
       | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
   ];
 
-  if (Tezos.sender = delegationAddress) then skip
+  if (Tezos.get_sender() = delegationAddress) then skip
   else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
 
 } with unit
@@ -156,7 +156,7 @@ function checkSenderIsMvkTokenContract(var s : governanceStorageType) : unit is
 block{
 
   const mvkTokenAddress : address = s.mvkTokenAddress;
-  if (Tezos.sender = mvkTokenAddress) then skip
+  if (Tezos.get_sender() = mvkTokenAddress) then skip
   else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
 
 } with unit
@@ -171,7 +171,7 @@ block{
       | None           -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
   ];
   
-  if (Tezos.sender = councilAddress) then skip
+  if (Tezos.get_sender() = councilAddress) then skip
   else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
 
 } with unit
@@ -186,7 +186,7 @@ block{
       | None           -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
-  if (Tezos.sender = emergencyGovernanceAddress) then skip
+  if (Tezos.get_sender() = emergencyGovernanceAddress) then skip
   else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
 
 } with unit
@@ -195,13 +195,13 @@ block{
 
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceStorageType) : unit is
 block{
-  if Tezos.sender = s.admin then skip
+  if Tezos.get_sender() = s.admin then skip
   else {
     const governanceSatelliteAddress: address = case s.generalContracts["governanceSatellite"] of [
           Some (_contract)    -> _contract
         | None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
     ];
-    if Tezos.sender = governanceSatelliteAddress then skip
+    if Tezos.get_sender() = governanceSatelliteAddress then skip
       else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
 } with unit
@@ -532,9 +532,9 @@ block {
     s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
     s.currentCycleInfo.blocksPerVotingRound          := s.config.blocksPerVotingRound;
     s.currentCycleInfo.blocksPerTimelockRound        := s.config.blocksPerTimelockRound;
-    s.currentCycleInfo.roundStartLevel               := Tezos.level;
-    s.currentCycleInfo.roundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
-    s.currentCycleInfo.cycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
+    s.currentCycleInfo.roundStartLevel               := Tezos.get_level();
+    s.currentCycleInfo.roundEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound;
+    s.currentCycleInfo.cycleEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
     s.currentCycleInfo.minQuorumStakedMvkTotal       := minQuorumStakedMvkTotal;
     s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals

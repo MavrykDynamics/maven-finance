@@ -274,12 +274,12 @@ block {
                       round                 = 0n;
                       price                 = 0n;
                       percentOracleResponse = 0n;
-                      priceDateTime         = Tezos.now;
+                      priceDateTime         = Tezos.get_now();
                   ];
                 const oracleRewardXtz        : oracleRewardXtzType        = map[];
                 const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
                 const deviationTriggerInfos  : deviationTriggerInfosType  = record[
-                  oracleAddress             = Tezos.sender;
+                  oracleAddress             = Tezos.get_sender();
                   roundPrice                = 0n;
                 ];
 
@@ -294,7 +294,7 @@ block {
                 ];
 
                 const aggregatorWhitelistContracts : whitelistContractsType = map[
-                    ("aggregatorFactory")   -> (Tezos.self_address : address);
+                    ("aggregatorFactory")   -> (Tezos.get_self_address() : address);
                     ("governanceSatellite") -> (governanceSatelliteAddress : address);
                 ];
                 
@@ -338,7 +338,7 @@ block {
                     generalContracts          = aggregatorGeneralContracts;
 
                     round                     = 0n;
-                    roundStart                = Tezos.now;
+                    roundStart                = Tezos.get_now();
                     switchBlock               = 0n;
 
                     oracleAddresses           = createAggregatorParams.2.oracleAddresses;
@@ -487,7 +487,7 @@ block{
         | LambdaDistributeRewardXtz(distributeRewardXtzParams) -> {
                 
                 // check that sender is from a tracked aggregator
-                if checkInTrackedAggregators(Tezos.sender, s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
+                if checkInTrackedAggregators(Tezos.get_sender(), s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
 
                 const recipient          : address    = distributeRewardXtzParams.recipient;
                 const reward             : nat        = distributeRewardXtzParams.reward;
@@ -540,7 +540,7 @@ block{
         | LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams) -> {
                 
                 // check that sender is from a tracked aggregator
-                if checkInTrackedAggregators(Tezos.sender, s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
+                if checkInTrackedAggregators(Tezos.get_sender(), s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
 
                 // get delegation address
                 const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);

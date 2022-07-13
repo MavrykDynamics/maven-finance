@@ -96,25 +96,25 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 function checkSenderIsAllowed(var s : councilStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdmin(var s : councilStorageType) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
         else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 function checkSenderIsCouncilMember(var s : councilStorageType) : unit is
-    if Map.mem(Tezos.sender, s.councilMembers) then unit 
+    if Map.mem(Tezos.get_sender(), s.councilMembers) then unit 
         else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
         else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
