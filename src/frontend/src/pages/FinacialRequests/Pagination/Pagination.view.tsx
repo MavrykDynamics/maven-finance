@@ -24,12 +24,6 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
   const generateNewUrl = (newPage: number) => updatePageInUrl({ page, newPage, listName, pathname, restQP: rest })
 
   useEffect(() => {
-    if (inputValue) {
-      history.push(generateNewUrl(inputValue))
-    }
-  }, [inputValue])
-
-  useEffect(() => {
     setInputValue(currentPage)
   }, [currentPage])
 
@@ -45,6 +39,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
           }}
           onKeyDown={(e: React.KeyboardEvent) => {
             if ((!inputValue && e.key === '0') || e.key === '-') e.preventDefault()
+            if (e.key === 'Enter') history.push(generateNewUrl(inputValue))
           }}
           onBlur={() => {
             if (!inputValue && !inputValue !== currentPage) setInputValue(currentPage)
@@ -55,6 +50,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
       </div>
       of {pagesCount}
       <PaginationArrow
+        isDisabled={+currentPage === 1}
         onClick={() => {
           if (currentPage > 1) {
             history.push(generateNewUrl(currentPage - 1))
@@ -66,6 +62,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
         </svg>
       </PaginationArrow>
       <PaginationArrow
+        isDisabled={+currentPage === +pagesCount}
         isRight
         onClick={() => {
           if (currentPage < pagesCount) {
