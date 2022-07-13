@@ -1,21 +1,29 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Page, ModalStyled } from 'styles'
-import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { State } from '../../reducers'
-import { calcTimeToBlock } from '../../utils/calcFunctions'
+import { State } from 'reducers'
+
+// types
+import type { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
+
+// actions
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
 import { getGovernanceStorage, getCurrentRoundProposals, startNextRound, executeProposal } from './Governance.actions'
+
+// view
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
 import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { MoveNextRoundModal } from './MoveNextRoundModal/MoveNextRoundModal.controller'
 
-// const
-import { MOCK_PAST_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST, MOCK_EXEC_PROPOSAL_LIST } from './mockProposals'
+// utils
+import { calcTimeToBlock } from '../../utils/calcFunctions'
+
+// hooks
+import useGovernence from './UseGovernance'
 
 export type VoteStatistics = {
   passVotesMVKTotal: number
@@ -27,6 +35,8 @@ export type VoteStatistics = {
 export const Governance = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
+
+  const { watingProposals, waitingForPaymentToBeProcessed } = useGovernence()
 
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
@@ -69,23 +79,9 @@ export const Governance = () => {
       Boolean(item.currentRoundProposal) &&
       Boolean(item.id === governanceStorage.cycleHighestVotedProposalId),
   )
-  const proposalLedgerList = proposalLedger?.values ? Array.from(proposalLedger.values()) : []
-
-  const watingProposals = proposalLedgerList.filter(
-    (item: any) => isProposalRound && governanceStorage.timelockProposalId === item.id && !item?.executed,
-  ) as ProposalRecordType[]
-
-  const waitingForPaymentToBeProcessed = proposalLedgerList.filter(
-    (item: any) =>
-      isProposalRound &&
-      governanceStorage.timelockProposalId === item.id &&
-      item?.executed &&
-      !item.paymentProcessed &&
-      item?.proposalPayments?.length > 0,
-  ) as ProposalRecordType[]
 
   const handleMoveNextRound = () => {
-    dispatch(startNextRound(true))
+    dispatch(startNextRound(false))
   }
   const handleExecuteProposal = (id: number) => {
     dispatch(executeProposal(id))
@@ -114,6 +110,7 @@ export const Governance = () => {
         timeLeftInPhase={daysLeftOfPeriod}
         isInEmergencyGovernance={false}
         loading={loading}
+        isExecutionRound={Boolean(watingProposals.length)}
         handleMoveNextRound={handleMoveNextRound}
       />
       <GovernanceView
