@@ -85,19 +85,19 @@ export const StageThreeFormView = ({
       </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <label>1- Enter Proposal Title</label>
+          <label>1 - Enter Proposal Title</label>
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Success Reward</label>
+          <label>2 - Proposal Success Reward</label>
           <FormTitleEntry>{successReward} MVK</FormTitleEntry>
         </div>
         <div>
-          <label>3- Fee</label>
+          <label>3 - Fee</label>
           <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
-      <label>3- Enter Proposal Data</label>
+      <label>4 - Enter Proposal Data</label>
       <FormTableGrid className={disabled ? 'disabled' : ''}>
         <TableGrid tableData={tableData} setTableData={setTableData} />
       </FormTableGrid>

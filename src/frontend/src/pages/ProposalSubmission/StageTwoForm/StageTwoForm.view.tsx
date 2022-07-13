@@ -118,15 +118,15 @@ export const StageTwoFormView = ({
       </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <label>1- Enter Proposal Title</label>
+          <label>1 - Enter Proposal Title</label>
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Success Reward</label>
+          <label>2 - Proposal Success Reward</label>
           <FormTitleEntry>{successReward} MVK</FormTitleEntry>
         </div>
         <div>
-          <label>3- Fee</label>
+          <label>3 - Fee</label>
           <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
