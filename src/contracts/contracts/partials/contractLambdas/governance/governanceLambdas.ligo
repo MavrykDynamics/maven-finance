@@ -439,6 +439,29 @@ block {
 // Governance Cycle Lambdas Begin
 // ------------------------------------------------------------------------------
 
+(*  updateSatelliteSnapshot lambda *)
+function lambdaUpdateSatelliteSnapshot(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case governanceLambdaAction of [
+        |   LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams) -> {
+
+                // Check sender is in the whitelist contracts or is the admin
+                checkSenderIsWhitelistedOrAdmin(s);
+                
+                // Update the storage with the new snapshot
+                s   := updateSatelliteSnapshotRecord(updateSatelliteSnapshotParams, s);
+
+            }
+        |   _ -> skip
+    ];  
+
+} with (operations, s)
+
+
+
 (*  startNextRound lambda *)
 function lambdaStartNextRound(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is
 block {
@@ -633,8 +656,9 @@ block {
                 checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
+                s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
-                        None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
+                        None           -> failwith(error_SNAPSHOT_NOT_FOUND)
                     |   Some(snapshot) -> snapshot
                 ];
 
@@ -893,7 +917,7 @@ block {
                 else skip;
 
                 // Check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.get_self_address() and Tezos.get_self_address() =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if proposalRecord.proposerAddress =/= Tezos.get_sender() and Tezos.get_self_address() =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // ------------------------------------------------------------------
@@ -1159,8 +1183,9 @@ block {
                 checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
+                s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
-                        None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
+                        None           -> failwith(error_SNAPSHOT_NOT_FOUND)
                     |   Some(snapshot) -> snapshot
                 ];
 
@@ -1335,8 +1360,9 @@ block {
                 checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
+                s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
                 const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
-                        None           -> failwith(error_SNAPSHOT_NOT_TAKEN)
+                        None           -> failwith(error_SNAPSHOT_NOT_FOUND)
                     |   Some(snapshot) -> snapshot
                 ];
 

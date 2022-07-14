@@ -328,6 +328,13 @@ block {
                 // Check that user is not a satellite
                 checkUserIsNotSatellite(userAddress, s);
 
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(satelliteAddress, True, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
+
                 // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
                 s := updateRewards(userAddress, s);
                 
@@ -472,6 +479,8 @@ block {
 
     checkUndelegateFromSatelliteIsNotPaused(s); // check that %undelegateFromSatellite entrypoint is not paused (e.g. glass broken)
 
+    var operations : list(operation) := nil;
+
     case delegationLambdaAction of [
         |   LambdaUndelegateFromSatellite(userAddress) -> {
 
@@ -479,14 +488,21 @@ block {
                 if Tezos.get_sender() = userAddress or Tezos.get_sender() = Tezos.get_self_address() then skip 
                 else failwith(error_ONLY_SELF_OR_SENDER_ALLOWED);
 
-                // Update unclaimed rewards for user
-                s := updateRewards(userAddress, s);
-
                 // Get user's delegate record
                 var _delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
                         Some(_val) -> _val
                     |   None -> failwith(error_DELEGATE_NOT_FOUND)
                 ];
+
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(_delegateRecord.satelliteAddress, True, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
+
+                // Update unclaimed rewards for user
+                s := updateRewards(userAddress, s);
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
@@ -549,7 +565,7 @@ block {
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Delegation Lambdas End
@@ -581,6 +597,8 @@ block {
 
     checkRegisterAsSatelliteIsNotPaused(s); // check that %registerAsSatellite entrypoint is not paused (e.g. glass broken)
 
+    var operations : list(operation) := nil;
+
     case delegationLambdaAction of [
         |   LambdaRegisterAsSatellite(registerAsSatelliteParams) -> {
 
@@ -594,7 +612,7 @@ block {
                 s := updateRewards(userAddress, s);
 
                 // Check if max number of satellites limit has been reached
-                if Map.size(s.satelliteLedger) >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_REACHED) else skip;
+                if s.satelliteCounter >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_REACHED) else skip;
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
@@ -634,8 +652,8 @@ block {
                 if satelliteFee > 10000n then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Create new satellite record
-                const satelliteRecord: satelliteRecordType = case Map.find_opt(userAddress, s.satelliteLedger) of [
-                        Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS) : satelliteRecordType)
+                const satelliteRecord: satelliteRecordType = case Big_map.find_opt(userAddress, s.satelliteLedger) of [
+                        Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
                     |   None -> record [            
                             status                = "ACTIVE";
                             stakedMvkBalance      = stakedMvkBalance;
@@ -652,7 +670,15 @@ block {
                 ];
 
                 // Save new satellite record
-                s.satelliteLedger[userAddress] := satelliteRecord;
+                s.satelliteLedger[userAddress]  := satelliteRecord;
+                s.satelliteCounter              := s.satelliteCounter + 1n;
+
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, False, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
 
                 // Update or create a satellite rewards record
                 var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
@@ -672,7 +698,7 @@ block {
         |   _ -> skip
     ];  
 
-} with (noOperations, s)
+} with (operations, s)
 
 
 
@@ -690,6 +716,8 @@ block {
     
     checkUnregisterAsSatelliteIsNotPaused(s); // check that %unregisterAsSatellite entrypoint is not paused (e.g. glass broken)
 
+    var operations : list(operation) := nil;
+
     case delegationLambdaAction of [
         |   LambdaUnregisterAsSatellite(userAddress) -> {
 
@@ -703,16 +731,24 @@ block {
                 // Check that satellite is not suspended or banned
                 checkSatelliteIsNotSuspendedOrBanned(userAddress, s);
 
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
+
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
                 
                 // remove sender from satellite ledger
-                remove (userAddress : address) from map s.satelliteLedger;
+                s.satelliteLedger   := Big_map.remove(userAddress, s.satelliteLedger);
+                s.satelliteCounter  := abs(s.satelliteCounter - 1n);
             }
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 
 
@@ -731,6 +767,8 @@ block {
 
     checkUpdateSatelliteRecordIsNotPaused(s); // check that %updateSatelliteRecord entrypoint is not paused (e.g. glass broken)
 
+    var operations : list(operation) := nil;
+
     case delegationLambdaAction of [
         |   LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
 
@@ -739,6 +777,13 @@ block {
 
                 // check satellite is not banned
                 checkSatelliteIsNotBanned(userAddress, s);
+
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
 
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
@@ -779,7 +824,7 @@ block {
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 
 
@@ -870,7 +915,7 @@ block {
                 block {
                     
                     // Get satellite record
-                    var satelliteRecord : satelliteRecordType  := case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+                    var satelliteRecord : satelliteRecordType  := case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
                             Some (_record) -> _record
                         |   None           -> failwith(error_SATELLITE_NOT_FOUND)
                     ];
@@ -967,6 +1012,13 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
+
                 // Check that sender is the Doorman Contract
                 if doormanAddress = Tezos.get_sender() then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 
@@ -1001,7 +1053,7 @@ block {
                 } else skip;
 
                 // Check if user is a satellite
-                const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
+                const userIsSatellite: bool = Big_map.mem(userAddress, s.satelliteLedger);
 
                 // ------------------------------------------------------------
                 // Update user's staked MVK balance depending if he is a satellite or delegator
@@ -1017,7 +1069,7 @@ block {
                     ];
 
                     // Get user's satellite record
-                    var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
+                    var satelliteRecord: satelliteRecordType := case Big_map.find_opt(userAddress, s.satelliteLedger) of [
                             Some (_satellite) -> _satellite
                         |   None              -> failwith(error_SATELLITE_NOT_FOUND)
                     ];
@@ -1041,7 +1093,7 @@ block {
                         ];
 
                         // Check if user is delegated to an active satellite (e.g. satellite may have unregistered)
-                        const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
+                        const userHasActiveSatellite: bool = Big_map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
 
                         if userHasActiveSatellite then block {
 
@@ -1053,7 +1105,7 @@ block {
                             ];
 
                             // Get satellite record of satellite that user is delegated to
-                            var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
+                            var userSatellite: satelliteRecordType := case Big_map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
                                     Some (_delegatedSatellite) -> _delegatedSatellite
                                 |   None                       -> failwith(error_SATELLITE_NOT_FOUND)
                             ];
@@ -1069,10 +1121,17 @@ block {
                             else if stakeAmount > userSatellite.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
                             else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
 
+                            // Update the satellite snapshot on the governance contract before updating its record
+                            const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(_delegatorRecord.satelliteAddress, True, s);
+                            case updateSnapshotOperationOpt of [
+                                Some (_updateOperation) -> operations   := _updateOperation # operations
+                            |   None                    -> skip
+                            ];
+
                             // Update storage (user's delegate record and his delegated satellite record)
                             _delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
                             s.delegateLedger   := Big_map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
-                            s.satelliteLedger  := Map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
+                            s.satelliteLedger  := Big_map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
                         } 
 
                         // Force User to undelegate if he does not have an active satellite anymore
@@ -1107,12 +1166,21 @@ block {
     // Check sender is admin or from a whitelisted contract (e.g. Governance, Governance Satellite, Aggregator Factory, Doorman, Treasury)
     if s.admin = Tezos.get_sender() or checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then skip else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
 
+    var operations : list(operation) := nil;
+
     case delegationLambdaAction of [
         |   LambdaUpdateSatelliteStatus(updateSatelliteStatusParams) -> {
                 
                 // Init variables from parameters
                 const satelliteAddress  : address = updateSatelliteStatusParams.satelliteAddress;
                 const newStatus         : string  = updateSatelliteStatusParams.newStatus;
+
+                // Update the satellite snapshot on the governance contract before updating its record
+                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(satelliteAddress, True, s);
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
+                ];
 
                 // Get satellite record 
                 var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
@@ -1130,7 +1198,7 @@ block {
         |   _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 
 // ------------------------------------------------------------------------------
