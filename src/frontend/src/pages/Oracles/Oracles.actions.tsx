@@ -12,6 +12,11 @@ export const getOracleSatellites = () => async (dispatch: any, getState: any) =>
       const satelliteData = state.delegation.delegationStorage.satelliteLedger.find(
         (satellite) => satellite.address === oracle_id,
       )
+      if (satelliteData) {
+        satelliteData['feeds'] = state.oracles.oraclesStorage.feeds.filter(
+          (feed) => feed.admin === satelliteData.address,
+        )
+      }
       return satelliteData || null
     })
     .filter(Boolean)

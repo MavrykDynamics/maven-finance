@@ -30,9 +30,11 @@ function OracleList({
 
   return (
     <FRListWrapper className="oracle">
-      <GovRightContainerTitleArea>
-        <h1>{listTitle}</h1>
-      </GovRightContainerTitleArea>
+      {listTitle ? (
+        <GovRightContainerTitleArea>
+          <h1>{listTitle}</h1>
+        </GovRightContainerTitleArea>
+      ) : null}
       {items.length ? (
         itemsToShow.map((item) => {
           switch (listType) {
@@ -44,6 +46,7 @@ function OracleList({
                   delegateCallback={onClickHandler}
                   userStakedBalance={additionaldata?.userStakedBalance || 0}
                   satelliteUserIsDelegatedTo={additionaldata?.satelliteUserIsDelegatedTo || ''}
+                  isExtendedListItem={additionaldata?.isAllOracles}
                 />
               )
             case 'feeds':
