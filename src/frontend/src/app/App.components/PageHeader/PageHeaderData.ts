@@ -199,4 +199,13 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
   ],
+  [
+    'data-feeds',
+    {
+      title: 'Data Feeds',
+      subText: 'Empower your Dapps by using our decentralized data feeds',
+      foregroundImageSrc: '/images/data-feeds-header.svg',
+      backgroundImageSrc: '/images/dapp-header-bg.svg',
+    },
+  ],
 ])
