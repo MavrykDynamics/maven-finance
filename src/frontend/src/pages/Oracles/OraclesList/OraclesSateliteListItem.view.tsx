@@ -34,6 +34,7 @@ import {
   SatelliteCardButtons,
   SatelliteCardRow,
 } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
+import { OracleStatusComponent } from './OraclesList.styles'
 
 export const OracleSatelliteListItem = ({
   satelliteOracle,
@@ -66,13 +67,15 @@ export const OracleSatelliteListItem = ({
           <SatelliteTextGroup oracle>
             <SatelliteMainText oracle>Delegated MVK</SatelliteMainText>
             <SatelliteSubText oracle>
-              <CommaNumber value={sMvkBalance + totalDelegatedMVK} />
+              <CommaNumber value={totalDelegatedMVK} />
             </SatelliteSubText>
           </SatelliteTextGroup>
 
           <SatelliteTextGroup oracle>
             <SatelliteMainText oracle>Free sMVK Space</SatelliteMainText>
-            <SatelliteSubText oracle>TODO: add this field</SatelliteSubText>
+            <SatelliteSubText oracle>
+              <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+            </SatelliteSubText>
           </SatelliteTextGroup>
 
           <SatelliteProfileDetails>
@@ -92,9 +95,9 @@ export const OracleSatelliteListItem = ({
           </SatelliteTextGroup>
 
           <SatelliteTextGroup oracle>
-            <SatelliteMainText oracle>Oracle Status</SatelliteMainText>
+            {/* <SatelliteMainText oracle>Oracle Status</SatelliteMainText> */}
             <SatelliteSubText oracle>
-              <CommaNumber value={Number(satelliteOracle.satelliteFee / 100)} endingText="%" />
+              <OracleStatusComponent statusType="responded">responded</OracleStatusComponent>
             </SatelliteSubText>
           </SatelliteTextGroup>
         </SatelliteCardTopRow>

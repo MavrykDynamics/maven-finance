@@ -73,3 +73,18 @@ export const FRListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
     margin-right: 30px;
   }
 `
+
+export const OracleStatusComponent = styled.div<{ statusType: 'responded' | 'noResponse' | 'awaiting' }>`
+  padding: 8px 12px;
+  text-transform: uppercase;
+  border: 1px solid
+    ${({ statusType }) =>
+      statusType === 'responded' ? '#27AE60' : statusType === 'noResponse' ? '#FF4343' : '#FFCA43'};
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 12px;
+  text-align: center;
+  color: ${({ statusType }) =>
+    statusType === 'responded' ? '#27AE60' : statusType === 'noResponse' ? '#FF4343' : '#FFCA43'};
+`

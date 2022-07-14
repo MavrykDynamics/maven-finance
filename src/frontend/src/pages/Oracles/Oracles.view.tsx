@@ -4,6 +4,7 @@ import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import React from 'react'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
@@ -26,6 +27,7 @@ type OraclesViewProps = {
 }
 
 const OraclesView = ({ isLoading, tabsInfo, oracleSatellitesData, delegateCallback }: OraclesViewProps) => {
+  const history = useHistory()
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={isLoading} />
@@ -49,16 +51,24 @@ const OraclesView = ({ isLoading, tabsInfo, oracleSatellitesData, delegateCallba
             />
           </InfoBlockWrapper>
 
-          <OracleList
-            listTitle={'Top Satellites'}
-            loading={isLoading}
-            items={oracleSatellitesData.items}
-            listType={'satellites'}
-            name={'topSatelitesOracle'}
-            onClickHandler={delegateCallback}
-            additionaldata={oracleSatellitesData}
-            noItemsText={'No oracle-satellites'}
-          />
+          <div className="oracle-list-wrapper">
+            <div className="see-all-link" onClick={() => history.push('/oracle-satellites')}>
+              See all Satellites
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
+              </svg>
+            </div>
+            <OracleList
+              listTitle={'Top Satellites'}
+              loading={isLoading}
+              items={oracleSatellitesData.items}
+              listType={'satellites'}
+              name={'topSatelitesOracle'}
+              onClickHandler={delegateCallback}
+              additionaldata={oracleSatellitesData}
+              noItemsText={'No oracle-satellites'}
+            />
+          </div>
         </div>
 
         <OraclesSideBar />
