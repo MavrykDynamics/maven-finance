@@ -104,7 +104,7 @@ function checkSenderIsDoormanContract(var s : emergencyGovernanceStorageType) : 
 block{
 
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-    const doormanAddress: address = case generalContractsOptView of [
+    const doormanAddress : address = case generalContractsOptView of [
             Some (_optionContract) -> case _optionContract of [
                     Some (_contract)    -> _contract
                 |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
@@ -126,7 +126,7 @@ block{
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress: address = case generalContractsOptView of [
+        const governanceSatelliteAddress : address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)

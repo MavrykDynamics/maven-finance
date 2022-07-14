@@ -78,7 +78,7 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 //
 // ------------------------------------------------------------------------------
 
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
+const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 
 // ------------------------------------------------------------------------------
 //
@@ -124,7 +124,7 @@ function checkSenderIsDoormanContract(var s : delegationStorageType) : unit is
 block{
 
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-    const doormanAddress: address = case generalContractsOptView of [
+    const doormanAddress : address = case generalContractsOptView of [
             Some (_optionContract) -> case _optionContract of [
                     Some (_contract)    -> _contract
                 |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
@@ -160,7 +160,7 @@ block{
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress: address = case generalContractsOptView of [
+        const governanceSatelliteAddress : address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
@@ -353,7 +353,7 @@ function checkSatelliteIsNotBanned(const satelliteAddress : address; var s : del
 
 
 // helper function to check that a specified satellite is not suspended or banned
-function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
+function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress : address; var s : delegationStorageType) : unit is
     case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
             Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
         |   None              -> failwith(error_SATELLITE_NOT_FOUND)
@@ -856,7 +856,7 @@ block {
 
 
 (* unregisterAsSatellite entrypoint *)
-function unregisterAsSatellite(const userAddress: address; var s : delegationStorageType) : return is
+function unregisterAsSatellite(const userAddress : address; var s : delegationStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnregisterAsSatellite"] of [

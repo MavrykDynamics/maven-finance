@@ -74,7 +74,7 @@ type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorag
 //
 // ------------------------------------------------------------------------------
 
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
+const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 
 // ------------------------------------------------------------------------------
 //
@@ -126,7 +126,7 @@ function checkSenderIsDelegationContract(var s : doormanStorageType) : unit is
 block{
 
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-    const delegationAddress: address = case generalContractsOptView of [
+    const delegationAddress : address = case generalContractsOptView of [
             Some (_optionContract) -> case _optionContract of [
                     Some (_contract)    -> _contract
                 |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
@@ -149,7 +149,7 @@ block{
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress: address = case generalContractsOptView of [
+        const governanceSatelliteAddress : address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
@@ -432,25 +432,25 @@ block {
 
 
 (*  View: get config *)
-[@view] function getConfig(const _ : unit; const s: doormanStorageType) : doormanConfigType is
+[@view] function getConfig(const _ : unit; const s : doormanStorageType) : doormanConfigType is
     s.config
 
 
 
 (*  View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _ : unit; const s: doormanStorageType) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _ : unit; const s : doormanStorageType) : whitelistContractsType is
     s.whitelistContracts
 
 
 
 (*  View: get general contracts *)
-[@view] function getGeneralContracts(const _ : unit; const s: doormanStorageType) : generalContractsType is
+[@view] function getGeneralContracts(const _ : unit; const s : doormanStorageType) : generalContractsType is
     s.generalContracts
 
 
 
 (*  View: get break glass config *)
-[@view] function getBreakGlassConfig(const _ : unit; const s: doormanStorageType) : doormanBreakGlassConfigType is
+[@view] function getBreakGlassConfig(const _ : unit; const s : doormanStorageType) : doormanBreakGlassConfigType is
     s.breakGlassConfig
 
 
@@ -462,13 +462,13 @@ block {
 
 
 (*  View: unclaimedRewards *)
-[@view] function getUnclaimedRewards(const _ : unit; const s: doormanStorageType) : nat is
+[@view] function getUnclaimedRewards(const _ : unit; const s : doormanStorageType) : nat is
     s.unclaimedRewards
 
 
 
 (*  View: accumulatedFeesPerShare *)
-[@view] function getAccumulatedFeesPerShare(const _ : unit; const s: doormanStorageType) : nat is
+[@view] function getAccumulatedFeesPerShare(const _ : unit; const s : doormanStorageType) : nat is
     s.accumulatedFeesPerShare
 
 

@@ -339,7 +339,7 @@ block {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress: address = case generalContractsOptView of [
+                const doormanAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
@@ -490,7 +490,7 @@ block {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress: address = case generalContractsOptView of [
+                const doormanAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
@@ -959,7 +959,7 @@ block {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress: address = case generalContractsOptView of [
+                const doormanAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
