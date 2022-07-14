@@ -140,7 +140,7 @@ block {
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Get MVK Token address
-                const mvkTokenAddress: address  = s.mvkTokenAddress;
+                const mvkTokenAddress : address  = s.mvkTokenAddress;
 
                 // Create transfer operations
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
@@ -607,7 +607,7 @@ block {
 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress: address = case generalContractsOptView of [
+                const delegationAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
@@ -862,7 +862,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 const farmAddress : address = Tezos.get_sender();
 
                 // Get MVK Token address
-                const mvkTokenAddress: address = s.mvkTokenAddress;
+                const mvkTokenAddress : address = s.mvkTokenAddress;
 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);

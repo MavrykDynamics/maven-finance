@@ -975,7 +975,7 @@ block {
 
                 // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress: address = case generalContractsOptView of [
+                const governanceFinancialAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
@@ -1064,7 +1064,7 @@ block {
 
                 // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress: address = case generalContractsOptView of [
+                const governanceFinancialAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
@@ -1139,7 +1139,7 @@ block {
 
                 // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress: address = case generalContractsOptView of [
+                const governanceFinancialAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
@@ -1865,7 +1865,7 @@ block {
                         ];
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
                                 Some (_optionContract) -> case _optionContract of [
                                         Some (_contract)    -> _contract
                                     |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
@@ -1909,7 +1909,7 @@ block {
                         if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
                                 Some (_optionContract) -> case _optionContract of [
                                         Some (_contract)    -> _contract
                                     |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
@@ -1946,7 +1946,7 @@ block {
                         // fetch params end ---
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
                                 Some (_optionContract) -> case _optionContract of [
                                         Some (_contract)    -> _contract
                                     |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
@@ -1982,7 +1982,7 @@ block {
                         // fetch params end ---
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
                                 Some (_optionContract) -> case _optionContract of [
                                         Some (_contract)    -> _contract
                                     |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
