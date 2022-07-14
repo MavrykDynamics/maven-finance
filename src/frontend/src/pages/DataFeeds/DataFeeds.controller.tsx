@@ -14,7 +14,9 @@ export const DataFeeds = () => {
   return (
     <Page>
       <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
-      <DataFeedsStyled>DataFeeds</DataFeedsStyled>
+      <DataFeedsStyled>
+        <h1>Data feeds</h1>
+      </DataFeedsStyled>
     </Page>
   )
 }
