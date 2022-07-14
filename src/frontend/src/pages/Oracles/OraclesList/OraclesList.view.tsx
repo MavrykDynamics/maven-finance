@@ -9,6 +9,7 @@ import { ITEMS_PER_PAGE, PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/Fi
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { OracleSatelliteListItem } from './OraclesSateliteListItem.view'
+import { OraclesListItemDataFeed } from './OraclesListItemDataFeed.view'
 
 function OracleList({
   listTitle,
@@ -22,6 +23,8 @@ function OracleList({
 }: OraclesListProps) {
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, name)
+
+  console.log('%c ||||| items', 'color:yellowgreen', items)
 
   const itemsToShow = useMemo(
     () => items.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
@@ -42,6 +45,7 @@ function OracleList({
               return (
                 <OracleSatelliteListItem
                   satelliteOracle={item}
+                  key={item.id}
                   loading={loading}
                   delegateCallback={onClickHandler}
                   userStakedBalance={additionaldata?.userStakedBalance || 0}
@@ -50,7 +54,7 @@ function OracleList({
                 />
               )
             case 'feeds':
-              return // feeds listItem component
+              return <OraclesListItemDataFeed key={item.address} />
             case 'oracles':
               return // oracle listitem component
           }

@@ -93,6 +93,7 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/oracle-satellites">
         <OracleSatellites />
+      </Route>
       <Route exact path="/data-feeds">
         <DataFeeds />
       </Route>

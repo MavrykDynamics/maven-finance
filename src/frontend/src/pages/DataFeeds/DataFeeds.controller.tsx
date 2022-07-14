@@ -1,7 +1,10 @@
+import React, { useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 // view
-import Icon from '../../app/App.components/Icon/Icon.view'
-import Carousel from '../../app/App.components/Carousel/Carousel.view'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import OracleList from '../Oracles/OraclesList/OraclesList.view'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -11,11 +14,34 @@ import { Page } from 'styles'
 import { DataFeedsStyled } from './DataFeeds.styles'
 
 export const DataFeeds = () => {
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { oraclesStorage } = useSelector((state: State) => state.oracles)
+  const loading = useSelector((state: State) => state.loading)
+  const { user } = useSelector((state: State) => state.user)
+
+  const delegateCallback = () => {}
+
+  const oracleSatellitesData = {
+    userStakedBalance: user.mySMvkTokenBalance,
+    satelliteUserIsDelegatedTo: user.satelliteMvkIsDelegatedTo,
+    // @ts-ignore
+    items: oraclesStorage.feeds,
+  }
+
   return (
     <Page>
       <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
       <DataFeedsStyled>
-        <h1>Data feeds</h1>
+        <OracleList
+          listTitle={'Data feeds'}
+          loading={loading}
+          items={oraclesStorage.feeds}
+          listType={'feeds'}
+          name={'topSatelitesOracle'}
+          onClickHandler={delegateCallback}
+          additionaldata={oracleSatellitesData}
+          noItemsText={'No oracle-satellites'}
+        />
       </DataFeedsStyled>
     </Page>
   )
