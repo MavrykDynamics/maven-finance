@@ -1,7 +1,7 @@
 import { SatelliteRecord } from "utils/TypesAndInterfaces/Delegation"
 
 export type OraclesListProps = {
-  listTitle: string
+  listTitle?: string
   items: Array<any>
   noItemsText: string
   listType: 'satellites' | 'feeds' | 'oracles'
@@ -78,6 +78,7 @@ export type OracleSatelliteListItemProps = {
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
   isDetailsPage?: boolean
+  isExtendedListItem?: boolean
   className?: string
 }
 

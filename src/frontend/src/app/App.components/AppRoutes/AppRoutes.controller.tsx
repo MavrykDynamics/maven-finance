@@ -22,6 +22,7 @@ import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/Emergenc
 import { Council } from '../../../pages/Council/Council.controller'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
 import Oracles from 'pages/Oracles/Oracles.controller'
+import OracleSatellites from 'pages/OracleSatellites/OracleSatellites.view'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -88,6 +89,9 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/oracles">
         <Oracles />
+      </Route>
+      <Route exact path="/oracle-satellites">
+        <OracleSatellites />
       </Route>
       <Route exact path="/loans">
         <Loans />

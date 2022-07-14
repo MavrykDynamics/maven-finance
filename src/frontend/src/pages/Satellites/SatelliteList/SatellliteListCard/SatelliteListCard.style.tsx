@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, cyanColor } from 'styles'
+import { boxShadowColor, Card, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../../../styles/interfaces'
 
@@ -13,9 +13,9 @@ export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
     margin-top: 20px;
   }
 `
-export const SatelliteCardTopRow = styled.div`
+export const SatelliteCardTopRow = styled.div<{ isExtendedListItem?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(3, auto);
+  grid-template-columns: repeat(${({ isExtendedListItem }) => (isExtendedListItem ? 4 : 3)}, auto);
   grid-template-rows: repeat(2, auto);
   grid-column-gap: 0;
   grid-row-gap: 9px;
@@ -86,7 +86,7 @@ export const SatelliteTextGroup = styled.div<{ oracle?: boolean }>`
   ${({ oracle }) =>
     oracle
       ? css`
-          width: 121px;
+          width: 100%;
         `
       : ''}
 `

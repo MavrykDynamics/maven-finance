@@ -1,4 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
+import { Feed } from 'pages/Oracles/Oracles.types'
 
 import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
 
@@ -82,6 +83,7 @@ export interface SatelliteRecord {
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
+  feeds?: Array<Feed>
 }
 
 export type DelegationConfig = {
