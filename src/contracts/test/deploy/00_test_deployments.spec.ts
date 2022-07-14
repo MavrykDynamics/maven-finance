@@ -617,6 +617,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.updateWhitelistContracts('farmFactory', farmFactory.contract.address))
       .withContractCall(governance.contract.methods.updateWhitelistContracts('treasuryFactory', treasuryFactory.contract.address))
       .withContractCall(governance.contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('delegation', delegation.contract.address))
   
       // governance proxy
       .withContractCall(governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address))
