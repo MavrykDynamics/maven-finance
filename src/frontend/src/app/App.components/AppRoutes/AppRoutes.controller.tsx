@@ -23,7 +23,7 @@ import { Council } from '../../../pages/Council/Council.controller'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
 import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
 import Oracles from 'pages/Oracles/Oracles.controller'
-import OracleSatellites from 'pages/OracleSatellites/OracleSatellites.view'
+import OracleSatellites from 'pages/OracleSatellites/OracleSatellites.controller'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -93,6 +93,7 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/oracle-satellites">
         <OracleSatellites />
+      </Route>
       <Route exact path="/data-feeds">
         <DataFeeds />
       </Route>
