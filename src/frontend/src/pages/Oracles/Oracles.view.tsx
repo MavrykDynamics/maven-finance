@@ -61,7 +61,7 @@ const OraclesView = ({ isLoading, tabsInfo, oracleSatellitesData, delegateCallba
             <OracleList
               listTitle={'Top Satellites'}
               loading={isLoading}
-              items={oracleSatellitesData.items}
+              items={oracleSatellitesData.items.slice(0, 3)}
               listType={'satellites'}
               name={'topSatelitesOracle'}
               onClickHandler={delegateCallback}

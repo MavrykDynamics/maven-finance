@@ -11,7 +11,8 @@ import OraclesSideBarView from './OraclesSideBar.view'
 const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
+  const { feedsFactory } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
   const {
     oraclesStorage: { totalOracleNetworks },
@@ -34,6 +35,11 @@ const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
       isButton={isButton}
       satelliteFactory={delegationAddress?.address || ''}
       totalOracleNetworks={totalOracleNetworks}
+      infoBlockAddresses={{
+        satellite: currentSatellite.address,
+        oracle: feedsFactory[0].address,
+        aggregator: feedsFactory[0].address,
+      }}
     />
   )
 }
