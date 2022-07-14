@@ -11,45 +11,45 @@ export class MvkToken {
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
-      this.contract = contract;
-      this.tezos = tezos;
+        this.contract = contract;
+        this.tezos = tezos;
     }
   
     static async init(
-      mvkTokenAddress: string,
-      tezos: TezosToolkit
+        mvkTokenAddress: string,
+        tezos: TezosToolkit
     ): Promise<MvkToken> {
-      return new MvkToken(
-        await tezos.contract.at(mvkTokenAddress),
-        tezos
-      );
+        return new MvkToken(
+            await tezos.contract.at(mvkTokenAddress),
+            tezos
+        );
     }
 
     static async originate(
-      tezos: TezosToolkit,
-      storage: mvkStorageType
+        tezos: TezosToolkit,
+        storage: mvkStorageType
     ): Promise<MvkToken> {       
 
-      const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/mvkToken.json`).toString()
-      );
-      const operation: OriginationOperation = await tezos.contract
-        .originate({
-          code: artifacts.michelson,
-          storage: storage,
-        })
-        .catch((e) => {
-          console.error(e);
-          console.log('error no hash')
-          return null;
-        });
-  
-      await confirmOperation(tezos, operation.hash);
-  
-      return new MvkToken(
-        await tezos.contract.at(operation.contractAddress),
-        tezos
-      );
+        const artifacts: any = JSON.parse(
+            fs.readFileSync(`${env.buildDir}/mvkToken.json`).toString()
+        );
+        const operation: OriginationOperation = await tezos.contract
+            .originate({
+                code: artifacts.michelson,
+                storage: storage,
+            })
+            .catch((e) => {
+                console.error(e);
+                console.log('error no hash')
+                return null;
+            });
+    
+        await confirmOperation(tezos, operation.hash);
+    
+        return new MvkToken(
+            await tezos.contract.at(operation.contractAddress),
+            tezos
+        );
     }
 
   }

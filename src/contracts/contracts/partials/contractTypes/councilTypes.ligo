@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------
-// Needed Types
+// Required Partial Types
 // ------------------------------------------------------------------------------
+
 
 // Council Types
 #include "../shared/councilMemberTypes.ligo"
@@ -8,37 +9,39 @@
 // Vote Types
 #include "../shared/voteTypes.ligo"
 
+
 // ------------------------------------------------------------------------------
-// Types definition
+// Storage Types
 // ------------------------------------------------------------------------------
+
 
 type councilActionRecordType is [@layout:comb] record [
 
-    initiator                  : address;          // address of action initiator
-    actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
-    signers                    : signersType;      // set of signers
-    executed                   : bool;             // boolean of whether action has been executed
+    initiator                       : address;          // address of action initiator
+    actionType                      : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
+    signers                         : signersType;      // set of signers
+    executed                        : bool;             // boolean of whether action has been executed
 
-    status                     : string;           // PENDING / FLUSHED / EXECUTED 
-    signersCount               : nat;              // total number of signers
+    status                          : string;           // PENDING / FLUSHED / EXECUTED 
+    signersCount                    : nat;              // total number of signers
 
-    addressMap                 : addressMapType;
-    stringMap                  : stringMapType;
-    natMap                     : natMapType;
-    keyHash                    : option(key_hash);
+    addressMap                      : addressMapType;
+    stringMap                       : stringMapType;
+    natMap                          : natMapType;
+    keyHash                         : option(key_hash);
 
-    startDateTime              : timestamp;        // timestamp of when action was initiated
-    startLevel                 : nat;              // block level of when action was initiated           
-    executedDateTime           : timestamp;        // will follow startDateTime and be updated when executed
-    executedLevel              : nat;              // will follow startLevel and be updated when executed
-    expirationDateTime         : timestamp;        // timestamp of when action will expire
+    startDateTime                   : timestamp;        // timestamp of when action was initiated
+    startLevel                      : nat;              // block level of when action was initiated           
+    executedDateTime                : timestamp;        // will follow startDateTime and be updated when executed
+    executedLevel                   : nat;              // will follow startLevel and be updated when executed
+    expirationDateTime              : timestamp;        // timestamp of when action will expire
 ]
 
 type councilActionsLedgerType is big_map(actionIdType, councilActionRecordType)
 
 type councilConfigType is [@layout:comb] record [
-    threshold                       : nat;                 // min number of council members who need to agree on action
-    actionExpiryDays                : nat;                 // action expiry in number of days 
+    threshold                       : nat;              // min number of council members who need to agree on action
+    actionExpiryDays                : nat;              // action expiry in number of days 
     
     councilMemberNameMaxLength      : nat;
     councilMemberWebsiteMaxLength   : nat;
@@ -46,6 +49,12 @@ type councilConfigType is [@layout:comb] record [
     requestTokenNameMaxLength       : nat;
     requestPurposeMaxLength         : nat;
 ]
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [ 
     contractAddress             : address;
@@ -63,54 +72,60 @@ type councilUpdateConfigActionType is
     |   ConfigRequestPurposeMaxLength         of unit
 
 type councilUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue  : councilUpdateConfigNewValueType; 
-    updateConfigAction    : councilUpdateConfigActionType;
+    updateConfigNewValue        : councilUpdateConfigNewValueType; 
+    updateConfigAction          : councilUpdateConfigActionType;
 ]
 
 type councilActionRequestTokensType is [@layout:comb] record [
-    treasuryAddress       : address;       // treasury address
-    tokenContractAddress  : address;       // token contract address
-    tokenName             : string;        // token name 
-    tokenAmount           : nat;           // token amount requested
-    tokenType             : string;        // "XTZ", "FA12", "FA2"
-    tokenId               : nat;        
-    purpose               : string;        // financial request purpose
+    treasuryAddress             : address;       // treasury address
+    tokenContractAddress        : address;       // token contract address
+    tokenName                   : string;        // token name 
+    tokenAmount                 : nat;           // token amount requested
+    tokenType                   : string;        // "XTZ", "FA12", "FA2"
+    tokenId                     : nat;        
+    purpose                     : string;        // financial request purpose
 ]
 
 type councilActionRequestMintType is [@layout:comb] record [
-    treasuryAddress  : address;  // treasury address
-    tokenAmount      : nat;      // MVK token amount requested
-    purpose          : string;   // financial request purpose
+    treasuryAddress             : address;       // treasury address
+    tokenAmount                 : nat;           // MVK token amount requested
+    purpose                     : string;        // financial request purpose
 ]
 
 type councilActionTransferType is [@layout:comb] record [
-    receiverAddress       : address;       // receiver address
-    tokenContractAddress  : address;       // token contract address
-    tokenAmount           : nat;           // token amount requested
-    tokenType             : string;        // "XTZ", "FA12", "FA2"
-    tokenId               : nat;  
-    purpose               : string;           
+    receiverAddress             : address;       // receiver address
+    tokenContractAddress        : address;       // token contract address
+    tokenAmount                 : nat;           // token amount requested
+    tokenType                   : string;        // "XTZ", "FA12", "FA2"
+    tokenId                     : nat;  
+    purpose                     : string;           
 ]
 
 type setBakerType is option(key_hash)
 type councilActionSetContractBakerType is [@layout:comb] record [
-    targetContractAddress  : address;
-    keyHash                : option(key_hash);
+    targetContractAddress       : address;
+    keyHash                     : option(key_hash);
 ]
 
 type addVesteeType is [@layout:comb] record [
-    vesteeAddress           : address;
-    totalAllocatedAmount    : nat;
-    cliffInMonths           : nat;
-    vestingInMonths         : nat;
+    vesteeAddress               : address;
+    totalAllocatedAmount        : nat;
+    cliffInMonths               : nat;
+    vestingInMonths             : nat;
 ]
 
 type updateVesteeType is [@layout:comb] record [
-    vesteeAddress              : address;
-    newTotalAllocatedAmount    : nat;
-    newCliffInMonths           : nat;
-    newVestingInMonths         : nat;
+    vesteeAddress               : address;
+    newTotalAllocatedAmount     : nat;
+    newCliffInMonths            : nat;
+    newVestingInMonths          : nat;
 ]
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 // Council Methods to Lambda Action Type
 type councilLambdaActionType is 
@@ -150,9 +165,11 @@ type councilLambdaActionType is
     |   LambdaFlushAction                           of actionIdType
     |   LambdaSignAction                            of actionIdType 
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type councilStorageType is [@layout:comb] record [
     admin                       : address;

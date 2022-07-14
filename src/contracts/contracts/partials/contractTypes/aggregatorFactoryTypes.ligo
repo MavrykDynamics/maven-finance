@@ -1,22 +1,9 @@
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+
 type trackedAggregatorsType is map (string * string, address)
-
-type trackAggregatorParamsType is [@layout:comb] record [
-    pairFirst           : string;
-    pairSecond          : string;
-    aggregatorAddress   : address;
-]
-
-type untrackAggregatorParamsType is [@layout:comb] record [
-    pairFirst           : string;
-    pairSecond          : string;
-]
-
-
-// rewards type
-type distributeRewardXtzType is [@layout:comb] record [
-    recipient             : address;
-    reward                : nat;
-]
 
 type aggregatorFactoryConfigType is [@layout:comb] record [
     aggregatorNameMaxLength   : nat;
@@ -31,23 +18,43 @@ type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
     distributeRewardStakedMvkIsPaused   : bool;
 ]
 
-type createAggregatorParamsType is string * string * [@layout:comb] record[
-  name                    : string;
-  addToGeneralContracts   : bool;
 
-  oracleAddresses         : oracleAddressesType;
-  
-  aggregatorConfig        : aggregatorConfigType;
-  maintainer              : address;
-  metadata                : bytes;
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
+
+type createAggregatorParamsType is string * string * [@layout:comb] record[
+    name                    : string;
+    addToGeneralContracts   : bool;
+
+    oracleAddresses         : oracleAddressesType;
+    
+    aggregatorConfig        : aggregatorConfigType;
+    maintainer              : address;
+    metadata                : bytes;
 ];
 
+
 type registerAggregatorActionType is [@layout:comb] record [
-  aggregatorPair                : string * string;        // e.g. BTC-USD  
-  aggregatorAddress             : address; 
+    aggregatorPair          : string * string;        // e.g. BTC * USD  
+    aggregatorAddress       : address; 
 ]
 
-(* updateConfig entrypoint inputs *)
+
+type trackAggregatorParamsType is [@layout:comb] record [
+    pairFirst             : string;
+    pairSecond            : string;
+    aggregatorAddress     : address;
+]
+
+
+type untrackAggregatorParamsType is [@layout:comb] record [
+    pairFirst             : string;
+    pairSecond            : string;
+]
+
+
 type aggregatorFactoryUpdateConfigNewValueType is nat
 type aggregatorFactoryUpdateConfigActionType is 
     | ConfigAggregatorNameMaxLength   of unit
@@ -58,7 +65,7 @@ type aggregatorFactoryUpdateConfigParamsType is [@layout:comb] record [
     updateConfigAction    : aggregatorFactoryUpdateConfigActionType;
 ]
 
-(* togglePauseEntrypoint entrypoint inputs *)
+
 type aggregatorFactoryPausableEntrypointType is
         CreateAggregator            of bool
     |   UntrackAggregator           of bool
@@ -67,9 +74,21 @@ type aggregatorFactoryPausableEntrypointType is
     |   DistributeRewardStakedMvk   of bool
 
 type aggregatorFactoryTogglePauseEntrypointType is [@layout:comb] record [
-    targetEntrypoint  : aggregatorFactoryPausableEntrypointType;
-    empty             : unit
+    targetEntrypoint      : aggregatorFactoryPausableEntrypointType;
+    empty                 : unit
 ];
+
+
+type distributeRewardXtzType is [@layout:comb] record [
+    recipient             : address;
+    reward                : nat;
+]
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type aggregatorFactoryLambdaActionType is 
     
@@ -95,9 +114,11 @@ type aggregatorFactoryLambdaActionType is
     |   LambdaDistributeRewardXtz           of distributeRewardXtzType
     |   LambdaDistributeRewardStakedMvk     of distributeRewardStakedMvkType
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type aggregatorFactoryStorageType is [@layout:comb] record [
     admin                   : address;

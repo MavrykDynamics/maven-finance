@@ -1,6 +1,46 @@
 // ------------------------------------------------------------------------------
-// Contract Specific Action Parameter types
+// Storage Types
 // ------------------------------------------------------------------------------
+
+
+type observationCommitsType      is map (address, bytes);
+type observationRevealsType      is map (address, nat);
+type deviationTriggerBanType     is map (address, timestamp);
+
+type oracleAddressesType         is map (address, bool);
+type oracleRewardStakedMvkType   is map (address, nat);
+type oracleRewardXtzType         is map (address, nat);
+
+type aggregatorConfigType is [@layout:comb] record [
+    decimals                            : nat;
+    numberBlocksDelay                   : nat;
+
+    deviationTriggerBanDuration         : nat;
+    perThousandDeviationTrigger         : nat;
+    percentOracleThreshold              : nat;
+
+    requestRateDeviationDepositFee      : nat;
+
+    deviationRewardStakedMvk            : nat;
+    deviationRewardAmountXtz            : nat;
+    rewardAmountStakedMvk               : nat;
+    rewardAmountXtz                     : nat;
+];
+
+type aggregatorBreakGlassConfigType is [@layout:comb] record [
+    requestRateUpdateIsPaused           : bool;
+    requestRateUpdateDeviationIsPaused  : bool;
+    setObservationCommitIsPaused        : bool;
+    setObservationRevealIsPaused        : bool;
+    withdrawRewardXtzIsPaused           : bool;
+    withdrawRewardStakedMvkIsPaused     : bool;
+]
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type pivotedObservationsType     is map (nat, nat);
 
@@ -80,46 +120,11 @@ type aggregatorTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
-// ------------------------------------------------------------------------------
-// Storage Types
-// ------------------------------------------------------------------------------
-
-type observationCommitsType      is map (address, bytes);
-type observationRevealsType      is map (address, nat);
-type deviationTriggerBanType     is map (address, timestamp);
-
-type oracleAddressesType         is map (address, bool);
-type oracleRewardStakedMvkType   is map (address, nat);
-type oracleRewardXtzType         is map (address, nat);
-
-type aggregatorConfigType is [@layout:comb] record [
-    decimals                            : nat;
-    numberBlocksDelay                   : nat;
-
-    deviationTriggerBanDuration         : nat;
-    perThousandDeviationTrigger         : nat;
-    percentOracleThreshold              : nat;
-
-    requestRateDeviationDepositFee      : nat;
-
-    deviationRewardStakedMvk            : nat;
-    deviationRewardAmountXtz            : nat;
-    rewardAmountStakedMvk               : nat;
-    rewardAmountXtz                     : nat;
-];
-
-type aggregatorBreakGlassConfigType is [@layout:comb] record [
-    requestRateUpdateIsPaused           : bool;
-    requestRateUpdateDeviationIsPaused  : bool;
-    setObservationCommitIsPaused        : bool;
-    setObservationRevealIsPaused        : bool;
-    withdrawRewardXtzIsPaused           : bool;
-    withdrawRewardStakedMvkIsPaused     : bool;
-]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
+
 
 type aggregatorLambdaActionType is 
 
@@ -152,9 +157,11 @@ type aggregatorLambdaActionType is
     |   LambdaWithdrawRewardXtz             of withdrawRewardXtzType
     |   LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkType
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type aggregatorStorageType is [@layout:comb] record [
     

@@ -100,7 +100,7 @@ block{
 
     const governanceFinancialAddress : address = case s.whitelistContracts["governanceFinancial"] of [
             Some (_address) -> _address
-        |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED) : address)
+        |   None            -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED) : address)
     ];
     
     if (Tezos.get_sender() = s.admin or Tezos.get_sender() = governanceFinancialAddress) then skip
@@ -120,7 +120,7 @@ block {
 
         const treasuryFactoryAddress : address = case s.whitelistContracts["treasuryFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
         ];
 
         if Tezos.get_sender() = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
@@ -187,7 +187,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
         "%mint",
         token_address) : option(contract(mintType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
         ];
 
 
@@ -661,7 +661,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

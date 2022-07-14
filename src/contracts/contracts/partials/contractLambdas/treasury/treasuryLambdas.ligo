@@ -447,7 +447,7 @@ block {
 
 
     case treasuryLambdaAction of [
-        | LambdaStakeMvk(stakeAmount) -> {
+        |   LambdaStakeMvk(stakeAmount) -> {
                 
                 // Get Doorman Contract address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);

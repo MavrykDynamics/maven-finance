@@ -10,6 +10,7 @@ type ownerType is address;
 // Storage Types
 // ------------------------------------------------------------------------------
 
+
 type tokenMetadataInfoType is record [
     token_id          : tokenIdType;
     token_info        : map(string, bytes);
@@ -19,47 +20,51 @@ type operatorsType is big_map((ownerType * operatorType * nat), unit)
 
 type tokenMetadataType is big_map(tokenIdType, tokenMetadataInfoType);
 
+
 // ------------------------------------------------------------------------------
-// Parameters Types
+// Action Types
 // ------------------------------------------------------------------------------
+
 
 (* Balance_of entrypoint inputs *)
 type balanceOfRequestType is [@layout:comb] record[
-    owner: ownerType;
-    token_id: tokenIdType;
+    owner       : ownerType;
+    token_id    : tokenIdType;
 ]
 type balanceOfResponse is [@layout:comb] record[
-    request: balanceOfRequestType;
-    balance: tokenBalanceType;
+    request     : balanceOfRequestType;
+    balance     : tokenBalanceType;
 ]
 type balanceOfParams is [@layout:comb] record[
-    requests: list(balanceOfRequestType);
-    callback: contract(list(balanceOfResponse));
+    requests    : list(balanceOfRequestType);
+    callback    : contract(list(balanceOfResponse));
 ]
 
 (* Update_operators entrypoint inputs *)
 type operatorParameterType is [@layout:comb] record[
-    owner     : ownerType;
-    operator  : operatorType;
-    token_id  : tokenIdType;
+    owner       : ownerType;
+    operator    : operatorType;
+    token_id    : tokenIdType;
 ]
 type updateOperatorVariantType is 
-        Add_operator of operatorParameterType
+        Add_operator    of operatorParameterType
     |   Remove_operator of operatorParameterType
 type updateOperatorsType is list(updateOperatorVariantType)
 
 (* AssertMetadata entrypoint inputs *)
 type assertMetadataType is [@layout:comb] record[
-    key: string;
-    hash: bytes;
+    key     : string;
+    hash    : bytes;
 ]
 
 (* Mint entrypoint inputs *)
 type mintType is (ownerType * tokenBalanceType)
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type mvkTokenStorageType is record [
     admin                   : address;

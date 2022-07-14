@@ -258,7 +258,7 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
       updateOperatorsParams,
       store.operators
     )
-  } with(noOperations,store with record[operators=updatedOperators])
+  } with (noOperations,store with record[operators=updatedOperators])
 
 (* AssertMetadata Entrypoint *)
 function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: storage): return is

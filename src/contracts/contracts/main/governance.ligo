@@ -343,9 +343,9 @@ function getSatelliteSnapshotRecord (const satelliteAddress : address; const s :
 block {
 
     var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := record [
-        totalStakedMvkBalance   = 0n;                            // log of satellite's total mvk balance for this cycle
-        totalDelegatedAmount    = 0n;                            // log of satellite's total delegated amount 
-        totalVotingPower        = 0n;                            // calculated total voting power based on votingPowerRatio (i.e. self bond percentage)   
+        totalStakedMvkBalance   = 0n;                           // log of satellite's total mvk balance for this cycle
+        totalDelegatedAmount    = 0n;                           // log of satellite's total delegated amount 
+        totalVotingPower        = 0n;                           // calculated total voting power based on delegationRatio (i.e. self bond percentage)   
         cycle                   = s.cycleCounter;               // log of current cycle
     ];
 
@@ -364,21 +364,31 @@ block {
     case voteType of [
 
             Yay -> block {
+                
+                // Increment YAY vote count and YAY vote staked MVK total
                 _proposal.yayVoteCount            := _proposal.yayVoteCount + 1n;    
                 _proposal.yayVoteStakedMvkTotal   := _proposal.yayVoteStakedMvkTotal + totalVotingPower;
+
             }
 
         |   Nay -> block {
+
+                // Increment NAY vote count and NAY vote staked MVK total
                 _proposal.nayVoteCount            := _proposal.nayVoteCount + 1n;    
                 _proposal.nayVoteStakedMvkTotal   := _proposal.nayVoteStakedMvkTotal + totalVotingPower;
+
             }
 
         |   Pass -> block {
+
+                // Increment PASS vote count and PASS vote staked MVK total
                 _proposal.passVoteCount           := _proposal.passVoteCount + 1n;    
                 _proposal.passVoteStakedMvkTotal  := _proposal.passVoteStakedMvkTotal + totalVotingPower;
+
             }
     ];
 
+    // Increment Quorum vote count and Quorum vote staked MVK total
     _proposal.quorumStakedMvkTotal    := _proposal.quorumStakedMvkTotal + totalVotingPower;
     _proposal.quorumCount             := _proposal.quorumCount + 1n;
 
@@ -392,6 +402,8 @@ block {
     case voteType of [
 
             Yay -> block {
+
+                // Decrement YAY vote count and YAY vote staked MVK total
 
                 var yayVoteCount            : nat := 0n;
                 var yayVoteStakedMvkTotal   : nat := 0n;
@@ -409,6 +421,8 @@ block {
 
         |   Nay -> block {
 
+                // Decrement NAY vote count and NAY vote staked MVK total
+
                 var nayVoteCount            : nat := 0n;
                 var nayVoteStakedMvkTotal   : nat := 0n;
 
@@ -425,7 +439,9 @@ block {
 
         |   Pass -> block {
 
-                var passVoteCount : nat := 0n;
+                // Decrement PASS vote count and PASS vote staked MVK total
+
+                var passVoteCount           : nat := 0n;
                 var passVoteStakedMvkTotal  : nat := 0n;
 
                 if _proposal.passVoteCount < 1n then passVoteCount := 0n
@@ -439,6 +455,8 @@ block {
 
             }
     ];
+
+    // Decrement Quorum vote count and Quorum vote staked MVK total
 
     var quorumCount             : nat := 0n;
     var quorumStakedMvkTotal    : nat := 0n;
@@ -460,28 +478,30 @@ block {
 function sendRewardsToVoters(var s : governanceStorageType) : operation is
 block{
 
-    // Get all voting satellite
-    const highestVotedProposalId: nat   = s.cycleHighestVotedProposalId;
-    const proposal: proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
+    // Get all satellites who voted during the governance round
+    const highestVotedProposalId : nat   = s.cycleHighestVotedProposalId;
+    const proposal : proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
             Some (_record) -> _record
         |   None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
     ];
     const voters : votersMapType         = proposal.voters;
     
-    // Get voters
-    var votersAddresses : set(address)   := (Set.empty: set(address));
+    // Create set of voters' addresses
+    var votersAddresses : set(address)  := (Set.empty : set(address));
     function getVotersAddresses(const voters : set(address); const voter: address * votingRoundRecordType) : set(address) is
         Set.add(voter.0, voters);
     var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
 
-    // Get rewards
+    // Get total governance rewards for voters
     const roundReward: nat  = s.currentCycleInfo.cycleTotalVotersReward;
-
-    // Send rewards to all satellites
+    
+    // Get Delegation Contract address from the general contracts map
     const delegationAddress : address = case s.generalContracts["delegation"] of [
             Some(_address) -> _address
         |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
+
+    // Send rewards to all satellites
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
         case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
                 Some(contr) -> contr
@@ -494,9 +514,9 @@ block{
 
 
 function sendRewardToProposer(var s : governanceStorageType) : operation is
-    block{
+block {
 
-    // Get all voting satellite
+    // Get timelock proposal and proposer address
     const timelockProposalId: nat   = s.timelockProposalId;
     const proposal: proposalRecordType  = case Big_map.find_opt(timelockProposalId, s.proposalLedger) of [
             Some (_record) -> _record
@@ -504,14 +524,16 @@ function sendRewardToProposer(var s : governanceStorageType) : operation is
     ];
     const proposerAddress : address         = proposal.proposerAddress;
     
-    // Get rewards
+    // Get proposer reward
     const proposerReward: nat  = proposal.successReward;
 
-    // Send rewards to the proposer
+    // Get Delegation Contract address from the general contracts map
     const delegationAddress : address = case s.generalContracts["delegation"] of [
             Some(_address) -> _address
         |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
+
+    // Create operation to send rewards to the proposer
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
         case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
                 Some(contr) -> contr
@@ -519,30 +541,44 @@ function sendRewardToProposer(var s : governanceStorageType) : operation is
         ];
     const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
     
-  } with(distributeOperation)
+} with (distributeOperation)
 
 
 
 function setupProposalRound(var s : governanceStorageType) : governanceStorageType is
 block {
 
-    // reset state variables
+    // Reset state variables
     const emptyProposalMap  : map(nat, nat)           = map [];
     const emptyVotesMap     : map(address, nat)       = map [];
     const emptyProposerMap  : map(address, set(nat))  = map [];
     const emptySnapshotMap  : snapshotLedgerType      = map [];
 
-    // Get Staked MVK Total Supply
+    // ------------------------------------------------------------------
+    // Get staked MVK Total Supply and calculate quorum
+    // ------------------------------------------------------------------
+
+    // Get Doorman Contract address from the general contracts map
     const doormanAddress : address   = case s.generalContracts["doorman"] of [
             Some(_address) -> _address
         |   None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
     ];
+
+    // Call get_balance view on MVK Token Contract Address for Doorman Contract account
     const balanceView : option (nat)    = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-    const smvkTotalSupply: nat = case balanceView of [
+
+    // Get staked MVK Total Supply
+    const stakedMvkTotalSupply: nat = case balanceView of [
             Some (value) -> value
-        |   None -> failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND)
+        |   None         -> failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND)
     ];
-    const minQuorumStakedMvkTotal: nat  = (smvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
+
+    // Calculate minimum required staked MVK for quorum
+    const minQuorumStakedMvkTotal: nat  = (stakedMvkTotalSupply * s.config.minQuorumPercentage) / 10000n ;
+
+    // ------------------------------------------------------------------
+    // Set up new round info
+    // ------------------------------------------------------------------
 
     // Setup current round info
     s.currentCycleInfo.round                         := (Proposal : roundType);
@@ -565,42 +601,45 @@ block {
     // Increase the cycle counter
     s.cycleCounter      := s.cycleCounter + 1n;
 
+    // Get Delegation Contract address from the general contracts map
     const delegationAddress : address = case s.generalContracts["delegation"] of [
             Some(_address) -> _address
         |   None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
-    // get voting power ratio
-    const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-    const votingPowerRatio: nat                     = case configView of [
+    // Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
+    const configView : option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+    const delegationRatio : nat                     = case configView of [
             Some (_optionConfig) -> _optionConfig.delegationRatio
         |   None                 -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
-    // Get active satellites from the delegation contract and loop through them
+    // Get active satellites from the delegation contract 
     const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
     const activeSatellites : map(address,satelliteRecordType) = case activeSatellitesView of [
             Some (value) -> value
         |   None         -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
+    // Loop through active satellites and take a snapshot of their current voting power (from their staked MVK balance and total delegated amount)
     for satelliteAddress -> satellite in map activeSatellites block {
 
-        const mvkBalance: nat = satellite.stakedMvkBalance;
-        const totalDelegatedAmount: nat = satellite.totalDelegatedAmount;
+        const mvkBalance            : nat = satellite.stakedMvkBalance;
+        const totalDelegatedAmount  : nat = satellite.totalDelegatedAmount;
 
-        // create or retrieve satellite snapshot from snapshotLedger in governanceStorageType
+        // Create or retrieve satellite snapshot from snapshotLedger in governance Storage
         var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
-        // calculate total voting power
-        var maxTotalVotingPower: nat := mvkBalance * 10000n / votingPowerRatio;
-        if votingPowerRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
+        // Calculate satellite's total voting power
+        // - Satellite's max total voting power increases with their staked MVK balance 
+        var maxTotalVotingPower: nat := mvkBalance * 10000n / delegationRatio;
+        if delegationRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
         const mvkBalanceAndTotalDelegatedAmount = mvkBalance + totalDelegatedAmount; 
         var totalVotingPower : nat := 0n;
         if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
         else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
-        // update satellite snapshot record
+        // Update satellite snapshot record
         satelliteSnapshotRecord.totalStakedMvkBalance   := mvkBalance; 
         satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
         satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
@@ -1299,7 +1338,7 @@ block{
     // set lambda in lambdaLedger - allow override of lambdas
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

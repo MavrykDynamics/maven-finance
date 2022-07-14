@@ -327,7 +327,7 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
         "%mintMvkAndTransfer",
         contractAddress) : option(contract(mintMvkAndTransferType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
+            |   None        -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
         ];
 
 
@@ -338,7 +338,7 @@ function setTreasuryBaker(const contractAddress : address) : contract(setBakerTy
         "%setBaker",
         contractAddress) : option(contract(setBakerType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_SET_BAKER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(setBakerType))
+            |   None        -> (failwith(error_SET_BAKER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(setBakerType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -360,6 +360,8 @@ block {
     const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
     const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
 
+
+    
     const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / votingPowerRatio);
     const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
     var totalVotingPower : nat := 0n;
@@ -798,7 +800,7 @@ block{
     // set lambda in lambdaLedger - allow override of lambdas
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

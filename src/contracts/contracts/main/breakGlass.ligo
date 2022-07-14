@@ -108,7 +108,7 @@ block{
 
     const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
                 Some(_address) -> _address
-            |   None -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
+            |   None           -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
     
     if (Tezos.get_sender() = emergencyGovernanceAddress) then skip
@@ -155,7 +155,7 @@ function setAdminInContract(const contractAddress : address) : contract(address)
         "%setAdmin",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -728,7 +728,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

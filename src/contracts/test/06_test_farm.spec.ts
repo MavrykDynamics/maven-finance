@@ -174,7 +174,7 @@
 //                 }
 
 //                 // Get Bob LP delegated amount before deposing
-//                 const bobDepositorRecordStart = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordStart = await farmStorage.depositorLedger.get(bob.pkh);
 //                 const bobLPDelegatedStart = parseInt(bobDepositorRecordStart===undefined ? 0 : bobDepositorRecordStart.balance);
 
 //                 // Create a transaction for depositing LP to a farm
@@ -185,7 +185,7 @@
 //                 farmStorage = await farmInstance.storage();
 
 //                 // Check that LP have been deposited
-//                 const bobDepositorRecordEnd = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordEnd = await farmStorage.depositorLedger.get(bob.pkh);
 //                 const bobLPDelegatedEnd = parseInt(bobDepositorRecordEnd===undefined ? 0 : bobDepositorRecordEnd.balance);
 //                 assert.equal(bobLPDelegatedEnd, bobLPDelegatedStart + amountToDeposit, "Bob should have "+(bobLPDelegatedStart + amountToDeposit)+" LP Tokens deposited in the farm");
 //             } catch(e){
@@ -247,7 +247,7 @@
 //                 }
 
 //                 // Get Bob LP delegated amount before deposing
-//                 const bobDepositorRecordStart = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordStart = await farmStorage.depositorLedger.get(bob.pkh);
 //                 const bobLPDelegatedStart = parseInt(bobDepositorRecordStart===undefined ? 0 : bobDepositorRecordStart.balance);
                 
 //                 // Create a transaction for depositing LP to a farm
@@ -258,7 +258,7 @@
 //                 farmStorage = await farmInstance.storage();
 
 //                 // Check that LP have been deposited
-//                 const bobDepositorRecordEnd = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordEnd = await farmStorage.depositorLedger.get(bob.pkh);
 //                 const bobLPDelegatedEnd = parseInt(bobDepositorRecordEnd===undefined ? 0 : bobDepositorRecordEnd.balance);
 //                 assert.equal(bobLPDelegatedEnd, bobLPDelegatedStart + amountToDeposit, "Bob should have "+(bobLPDelegatedStart + amountToDeposit)+" LP Tokens deposited in the farm");
 
@@ -279,7 +279,7 @@
 //                 }
 
 //                 // Get Bob LP delegated amount before deposing
-//                 const aliceDepositorRecordStart = await farmStorage.depositors.get(alice.pkh);
+//                 const aliceDepositorRecordStart = await farmStorage.depositorLedger.get(alice.pkh);
 //                 const aliceLPDelegatedStart = parseInt(aliceDepositorRecordStart===undefined ? 0 : aliceDepositorRecordStart.balance);
                 
 //                 // Create a transaction for depositing LP to a farm
@@ -290,7 +290,7 @@
 //                 farmStorage = await farmInstance.storage();
 
 //                 // Check that LP have been deposited
-//                 const aliceDepositorRecordEnd = await farmStorage.depositors.get(alice.pkh);
+//                 const aliceDepositorRecordEnd = await farmStorage.depositorLedger.get(alice.pkh);
 //                 const aliceLPDelegatedEnd = parseInt(aliceDepositorRecordEnd===undefined ? 0 : aliceDepositorRecordEnd.balance);
 //                 assert.equal(aliceLPDelegatedEnd, aliceLPDelegatedStart + amountToDeposit, "Alice should have "+(aliceLPDelegatedStart + amountToDeposit)+" LP Tokens deposited in the farm");
 //             } catch(e){
@@ -306,7 +306,7 @@
 //                 const amountToWithdraw = 1;
 
 //                 // Get Bob LP delegated amount before withdrawing
-//                 const bobDepositorRecordStart = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordStart = await farmStorage.depositorLedger.get(bob.pkh);
 //                 const bobLPTokensStart = await lpTokenStorage.ledger.get(bob.pkh);
 //                 console.log(bobDepositorRecordStart)
 //                 console.log("bob ledger start: ", bobLPTokensStart)
@@ -320,7 +320,7 @@
 //                 farmStorage = await farmInstance.storage();
 
 //                 // Check that LP have been withdrawed
-//                 const bobDepositorRecordEnd = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordEnd = await farmStorage.depositorLedger.get(bob.pkh);
 //                 lpTokenStorage = await lpTokenInstance.storage();
 //                 const bobLPTokensEnd = await lpTokenStorage.ledger.get(bob.pkh);
 //                 console.log(bobDepositorRecordEnd)
@@ -339,7 +339,7 @@
 //                 var amountToWithdraw = 2;
 
 //                 // Get Bob LP delegated amount before withdrawing
-//                 const bobDepositorRecordStart = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordStart = await farmStorage.depositorLedger.get(bob.pkh);
 //                 const bobLPTokensStart = await lpTokenStorage.ledger.get(bob.pkh);
 //                 console.log(bobDepositorRecordStart)
 //                 console.log("bob ledger start: ", bobLPTokensStart)
@@ -353,7 +353,7 @@
 //                 farmStorage = await farmInstance.storage();
 
 //                 // Check that LP have been deposited
-//                 const bobDepositorRecordEnd = await farmStorage.depositors.get(bob.pkh);
+//                 const bobDepositorRecordEnd = await farmStorage.depositorLedger.get(bob.pkh);
 //                 lpTokenStorage = await lpTokenInstance.storage();
 //                 const bobLPTokensEnd = await lpTokenStorage.ledger.get(bob.pkh);
 //                 console.log(bobDepositorRecordEnd)
@@ -369,7 +369,7 @@
 //                 amountToWithdraw = 1;
 
 //                 // Get Bob LP delegated amount before withdrawing
-//                 const aliceDepositorRecordStart = await farmStorage.depositors.get(alice.pkh);
+//                 const aliceDepositorRecordStart = await farmStorage.depositorLedger.get(alice.pkh);
 //                 const aliceLPTokensStart = await lpTokenStorage.ledger.get(bob.pkh);
 //                 console.log(aliceLPTokensStart)
 //                 console.log("alice ledger start: ", aliceLPTokensStart)
@@ -383,7 +383,7 @@
 //                 farmStorage = await farmInstance.storage();
 
 //                 // Check that LP have been deposited
-//                 const aliceDepositorRecordEnd = await farmStorage.depositors.get(alice.pkh);
+//                 const aliceDepositorRecordEnd = await farmStorage.depositorLedger.get(alice.pkh);
 //                 lpTokenStorage = await lpTokenInstance.storage();
 //                 const aliceLPTokensEnd = await lpTokenStorage.ledger.get(alice.pkh);
 //                 console.log(aliceDepositorRecordEnd)

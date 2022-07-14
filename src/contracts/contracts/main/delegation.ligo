@@ -51,7 +51,7 @@ type delegationAction is
     |   UndelegateFromSatellite           of (address)
     
         // Satellite Entrypoints
-    |   RegisterAsSatellite               of newSatelliteRecordType
+    |   RegisterAsSatellite               of registerAsSatelliteParamsType
     |   UnregisterAsSatellite             of (address)
     |   UpdateSatelliteRecord             of updateSatelliteRecordType
     |   DistributeReward                  of distributeRewardStakedMvkType
@@ -373,7 +373,7 @@ function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : c
         "%delegateToSatellite",
         delegationAddress) : option(contract(delegateToSatelliteType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegateToSatelliteType))
+            |   None        -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegateToSatelliteType))
         ];
 
 
@@ -384,7 +384,7 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
         "%undelegateFromSatellite",
         delegationAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -395,7 +395,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
         "%transfer",
         contractAddress) : option(contract(transferActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -837,7 +837,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* registerAsSatellite entrypoint *)
-function registerAsSatellite(const registerAsSatelliteParams : newSatelliteRecordType; var s : delegationStorageType) : return is 
+function registerAsSatellite(const registerAsSatelliteParams : registerAsSatelliteParamsType; var s : delegationStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterAsSatellite"] of [

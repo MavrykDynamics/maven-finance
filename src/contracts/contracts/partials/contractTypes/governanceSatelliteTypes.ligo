@@ -1,23 +1,22 @@
 // ------------------------------------------------------------------------------
-// Needed Types
+// Required Partial Types
 // ------------------------------------------------------------------------------
+
 
 // Vote Types
 #include "../shared/voteTypes.ligo"
 
+
 // ------------------------------------------------------------------------------
-// Config Types
+// Storage Types
 // ------------------------------------------------------------------------------
+
 
 type governanceSatelliteConfigType is [@layout:comb] record [
     governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
     governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength             : nat;
 ]
-
-// ------------------------------------------------------------------------------
-// Governance Satellite Record Types
-// ------------------------------------------------------------------------------
 
 type governanceSatelliteVoteType is [@layout:comb] record [
     vote              : voteType;
@@ -29,10 +28,10 @@ type governanceSatelliteVotersMapType is map (address, governanceSatelliteVoteTy
 
 type governanceSatelliteActionRecordType is [@layout:comb] record [
     initiator                          : address;
-    status                             : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
-    executed                           : bool;                  // false on creation; set to true when financial request is executed successfully
+    status                             : bool;     // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
+    executed                           : bool;     // false on creation; set to true when financial request is executed successfully
     
-    governanceType                     : string;                // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
+    governanceType                     : string;   // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
     governancePurpose                  : string;
     voters                             : governanceSatelliteVotersMapType; 
 
@@ -75,9 +74,11 @@ type aggregatorRecordType is [@layout:comb] record [
 ]
 type aggregatorLedgerType is big_map(address, aggregatorRecordType)
 
+
 // ------------------------------------------------------------------------------
 // Snapshot Types
 // ------------------------------------------------------------------------------
+
 
 type governanceSatelliteSnapshotMapType is map (address, satelliteSnapshotRecordType)
 type governanceSatelliteSnapshotLedgerType is big_map (actionIdType, governanceSatelliteSnapshotMapType);
@@ -91,8 +92,9 @@ type actionSatelliteSnapshotType is  [@layout:comb] record [
 
 
 // ------------------------------------------------------------------------------
-// Action Parameter Types
+// Action Types
 // ------------------------------------------------------------------------------
+
 
 type governanceSatelliteUpdateConfigNewValueType is nat
 type governanceSatelliteUpdateConfigActionType is 
@@ -159,21 +161,20 @@ type voteForActionType is [@layout:comb] record [
 ]
 
 type registerAggregatorActionType is [@layout:comb] record [
-    aggregatorPair                : string * string;        // e.g. BTC-USD  
-    aggregatorAddress             : address; 
+    aggregatorPair              : string * string;        // e.g. BTC-USD  
+    aggregatorAddress           : address; 
 ]
 
 type updateAggregatorStatusActionType is [@layout:comb] record [
-    aggregatorAddress             : address;      
-    status                        : string;
-    purpose                       : string;
+    aggregatorAddress           : address;      
+    status                      : string;
+    purpose                     : string;
 ]
 
 type updateSatelliteStatusParamsType is [@layout:comb] record [
-    satelliteAddress        : address;
-    newStatus               : string;
+    satelliteAddress            : address;
+    newStatus                   : string;
 ]
-
 
 
 // ------------------------------------------------------------------------------

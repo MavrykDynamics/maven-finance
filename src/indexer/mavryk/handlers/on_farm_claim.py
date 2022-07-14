@@ -13,7 +13,7 @@ async def on_farm_claim(
     # Get operation info
     farm_address                    = claim.data.target_address
     depositor_address               = claim.data.sender_address
-    depositor_storage               = claim.storage.depositors[depositor_address]
+    depositor_storage               = claim.storage.depositorLedger[depositor_address]
     balance                         = int(depositor_storage.balance)
     participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
     claimed_rewards                 = float(depositor_storage.claimedRewards)

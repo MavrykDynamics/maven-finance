@@ -209,7 +209,7 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        | LambdaRequestTokens(requestTokensParams) -> {
+        |   LambdaRequestTokens(requestTokensParams) -> {
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -247,14 +247,14 @@ block {
                 // ------------------------------------------------------------------
 
                 // Take snapshot of current total staked MVK supply 
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                s.snapshotStakedMvkTotalSupply  := case balanceView of [
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                         Some (value) -> value
                     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
 
                 // ------------------------------------------------------------------
                 // Validation Checks 
@@ -299,7 +299,7 @@ block {
                     nayVoteStakedMvkTotal               = 0n;
                     passVoteStakedMvkTotal              = 0n;
 
-                    snapshotStakedMvkTotalSupply        = s.snapshotStakedMvkTotalSupply;
+                    snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
                     stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
                     stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
 
@@ -319,7 +319,7 @@ block {
                 s.financialRequestLedger[financialRequestId] := newFinancialRequest;
 
                 // Create snapshot in financialRequestSnapshotLedger (to be filled with satellite's total voting power at this snapshot)
-                const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+                const emptyFinancialRequestSnapshotMap : financialRequestSnapshotMapType = map [];
                 s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
                 // Increment financial request counter
@@ -378,7 +378,7 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        | LambdaRequestMint(requestMintParams) -> {
+        |   LambdaRequestMint(requestMintParams) -> {
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -419,14 +419,14 @@ block {
                 // ------------------------------------------------------------------
 
                 // Take snapshot of current total staked MVK supply 
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                s.snapshotStakedMvkTotalSupply  := case balanceView of [
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                         Some (value) -> value
-                    |   None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-                const stakedMvkRequiredForApproval : nat  = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+                const stakedMvkRequiredForApproval : nat  = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
 
                 // ------------------------------------------------------------------
                 // Create new Financial Request Record
@@ -460,7 +460,7 @@ block {
                     nayVoteStakedMvkTotal               = 0n;
                     passVoteStakedMvkTotal              = 0n;
 
-                    snapshotStakedMvkTotalSupply        = s.snapshotStakedMvkTotalSupply;
+                    snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
                     stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
                     stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
 
@@ -483,7 +483,7 @@ block {
                 s.financialRequestCounter := financialRequestId + 1n;
 
                 // Create snapshot in financialRequestSnapshotLedger (to be filled with satellite's total voting power at this snapshot)
-                const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+                const emptyFinancialRequestSnapshotMap : financialRequestSnapshotMapType = map [];
                 s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
                 // ------------------------------------------------------------------
@@ -539,7 +539,7 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        | LambdaSetContractBaker(setContractBakerParams) -> {
+        |   LambdaSetContractBaker(setContractBakerParams) -> {
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -580,14 +580,14 @@ block {
                 // ------------------------------------------------------------------
 
                 // Take snapshot of current total staked MVK supply 
-                const balanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                s.snapshotStakedMvkTotalSupply  := case balanceView of [
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
                         Some (value) -> value
                     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-                const stakedMvkRequiredForApproval : nat = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+                const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
 
                 // ------------------------------------------------------------------
                 // Create new Financial Request Record
@@ -618,7 +618,7 @@ block {
                     nayVoteStakedMvkTotal               = 0n;
                     passVoteStakedMvkTotal              = 0n;
 
-                    snapshotStakedMvkTotalSupply        = s.snapshotStakedMvkTotalSupply;
+                    snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
                     stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
                     stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
 
@@ -641,7 +641,7 @@ block {
                 s.financialRequestCounter := financialRequestId + 1n;
 
                 // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
-                const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+                const emptyFinancialRequestSnapshotMap : financialRequestSnapshotMapType = map [];
                 s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
                 // ------------------------------------------------------------------
@@ -745,7 +745,7 @@ block {
     var operations : list(operation) := nil;
 
     case governanceFinancialLambdaAction of [
-        | LambdaVoteForRequest(voteForRequest) -> {
+        |   LambdaVoteForRequest(voteForRequest) -> {
 
                 // ------------------------------------------------------------------
                 // Validation Checks

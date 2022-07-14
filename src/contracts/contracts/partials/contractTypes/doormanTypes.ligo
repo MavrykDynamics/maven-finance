@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+
 type userStakeBalanceRecordType is [@layout:comb] record[
     balance                                : nat;
     totalExitFeeRewardsClaimed             : nat;
@@ -7,8 +12,6 @@ type userStakeBalanceRecordType is [@layout:comb] record[
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
-type updateSatelliteBalanceType is (address)
-
 type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
@@ -16,12 +19,20 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     farmClaimIsPaused       : bool;
 ]
 
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
-
 type doormanConfigType is [@layout:comb] record [
     minMvkAmount     : nat;
     empty            : unit
 ];
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
+
+type delegationOnStakeChangeType is (address)
+
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
@@ -29,8 +40,8 @@ type doormanUpdateConfigActionType is
     |   Empty                       of unit
 
 type doormanUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue: doormanUpdateConfigNewValueType; 
-    updateConfigAction: doormanUpdateConfigActionType;
+    updateConfigNewValue    : doormanUpdateConfigNewValueType; 
+    updateConfigAction      : doormanUpdateConfigActionType;
 ]
 
 type doormanPausableEntrypointType is
@@ -43,6 +54,12 @@ type doormanTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : doormanPausableEntrypointType;
     empty             : unit
 ];
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type doormanLambdaActionType is 
 
@@ -67,9 +84,11 @@ type doormanLambdaActionType is
     |   LambdaCompound                    of (address)
     |   LambdaFarmClaim                   of farmClaimType
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type doormanStorageType is [@layout:comb] record [
   admin                     : address;

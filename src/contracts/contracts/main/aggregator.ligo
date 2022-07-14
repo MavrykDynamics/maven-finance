@@ -132,7 +132,7 @@ block {
     else{
         const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
         ];
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_ALLOWED);
@@ -150,12 +150,12 @@ block {
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : address)
         ];
 
         const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
         ];
 
         if Tezos.get_sender() = aggregatorFactoryAddress or Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
@@ -173,12 +173,12 @@ block {
     else {
         const aggregatorFactoryAddress: address = case s.whitelistContracts["aggregatorFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND) : address)
         ];
 
         const governanceSatelliteAddress: address = case s.whitelistContracts["governanceSatellite"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : address)
         ];
 
         if Tezos.get_sender() = aggregatorFactoryAddress or Tezos.get_sender() = governanceSatelliteAddress then skip else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_OR_GOVERNANCE_SATELLITE_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED);
@@ -215,7 +215,7 @@ function checkNoAmount(const _p : unit) : unit is
 function getDeviationTriggerBanOracle(const addressKey: address; const deviationTriggerBan: deviationTriggerBanType) : timestamp is
     case Map.find_opt(addressKey, deviationTriggerBan) of [
             Some (v) -> (v)
-        |   None -> (Tezos.get_now())
+        |   None     -> (Tezos.get_now())
     ]
 
 
@@ -528,7 +528,7 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
 function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggregatorStorageType) : nat is
     case Map.find_opt(oracleAddress, s.oracleRewardStakedMvk) of [
             Some (v) -> (v)
-        |   None -> 0n
+        |   None     -> 0n
     ]
 
 
@@ -537,7 +537,7 @@ function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggrega
 function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorStorageType) : nat is
     case Map.find_opt(oracleAddress, s.oracleRewardXtz) of [
             Some (v) -> (v)
-        |   None -> 0n
+        |   None     -> 0n
     ]
 
 
@@ -1243,7 +1243,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
@@ -1270,7 +1270,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

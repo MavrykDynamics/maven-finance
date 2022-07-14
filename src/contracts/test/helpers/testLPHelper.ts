@@ -11,45 +11,45 @@ export class LPToken {
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
-      this.contract = contract;
-      this.tezos = tezos;
+        this.contract = contract;
+        this.tezos = tezos;
     }
   
     static async init(
-      lpTokenAddress: string,
-      tezos: TezosToolkit
+        lpTokenAddress: string,
+        tezos: TezosToolkit
     ): Promise<LPToken> {
-      return new LPToken(
-        await tezos.contract.at(lpTokenAddress),
-        tezos
-      );
+        return new LPToken(
+            await tezos.contract.at(lpTokenAddress),
+            tezos
+        );
     }
 
     static async originate(
-      tezos: TezosToolkit,
-      storage: lpStorageType
+        tezos: TezosToolkit,
+        storage: lpStorageType
     ): Promise<LPToken> {       
 
-      const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/testLPToken.json`).toString()
-      );
-      const operation: OriginationOperation = await tezos.contract
-        .originate({
-          code: artifacts.michelson,
-          storage: storage,
-        })
-        .catch((e) => {
-          console.error(e);
-          console.log('error no hash')
-          return null;
-        });
-  
-      await confirmOperation(tezos, operation.hash);
-  
-      return new LPToken(
-        await tezos.contract.at(operation.contractAddress),
-        tezos
-      );
+        const artifacts: any = JSON.parse(
+            fs.readFileSync(`${env.buildDir}/testLPToken.json`).toString()
+        );
+        const operation: OriginationOperation = await tezos.contract
+            .originate({
+                code: artifacts.michelson,
+                storage: storage,
+            })
+            .catch((e) => {
+                console.error(e);
+                console.log('error no hash')
+                return null;
+            });
+    
+        await confirmOperation(tezos, operation.hash);
+    
+        return new LPToken(
+            await tezos.contract.at(operation.contractAddress),
+            tezos
+        );
     }
 }
   
