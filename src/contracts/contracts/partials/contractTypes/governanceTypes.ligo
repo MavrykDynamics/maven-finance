@@ -117,10 +117,11 @@ type proposalLedgerType is big_map (nat, proposalRecordType);
 type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
+    totalVotingPower          : nat;      // log calculated total voting power
+    ready                     : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
     cycle                     : nat;      // log of the cycle where the snapshot was taken
 ]
-type snapshotLedgerType is map (address, governanceSatelliteSnapshotRecordType);
+type snapshotLedgerType is big_map (address, governanceSatelliteSnapshotRecordType);
 
 
 // --------------------------------------------------
@@ -209,6 +210,13 @@ type setContractGovernanceType is [@layout:comb] record [
 
 type whitelistDevelopersType is set(address)
 
+type updateSatelliteSnapshotType is [@layout:comb] record [
+    satelliteAddress        : address;
+    satelliteRecord         : satelliteRecordType;
+    ready                   : bool;
+    delegationRatio         : nat;
+]
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -233,11 +241,12 @@ type governanceLambdaActionType is
     |   LambdaSetContractGovernance                 of setContractGovernanceType
 
         // Governance Cycle Lambdas
+    |   LambdaUpdateSatelliteSnapshot               of updateSatelliteSnapshotType
     |   LambdaStartNextRound                        of (bool)
     |   LambdaPropose                               of newProposalType
     |   LambdaProposalRoundVote                     of actionIdType
-    |   LambdaUpdateProposalData                 of updateProposalDataType
-    |   LambdaUpdatePaymentData                  of updatePaymentDataType
+    |   LambdaUpdateProposalData                    of updateProposalDataType
+    |   LambdaUpdatePaymentData                     of updatePaymentDataType
     |   LambdaLockProposal                          of actionIdType
     |   LambdaVotingRoundVote                       of votingRoundVoteType
     |   LambdaExecuteProposal                       of (unit)

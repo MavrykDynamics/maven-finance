@@ -28,6 +28,9 @@
 // Treasury Type
 #include "../partials/contractTypes/treasuryTypes.ligo"
 
+// Governance Type
+#include "../partials/contractTypes/governanceTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type delegationAction is 
@@ -178,14 +181,14 @@ block{
 
 // Check User is a Satellite
 function checkUserIsSatellite(const userAddress : address; var s : delegationStorageType) : unit is 
-    if (Map.mem(userAddress, s.satelliteLedger)) then unit
+    if (Big_map.mem(userAddress, s.satelliteLedger)) then unit
     else failwith(error_ONLY_SATELLITE_ALLOWED);
 
 
 
 // Check User is not a Satellite
 function checkUserIsNotSatellite(const userAddress : address; var s : delegationStorageType) : unit is 
-    if (Map.mem(userAddress, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+    if (Big_map.mem(userAddress, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
     else unit;
 
 
@@ -336,7 +339,7 @@ function checkDistributeRewardIsNotPaused(var s : delegationStorageType) : unit 
 
 // helper function to check that a specified satellite is not suspended
 function checkSatelliteIsNotSuspended(const satelliteAddress : address; var s : delegationStorageType) : unit is
-    case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+    case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
             Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else unit
         |   None              -> failwith(error_SATELLITE_NOT_FOUND)
     ];
@@ -345,7 +348,7 @@ function checkSatelliteIsNotSuspended(const satelliteAddress : address; var s : 
 
 // helper function to check that a specified satellite is not banned
 function checkSatelliteIsNotBanned(const satelliteAddress : address; var s : delegationStorageType) : unit is
-    case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+    case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
             Some (_satellite) -> if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
         |   None              -> failwith(error_SATELLITE_NOT_FOUND)
     ];
@@ -353,8 +356,8 @@ function checkSatelliteIsNotBanned(const satelliteAddress : address; var s : del
 
 
 // helper function to check that a specified satellite is not suspended or banned
-function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress : address; var s : delegationStorageType) : unit is
-    case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
+    case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
             Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
         |   None              -> failwith(error_SATELLITE_NOT_FOUND)
     ];
@@ -398,6 +401,17 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
             |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
+
+
+// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
+function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateSatelliteSnapshot",
+        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+        ];
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -432,6 +446,61 @@ block {
     ];
 
 } with satelliteRecord
+
+// helper function to refresh a satellite governance snapshot
+function updateGovernanceSnapshot (const satelliteAddress: address; const ready: bool; const s: delegationStorageType) : option(operation) is
+block {
+
+    // Init the return value
+    var updateSnapshotOperation: option(operation)  := (None : option(operation));
+
+    // Get the current round and the satellite snapshot opt
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle: nat = case cycleCounterView of [
+            Some (_cycle)   -> _cycle
+        |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+            Some (_snapshotOpt) -> _snapshotOpt
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Check if a snapshot needs to be created
+    const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
+        Some (_snapshot)    -> if _snapshot.cycle = currentCycle then False else True
+    |   None                -> True
+    ];
+
+    // Create or not a snapshot
+    if createSatelliteSnapshot and Big_map.mem(satelliteAddress, s.satelliteLedger) then{
+
+        // Get the satellite record
+        const _satelliteRecord: satelliteRecordType = case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
+            Some (_satellite)   -> _satellite
+        |   None                -> failwith(error_SATELLITE_NOT_FOUND)
+        ];
+
+        // Create a snapshot
+        const satelliteSnapshotParams: updateSatelliteSnapshotType  = record[
+            satelliteAddress    = satelliteAddress;
+            satelliteRecord     = _satelliteRecord;
+            ready               = ready;
+            delegationRatio     = s.config.delegationRatio;
+        ];
+
+        // Send the snapshot to the governance contract
+        updateSnapshotOperation := Some (
+            Tezos.transaction(
+                (satelliteSnapshotParams),
+                0tez, 
+                sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+            )
+        );
+
+    } else skip;
+
+} with(updateSnapshotOperation)
 
 // ------------------------------------------------------------------------------
 // Satellite Helper Functions End
@@ -528,29 +597,13 @@ block {
 
 (* View: get Satellite Record *)
 [@view] function getSatelliteOpt(const satelliteAddress : address; var s : delegationStorageType) : option(satelliteRecordType) is
-    Map.find_opt(satelliteAddress, s.satelliteLedger)
+    Big_map.find_opt(satelliteAddress, s.satelliteLedger)
 
 
 
 (* View: get User reward *)
 [@view] function getSatelliteRewardsOpt(const userAddress : address; var s : delegationStorageType) : option(satelliteRewardsType) is
     Big_map.find_opt(userAddress, s.satelliteRewardsLedger)
-
-
-
-(* View: get map of active satellites *)
-[@view] function getActiveSatellites(const _ : unit; var s : delegationStorageType) : map(address, satelliteRecordType) is
-block {
-
-    var activeSatellites : map(address, satelliteRecordType) := Map.empty; 
-
-    function findActiveSatellite(const activeSatellites : map(address, satelliteRecordType); const satellite : address * satelliteRecordType) : map(address, satelliteRecordType) is
-        if satellite.1.status = "ACTIVE" then Map.add(satellite.0, satellite.1, activeSatellites)
-        else activeSatellites;
-
-    var activeSatellites : map(address, satelliteRecordType) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
-
-} with (activeSatellites)
 
 
 

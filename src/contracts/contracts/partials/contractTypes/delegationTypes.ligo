@@ -32,7 +32,7 @@ type satelliteRecordType is [@layout:comb] record [
     
     registeredDateTime          : timestamp;  
 ]
-type satelliteLedgerType is map (address, satelliteRecordType)
+type satelliteLedgerType is big_map (address, satelliteRecordType)
 
 type satelliteSnapshotRecordType is [@layout:comb] record [
     totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
@@ -196,6 +196,7 @@ type delegationStorageType is [@layout:comb] record [
     breakGlassConfig        : delegationBreakGlassConfigType;
     delegateLedger          : delegateLedgerType;
     satelliteLedger         : satelliteLedgerType;
+    satelliteCounter        : nat;
     satelliteRewardsLedger  : satelliteRewardsLedgerType;
 
     lambdaLedger            : lambdaLedgerType;   
