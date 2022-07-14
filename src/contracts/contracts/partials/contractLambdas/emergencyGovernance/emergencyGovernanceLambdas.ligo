@@ -224,7 +224,7 @@ block {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                const doormanAddress : address = case generalContractsOptViewDoorman of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
@@ -355,7 +355,7 @@ block {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress: address = case generalContractsOptViewDoorman of [
+                const doormanAddress : address = case generalContractsOptViewDoorman of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)

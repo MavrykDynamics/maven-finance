@@ -99,7 +99,7 @@ function checkSenderIsAdmin(const s : farmFactoryStorageType) : unit is
 function checkSenderIsCouncil(const s : farmFactoryStorageType) : unit is
 block {
 
-    const councilAddress: address = case s.whitelistContracts["council"] of [
+    const councilAddress : address = case s.whitelistContracts["council"] of [
             Some (_address) -> _address
         |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
     ];
@@ -114,12 +114,12 @@ block {
 // Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorageType) : unit is
 block{
-    
+
     if Tezos.get_sender() = s.admin then skip
     else {
 
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress: address = case generalContractsOptView of [
+        const governanceSatelliteAddress : address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)

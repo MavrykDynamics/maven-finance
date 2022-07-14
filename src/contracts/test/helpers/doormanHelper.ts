@@ -82,7 +82,7 @@ export class Doorman {
     }
   
     static async init(
-        doormanAddress: string,
+        doormanAddress : string,
         tezos: TezosToolkit
     ): Promise<Doorman> {
         return new Doorman(

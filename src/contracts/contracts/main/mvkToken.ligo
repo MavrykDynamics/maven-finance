@@ -84,19 +84,19 @@ function checkSenderIsAllowed(var s : mvkTokenStorageType) : unit is
 
 
 
-function checkSenderIsAdmin(const store : mvkTokenStorageType): unit is
+function checkSenderIsAdmin(const store : mvkTokenStorageType) : unit is
     if Tezos.get_sender() =/= store.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
 
 
-function checkNoAmount(const _p: unit): unit is
+function checkNoAmount(const _p : unit) : unit is
     if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
     else unit
 
 
 
-function checkSenderIsDoormanContract(const store : mvkTokenStorageType): unit is
+function checkSenderIsDoormanContract(const store : mvkTokenStorageType) : unit is
 block{
 
     const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
@@ -141,34 +141,34 @@ block{
 // FA2 Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkTokenId(const tokenId: tokenIdType): unit is
+function checkTokenId(const tokenId : tokenIdType) : unit is
     if tokenId =/= 0n then failwith("FA2_TOKEN_UNDEFINED")
     else unit
 
 
 
-function checkBalance(const spenderBalance: tokenBalanceType; const tokenAmount: tokenBalanceType): unit is
+function checkBalance(const spenderBalance : tokenBalanceType; const tokenAmount: tokenBalanceType) : unit is
     if spenderBalance < tokenAmount then failwith("FA2_INSUFFICIENT_BALANCE")
     else unit
 
 
 
-function checkOwnership(const owner: ownerType): unit is
+function checkOwnership(const owner : ownerType) : unit is
     if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
     else unit
 
 
 
-function checkOperator(const owner: ownerType; const token_id: tokenIdType; const operators : operatorsType): unit is
+function checkOperator(const owner : ownerType; const token_id : tokenIdType; const operators : operatorsType) : unit is
     if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
     else failwith ("FA2_NOT_OPERATOR")
 
 
 
 // mergeOperations helper function - used in transfer entrypoint
-function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
+function mergeOperations(const first : list (operation); const second : list (operation)) : list (operation) is 
 List.fold( 
-    function(const operations : list(operation); const operation: operation): list(operation) is operation # operations,
+    function(const operations : list(operation); const operation : operation) : list(operation) is operation # operations,
     first,
     second
 )
@@ -176,7 +176,7 @@ List.fold(
 
 
 // addOperator helper function - used in update_operators entrypoint
-function addOperator(const operatorParameter: operatorParameterType; const operators : operatorsType): operatorsType is
+function addOperator(const operatorParameter : operatorParameterType; const operators : operatorsType) : operatorsType is
 block{
 
     const owner     : ownerType     = operatorParameter.owner;
@@ -186,14 +186,14 @@ block{
     checkTokenId(tokenId);
     checkOwnership(owner);
 
-    const operatorKey: (ownerType * operatorType * tokenIdType) = (owner, operator, tokenId)
+    const operatorKey : (ownerType * operatorType * tokenIdType) = (owner, operator, tokenId)
 
 } with(Big_map.update(operatorKey, Some (unit), operators))
 
 
 
 // removeOperator helper function - used in update_operators entrypoint
-function removeOperator(const operatorParameter: operatorParameterType; const operators : operatorsType): operatorsType is
+function removeOperator(const operatorParameter : operatorParameterType; const operators : operatorsType) : operatorsType is
 block{
 
     const owner     : ownerType     = operatorParameter.owner;
@@ -203,7 +203,7 @@ block{
     checkTokenId(tokenId);
     checkOwnership(owner);
 
-    const operatorKey: (ownerType * operatorType * tokenIdType) = (owner, operator, tokenId)
+    const operatorKey : (ownerType * operatorType * tokenIdType) = (owner, operator, tokenId)
 
 } with(Big_map.remove(operatorKey, operators))
 
@@ -345,7 +345,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : mvkTokenStorageType): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : mvkTokenStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -356,7 +356,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : mvkTokenStorageType): return is
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : mvkTokenStorageType) : return is
 block {
   
     checkSenderIsAdmin(s);
@@ -367,7 +367,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var store : mvkTokenStorageType): return is
+function mistakenTransfer(const destinationParams : transferActionType; var store : mvkTokenStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -381,16 +381,16 @@ block {
     var operations : list(operation) := nil;
 
     // Create transfer operations
-    function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+    function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
         block{
 
             const transferTokenOperation : operation = case transferParam.token of [
-                |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
                 |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
                 |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
             ];
 
-        } with(transferTokenOperation # operationList);
+        } with (transferTokenOperation # operationList);
     
     operations  := List.fold_right(transferOperationFold, destinationParams, operations)
 
@@ -407,7 +407,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* assertMetadata entrypoint *)
-function assertMetadata(const assertMetadataParams : assertMetadataType; const store : mvkTokenStorageType): return is
+function assertMetadata(const assertMetadataParams : assertMetadataType; const store : mvkTokenStorageType) : return is
 block{
 
     const metadataKey  : string  = assertMetadataParams.key;
@@ -422,7 +422,7 @@ block{
 
 
 (* transfer entrypoint *)
-function transfer(const transferParams : fa2TransferType; const store : mvkTokenStorageType): return is
+function transfer(const transferParams : fa2TransferType; const store : mvkTokenStorageType) : return is
 block{
 
     function makeTransfer(const account : return; const transferParam : transfer) : return is
@@ -431,7 +431,7 @@ block{
             const owner : ownerType = transferParam.from_;
             const txs : list(transferDestination) = transferParam.txs;
             
-            function transferTokens(const accumulator : mvkTokenStorageType; const destination : transferDestination): mvkTokenStorageType is
+            function transferTokens(const accumulator : mvkTokenStorageType; const destination : transferDestination) : mvkTokenStorageType is
             block {
 
                 const tokenId : tokenIdType = destination.token_id;
@@ -478,23 +478,23 @@ block{
 function balanceOf(const balanceOfParams : balanceOfParams; const store : mvkTokenStorageType) : return is
 block{
 
-    function retrieveBalance(const request: balanceOfRequestType): balanceOfResponse is
+    function retrieveBalance(const request : balanceOfRequestType) : balanceOfResponse is
         block{
 
-            const requestOwner: ownerType = request.owner;
-            const tokenBalance: tokenBalanceType = 
+            const requestOwner : ownerType = request.owner;
+            const tokenBalance : tokenBalanceType = 
             case Big_map.find_opt(requestOwner, store.ledger) of [
                     Some (b) -> b
                 |   None     -> 0n
             ];
-            const response: balanceOfResponse = record[request=request;balance=tokenBalance];
+            const response : balanceOfResponse = record[request=request;balance=tokenBalance];
 
         } with (response);
 
-      const requests : list(balanceOfRequestType) = balanceOfParams.requests;
-      const callback: contract(list(balanceOfResponse)) = balanceOfParams.callback;
-      const responses : list(balanceOfResponse) = List.map(retrieveBalance, requests);
-      const operation: operation = Tezos.transaction(responses, 0tez, callback);
+      const requests   : list(balanceOfRequestType) = balanceOfParams.requests;
+      const callback   : contract(list(balanceOfResponse)) = balanceOfParams.callback;
+      const responses  : list(balanceOfResponse) = List.map(retrieveBalance, requests);
+      const operation  : operation = Tezos.transaction(responses, 0tez, callback);
 
 } with (list[operation],store)
 
@@ -505,7 +505,7 @@ function updateOperators(const updateOperatorsParams : updateOperatorsType; cons
 block{
 
     var updatedOperators : operatorsType := List.fold(
-        function(const operators : operatorsType; const updateOperator: updateOperatorVariantType): operatorsType is
+        function(const operators : operatorsType; const updateOperator : updateOperatorVariantType) : operatorsType is
             case updateOperator of [
                     Add_operator (param)    -> addOperator(param, operators)
                 |   Remove_operator (param) -> removeOperator(param, operators)
@@ -530,12 +530,12 @@ block {
     if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) or Tezos.get_sender() = Tezos.get_self_address() then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorageType
-    const tempTotalSupply: tokenBalanceType = store.totalSupply + mintedTokens;
+    const tempTotalSupply : tokenBalanceType = store.totalSupply + mintedTokens;
     if tempTotalSupply > store.maximumSupply then failwith(error_MAXIMUM_SUPPLY_EXCEEDED) 
     else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalanceType = get_balance((recipientAddress, 0n), store) + mintedTokens;
+    const senderNewBalance : tokenBalanceType = get_balance((recipientAddress, 0n), store) + mintedTokens;
 
     // Update mvkTokenStorageType
     store.totalSupply := store.totalSupply + mintedTokens;
@@ -554,7 +554,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* updateInflationRate entrypoint *)
-function updateInflationRate(const newInflationRate: nat; var store : mvkTokenStorageType) : return is
+function updateInflationRate(const newInflationRate : nat; var store : mvkTokenStorageType) : return is
 block {
     
     checkSenderIsAdmin(store);
@@ -574,7 +574,7 @@ block {
     checkSenderIsAdmin(store);
 
     // Check inflation rate
-    const inflation: tokenBalanceType = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
+    const inflation : tokenBalanceType = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
     
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
     if store.nextInflationTimestamp < Tezos.get_now() then {
