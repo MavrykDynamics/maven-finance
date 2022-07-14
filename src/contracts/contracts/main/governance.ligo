@@ -46,6 +46,7 @@ type governanceAction is
     |   SetContractGovernance           of setContractGovernanceType
     
         // Governance Cycle Entrypoints
+    |   UpdateSatelliteSnapshot         of updateSatelliteSnapshotType         
     |   StartNextRound                  of bool
     |   Propose                         of newProposalType
     |   ProposalRoundVote               of actionIdType
@@ -338,23 +339,87 @@ function getUpdatePaymentDataEntrypoint(const contractAddress : address) : contr
 // Governance Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to get satellite snapshot 
-function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : governanceStorageType) : governanceSatelliteSnapshotRecordType is
+// helper function to update a satellite snapshot 
+function updateSatelliteSnapshotRecord (const updateSatelliteSnapshotParams : updateSatelliteSnapshotType; var s : governanceStorageType) : governanceStorageType is
 block {
 
-    var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := record [
-        totalStakedMvkBalance   = 0n;                           // log of satellite's total mvk balance for this cycle
-        totalDelegatedAmount    = 0n;                           // log of satellite's total delegated amount 
-        totalVotingPower        = 0n;                           // calculated total voting power based on delegationRatio (i.e. self bond percentage)   
-        cycle                   = s.cycleCounter;               // log of current cycle
+    // Get variables from parameter
+    const satelliteAddress: address                 = updateSatelliteSnapshotParams.satelliteAddress;
+    const satelliteRecord: satelliteRecordType      = updateSatelliteSnapshotParams.satelliteRecord;
+    const ready: bool                               = updateSatelliteSnapshotParams.ready;
+    const delegationRatio: nat                      = updateSatelliteSnapshotParams.delegationRatio;
+
+    // calculate total voting power
+    var maxTotalVotingPower: nat := satelliteRecord.stakedMvkBalance * 10000n / delegationRatio;
+    if delegationRatio = 0n then maxTotalVotingPower := satelliteRecord.stakedMvkBalance * 10000n else skip;
+    const mvkBalanceAndTotalDelegatedAmount = satelliteRecord.stakedMvkBalance + satelliteRecord.totalDelegatedAmount; 
+    var totalVotingPower : nat := 0n;
+    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
+    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+
+    const satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType = record [
+        totalStakedMvkBalance   = satelliteRecord.stakedMvkBalance;
+        totalDelegatedAmount    = satelliteRecord.totalDelegatedAmount;
+        totalVotingPower        = totalVotingPower;
+        ready                   = ready;
+        cycle                   = s.cycleCounter;
     ];
 
-    case s.snapshotLedger[satelliteAddress] of [
-            None -> skip
-        |   Some(instance) -> satelliteSnapshotRecord := instance
+    s.snapshotLedger[satelliteAddress]  := satelliteSnapshotRecord;
+
+} with s
+
+
+
+// helper function to check a satellite snapshot 
+function checkSatelliteSnapshot (const satelliteAddress : address; var s : governanceStorageType) : governanceStorageType is
+block {
+
+    // Initialize a variable to create a snapshot or not
+    var createSatelliteSnapshot: bool   := case Big_map.find_opt(satelliteAddress, s.snapshotLedger) of [
+        Some (_snapshot)    -> if _snapshot.cycle =/= s.cycleCounter then True else if _snapshot.ready then False else (failwith(error_SNAPSHOT_NOT_READY): bool)
+    |   None                -> True
     ];
 
-} with satelliteSnapshotRecord
+    // Create or not a snapshot
+    if createSatelliteSnapshot then {
+        // Get the delegation address
+        const delegationAddress : address = case s.generalContracts["delegation"] of [
+                Some(_address) -> _address
+            |   None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        // Get the satellite record
+        const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+        const _satelliteRecord: satelliteRecordType                     = case satelliteOptView of [
+                Some (value) -> case value of [
+                        Some (_satellite) -> _satellite
+                    |   None              -> failwith(error_SATELLITE_NOT_FOUND)
+                ]
+            |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        // Get the delegation ratio
+        const configView : option (delegationConfigType)    = Tezos.call_view ("getConfig", unit, delegationAddress);
+        const delegationRatio: nat                          = case configView of [
+                Some (_config) -> _config.delegationRatio
+            |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        // Prepare the record to create the snapshot
+        const satelliteSnapshotParams: updateSatelliteSnapshotType  = record[
+            satelliteAddress    = satelliteAddress;
+            satelliteRecord     = _satelliteRecord;
+            ready               = True;
+            delegationRatio     = delegationRatio;
+        ];
+
+        // Save the snapshot
+        s   := updateSatelliteSnapshotRecord(satelliteSnapshotParams, s);
+
+    } else skip;
+
+} with s
 
 
 
@@ -552,7 +617,6 @@ block {
     const emptyProposalMap  : map(nat, nat)           = map [];
     const emptyVotesMap     : map(address, nat)       = map [];
     const emptyProposerMap  : map(address, set(nat))  = map [];
-    const emptySnapshotMap  : snapshotLedgerType      = map [];
 
     // ------------------------------------------------------------------
     // Get staked MVK Total Supply and calculate quorum
@@ -595,59 +659,8 @@ block {
     s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
     s.cycleHighestVotedProposalId                    := 0n;                  // flush proposal id voted through - reset to 0 
 
-    // Empty the satellite snapshot ledger
-    s.snapshotLedger    := emptySnapshotMap;
-
     // Increase the cycle counter
     s.cycleCounter      := s.cycleCounter + 1n;
-
-    // Get Delegation Contract address from the general contracts map
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-            Some(_address) -> _address
-        |   None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-    // Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-    const configView : option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-    const delegationRatio : nat                     = case configView of [
-            Some (_optionConfig) -> _optionConfig.delegationRatio
-        |   None                 -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-    // Get active satellites from the delegation contract 
-    const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-    const activeSatellites : map(address,satelliteRecordType) = case activeSatellitesView of [
-            Some (value) -> value
-        |   None         -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-    // Loop through active satellites and take a snapshot of their current voting power (from their staked MVK balance and total delegated amount)
-    for satelliteAddress -> satellite in map activeSatellites block {
-
-        const mvkBalance            : nat = satellite.stakedMvkBalance;
-        const totalDelegatedAmount  : nat = satellite.totalDelegatedAmount;
-
-        // Create or retrieve satellite snapshot from snapshotLedger in governance Storage
-        var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
-
-        // Calculate satellite's total voting power
-        // - Satellite's max total voting power increases with their staked MVK balance 
-        var maxTotalVotingPower: nat := mvkBalance * 10000n / delegationRatio;
-        if delegationRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
-        const mvkBalanceAndTotalDelegatedAmount = mvkBalance + totalDelegatedAmount; 
-        var totalVotingPower : nat := 0n;
-        if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-        else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
-
-        // Update satellite snapshot record
-        satelliteSnapshotRecord.totalStakedMvkBalance   := mvkBalance; 
-        satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
-        satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
-        satelliteSnapshotRecord.cycle                   := s.cycleCounter; 
-
-        s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
-
-    }
 
 } with (s)
 
@@ -778,13 +791,7 @@ block {
 
 (* View: get a satellite snapshot *)
 [@view] function getSnapshotOpt(const satelliteAddress : address; var s : governanceStorageType) : option(governanceSatelliteSnapshotRecordType) is
-    Map.find_opt(satelliteAddress, s.snapshotLedger)
-
-
-
-(* View: get a satellite snapshot ledger *)
-[@view] function getSnapshotLedger(const _ : unit; var s : governanceStorageType) : snapshotLedgerType is
-    s.snapshotLedger
+    Big_map.find_opt(satelliteAddress, s.snapshotLedger)
 
 
 
@@ -1108,6 +1115,25 @@ block {
 // Governance Cycle Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(*  updateSatelliteSnapshot entrypoint *)
+function updateSatelliteSnapshot(const updateSatelliteSnapshotParams : updateSatelliteSnapshotType; var s : governanceStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateSatelliteSnapshot"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateSatelliteSnapshot(updateSatelliteSnapshotParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
 (*  startNextRound entrypoint *)
 function startNextRound(const executePastProposal : bool; var s : governanceStorageType) : return is
 block {
@@ -1372,6 +1398,7 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
 
             // Governance Cycle Entrypoints
+        |   UpdateSatelliteSnapshot(parameters)         -> updateSatelliteSnapshot(parameters, s)
         |   StartNextRound(parameters)                  -> startNextRound(parameters, s)
         |   Propose(parameters)                         -> propose(parameters, s)
         |   ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
