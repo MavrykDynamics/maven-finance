@@ -21,6 +21,7 @@ import { Admin } from '../../../pages/Admin/Admin.controller'
 import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
 import { Council } from '../../../pages/Council/Council.controller'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
+import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
 import Oracles from 'pages/Oracles/Oracles.controller'
 import OracleSatellites from 'pages/OracleSatellites/OracleSatellites.view'
 
@@ -92,6 +93,8 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/oracle-satellites">
         <OracleSatellites />
+      <Route exact path="/data-feeds">
+        <DataFeeds />
       </Route>
       <Route exact path="/loans">
         <Loans />

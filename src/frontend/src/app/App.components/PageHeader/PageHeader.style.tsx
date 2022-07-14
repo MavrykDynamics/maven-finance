@@ -113,6 +113,8 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '156px'
       case 'satellite-governance':
         return '192px'
+      case 'data-feeds':
+        return '190px'
       default:
         return '172px'
     }
