@@ -13,7 +13,7 @@ async def on_farm_withdraw(
     # Get operation info
     farm_address                    = withdraw.data.target_address
     depositor_address               = withdraw.data.sender_address
-    depositor_storage               = withdraw.storage.depositors[depositor_address]
+    depositor_storage               = withdraw.storage.depositorLedger[depositor_address]
     balance                         = int(depositor_storage.balance)
     participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
     claimed_rewards                 = float(depositor_storage.claimedRewards)

@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+
 type vesteeRecordType is [@layout:comb] record [
     
     // static variables initiated at start ----
@@ -28,13 +33,19 @@ type vesteeRecordType is [@layout:comb] record [
 
     lastClaimedTimestamp     : timestamp;       // timestamp of when vestee last claimed
 ] 
-type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
+type vesteeLedgerType is big_map(address, vesteeRecordType) 
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type addVesteeType is [@layout:comb] record [
-    vesteeAddress           : address;
-    totalAllocatedAmount    : nat;
-    cliffInMonths           : nat;
-    vestingInMonths         : nat;
+    vesteeAddress              : address;
+    totalAllocatedAmount       : nat;
+    cliffInMonths              : nat;
+    vestingInMonths            : nat;
 ]
 
 type updateVesteeType is [@layout:comb] record [
@@ -43,6 +54,12 @@ type updateVesteeType is [@layout:comb] record [
     newCliffInMonths           : nat;
     newVestingInMonths         : nat;
 ]
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type vestingLambdaActionType is 
 
@@ -63,9 +80,11 @@ type vestingLambdaActionType is
         // Vestee Entrypoints
     |   LambdaClaim                         of (unit)
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type vestingStorageType is [@layout:comb] record [
     admin               : address;

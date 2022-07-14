@@ -147,6 +147,7 @@ block{
         
     if Tezos.get_sender() = s.admin then skip
     else {
+
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
         const governanceSatelliteAddress: address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
@@ -158,6 +159,7 @@ block{
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+
     }
 
 } with unit
@@ -213,13 +215,13 @@ function checkFarmClaimIsNotPaused(var s : doormanStorageType) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// helper function to update a user's staked MVK balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceType) is
+// helper function to %onStakeChange entrypoint in the Delegation Contract
+function delegationOnStakeChange(const delegationAddress : address) : contract(delegationOnStakeChangeType) is
     case (Tezos.get_entrypoint_opt(
         "%onStakeChange",
-        delegationAddress) : option(contract(updateSatelliteBalanceType))) of [
+        delegationAddress) : option(contract(delegationOnStakeChangeType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteBalanceType))
+            |   None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegationOnStakeChangeType))
         ];
 
 
@@ -269,7 +271,7 @@ function compoundUserRewards(const userAddress : address; var s : doormanStorage
 block{ 
     
     // Get the user's record
-    var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
+    var userRecord : userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
             Some (_val) -> _val
         |   None -> record[
                 balance                       = 0n;
@@ -285,7 +287,7 @@ block{
 
         // Get Delegation Contract address from the General Contracts Map on the Governance Contract
         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-        const delegationAddress: address = case generalContractsOptView of [
+        const delegationAddress : address = case generalContractsOptView of [
                 Some (_optionContract) -> case _optionContract of [
                         Some (_contract)    -> _contract
                     |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
@@ -295,19 +297,22 @@ block{
       
         // -- Satellite rewards -- //
         
-        // Get the user satelliteRewards record
+        // Call the %getSatelliteRewardsOpt view on the Delegation Contract
         const satelliteRewardsOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
-        const userHasSatelliteRewards: bool = case satelliteRewardsOptView of [
+
+        // Check if user has any satellite rewards
+        const userHasSatelliteRewards : bool = case satelliteRewardsOptView of [
                 Some (_v) -> True
             |   None      -> False
         ];
 
-        // If user never delegated or registered as a satellite, it does not calculates its rewards
-        var satelliteUnpaidRewards: nat := 0n;
+        // If user has never delegated or registered as a satellite, no reward is calculated
+        var satelliteUnpaidRewards : nat := 0n;
         if userHasSatelliteRewards then
         block{
 
-            const satelliteRewardsOpt: option(satelliteRewardsType) = case satelliteRewardsOptView of [
+            // Get the user satelliteRewards record from the %getSatelliteRewardsOpt view above
+            const satelliteRewardsOpt : option(satelliteRewardsType) = case satelliteRewardsOptView of [
                     Some (value) -> value
                 |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
             ];
@@ -315,17 +320,20 @@ block{
             satelliteUnpaidRewards := case satelliteRewardsOpt of [
                     Some (_rewards) -> block{
 
+                        // Get the rewards record of the satellite that user is delegated to (satelliteReferenceAddress)
                         const getUserReferenceRewardOptView : option (option(satelliteRewardsType)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-                        const getUserReferenceRewardOpt: option(satelliteRewardsType) = case getUserReferenceRewardOptView of [
+                        const getUserReferenceRewardOpt : option(satelliteRewardsType) = case getUserReferenceRewardOptView of [
                                 Some (value) -> value
                             |   None         -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                         ];
                         
-                        // Calculate the user unclaimed rewards
-                        const satelliteReward: nat  = case getUserReferenceRewardOpt of [
+                        // Calculate the user unclaimed rewards - i.e. satelliteRewardsRatio * user balance
+                        const satelliteReward : nat  = case getUserReferenceRewardOpt of [
                                 Some (_referenceRewards) -> block{
-                                    const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-                                    const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
+                                    
+                                    const satelliteRewardsRatio  : nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
+                                    const satelliteRewards       : nat  = userRecord.balance * satelliteRewardsRatio;
+
                                 } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
                             |   None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
                         ];
@@ -338,21 +346,22 @@ block{
 
 
         // -- Exit fee rewards -- //
-        // Calculate what fees the user missed since his/her last claim
+        // Calculate what exit fees the user missed since his/her last claim
         const currentFeesPerShare : nat = abs(s.accumulatedFeesPerShare - userRecord.participationFeesPerShare);
 
-        // Calculate the user reward based on his sMVK
+        // Calculate the user reward based on his staked MVK balance
         const exitFeeRewards : nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
 
-        // Increase the user balance
-        userRecord.totalExitFeeRewardsClaimed   := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
-        userRecord.totalSatelliteRewardsClaimed := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
-        userRecord.balance                      := userRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
-        s.unclaimedRewards                      := abs(s.unclaimedRewards - exitFeeRewards);
+        // Update the user balance
+        userRecord.totalExitFeeRewardsClaimed    := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
+        userRecord.totalSatelliteRewardsClaimed  := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
+        userRecord.balance                       := userRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
+        s.unclaimedRewards                       := abs(s.unclaimedRewards - exitFeeRewards);
+
     }
     else skip;
 
-    // Set the user's participationFeesPerShare 
+    // Set the user's participationFeesPerShare to the current accumulatedFeesPerShare
     userRecord.participationFeesPerShare   := s.accumulatedFeesPerShare;
     
     // Update storage: user stake balance ledger
@@ -468,7 +477,7 @@ block {
 [@view] function getStakedBalance(const userAddress : address; var s : doormanStorageType) : nat is
     case s.userStakeBalanceLedger[userAddress] of [
             Some (_val) -> _val.balance
-        |   None -> 0n
+        |   None        -> 0n
     ]
 
 

@@ -92,7 +92,7 @@ type governanceProxyAction is
     |   DataPackingHelper               of executeActionType
 
         // Lambda Entrypoints
-    |   SetLambda                   of setLambdaType
+    |   SetLambda                       of setLambdaType
 
 
 const noOperations : list (operation) = nil;
@@ -141,20 +141,23 @@ function checkSenderIsAdminOrGovernance(var s : governanceProxyStorageType) : un
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceProxyStorageType) : unit is
 block{
 
-  if Tezos.get_sender() = s.admin then skip
-  else {
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-    const governanceSatelliteAddress : address = case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    if Tezos.get_sender() = s.admin then skip
+    else {
 
-    if Tezos.get_sender() = governanceSatelliteAddress then skip
-    else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-  }
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+        const governanceSatelliteAddress : address = case generalContractsOptView of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                ]
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+
+    }
+
 } with unit
     
 
@@ -546,7 +549,7 @@ block {
 
 
 
-(* dataDataPackingHelper entrypoint *)
+(* dataDataPackingHelper entrypoint - to simulate calling an entrypoint *)
 function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorageType) : return is 
     (noOperations, s)
 
@@ -567,7 +570,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

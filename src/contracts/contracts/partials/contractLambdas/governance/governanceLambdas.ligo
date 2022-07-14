@@ -229,9 +229,9 @@ block {
                     |   ConfigMinYayVotePercentage (_v)                   -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.minYayVotePercentage           := updateConfigNewValue
                     |   ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    
                     |   ConfigMaxProposalsPerSatellite (_v)               -> s.config.maxProposalsPerSatellite                := updateConfigNewValue
-                    |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
-                    |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
-                    |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
+                    |   ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerProposalRound     := updateConfigNewValue
+                    |   ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerVotingRound       := updateConfigNewValue
+                    |   ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.get_level() + maxRoundDuration) then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.blocksPerTimelockRound     := updateConfigNewValue
                     |   ConfigProposalDatTitleMaxLength (_v)              -> s.config.proposalMetadataTitleMaxLength          := updateConfigNewValue
                     |   ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
                     |   ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
@@ -861,7 +861,7 @@ block {
     else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
 
     case governanceLambdaAction of [
-        | LambdaUpdateProposalData(proposalData) -> {
+        |   LambdaUpdateProposalData(proposalData) -> {
                 
                 // init params
                 const proposalId     : nat     = proposalData.proposalId;
@@ -979,7 +979,7 @@ block {
     else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
 
     case governanceLambdaAction of [
-        | LambdaUpdatePaymentData(paymentData) -> {
+        |   LambdaUpdatePaymentData(paymentData) -> {
                 
                 // init params
                 const proposalId            : nat                       = paymentData.proposalId;
@@ -1205,8 +1205,8 @@ block {
                     const newProposalVoteStakedMvkTotal : nat = _proposal.proposalVoteStakedMvkTotal + satelliteSnapshot.totalVotingPower;
 
                     // Update proposal with satellite's vote
-                    _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;    
-                    _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
+                    _proposal.proposalVoteCount                     := _proposal.proposalVoteCount + 1n;    
+                    _proposal.proposalVoteStakedMvkTotal            := newProposalVoteStakedMvkTotal;
                     _proposal.proposalVotersMap[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now());
                     
                     // Update proposal with new vote
@@ -1549,7 +1549,7 @@ block {
     // 3. Update proposal and set "paymentProcessed" boolean to True
     // 5. Process Payment Metadata Loop
     //      -   Create paymentsData list of transfers for the Treasury Contract
-    //      -   Get Payment Treasury Contract address from the general contracts map
+    //      -   Get Payment Treasury Contract address from the General Contracts map
     //      -   Create operation of paymentsData transfers
     
 
@@ -1633,7 +1633,7 @@ block {
 
                 };
 
-                // Get Payment Treasury Contract address from the general contracts map
+                // Get Payment Treasury Contract address from the General Contracts map
                 const treasuryAddress : address  = case Map.find_opt("paymentTreasury", s.generalContracts) of [
                         Some (_treasury) -> _treasury
                     |   None             -> failwith(error_PAYMENT_TREASURY_CONTRACT_NOT_FOUND)
@@ -1677,6 +1677,7 @@ block {
     //              -   Send reward to proposer
     //      -   Update and save proposal in storage
     
+
     // Check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
     if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.get_sender() =/= Tezos.get_self_address()) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
     else skip;
@@ -1688,7 +1689,7 @@ block {
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        | LambdaProcessProposalSingleData(_parameter) -> {
+        |   LambdaProcessProposalSingleData(_parameter) -> {
                 
                 // Get proposal record
                 var proposal : proposalRecordType := case s.proposalLedger[s.timelockProposalId] of [
@@ -1787,6 +1788,7 @@ block {
     //      -   Set proposal status to "DROPPED"
     //      -   Remove proposal from currentCycleInfo.roundProposers
     //      -   If current round is a timelock or voting round (where there is only one proposal), restart the cycle
+
 
     case governanceLambdaAction of [
         |   LambdaDropProposal(proposalId) -> {

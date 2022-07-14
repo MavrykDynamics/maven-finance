@@ -1,4 +1,7 @@
-type onStakeChangeType is (address)
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
 
 type satelliteRewardsType is [@layout:comb] record [
     unpaid                                  : nat;
@@ -8,7 +11,7 @@ type satelliteRewardsType is [@layout:comb] record [
     satelliteReferenceAddress               : address;
 ];
 
-// record for users choosing satellites 
+// record for users delegating to satellites 
 type delegateRecordType is [@layout:comb] record [
     satelliteAddress                : address;
     delegatedDateTime               : timestamp;
@@ -16,23 +19,6 @@ type delegateRecordType is [@layout:comb] record [
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
-type newSatelliteRecordType is [@layout:comb] record [
-    name                  : string;
-    description           : string;
-    image                 : string;
-    website               : string;
-    satelliteFee          : nat;
-]
-
-type updateSatelliteRecordType is [@layout:comb] record [
-    name                  : string;
-    description           : string;
-    image                 : string;
-    website               : string;
-    satelliteFee          : nat;
-]
-
-// record for satellites
 type satelliteRecordType is [@layout:comb] record [
     status                : string;     // ACTIVE / INACTIVE / SUSPENDED / BANNED
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
@@ -44,7 +30,7 @@ type satelliteRecordType is [@layout:comb] record [
     image                 : string;     // ipfs hash
     website               : string;     // satellite website if it has one
     
-    registeredDateTime    : timestamp;  
+    registeredDateTime          : timestamp;  
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
@@ -76,16 +62,21 @@ type delegationConfigType is [@layout:comb] record [
 
 type delegationBreakGlassConfigType is record [
     
-    delegateToSatelliteIsPaused      : bool; 
-    undelegateFromSatelliteIsPaused  : bool;
+    delegateToSatelliteIsPaused         : bool; 
+    undelegateFromSatelliteIsPaused     : bool;
 
-    registerAsSatelliteIsPaused      : bool;
-    unregisterAsSatelliteIsPaused    : bool;
+    registerAsSatelliteIsPaused         : bool;
+    unregisterAsSatelliteIsPaused       : bool;
 
-    updateSatelliteRecordIsPaused    : bool;
-
-    distributeRewardIsPaused         : bool;
+    updateSatelliteRecordIsPaused       : bool;
+    distributeRewardIsPaused            : bool;
 ]
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type delegationUpdateConfigNewValueType is nat
 type delegationUpdateConfigActionType is 
@@ -98,23 +89,40 @@ type delegationUpdateConfigActionType is
     |   ConfigSatWebsiteMaxLength     of unit
 
 type delegationUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue: delegationUpdateConfigNewValueType; 
-    updateConfigAction: delegationUpdateConfigActionType;
+    updateConfigNewValue    : delegationUpdateConfigNewValueType; 
+    updateConfigAction      : delegationUpdateConfigActionType;
 ]
 
 type delegateToSatelliteType is [@layout:comb] record [
-    userAddress      : address;
-    satelliteAddress : address;
+    userAddress             : address;
+    satelliteAddress        : address;
 ]
 
 type distributeRewardStakedMvkType is [@layout:comb] record [
-    eligibleSatellites    : set(address);
-    totalStakedMvkReward  : nat;
+    eligibleSatellites      : set(address);
+    totalStakedMvkReward    : nat;
 ]
 
 type updateSatelliteStatusParamsType is [@layout:comb] record [
     satelliteAddress        : address;
     newStatus               : string;
+]
+
+type registerAsSatelliteParamsType is [@layout:comb] record [
+    name                    : string;
+    description             : string;
+    image                   : string;
+    website                 : string;
+    satelliteFee            : nat;
+]
+
+
+type updateSatelliteRecordType is [@layout:comb] record [
+    name                    : string;
+    description             : string;
+    image                   : string;
+    website                 : string;
+    satelliteFee            : nat;
 ]
 
 type delegationPausableEntrypointType is
@@ -129,6 +137,14 @@ type delegationTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : delegationPausableEntrypointType;
     empty             : unit
 ];
+
+type onStakeChangeType is (address)
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type delegationLambdaActionType is 
 
@@ -151,7 +167,7 @@ type delegationLambdaActionType is
     |   LambdaUndelegateFromSatellite               of (address)
 
         // Satellite Lambdas
-    |   LambdaRegisterAsSatellite                   of newSatelliteRecordType
+    |   LambdaRegisterAsSatellite                   of registerAsSatelliteParamsType
     |   LambdaUnregisterAsSatellite                 of (address)
     |   LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
     |   LambdaDistributeReward                      of distributeRewardStakedMvkType
@@ -160,9 +176,11 @@ type delegationLambdaActionType is
     |   LambdaOnStakeChange                         of onStakeChangeType
     |   LambdaUpdateSatelliteStatus                 of updateSatelliteStatusParamsType
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type delegationStorageType is [@layout:comb] record [
     admin                   : address;

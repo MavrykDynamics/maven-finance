@@ -60,7 +60,7 @@ block {
 
                 // Get Farm Factory Contract address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress: address = case generalContractsOptView of [
+                const farmFactoryAddress : address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
                                 Some (_contract)    -> _contract
                             |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
@@ -199,6 +199,11 @@ block {
 function lambdaMistakenTransfer(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
+    // Steps Overview:    
+    // 1. Check that sender is admin or from the Governance Satellite Contract
+    // 2. Create and execute transfer operations based on the params sent
+
+
     var operations : list(operation) := nil;
 
     case farmLambdaAction of [
@@ -250,6 +255,7 @@ block {
     // 4. Validate new blocksPerMinute is greater than 0
     // 5. Calculate new rewards per block
     // 6. Update farm storage with new config values (blocksPerMinute and currentRewardPerBlock)
+
     
     // Check that sender is the Council Contract or the Farm Factory Contract
     checkSenderIsCouncilOrFarmFactory(s);
@@ -312,6 +318,7 @@ block{
     // 4. Check whether the farm is infinite or if its total blocks has been set
     // 5. Update Farm Storage and init Farm
 
+
     checkSenderIsAdmin(s); // check that sender is admin
 
     case farmLambdaAction of [
@@ -347,13 +354,14 @@ block{
 
 
 (* closeFarm lambda *)
-function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType): return is
+function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block{
     
     // Steps Overview:
     // 1. Check that sender is admin
     // 2. Check that farm is open
     // 3. Update and close farm
+
 
     checkSenderIsAdmin(s);  // check that sender is admin
     checkFarmIsOpen(s);     // check that farm is open
@@ -381,13 +389,14 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
+function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block {
 
     // Steps Overview:    
     // 1. Check that sender is admin, Governance Contract address or Treasury Factory Contract address
     // 2. Pause all main entrypoints in the Farm Contract
     
+
     // check that sender is admin, Governance Contract address or Treasury Factory Contract address
     checkSenderIsGovernanceOrFactory(s);
 
@@ -419,6 +428,7 @@ block {
     // Steps Overview:    
     // 1. Check that sender is admin, Governance Contract address or Treasury Factory Contract address
     // 2. Unpause all main entrypoints in the Farm Contract
+
 
     // check that sender is admin, Governance Contract address or Treasury Factory Contract address
     checkSenderIsGovernanceOrFactory(s);
@@ -452,6 +462,7 @@ block {
     // 1. Check that sender is admin
     // 2. Pause or unpause specified entrypoint
 
+
     checkSenderIsAdmin(s); // check that sender is admin
 
     case farmLambdaAction of [
@@ -482,12 +493,19 @@ block {
 // ------------------------------------------------------------------------------
 
 (* deposit lambda *)
-function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
+function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block{
 
     // Steps Overview:    
     // 1. Check that %deposit entrypoint is not paused (e.g. glass broken)
     // 2. Check if farm has started
+    // 3. Update farm pool 
+    // 4. Check if farm is closed 
+    // 5. Check if sender is an existing depositor
+    // 6. If sender is an existing depositor, update user's unclaimed rewards and update deposit record
+    // 7. Update depositor token balance and depositor ledger
+    // 8. Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
+
 
     // Check that %deposit entrypoint is not paused (e.g. glass broken)
     checkDepositIsNotPaused(s);
@@ -506,14 +524,14 @@ block{
                 // Check if farm is closed or not
                 checkFarmIsOpen(s);
 
-                // Depositor address
-                const depositor     : depositorType = Tezos.get_sender();
+                // Init depositor address
+                const depositor : depositorType = Tezos.get_sender();
 
-                // Check if sender as already a record
-                const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
+                // Check if sender is an existing depositor
+                const existingDepositor : bool = Big_map.mem(depositor, s.depositorLedger);
 
                 // Prepare new depositor record
-                var depositorRecord: depositorRecordType := record[
+                var depositorRecord : depositorRecordType := record[
                     balance                     =0n;
                     participationRewardsPerShare    =s.accumulatedRewardsPerShare;
                     unclaimedRewards            =0n;
@@ -522,6 +540,7 @@ block{
 
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
+                    
                     // Update user's unclaimed rewards
                     s := updateUnclaimedRewards(depositor, s);
 
@@ -537,12 +556,19 @@ block{
                 // Update depositor token balance
                 depositorRecord.balance := depositorRecord.balance + tokenAmount;
 
-                // Update depositors Big_map and farmTokenBalance
+                // Update depositor ledger and farmTokenBalance
                 s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
-                s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
+                s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
 
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-                const transferOperation: operation = transferLP(depositor, Tezos.get_self_address(), tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
+                const transferOperation : operation = transferLP(
+                    depositor,                      // from_
+                    Tezos.get_self_address(),       // to_
+                    tokenAmount,                    // tokenAmount
+                    s.config.lpToken.tokenId,       // tokenId
+                    s.config.lpToken.tokenStandard, // tokenStandard (i.e. FA2 or FA12)
+                    s.config.lpToken.tokenAddress   // tokenContractAddress
+                );
 
                 operations := transferOperation # operations;
 
@@ -555,10 +581,20 @@ block{
 
 
 (* withdraw lambda *)
-function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
+function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block{
 
-    // break glass check
+    // Steps Overview:    
+    // 1. Check that %withdraw entrypoint is not paused (e.g. glass broken)
+    // 2. Check if farm has started
+    // 3. Update farm pool 
+    // 4. Update user's unclaimedRewards if user already deposited tokens
+    // 5. Check if the depositor has enough tokens to withdraw
+    // 6. Check if the farm has enough tokens for withdrawal
+    // 7. Transfer LP tokens to the user from the farm balance in the LP Contract
+
+
+    // Check that %withdraw entrypoint is not paused (e.g. glass broken)
     checkWithdrawIsNotPaused(s);
 
     // Check if farm has started
@@ -572,33 +608,35 @@ block{
                 // Update pool farmStorageType
                 s := updateFarm(s);     
 
-                const depositor: depositorType = Tezos.get_sender();
+                // Init depositor address
+                const depositor : depositorType = Tezos.get_sender();
 
-                // Prepare to update user's unclaimedRewards if user already deposited tokens
+                // Update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(depositor, s);
 
-                var depositorRecord: depositorRecordType := case getDepositorDeposit(depositor, s) of [
+                // Get depositor record
+                var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
                         Some (d)    -> d
                     |   None        -> failwith(error_DEPOSITOR_NOT_FOUND)
                 ];
 
-                // Check if the depositor has enough token to withdraw
+                // Check if the depositor has enough tokens to withdraw
                 if tokenAmount > depositorRecord.balance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
                 depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
-                s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
+                s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
 
-                // Check if the farm has enough token
+                // Check if the farm has enough tokens for withdrawal
                 if tokenAmount > s.config.lpToken.tokenBalance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
                 s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
-                const transferOperation: operation = transferLP(
-                    Tezos.get_self_address(),
-                    depositor,
-                    tokenAmount,
-                    s.config.lpToken.tokenId, 
-                    s.config.lpToken.tokenStandard,
-                    s.config.lpToken.tokenAddress
+                const transferOperation : operation = transferLP(
+                    Tezos.get_self_address(),       // from_
+                    depositor,                      // to_
+                    tokenAmount,                    // tokenAmount
+                    s.config.lpToken.tokenId,       // tokenId
+                    s.config.lpToken.tokenStandard, // tokenStandard (i.e. FA2 or FA12)
+                    s.config.lpToken.tokenAddress   // tokenContractAddress
                 );
 
                 operations := transferOperation # operations;
@@ -612,10 +650,22 @@ block{
 
 
 (* claim lambda *)
-function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s: farmStorageType) : return is
+function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
 block{
 
-    // break glass check
+    // Steps Overview:    
+    // 1. Check that %claim entrypoint is not paused (e.g. glass broken)
+    // 2. Check if farm has started
+    // 3. Update farm pool 
+    // 4. Update user's unclaimedRewards if user already deposited tokens
+    // 5. Check if sender is an existing depositor
+    // 6. Get depositor's unclaimed rewards and check that user has more than 0 rewards to claim
+    // 7. Reset depositor's unclaimedRewards to 0, and update claimedRewards total
+    // 8. Update storage with new depositor record
+    // 9. Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+
+    
+    // Check that %claim entrypoint is not paused (e.g. glass broken)
     checkClaimIsNotPaused(s);
 
     // Check if farm has started
@@ -632,23 +682,27 @@ block{
                 // Update user's unclaimed rewards
                 s := updateUnclaimedRewards(depositor, s);
 
-                // Check if sender as already a record
-                var depositorRecord: depositorRecordType := case getDepositorDeposit(depositor, s) of [
+                // Check if sender is an existing depositor
+                var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
                         Some (r)        -> r
-                    |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecordType)
+                    |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND) : depositorRecordType)
                 ];
 
-                const claimedRewards: tokenBalanceType = depositorRecord.unclaimedRewards;
+                // Get depositor's unclaimed rewards
+                const unclaimedRewards : tokenBalanceType = depositorRecord.unclaimedRewards;
 
-                if claimedRewards = 0n then failwith(error_NO_FARM_REWARDS_TO_CLAIM) else skip;
+                // Check that user has more than 0 rewards to claim
+                if unclaimedRewards = 0n then failwith(error_NO_FARM_REWARDS_TO_CLAIM) else skip;
 
-                // Store new unclaimedRewards value in depositor
+                // Reset depositor's unclaimedRewards to 0, and update claimedRewards total
                 depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
                 depositorRecord.unclaimedRewards    := 0n;
-                s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
-                // Transfer sMVK rewards
-                const transferRewardOperation: operation = transferReward(depositor, claimedRewards, s);
+                // Update storage with new depositor record
+                s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+
+                // Transfer staked MVK rewards to user through the %farmClaim entrypoint on the Doorman Contract
+                const transferRewardOperation : operation = transferReward(depositor, unclaimedRewards, s);
 
                 operations := transferRewardOperation # operations;
 

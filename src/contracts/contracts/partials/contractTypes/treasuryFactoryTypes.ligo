@@ -1,6 +1,7 @@
 // ------------------------------------------------------------------------------
-// Treasury Factory Types
+// Storage Types
 // ------------------------------------------------------------------------------
+
 
 type treasuryFactoryBreakGlassConfigType is record [
     createTreasuryIsPaused     : bool;
@@ -8,24 +9,30 @@ type treasuryFactoryBreakGlassConfigType is record [
     untrackTreasuryIsPaused    : bool;
 ]
 
+type treasuryFactoryConfigType is [@layout:comb] record [
+    treasuryNameMaxLength   : nat;
+    empty                   : unit;
+] 
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
+
 type createTreasuryType is [@layout:comb] record[
     name                    : string;
     addToGeneralContracts   : bool;
     metadata                : bytes;
 ]
 
-type treasuryFactoryConfigType is [@layout:comb] record [
-    treasuryNameMaxLength   : nat;
-    empty                   : unit;
-] 
-
 type treasuryFactoryUpdateConfigNewValueType is nat
 type treasuryFactoryUpdateConfigActionType is 
         ConfigTreasuryNameMaxLength of unit
     |   Empty                       of unit
 type treasuryFactoryUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue: treasuryFactoryUpdateConfigNewValueType; 
-    updateConfigAction: treasuryFactoryUpdateConfigActionType;
+    updateConfigNewValue    : treasuryFactoryUpdateConfigNewValueType; 
+    updateConfigAction      : treasuryFactoryUpdateConfigActionType;
 ]
 
 type treasuryFactoryPausableEntrypointType is
@@ -37,6 +44,11 @@ type treasuryFactoryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : treasuryFactoryPausableEntrypointType;
     empty             : unit
 ];
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type treasuryFactoryLambdaActionType is 
 
@@ -60,9 +72,11 @@ type treasuryFactoryLambdaActionType is
     |   LambdaTrackTreasury                       of address
     |   LambdaUntrackTreasury                     of address
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type treasuryFactoryStorageType is [@layout:comb] record[
     admin                      : address;

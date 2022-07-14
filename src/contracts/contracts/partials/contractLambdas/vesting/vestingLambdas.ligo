@@ -15,10 +15,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case vestingLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
-            s.admin := newAdminAddress;
-          }
-        | _ -> skip
+        |   LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -32,10 +32,10 @@ block {
     checkSenderIsAllowed(s); // check that sender is admin or the Governance Contract address
 
     case vestingLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
-            s.governanceAddress := newGovernanceAddress;
-          }
-        | _ -> skip
+        |    LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -49,14 +49,14 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
     
     case vestingLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes  = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -70,10 +70,10 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case vestingLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
-            s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -87,10 +87,10 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin 
     
     case vestingLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
-            s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-          }
-        | _ -> skip
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -108,7 +108,7 @@ block {
     var operations : list(operation) := nil;
 
     case vestingLambdaAction of [
-        | LambdaMistakenTransfer(destinationParams) -> {
+        |   LambdaMistakenTransfer(destinationParams) -> {
 
                 // Check if the sender is admin or the Governance Satellite Contract
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
@@ -117,16 +117,16 @@ block {
                 function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
                   block{
                     const transferTokenOperation : operation = case transferParam.token of [
-                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
                 operations  := List.fold_right(transferOperationFold, destinationParams, operations)
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
@@ -153,7 +153,7 @@ block {
     // 4. Create and save new vestee
 
     case vestingLambdaAction of [
-        | LambdaAddVestee(addVesteeParams) -> {
+        |   LambdaAddVestee(addVesteeParams) -> {
                 
                 // check sender is from council contract
                 checkSenderIsCouncilOrAdmin(s);
@@ -208,7 +208,7 @@ block {
                 s.vesteeLedger[vesteeAddress] := newVestee;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
     
 } with (noOperations, s)
@@ -225,18 +225,18 @@ block {
     // 3. Remove vestee from vestee ledger
 
     case vestingLambdaAction of [
-        | LambdaRemoveVestee(vesteeAddress) -> {
+        |   LambdaRemoveVestee(vesteeAddress) -> {
                 
                 checkSenderIsCouncilOrAdmin(s);
 
                 var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                  | Some(_record) -> _record
-                  | None -> failwith(error_VESTEE_NOT_FOUND)
+                    |   Some(_record) -> _record
+                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 remove vesteeAddress from map s.vesteeLedger;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
     
 } with (noOperations, s)
@@ -256,7 +256,7 @@ block {
     // 4. Update vestee with new inputs and account for any changes
 
     case vestingLambdaAction of [
-        | LambdaUpdateVestee(updateVesteeParams) -> {
+        |   LambdaUpdateVestee(updateVesteeParams) -> {
                 
                 checkSenderIsCouncilOrAdmin(s);
                 
@@ -276,8 +276,8 @@ block {
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                  | Some(_record) -> _record
-                  | None -> failwith(error_VESTEE_NOT_FOUND)
+                    |   Some(_record) -> _record
+                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
@@ -287,7 +287,7 @@ block {
                 var newRemainder            : nat  := abs(newTotalAllocatedAmount - vestee.totalClaimed); 
                 var newClaimAmountPerMonth  : nat  := newRemainder;
                 if vestee.monthsClaimed < newVestingInMonths then 
-                  newClaimAmountPerMonth := newRemainder / newMonthsRemaining
+                    newClaimAmountPerMonth := newRemainder / newMonthsRemaining
                 else skip;
 
                 vestee.totalRemainder       := newRemainder;
@@ -300,17 +300,21 @@ block {
 
                 // calculate next redemption block based on new cliff months and whether vestee has made a claim 
                 if newCliffInMonths <= vestee.monthsClaimed then block {
+                    
                     // no changes to vestee next redemption period
                     vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (vestee.monthsClaimed * thirty_days) + thirty_days;  // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+
                 } else block {
+
                     // cliff has been adjusted upwards, requiring vestee to wait for cliff period to end again before he can start to claim
                     vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (newCliffInMonths * thirty_days);            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+
                 };
 
                 s.vesteeLedger[vesteeAddress] := vestee;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -328,14 +332,14 @@ block {
     // 4. Update vestee record
 
     case vestingLambdaAction of [
-        | LambdaToggleVesteeLock(vesteeAddress) -> {
+        |   LambdaToggleVesteeLock(vesteeAddress) -> {
                 
                 checkSenderIsCouncilOrAdmin(s);
 
                 // Get vestee record from ledger
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
-                  | Some(_record) -> _record
-                  | None          -> failwith(error_VESTEE_NOT_FOUND)
+                    |   Some(_record) -> _record
+                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 // Toggle vestee status
@@ -348,7 +352,7 @@ block {
                 s.vesteeLedger[vesteeAddress] := vestee;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
     
 } with (noOperations, s)
@@ -381,12 +385,12 @@ block {
     var operations : list(operation) := nil;
 
     case vestingLambdaAction of [
-        | LambdaClaim(_parameters) -> {
+        |   LambdaClaim(_parameters) -> {
                 
                 // Get sender's vestee record from ledger
                 var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.get_sender()] of [ 
-                  | Some(_record) -> _record
-                  | None -> failwith(error_VESTEE_NOT_FOUND)
+                    |   Some(_record) -> _record
+                    |   None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 // check that vestee's status is not locked
@@ -459,7 +463,7 @@ block {
                 } else failwith(error_CANNOT_CLAIM_VESTING_REWARDS_NOW);
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)

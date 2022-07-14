@@ -416,28 +416,28 @@ block{
                 // Originate a farm 
                 const originatedfarmStorageType : farmStorageType = record [
 
-                    admin                   = s.admin;                   // admin will be the Farm Factory admin (i.e. Governance Proxy contract)
-                    mvkTokenAddress         = s.mvkTokenAddress;
-                    governanceAddress       = s.governanceAddress;
-                    metadata                = farmMetadata;
+                    admin                       = s.admin;                   // admin will be the Farm Factory admin (i.e. Governance Proxy contract)
+                    mvkTokenAddress             = s.mvkTokenAddress;
+                    governanceAddress           = s.governanceAddress;
+                    metadata                    = farmMetadata;
 
-                    name                    = createFarmParams.name;
-                    config                  = farmConfig;
+                    name                        = createFarmParams.name;
+                    config                      = farmConfig;
                     
-                    whitelistContracts      = farmWhitelistContract;      
-                    generalContracts        = farmGeneralContracts;
+                    whitelistContracts          = farmWhitelistContract;      
+                    generalContracts            = farmGeneralContracts;
 
-                    breakGlassConfig        = farmBreakGlassConfig;
+                    breakGlassConfig            = farmBreakGlassConfig;
 
-                    lastBlockUpdate         = Tezos.get_level();
+                    lastBlockUpdate             = Tezos.get_level();
                     accumulatedRewardsPerShare  = 0n;
-                    claimedRewards          = farmClaimedRewards;
-                    depositors              = big_map[];
-                    open                    = True ;
-                    init                    = True;
-                    initBlock               = Tezos.get_level();
+                    claimedRewards              = farmClaimedRewards;
+                    depositorLedger             = big_map[];
+                    open                        = True ;
+                    init                        = True;
+                    initBlock                   = Tezos.get_level();
 
-                    lambdaLedger            = farmLambdaLedger;
+                    lambdaLedger                = farmLambdaLedger;
                 ];
 
                 // Create operation to originate Farm
