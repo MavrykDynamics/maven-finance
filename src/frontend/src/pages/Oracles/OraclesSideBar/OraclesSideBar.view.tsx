@@ -16,6 +16,11 @@ type OraclesSideBarProps = {
   totalOracleNetworks: number
   satelliteFactory: string
   isButton: boolean
+  infoBlockAddresses: {
+    satellite: string
+    oracle: string
+    aggregator: string
+  }
 }
 
 const OraclesSideBarView = ({
@@ -24,6 +29,7 @@ const OraclesSideBarView = ({
   totalDelegatedMVK,
   numberOfSatellites,
   totalOracleNetworks,
+  infoBlockAddresses,
 }: OraclesSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
@@ -41,19 +47,19 @@ const OraclesSideBarView = ({
         <SideBarItem>
           <h3>Satellite Contract (fix)</h3>
           <var>
-            <CommaNumber value={numberOfSatellites} showDecimal={false} />
+            <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
           <h3>Oracle Contract (fix)</h3>
           <var>
-            <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
+            <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Aggregator Contract (fix)</h3>
+          <h3>Aggregator Contract</h3>
           <var>
-            <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
+            <TzAddress tzAddress={infoBlockAddresses.aggregator} hasIcon={false} />
           </var>
         </SideBarItem>
       </SideBarSection>
