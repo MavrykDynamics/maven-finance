@@ -49,32 +49,35 @@ function updateGeneralContractsMap(const updateGeneralContractsParams : updateGe
 
 function checkInWhitelistContracts(const contractAddress : address; var whitelistContracts : whitelistContractsType) : bool is 
 block {
-  var inWhitelistContractsMap : bool := False;
-  for _key -> value in map whitelistContracts block {
-    if contractAddress = value then inWhitelistContractsMap := True
-      else skip;
-  }
+
+    var inWhitelistContractsMap : bool := False;
+    for _key -> value in map whitelistContracts block {
+        if contractAddress = value then inWhitelistContractsMap := True
+        else skip;
+    }
+
 } with inWhitelistContractsMap
 
 (* UpdateWhitelistContracts Function *)
-function updateWhitelistContractsMap(const updateWhitelistContractsParams: updateWhitelistContractsType; const whitelistContracts : whitelistContractsType) : whitelistContractsType is 
-  block{
+function updateWhitelistContractsMap(const updateWhitelistContractsParams : updateWhitelistContractsType; const whitelistContracts : whitelistContractsType) : whitelistContractsType is 
+block{
     
     const contractName     : string  = updateWhitelistContractsParams.whitelistContractName;
     const contractAddress  : address = updateWhitelistContractsParams.whitelistContractAddress;
 
-    const existingAddress: option(address) = case Map.find_opt(contractName, whitelistContracts) of [
-      Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
-    |  None -> (Some (contractAddress): option(address))
+    const existingAddress : option(address) = case Map.find_opt(contractName, whitelistContracts) of [
+            Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
+        |   None            -> (Some (contractAddress): option(address))
     ];
-    const updatedWhitelistContracts: whitelistContractsType = 
-      Map.update(
-        contractName, 
-        existingAddress,
-        whitelistContracts
-      );
 
-  } with (updatedWhitelistContracts)
+    const updatedWhitelistContracts : whitelistContractsType = 
+        Map.update(
+            contractName, 
+            existingAddress,
+            whitelistContracts
+        );
+
+} with (updatedWhitelistContracts)
 
 // ------------------------------------------------------------------------------
 // Whitelist Token Contract Methods
@@ -82,28 +85,30 @@ function updateWhitelistContractsMap(const updateWhitelistContractsParams: updat
 
 function checkInWhitelistTokenContracts(const contractAddress : address; var whitelistTokenContracts : whitelistTokenContractsType) : bool is 
 block {
-  var inWhitelistTokenContractsMap : bool := False;
-  for _key -> value in map whitelistTokenContracts block {
-    if contractAddress = value then inWhitelistTokenContractsMap := True
-      else skip;
-  }  
+
+    var inWhitelistTokenContractsMap : bool := False;
+    for _key -> value in map whitelistTokenContracts block {
+        if contractAddress = value then inWhitelistTokenContractsMap := True
+        else skip;
+    } 
+     
 } with inWhitelistTokenContractsMap
 
 (* UpdateWhitelistTokenContracts Entrypoint *)
-function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsType; const whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
-  block{
+function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; const whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
+block{
     
     const contractName     : string  = updateWhitelistTokenContractsParams.tokenContractName;
     const contractAddress  : address = updateWhitelistTokenContractsParams.tokenContractAddress;
     
-    const existingAddress: option(address) = 
-      if checkInWhitelistTokenContracts(contractAddress, whitelistTokenContracts) then (None : option(address)) else Some (contractAddress);
+    const existingAddress : option(address) = 
+        if checkInWhitelistTokenContracts(contractAddress, whitelistTokenContracts) then (None : option(address)) else Some (contractAddress);
 
-    const updatedWhitelistTokenContracts: whitelistTokenContractsType = 
-      Map.update(
-        contractName, 
-        existingAddress,
-        whitelistTokenContracts
-      );
+    const updatedWhitelistTokenContracts : whitelistTokenContractsType = 
+        Map.update(
+            contractName, 
+            existingAddress,
+            whitelistTokenContracts
+        );
 
-  } with (updatedWhitelistTokenContracts)
+} with (updatedWhitelistTokenContracts)

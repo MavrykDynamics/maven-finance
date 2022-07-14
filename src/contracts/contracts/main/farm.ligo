@@ -115,7 +115,7 @@ block {
 
     const councilAddress : address = case s.whitelistContracts["council"] of [
             Some (_address) -> _address
-        |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
+        |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
     ];
 
     if Tezos.get_sender() = councilAddress then skip
@@ -123,7 +123,7 @@ block {
 
         const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND) : address)
+            |   None            -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND) : address)
         ];
 
         if Tezos.get_sender() = farmFactoryAddress then skip
@@ -144,7 +144,7 @@ block {
 
         const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED) : address)
+            |   None            -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED) : address)
         ];
 
         if Tezos.get_sender() = farmFactoryAddress then skip 
@@ -195,7 +195,7 @@ function checkFarmIsInit(const s : farmStorageType) : unit is
 
 // Get the Deposit of a user
 function getDepositorDeposit(const depositor : depositorType; const s : farmStorageType) : option(depositorRecordType) is
-    Big_map.find_opt(depositor, s.depositors)
+    Big_map.find_opt(depositor, s.depositorLedger)
 
 
 
@@ -247,7 +247,7 @@ function checkClaimIsNotPaused(var s : farmStorageType) : unit is
 function transferLP(const from_ : address; const to_ : address; const tokenAmount : tokenBalanceType; const tokenId : nat; const tokenStandard : lpStandardType; const tokenContractAddress : address) : operation is
     case tokenStandard of [
             Fa12 -> transferFa12Token(from_,to_,tokenAmount,tokenContractAddress)
-        |   Fa2 -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
+        |   Fa2  -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
     ]
 
     
@@ -272,10 +272,10 @@ block{
     
     // Get %farmClaim entrypoint on the Doorman Contract
     const doormanContract : contract(farmClaimType) =
-    case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
-            Some (c) -> c
-        |   None -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
-    ];
+        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
+                Some (c) -> c
+            |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
+        ];
 
     // Init farmClaim entrypoint parameters 
     const farmClaimParams : farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
@@ -387,7 +387,7 @@ block{
     // Update user's unclaimed rewards and participationRewardsPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
     depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
-    s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
+    s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
 
 } with(s)
 
@@ -501,7 +501,7 @@ block {
 
 (*  View: get depositor *)
 [@view] function getDepositorOpt(const depositorAddress: depositorType; const s: farmStorageType) : option(depositorRecordType) is
-    Big_map.find_opt(depositorAddress, s.depositors)
+    Big_map.find_opt(depositorAddress, s.depositorLedger)
 
 
 
@@ -918,7 +918,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

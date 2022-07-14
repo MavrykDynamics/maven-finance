@@ -184,7 +184,7 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%addOracle", aggregatorAddress) : option(contract(address))) of [
                 Some (c) -> c
-            |   None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+            |   None     -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
@@ -198,7 +198,7 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%removeOracle", aggregatorAddress) : option(contract(address))) of [
                 Some (c) -> c
-            |   None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+            |   None     -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
@@ -211,7 +211,7 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
         "%transfer",
         contractAddress) : option(contract(transferActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+            |   None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
         ];
 
 
@@ -222,7 +222,7 @@ function getDistributeRewardInDelegationEntrypoint(const contractAddress : addre
         "%distributeReward",
         contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
+            |   None        -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
         ];
 
 
@@ -232,7 +232,7 @@ function getRegisterAggregatorInGovernanceSatelliteEntrypoint(const contractAddr
         "%registerAggregator",
         contractAddress) : option(contract(registerAggregatorActionType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_REGISTER_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(registerAggregatorActionType))
+            |   None        -> (failwith(error_REGISTER_AGGREGATOR_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND) : contract(registerAggregatorActionType))
         ];  
 
 
@@ -677,7 +677,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 
 
@@ -693,7 +693,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.aggregatorLambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

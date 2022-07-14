@@ -163,7 +163,7 @@ function getAddOracleInAggregatorEntrypoint(const contractAddress : address) : c
         "%addOracle",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -174,7 +174,7 @@ function getRemoveOracleInAggregatorEntrypoint(const contractAddress : address) 
         "%removeOracle",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -185,7 +185,7 @@ function getPauseAllInAggregatorEntrypoint(const contractAddress : address) : co
         "%pauseAll",
         contractAddress) : option(contract(unit))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_PAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
+            |   None        -> (failwith(error_PAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
         ];
 
 
@@ -196,7 +196,7 @@ function getUnpauseAllInAggregatorEntrypoint(const contractAddress : address) : 
         "%unpauseAll",
         contractAddress) : option(contract(unit))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
+            |   None        -> (failwith(error_UNPAUSE_ALL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(unit))
         ];
 
 
@@ -207,7 +207,7 @@ function getUpdateSatelliteStatusInDelegationEntrypoint(const contractAddress : 
         "%updateSatelliteStatus",
         contractAddress) : option(contract(updateSatelliteStatusParamsType))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
+            |   None        -> (failwith(error_UPDATE_SATELLITE_STATUS_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteStatusParamsType))
         ];
 
 
@@ -217,7 +217,7 @@ function getSetMaintainerInAggregatorEntrypoint(const contractAddress : address)
         "%setMaintainer",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_SET_MAINTAINER_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
         ];
 
 // ------------------------------------------------------------------------------
@@ -760,7 +760,7 @@ block{
     // set lambda in lambdaLedger - allow override of lambdas
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

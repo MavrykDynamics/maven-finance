@@ -1,18 +1,35 @@
 // ------------------------------------------------------------------------------
-// Farm Types
+// Storage Types
 // ------------------------------------------------------------------------------
 
-type farmPlannedRewardsType is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalanceType;
+
+type farmFactoryBreakGlassConfigType is [@layout:comb] record [
+    createFarmIsPaused      : bool;
+    trackFarmIsPaused       : bool;
+    untrackFarmIsPaused     : bool;
 ]
+
+
+type farmFactoryConfigType is [@layout:comb] record [
+    blocksPerMinute         : nat;
+    farmNameMaxLength       : nat;
+]
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type farmLpTokenType is [@layout:comb] record [
-    tokenAddress   : address;
-    tokenId        : nat;
-    tokenStandard  : lpStandardType;
+    tokenAddress             : address;
+    tokenId                  : nat;
+    tokenStandard            : lpStandardType;
 ]
-
+type farmPlannedRewardsType is [@layout:comb] record[
+    totalBlocks              : nat;
+    currentRewardPerBlock    : tokenBalanceType;
+]
 type createFarmType is [@layout:comb] record[
     name                     : string;
     addToGeneralContracts    : bool;
@@ -23,16 +40,6 @@ type createFarmType is [@layout:comb] record[
     lpToken                  : farmLpTokenType;
 ]
 
-type farmFactoryBreakGlassConfigType is [@layout:comb] record [
-    createFarmIsPaused      : bool;
-    trackFarmIsPaused       : bool;
-    untrackFarmIsPaused     : bool;
-]
-
-type farmFactoryConfigType is [@layout:comb] record [
-    blocksPerMinute         : nat;
-    farmNameMaxLength       : nat;
-]
 
 type farmFactoryUpdateConfigNewValueType is nat
 type farmFactoryUpdateConfigActionType is 
@@ -40,9 +47,10 @@ type farmFactoryUpdateConfigActionType is
     |   Empty                   of unit
 
 type farmFactoryUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue: farmFactoryUpdateConfigNewValueType; 
-    updateConfigAction: farmFactoryUpdateConfigActionType;
+    updateConfigNewValue    : farmFactoryUpdateConfigNewValueType; 
+    updateConfigAction      : farmFactoryUpdateConfigActionType;
 ]
+
 
 type farmFactoryPausableEntrypointType is
         CreateFarm         of bool
@@ -53,6 +61,12 @@ type farmFactoryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : farmFactoryPausableEntrypointType;
     empty             : unit
 ];
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type farmFactoryLambdaActionType is 
 
@@ -80,6 +94,7 @@ type farmFactoryLambdaActionType is
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type farmFactoryStorageType is [@layout:comb] record[
     admin                  : address;

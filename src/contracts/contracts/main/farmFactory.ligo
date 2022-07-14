@@ -107,13 +107,14 @@ block {
     if Tezos.get_sender() = councilAddress then skip
     else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
 
-} with(unit)
+} with (unit)
 
 
 
 // Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorageType) : unit is
 block{
+    
     if Tezos.get_sender() = s.admin then skip
     else {
 
@@ -129,6 +130,7 @@ block{
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
+
 } with unit
 
 
@@ -609,7 +611,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 
 
@@ -625,7 +627,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.farmLambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
@@ -645,7 +647,7 @@ block{
     
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-} with(
+} with (
 
     case action of [
         

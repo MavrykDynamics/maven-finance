@@ -19,32 +19,33 @@ const breakGlassConfig = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-  data: Buffer.from(
-    JSON.stringify({
-      name: 'MAVRYK Farm Treasury',
-      description: 'MAVRYK Treasury Contract',
-      version: 'v1.0.0',
-      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-    }),
-    'ascii',
-  ).toString('hex'),
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Farm Treasury',
+            description: 'MAVRYK Treasury Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex'),
 })
 
 export const treasuryStorage: treasuryStorageType = {
-  admin                     : bob.pkh,
-  mvkTokenAddress           : "",
-  governanceAddress         : "",
-  name                      : "treasury",
-  metadata                  : metadata,
+    
+    admin                     : bob.pkh,
+    mvkTokenAddress           : "",
+    governanceAddress         : "",
+    name                      : "treasury",
+    metadata                  : metadata,
 
-  config                    : config,
-  breakGlassConfig          : breakGlassConfig,
+    config                    : config,
+    breakGlassConfig          : breakGlassConfig,
 
-  whitelistContracts        : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
-  generalContracts          : MichelsonMap.fromLiteral({}),
+    whitelistContracts        : MichelsonMap.fromLiteral({}),
+    whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
+    generalContracts          : MichelsonMap.fromLiteral({}),
 
-  lambdaLedger              : MichelsonMap.fromLiteral({})
+    lambdaLedger              : MichelsonMap.fromLiteral({})
   
 };

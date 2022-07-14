@@ -162,7 +162,7 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
         "%breakGlass",
         contractAddress) : option(contract(unit))) of [
                 Some(contr) -> contr
-            |   None -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
+            |   None        -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
         ];
 
 // ------------------------------------------------------------------------------
@@ -509,7 +509,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End

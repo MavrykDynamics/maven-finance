@@ -711,14 +711,14 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
+        |   LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
                 
                 // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
                         Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                            | None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];

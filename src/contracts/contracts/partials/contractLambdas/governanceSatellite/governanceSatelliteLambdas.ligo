@@ -50,7 +50,7 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case governanceSatelliteLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes = updateMetadataParams.metadataHash;
@@ -2002,7 +2002,7 @@ block {
     var operations : list(operation) := nil;
 
     case governanceSatelliteLambdaAction of [
-        | LambdaVoteForAction(voteForAction) -> {
+        |   LambdaVoteForAction(voteForAction) -> {
 
                 // init params
                 const actionId : nat = voteForAction.actionId;

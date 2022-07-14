@@ -1,5 +1,16 @@
+// ------------------------------------------------------------------------------
+// Required Types
+// ------------------------------------------------------------------------------
+
+
 // Treasury Transfer Types
 #include "../../partials/shared/transferTypes.ligo"
+
+
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
 
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
@@ -7,6 +18,12 @@ type treasuryBreakGlassConfigType is [@layout:comb] record [
     stakeMvkIsPaused            : bool;
     unstakeMvkIsPaused          : bool;
 ]
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type mintMvkAndTransferType is [@layout:comb] record [
     to_             : address;
@@ -23,6 +40,12 @@ type treasuryTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : treasuryPausableEntrypointType;
     empty             : unit
 ];
+
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
 
 type treasuryLambdaActionType is 
 
@@ -48,9 +71,11 @@ type treasuryLambdaActionType is
     |   LambdaStakeMvk                       of (nat)
     |   LambdaUnstakeMvk                     of (nat)
 
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type treasuryStorageType is [@layout:comb] record [
     admin                      : address;

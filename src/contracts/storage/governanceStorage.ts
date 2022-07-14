@@ -36,53 +36,52 @@ const config = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-  data: Buffer.from(
-    JSON.stringify({
-      name: 'MAVRYK Governance Contract',
-      version: 'v1.0.0',
-      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-    }),
-    'ascii',
-  ).toString('hex'),
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+        name: 'MAVRYK Governance Contract',
+        version: 'v1.0.0',
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex'),
 })
 
 export const governanceStorage: governanceStorageType = {
-  
-  admin                   : bob.pkh,
-  mvkTokenAddress         : "",
-  governanceProxyAddress  : zeroAddress,
-  metadata                : metadata,
-  config                  : config,
-  
-  whitelistDevelopers     : [],
-  whitelistContracts      : MichelsonMap.fromLiteral({}),
-  generalContracts        : MichelsonMap.fromLiteral({}),
+    
+    admin                   : bob.pkh,
+    mvkTokenAddress         : "",
+    governanceProxyAddress  : zeroAddress,
+    metadata                : metadata,
+    config                  : config,
+    
+    whitelistDevelopers     : [],
+    whitelistContracts      : MichelsonMap.fromLiteral({}),
+    generalContracts        : MichelsonMap.fromLiteral({}),
 
-  proposalLedger          : MichelsonMap.fromLiteral({}),
-  snapshotLedger          : MichelsonMap.fromLiteral({}),
+    proposalLedger          : MichelsonMap.fromLiteral({}),
+    snapshotLedger          : MichelsonMap.fromLiteral({}),
 
-  // startLevel              : new BigNumber(1),
-  nextProposalId          : new BigNumber(1),
-  cycleCounter            : new BigNumber(1),
+    nextProposalId          : new BigNumber(1),
+    cycleCounter            : new BigNumber(1),
 
-  currentCycleInfo         : {
-    round                     : { proposal: null },
-    blocksPerProposalRound    :  new BigNumber(0),
-    blocksPerVotingRound      :  new BigNumber(0),
-    blocksPerTimelockRound    :  new BigNumber(0),
-    roundStartLevel           : new BigNumber(0),
-    roundEndLevel             : new BigNumber(0),
-    cycleEndLevel             : new BigNumber(0),
-    roundProposals            : MichelsonMap.fromLiteral({}),
-    roundProposers            : MichelsonMap.fromLiteral({}),
-    roundVotes                : MichelsonMap.fromLiteral({}),
-    cycleTotalVotersReward    : new BigNumber(0),
-    minQuorumStakedMvkTotal   : new BigNumber(0)
-  },
+    currentCycleInfo         : {
+        round                     : { proposal: null },
+        blocksPerProposalRound    :  new BigNumber(0),
+        blocksPerVotingRound      :  new BigNumber(0),
+        blocksPerTimelockRound    :  new BigNumber(0),
+        roundStartLevel           : new BigNumber(0),
+        roundEndLevel             : new BigNumber(0),
+        cycleEndLevel             : new BigNumber(0),
+        roundProposals            : MichelsonMap.fromLiteral({}),
+        roundProposers            : MichelsonMap.fromLiteral({}),
+        roundVotes                : MichelsonMap.fromLiteral({}),
+        cycleTotalVotersReward    : new BigNumber(0),
+        minQuorumStakedMvkTotal   : new BigNumber(0)
+    },
 
-  cycleHighestVotedProposalId        : new BigNumber(0),
-  timelockProposalId                 : new BigNumber(0),
-  
-  lambdaLedger                       : MichelsonMap.fromLiteral({})
+    cycleHighestVotedProposalId        : new BigNumber(0),
+    timelockProposalId                 : new BigNumber(0),
+    
+    lambdaLedger                       : MichelsonMap.fromLiteral({})
 };
