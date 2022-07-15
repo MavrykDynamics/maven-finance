@@ -8,7 +8,7 @@ import { Page, PageContent } from 'styles'
 import { Loader } from 'app/App.components/Loader/Loader.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
 import { SatelliteListCard } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.view'
-import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { SatelliteSideBar } from 'pages/Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view

@@ -1,5 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
-import { InitialOracleStorageType } from 'pages/Oracles/Oracles.types'
+import { InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 
 import { ContractAddressesState } from '../reducers/contractAddresses'
 import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'

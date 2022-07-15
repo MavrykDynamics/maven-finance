@@ -1,5 +1,5 @@
 // style
-import { OracleItemStyle } from './OraclesListItemStyle.view'
+import { OracleItemStyle } from './SatelliteCard.style'
 
 export const OraclesListItemDataFeed = () => {
   return (

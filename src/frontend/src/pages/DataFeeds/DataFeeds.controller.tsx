@@ -4,7 +4,7 @@ import { State } from 'reducers'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import OracleList from '../Oracles/OraclesList/OraclesList.view'
+import OracleList from '../Satellites/SatelliteList/SatellitesList.view'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -24,7 +24,6 @@ export const DataFeeds = () => {
   const oracleSatellitesData = {
     userStakedBalance: user.mySMvkTokenBalance,
     satelliteUserIsDelegatedTo: user.satelliteMvkIsDelegatedTo,
-    // @ts-ignore
     items: oraclesStorage.feeds,
   }
 

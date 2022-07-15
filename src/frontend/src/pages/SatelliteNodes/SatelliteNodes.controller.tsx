@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import OracleSatellitesView from './OracleSatellites.view'
+import OracleSatellitesView from './SatelliteNodes.view'
 
-import { getOracleSatellites } from 'pages/Oracles/Oracles.actions'
+import { getOracleSatellites } from 'pages/Satellites/Satellites.actions'
 
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 import { State } from 'reducers'
 
-const OracleSatellites = () => {
+const SatelliteNodes = () => {
   const {
     oraclesStorage: { oraclesSatellites },
   } = useSelector((state: State) => state.oracles)
@@ -77,4 +77,4 @@ const OracleSatellites = () => {
   )
 }
 
-export default OracleSatellites
+export default SatelliteNodes

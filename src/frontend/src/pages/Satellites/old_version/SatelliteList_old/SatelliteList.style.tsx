@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { boxShadowColor, Card, cyanColor, royalPurpleColor, skyColor } from 'styles'
+import { Card } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 

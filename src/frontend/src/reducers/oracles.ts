@@ -1,6 +1,6 @@
-import { InitialOracleStorageType } from 'pages/Oracles/Oracles.types'
+import { InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
+import { GET_ORACLES_STORAGE, GET_ORACLES_SATELLITES } from 'pages/Satellites/Satellites.actions'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { GET_ORACLES_SATELLITES, GET_ORACLES_STORAGE } from '../pages/Oracles/Oracles.actions'
 
 export interface OraclesState {
   oraclesStorage: {

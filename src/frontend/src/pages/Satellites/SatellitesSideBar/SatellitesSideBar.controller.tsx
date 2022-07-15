@@ -2,13 +2,13 @@ import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import {
   getTotalDelegatedMVK,
   checkIfUserIsSatellite,
-} from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+} from 'pages/Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import OraclesSideBarView from './OraclesSideBar.view'
+import SatellitesSideBarView from './SatellitesSideBar.view'
 
-const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
+const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
@@ -28,7 +28,7 @@ const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   }, [dispatch])
 
   return (
-    <OraclesSideBarView
+    <SatellitesSideBarView
       userIsSatellite={userIsSatellite}
       numberOfSatellites={numSatellites}
       totalDelegatedMVK={totalDelegatedMVK}
@@ -37,11 +37,11 @@ const OraclesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
       totalOracleNetworks={totalOracleNetworks}
       infoBlockAddresses={{
         satellite: currentSatellite.address,
-        oracle: feedsFactory[0].address,
-        aggregator: feedsFactory[0].address,
+        oracle: feedsFactory[0]?.address || '',
+        aggregator: feedsFactory[0]?.address || '',
       }}
     />
   )
 }
 
-export default OraclesSideBar
+export default SatellitesSideBar

@@ -1,9 +1,8 @@
 import { SatelliteRecord } from "utils/TypesAndInterfaces/Delegation"
 
-export type OraclesListProps = {
+export type SatellitesListProps = {
   listTitle?: string
   items: Array<any>
-  noItemsText: string
   listType: 'satellites' | 'feeds' | 'oracles'
   name: string
   onClickHandler: (arg0: any) => void
@@ -22,6 +21,7 @@ export type FeedFactory = {
   track_aggregator_paused: boolean
   untrack_aggregator_paused: boolean
 }
+
 export type Feed = {
   address: string
   admin: string

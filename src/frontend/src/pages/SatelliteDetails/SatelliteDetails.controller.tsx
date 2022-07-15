@@ -1,28 +1,29 @@
 import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { State } from 'reducers'
 
 import { SatelliteDetailsView } from './SatelliteDetails.view'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { getSatelliteByAddress } from './SatelliteDetails.actions'
+import qs from 'qs'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
-  const location = useLocation()
   const loading = useSelector((state: State) => state.loading)
   const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
-  // const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
-  // const neededSatellite = currentSatellite
   const { user } = useSelector((state: State) => state.user)
+  const [isFromOracle, setIsFromOracle] = useState(false)
+
+  let { satelliteId, isOracle } = useParams<{ satelliteId: string; isOracle?: string }>()
 
   useEffect(() => {
-    const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
-    dispatch(getSatelliteByAddress(pathAddress))
+    setIsFromOracle(Boolean(isOracle))
+    dispatch(getSatelliteByAddress(satelliteId))
     dispatch(getDelegationStorage())
-  }, [dispatch, location])
+  }, [dispatch, satelliteId, isOracle])
 
   const delegateCallback = (address: string) => {
     dispatch(delegate(address))

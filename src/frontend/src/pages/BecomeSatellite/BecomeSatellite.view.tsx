@@ -20,7 +20,7 @@ import {
   ValidRegisterAsSatelliteForm,
 } from '../../utils/TypesAndInterfaces/Forms'
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
-import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { SatelliteSideBar } from '../Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
 import {
   BecomeSatelliteButttons,

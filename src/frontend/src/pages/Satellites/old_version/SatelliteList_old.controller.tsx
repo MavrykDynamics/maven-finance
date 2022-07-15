@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-import { SatelliteListView } from './SatelliteList.view'
+import { SatelliteListView } from './SatelliteList_old.view'
 
 type SatelliteListProps = {
   satellitesList: SatelliteRecord[]

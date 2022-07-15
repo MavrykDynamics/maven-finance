@@ -9,7 +9,7 @@ import { PRIMARY } from 'app/App.components/Modal/Modal.constants'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import OracleList from 'pages/Oracles/OraclesList/OraclesList.view'
+import OracleList from 'pages/Satellites/SatelliteList/SatellitesList.view'
 
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
