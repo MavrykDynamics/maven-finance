@@ -1,6 +1,7 @@
 import { InfoTab } from 'app/App.components/InfoTab/InfoTab.controller'
 import { PRIMARY } from 'app/App.components/Modal/Modal.constants'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
+import { SATELITES_TOP_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import React from 'react'
 import { useHistory } from 'react-router'
 import { Page, PageContent } from 'styles'
@@ -61,7 +62,7 @@ const SatellitesView = ({ isLoading, tabsInfo, oracleSatellitesData, delegateCal
               loading={isLoading}
               items={oracleSatellitesData.items.slice(0, 3)}
               listType={'satellites'}
-              name={'topSatelitesOracle'}
+              name={SATELITES_TOP_LIST_NAME}
               onClickHandler={delegateCallback}
               additionaldata={oracleSatellitesData}
             />

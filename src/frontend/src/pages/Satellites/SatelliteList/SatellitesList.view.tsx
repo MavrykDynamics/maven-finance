@@ -6,7 +6,6 @@ import { SatelliteListItem } from './ListCards/SateliteCard.view'
 import { DataFeedCard } from './ListCards/DataFeedCard.view'
 
 // consts
-import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/FinancialRequests.consts'
 
 // types
 import { SatellitesListProps } from '../helpers/Satellites.types'
@@ -14,6 +13,7 @@ import { SatellitesListProps } from '../helpers/Satellites.types'
 // styles
 import { FRListWrapper } from 'pages/FinacialRequests/FRList/FRList.styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
+import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 function SatteliteListView({
   listTitle,

@@ -1,5 +1,5 @@
-import { ITEMS_PER_PAGE } from 'pages/FinacialRequests/FinancialRequests.consts'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import React, { useMemo } from 'react'
 import { useLocation } from 'react-router'
 import { SatellitesListProps } from '../helpers/Satellites.types'
@@ -17,15 +17,18 @@ const SatteliteList = ({
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, name)
 
-  const itemsToShow = useMemo(
-    () => items.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
-    [currentPage, items],
-  )
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, name)
+    console.log(currentPage, name, from, to)
+    return items.slice(from, to)
+  }, [currentPage, items])
+
+  console.log('items', items, paginatedItemsList)
 
   return (
     <SatteliteListView
       additionaldata={{ ...additionaldata, fullItemsCount: items.length }}
-      items={itemsToShow}
+      items={paginatedItemsList}
       listType={listType}
       name={name}
       listTitle={listTitle}

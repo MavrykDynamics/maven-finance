@@ -9,6 +9,8 @@ export const PAST_ACTIONS_SATELITE_GOVERNANCE_LIST = 'pastActionsSatelitesGov'
 export const MY_ACTIONS_SATELITE_GOVERNANCE_LIST = 'myActionsSatelitesGov'
 
 export const SATELITES_OVERVIEW_LIST_NAME = 'saletitesGov'
+export const SATELITES_TOP_LIST_NAME = 'topSatelitesOracle'
+export const SATELITES_NODES_LIST_NAME = 'satelitesNodes'
 
 export const WAITING_PROPOSALS_LIST_NAME = 'waitingProposals'
 export const WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME = 'waitingFPProposals'
@@ -31,6 +33,8 @@ export const LIST_NAMES_MAPPER: Record<string, number> = {
   [ONGOING_PROPOSALS_LIST_NAME]: 10,
   [NEXT_PROPOSALS_LIST_NAME]: 10,
   [ONGOING_VOTING_PROPOSALS_LIST_NAME]: 10,
+  [SATELITES_TOP_LIST_NAME]: 3,
+  [SATELITES_NODES_LIST_NAME]: 5,
 }
 
 export const calculateSlicePositions = (currentPage: number, listName: string) => {
