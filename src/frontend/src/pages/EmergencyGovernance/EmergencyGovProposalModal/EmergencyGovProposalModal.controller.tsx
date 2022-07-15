@@ -31,12 +31,12 @@ export const EmergencyGovProposalModal = () => {
   const [validForm, setValidForm] = useState<ValidEmergencyGovernanceProposalForm>({
     title: false,
     description: false,
-    screenshots: false,
+    screenshots: true,
   })
   const [formInputStatus, setFormInputStatus] = useState<EmergencyGovernanceProposalFormInputStatus>({
     title: '',
     description: '',
-    screenshots: '',
+    screenshots: 'success',
   })
 
   const cancelCallback = () => {

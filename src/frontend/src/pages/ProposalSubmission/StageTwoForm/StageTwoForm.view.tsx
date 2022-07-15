@@ -1,3 +1,6 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 import { Button } from '../../../app/App.components/Button/Button.controller'
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -12,6 +15,10 @@ import {
 } from '../../../utils/TypesAndInterfaces/Forms'
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+
+// hooks
+import useGovernence from '../../Governance/UseGovernance'
+
 // styles
 import {
   FormButtonContainer,
@@ -72,6 +79,10 @@ export const StageTwoFormView = ({
   handleUpdateProposal,
   proposalId,
 }: StageTwoFormViewProps) => {
+  const { watingProposals } = useGovernence()
+  const { governancePhase } = useSelector((state: State) => state.governance)
+  const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
+  const disabled = !isProposalRound || !form.title
   const handleCreateNewByte = () => {
     setForm({
       ...form,
@@ -101,7 +112,7 @@ export const StageTwoFormView = ({
   return (
     <>
       <FormHeaderGroup>
-        <h1>Stage 2</h1>
+        <h1>Stage 2 {!isProposalRound ? <span className="label">Not accessible in the current round</span> : null}</h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
@@ -112,15 +123,15 @@ export const StageTwoFormView = ({
       </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <label>1- Enter Proposal Title</label>
+          <label>1 - Enter Proposal Title</label>
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <label>2- Proposal Success Reward</label>
+          <label>2 - Proposal Success Reward</label>
           <FormTitleEntry>{successReward} MVK</FormTitleEntry>
         </div>
         <div>
-          <label>3- Fee</label>
+          <label>3 - Fee</label>
           <FormTitleEntry>{fee}XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
@@ -137,6 +148,7 @@ export const StageTwoFormView = ({
                 onChange={(e: any) => handleChangeTitle(item.id, e.target.value)}
                 onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'title')}
                 inputStatus={formInputStatus.title}
+                disabled={disabled}
               />
             </div>
 
@@ -150,6 +162,7 @@ export const StageTwoFormView = ({
               onChange={(e: any) => handleChangeData(item.id, e.target.value)}
               onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'data')}
               inputStatus={formInputStatus.proposalBytes}
+              disabled={disabled}
             />
           </article>
         ))}
@@ -166,6 +179,7 @@ export const StageTwoFormView = ({
           className="bytes"
           text="Submit Bytes"
           kind="actionPrimary"
+          disabled={disabled}
           onClick={handleUpdateProposal}
         />
       </FormButtonContainer>

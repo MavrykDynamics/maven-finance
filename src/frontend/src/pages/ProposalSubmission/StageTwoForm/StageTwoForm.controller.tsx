@@ -1,7 +1,7 @@
 import { StageTwoFormView } from './StageTwoForm.view'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import {
   ProposalUpdateForm,
@@ -29,7 +29,8 @@ export const PROPOSAL_BYTE = {
 export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage } = useSelector((state: State) => state.governance)
-  const { fee, address } = governanceStorage
+  const { fee, governancePhase } = governanceStorage
+  const isProposalRound = governancePhase === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: proposalTitle,
@@ -62,14 +63,31 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
     }
   }
 
-  console.log('%c ||||| formInputStatus', 'color:yellowgreen', formInputStatus)
+  const clearState = (): void => {
+    setForm({
+      title: proposalTitle,
+      proposalBytes: [PROPOSAL_BYTE],
+    })
+    setValidForm({
+      title: false,
+      proposalBytes: false,
+    })
+    setFormInputStatus({
+      title: '',
+      proposalBytes: '',
+    })
+  }
 
   const handleUpdateProposal = async () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
-      await dispatch(updateProposal(form, proposalId, accountPkh as any))
+      await dispatch(updateProposal(form, proposalId, clearState))
     }
   }
+
+  useEffect(() => {
+    if (!isProposalRound) clearState()
+  }, [isProposalRound])
 
   return (
     <StageTwoFormView

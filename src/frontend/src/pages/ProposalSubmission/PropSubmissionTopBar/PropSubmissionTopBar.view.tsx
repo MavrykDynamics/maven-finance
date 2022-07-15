@@ -9,10 +9,14 @@ import {
   executeProposal,
 } from '../../Governance/Governance.actions'
 
+// hooks
+import useGovernence from '../../Governance/UseGovernance'
+
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { GovernancePhase } from '../../../reducers/governance'
+import { getSeparateSnakeCase } from '../../../utils/parse'
 
 import {
   CurrentPhaseContainer,
@@ -45,10 +49,13 @@ export const PropSubmissionTopBarView = ({
   const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const handleMoveNextRound = () => {
-    dispatch(startNextRound(true))
+    dispatch(startNextRound(false))
   }
-  const isInExecution =
-    governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'
+
+  const { watingProposals } = useGovernence()
+  const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
+  const currentGovernancePhase = isInExecution ? 'Execution' : governancePhase
+
   return (
     <PropSubmissionTopBarStyled>
       {isInEmergencyGovernance ? (
@@ -63,10 +70,7 @@ export const PropSubmissionTopBarView = ({
           <PropSubTopBarTimeContainer>
             <CurrentPhaseContainer>
               <PropSubTopBarPhaseText>Current Phase: </PropSubTopBarPhaseText>
-              <PropSubTopBarValueText>
-                {governancePhase.substring(0, 1)}
-                {governancePhase.substring(1).toLocaleLowerCase()}
-              </PropSubTopBarValueText>
+              <PropSubTopBarValueText>{getSeparateSnakeCase(currentGovernancePhase)}</PropSubTopBarValueText>
             </CurrentPhaseContainer>
             {timeLeftInPhase > 0 ? (
               <TimeLeftAreaWrap>

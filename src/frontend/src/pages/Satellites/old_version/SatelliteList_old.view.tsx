@@ -1,7 +1,11 @@
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
-import React, { useEffect, useState } from 'react'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useLocation } from 'react-router'
 
 import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 import { State } from '../../../reducers'
@@ -24,6 +28,7 @@ type SatelliteListViewProps = {
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
   satelliteFound: boolean | undefined
+  listName: string
 }
 
 export const SatelliteListView = ({
@@ -36,6 +41,7 @@ export const SatelliteListView = ({
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   satelliteFound,
+  listName,
 }: SatelliteListViewProps) => {
   if (satelliteFound === undefined && !loading && satellitesList?.length === 0) {
     return <EmptySatelliteList />
@@ -51,6 +57,7 @@ export const SatelliteListView = ({
         userStakedBalance={userStakedBalance}
         satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
         satelliteFound={satelliteFound}
+        listName={listName}
       />
     )
   }
@@ -75,6 +82,7 @@ const ListWithSatellites = ({
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   satelliteFound,
+  listName,
 }: SatelliteListViewProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
 
@@ -103,6 +111,14 @@ const ListWithSatellites = ({
     handleSelect(itemsForDropDown[0])
   }, [])
 
+  const { pathname, search } = useLocation()
+  const currentPage = getPageNumber(search, listName)
+
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, listName)
+    return satellitesList.slice(from, to)
+  }, [currentPage, satellitesList])
+
   return (
     <SatelliteListStyled>
       <SatelliteSearchFilter>
@@ -130,7 +146,7 @@ const ListWithSatellites = ({
       {satelliteFound === false ? (
         <EmptySatelliteList />
       ) : (
-        satellitesList?.map((item, index) => {
+        paginatedItemsList?.map((item, index) => {
           return (
             <SatelliteListCard
               key={String(index + item.address)}
@@ -145,6 +161,7 @@ const ListWithSatellites = ({
           )
         })
       )}
+      <Pagination itemsCount={satellitesList.length} listName={listName} side={'right'} />
     </SatelliteListStyled>
   )
 }

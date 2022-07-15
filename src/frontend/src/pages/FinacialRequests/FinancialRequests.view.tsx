@@ -2,6 +2,10 @@ import React, { useState } from 'react'
 
 // helpers, actions
 import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
+import {
+  PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
+  ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
+} from './Pagination/pagination.consts'
 
 // types
 import { FinancialRequestBody } from './FinancialRequests.types'
@@ -24,6 +28,7 @@ import {
   InfoBlockListValue,
 } from './FinancialRequests.style'
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
+import { EmptyContainer } from 'app/App.style'
 
 type FinancialRequestsViewProps = {
   ready: boolean
@@ -32,7 +37,7 @@ type FinancialRequestsViewProps = {
 }
 
 export const FinancialRequestsView = ({ ready, loading, financialRequestsList }: FinancialRequestsViewProps) => {
-  const [rightSideContent, setRightSideContent] = useState<FinancialRequestBody | undefined>(undefined)
+  const [rightSideContent, setRightSideContent] = useState<FinancialRequestBody | undefined>(financialRequestsList[0])
 
   const { ongoing, past } = distinctRequestsByExecuting(financialRequestsList)
 
@@ -47,22 +52,29 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
   return (
     <FinancialRequestsStyled>
       <FinancialRequestsContainer>
-        <FRList
-          listTitle="Ongoing Requests"
-          noItemsText="No requests to show"
-          items={ongoing}
-          handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
-          name={'ongoing_requests'}
-          selectedItem={rightSideContent}
-        />
-        <FRList
-          listTitle="Past Requests"
-          noItemsText="No requests to show"
-          items={past}
-          name={'past_requests'}
-          handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
-          selectedItem={rightSideContent}
-        />
+        {financialRequestsList.length ? (
+          <>
+            <FRList
+              listTitle="Ongoing Requests"
+              items={ongoing}
+              handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
+              name={ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST}
+              selectedItem={rightSideContent}
+            />
+            <FRList
+              listTitle="Past Requests"
+              items={past}
+              name={PAST_REQUESTS_FINANCIAL_REQUESTS_LIST}
+              handleItemSelect={(request: FinancialRequestBody) => handleItemSelect(request)}
+              selectedItem={rightSideContent}
+            />
+          </>
+        ) : (
+          <EmptyContainer>
+            <img src="/images/not-found.svg" alt=" No financial requests to show" />
+            <figcaption>No requests to show</figcaption>
+          </EmptyContainer>
+        )}
       </FinancialRequestsContainer>
 
       {rightSideContent && (

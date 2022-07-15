@@ -6,8 +6,8 @@ import { Input } from 'app/App.components/Input/Input.controller'
 
 import { PaginationArrow, PaginationWrapper } from './Pagination.style'
 
-import { PAGINATION_SIDE_RIGHT, ITEMS_PER_PAGE } from '../FinancialRequests.consts'
 import { updatePageInUrl } from '../FinancialRequests.helpers'
+import { LIST_NAMES_MAPPER, PAGINATION_SIDE_RIGHT } from './pagination.consts'
 
 import { PaginationProps } from '../FinancialRequests.types'
 
@@ -16,18 +16,12 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
   const { page = {}, ...rest } = qs.parse(search, { ignoreQueryPrefix: true })
 
   const currentPage = (page as any)?.[listName] || 1
-  const pagesCount = itemsCount / ITEMS_PER_PAGE
+  const pagesCount = Math.ceil(itemsCount / LIST_NAMES_MAPPER[listName])
 
   const [inputValue, setInputValue] = useState(currentPage)
   const history = useHistory()
 
   const generateNewUrl = (newPage: number) => updatePageInUrl({ page, newPage, listName, pathname, restQP: rest })
-
-  useEffect(() => {
-    if (inputValue) {
-      history.push(generateNewUrl(inputValue))
-    }
-  }, [inputValue])
 
   useEffect(() => {
     setInputValue(currentPage)
@@ -45,6 +39,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
           }}
           onKeyDown={(e: React.KeyboardEvent) => {
             if ((!inputValue && e.key === '0') || e.key === '-') e.preventDefault()
+            if (e.key === 'Enter') history.push(generateNewUrl(inputValue))
           }}
           onBlur={() => {
             if (!inputValue && !inputValue !== currentPage) setInputValue(currentPage)
@@ -55,6 +50,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
       </div>
       of {pagesCount}
       <PaginationArrow
+        isDisabled={+currentPage === 1}
         onClick={() => {
           if (currentPage > 1) {
             history.push(generateNewUrl(currentPage - 1))
@@ -66,6 +62,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
         </svg>
       </PaginationArrow>
       <PaginationArrow
+        isDisabled={+currentPage === +pagesCount}
         isRight
         onClick={() => {
           if (currentPage < pagesCount) {

@@ -1,6 +1,6 @@
 import { StageOneFormView } from './StageOneForm.view'
 import { useDispatch, useSelector } from 'react-redux'
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { State } from 'reducers'
 
 import {
@@ -25,7 +25,8 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage } = useSelector((state: State) => state.governance)
-  const { fee, address } = governanceStorage
+  const { fee, governancePhase } = governanceStorage
+  const isProposalRound = governancePhase === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<SubmitProposalForm>({
     title: '',
@@ -86,9 +87,41 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
         break
     }
   }
-  const handleSubmitProposal = () => {
+
+  const clearState = (): void => {
+    setForm({
+      title: '',
+      description: '',
+      ipfs: '',
+      successMVKReward: 0,
+      invoiceTable: '',
+      sourceCodeLink: '',
+    })
+    setValidForm({
+      title: false,
+      description: false,
+      ipfs: true,
+      successMVKReward: true,
+      invoiceTable: true,
+      sourceCodeLink: false,
+    })
+    setFormInputStatus({
+      title: '',
+      description: '',
+      ipfs: '',
+      successMVKReward: '',
+      invoiceTable: 'success',
+      sourceCodeLink: '',
+    })
+  }
+
+  useEffect(() => {
+    if (!isProposalRound) clearState()
+  }, [isProposalRound])
+
+  const handleSubmitProposal = async () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) dispatch(submitProposal(form, fee, accountPkh as string))
+    if (formIsValid) await dispatch(submitProposal(form, fee, clearState))
   }
 
   return (

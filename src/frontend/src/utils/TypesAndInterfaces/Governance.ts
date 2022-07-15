@@ -185,7 +185,7 @@ export interface FinancialRequestVote {
 }
 
 
-export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL' | 'EXECUTION'
+export type GovernanceRoundType = 'VOTING' | 'TIME_LOCK' | 'PROPOSAL' | ''
 export type ProposalStatusType = string
 export type CurrentRoundProposalsStorageType = ProposalRecordType[]
 

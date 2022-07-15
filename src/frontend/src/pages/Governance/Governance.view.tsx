@@ -50,6 +50,14 @@ import {
 } from './Governance.style'
 import { EmptyContainer } from '../../app/App.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
+import {
+  WAITING_PROPOSALS_LIST_NAME,
+  WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME,
+  ONGOING_VOTING_PROPOSALS_LIST_NAME,
+  ONGOING_PROPOSALS_LIST_NAME,
+  NEXT_PROPOSALS_LIST_NAME,
+  HISTORY_PROPOSALS_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -272,6 +280,7 @@ export const GovernanceView = ({
 
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
+  const timeFormat = new Date(votingEnding).getHours() + ':' + new Date(votingEnding).getMinutes()
   const isEndedVotingTime = votingTime < timeNow
 
   // console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
@@ -288,6 +297,7 @@ export const GovernanceView = ({
               title="Waiting for Execution"
               type="wating"
               firstVisible={firstVisibleProposal === 'wating'}
+              listName={WAITING_PROPOSALS_LIST_NAME}
             />
           )}
           {isVisibleWatingPayment && (
@@ -298,6 +308,7 @@ export const GovernanceView = ({
               title="Waiting For Payment To Be Processed"
               type="wating"
               firstVisible={firstVisibleProposal === 'wating'}
+              listName={WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME}
             />
           )}
           {isVisibleOngoingVoiting && (
@@ -307,6 +318,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="ongoingVoiting"
               firstVisible={firstVisibleProposal === 'ongoingVoiting'}
+              listName={ONGOING_VOTING_PROPOSALS_LIST_NAME}
             />
           )}
           {isVisibleOngoingTimeLock && (
@@ -316,6 +328,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="ongoingTimeLock"
               firstVisible={firstVisibleProposal === 'ongoingTimeLock'}
+              listName={ONGOING_PROPOSALS_LIST_NAME}
             />
           )}
           {isVisibleNextProposal && (
@@ -325,6 +338,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="next"
               firstVisible={firstVisibleProposal === 'next'}
+              listName={NEXT_PROPOSALS_LIST_NAME}
             />
           )}
           {isVisibleHistoryProposal && (
@@ -334,6 +348,7 @@ export const GovernanceView = ({
               selectedProposal={rightSideContent}
               type="history"
               firstVisible={firstVisibleProposal === 'history'}
+              listName={HISTORY_PROPOSALS_LIST_NAME}
             />
           )}
         </GovernanceLeftContainer>
@@ -348,8 +363,8 @@ export const GovernanceView = ({
           </GovRightContainerTitleArea>
           {votingEnding ? (
             <RightSideSubContent id="votingDeadline">
-              Voting {isEndedVotingTime ? 'ended' : 'ending'} on <Time value={votingEnding} format="F d\t\h, H:m" />{' '}
-              CEST
+              Voting {isEndedVotingTime ? 'ended' : 'ending'} on <Time value={votingTime} format="F d\t\h" />{' '}
+              {timeFormat} CEST
             </RightSideSubContent>
           ) : null}
 
