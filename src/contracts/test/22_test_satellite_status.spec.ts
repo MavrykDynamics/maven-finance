@@ -111,10 +111,10 @@
 //             console.log('Eve address: '     + eve.pkh);
 //             console.log('Mallory address: ' + mallory.pkh);
     
-//             delegationStorage = await delegationInstance.storage();
-//             const satelliteMap = await delegationStorage.satelliteLedger;
+//             delegationStorage       = await delegationInstance.storage();
+//             const BobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
     
-//             if(satelliteMap.get(bob.pkh) === undefined){
+//             if(BobSatellite === undefined){
 
 //                 // ------------------------------------------------------------------
 //                 // Creation of 3 satellites
@@ -693,15 +693,25 @@
 //                     await operation.confirmation()
     
 //                     // Final values
-//                     governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
-//                     const action                = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-//                     const satelliteSnapshot     = await governanceSatelliteStorage.governanceSatelliteSnapshotLedger.get(actionId);
+//                     governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+//                     governanceStorage               = await governanceInstance.storage();
+//                     delegationStorage               = await delegationInstance.storage();
+//                     const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get(alice.pkh);
+//                     const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get(eve.pkh);
+//                     const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get(bob.pkh);
+//                     const firstSatelliteRecord      = await delegationStorage.satelliteLedger.get(alice.pkh);
+//                     const secondSatelliteRecord     = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                     const thirdSatelliteRecord      = await delegationStorage.satelliteLedger.get(bob.pkh);
+//                     const action                    = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
         
 //                     // Assertions
 //                     assert.notStrictEqual(action, undefined);
-//                     assert.strictEqual(satelliteSnapshot.get(alice.pkh), undefined);
-//                     assert.strictEqual(satelliteSnapshot.get(eve.pkh), undefined);
-//                     assert.notStrictEqual(satelliteSnapshot.get(bob.pkh), undefined);
+//                     assert.notStrictEqual(firstSatelliteSnapshot, undefined);
+//                     assert.notStrictEqual(secondSatelliteSnapshot, undefined);
+//                     assert.notStrictEqual(thirdSatelliteSnapshot, undefined);
+//                     assert.notStrictEqual(firstSatelliteRecord.status, "ACTIVE");
+//                     assert.notStrictEqual(secondSatelliteRecord.status, "ACTIVE");
+//                     assert.strictEqual(thirdSatelliteRecord.status, "ACTIVE");
 
 //                 } catch (e) {
 //                     console.dir(e, {depth: 5})

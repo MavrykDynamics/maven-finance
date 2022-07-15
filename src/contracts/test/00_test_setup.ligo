@@ -135,7 +135,6 @@ const storages = {
         snapshotStakedMvkTotalSupply   = 0n;
 
         financialRequestLedger             = (Big_map.empty: financialRequestLedgerType);
-        financialRequestSnapshotLedger     = (Big_map.empty: financialRequestSnapshotLedgerType);
         financialRequestCounter            = 0n;
 
         governanceLambdaLedger      = (Big_map.empty: governanceLambdaLedgerType);

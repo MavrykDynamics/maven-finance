@@ -502,37 +502,23 @@ block {
                 
                 // Get current round variables
                 const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger);
-                
-                var _highestVoteCounter     : nat := 0n;
-                var highestVotedProposalId  : nat := 0n;
-
-                // Find the highest voted proposal and its respective vote count in the round proposals map
-                for proposalId -> voteCount in map s.currentCycleInfo.roundProposals block {
-                    if voteCount > _highestVoteCounter then block {
-                        _highestVoteCounter     := voteCount;
-                        highestVotedProposalId  := proposalId; 
-                    } else skip;
-                };
-
-                // Get the proposal record of the highest voted proposal
-                const proposalRoundProposal : option(proposalRecordType) = Big_map.find_opt(highestVotedProposalId, s.proposalLedger);
 
                 // Evaluate conditions to start next round given the current round
                 case s.currentCycleInfo.round of [
 
-                        Proposal -> case proposalRoundProposal of [
+                        Proposal -> case currentRoundHighestVotedProposal of [
                                 
                                 // Current Round is a Proposal Round 
                                 //  -   Get the highest voted proposal (if any) and check conditions if it has reached the minProposalRoundVotesRequired to move on to the Voting Round
                                 //  -   If conditions are fulfilled, start voting round with highest voted proposal from proposal round
                                 //  -   If conditions are not fulfilled, start a new proposal round
 
-                                Some (proposal) -> if highestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvkTotal >= proposal.minProposalRoundVotesRequired 
+                                Some (proposal) -> if s.cycleHighestVotedProposalId =/= 0n and proposal.proposalVoteStakedMvkTotal >= proposal.minProposalRoundVotesRequired 
                                     
                                     then
 
                                         // Start voting round with highest voted proposal from proposal round
-                                        s := setupVotingRound(highestVotedProposalId, s)
+                                        s := setupVotingRound(s)
 
                                     else
 
@@ -725,7 +711,7 @@ block {
                 const paymentMetadata           : map(nat, option(paymentMetadataType))   = map [];
 
                 // Get total number of proposals from satellite for current cycle
-                var satelliteProposals : set(nat) := case s.currentCycleInfo.roundProposers[Tezos.get_sender()] of [
+                var satelliteProposals : set(nat) := case s.roundProposers[Tezos.get_sender()] of [
                         Some (_proposals) -> _proposals
                     |   None              -> Set.empty
                 ];
@@ -789,8 +775,8 @@ block {
                 s.proposalLedger[proposalId] := newProposalRecord;
 
                 // Add new proposal to satellite's proposals set
-                satelliteProposals                               := Set.add(proposalId, satelliteProposals);
-                s.currentCycleInfo.roundProposers[Tezos.get_sender()] := satelliteProposals;
+                satelliteProposals                                      := Set.add(proposalId, satelliteProposals);
+                s.roundProposers[Tezos.get_sender()]   := satelliteProposals;
 
                 // ------------------------------------------------------------------
                 // Add Proposal Metadata and Payment Metadata 
@@ -848,7 +834,7 @@ block {
                 ];
 
                 // Add proposal id to current round proposals and initialise with zero positive votes in MVK 
-                s.currentCycleInfo.roundProposals[proposalId] := 0n;
+                s.roundProposals   := Set.add(proposalId, s.roundProposals);
 
                 // Increment next proposal id
                 s.nextProposalId := proposalId + 1n;
@@ -1194,7 +1180,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentCycleInfo.roundProposals);
+                const checkProposalExistsFlag : bool = Set.mem(proposalId, s.roundProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
@@ -1217,7 +1203,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.get_sender(), s.currentCycleInfo.roundVotes);
+                const checkIfSatelliteHasVotedFlag : bool = Big_map.mem(Tezos.get_sender(), s.roundVotes);
 
                 // Compute satellite's votes 
                 if checkIfSatelliteHasVotedFlag = False then block {
@@ -1238,10 +1224,7 @@ block {
                     s.proposalLedger[proposalId] := _proposal;
 
                     // Update current round votes with satellite
-                    s.currentCycleInfo.roundVotes[Tezos.get_sender()] := proposalId;
-
-                    // Increment proposal with new total vote in roundProposals map
-                    s.currentCycleInfo.roundProposals[proposalId] := newProposalVoteStakedMvkTotal;
+                    s.roundVotes[Tezos.get_sender()] := proposalId;
 
                 } else block {
 
@@ -1250,7 +1233,7 @@ block {
                     // -------------------------------------------
 
                     // Check if satellite already voted for this proposal (double-counting check)
-                    case s.currentCycleInfo.roundVotes[Tezos.get_sender()] of [
+                    case s.roundVotes[Tezos.get_sender()] of [
                             Some (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else skip
                         |   None                -> failwith(error_VOTE_NOT_FOUND)
                     ];
@@ -1268,7 +1251,7 @@ block {
                     // -------------------------------------------
 
                     // Get id of proposal that was previously voted on
-                    const previousVotedProposalId : nat = case s.currentCycleInfo.roundVotes[Tezos.get_sender()] of [
+                    const previousVotedProposalId : nat = case s.roundVotes[Tezos.get_sender()] of [
                             Some(_id) -> _id
                         |   None      -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
@@ -1292,7 +1275,6 @@ block {
 
                     // Remove user from previous proposal that he voted on, decrement previously voted proposal by satellite snapshot's total voting power
                     remove Tezos.get_sender() from map _previousProposal.proposalVotersMap;        
-                    s.currentCycleInfo.roundProposals[previousVotedProposalId] := previousProposalProposalVoteStakedMvkTotal;
                     
                     // -------------------------------------------
                     // Update Storage
@@ -1302,12 +1284,15 @@ block {
                     s.proposalLedger[proposalId] := _proposal;
                     s.proposalLedger[previousVotedProposalId] := _previousProposal;
 
-                    // Increment proposal with new total vote in roundProposals map
-                    s.currentCycleInfo.roundProposals[proposalId] := newProposalVoteStakedMvkTotal;
-
                     // Update current round votes with satellite
-                    s.currentCycleInfo.roundVotes[Tezos.get_sender()] := proposalId;    
-                } 
+                    s.roundVotes[Tezos.get_sender()] := proposalId;    
+                };
+
+                // Update the current round highest voted proposal
+                s.cycleHighestVotedProposalId   := case Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger) of [
+                        Some (_highestVotedProposal)    -> if _proposal.proposalVoteStakedMvkTotal > _highestVotedProposal.proposalVoteStakedMvkTotal then proposalId else s.cycleHighestVotedProposalId
+                    |   None                            -> proposalId
+                ];
 
             }
         |   _ -> skip
@@ -1371,7 +1356,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(s.cycleHighestVotedProposalId, s.currentCycleInfo.roundProposals);
+                const checkProposalExistsFlag : bool = Set.mem(s.cycleHighestVotedProposalId, s.roundProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
@@ -1392,7 +1377,7 @@ block {
                 //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.get_sender(), s.currentCycleInfo.roundVotes);
+                const checkIfSatelliteHasVotedFlag : bool = Big_map.mem(Tezos.get_sender(), s.roundVotes);
                 
                 // Compute satellite's votes 
                 if checkIfSatelliteHasVotedFlag = False then block {
@@ -1837,7 +1822,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentCycleInfo.roundProposals);
+                const checkProposalExistsFlag : bool = Set.mem(proposalId, s.roundProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
@@ -1857,11 +1842,11 @@ block {
                     s.proposalLedger[proposalId]   := _proposal;
 
                     // Remove proposal from currentCycleInfo.roundProposers
-                    var satelliteProposals   : set(nat)  := case s.currentCycleInfo.roundProposers[_proposal.proposerAddress] of [
+                    var satelliteProposals   : set(nat)  := case s.roundProposers[_proposal.proposerAddress] of [
                             Some (_proposals) -> _proposals
                         |   None              -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
-                    s.currentCycleInfo.roundProposers[_proposal.proposerAddress] := Set.remove(proposalId, satelliteProposals);
+                    s.roundProposers[_proposal.proposerAddress] := Set.remove(proposalId, satelliteProposals);
 
                     // If current round is a timelock or voting round (where there is only one proposal), restart the cycle
                     if s.currentCycleInfo.round = (Voting : roundType) or s.currentCycleInfo.round = (Timelock : roundType) 

@@ -202,7 +202,6 @@ block {
     //      -   If tokens are requested, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
     // 6. Create new financial request record - "TRANSFER"
     // 7. Update storage with new records
-    // 8. Take snapshot of current active satellites' total voting power and update financialRequestSnapshotLedger
   
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
@@ -223,30 +222,13 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptViewDelegation of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-                const configView : option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-                const delegationRatio : nat                     = case configView of [
-                        Some (_optionConfig) -> _optionConfig.delegationRatio
-                    |   None                 -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
                 // ------------------------------------------------------------------
                 // Snapshot Staked MVK Total Supply
                 // ------------------------------------------------------------------
 
                 // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
+                const getBalanceView : option (nat)         = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply: nat     = case getBalanceView of [
                         Some (value) -> value
                     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
@@ -316,37 +298,8 @@ block {
                 // Save request to financial request ledger
                 s.financialRequestLedger[financialRequestId] := newFinancialRequest;
 
-                // Create snapshot in financialRequestSnapshotLedger (to be filled with satellite's total voting power at this snapshot)
-                const emptyFinancialRequestSnapshotMap : financialRequestSnapshotMapType = map [];
-                s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
-
                 // Increment financial request counter
                 s.financialRequestCounter := financialRequestId + 1n;
-
-                // ------------------------------------------------------------------
-                // Satellite Snapshot
-                // ------------------------------------------------------------------
-
-                // Get map of active satellites from the Delegation Contract
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-                const activeSatellites : map(address, satelliteRecordType) = case activeSatellitesView of [
-                        Some (value) -> value
-                    |   None         -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                for satelliteAddress -> satellite in map activeSatellites block {
-                    
-                    const satelliteSnapshot : requestSatelliteSnapshotType = record [
-                        satelliteAddress      = satelliteAddress;
-                        requestId             = financialRequestId;
-                        stakedMvkBalance      = satellite.stakedMvkBalance;
-                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
-                    ];
-
-                    s := requestSatelliteSnapshot(satelliteSnapshot, delegationRatio ,s);
-
-                };
 
             }
         |   _ -> skip
@@ -371,7 +324,6 @@ block {
     // 4. Calculate staked MVK votes required for approval based on config's financial request approval percentage
     // 5. Create new financial request record - "MINT"
     // 6. Update storage with new records 
-    // 7. Take snapshot of current active satellites' total voting power and update financialRequestSnapshotLedger
   
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
@@ -395,30 +347,13 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptViewDelegation of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-                const configView : option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-                const delegationRatio : nat                     = case configView of [
-                        Some (_optionConfig) -> _optionConfig.delegationRatio
-                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
                 // ------------------------------------------------------------------
                 // Snapshot Staked MVK Total Supply
                 // ------------------------------------------------------------------
 
                 // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
+                const getBalanceView : option (nat)        = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply: nat = case getBalanceView of [
                         Some (value) -> value
                     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
@@ -480,35 +415,6 @@ block {
                 // increment financial request counter
                 s.financialRequestCounter := financialRequestId + 1n;
 
-                // Create snapshot in financialRequestSnapshotLedger (to be filled with satellite's total voting power at this snapshot)
-                const emptyFinancialRequestSnapshotMap : financialRequestSnapshotMapType = map [];
-                s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
-
-                // ------------------------------------------------------------------
-                // Satellite Snapshot
-                // ------------------------------------------------------------------
-
-                // Get map of active satellites from the Delegation Contract
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-                const activeSatellites : map(address, satelliteRecordType) = case activeSatellitesView of [
-                        Some (value) -> value
-                    |   None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                for satelliteAddress -> satellite in map activeSatellites block {
-
-                    const satelliteSnapshot : requestSatelliteSnapshotType = record [
-                        satelliteAddress      = satelliteAddress;
-                        requestId             = financialRequestId;
-                        stakedMvkBalance      = satellite.stakedMvkBalance;
-                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
-                    ];
-
-                    s := requestSatelliteSnapshot(satelliteSnapshot, delegationRatio ,s);
-
-                }; 
-
             }
         |   _ -> skip
     ];
@@ -532,7 +438,6 @@ block {
     // 4. Calculate staked MVK votes required for approval based on config's financial request approval percentage
     // 5. Create new financial request record - "SET_CONTRACT_BAKER"
     // 6. Update storage with new records 
-    // 7. Take snapshot of current active satellites' total voting power and update financialRequestSnapshotLedger
   
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
@@ -556,30 +461,13 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptViewDelegation of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
-                const configView : option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-                const delegationRatio : nat                     = case configView of [
-                        Some (_optionConfig) -> _optionConfig.delegationRatio
-                    |   None                 -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
                 // ------------------------------------------------------------------
                 // Snapshot Staked MVK Total Supply
                 // ------------------------------------------------------------------
 
                 // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
+                const getBalanceView : option (nat)        = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply: nat = case getBalanceView of [
                         Some (value) -> value
                     |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
@@ -637,35 +525,6 @@ block {
 
                 // increment financial request counter
                 s.financialRequestCounter := financialRequestId + 1n;
-
-                // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
-                const emptyFinancialRequestSnapshotMap : financialRequestSnapshotMapType = map [];
-                s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
-
-                // ------------------------------------------------------------------
-                // Satellite Snapshot
-                // ------------------------------------------------------------------
-
-                // Get map of active satellites from the Delegation Contract
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-                const activeSatellites : map(address, satelliteRecordType) = case activeSatellitesView of [
-                        Some (value) -> value
-                    |   None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                for satelliteAddress -> satellite in map activeSatellites block {
-
-                    const satelliteSnapshot : requestSatelliteSnapshotType = record [
-                        satelliteAddress      = satelliteAddress;
-                        requestId             = financialRequestId;
-                        stakedMvkBalance      = satellite.stakedMvkBalance;
-                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
-                    ];
-
-                    s := requestSatelliteSnapshot(satelliteSnapshot, delegationRatio ,s);
-
-                }; 
 
             }
         |   _ -> skip
@@ -774,16 +633,15 @@ block {
                 // Get snapshot of satellite voting power
                 // ------------------------------------------------------------------
 
-                // Get financial request snapshot (of all active satellites and their voting power)
-                const financialRequestSnapshot : financialRequestSnapshotMapType = case s.financialRequestSnapshotLedger[financialRequestId] of [
-                        Some(_snapshot) -> _snapshot
-                    |   None            -> failwith(error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND)
-                ]; 
+                // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
+                const totalVotingPowerAndSatelliteUpdate: (nat * option(operation)) = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), s);
+                const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
-                // Get satellite's snapshot record stored in financial request snapshot
-                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case financialRequestSnapshot[Tezos.get_sender()] of [ 
-                        Some(_record) -> _record
-                    |   None          -> failwith(error_SATELLITE_NOT_FOUND)
+                // Update the satellite snapshot on the governance contract if it needs to
+                const updateSnapshotOperationOpt: option(operation) = totalVotingPowerAndSatelliteUpdate.1;
+                case updateSnapshotOperationOpt of [
+                    Some (_updateOperation) -> operations   := _updateOperation # operations
+                |   None                    -> skip
                 ];
 
                 // ------------------------------------------------------------------
@@ -792,7 +650,6 @@ block {
 
                 // Save and update satellite's vote record
                 const voteType          : voteType   = voteForRequest.vote;
-                const totalVotingPower  : nat        = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted
                 case _financialRequest.voters[Tezos.get_sender()] of [
