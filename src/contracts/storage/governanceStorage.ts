@@ -46,7 +46,7 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const governanceStorage: governanceStorageType = {
-    
+  
     admin                   : bob.pkh,
     mvkTokenAddress         : "",
     governanceProxyAddress  : zeroAddress,
@@ -60,6 +60,7 @@ export const governanceStorage: governanceStorageType = {
     proposalLedger          : MichelsonMap.fromLiteral({}),
     snapshotLedger          : MichelsonMap.fromLiteral({}),
 
+    // startLevel              : new BigNumber(1),
     nextProposalId          : new BigNumber(1),
     cycleCounter            : new BigNumber(1),
 
@@ -71,15 +72,16 @@ export const governanceStorage: governanceStorageType = {
         roundStartLevel           : new BigNumber(0),
         roundEndLevel             : new BigNumber(0),
         cycleEndLevel             : new BigNumber(0),
-        roundProposals            : MichelsonMap.fromLiteral({}),
-        roundProposers            : MichelsonMap.fromLiteral({}),
-        roundVotes                : MichelsonMap.fromLiteral({}),
         cycleTotalVotersReward    : new BigNumber(0),
         minQuorumStakedMvkTotal   : new BigNumber(0)
     },
 
+    roundProposals            : [],
+    roundProposers            : MichelsonMap.fromLiteral({}),
+    roundVotes                : MichelsonMap.fromLiteral({}),
+
     cycleHighestVotedProposalId        : new BigNumber(0),
     timelockProposalId                 : new BigNumber(0),
-    
+
     lambdaLedger                       : MichelsonMap.fromLiteral({})
 };

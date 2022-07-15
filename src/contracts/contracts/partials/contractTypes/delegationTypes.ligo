@@ -42,13 +42,6 @@ type satelliteSnapshotRecordType is [@layout:comb] record [
 
 type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
 
-type requestSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    requestId             : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
-
 type delegationConfigType is [@layout:comb] record [
     minimumStakedMvkBalance             : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
     delegationRatio                     : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    

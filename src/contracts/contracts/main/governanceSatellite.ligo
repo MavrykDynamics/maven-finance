@@ -22,6 +22,9 @@
 // Delegation Types
 #include "../partials/contractTypes/delegationTypes.ligo"
 
+// Governance Types
+#include "../partials/contractTypes/governanceTypes.ligo"
+
 // Governance Satellite Types
 #include "../partials/contractTypes/governanceSatelliteTypes.ligo"
 
@@ -121,50 +124,6 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 // ------------------------------------------------------------------------------
-// General Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-function setSatelliteSnapshot(const satelliteSnapshot : actionSatelliteSnapshotType; const votingPowerRatio : nat; var s : governanceSatelliteStorageType) : governanceSatelliteStorageType is 
-block {
-
-    // init variables
-    const actionId              : nat     = satelliteSnapshot.actionId;
-    const satelliteAddress      : address = satelliteSnapshot.satelliteAddress;
-    const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
-    const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
-
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / votingPowerRatio);
-    const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
-    var totalVotingPower : nat := 0n;
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
-
-    var satelliteSnapshotRecord : satelliteSnapshotRecordType := record [
-        totalStakedMvkBalance   = stakedMvkBalance; 
-        totalDelegatedAmount    = totalDelegatedAmount; 
-        totalVotingPower        = totalVotingPower;
-    ];
-    
-    var governanceSatelliteActionSnapshot : governanceSatelliteSnapshotMapType := case s.governanceSatelliteSnapshotLedger[actionId] of [ 
-            None -> failwith(error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND)
-        |   Some(snapshot) -> snapshot
-    ];
-
-    // update governance satellite snapshot map with record of satellite's total voting power
-    governanceSatelliteActionSnapshot[satelliteAddress]       := satelliteSnapshotRecord;
-
-    // update governance satellite snapshot ledger bigmap with updated satellite's details
-    s.governanceSatelliteSnapshotLedger[actionId]   := governanceSatelliteActionSnapshot;
-
-} with (s)
-
-// ------------------------------------------------------------------------------
-// General Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -242,8 +201,142 @@ case (Tezos.get_entrypoint_opt(
   | None -> (failwith(error_MISTAKEN_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
 ];
 
+
+
+// helper function to %updateSatelliteSnapshot entrypoint on the Governance contract
+function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddress : address) : contract(updateSatelliteSnapshotType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateSatelliteSnapshot",
+        governanceAddress) : option(contract(updateSatelliteSnapshotType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_UPDATE_SATELLITE_SNAPSHOT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateSatelliteSnapshotType))
+        ];
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to reset the number of actions created by satellites bases on the current governance cycle
+function updateGovernanceCycleLimitation(var s: governanceSatelliteStorageType): governanceSatelliteStorageType is
+block{
+
+    // Get the current cycle from the governance contract to check if the snapshot is up to date
+    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle: nat = case cycleCounterView of [
+            Some (_cycle)   -> _cycle
+        |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Check if the cycle is different and empty the storage map if it is
+    if s.currentGovernanceCycle =/= currentCycle then {
+        s.currentGovernanceCycle        := currentCycle;
+        s.currentCycleActionsInitiators := (big_map []: actionsInitiatorsType);
+    } else skip;
+    
+} with(s)
+
+
+
+// helper function to get a satellite total voting power from its snapshot on the governance contract
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const s: governanceSatelliteStorageType): (nat * option(operation)) is 
+block{
+    
+    // Init the return value
+    var updateSnapshotOperation: option(operation)  := (None : option(operation));
+
+    // Get the snapshot from the governance contract
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+            Some (_snapshotOpt) -> _snapshotOpt
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Check if the snapshot is up to date with the saved cycle
+    const currentCycle: nat = s.currentGovernanceCycle;
+
+    // Check if a snapshot needs to be created
+    const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
+        Some (_snapshot)    -> if _snapshot.cycle = currentCycle then False else True
+    |   None                -> True
+    ];
+
+    // Get the total voting power from the snapshot
+    var totalVotingPower: nat   := case satelliteSnapshotOpt of [
+        Some (_snapshot)    -> _snapshot.totalVotingPower
+    |   None                -> 0n
+    ];
+
+    // Create or not a snapshot
+    if createSatelliteSnapshot then{
+
+        // Get the delegation address
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+        const delegationAddress: address = case generalContractsOptView of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                ]
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        // Get the satellite record
+        const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+        const _satelliteRecord: satelliteRecordType                     = case satelliteOptView of [
+                Some (value) -> case value of [
+                        Some (_satellite) -> _satellite
+                    |   None              -> failwith(error_SATELLITE_NOT_FOUND)
+                ]
+            |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        // Get the delegation ratio
+        const configView : option (delegationConfigType)    = Tezos.call_view ("getConfig", unit, delegationAddress);
+        const delegationRatio: nat                          = case configView of [
+                Some (_config) -> _config.delegationRatio
+            |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        // Create a snapshot
+        const satelliteSnapshotParams: updateSatelliteSnapshotType  = record[
+            satelliteAddress    = satelliteAddress;
+            satelliteRecord     = _satelliteRecord;
+            ready               = True;
+            delegationRatio     = delegationRatio;
+        ];
+
+        // Send the snapshot to the governance contract
+        updateSnapshotOperation := Some (
+            Tezos.transaction(
+                (satelliteSnapshotParams),
+                0tez, 
+                sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
+            )
+        );
+
+        // Pre-calculate the total voting power of the satellite
+        var maxTotalVotingPower: nat := _satelliteRecord.stakedMvkBalance * 10000n / delegationRatio;
+        if delegationRatio = 0n then maxTotalVotingPower := _satelliteRecord.stakedMvkBalance * 10000n else skip;
+        const mvkBalanceAndTotalDelegatedAmount = _satelliteRecord.stakedMvkBalance + _satelliteRecord.totalDelegatedAmount; 
+        if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
+        else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+
+    } 
+    // Check if satellite is ready to vote
+    else case satelliteSnapshotOpt of [
+        Some (_snapshot)    -> if _snapshot.ready then skip else failwith(error_SNAPSHOT_NOT_READY)
+    |   None                -> skip
+    ];
+
+} with(totalVotingPower, updateSnapshotOperation)
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -314,12 +407,6 @@ block {
 (* View: get a governance satellite action *)
 [@view] function getGovernanceSatelliteActionOpt(const actionId : nat; var s : governanceSatelliteStorageType) : option(governanceSatelliteActionRecordType) is
     Big_map.find_opt(actionId, s.governanceSatelliteActionLedger)
-
-
-
-(* View: get a governance satellite action snapshot *)
-[@view] function getGovernanceActionSnapshotOpt(const actionId : nat; var s : governanceSatelliteStorageType) : option(governanceSatelliteSnapshotMapType) is
-    Big_map.find_opt(actionId, s.governanceSatelliteSnapshotLedger)
 
 
 
