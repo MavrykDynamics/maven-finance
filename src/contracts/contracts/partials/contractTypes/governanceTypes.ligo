@@ -18,18 +18,15 @@ type roundType       is
     |   Timelock                  of unit
 
 type currentCycleInfoType is [@layout:comb] record[
-    round                       : roundType;               // proposal, voting, timelock
-    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
-    blocksPerVotingRound        : nat;                     // to determine duration of voting round
-    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    roundStartLevel             : nat;                     // current round starting block level
-    roundEndLevel               : nat;                     // current round ending block level
-    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
-    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
-    roundProposers              : map(address, set(nat));  // proposer, 
-    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    cycleTotalVotersReward      : nat;                     // reward given to all voters (will be split by the number of voters this cycle)
-    minQuorumStakedMvkTotal     : nat;                     // quorum to reach in order to reach the timelock round
+    round                       : roundType;                    // proposal, voting, timelock
+    blocksPerProposalRound      : nat;                          // to determine duration of proposal round
+    blocksPerVotingRound        : nat;                          // to determine duration of voting round
+    blocksPerTimelockRound      : nat;                          // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    roundStartLevel             : nat;                          // current round starting block level
+    roundEndLevel               : nat;                          // current round ending block level
+    cycleEndLevel               : nat;                          // current cycle (proposal + voting) ending block level 
+    cycleTotalVotersReward      : nat;                          // reward given to all voters (will be split by the number of voters this cycle)
+    minQuorumStakedMvkTotal     : nat;                          // quorum to reach in order to reach the timelock round
 ];
 
 
@@ -277,6 +274,10 @@ type governanceStorageType is [@layout:comb] record [
     snapshotLedger                    : snapshotLedgerType;
     
     currentCycleInfo                  : currentCycleInfoType;       // current round state variables - will be flushed periodically
+
+    roundProposals                    : set(actionIdType);            // proposal ids in the current cycle
+    roundProposers                    : big_map(address, set(nat));   // proposer, 
+    roundVotes                        : big_map(address, nat);        // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
 
     nextProposalId                    : nat;                        // counter of next proposal id
     cycleCounter                      : nat;                        // counter of current cycle 

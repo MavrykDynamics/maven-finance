@@ -16,6 +16,7 @@ type governanceSatelliteConfigType is [@layout:comb] record [
     governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
     governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength             : nat;
+    maxActionsPerSatellite                 : nat;
 ]
 
 type governanceSatelliteVoteType is [@layout:comb] record [
@@ -77,21 +78,7 @@ type aggregatorRecordType is [@layout:comb] record [
 type aggregatorLedgerType is big_map(address, aggregatorRecordType)
 
 
-// ------------------------------------------------------------------------------
-// Snapshot Types
-// ------------------------------------------------------------------------------
-
-
-type governanceSatelliteSnapshotMapType is map (address, satelliteSnapshotRecordType)
-type governanceSatelliteSnapshotLedgerType is big_map (actionIdType, governanceSatelliteSnapshotMapType);
-
-type actionSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    actionId              : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
-
+type actionsInitiatorsType is big_map(address, set(actionIdType));
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -103,6 +90,7 @@ type governanceSatelliteUpdateConfigActionType is
         ConfigApprovalPercentage          of unit
     |   ConfigSatelliteDurationInDays     of unit
     |   ConfigPurposeMaxLength            of unit
+    |   ConfigMaxActionsPerSatellite      of unit
 
 type governanceSatelliteUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType; 
@@ -244,8 +232,11 @@ type governanceSatelliteStorageType is record [
     
     // governance satellite storage 
     governanceSatelliteActionLedger         : governanceSatelliteActionLedgerType;
-    governanceSatelliteSnapshotLedger       : governanceSatelliteSnapshotLedgerType;
     governanceSatelliteCounter              : nat;
+
+    // spam check
+    currentCycleActionsInitiators           : actionsInitiatorsType;
+    currentGovernanceCycle                  : nat;
 
     // satellite oracles and aggregators
     satelliteOracleLedger                   : satelliteOracleLedgerType;

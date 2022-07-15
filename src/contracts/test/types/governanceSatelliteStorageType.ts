@@ -11,12 +11,11 @@ export type governanceSatelliteStorageType = {
     mvkTokenAddress                     : string;
     governanceAddress                   : string;
 
-    whitelistContracts                  : MichelsonMap<MichelsonMapKey, unknown>;
-    generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
-
     governanceSatelliteActionLedger     : MichelsonMap<MichelsonMapKey, unknown>;
-    governanceSatelliteSnapshotLedger   : MichelsonMap<MichelsonMapKey, unknown>;
     governanceSatelliteCounter          : BigNumber;
+
+    currentCycleActionsInitiators       : MichelsonMap<MichelsonMapKey, unknown>;
+    currentGovernanceCycle              : BigNumber;
 
     satelliteOracleLedger               : MichelsonMap<MichelsonMapKey, unknown>;
     aggregatorLedger                    : MichelsonMap<MichelsonMapKey, unknown>;

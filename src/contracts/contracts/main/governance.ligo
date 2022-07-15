@@ -613,10 +613,10 @@ block {
 function setupProposalRound(var s : governanceStorageType) : governanceStorageType is
 block {
 
-    // Reset state variables
-    const emptyProposalMap  : map(nat, nat)           = map [];
-    const emptyVotesMap     : map(address, nat)       = map [];
-    const emptyProposerMap  : map(address, set(nat))  = map [];
+    // reset state variables
+    const emptyProposalSet  : set(nat)                      = set [];
+    const emptyVotesMap     : big_map(address, nat)         = big_map [];
+    const emptyProposerMap  : big_map(address, set(nat))    = big_map [];
 
     // ------------------------------------------------------------------
     // Get staked MVK Total Supply and calculate quorum
@@ -654,9 +654,9 @@ block {
     s.currentCycleInfo.cycleEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
     s.currentCycleInfo.minQuorumStakedMvkTotal       := minQuorumStakedMvkTotal;
-    s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals
-    s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
-    s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
+    s.roundProposals                := emptyProposalSet;    // flush proposals
+    s.roundProposers                := emptyProposerMap;    // flush proposals
+    s.roundVotes                    := emptyVotesMap;       // flush voters
     s.cycleHighestVotedProposalId                    := 0n;                  // flush proposal id voted through - reset to 0 
 
     // Increase the cycle counter
@@ -667,7 +667,7 @@ block {
 
 
 // helper function to setup new voting round
-function setupVotingRound(const highestVotedProposalId : nat; var s : governanceStorageType) : governanceStorageType is
+function setupVotingRound(var s : governanceStorageType) : governanceStorageType is
 block {
 
     // boundaries fixed to the start and end of the cycle (calculated at start of proposal round)
@@ -677,12 +677,9 @@ block {
 
     s.timelockProposalId := 0n;                  // flush proposal id in timelock - reset to 0
 
-    // set the current round highest voted proposal id
-    s.cycleHighestVotedProposalId := highestVotedProposalId;
-
     // flush current round votes - to prepare for voting round
-    const emptyCurrentRoundVotes : map(address, nat) = map[];
-    s.currentCycleInfo.roundVotes := emptyCurrentRoundVotes;
+    const emptyCurrentRoundVotes : big_map(address, nat) = big_map[];
+    s.roundVotes := emptyCurrentRoundVotes;
 
 } with (s)
 
