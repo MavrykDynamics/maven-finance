@@ -48,15 +48,9 @@ type financialRequestRecordType is [@layout:comb] record [
 ]
 type financialRequestLedgerType is big_map (actionIdType, financialRequestRecordType);
 
-type financialRequestSnapshotMapType is map (address, satelliteSnapshotRecordType)
-type financialRequestSnapshotLedgerType is big_map (actionIdType, financialRequestSnapshotMapType);
-type requestSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    requestId             : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
-
+// ------------------------------------------------------------------------------
+// Governance Financial Config Types
+// ------------------------------------------------------------------------------
 
 type governanceFinancialConfigType is [@layout:comb] record [
     financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
@@ -132,7 +126,6 @@ type governanceFinancialStorageType is [@layout:comb] record [
     
     // financial governance storage 
     financialRequestLedger              : financialRequestLedgerType;
-    financialRequestSnapshotLedger      : financialRequestSnapshotLedgerType;
     financialRequestCounter             : nat;
 
     // lambda storage

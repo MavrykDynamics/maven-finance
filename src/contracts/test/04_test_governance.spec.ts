@@ -805,11 +805,10 @@ describe("Governance tests", async () => {
                     const cycleCounter = governanceStorage.cycleCounter
                     const finalNextProposalId = governanceStorage.nextProposalId;
                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
-                    const newCurrentRoundProposal = governanceStorage.currentCycleInfo.roundProposals.get(nextProposalId);
 
                     // Assertions
                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
-                    assert.notStrictEqual(newCurrentRoundProposal, undefined);
+                    assert.equal(governanceStorage.roundProposals.includes(nextProposalId), true);
                     assert.notStrictEqual(newProposal, undefined);
                     assert.strictEqual(newProposal.proposerAddress, eve.pkh);
                     assert.strictEqual(newProposal.status, "ACTIVE");
@@ -896,13 +895,12 @@ describe("Governance tests", async () => {
                     const finalNextProposalId = governanceStorage.nextProposalId;
                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
                     const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
-                    const newCurrentRoundProposal = governanceStorage.currentCycleInfo.roundProposals.get(nextProposalId);
 
                     // Assertions
                     assert.notStrictEqual(proposalMetadataStorage, undefined);
                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam);
                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
-                    assert.notStrictEqual(newCurrentRoundProposal, undefined);
+                    assert.equal(governanceStorage.roundProposals.includes(nextProposalId), true);
                     assert.notStrictEqual(newProposal, undefined);
                     assert.strictEqual(newProposal.proposerAddress, eve.pkh);
                     assert.strictEqual(newProposal.status, "ACTIVE");
@@ -1311,7 +1309,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
+                    const roundVoters = await governanceStorage.roundVotes;
                     const roundVoter = await roundVoters.get(eve.pkh);
                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
                     const proposalVoteCount = await proposal.proposalVoteCount;
@@ -1339,7 +1337,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
+                    const roundVoters = await governanceStorage.roundVotes;
                     const roundVoter = await roundVoters.get(bob.pkh);
                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
                     const proposalVoters = await proposal.proposalVotersMap;
@@ -1389,7 +1387,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
+                    const roundVoters = await governanceStorage.roundVotes;
                     const roundVoter = await roundVoters.get(mallory.pkh);
                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
                     const proposalVoters = await proposal.proposalVotersMap;
@@ -1434,7 +1432,7 @@ describe("Governance tests", async () => {
                     // Initial Values
                     governanceStorage           = await governanceInstance.storage()
                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
-                    const roundVoters           = await governanceStorage.currentCycleInfo.roundVotes;
+                    const roundVoters           = await governanceStorage.roundVotes;
                     const roundVoter            = await roundVoters.get(eve.pkh);
                     const previousProposal = await governanceStorage.proposalLedger.get(roundVoter);
                     const previousProposalVoteCount = await previousProposal.proposalVoteCount;
@@ -1473,7 +1471,7 @@ describe("Governance tests", async () => {
 
                     // Final values
                     governanceStorage = await governanceInstance.storage();
-                    const finalRoundVoters = await governanceStorage.currentCycleInfo.roundVotes;
+                    const finalRoundVoters = await governanceStorage.roundVotes;
                     const finalRoundVoter = await finalRoundVoters.get(eve.pkh);
                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
                     const proposalVoteCount = await proposal.proposalVoteCount;
