@@ -24,7 +24,7 @@ import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 
 // actions
-import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { getTotalDelegatedMVK } from '../Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 
 // style

@@ -3,9 +3,9 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-import { getDelegationStorage } from '../Satellites.actions'
+import { getDelegationStorage } from '../../Satellites.actions'
 import { SatelliteSideBarView } from './SatelliteSideBar.view'
-import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 
 export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()

@@ -11,7 +11,7 @@ import { getDelegationStorage } from '../Satellites/Satellites.actions'
 import { getGovernanceStorage, getCurrentRoundProposals, startNextRound, executeProposal } from './Governance.actions'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
-import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { checkIfUserIsSatellite } from '../Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import { MoveNextRoundModal } from './MoveNextRoundModal/MoveNextRoundModal.controller'
 
 // const

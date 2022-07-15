@@ -1,11 +1,9 @@
 import * as React from 'react'
 import { useSelector } from 'react-redux'
-/* @ts-ignore */
-import Time from 'react-pure-time'
 
 // types
 import { State } from 'reducers'
-import { OracleSatelliteListItemProps } from '../Oracles.types'
+import { OracleSatelliteListItemProps } from '../../helpers/Satellites.types'
 
 // consts, helpers, actions
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
@@ -31,8 +29,8 @@ import {
   SatelliteProfileDetails,
   SatelliteCardButtons,
   SatelliteCardRow,
-} from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
-import { OracleStatusComponent } from './OraclesList.styles'
+  SatelliteOracleStatusComponent,
+} from './SatelliteCard.style'
 
 export const OracleSatelliteListItem = ({
   satelliteOracle,
@@ -114,7 +112,7 @@ export const OracleSatelliteListItem = ({
               icon="man"
               text="Profile Details"
               kind="transparent"
-              pathName={`/satellite-details/${satelliteOracle.address}`}
+              pathName={`/satellite-details/${satelliteOracle.address}/oracle`}
             />
           </SatelliteProfileDetails>
 
@@ -137,7 +135,7 @@ export const OracleSatelliteListItem = ({
           <SatelliteTextGroup oracle>
             {/* <SatelliteMainText oracle>Oracle Status</SatelliteMainText> */}
             <SatelliteSubText oracle>
-              <OracleStatusComponent statusType="responded">responded</OracleStatusComponent>
+              <SatelliteOracleStatusComponent statusType="responded">responded</SatelliteOracleStatusComponent>
             </SatelliteSubText>
           </SatelliteTextGroup>
         </SatelliteCardTopRow>

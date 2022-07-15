@@ -7,8 +7,12 @@ import { DropDown } from '../../../app/App.components/DropDown/DropDown.controll
 import { State } from '../../../reducers'
 import { darkMode, lightMode } from '../../../styles'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter } from './SatelliteList.style'
-import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
+import {
+  SatelliteListEmptyContainer,
+  SatelliteListStyled,
+  SatelliteSearchFilter,
+} from '../SatelliteList/SatelliteList.style'
+import { SatelliteListCard } from './SatelliteList_old/SatellliteListCard/SatelliteListCard.view'
 
 type SatelliteListViewProps = {
   loading: boolean
@@ -73,25 +77,14 @@ const ListWithSatellites = ({
   satelliteFound,
 }: SatelliteListViewProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
-  const selectOptions = [
-    { value: 'satelliteFee', label: 'Lowest Fee' },
-    { value: 'satelliteFee', label: 'Highest Fee' },
-    { value: 'totalDelegatedAmount', label: 'Delegated MVK' },
-    { value: 'participation', label: 'Participation' },
-  ]
-  const customStyles = {
-    menu: (provided: any, state: any) => ({
-      ...provided,
-      backgroundColor: darkThemeEnabled ? darkMode.placeholderColor : lightMode.placeholderColor,
-      color: darkThemeEnabled ? darkMode.subTextColor : lightMode.subTextColor,
-    }),
-  }
+
   const itemsForDropDown = [
     { text: 'Lowest Fee', value: 'satelliteFee' },
     { text: 'Highest Fee', value: 'satelliteFee' },
     { text: 'Delegated MVK', value: 'totalDelegatedAmount' },
     { text: 'Participation', value: 'participation' },
   ]
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])

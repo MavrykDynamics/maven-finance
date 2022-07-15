@@ -1,17 +1,21 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import * as React from 'react'
-// components
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { SatelliteSideBarStyled, SideBarSection, SideBarItem, FAQLink, SideBarFaq } from './SatelliteSideBar.style'
+import React from 'react'
 
-import { RoutingButton } from '../../../app/App.components/RoutingButton/RoutingButton.controller'
-import { FAQLink, SatelliteSideBarStyled, SideBarSection, SideBarItem, SideBarFaq } from './SatelliteSideBar.style'
-
-type SatelliteSideBarProps = {
+type OraclesSideBarProps = {
   userIsSatellite: boolean
   numberOfSatellites: number
   totalDelegatedMVK: number
+  totalOracleNetworks: number
   satelliteFactory: string
   isButton: boolean
+  infoBlockAddresses: {
+    satellite: string
+    oracle: string
+    aggregator: string
+  }
 }
 
 export const SateliteSideBarFAQ = () => (
@@ -49,13 +53,14 @@ export const SateliteSideBarFAQ = () => (
   </SideBarFaq>
 )
 
-export const SatelliteSideBarView = ({
+const SatellitesSideBarView = ({
   userIsSatellite,
-  numberOfSatellites,
-  totalDelegatedMVK,
-  satelliteFactory,
   isButton,
-}: SatelliteSideBarProps) => {
+  totalDelegatedMVK,
+  numberOfSatellites,
+  totalOracleNetworks,
+  infoBlockAddresses,
+}: OraclesSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
       <SideBarSection>
@@ -68,17 +73,45 @@ export const SatelliteSideBarView = ({
           />
         ) : null}
 
-        <h2>Statistics</h2>
+        <h2>Info</h2>
         <SideBarItem>
-          <h3>Satellite Factory</h3>
+          <h3>Satellite Contract (fix)</h3>
           <var>
-            <TzAddress tzAddress={satelliteFactory} hasIcon />
+            <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
           </var>
         </SideBarItem>
+        <SideBarItem>
+          <h3>Oracle Contract (fix)</h3>
+          <var>
+            <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} />
+          </var>
+        </SideBarItem>
+        <SideBarItem>
+          <h3>Aggregator Contract</h3>
+          <var>
+            <TzAddress tzAddress={infoBlockAddresses.aggregator} hasIcon={false} />
+          </var>
+        </SideBarItem>
+      </SideBarSection>
+
+      <SideBarSection>
+        <h2>Statistics</h2>
         <SideBarItem>
           <h3>Number of Satellites</h3>
           <var>
             <CommaNumber value={numberOfSatellites} showDecimal={false} />
+          </var>
+        </SideBarItem>
+        <SideBarItem>
+          <h3>On-Chain Data Points (fix)</h3>
+          <var>
+            <CommaNumber value={numberOfSatellites} showDecimal={false} />
+          </var>
+        </SideBarItem>
+        <SideBarItem>
+          <h3>Total Oracle Networks</h3>
+          <var>
+            <CommaNumber value={totalOracleNetworks} showDecimal={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
@@ -87,9 +120,19 @@ export const SatelliteSideBarView = ({
             <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
           </var>
         </SideBarItem>
+        <SideBarItem>
+          <h3>Total Value Secured (fix)</h3>
+          <var>-</var>
+        </SideBarItem>
+        <SideBarItem>
+          <h3>Average Rewards per Oracle (fix)</h3>
+          <var>-</var>
+        </SideBarItem>
       </SideBarSection>
 
       <SateliteSideBarFAQ />
     </SatelliteSideBarStyled>
   )
 }
+
+export default SatellitesSideBarView

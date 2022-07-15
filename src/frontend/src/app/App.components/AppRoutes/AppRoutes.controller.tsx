@@ -6,7 +6,7 @@ import { State } from 'reducers'
 import ProtectedRoute from './ProtectedRoute'
 import { Doorman } from '../../../pages/Doorman/Doorman.controller'
 import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
-import { Satellites } from '../../../pages/Satellites/Satellites.controller'
+// import { Satellites } from '../../../pages/Satellites/Satellites.controller'
 import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.controller'
 import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetails.controller'
 import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
@@ -22,8 +22,8 @@ import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/Emergenc
 import { Council } from '../../../pages/Council/Council.controller'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
 import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
-import Oracles from 'pages/Oracles/Oracles.controller'
-import OracleSatellites from 'pages/OracleSatellites/OracleSatellites.controller'
+import Satellites from 'pages/Satellites/Satellites.controller'
+import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -53,7 +53,7 @@ export const AppRoutes = () => {
       <Route exact path="/become-satellite">
         <BecomeSatellite />
       </Route>
-      <Route exact path="/satellite-details/:satelliteId">
+      <Route exact path="/satellite-details/:satelliteId/:isOracle?/">
         <SatelliteDetails />
       </Route>
       <Route exact path="/governance">
@@ -88,11 +88,8 @@ export const AppRoutes = () => {
       <Route exact path="/treasury">
         <Treasury />
       </Route>
-      <Route exact path="/oracles">
-        <Oracles />
-      </Route>
-      <Route exact path="/oracle-satellites">
-        <OracleSatellites />
+      <Route exact path="/satellite-nodes">
+        <SatelliteNodes />
       </Route>
       <Route exact path="/data-feeds">
         <DataFeeds />

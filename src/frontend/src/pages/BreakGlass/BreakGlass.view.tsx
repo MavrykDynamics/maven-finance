@@ -9,7 +9,7 @@ import {
   BGTitle,
 } from './BreakGlass.style'
 import { ContractBreakGlass } from './mockContracts'
-import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
+import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
 import { ContractCard } from './ContractCard/ContractCard.controller'
 import { ToggleButton } from './ToggleButton/Toggle-button.view'
 

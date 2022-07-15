@@ -36,7 +36,10 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     protectedRoute: false,
     subPages: [
       { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
+      { id: 57471, subTitle: 'Satellite Nodes', subPath: '/satellite-nodes', protectedRoute: false },
       { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
+      { id: 57471, subTitle: 'Data Feeds', subPath: '/data-feeds', protectedRoute: false },
+      { id: 15757, subTitle: 'Users (not implemented)', subPath: '/users', protectedRoute: false },
     ],
   },
   {
@@ -77,19 +80,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: '/satellite-governance',
         protectedRoute: true,
       },
-    ],
-  },
-  {
-    title: 'Oracles',
-    id: 10,
-    path: '/oracles',
-    icon: 'oracleLogo',
-    protectedRoute: false,
-    subPages: [
-      { id: 10179, subTitle: 'Overview', subPath: '/oracles', protectedRoute: false },
-      { id: 10471, subTitle: 'Data Feeds', subPath: '/data-feeds', protectedRoute: false },
-      { id: 10587, subTitle: 'Users', subPath: '/users', protectedRoute: false },
-      { id: 101812, subTitle: 'Operators', subPath: '/operators', protectedRoute: false },
     ],
   },
   {

@@ -1,5 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
-import { Feed } from 'pages/Oracles/Oracles.types'
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
 

@@ -5,6 +5,14 @@ import { MavrykTheme } from '../../../styles/interfaces'
 
 export const FRListWrapper = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 37px;
+
+  &.oracle {
+    margin-top: 30px;
+
+    h1 {
+      margin-bottom: 15px;
+    }
+  }
 `
 
 export const ListItemLeftSide = styled.div<{ theme: MavrykTheme }>`
