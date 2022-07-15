@@ -84,6 +84,8 @@ export const SatelliteGovernanceCard = ({
   const expirationDatetime = new Date(date).getTime()
   const isEndingVotingTime = expirationDatetime > timeNow
 
+  const timeFormat = `${new Date(date).getHours()}:${new Date(date).getMinutes()}`
+
   const statusFlag = executed
     ? ProposalStatus.EXECUTED
     : status === 1
@@ -155,8 +157,8 @@ export const SatelliteGovernanceCard = ({
           <div className="voting-block">
             <h3>Vote Satistics</h3>
             <b className="voting-ends">
-              Voting {!isEndingVotingTime ? 'ended' : 'ending'} in{' '}
-              <Time value={date} format="M d\t\h, Y, H:m:s \C\E\R\T" />
+              Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" />{' '}
+              {timeFormat} CEST
             </b>
             <div className="voting-bar">
               <VotingBarBlockView

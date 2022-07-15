@@ -53,7 +53,7 @@ export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
 
   > span {
     font-weight: 400;
-    margin-right: 30px;
+    width: 40px;
     color: ${({ theme }) => theme.headerColor};
   }
 

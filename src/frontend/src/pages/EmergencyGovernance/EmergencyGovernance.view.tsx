@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 
-// actions
+// actions, consts
 import { getTimestampByLevel } from '../Governance/Governance.actions'
+import {
+  calculateSlicePositions,
+  EMERGENCY_GOVERNANCE_LIST_NAME,
+} from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // types
 import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.controller'
@@ -11,7 +15,7 @@ import type { EmergencyGovernanceLedgerType } from './EmergencyGovernance.contro
 // components
 import Icon from '../../app/App.components/Icon/Icon.view'
 
-import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY } from '../../app/App.components/Button/Button.constants'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
@@ -28,6 +32,9 @@ import { EmergencyGovernancePastProposal } from './mockEGovProposals'
 import { VotingArea } from '../Governance/VotingArea/VotingArea.controller'
 import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from '../Governance/Governance.controller'
+import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { useLocation } from 'react-router'
 
 type Props = {
   ready: boolean
@@ -73,6 +80,14 @@ export const EmergencyGovernanceView = ({
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
   const isEndedVotingTime = votingTime < timeNow
+
+  const { pathname, search } = useLocation()
+  const currentPage = getPageNumber(search, EMERGENCY_GOVERNANCE_LIST_NAME)
+
+  const paginatedItemsList = useMemo(() => {
+    const [from, to] = calculateSlicePositions(currentPage, EMERGENCY_GOVERNANCE_LIST_NAME)
+    return emergencyGovernanceLedger.slice(from, to)
+  }, [currentPage, emergencyGovernanceLedger])
 
   const emergencyGovernanceCardActive = (
     <EmergencyGovernanceCard>
@@ -160,9 +175,11 @@ export const EmergencyGovernanceView = ({
 
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
-        {emergencyGovernanceLedger.map((emergencyGovernance, index) => {
+        {paginatedItemsList.map((emergencyGovernance, index) => {
           return <EGovHistoryCard key={emergencyGovernance.id} emergencyGovernance={emergencyGovernance} />
         })}
+
+        <Pagination itemsCount={emergencyGovernanceLedger.length} listName={EMERGENCY_GOVERNANCE_LIST_NAME} />
       </EmergencyGovernHistory>
     </>
   )

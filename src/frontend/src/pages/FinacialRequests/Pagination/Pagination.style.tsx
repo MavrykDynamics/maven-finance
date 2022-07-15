@@ -31,7 +31,7 @@ export const PaginationWrapper = styled.div<{ theme: MavrykTheme; side?: string 
   }
 `
 
-export const PaginationArrow = styled.div<{ isRight?: boolean }>`
+export const PaginationArrow = styled.div<{ isRight?: boolean; isDisabled: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -44,6 +44,10 @@ export const PaginationArrow = styled.div<{ isRight?: boolean }>`
   cursor: pointer;
   transition: 0.5s all;
   margin-left: 10px;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 
   ${({ isRight }) =>
     isRight
@@ -52,17 +56,24 @@ export const PaginationArrow = styled.div<{ isRight?: boolean }>`
         `
       : ''}
 
+  ${({ isDisabled }) =>
+    isDisabled
+      ? css`
+          opacity: 0.5;
+        `
+      : css`
+          &:hover {
+            border: 1px solid #86d4c9;
+
+            svg {
+              fill: #86d4c9;
+              stroke: #86d4c9;
+            }
+          }
+        `}
+
   svg {
     height: 24px;
     width: 10px;
-  }
-
-  &:hover {
-    border: 1px solid #86d4c9;
-
-    svg {
-      fill: #86d4c9;
-      stroke: #86d4c9;
-    }
   }
 `
