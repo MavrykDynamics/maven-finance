@@ -3,25 +3,24 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import OracleSatellitesView from './SatelliteNodes.view'
 
-import { getOracleSatellites } from 'pages/Satellites/Satellites.actions'
-
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 import { State } from 'reducers'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 
 const SatelliteNodes = () => {
   const {
-    oraclesStorage: { oraclesSatellites },
-  } = useSelector((state: State) => state.oracles)
+    delegationStorage: { satelliteLedger = [] },
+  } = useSelector((state: State) => state.delegation)
   const dispatch = useDispatch()
 
-  const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(oraclesSatellites)
-  const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(oraclesSatellites)
+  const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(satelliteLedger)
+  const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(satelliteLedger)
 
   useEffect(() => {
-    dispatch(getOracleSatellites())
-    setAllSatellites(oraclesSatellites)
-    setFilteredSatelliteList(oraclesSatellites)
+    dispatch(getDelegationStorage())
+    setAllSatellites(satelliteLedger)
+    setFilteredSatelliteList(satelliteLedger)
   }, [])
 
   const handleSearch = (e: any) => {

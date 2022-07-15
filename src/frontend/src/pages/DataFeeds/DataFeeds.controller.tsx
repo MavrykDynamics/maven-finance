@@ -39,7 +39,6 @@ export const DataFeeds = () => {
           name={'topSatelitesOracle'}
           onClickHandler={delegateCallback}
           additionaldata={oracleSatellitesData}
-          noItemsText={'No oracle-satellites'}
         />
       </DataFeedsStyled>
     </Page>

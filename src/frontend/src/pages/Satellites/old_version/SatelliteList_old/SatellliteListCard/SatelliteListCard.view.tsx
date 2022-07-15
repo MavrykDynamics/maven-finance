@@ -1,17 +1,17 @@
+import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
+import { ACTION_SECONDARY, ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
+import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
-
-import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../../app/App.components/Button/Button.constants'
-import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
-import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
-import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
-import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 // style
 import {
@@ -28,7 +28,6 @@ import {
   SatelliteTextGroup,
   SideBySideImageAndText,
 } from './SatelliteListCard.style'
-import { AvatarStyle } from '../../../../app/App.components/Avatar/Avatar.style'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord

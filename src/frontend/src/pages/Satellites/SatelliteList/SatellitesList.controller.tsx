@@ -24,7 +24,7 @@ const SatteliteList = ({
 
   return (
     <SatteliteListView
-      additionaldata={additionaldata}
+      additionaldata={{ ...additionaldata, fullItemsCount: items.length }}
       items={itemsToShow}
       listType={listType}
       name={name}

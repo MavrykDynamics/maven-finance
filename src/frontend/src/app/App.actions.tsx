@@ -2,7 +2,7 @@ import { fetchFromIndexer, getInitialData } from '../gql/fetchGraphQL'
 import storageToTypeConverter from '../utils/storageToTypeConverter'
 
 import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
-import { GET_DELEGATION_STORAGE } from '../pages/Satellites/Satellites.actions'
+import { GET_DELEGATION_STORAGE, GET_ORACLES_STORAGE } from '../pages/Satellites/Satellites.actions'
 import { GET_FARM_FACTORY_STORAGE, GET_FARM_STORAGE } from '../pages/Farms/Farms.actions'
 import {
   GET_EMERGENCY_GOVERNANCE_STORAGE,
@@ -15,7 +15,6 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
-import { GET_ORACLES_STORAGE } from '../pages/Oracles/Oracles.actions'
 import {
   CONTRACT_ADDRESSES_QUERY,
   CONTRACT_ADDRESSES_QUERY_NAME,

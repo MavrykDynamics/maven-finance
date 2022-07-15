@@ -44,11 +44,12 @@ export const SatelliteOracleStatusComponent = styled.div<{ statusType: 'responde
     statusType === 'responded' ? '#27AE60' : statusType === 'noResponse' ? '#FF4343' : '#FFCA43'};
 `
 
-export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
+export const SatelliteCard = styled(Card)<{ theme: MavrykTheme; first?: boolean; last?: boolean }>`
   background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   padding: 0;
-  margin-top: 0;
+
+  margin: 30px 0;
 
   &.iterable {
     margin-top: 20px;

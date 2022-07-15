@@ -1,9 +1,9 @@
 // style
-import { OracleItemStyle } from './SatelliteCard.style'
+import { SatelliteItemStyle } from './SatelliteCard.style'
 
-export const OraclesListItemDataFeed = () => {
+export const DataFeedCard = () => {
   return (
-    <OracleItemStyle>
+    <SatelliteItemStyle>
       <div className="item">
         <h5>Feed</h5>
         <var>XTZ / USD</var>
@@ -20,6 +20,6 @@ export const OraclesListItemDataFeed = () => {
         <h5>Date</h5>
         <var>Nov 11th, 2022</var>
       </div>
-    </OracleItemStyle>
+    </SatelliteItemStyle>
   )
 }

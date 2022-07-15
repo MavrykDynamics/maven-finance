@@ -12,6 +12,14 @@ export const FRListWrapper = styled.div<{ theme: MavrykTheme }>`
     h1 {
       margin-bottom: 15px;
     }
+
+    .first {
+      margin-top: 0;
+    }
+
+    .last {
+      margin-bottom: 0;
+    }
   }
 `
 
