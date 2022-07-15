@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 
 // types
 import { State } from 'reducers'
-import { OracleSatelliteListItemProps } from '../../helpers/Satellites.types'
+import { SatelliteListItemProps } from '../../helpers/Satellites.types'
 
 // consts, helpers, actions
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
@@ -32,26 +32,27 @@ import {
   SatelliteOracleStatusComponent,
 } from './SatelliteCard.style'
 
-export const OracleSatelliteListItem = ({
-  satelliteOracle,
+export const SatelliteListItem = ({
+  satellite,
   loading,
   delegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   isExtendedListItem = false,
   className = '',
-}: OracleSatelliteListItemProps) => {
-  const totalDelegatedMVK = satelliteOracle.totalDelegatedAmount
-  const sMvkBalance = satelliteOracle.sMvkBalance
+  children,
+}: SatelliteListItemProps) => {
+  const totalDelegatedMVK = satellite.totalDelegatedAmount
+  const sMvkBalance = satellite.sMvkBalance
 
   const {
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
   const myDelegatedMVK = userStakedBalance
-  const userIsDelegatedToThisSatellite = satelliteOracle.address === satelliteUserIsDelegatedTo
+  const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
 
-  const currentlySupportingProposalId = satelliteOracle.proposalVotingHistory?.length
-    ? satelliteOracle.proposalVotingHistory[0].proposalId
+  const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
+    ? satellite.proposalVotingHistory[0].proposalId
     : null
 
   const currentlySupportingProposal = proposalLedger?.length
@@ -59,19 +60,19 @@ export const OracleSatelliteListItem = ({
     : null
 
   return (
-    <SatelliteCard className={className} key={String(`satellite${satelliteOracle.address}`)}>
+    <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
       <SatelliteCardInner>
         <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
           <SideBySideImageAndText>
             <SatelliteProfileImageContainer>
               <AvatarStyle>
-                <SatelliteProfileImage src={satelliteOracle.image} />
+                <SatelliteProfileImage src={satellite.image} />
               </AvatarStyle>
             </SatelliteProfileImageContainer>
 
             <SatelliteTextGroup>
-              <SatelliteMainText>{satelliteOracle.name}</SatelliteMainText>
-              <TzAddress tzAddress={satelliteOracle.address} type={'secondary'} hasIcon={true} isBold={true} />
+              <SatelliteMainText>{satellite.name}</SatelliteMainText>
+              <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
             </SatelliteTextGroup>
           </SideBySideImageAndText>
 
@@ -102,7 +103,7 @@ export const OracleSatelliteListItem = ({
             <SatelliteTextGroup oracle>
               <SatelliteMainText oracle>Signed feeds</SatelliteMainText>
               <SatelliteSubText oracle>
-                <CommaNumber value={Number(satelliteOracle.feeds?.length || 0)} />
+                <CommaNumber value={Number(satellite.feeds?.length || 0)} />
               </SatelliteSubText>
             </SatelliteTextGroup>
           ) : null}
@@ -112,14 +113,14 @@ export const OracleSatelliteListItem = ({
               icon="man"
               text="Profile Details"
               kind="transparent"
-              pathName={`/satellite-details/${satelliteOracle.address}/oracle`}
+              pathName={`/satellite-details/${satellite.address}/oracle`}
             />
           </SatelliteProfileDetails>
 
           <SatelliteTextGroup oracle>
             <SatelliteMainText oracle>Participation</SatelliteMainText>
             <SatelliteSubText oracle>
-              <CommaNumber value={Number(satelliteOracle.participation || 0)} endingText="%" />
+              <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
             </SatelliteSubText>
           </SatelliteTextGroup>
 
@@ -127,7 +128,7 @@ export const OracleSatelliteListItem = ({
             <SatelliteTextGroup oracle>
               <SatelliteMainText oracle>Fee</SatelliteMainText>
               <SatelliteSubText oracle>
-                <CommaNumber value={Number(satelliteOracle.satelliteFee / 100)} endingText="%" />
+                <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
               </SatelliteSubText>
             </SatelliteTextGroup>
           ) : null}
@@ -141,13 +142,13 @@ export const OracleSatelliteListItem = ({
         </SatelliteCardTopRow>
 
         <SatelliteCardButtons>
-          {/* {satelliteOracle.active ? ( */}
+          {/* {satellite.active ? ( */}
           <Button
             text="Delegate"
             icon="man-check"
             kind={ACTION_PRIMARY}
             loading={loading}
-            onClick={() => delegateCallback(satelliteOracle.address)}
+            onClick={() => delegateCallback(satellite.address)}
           />
           {/* ) : (
             <div>
@@ -157,7 +158,9 @@ export const OracleSatelliteListItem = ({
         </SatelliteCardButtons>
       </SatelliteCardInner>
 
-      {currentlySupportingProposal ? (
+      {children && children}
+
+      {currentlySupportingProposal && !children ? (
         <SatelliteCardRow>
           Currently supporting Proposal {currentlySupportingProposal.id} - {currentlySupportingProposal.title}
         </SatelliteCardRow>

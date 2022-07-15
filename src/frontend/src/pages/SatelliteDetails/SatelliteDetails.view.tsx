@@ -7,7 +7,6 @@ import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 import { Loader } from 'app/App.components/Loader/Loader.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
-import { SatelliteListCard } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.view'
 import { SatelliteSideBar } from 'pages/Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -18,6 +17,7 @@ import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagi
 // style
 import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
 import { EmptyContainer } from '../../app/App.style'
+import { SatelliteListItem } from 'pages/Satellites/SatelliteList/ListCards/SateliteCard.view'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
@@ -108,11 +108,11 @@ export const SatelliteDetailsView = ({
           {loading || !isSameId ? (
             <Loader />
           ) : isSatellite ? (
-            <SatelliteListCard
+            <SatelliteListItem
               satellite={satellite}
               loading={loading}
               delegateCallback={delegateCallback}
-              undelegateCallback={undelegateCallback}
+              // undelegateCallback={undelegateCallback}
               userStakedBalance={myDelegatedMVK}
               satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
               isDetailsPage
@@ -153,7 +153,7 @@ export const SatelliteDetailsView = ({
                   </div>
                 ) : null}
               </SatelliteCardBottomRow>
-            </SatelliteListCard>
+            </SatelliteListItem>
           ) : (
             emptyContainer
           )}

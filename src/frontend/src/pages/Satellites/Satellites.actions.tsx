@@ -5,10 +5,12 @@ import { State } from 'reducers'
 import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
+  const oraclesIds = state.oracles.oraclesStorage.oraclesSatellitesIds.map(({ oracle_id }) => oracle_id)
 
   try {
     const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
@@ -18,6 +20,19 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     )
 
     const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer?.delegation[0])
+
+    delegationStorage.satelliteLedger = delegationStorage.satelliteLedger
+      .map((satellite: SatelliteRecord) => {
+        if (oraclesIds.includes(satellite.address)) {
+          satellite['feeds'] = state.oracles.oraclesStorage.feeds.filter((feed) => feed.admin === satellite.address)
+        }
+
+        return satellite
+      })
+      .sort(
+        (satellite1: SatelliteRecord, satellite2: SatelliteRecord) =>
+          (satellite2?.feeds?.length || 0) - (satellite1?.feeds?.length || 0),
+      )
 
     dispatch({
       type: GET_DELEGATION_STORAGE,
@@ -145,30 +160,4 @@ export const undelegate = () => async (dispatch: any, getState: any) => {
 }
 
 // TODO: remove it when after refactor
-
 export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'
-
-//getOracleSatellites
-export const GET_ORACLES_SATELLITES = 'GET_ORACLES_SATELLITES'
-export const getOracleSatellites = () => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  const oracleSatellitesFull = state.oracles.oraclesStorage.oraclesSatellitesIds
-    .map(({ oracle_id }) => {
-      const satelliteData = state.delegation.delegationStorage.satelliteLedger.find(
-        (satellite) => satellite.address === oracle_id,
-      )
-      if (satelliteData) {
-        satelliteData['feeds'] = state.oracles.oraclesStorage.feeds.filter(
-          (feed) => feed.admin === satelliteData.address,
-        )
-      }
-      return satelliteData || null
-    })
-    .filter(Boolean)
-
-  dispatch({
-    type: GET_ORACLES_SATELLITES,
-    oracleSatellitesFull,
-  })
-}

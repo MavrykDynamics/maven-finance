@@ -1,12 +1,9 @@
+import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
-import { State } from '../../../reducers'
-import { darkMode, lightMode } from '../../../styles'
-import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter } from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
 
@@ -72,8 +69,6 @@ const ListWithSatellites = ({
   satelliteUserIsDelegatedTo,
   satelliteFound,
 }: SatelliteListViewProps) => {
-  const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
-
   const itemsForDropDown = [
     { text: 'Lowest Fee', value: 'satelliteFee' },
     { text: 'Highest Fee', value: 'satelliteFee' },

@@ -71,8 +71,8 @@ export type InitialOracleStorageType = {
   }>
 }
 
-export type OracleSatelliteListItemProps = {
-  satelliteOracle: SatelliteRecord
+export type SatelliteListItemProps = {
+  satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (satelliteAddress: string) => void
   userStakedBalance: number
@@ -80,5 +80,6 @@ export type OracleSatelliteListItemProps = {
   isDetailsPage?: boolean
   isExtendedListItem?: boolean
   className?: string
+  children?: JSX.Element
 }
 

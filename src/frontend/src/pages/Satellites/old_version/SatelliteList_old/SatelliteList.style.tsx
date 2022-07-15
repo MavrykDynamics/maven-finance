@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components/macro'
 import { Card } from 'styles'
-
-import { MavrykTheme } from '../../../styles/interfaces'
+import { MavrykTheme } from 'styles/interfaces'
 
 export const SatelliteListStyled = styled.div<{ theme: MavrykTheme }>``
 

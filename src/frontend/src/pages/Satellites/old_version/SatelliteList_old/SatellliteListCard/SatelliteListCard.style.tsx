@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components/macro'
 import { boxShadowColor, Card, cyanColor } from 'styles'
 
-import { MavrykTheme } from '../../../../styles/interfaces'
+import { MavrykTheme } from 'styles/interfaces'
 
 export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};

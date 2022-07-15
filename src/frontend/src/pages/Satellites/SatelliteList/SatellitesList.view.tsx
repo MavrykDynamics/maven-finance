@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 
 // view
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
-import { OracleSatelliteListItem } from './ListCards/SateliteCard.view'
-import { OraclesListItemDataFeed } from './ListCards/DataFeedCard.view'
+import { SatelliteListItem } from './ListCards/SateliteCard.view'
+import { DataFeedCard } from './ListCards/DataFeedCard.view'
 
 // consts
 import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/FinancialRequests.consts'
@@ -33,13 +33,15 @@ function SatteliteListView({
           <h1>{listTitle}</h1>
         </GovRightContainerTitleArea>
       ) : null}
-      {items.map((item) => {
+      {items.map((item, idx) => {
+        const additionalClassName = idx === 0 ? 'first' : idx === items.length - 1 ? 'last' : ''
         switch (listType) {
           case 'satellites':
             return (
-              <OracleSatelliteListItem
-                satelliteOracle={item}
-                key={item.id}
+              <SatelliteListItem
+                className={additionalClassName}
+                satellite={item}
+                key={item.address}
                 loading={loading}
                 delegateCallback={onClickHandler}
                 userStakedBalance={additionaldata?.userStakedBalance || 0}
@@ -48,13 +50,13 @@ function SatteliteListView({
               />
             )
           case 'feeds':
-            return <OraclesListItemDataFeed key={item.address} />
+            return <DataFeedCard key={item.address} />
           case 'oracles':
-            return // oracle listitem component
+            return null // oracle listitem component
         }
       })}
 
-      <Pagination itemsCount={items.length} side={PAGINATION_SIDE_RIGHT} listName={name} />
+      <Pagination itemsCount={additionaldata?.fullItemsCount || 0} side={PAGINATION_SIDE_RIGHT} listName={name} />
     </FRListWrapper>
   ) : null
 }
