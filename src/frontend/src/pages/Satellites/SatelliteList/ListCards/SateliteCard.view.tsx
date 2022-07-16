@@ -62,84 +62,90 @@ export const SatelliteListItem = ({
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
       <SatelliteCardInner>
-        <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
-          <SideBySideImageAndText>
-            <SatelliteProfileImageContainer>
-              <AvatarStyle>
-                <SatelliteProfileImage src={satellite.image} />
-              </AvatarStyle>
-            </SatelliteProfileImageContainer>
+        <div className="rows-wrapper">
+          <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
+            <SideBySideImageAndText isExtendedListItem={isExtendedListItem}>
+              <SatelliteProfileImageContainer>
+                <AvatarStyle>
+                  <SatelliteProfileImage src={satellite.image} />
+                </AvatarStyle>
+              </SatelliteProfileImageContainer>
 
-            <SatelliteTextGroup>
-              <SatelliteMainText>{satellite.name}</SatelliteMainText>
-              <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
-            </SatelliteTextGroup>
-          </SideBySideImageAndText>
+              <SatelliteTextGroup isExtendedListItem={isExtendedListItem}>
+                <SatelliteMainText>{satellite.name}</SatelliteMainText>
+                <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
+              </SatelliteTextGroup>
+            </SideBySideImageAndText>
 
-          <SatelliteTextGroup oracle>
-            <SatelliteMainText oracle>Delegated MVK</SatelliteMainText>
-            <SatelliteSubText oracle>
-              <CommaNumber value={totalDelegatedMVK} />
-            </SatelliteSubText>
-          </SatelliteTextGroup>
-
-          {isExtendedListItem ? (
-            <SatelliteTextGroup oracle>
-              <SatelliteMainText oracle>Your delegated MVK</SatelliteMainText>
+            <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+              <SatelliteMainText oracle>Delegated MVK</SatelliteMainText>
               <SatelliteSubText oracle>
-                {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
+                <CommaNumber value={totalDelegatedMVK} />
               </SatelliteSubText>
             </SatelliteTextGroup>
-          ) : (
-            <SatelliteTextGroup oracle>
-              <SatelliteMainText oracle>Free sMVK Space</SatelliteMainText>
+
+            {(isExtendedListItem && satellite.isSatelliteOracle) || !satellite.isSatelliteOracle ? (
+              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+                <SatelliteMainText oracle>Your delegated MVK</SatelliteMainText>
+                <SatelliteSubText oracle>
+                  {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : (
+              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+                <SatelliteMainText oracle>Free sMVK Space</SatelliteMainText>
+                <SatelliteSubText oracle>
+                  <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            )}
+
+            {isExtendedListItem && satellite.isSatelliteOracle ? (
+              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+                <SatelliteMainText oracle>Signed feeds</SatelliteMainText>
+                <SatelliteSubText oracle>
+                  <CommaNumber value={Number(satellite.feeds?.length || 0)} />
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : null}
+          </SatelliteCardTopRow>
+
+          <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
+            <SatelliteProfileDetails isExtendedListItem={isExtendedListItem}>
+              <RoutingButton
+                icon="man"
+                text="Profile Details"
+                kind="transparent"
+                pathName={`/satellite-details/${satellite.address}/oracle`}
+              />
+            </SatelliteProfileDetails>
+
+            <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+              <SatelliteMainText oracle>Participation</SatelliteMainText>
               <SatelliteSubText oracle>
-                <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
+                <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
               </SatelliteSubText>
             </SatelliteTextGroup>
-          )}
 
-          {isExtendedListItem ? (
-            <SatelliteTextGroup oracle>
-              <SatelliteMainText oracle>Signed feeds</SatelliteMainText>
-              <SatelliteSubText oracle>
-                <CommaNumber value={Number(satellite.feeds?.length || 0)} />
-              </SatelliteSubText>
-            </SatelliteTextGroup>
-          ) : null}
+            {(isExtendedListItem && satellite.isSatelliteOracle) || !satellite.isSatelliteOracle ? (
+              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+                <SatelliteMainText oracle>Fee</SatelliteMainText>
+                <SatelliteSubText oracle>
+                  <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : null}
 
-          <SatelliteProfileDetails>
-            <RoutingButton
-              icon="man"
-              text="Profile Details"
-              kind="transparent"
-              pathName={`/satellite-details/${satellite.address}/oracle`}
-            />
-          </SatelliteProfileDetails>
-
-          <SatelliteTextGroup oracle>
-            <SatelliteMainText oracle>Participation</SatelliteMainText>
-            <SatelliteSubText oracle>
-              <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
-            </SatelliteSubText>
-          </SatelliteTextGroup>
-
-          {isExtendedListItem ? (
-            <SatelliteTextGroup oracle>
-              <SatelliteMainText oracle>Fee</SatelliteMainText>
-              <SatelliteSubText oracle>
-                <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
-              </SatelliteSubText>
-            </SatelliteTextGroup>
-          ) : null}
-
-          <SatelliteTextGroup oracle>
-            {/* <SatelliteMainText oracle>Oracle Status</SatelliteMainText> */}
-            <SatelliteSubText oracle>
-              <SatelliteOracleStatusComponent statusType="responded">responded</SatelliteOracleStatusComponent>
-            </SatelliteSubText>
-          </SatelliteTextGroup>
-        </SatelliteCardTopRow>
+            {satellite.isSatelliteOracle ? (
+              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
+                <SatelliteMainText oracle>Oracle Status</SatelliteMainText>
+                <SatelliteSubText oracle>
+                  <SatelliteOracleStatusComponent statusType="responded">responded</SatelliteOracleStatusComponent>
+                </SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : null}
+          </SatelliteCardTopRow>
+        </div>
 
         <SatelliteCardButtons>
           {/* {satellite.active ? ( */}

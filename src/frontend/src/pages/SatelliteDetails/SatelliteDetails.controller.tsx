@@ -15,15 +15,13 @@ export const SatelliteDetails = () => {
   const loading = useSelector((state: State) => state.loading)
   const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
   const { user } = useSelector((state: State) => state.user)
-  const [isFromOracle, setIsFromOracle] = useState(false)
 
-  let { satelliteId, isOracle } = useParams<{ satelliteId: string; isOracle?: string }>()
+  let { satelliteId } = useParams<{ satelliteId: string }>()
 
   useEffect(() => {
-    setIsFromOracle(Boolean(isOracle))
     dispatch(getSatelliteByAddress(satelliteId))
     dispatch(getDelegationStorage())
-  }, [dispatch, satelliteId, isOracle])
+  }, [dispatch, satelliteId])
 
   const delegateCallback = (address: string) => {
     dispatch(delegate(address))
@@ -42,8 +40,4 @@ export const SatelliteDetails = () => {
       userStakedBalanceInSatellite={user.mySMvkTokenBalance}
     />
   )
-}
-
-function getDesiredSatellite(satelliteAddress: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
-  return satelliteLedger?.filter((item: SatelliteRecord) => item.address === satelliteAddress)[0]
 }

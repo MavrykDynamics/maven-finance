@@ -320,6 +320,8 @@ function convertToSatelliteRecordInterface({
     proposalVotingHistory,
     financialRequestsVotes,
     emergencyGovernanceVotes,
+    // TODO: mb add checking if satellite is oracle here
+    isSatelliteOracle: false
   }
 
   return newSatelliteRecord

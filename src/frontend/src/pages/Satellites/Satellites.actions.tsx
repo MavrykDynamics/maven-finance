@@ -23,8 +23,10 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
 
     delegationStorage.satelliteLedger = delegationStorage.satelliteLedger
       .map((satellite: SatelliteRecord) => {
+        satellite['isSatelliteOracle'] = false
         if (oraclesIds.includes(satellite.address)) {
           satellite['feeds'] = state.oracles.oraclesStorage.feeds.filter((feed) => feed.admin === satellite.address)
+          satellite['isSatelliteOracle'] = true
         }
 
         return satellite

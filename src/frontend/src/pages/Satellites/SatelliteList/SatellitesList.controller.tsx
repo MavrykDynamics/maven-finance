@@ -19,11 +19,8 @@ const SatteliteList = ({
 
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, name)
-    console.log(currentPage, name, from, to)
     return items.slice(from, to)
   }, [currentPage, items])
-
-  console.log('items', items, paginatedItemsList)
 
   return (
     <SatteliteListView

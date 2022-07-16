@@ -44,7 +44,7 @@ export const SatelliteOracleStatusComponent = styled.div<{ statusType: 'responde
     statusType === 'responded' ? '#27AE60' : statusType === 'noResponse' ? '#FF4343' : '#FFCA43'};
 `
 
-export const SatelliteCard = styled(Card)<{ theme: MavrykTheme; first?: boolean; last?: boolean }>`
+export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   padding: 0;
@@ -56,17 +56,20 @@ export const SatelliteCard = styled(Card)<{ theme: MavrykTheme; first?: boolean;
   }
 `
 export const SatelliteCardTopRow = styled.div<{ isExtendedListItem?: boolean }>`
-  display: grid;
-  grid-template-columns: repeat(${({ isExtendedListItem }) => (isExtendedListItem ? 4 : 3)}, auto);
-  grid-template-rows: repeat(2, auto);
-  grid-column-gap: 0;
-  grid-row-gap: 9px;
-  padding: 25px;
+  display: flex;
   width: 100%;
-  padding-bottom: 17px;
+  column-gap: 15px;
 `
 export const SatelliteCardInner = styled.div`
   display: flex;
+  padding: 25px 0 17px 25px;
+
+  .rows-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    row-gap: 17px;
+  }
 `
 export const SatelliteCardButtons = styled.div`
   display: flex;
@@ -108,12 +111,13 @@ export const SatelliteProfileImage = styled.div`
   height: 100%;
 `
 
-export const SideBySideImageAndText = styled.div`
+export const SideBySideImageAndText = styled.div<{ isExtendedListItem?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
+  width: ${({ isExtendedListItem }) => (isExtendedListItem ? '25%' : '40%')};
 `
-export const SatelliteTextGroup = styled.div<{ oracle?: boolean }>`
+export const SatelliteTextGroup = styled.div<{ oracle?: boolean; isExtendedListItem?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -124,11 +128,10 @@ export const SatelliteTextGroup = styled.div<{ oracle?: boolean }>`
   &.voted {
     margin-left: 70px;
   }
-
-  ${({ oracle }) =>
+  ${({ oracle, isExtendedListItem }) =>
     oracle
       ? css`
-          width: 100%;
+          width: ${isExtendedListItem ? '20%' : '30%'};
         `
       : ''}
 `
@@ -184,7 +187,11 @@ export const SatelliteSubText = styled.div<{ theme: MavrykTheme; oracle?: boolea
       : ''}
 `
 
-export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme }>`
+export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme; isExtendedListItem?: boolean }>`
+  width: ${({ isExtendedListItem }) => (isExtendedListItem ? '25%' : '40%')};
+  padding-right: ${({ isExtendedListItem }) => (isExtendedListItem ? '15px' : '')};
+  display: flex;
+  justify-content: flex-end;
   button.transparent {
     color: ${({ theme }) => theme.headerSkyColor};
     font-weight: 600;

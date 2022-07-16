@@ -32,11 +32,10 @@ export const SatelliteCardBottomRow = styled.div`
   color: ${headerColor};
   border-top: 1px solid ${royalPurpleColor};
 
-  h4 {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 14px;
-    color: ${headerColor};
+  .column-wrapper {
+    display: flex;
+    justify-content: space-between;
+    column-gap: 130px;
   }
 
   p {
@@ -45,66 +44,53 @@ export const SatelliteCardBottomRow = styled.div`
     line-height: 14px;
     color: ${cyanColor};
   }
+`
 
-  .descr {
-    padding-bottom: 4px;
-    p {
-      padding-top: 8px;
-      padding-bottom: 8px;
-    }
+export const BlockName = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 14px;
+  color: ${headerColor};
+`
+
+export const SatelliteMetricsBlock = styled.div`
+  display: grid;
+  grid-template-columns: 200px 60px;
+  align-items: center;
+  padding-top: 10px;
+
+  p {
+    margin-top: 7px;
+    margin-bottom: 7px;
+    text-align: right;
   }
 
-  .satellite-info-block {
-    margin-bottom: 38px;
+  h5 {
+    margin: 0;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 16px;
+    color: ${skyColor};
   }
+`
 
-  .satellite-info-block-metrics {
-    display: grid;
-    grid-template-columns: 180px 100px;
-    align-items: center;
-    padding-top: 10px;
+export const SatelliteVotingInfoWrapper = styled.div`
+  width: 100%;
 
-    p {
-      margin-top: 7px;
-      margin-bottom: 7px;
-    }
-
-    h5 {
-      margin: 0;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 21px;
-      color: ${skyColor};
-    }
+  .voting-info-list-wrapper {
+    max-height: 110px;
+    overflow-y: scroll;
+    padding-right: 10px;
   }
+`
 
-  .satellite-voting-history {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
-    padding-top: 4px;
+export const SatelliteDescrBlock = styled.div`
+  margin-bottom: 25px;
 
-    b {
-      font-weight: 700;
-      font-size: 14px;
-
-      &.voting-yes {
-        color: ${upColor};
-      }
-
-      &.voting-no {
-        color: ${downColor};
-      }
-
-      &.voting-abstain {
-        color: ${skyColor};
-      }
-    }
-  }
-
-  .satellite-voting-history-info {
-    flex-shrink: 0;
-    padding-left: 16px;
+  p {
+    padding-top: 8px;
+    margin-bottom: 25px;
+    font-size: 15px;
   }
 
   .satellite-website {
@@ -113,4 +99,33 @@ export const SatelliteCardBottomRow = styled.div`
     font-size: 14px;
     line-height: 14px;
   }
-` // SatelliteCardBottomRow
+`
+
+export const SatelliteVotingHistoryListItem = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 4px;
+
+  .satellite-voting-history-info {
+    flex-shrink: 0;
+    padding-left: 16px;
+  }
+
+  b {
+    font-weight: 700;
+    font-size: 14px;
+
+    &.voting-yes {
+      color: ${upColor};
+    }
+
+    &.voting-no {
+      color: ${downColor};
+    }
+
+    &.voting-abstain {
+      color: ${skyColor};
+    }
+  }
+`

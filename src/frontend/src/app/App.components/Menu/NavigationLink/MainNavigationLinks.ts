@@ -36,7 +36,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     protectedRoute: false,
     subPages: [
       { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
-      { id: 57471, subTitle: 'Satellite Nodes', subPath: '/satellite-nodes', protectedRoute: false },
+      { id: 57477, subTitle: 'Satellite Nodes', subPath: '/satellite-nodes', protectedRoute: false },
       { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
       { id: 57471, subTitle: 'Data Feeds', subPath: '/data-feeds', protectedRoute: false },
       { id: 15757, subTitle: 'Users (not implemented)', subPath: '/users', protectedRoute: false },
