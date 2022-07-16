@@ -15,7 +15,15 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
 // style
-import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
+import {
+  BlockName,
+  SatelliteCardBottomRow,
+  SatelliteDescrBlock,
+  SatelliteDescriptionText,
+  SatelliteMetricsBlock,
+  SatelliteVotingHistoryListItem,
+  SatelliteVotingInfoWrapper,
+} from './SatelliteDetails.style'
 import { EmptyContainer } from '../../app/App.style'
 import { SatelliteListItem } from 'pages/Satellites/SatelliteList/ListCards/SateliteCard.view'
 
@@ -80,7 +88,7 @@ export const SatelliteDetailsView = ({
       : null
 
     return (
-      <div className="satellite-voting-history" key={item.id}>
+      <SatelliteVotingHistoryListItem key={item.id}>
         <p>
           Proposal {item.proposalId} - {filteredProposal?.title}
         </p>
@@ -95,71 +103,68 @@ export const SatelliteDetailsView = ({
           )}
           <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
         </span>
-      </div>
+      </SatelliteVotingHistoryListItem>
     )
   }
 
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
-      <PageContent>
-        <div>
-          <SatellitePagination />
-          {loading || !isSameId ? (
-            <Loader />
-          ) : isSatellite ? (
-            <SatelliteListItem
-              satellite={satellite}
-              loading={loading}
-              delegateCallback={delegateCallback}
-              // undelegateCallback={undelegateCallback}
-              userStakedBalance={myDelegatedMVK}
-              satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-              isDetailsPage
-            >
-              <SatelliteCardBottomRow>
-                <div className="descr satellite-info-block">
-                  <h4>Description:</h4>
-                  <p>{parse(satellite.description, options)}</p>
-                  {satellite.website ? (
-                    <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
-                      Website
-                    </a>
-                  ) : null}
-                </div>
+      <SatellitePagination />
+      {loading || !isSameId ? (
+        <Loader />
+      ) : isSatellite ? (
+        <SatelliteListItem
+          satellite={satellite}
+          loading={loading}
+          delegateCallback={delegateCallback}
+          // undelegateCallback={undelegateCallback}
+          userStakedBalance={myDelegatedMVK}
+          satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
+          isExtendedListItem={true}
+        >
+          <SatelliteCardBottomRow>
+            <SatelliteDescrBlock>
+              <BlockName>Description:</BlockName>
+              <p>{parse(satellite.description, options)}</p>
+              {satellite.website ? (
+                <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
+                  Website
+                </a>
+              ) : null}
+            </SatelliteDescrBlock>
 
-                <div className="satellite-info-block">
-                  <h4>Participation Metrics:</h4>
-                  <div className="satellite-info-block-metrics">
-                    <h5>Poll participation</h5>
-                    <p>{participationMetrics.pollParticipation}%</p>
-                    <h5>Proposal participation</h5>
-                    <p>{participationMetrics.proposalParticipation}%</p>
-                    <h5>Communication</h5>
-                    <p>{participationMetrics.communication}%</p>
-                  </div>
-                </div>
+            <div className="column-wrapper">
+              <div>
+                <BlockName>Participation Metrics:</BlockName>
+                <SatelliteMetricsBlock>
+                  <h5>Poll participation</h5>
+                  <p>{participationMetrics.pollParticipation}%</p>
+                  <h5>Proposal participation</h5>
+                  <p>{participationMetrics.proposalParticipation}%</p>
+                  <h5>Communication</h5>
+                  <p>{participationMetrics.communication}%</p>
+                </SatelliteMetricsBlock>
+              </div>
 
-                {satellite.proposalVotingHistory?.length ||
-                satellite.financialRequestsVotes?.length ||
-                satellite.emergencyGovernanceVotes?.length ? (
-                  <div>
-                    <h4>Voting History:</h4>
-                    <div>
-                      {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
-                      {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
-                      {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
-                    </div>
+              {satellite.proposalVotingHistory?.length ||
+              satellite.financialRequestsVotes?.length ||
+              satellite.emergencyGovernanceVotes?.length ? (
+                <SatelliteVotingInfoWrapper>
+                  <BlockName>Voting History:</BlockName>
+                  <div className="voting-info-list-wrapper scroll-block">
+                    {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
+                    {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
+                    {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
                   </div>
-                ) : null}
-              </SatelliteCardBottomRow>
-            </SatelliteListItem>
-          ) : (
-            emptyContainer
-          )}
-        </div>
-        <SatelliteSideBar />
-      </PageContent>
+                </SatelliteVotingInfoWrapper>
+              ) : null}
+            </div>
+          </SatelliteCardBottomRow>
+        </SatelliteListItem>
+      ) : (
+        emptyContainer
+      )}
     </Page>
   )
 }

@@ -28,13 +28,13 @@ const SatellitePagination = () => {
         Back to satellites
       </Link>
       {prevSatellite ? (
-        <Link className="pagination-link prev" to={`/satellite-details?satelliteAddress=${prevSatellite.address}`}>
+        <Link className="pagination-link prev" to={`/satellite-details/${prevSatellite.address}`}>
           <Icon id="arrow-obtuse-angle" />
           Previous satellite
         </Link>
       ) : null}
       {nextSatellite ? (
-        <Link className="pagination-link next" to={`/satellite-details?satelliteAddress=${nextSatellite.address}`}>
+        <Link className="pagination-link next" to={`/satellite-details/${nextSatellite.address}`}>
           Next satellite
           <Icon id="arrow-obtuse-angle" />
         </Link>

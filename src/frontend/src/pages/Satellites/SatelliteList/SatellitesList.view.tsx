@@ -24,8 +24,6 @@ function SatteliteListView({
   additionaldata,
   loading,
 }: SatellitesListProps) {
-  console.log('%c ||||| items', 'color:yellowgreen', items)
-
   return items.length ? (
     <FRListWrapper className="oracle">
       {listTitle ? (

@@ -84,6 +84,7 @@ export interface SatelliteRecord {
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
   feeds?: Array<Feed>
+  isSatelliteOracle: boolean
 }
 
 export type DelegationConfig = {

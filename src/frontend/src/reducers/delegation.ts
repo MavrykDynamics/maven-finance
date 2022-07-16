@@ -81,6 +81,7 @@ const delegationDefaultState: DelegationState = {
     satelliteFee: 0,
     totalDelegatedAmount: 0,
     unregisteredDateTime: new Date(),
+    isSatelliteOracle: false
   },
   participationMetrics: {
     pollParticipation: 0,
