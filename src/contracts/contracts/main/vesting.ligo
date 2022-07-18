@@ -1,28 +1,29 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Vesting types
-#include "../partials/types/vestingTypes.ligo"
+#include "../partials/contractTypes/vestingTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -32,8 +33,8 @@ type vestingAction is
       SetAdmin                      of (address)
     | SetGovernance                 of (address)
     | UpdateMetadata                of updateMetadataType
-    | UpdateWhitelistContracts      of updateWhitelistContractsParams
-    | UpdateGeneralContracts        of updateGeneralContractsParams
+    | UpdateWhitelistContracts      of updateWhitelistContractsType
+    | UpdateGeneralContracts        of updateGeneralContractsType
     | MistakenTransfer              of transferActionType
     
       // Internal Vestee Control Entrypoints
@@ -50,10 +51,10 @@ type vestingAction is
 
 
 const noOperations   : list (operation) = nil;
-type return is list (operation) * vestingStorage
+type return is list (operation) * vestingStorageType
 
 // vesting contract methods lambdas
-type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorage) -> return
+type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorageType) -> return
 
 
 
@@ -76,23 +77,6 @@ const thirty_days    : int              = one_day * 30;
 
 // ------------------------------------------------------------------------------
 //
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -100,19 +84,19 @@ const thirty_days    : int              = one_day * 30;
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
-function checkSenderIsAllowed(var s : vestingStorage) : unit is
+function checkSenderIsAllowed(var s : vestingStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(var s : vestingStorage) : unit is
+function checkSenderIsAdmin(var s : vestingStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
-function checkSenderIsCouncilOrAdmin(var s : vestingStorage) : unit is
+function checkSenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
     block{
         const councilAddress: address = case s.whitelistContracts["council"] of [
               Some (_address) -> _address
@@ -124,7 +108,7 @@ function checkSenderIsCouncilOrAdmin(var s : vestingStorage) : unit is
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vestingStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vestingStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -147,21 +131,6 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -173,12 +142,12 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 // helper function to get mint entrypoint from token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintParams) is
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
-      token_address) : option(contract(mintParams))) of [
+      token_address) : option(contract(mintType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintParams))
+  | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
   ];
 
 
@@ -204,7 +173,7 @@ function mintTokens(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(vestingUnpackLambdaFunctionType)) of [
@@ -250,31 +219,31 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : vestingStorage) : address is
+[@view] function getAdmin(const _: unit; var s : vestingStorageType) : address is
   s.admin
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : vestingStorage) : whitelistContractsType is 
+[@view] function getWhitelistContracts(const _: unit; var s : vestingStorageType) : whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : vestingStorage) : generalContractsType is 
+[@view] function getGeneralContracts(const _: unit; var s : vestingStorageType) : generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get total vested amount *)
-[@view] function getTotalVestedAmount(const _: unit; var s : vestingStorage) : nat is 
+[@view] function getTotalVestedAmount(const _: unit; var s : vestingStorageType) : nat is 
     s.totalVestedAmount
 
 
 
 (* View: get total vesting remainder of vestee *)
-[@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
+[@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorageType) : nat is 
     case s.vesteeLedger[vesteeAddress] of [ 
           Some(_record) -> _record.totalRemainder
         | None          -> failwith(error_VESTEE_NOT_FOUND)
@@ -283,19 +252,19 @@ block {
 
 
 (* View: get vestee record *)
-[@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorage) : option(vesteeRecordType) is 
+[@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorageType) : option(vesteeRecordType) is 
     Big_map.find_opt(vesteeAddress, s.vesteeLedger)
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : vestingStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : vestingStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : vestingStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : vestingStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -317,7 +286,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : vestingStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : vestingStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -336,7 +305,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : vestingStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : vestingStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -355,7 +324,7 @@ block {
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : vestingStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : vestingStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -374,7 +343,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: vestingStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: vestingStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -393,7 +362,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: vestingStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: vestingStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -412,7 +381,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: vestingStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: vestingStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -439,7 +408,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addVestee entrypoint *)
-function addVestee(const addVesteeParams : addVesteeType; var s : vestingStorage) : return is 
+function addVestee(const addVesteeParams : addVesteeType; var s : vestingStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddVestee"] of [
@@ -458,7 +427,7 @@ block {
 
 
 (*  removeVestee entrypoint *)
-function removeVestee(const vesteeAddress : address; var s : vestingStorage) : return is 
+function removeVestee(const vesteeAddress : address; var s : vestingStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveVestee"] of [
@@ -477,7 +446,7 @@ block {
 
 
 (*  updateVestee entrypoint *)
-function updateVestee(const updateVesteeParams : updateVesteeType; var s : vestingStorage) : return is
+function updateVestee(const updateVesteeParams : updateVesteeType; var s : vestingStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateVestee"] of [
@@ -496,7 +465,7 @@ block {
 
 
 (*  toggleVesteeLock entrypoint *)
-function toggleVesteeLock(const vesteeAddress : address; var s : vestingStorage) : return is 
+function toggleVesteeLock(const vesteeAddress : address; var s : vestingStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaToggleVesteeLock"] of [
@@ -523,7 +492,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* claim entrypoint *)
-function claim(var s : vestingStorage) : return is 
+function claim(var s : vestingStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
@@ -550,7 +519,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: vestingStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: vestingStorageType): return is
 block{
     
     // check that sender is admin
@@ -577,7 +546,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : vestingAction; const s : vestingStorage) : return is
+function main (const action : vestingAction; const s : vestingStorageType) : return is
   block{
     
     checkNoAmount(unit); // entrypoints should not receive any tez amount  

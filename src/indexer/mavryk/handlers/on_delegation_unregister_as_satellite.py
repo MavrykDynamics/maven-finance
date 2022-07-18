@@ -1,0 +1,39 @@
+
+from dipdup.models import Transaction
+from mavryk.types.delegation.parameter.unregister_as_satellite import UnregisterAsSatelliteParameter
+from dipdup.context import HandlerContext
+from mavryk.types.delegation.storage import DelegationStorage
+import mavryk.models as models
+
+async def on_delegation_unregister_as_satellite(
+    ctx: HandlerContext,
+    unregister_as_satellite: Transaction[UnregisterAsSatelliteParameter, DelegationStorage],
+) -> None:
+
+    # Get operation values
+    delegation_address      = unregister_as_satellite.data.target_address
+    satelliteAddress        = unregister_as_satellite.data.sender_address
+    rewards_record          = unregister_as_satellite.storage.satelliteRewardsLedger[satelliteAddress]
+
+    # Delete records
+    user, _ = await models.MavrykUser.get_or_create(
+        address = satelliteAddress
+    )
+    delegation = await models.Delegation.get(
+        address = delegation_address
+    )
+    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+        user        = user,
+        delegation  = delegation
+    )
+    satelliteRewardRecord.unpaid                                        = float(rewards_record.unpaid)
+    satelliteRewardRecord.paid                                          = float(rewards_record.paid)
+    satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
+    satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+
+    satelliteRecord = await models.SatelliteRecord.get(
+        user = user
+    )
+    await user.save()
+    await satelliteRecord.save()
+    await satelliteRecord.delete()

@@ -1,36 +1,41 @@
 // ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
+
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
+
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
+
+// ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
-
 // Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+#include "../partials/shared/transferTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Delegation Types
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // Aggregator Types
-#include "../partials/types/aggregatorTypes.ligo"
+#include "../partials/contractTypes/aggregatorTypes.ligo"
 
 // Aggregator Factory Types
-#include "../partials/types/aggregatorFactoryTypes.ligo"
+#include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
 
-type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
+type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorageType) -> (operation * address);
 const createAggregatorFunc: createAggregatorFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -42,21 +47,17 @@ const createAggregatorFunc: createAggregatorFuncType =
 type aggregatorFactoryAction is
     
       // Housekeeping Entrypoints
-    | SetAdmin                        of setAdminParams
+    | SetAdmin                        of (address)
     | SetGovernance                   of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of aggregatorFactoryUpdateConfigParamsType
-    | UpdateWhitelistContracts        of updateWhitelistContractsParams
-    | UpdateGeneralContracts          of updateGeneralContractsParams
+    | UpdateWhitelistContracts        of updateWhitelistContractsType
+    | UpdateGeneralContracts          of updateGeneralContractsType
 
       // Pause / Break Glass Entrypoints
     | PauseAll                        of (unit)
     | UnpauseAll                      of (unit)
-    | TogglePauseCreateAggregator     of (unit)
-    | TogglePauseTrackAggregator      of (unit)
-    | TogglePauseUntrackAggregator    of (unit)
-    | TogglePauseDistributeRewardXtz  of (unit)
-    | TogglePauseDistributeRewardSMvk of (unit)
+    | TogglePauseEntrypoint          of aggregatorFactoryTogglePauseEntrypointType
 
       // Aggregator Factory Entrypoints
     | CreateAggregator                of createAggregatorParamsType
@@ -73,27 +74,10 @@ type aggregatorFactoryAction is
     
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * aggregatorFactoryStorage;
+type return is list (operation) * aggregatorFactoryStorageType;
 
 // aggregator factory contract methods lambdas
-type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaActionType * aggregatorFactoryStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaActionType * aggregatorFactoryStorageType) -> return
 
 
 
@@ -107,13 +91,13 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : aggregatorFactoryStorage) : unit is
+function checkSenderIsAllowed(var s : aggregatorFactoryStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s: aggregatorFactoryStorage): unit is
+function checkSenderIsAdmin(const s: aggregatorFactoryStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
@@ -125,17 +109,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-function checkInTrackedAggregators(const aggregatorAddress : address; const s : aggregatorFactoryStorage) : bool is 
+function checkInTrackedAggregators(const aggregatorAddress : address; const s : aggregatorFactoryStorageType) : bool is 
 block {
   var inTrackedAggregatorsMap : bool := False;
   for _key -> value in map s.trackedAggregators block {
@@ -154,23 +128,23 @@ block {
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkCreateAggregatorIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+function checkCreateAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.createAggregatorIsPaused then failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
-function checkTrackAggregatorIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+function checkTrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.trackAggregatorIsPaused then failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
-function checkUntrackAggregatorIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+function checkUntrackAggregatorIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.untrackAggregatorIsPaused then failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
-function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.distributeRewardXtzIsPaused then failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
-function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+function checkDistributeRewardStakedMvkIsNotPaused(var s : aggregatorFactoryStorageType) : unit is
     if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
     else unit;
 
@@ -247,7 +221,7 @@ case (Tezos.get_entrypoint_opt(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorFactoryUnpackLambdaFunctionType)) of [
@@ -275,43 +249,43 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : aggregatorFactoryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : aggregatorFactoryStorageType) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : aggregatorFactoryStorage) : aggregatorFactoryConfigType is
+[@view] function getConfig(const _: unit; var s : aggregatorFactoryStorageType) : aggregatorFactoryConfigType is
   s.config
 
 
 
 (* View: get Governance address *)
-[@view] function getGovernanceAddress(const _: unit; var s : aggregatorFactoryStorage) : address is
+[@view] function getGovernanceAddress(const _: unit; var s : aggregatorFactoryStorageType) : address is
   s.governanceAddress
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : aggregatorFactoryStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : aggregatorFactoryStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : aggregatorFactoryStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : aggregatorFactoryStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get tracked aggregators *)
-[@view] function getTrackedAggregators(const _: unit; var s : aggregatorFactoryStorage) : trackedAggregatorsType is
+[@view] function getTrackedAggregators(const _: unit; var s : aggregatorFactoryStorageType) : trackedAggregatorsType is
   s.trackedAggregators
 
 
 
 (* View: get aggregator *)
-[@view] function getAggregator (const pair : string * string ; const s : aggregatorFactoryStorage) : address is block {
+[@view] function getAggregator (const pair : string * string ; const s : aggregatorFactoryStorageType) : address is block {
   const aggregatorAddress : address = case s.trackedAggregators[pair] of [
       Some(_address) -> _address
     | None -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
@@ -321,13 +295,13 @@ block {
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : aggregatorFactoryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : aggregatorFactoryStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : aggregatorFactoryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : aggregatorFactoryStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -366,7 +340,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint  *)
-function setAdmin(const newAdminAddress: adminType; const s: aggregatorFactoryStorage): return is
+function setAdmin(const newAdminAddress: address; const s: aggregatorFactoryStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -385,7 +359,7 @@ block{
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : aggregatorFactoryStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : aggregatorFactoryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -404,7 +378,7 @@ block {
 
 
 (*  updateMetadata entrypoint  *)
-function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorFactoryStorage): return is
+function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorFactoryStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -423,7 +397,7 @@ block{
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams: aggregatorFactoryUpdateConfigParamsType; const s: aggregatorFactoryStorage): return is
+function updateConfig(const updateConfigParams: aggregatorFactoryUpdateConfigParamsType; const s: aggregatorFactoryStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -442,7 +416,7 @@ block{
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: aggregatorFactoryStorage) : return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: aggregatorFactoryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -461,7 +435,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: aggregatorFactoryStorage) : return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: aggregatorFactoryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -487,7 +461,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll entrypoint *)
-function pauseAll(var s: aggregatorFactoryStorage): return is
+function pauseAll(var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -506,7 +480,7 @@ block {
 
 
 (*  unpauseAll entrypoint *)
-function unpauseAll(var s: aggregatorFactoryStorage): return is
+function unpauseAll(var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -524,98 +498,24 @@ block {
 
 
 
-(*  togglePauseCreateAggregator entrypoint *)
-function togglePauseCreateAggregator(var s: aggregatorFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateAgg"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: aggregatorFactoryTogglePauseEntrypointType; const s: aggregatorFactoryStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseCreateAgg(unit);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseUntrackAggregator entrypoint *)
-function togglePauseUntrackAggregator(var s: aggregatorFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackAgg"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseUntrackAgg(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseTrackAggregator entrypoint *)
-function togglePauseTrackAggregator(var s: aggregatorFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackAgg"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseTrackAgg(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseDistributeRewardXtz entrypoint *)
-function togglePauseDistributeRewardXtz(var s: aggregatorFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDisRewardXtz"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseDisRewardXtz(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseDistributeRewardSMvk entrypoint *)
-function togglePauseDistributeRewardSMvk(var s: aggregatorFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDisRewardSMvk"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseDisRewardSMvk(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
@@ -629,7 +529,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  createAggregator entrypoint  *)
-function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: aggregatorFactoryStorage): return is
+function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateAggregator"] of [
@@ -648,7 +548,7 @@ block {
 
 
 (*  trackAggregator entrypoint  *)
-function trackAggregator(const trackAggregatorParams: trackAggregatorParamsType; var s: aggregatorFactoryStorage): return is
+function trackAggregator(const trackAggregatorParams: trackAggregatorParamsType; var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackAggregator"] of [
@@ -667,7 +567,7 @@ block {
 
 
 (*  untrackAggregator entrypoint  *)
-function untrackAggregator(const untrackAggregatorParams: untrackAggregatorParamsType; var s: aggregatorFactoryStorage): return is
+function untrackAggregator(const untrackAggregatorParams: untrackAggregatorParamsType; var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackAggregator"] of [
@@ -694,7 +594,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  distributeRewardXtz entrypoint  *)
-function distributeRewardXtz(const distributeRewardXtzParams : distributeRewardXtzType; var s: aggregatorFactoryStorage): return is
+function distributeRewardXtz(const distributeRewardXtzParams : distributeRewardXtzType; var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeRewardXtz"] of [
@@ -713,7 +613,7 @@ block {
 
 
 (*  distributeRewardStakedMvk entrypoint  *)
-function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distributeRewardStakedMvkType; var s: aggregatorFactoryStorage): return is
+function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distributeRewardStakedMvkType; var s: aggregatorFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeRewardStakedMvk"] of [
@@ -740,7 +640,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorFactoryStorage): return is
+function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorFactoryStorageType): return is
 block{
     
     // check that sender is admin
@@ -756,7 +656,7 @@ block{
 
 
 (* setProductLambda entrypoint *)
-function setProductLambda(const setLambdaParams: setLambdaType; var s: aggregatorFactoryStorage): return is
+function setProductLambda(const setLambdaParams: setLambdaType; var s: aggregatorFactoryStorageType): return is
 block{
     
     // check that sender is admin
@@ -782,7 +682,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorage) : return is
+function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorageType) : return is
     block{
         checkNoAmount(Unit);
     }
@@ -800,11 +700,7 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
           // Pause / Break Glass Entrypoints
         | PauseAll (_parameters)                        -> pauseAll(s)
         | UnpauseAll (_parameters)                      -> unpauseAll(s)
-        | TogglePauseCreateAggregator (_parameters)     -> togglePauseCreateAggregator(s)
-        | TogglePauseTrackAggregator (_parameters)      -> togglePauseTrackAggregator(s)
-        | TogglePauseUntrackAggregator (_parameters)    -> togglePauseUntrackAggregator(s)
-        | TogglePauseDistributeRewardXtz (_parameters)  -> togglePauseDistributeRewardXtz(s)
-        | TogglePauseDistributeRewardSMvk (_parameters) -> togglePauseDistributeRewardSMvk(s)
+        | TogglePauseEntrypoint (parameters)           -> togglePauseEntrypoint(parameters, s)
 
           // Aggregator Factory Entrypoints  
         | CreateAggregator (parameters)                 -> createAggregator(parameters, s)

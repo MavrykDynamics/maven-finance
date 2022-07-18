@@ -1,31 +1,39 @@
 // ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
+
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
+
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
+
+// ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
-
 // Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+#include "../partials/shared/transferTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Delegation Types
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // Governance Types
-#include "../partials/types/governanceTypes.ligo"
+#include "../partials/contractTypes/governanceTypes.ligo"
 
 // Aggregator Types
-#include "../partials/types/aggregatorTypes.ligo"
+#include "../partials/contractTypes/aggregatorTypes.ligo"
+
+// Aggregator Factory Types
+#include "../partials/contractTypes/aggregatorFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -34,67 +42,46 @@ type aggregatorAction is
   | Default                              of (unit)
 
     // Housekeeping Entrypoints
-  | SetAdmin                             of setAdminParams
+  | SetAdmin                             of (address)
   | SetGovernance                        of (address)
   | SetMaintainer                        of (address)
   | SetName                              of (string)
   | UpdateMetadata                       of updateMetadataType
   | UpdateConfig                         of aggregatorUpdateConfigParamsType
-  | UpdateWhitelistContracts             of updateWhitelistContractsParams
-  | UpdateGeneralContracts               of updateGeneralContractsParams
+  | UpdateWhitelistContracts             of updateWhitelistContractsType
+  | UpdateGeneralContracts               of updateGeneralContractsType
 
     // Admin Oracle Entrypoints
-  | AddOracle                            of addOracleParams
+  | AddOracle                            of addOracleType
   | RemoveOracle                         of address
 
     // Pause / Break Glass Entrypoints
   | PauseAll                             of (unit)
   | UnpauseAll                           of (unit)
-  | TogglePauseRequestRateUpdate         of (unit)
-  | TogglePauseRequestRateUpdateDev      of (unit)
-  | TogglePauseSetObservationCommit      of (unit)
-  | TogglePauseSetObservationReveal      of (unit)
-  | TogglePauseWithdrawRewardXtz         of (unit)
-  | TogglePauseWithdrawRewardSMvk        of (unit)
+  | TogglePauseEntrypoint                of aggregatorTogglePauseEntrypointType
 
   // Maintainer Entrypoints
-  | RequestRateUpdate                    of requestRateUpdateParams
+  | RequestRateUpdate                    of requestRateUpdateType
 
   // Oracle Entrypoints
-  | RequestRateUpdateDeviation           of requestRateUpdateDeviationParams
-  | SetObservationCommit                 of setObservationCommitParams
-  | SetObservationReveal                 of setObservationRevealParams
+  | RequestRateUpdateDeviation           of requestRateUpdateDeviationType
+  | SetObservationCommit                 of setObservationCommitType
+  | SetObservationReveal                 of setObservationRevealType
   
     // Reward Entrypoints
-  | WithdrawRewardXtz                    of withdrawRewardXtzParams
-  | WithdrawRewardStakedMvk              of withdrawRewardStakedMvkParams
+  | WithdrawRewardXtz                    of withdrawRewardXtzType
+  | WithdrawRewardStakedMvk              of withdrawRewardStakedMvkType
 
     // Lambda Entrypoints
   | SetLambda                            of setLambdaType
   
 const noOperations : list (operation) = nil;
-type return is list (operation) * aggregatorStorage
+type return is list (operation) * aggregatorStorageType
 
 // aggregator contract methods lambdas
-type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggregatorStorage) -> return
+type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggregatorStorageType) -> return
 
 const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
-
 
 
 
@@ -108,19 +95,19 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : aggregatorStorage) : unit is
+function checkSenderIsAllowed(var s : aggregatorStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s: aggregatorStorage): unit is
+function checkSenderIsAdmin(const s: aggregatorStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
-function checkSenderIsAdminOrGovernanceSatellite(const s: aggregatorStorage): unit is
+function checkSenderIsAdminOrGovernanceSatellite(const s: aggregatorStorageType): unit is
 block {
 
     // First check because a aggregator without a factory should still be accessible
@@ -138,7 +125,7 @@ block {
 
 
 
-function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorage): unit is
+function checkSenderIsAdminOrGovernanceOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
     // First check because a aggregator without a factory should still be accessible
@@ -161,7 +148,7 @@ block {
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorage): unit is
+function checkSenderIsAdminOrGovernanceSatelliteOrFactory(const s: aggregatorStorageType): unit is
 block {
 
     // First check because a aggregator without a factory should still be accessible
@@ -184,13 +171,13 @@ block {
 
 
 
-function checkMaintainership(const s: aggregatorStorage): unit is
+function checkMaintainership(const s: aggregatorStorageType): unit is
   if Tezos.sender =/= s.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
   else unit
 
 
 
-function checkSenderIsOracle(const s: aggregatorStorage): unit is
+function checkSenderIsOracle(const s: aggregatorStorageType): unit is
   if not Map.mem(Tezos.sender, s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
   else unit
 
@@ -212,52 +199,69 @@ function getDeviationTriggerBanOracle(const addressKey: address; const deviation
   ]
 
 
-function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorage): unit is 
+function checkOracleIsNotBannedForDeviationTrigger(const s: aggregatorStorageType): unit is 
   if Tezos.now < (getDeviationTriggerBanOracle(Tezos.sender,s.deviationTriggerBan)) then failwith(error_NOT_ALLOWED_TO_TRIGGER_DEVIATION_BAN)
   else unit
-
-
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
+function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : aggregatorStorageType) : unit is
+  block{
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+    const delegationAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    case satelliteOptView of [
+      Some (value) -> case value of [
+          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
+        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
+      ]
+
+    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+
+    ];
+  } with (unit)
+
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkRequestRateUpdateIsNotPaused(var s : aggregatorStorage) : unit is
+function checkRequestRateUpdateIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.requestRateUpdateIsPaused then failwith(error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
-function checkRequestRateUpdateDeviationIsNotPaused(var s : aggregatorStorage) : unit is
+function checkRequestRateUpdateDeviationIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then failwith(error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
-function checkSetObservationCommitIsNotPaused(var s : aggregatorStorage) : unit is
+function checkSetObservationCommitIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.setObservationCommitIsPaused then failwith(error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
-function checkSetObservationRevealIsNotPaused(var s : aggregatorStorage) : unit is
+function checkSetObservationRevealIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.setObservationRevealIsPaused then failwith(error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
-function checkWithdrawRewardXtzIsNotPaused(var s : aggregatorStorage) : unit is
+function checkWithdrawRewardXtzIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardXtzIsPaused then failwith(error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
-function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorage) : unit is
+function checkWithdrawRewardStakedMvkIsNotPaused(var s : aggregatorStorageType) : unit is
     if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then failwith(error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED)
     else unit;
 
@@ -306,37 +310,37 @@ function isOracleAddress(const contractAddress: address; const oracleAddresses: 
 
 
 
-function checkIfCorrectRound(const round: nat; const s: aggregatorStorage): unit is
+function checkIfCorrectRound(const round: nat; const s: aggregatorStorageType): unit is
   if round =/= s.round then failwith(error_WRONG_ROUND_NUMBER)
   else unit
 
 
 
-function checkIfLastRoundCompleted(const s: aggregatorStorage): unit is
+function checkIfLastRoundCompleted(const s: aggregatorStorageType): unit is
   if s.lastCompletedRoundPrice.round =/= s.round then failwith(error_LAST_ROUND_IS_NOT_COMPLETE)
   else unit
 
 
 
-function checkIfTimeToCommit(const s: aggregatorStorage): unit is
+function checkIfTimeToCommit(const s: aggregatorStorageType): unit is
   if (s.switchBlock =/= 0n and Tezos.level > s.switchBlock) then failwith(error_YOU_CANNOT_COMMIT_NOW)
   else unit
 
 
 
-function checkIfTimeToReveal(const s: aggregatorStorage): unit is
+function checkIfTimeToReveal(const s: aggregatorStorageType): unit is
   if (s.switchBlock = 0n or Tezos.level <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
   else unit
 
 
 
-function checkIfOracleAlreadyAnsweredCommit(const s: aggregatorStorage): unit is
+function checkIfOracleAlreadyAnsweredCommit(const s: aggregatorStorageType): unit is
   if (Map.mem(Tezos.sender, s.observationCommits)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT)
   else unit
 
 
 
-function checkIfOracleAlreadyAnsweredReveal(const s: aggregatorStorage): unit is
+function checkIfOracleAlreadyAnsweredReveal(const s: aggregatorStorageType): unit is
   if (Map.mem(Tezos.sender, s.observationReveals)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL)
   else unit
 
@@ -466,7 +470,7 @@ function getMedianFromMap (var m : pivotedObservationsType; const sizeMap: nat) 
 // Reward Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggregatorStorage) : nat is
+function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggregatorStorageType) : nat is
   case Map.find_opt(oracleAddress, s.oracleRewardStakedMvk) of [
       Some (v) -> (v)
     | None -> 0n
@@ -474,7 +478,7 @@ function getRewardAmountStakedMvk(const oracleAddress: address; const s: aggrega
 
 
 
-function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorStorage) : nat is
+function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorStorageType) : nat is
   case Map.find_opt(oracleAddress, s.oracleRewardXtz) of [
       Some (v) -> (v)
     | None -> 0n
@@ -482,18 +486,11 @@ function getRewardAmountXtz(const oracleAddress: address; const s: aggregatorSto
 
 
 
-function updateRewardsStakedMvk (const senderAddress : address; var s: aggregatorStorage) : aggregatorStorage is block {
+function updateRewardsStakedMvk (const senderAddress : address; var s: aggregatorStorageType) : aggregatorStorageType is block {
 
   // init params
   var tempSatellitesMap : map(address, nat) := map [];
   var total: nat := 0n;
-
-  // get votingPowerRatio from governance contract
-  const governanceConfigView : option (governanceConfigType) = Tezos.call_view ("getConfig", unit, s.governanceAddress);
-  const votingPowerRatio : nat = case governanceConfigView of [
-        Some(_config) -> _config.votingPowerRatio
-      | None -> failwith(error_GET_CONFIG_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
 
   // get delegation address from governance general contracts
   const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
@@ -503,6 +500,13 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
               |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
           ]
       |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+  ];
+
+  // get votingPowerRatio from governance contract
+  const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+  const votingPowerRatio: nat                     = case configView of [
+          Some (_optionConfig) -> _optionConfig.delegationRatio
+      |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
   ];
 
   // loop over satellite oracles who have committed their price feed data, and calculate total voting power 
@@ -571,7 +575,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s: aggregato
 
 function transferFa2Token(const from_: address; const to_: address; const tokenAmount: nat; const tokenId: nat; const tokenContractAddress: address): operation is
 block{
-    const transferParams: newTransferType = list[
+    const transferParams: fa2TransferType = list[
             record[
                 from_=from_;
                 txs=list[
@@ -584,10 +588,10 @@ block{
             ]
         ];
 
-    const tokenContract: contract(newTransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
+    const tokenContract: contract(fa2TransferType) =
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
               Some (c) -> c
-          |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
+          |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(fa2TransferType))
         ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -601,7 +605,7 @@ block{
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorUnpackLambdaFunctionType)) of [
@@ -647,85 +651,85 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : aggregatorStorage) : address is
+[@view] function getAdmin(const _: unit; var s : aggregatorStorageType) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : aggregatorStorage) : aggregatorConfigType is
+[@view] function getConfig(const _: unit; var s : aggregatorStorageType) : aggregatorConfigType is
   s.config
 
 
 
 (* View: get Governance address *)
-[@view] function getGovernanceAddress(const _: unit; var s : aggregatorStorage) : address is
+[@view] function getGovernanceAddress(const _: unit; var s : aggregatorStorageType) : address is
   s.governanceAddress
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : aggregatorStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : aggregatorStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : aggregatorStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : aggregatorStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get Maintainer address *)
-[@view] function getMaintainerAddress(const _: unit; var s : aggregatorStorage) : address is
+[@view] function getMaintainerAddress(const _: unit; var s : aggregatorStorageType) : address is
   s.maintainer
 
 
 
 (* View: get oracle addresses *)
-[@view] function getOracleAddresses(const _: unit; var s : aggregatorStorage) : oracleAddressesType is
+[@view] function getOracleAddresses(const _: unit; var s : aggregatorStorageType) : oracleAddressesType is
   s.oracleAddresses
 
 
 
 (* View: get observation commits *)
-[@view] function getObservationCommits(const _: unit; var s : aggregatorStorage) : observationCommitsType is
+[@view] function getObservationCommits(const _: unit; var s : aggregatorStorageType) : observationCommitsType is
   s.observationCommits
 
 
 
 (* View: get observation reveals *)
-[@view] function getObservationReveals(const _: unit; var s : aggregatorStorage) : observationRevealsType is
+[@view] function getObservationReveals(const _: unit; var s : aggregatorStorageType) : observationRevealsType is
   s.observationReveals
 
 
 
 (* View: get deviation trigger infos *)
-[@view] function getDeviationTriggerInfos(const _: unit; var s : aggregatorStorage) : deviationTriggerInfosType is
+[@view] function getDeviationTriggerInfos(const _: unit; var s : aggregatorStorageType) : deviationTriggerInfosType is
   s.deviationTriggerInfos
 
 
 
 (* View: get deviation trigger ban *)
-[@view] function getDeviationTriggerBan(const _: unit; var s : aggregatorStorage) : deviationTriggerBanType is
+[@view] function getDeviationTriggerBan(const _: unit; var s : aggregatorStorageType) : deviationTriggerBanType is
   s.deviationTriggerBan
 
 
 
 (* View: get oracle reward staked MVK *)
-[@view] function getOracleRewardStakedMvk(const _: unit; var s : aggregatorStorage) : oracleRewardStakedMvkType is
+[@view] function getOracleRewardStakedMvk(const _: unit; var s : aggregatorStorageType) : oracleRewardStakedMvkType is
   s.oracleRewardStakedMvk
 
 
 
 (* View: get oracle reward xtz *)
-[@view] function getOracleRewardXtz(const _: unit; var s : aggregatorStorage) : oracleRewardXtzType is
+[@view] function getOracleRewardXtz(const _: unit; var s : aggregatorStorageType) : oracleRewardXtzType is
   s.oracleRewardXtz
 
 
 
 (* View: get last completed round price *)
-[@view] function getLastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
+[@view] function getLastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorageType) : lastCompletedRoundPriceReturnType is block {
   const withDecimal : lastCompletedRoundPriceReturnType = record [
     price                 = s.lastCompletedRoundPrice.price;
     percentOracleResponse = s.lastCompletedRoundPrice.percentOracleResponse;
@@ -738,38 +742,38 @@ block {
 
 
 (* View: get decimals *)
-[@view] function getDecimals (const _ : unit ; const s: aggregatorStorage) : nat is s.config.decimals;
+[@view] function getDecimals (const _ : unit ; const s: aggregatorStorageType) : nat is s.config.decimals;
 
 
 
 (* View: get round *)
-[@view] function getRound (const _ : unit ; const s: aggregatorStorage) : nat is s.round;
+[@view] function getRound (const _ : unit ; const s: aggregatorStorageType) : nat is s.round;
 
 
 
 (* View: get round start *)
-[@view] function getRoundStart (const _ : unit ; const s: aggregatorStorage) : timestamp is s.roundStart;
+[@view] function getRoundStart (const _ : unit ; const s: aggregatorStorageType) : timestamp is s.roundStart;
 
 
 
 (* View: get switchblock *)
-[@view] function getSwitchBlock (const _ : unit ; const s: aggregatorStorage) : nat is s.switchBlock;
+[@view] function getSwitchBlock (const _ : unit ; const s: aggregatorStorageType) : nat is s.switchBlock;
 
 
 
 (* View: get name *)
-[@view] function getContractName (const _ : unit ; const s: aggregatorStorage) : string is s.name;
+[@view] function getContractName (const _ : unit ; const s: aggregatorStorageType) : string is s.name;
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : aggregatorStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : aggregatorStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : aggregatorStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : aggregatorStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -791,7 +795,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
-function default(const s : aggregatorStorage) : return is
+function default(const s : aggregatorStorageType) : return is
 block {
     skip
 } with (noOperations, s)
@@ -799,7 +803,7 @@ block {
 
 
 (*  setAdmin entrypoint  *)
-function setAdmin(const newAdminAddress: adminType; const s: aggregatorStorage): return is
+function setAdmin(const newAdminAddress: address; const s: aggregatorStorageType): return is
 block{
   
   const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -818,7 +822,7 @@ block{
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : aggregatorStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : aggregatorStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -837,7 +841,7 @@ block {
 
 
 (*  setMaintainer entrypoint *)
-function setMaintainer(const newMaintainerAddress : address; var s : aggregatorStorage) : return is
+function setMaintainer(const newMaintainerAddress : address; var s : aggregatorStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetMaintainer"] of [
@@ -856,7 +860,7 @@ block {
 
 
 (*  setName entrypoint *)
-function setName(const newContractName : string; var s : aggregatorStorage) : return is
+function setName(const newContractName : string; var s : aggregatorStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
@@ -875,7 +879,7 @@ block {
 
 
 (*  updateMetadata entrypoint  *)
-function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorStorage): return is
+function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -894,7 +898,7 @@ block{
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams: aggregatorUpdateConfigParamsType; const s: aggregatorStorage): return is
+function updateConfig(const updateConfigParams: aggregatorUpdateConfigParamsType; const s: aggregatorStorageType): return is
 block{
   
   const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -913,7 +917,7 @@ block{
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: aggregatorStorage) : return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: aggregatorStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -932,7 +936,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: aggregatorStorage) : return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: aggregatorStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -958,7 +962,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
-function addOracle(const oracleAddress: address; const s: aggregatorStorage): return is
+function addOracle(const oracleAddress: address; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracle"] of [
@@ -977,7 +981,7 @@ block{
 
 
 (*  removeOracle entrypoint  *)
-function removeOracle(const oracleAddress: address; const s: aggregatorStorage): return is
+function removeOracle(const oracleAddress: address; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveOracle"] of [
@@ -1004,7 +1008,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  pauseAll entrypoint  *)
-function pauseAll(const s: aggregatorStorage): return is
+function pauseAll(const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -1023,7 +1027,7 @@ block{
 
 
 (*  unpauseAll entrypoint  *)
-function unpauseAll(const s: aggregatorStorage): return is
+function unpauseAll(const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -1041,17 +1045,17 @@ block{
 
 
 
-(*  togglePauseRequestRateUpdate entrypoint  *)
-function togglePauseRequestRateUpdate(const s: aggregatorStorage): return is
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: aggregatorTogglePauseEntrypointType; const s: aggregatorStorageType): return is
 block{
   
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpd"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseReqRateUpd(unit);
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -1059,98 +1063,6 @@ block{
 } with response
 
 
-
-(*  togglePauseRequestRateUpdateDev entrypoint  *)
-function togglePauseRequestRateUpdateDev(const s: aggregatorStorage): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseReqRateUpdDev"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseReqRateUpdDev(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseSetObservationCommit entrypoint  *)
-function togglePauseSetObservationCommit(const s: aggregatorStorage): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsCommit"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseSetObsCommit(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseSetObservationReveal entrypoint  *)
-function togglePauseSetObservationReveal(const s: aggregatorStorage): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseSetObsReveal"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseSetObsReveal(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-(*  togglePauseWithdrawRewardXtz entrypoint  *)
-function togglePauseWithdrawRewardXtz(const s: aggregatorStorage): return is
-block{
-  
-   const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardXtz"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseRewardXtz(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseWithdrawRewardSMvk entrypoint  *)
-function togglePauseWithdrawRewardSMvk(const s: aggregatorStorage): return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRewardSMvk"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init aggregator lambda action
-    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaTogglePauseRewardSMvk(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
@@ -1163,7 +1075,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  requestRateUpdate entrypoint  *)
-function requestRateUpdate(const s: aggregatorStorage): return is
+function requestRateUpdate(const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdate"] of [
@@ -1182,7 +1094,7 @@ block{
 
 
 (*  requestRateUpdateDeviation entrypoint  *)
-function requestRateUpdateDeviation(const params: setObservationCommitType; const s: aggregatorStorage): return is
+function requestRateUpdateDeviation(const params: setObservationCommitType; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdateDeviation"] of [
@@ -1201,7 +1113,7 @@ block{
 
 
 (*  setObservationCommit entrypoint  *)
-function setObservationCommit(const params: setObservationCommitType; const s: aggregatorStorage): return is
+function setObservationCommit(const params: setObservationCommitType; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationCommit"] of [
@@ -1220,7 +1132,7 @@ block{
 
 
 (*  setObservationReveal entrypoint  *)
-function setObservationReveal(const params: setObservationRevealType; const s: aggregatorStorage): return is
+function setObservationReveal(const params: setObservationRevealType; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationReveal"] of [
@@ -1247,7 +1159,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  withdrawRewardXtz entrypoint  *)
-function withdrawRewardXtz(const receiver: address; const s: aggregatorStorage): return is
+function withdrawRewardXtz(const receiver: address; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardXtz"] of [
@@ -1265,7 +1177,7 @@ block{
 
 
 (*  withdrawRewardStakedMvk entrypoint  *)
-function withdrawRewardStakedMvk(const receiver: address; const s: aggregatorStorage): return is
+function withdrawRewardStakedMvk(const receiver: address; const s: aggregatorStorageType): return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardStakedMvk"] of [
@@ -1292,7 +1204,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorage): return is
+function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorageType): return is
 block{
     
     // check that sender is admin
@@ -1319,7 +1231,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorage): return is
+function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorageType): return is
 block{
     
     // check that sender is admin
@@ -1345,16 +1257,16 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : aggregatorAction; const s : aggregatorStorage) : return is
+function main (const action : aggregatorAction; const s : aggregatorStorageType) : return is
   case action of [
 
     | Default (_parameters)                           -> default(s)
       
       // Housekeeping Entrypoints
     | SetAdmin (parameters)                           -> setAdmin(parameters, s)
-    | SetGovernance(parameters)                       -> setGovernance(parameters, s) 
-    | SetMaintainer(parameters)                       -> setMaintainer(parameters, s) 
-    | SetName(parameters)                             -> setName(parameters, s) 
+    | SetGovernance (parameters)                      -> setGovernance(parameters, s) 
+    | SetMaintainer (parameters)                      -> setMaintainer(parameters, s) 
+    | SetName (parameters)                            -> setName(parameters, s) 
     | UpdateMetadata (parameters)                     -> updateMetadata(parameters, s)
     | UpdateConfig (parameters)                       -> updateConfig(parameters, s)
     | UpdateWhitelistContracts (parameters)           -> updateWhitelistContracts(parameters, s)
@@ -1367,12 +1279,7 @@ function main (const action : aggregatorAction; const s : aggregatorStorage) : r
       // Pause / Break Glass Entrypoints
     | PauseAll (_parameters)                          -> pauseAll(s)
     | UnpauseAll (_parameters)                        -> unpauseAll(s)
-    | TogglePauseRequestRateUpdate (_parameters)      -> togglePauseRequestRateUpdate(s)
-    | TogglePauseRequestRateUpdateDev (_parameters)   -> togglePauseRequestRateUpdateDev(s)
-    | TogglePauseSetObservationCommit (_parameters)   -> togglePauseSetObservationCommit(s)
-    | TogglePauseSetObservationReveal (_parameters)   -> togglePauseSetObservationReveal(s)
-    | TogglePauseWithdrawRewardXtz (_parameters)      -> togglePauseWithdrawRewardXtz(s)
-    | TogglePauseWithdrawRewardSMvk (_parameters)     -> togglePauseWithdrawRewardSMvk(s)
+    | TogglePauseEntrypoint (parameters)              -> togglePauseEntrypoint(parameters, s)
 
       // Oracle Entrypoints
     | RequestRateUpdate (_parameters)                 -> requestRateUpdate(s)
@@ -1385,5 +1292,5 @@ function main (const action : aggregatorAction; const s : aggregatorStorage) : r
     | WithdrawRewardStakedMvk (parameters)            -> withdrawRewardStakedMvk(parameters, s)
 
       // Lambda Entrypoints
-    | SetLambda(parameters)                           -> setLambda(parameters, s)
+    | SetLambda (parameters)                          -> setLambda(parameters, s)
   ];

@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -44,7 +44,7 @@ block {
 
 
 (* setBaker lambda *)
-function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -65,7 +65,7 @@ block {
 
 
 (* setName lambda - update the contract name *)
-function lambdaSetName(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+function lambdaSetName(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -105,7 +105,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s);
@@ -126,7 +126,7 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage): return is
+function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -143,7 +143,7 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage): return is
+function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -160,7 +160,7 @@ block {
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage): return is
+function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -186,7 +186,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll lambda *)
-function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage) : return is
+function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
     
     // check that sender is admin or treasury factory
@@ -217,7 +217,7 @@ block {
 
 
 (* unpauseAll lambda *)
-function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
     
     // check that sender is admin or treasury factory
@@ -247,19 +247,23 @@ block {
 
 
 
-(* togglePauseTransfer lambda *)
-function lambdaTogglePauseTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is
 block {
 
-    // check that sender is admin
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
-        | LambdaTogglePauseTransfer(_parameters) -> {
-                
-                if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
-                else s.breakGlassConfig.transferIsPaused := True;
+        | LambdaTogglePauseEntrypoint(params) -> {
 
+                case params.targetEntrypoint of [
+                    Transfer (_v)             -> s.breakGlassConfig.transferIsPaused := _v
+                |   MintMvkAndTransfer (_v)   -> s.breakGlassConfig.mintMvkAndTransferIsPaused := _v
+                |   StakeMvk (_v)             -> s.breakGlassConfig.stakeMvkIsPaused := _v
+                |   UnstakeMvk (_v)           -> s.breakGlassConfig.unstakeMvkIsPaused := _v
+                ]
+                
             }
         | _ -> skip
     ];
@@ -267,67 +271,6 @@ block {
 } with (noOperations, s)
 
 
-
-(* togglePauseMintMvkAndTransfer lambda *)
-function lambdaTogglePauseMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case treasuryLambdaAction of [
-        | LambdaTogglePauseMintTransfer(_parameters) -> {
-                
-                if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
-                else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseStakeMvk lambda *)
-function lambdaTogglePauseStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case treasuryLambdaAction of [
-        | LambdaTogglePauseStakeMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
-                else s.breakGlassConfig.stakeMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(* togglePauseUnstakeMvk lambda *)
-function lambdaTogglePauseUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    case treasuryLambdaAction of [
-        | LambdaTogglePauseUnstakeMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
-                else s.breakGlassConfig.unstakeMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
@@ -340,7 +283,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* transfer lambda *)
-function lambdaTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+function lambdaTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
     
     // Steps Overview:
@@ -367,7 +310,7 @@ block {
                 block {
 
                     const token        : tokenType        = destination.token;
-                    const to_          : owner            = destination.to_;
+                    const to_          : ownerType            = destination.to_;
                     const amt          : tokenAmountType  = destination.amount;
                     const from_        : address          = Tezos.self_address; // treasury
                     
@@ -393,7 +336,7 @@ block {
 
 
 (* mintMvkAndTransfer lambda *)
-function lambdaMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+function lambdaMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
     
     // Steps Overview:
@@ -434,7 +377,7 @@ block {
 
 
 (* updateMvkOperators lambda *)
-function lambdaUpdateMvkOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+function lambdaUpdateMvkOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
     
     // Steps Overview:
@@ -452,9 +395,9 @@ block {
                 // Get update_operators entrypoint in doorman
                 const updateEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%update_operators",
-                    s.mvkTokenAddress) : option(contract(updateOperatorsParams))) of [
+                    s.mvkTokenAddress) : option(contract(updateOperatorsType))) of [
                             Some (contr)    -> contr
-                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsParams))
+                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsType))
                 ];
 
                 const updateOperation : operation = Tezos.transaction(
@@ -474,7 +417,7 @@ block {
 
 
 (* stakeMvk lambda *)
-function lambdaStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+function lambdaStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
     
     // Steps Overview:
@@ -527,7 +470,7 @@ block {
 
 
 (* unstakeMvk lambda *)
-function lambdaUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+function lambdaUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
 block {
     
     // Steps Overview:

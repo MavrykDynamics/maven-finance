@@ -1,37 +1,35 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // // Vesting types for vesting council actions
-#include "../partials/types/vestingTypes.ligo"
+#include "../partials/contractTypes/vestingTypes.ligo"
 
 // Treasury types for transfer and mint
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // Council Types
-#include "../partials/types/councilTypes.ligo"
+#include "../partials/contractTypes/councilTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -46,8 +44,8 @@ type councilAction is
   | SetGovernance                               of (address)
   | UpdateMetadata                              of updateMetadataType
   | UpdateConfig                                of councilUpdateConfigParamsType
-  | UpdateWhitelistContracts                    of updateWhitelistContractsParams
-  | UpdateGeneralContracts                      of updateGeneralContractsParams
+  | UpdateWhitelistContracts                    of updateWhitelistContractsType
+  | UpdateGeneralContracts                      of updateGeneralContractsType
   | UpdateCouncilMemberInfo                     of councilMemberInfoType
 
     // Council Actions for Internal Control
@@ -73,35 +71,18 @@ type councilAction is
   | CouncilActionDropFinancialReq               of nat
 
     // Council Signing of Actions
-  | FlushAction                                 of flushActionType
-  | SignAction                                  of signActionType                
+  | FlushAction                                 of actionIdType
+  | SignAction                                  of actionIdType                
 
     // Lambda Entrypoints
   | SetLambda                                   of setLambdaType
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * councilStorage
+type return is list (operation) * councilStorageType
 
 // council contract methods lambdas
-type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorageType) -> return
 
 
 
@@ -114,19 +95,19 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
-function checkSenderIsAllowed(var s : councilStorage) : unit is
+function checkSenderIsAllowed(var s : councilStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(var s : councilStorage) : unit is
+function checkSenderIsAdmin(var s : councilStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
         else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
-function checkSenderIsCouncilMember(var s : councilStorage) : unit is
+function checkSenderIsCouncilMember(var s : councilStorageType) : unit is
     if Map.mem(Tezos.sender, s.councilMembers) then unit 
         else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
@@ -135,21 +116,6 @@ function checkSenderIsCouncilMember(var s : councilStorage) : unit is
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
         else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
-
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
 
 
 // ------------------------------------------------------------------------------
@@ -259,7 +225,7 @@ function sendContractBakerParams(const contractAddress : address) : contract(cou
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(councilUnpackLambdaFunctionType)) of [
@@ -304,55 +270,55 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : councilStorage) : address is
+[@view] function getAdmin(const _: unit; var s : councilStorageType) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : councilStorage) : councilConfigType is
+[@view] function getConfig(const _: unit; var s : councilStorageType) : councilConfigType is
   s.config
 
 
 
 (* View: get council members *)
-[@view] function getCouncilMembers(const _: unit; var s : councilStorage) : councilMembersType is
+[@view] function getCouncilMembers(const _: unit; var s : councilStorageType) : councilMembersType is
   s.councilMembers
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : councilStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : councilStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : councilStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : councilStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get a council action *)
-[@view] function getCouncilActionOpt(const actionId: nat; var s : councilStorage) : option(councilActionRecordType) is
+[@view] function getCouncilActionOpt(const actionId: nat; var s : councilStorageType) : option(councilActionRecordType) is
   Big_map.find_opt(actionId, s.councilActionsLedger)
 
 
 
 (* View: get the action counter *)
-[@view] function getActionCounter(const _: unit; var s : councilStorage) : nat is
+[@view] function getActionCounter(const _: unit; var s : councilStorageType) : nat is
   s.actionCounter
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : councilStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : councilStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : councilStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : councilStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -373,7 +339,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : councilStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : councilStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -392,7 +358,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : councilStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : councilStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -411,7 +377,7 @@ block {
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : councilStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : councilStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -430,7 +396,7 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : councilUpdateConfigParamsType; var s : councilStorage) : return is 
+function updateConfig(const updateConfigParams : councilUpdateConfigParamsType; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -449,7 +415,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint  *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: councilStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: councilStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -468,7 +434,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint  *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: councilStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: councilStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -487,7 +453,7 @@ block {
 
 
 (*  updateCouncilMemberInfo entrypoint - update the info of a council member *)
-function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : councilStorage) : return is
+function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : councilStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCouncilMemberInfo"] of [
@@ -514,7 +480,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddMember entrypoint  *)
-function councilActionAddMember(const newCouncilMember : councilActionAddMemberType ; var s : councilStorage) : return is 
+function councilActionAddMember(const newCouncilMember : councilActionAddMemberType ; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionAddMember"] of [
@@ -533,7 +499,7 @@ block {
 
 
 (*  councilActionRemoveMember entrypoint  *)
-function councilActionRemoveMember(const councilMemberAddress : address ; var s : councilStorage) : return is 
+function councilActionRemoveMember(const councilMemberAddress : address ; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRemoveMember"] of [
@@ -552,7 +518,7 @@ block {
 
 
 (*  councilActionChangeMember entrypoint  *)
-function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : councilStorage) : return is 
+function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionChangeMember"] of [
@@ -571,7 +537,7 @@ block {
 
 
 (*  councilActionSetBaker entrypoint  *)
-function councilActionSetBaker(const councilActionSetBakerParams : setBakerType; var s : councilStorage) : return is 
+function councilActionSetBaker(const councilActionSetBakerParams : setBakerType; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionSetBaker"] of [
@@ -598,7 +564,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionUpdateBlocksPerMinute entrypoint  *)
-function councilActionUpdateBlocksPerMinute(const councilActionUpdateBlocksPerMinParam : councilActionUpdateBlocksPerMinType ; var s : councilStorage) : return is 
+function councilActionUpdateBlocksPerMinute(const councilActionUpdateBlocksPerMinParam : councilActionUpdateBlocksPerMinType ; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionUpdateBlocksPerMinute"] of [
@@ -625,7 +591,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddVestee entrypoint  *)
-function councilActionAddVestee(const addVesteeParams : addVesteeType ; var s : councilStorage) : return is 
+function councilActionAddVestee(const addVesteeParams : addVesteeType ; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionAddVestee"] of [
@@ -644,7 +610,7 @@ block {
 
 
 (*  councilActionRemoveVestee entrypoint  *)
-function councilActionRemoveVestee(const vesteeAddress : address ; var s : councilStorage) : return is 
+function councilActionRemoveVestee(const vesteeAddress : address ; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRemoveVestee"] of [
@@ -663,7 +629,7 @@ block {
 
 
 (*  councilActionUpdateVestee entrypoint  *)
-function councilActionUpdateVestee(const updateVesteeParams : updateVesteeType; var s : councilStorage) : return is 
+function councilActionUpdateVestee(const updateVesteeParams : updateVesteeType; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionUpdateVestee"] of [
@@ -682,7 +648,7 @@ block {
 
 
 (*  councilActionToggleVesteeLock entrypoint  *)
-function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : councilStorage) : return is 
+function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionToggleVesteeLock"] of [
@@ -709,7 +675,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionTransfer entrypoint  *)
-function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : councilStorage) : return is 
+function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionTransfer"] of [
@@ -728,7 +694,7 @@ block {
 
 
 (*  councilActionRequestTokens entrypoint  *)
-function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : councilStorage) : return is 
+function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : councilStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRequestTokens"] of [
@@ -747,7 +713,7 @@ block {
 
 
 (*  councilActionRequestMint entrypoint  *)
-function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : councilStorage) : return is 
+function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : councilStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionRequestMint"] of [
@@ -766,7 +732,7 @@ block {
 
 
 (*  councilActionSetContractBaker entrypoint  *)
-function councilActionSetContractBaker(const councilActionSetContractBakerParams : councilActionSetContractBakerType ; var s : councilStorage) : return is 
+function councilActionSetContractBaker(const councilActionSetContractBakerParams : councilActionSetContractBakerType ; var s : councilStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionSetContractBaker"] of [
@@ -785,7 +751,7 @@ block {
 
 
 (*  councilActionDropFinancialRequest entrypoint  *)
-function councilActionDropFinancialRequest(const requestId : nat ; var s : councilStorage) : return is 
+function councilActionDropFinancialRequest(const requestId : nat ; var s : councilStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionDropFinancialRequest"] of [
@@ -812,7 +778,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  flushAction entrypoint  *)
-function flushAction(const actionId: flushActionType; var s : councilStorage) : return is 
+function flushAction(const actionId: actionIdType; var s : councilStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaFlushAction"] of [
@@ -831,7 +797,7 @@ block {
 
 
 (*  signAction entrypoint  *)
-function signAction(const actionId: signActionType; var s : councilStorage) : return is 
+function signAction(const actionId: actionIdType; var s : councilStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSignAction"] of [
@@ -858,7 +824,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: councilStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: councilStorageType): return is
 block{
     
     // check that sender is admin
@@ -884,7 +850,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : councilAction; const s : councilStorage) : return is 
+function main (const action : councilAction; const s : councilStorageType) : return is 
 
     case action of [
       

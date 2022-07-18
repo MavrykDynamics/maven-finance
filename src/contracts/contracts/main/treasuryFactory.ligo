@@ -1,38 +1,36 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+//  ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Treasury types
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Treasury types
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // Treasury factory types
-#include "../partials/types/treasuryFactoryTypes.ligo"
+#include "../partials/contractTypes/treasuryFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
-type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorage) -> (operation * address)
+type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorageType) -> (operation * address)
 const createTreasuryFunc: createTreasuryFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -48,17 +46,15 @@ type treasuryFactoryAction is
     |   SetGovernance                       of (address)
     |   UpdateMetadata                      of updateMetadataType
     |   UpdateConfig                        of treasuryFactoryUpdateConfigParamsType
-    |   UpdateWhitelistContracts            of updateWhitelistContractsParams
-    |   UpdateGeneralContracts              of updateGeneralContractsParams
-    |   UpdateWhitelistTokenContracts       of updateWhitelistTokenContractsParams
+    |   UpdateWhitelistContracts            of updateWhitelistContractsType
+    |   UpdateGeneralContracts              of updateGeneralContractsType
+    |   UpdateWhitelistTokenContracts       of updateWhitelistTokenContractsType
     |   MistakenTransfer                    of transferActionType
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                            of (unit)
     |   UnpauseAll                          of (unit)
-    |   TogglePauseCreateTreasury           of (unit)
-    |   TogglePauseTrackTreasury            of (unit)
-    |   TogglePauseUntrackTreasury          of (unit)
+    |   TogglePauseEntrypoint               of treasuryFactoryTogglePauseEntrypointType
 
         // Treasury Factory Entrypoints
     |   CreateTreasury                      of createTreasuryType
@@ -70,28 +66,11 @@ type treasuryFactoryAction is
     |   SetProductLambda                    of setLambdaType
 
 
-type return is list (operation) * treasuryFactoryStorage
+type return is list (operation) * treasuryFactoryStorageType
 const noOperations: list (operation) = nil;
 
 // treasuryFactory contract methods lambdas
-type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType * treasuryFactoryStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType * treasuryFactoryStorageType) -> return
 
 
 
@@ -105,19 +84,19 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : treasuryFactoryStorage) : unit is
+function checkSenderIsAllowed(var s : treasuryFactoryStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
+function checkSenderIsAdmin(const s: treasuryFactoryStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : treasuryFactoryStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : treasuryFactoryStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -140,26 +119,6 @@ function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
   else unit
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -168,19 +127,19 @@ function checkNoAmount(const _p: unit): unit is
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
+function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
     if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
+function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
     if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
+function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorageType) : unit is
     if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
@@ -194,7 +153,7 @@ function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit 
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryFactoryUnpackLambdaFunctionType)) of [
@@ -240,73 +199,73 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : treasuryFactoryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : treasuryFactoryStorageType) : address is
   s.admin
 
 
 
 (* View: checkTreasuryExists *)
-[@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
+[@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorageType): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
 
 
 
 (* View: get config *)
-[@view] function getConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryConfigType is 
+[@view] function getConfig (const _: unit; const s: treasuryFactoryStorageType): treasuryFactoryConfigType is 
     s.config
 
 
 
 (* View: get tracked treasuries *)
-[@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
+[@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorageType): set(address) is 
     s.trackedTreasuries
 
 
 
 (* View: get break glass config *)
-[@view] function getBreakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
+[@view] function getBreakGlassConfig (const _: unit; const s: treasuryFactoryStorageType): treasuryFactoryBreakGlassConfigType is 
     s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: treasuryFactoryStorageType): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get whitelist token contracts *)
-[@view] function getWhitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
+[@view] function getWhitelistTokenContracts (const _: unit; const s: treasuryFactoryStorageType): whitelistTokenContractsType is 
     s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
+[@view] function getGeneralContracts (const _: unit; const s: treasuryFactoryStorageType): generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : treasuryFactoryStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 
 
 (* View: get a treasury lambda *)
-[@view] function getTreasuryLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+[@view] function getTreasuryLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.treasuryLambdaLedger)
 
 
 
 (* View: get the treasury lambda ledger *)
-[@view] function getTreasuryLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+[@view] function getTreasuryLambdaLedger(const _: unit; var s : treasuryFactoryStorageType) : lambdaLedgerType is
   s.treasuryLambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -328,7 +287,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setAdmin entrypoint *)
-function setAdmin(const newAdminAddress: address; var s: treasuryFactoryStorage): return is
+function setAdmin(const newAdminAddress: address; var s: treasuryFactoryStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -347,7 +306,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : treasuryFactoryStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : treasuryFactoryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -366,7 +325,7 @@ block {
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : treasuryFactoryStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : treasuryFactoryStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -385,7 +344,7 @@ block {
 
 
 (* updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : treasuryFactoryUpdateConfigParamsType; var s : treasuryFactoryStorage) : return is 
+function updateConfig(const updateConfigParams : treasuryFactoryUpdateConfigParamsType; var s : treasuryFactoryStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -407,7 +366,7 @@ block {
 
 
 (* updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryFactoryStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: treasuryFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -426,7 +385,7 @@ block {
 
 
 (* updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryFactoryStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: treasuryFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -445,7 +404,7 @@ block {
 
 
 (* updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryFactoryStorage): return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsType; var s: treasuryFactoryStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
@@ -464,7 +423,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: treasuryFactoryStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: treasuryFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -491,7 +450,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll entrypoint *)
-function pauseAll(var s: treasuryFactoryStorage): return is
+function pauseAll(var s: treasuryFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -510,7 +469,7 @@ block {
 
 
 (* unpauseAll entrypoint *)
-function unpauseAll(var s: treasuryFactoryStorage): return is
+function unpauseAll(var s: treasuryFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -528,60 +487,24 @@ block {
 
 
 
-(* togglePauseCreateTreasury entrypoint *)
-function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateTreasury"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: treasuryFactoryTogglePauseEntrypointType; const s: treasuryFactoryStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaTogglePauseCreateTreasury(unit);
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
 
 } with response
 
 
-
-(* togglePauseUntrackTreasury entrypoint *)
-function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaToggleUntrackTreasury(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(* togglePauseTrackTreasury entrypoint *)
-function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaToggleTrackTreasury(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -594,7 +517,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createTreasury entrypoint *)
-function createTreasury(const createTreasuryParams: createTreasuryType; var s: treasuryFactoryStorage): return is 
+function createTreasury(const createTreasuryParams: createTreasuryType; var s: treasuryFactoryStorageType): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateTreasury"] of [
@@ -613,7 +536,7 @@ block{
 
 
 (* trackTreasury entrypoint *)
-function trackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
+function trackTreasury (const treasuryContract: address; var s: treasuryFactoryStorageType): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackTreasury"] of [
@@ -632,7 +555,7 @@ block{
 
 
 (* untrackTreasury entrypoint *)
-function untrackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
+function untrackTreasury (const treasuryContract: address; var s: treasuryFactoryStorageType): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackTreasury"] of [
@@ -659,7 +582,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: treasuryFactoryStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: treasuryFactoryStorageType): return is
 block{
     
     // check that sender is admin
@@ -675,7 +598,7 @@ block{
 
 
 (* setProductLambda entrypoint *)
-function setProductLambda(const setLambdaParams: setLambdaType; var s: treasuryFactoryStorage): return is
+function setProductLambda(const setLambdaParams: setLambdaType; var s: treasuryFactoryStorageType): return is
 block{
     
     // check that sender is admin
@@ -701,7 +624,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorage): return is
+function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorageType): return is
   block{
     
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  
@@ -723,9 +646,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                      -> pauseAll(s)
         |   UnpauseAll (_parameters)                    -> unpauseAll(s)
-        |   TogglePauseCreateTreasury (_parameters)     -> togglePauseCreateTreasury(s)
-        |   TogglePauseTrackTreasury (_parameters)      -> togglePauseTrackTreasury(s)
-        |   TogglePauseUntrackTreasury (_parameters)    -> togglePauseUntrackTreasury(s)
+        |   TogglePauseEntrypoint (parameters)          -> togglePauseEntrypoint(parameters, s)
 
             // Treasury Factory Entrypoints
         |   CreateTreasury (params)                     -> createTreasury(params, s)
