@@ -801,7 +801,7 @@
 //                     doormanStorage = await doormanInstance.storage();
 
 //                     // Depositor's record
-//                     const depositorRecord = await farmStorage.depositors.get(bob.pkh)
+//                     const depositorRecord = await farmStorage.depositorLedger.get(bob.pkh)
 //                     console.log("User's deposit in Farm Contract")
 //                     console.log(depositorRecord)
 

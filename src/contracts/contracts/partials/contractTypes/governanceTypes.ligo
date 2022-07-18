@@ -1,42 +1,70 @@
 // ------------------------------------------------------------------------------
-// Needed Types
+// Required Partial Types
 // ------------------------------------------------------------------------------
+
 
 // Vote Types
 #include "../shared/voteTypes.ligo"
 
+
 // ------------------------------------------------------------------------------
-// Governance Cycle Round Types
+// Storage Types
 // ------------------------------------------------------------------------------
 
+
+type roundType       is
+    |   Proposal                  of unit
+    |   Voting                    of unit
+    |   Timelock                  of unit
+
+type currentCycleInfoType is [@layout:comb] record[
+    round                       : roundType;               // proposal, voting, timelock
+    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
+    blocksPerVotingRound        : nat;                     // to determine duration of voting round
+    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    roundStartLevel             : nat;                     // current round starting block level
+    roundEndLevel               : nat;                     // current round ending block level
+    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
+    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
+    roundProposers              : map(address, set(nat));  // proposer, 
+    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+    cycleTotalVotersReward      : nat;                     // reward given to all voters (will be split by the number of voters this cycle)
+    minQuorumStakedMvkTotal     : nat;                     // quorum to reach in order to reach the timelock round
+];
+
+
+// --------------------------------------------------
+// Governance Cycle Round Types
+// --------------------------------------------------
+
 type proposalMetadataType is [@layout:comb] record[
-  title : string;
-  data  : bytes;
+    title               : string;
+    data                : bytes;
 ]
 type paymentMetadataType is [@layout:comb] record[
-  title       : string;
-  transaction : transferDestinationType;
+    title               : string;
+    transaction         : transferDestinationType;
 ]
 
 type newProposalType is [@layout:comb] record [
-  title              : string;
-  description        : string;
-  invoice            : string; // IPFS file
-  sourceCode         : string;
-  proposalMetadata   : option(list(proposalMetadataType));
-  paymentMetadata    : option(list(paymentMetadataType));
+    title               : string;
+    description         : string;
+    invoice             : string; 
+    sourceCode          : string;
+    proposalMetadata    : option(list(proposalMetadataType));
+    paymentMetadata     : option(list(paymentMetadataType));
 ]
 
 // Stores all voter data during proposal round
-type proposalRoundVoteType is (nat * timestamp)                             // total voting power (MVK) * timestamp
+type proposalRoundVoteType is (nat * timestamp)                             // total voting power (staked MVK) * timestamp
 type proposalVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
 type votingRoundVoteType is [@layout:comb] record [
-  vote  : voteType;
-  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
+    vote  : voteType;
+    empty : unit;   // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
-type votingRoundRecordType is (nat * timestamp * voteType)   // 1 is Yay, 0 is Nay, 2 is pass * total voting power (MVK) * timestamp
+type votingRoundRecordType is (nat * timestamp * voteType)   // total voting power (staked MVK) * timestamp * voteType
 type votersMapType is map (address, votingRoundRecordType)
 
 type proposalRecordType is [@layout:comb] record [
@@ -59,10 +87,10 @@ type proposalRecordType is [@layout:comb] record [
   
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
-    proposalVotersMap                 : proposalVotersMapType;       // proposal round ledger
+    proposalVotersMap                 : proposalVotersMapType;   // proposal round ledger
   
-    minProposalRoundVotePercentage    : nat;          // min vote percentage of total MVK supply required to pass proposal round
-    minProposalRoundVotesRequired     : nat;          // min staked MVK votes required for proposal round to pass
+    minProposalRoundVotePercentage    : nat;                     // min vote percentage of total MVK supply required to pass proposal round
+    minProposalRoundVotesRequired     : nat;                     // min staked MVK votes required for proposal round to pass
   
     yayVoteCount                      : nat;                     // voting round: yay count - number of satellites
     yayVoteStakedMvkTotal             : nat;                     // voting round: yay MVK total
@@ -79,9 +107,9 @@ type proposalRecordType is [@layout:comb] record [
     quorumStakedMvkTotal              : nat;                     // log of total positive votes in MVK 
     startDateTime                     : timestamp;               // log of when the proposal was proposed
   
-    cycle                             : nat;                 // log of cycle that proposal belongs to
-    currentCycleStartLevel            : nat;                 // log of current cycle starting block level
-    currentCycleEndLevel              : nat;                 // log of current cycle end block level
+    cycle                             : nat;                     // log of cycle that proposal belongs to
+    currentCycleStartLevel            : nat;                     // log of current cycle starting block level
+    currentCycleEndLevel              : nat;                     // log of current cycle end block level
 ] 
 type proposalLedgerType is big_map (nat, proposalRecordType);
 
@@ -94,9 +122,11 @@ type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
 ]
 type snapshotLedgerType is map (address, governanceSatelliteSnapshotRecordType);
 
-// ------------------------------------------------------------------------------
+
+// --------------------------------------------------
 // Governance Config Types
-// ------------------------------------------------------------------------------
+// --------------------------------------------------
+
 
 type governanceConfigType is [@layout:comb] record [
     
@@ -126,71 +156,47 @@ type governanceConfigType is [@layout:comb] record [
     
 ]
 
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
+
 type governanceUpdateConfigNewValueType is nat
 
 type governanceUpdateConfigActionType is 
-  ConfigSuccessReward               of unit
-| ConfigCycleVotersReward           of unit
-| ConfigMinProposalRoundVotePct     of unit
-| ConfigMinProposalRoundVotesReq    of unit
-| ConfigMinQuorumPercentage         of unit
-| ConfigMinYayVotePercentage        of unit
-| ConfigProposeFeeMutez             of unit
-| ConfigMaxProposalsPerSatellite    of unit
-| ConfigBlocksPerProposalRound      of unit
-| ConfigBlocksPerVotingRound        of unit
-| ConfigBlocksPerTimelockRound      of unit
-| ConfigProposalDatTitleMaxLength   of unit
-| ConfigProposalTitleMaxLength      of unit
-| ConfigProposalDescMaxLength       of unit
-| ConfigProposalInvoiceMaxLength    of unit
-| ConfigProposalCodeMaxLength       of unit
+        ConfigSuccessReward               of unit
+    |   ConfigCycleVotersReward           of unit
+    |   ConfigMinProposalRoundVotePct     of unit
+    |   ConfigMinProposalRoundVotesReq    of unit
+    |   ConfigMinQuorumPercentage         of unit
+    |   ConfigMinYayVotePercentage        of unit
+    |   ConfigProposeFeeMutez             of unit
+    |   ConfigMaxProposalsPerSatellite    of unit
+    |   ConfigBlocksPerProposalRound      of unit
+    |   ConfigBlocksPerVotingRound        of unit
+    |   ConfigBlocksPerTimelockRound      of unit
+    |   ConfigProposalDatTitleMaxLength   of unit
+    |   ConfigProposalTitleMaxLength      of unit
+    |   ConfigProposalDescMaxLength       of unit
+    |   ConfigProposalInvoiceMaxLength    of unit
+    |   ConfigProposalCodeMaxLength       of unit
 
 type governanceUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: governanceUpdateConfigNewValueType; 
-  updateConfigAction: governanceUpdateConfigActionType;
+    updateConfigNewValue    : governanceUpdateConfigNewValueType; 
+    updateConfigAction      : governanceUpdateConfigActionType;
 ]
 
-
-// ------------------------------------------------------------------------------
-// Governance Storage Types
-// ------------------------------------------------------------------------------
-
-
-type roundType       is
-| Proposal                  of unit
-| Voting                    of unit
-| Timelock                  of unit
-
-type currentCycleInfoType is [@layout:comb] record[
-    round                       : roundType;               // proposal, voting, timelock
-    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
-    blocksPerVotingRound        : nat;                     // to determine duration of voting round
-    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    roundStartLevel             : nat;                     // current round starting block level
-    roundEndLevel               : nat;                     // current round ending block level
-    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
-    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
-    roundProposers              : map(address, set(nat));  // proposer, 
-    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    cycleTotalVotersReward      : nat;                     // reward given to all voters (will be split by the number of voters this cycle)
-    minQuorumStakedMvkTotal     : nat;                     // quorum to reach in order to reach the timelock round
-];
-
-// ------------------------------------------------------------------------------
-// Governance Entrypoint Types
-// ------------------------------------------------------------------------------
-
 type updateProposalDataType is [@layout:comb] record [
-  proposalId         : actionIdType;
-  title              : string;
-  proposalBytes      : bytes;
+    proposalId              : actionIdType;
+    title                   : string;
+    proposalBytes           : bytes;
 ]
 
 type updatePaymentDataType is [@layout:comb] record [
-  proposalId         : actionIdType;
-  title              : string;
-  paymentTransaction : transferDestinationType;
+    proposalId              : actionIdType;
+    title                   : string;
+    paymentTransaction      : transferDestinationType;
 ]
 
 type setContractAdminType is [@layout:comb] record [
@@ -206,40 +212,40 @@ type setContractGovernanceType is [@layout:comb] record [
 type whitelistDevelopersType is set(address)
 
 // ------------------------------------------------------------------------------
-// Governance Contract Lambdas
+// Lambda Action Types
 // ------------------------------------------------------------------------------
 
 
 type governanceLambdaActionType is 
   
-  // Break Glass Entrypoint
-| LambdaBreakGlass                            of (unit)
-| LambdaPropagateBreakGlass                   of (unit)
+        // Break Glass Entrypoint
+    |   LambdaBreakGlass                            of (unit)
+    |   LambdaPropagateBreakGlass                   of (unit)
 
-  // Housekeeping Lambdas
-| LambdaSetAdmin                              of address
-| LambdaSetGovernanceProxy                    of address
-| LambdaUpdateMetadata                        of updateMetadataType
-| LambdaUpdateConfig                          of governanceUpdateConfigParamsType
-| LambdaUpdateGeneralContracts                of updateGeneralContractsType
-| LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
-| LambdaUpdateWhitelistDevelopers             of (address)
-| LambdaMistakenTransfer                      of transferActionType
-| LambdaSetContractAdmin                      of setContractAdminType
-| LambdaSetContractGovernance                 of setContractGovernanceType
+        // Housekeeping Lambdas
+    |   LambdaSetAdmin                              of address
+    |   LambdaSetGovernanceProxy                    of address
+    |   LambdaUpdateMetadata                        of updateMetadataType
+    |   LambdaUpdateConfig                          of governanceUpdateConfigParamsType
+    |   LambdaUpdateGeneralContracts                of updateGeneralContractsType
+    |   LambdaUpdateWhitelistContracts              of updateWhitelistContractsType
+    |   LambdaUpdateWhitelistDevelopers             of (address)
+    |   LambdaMistakenTransfer                      of transferActionType
+    |   LambdaSetContractAdmin                      of setContractAdminType
+    |   LambdaSetContractGovernance                 of setContractGovernanceType
 
-  // Governance Cycle Lambdas
-| LambdaStartNextRound                        of (bool)
-| LambdaPropose                               of newProposalType
-| LambdaProposalRoundVote                     of actionIdType
-| LambdaUpdateProposalData                 of updateProposalDataType
-| LambdaUpdatePaymentData                  of updatePaymentDataType
-| LambdaLockProposal                          of actionIdType
-| LambdaVotingRoundVote                       of votingRoundVoteType
-| LambdaExecuteProposal                       of (unit)
-| LambdaProcessProposalPayment                of actionIdType
-| LambdaProcessProposalSingleData             of (unit)
-| LambdaDropProposal                          of actionIdType
+        // Governance Cycle Lambdas
+    |   LambdaStartNextRound                        of (bool)
+    |   LambdaPropose                               of newProposalType
+    |   LambdaProposalRoundVote                     of actionIdType
+    |   LambdaUpdateProposalData                 of updateProposalDataType
+    |   LambdaUpdatePaymentData                  of updatePaymentDataType
+    |   LambdaLockProposal                          of actionIdType
+    |   LambdaVotingRoundVote                       of votingRoundVoteType
+    |   LambdaExecuteProposal                       of (unit)
+    |   LambdaProcessProposalPayment                of actionIdType
+    |   LambdaProcessProposalSingleData             of (unit)
+    |   LambdaDropProposal                          of actionIdType
 
 
 // ------------------------------------------------------------------------------
@@ -263,15 +269,13 @@ type governanceStorageType is [@layout:comb] record [
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;
     
-    // current round state variables - will be flushed periodically
-    currentCycleInfo                  : currentCycleInfoType;
+    currentCycleInfo                  : currentCycleInfoType;       // current round state variables - will be flushed periodically
 
-    nextProposalId                    : nat;                    // counter of next proposal id
-    cycleCounter                      : nat;                    // counter of current cycle 
-    cycleHighestVotedProposalId       : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
-    timelockProposalId                : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
+    nextProposalId                    : nat;                        // counter of next proposal id
+    cycleCounter                      : nat;                        // counter of current cycle 
+    cycleHighestVotedProposalId       : nat;                        // set to 0 if there is no proposal currently, if not set to proposal id
+    timelockProposalId                : nat;                        // set to 0 if there is proposal in timelock, if not set to proposal id
 
-    // lambda storage
-    lambdaLedger                      : lambdaLedgerType;             // governance contract lambdas
+    lambdaLedger                      : lambdaLedgerType;           // governance contract lambdas
 
 ]
