@@ -53,5 +53,6 @@ export const getRequestStatus = (request: FinancialRequestBody) => {
 }
 
 export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format("MMMM Do hh:mm Z")
+export const getDate_MDY_Format = (time: string) => moment(new Date(time)).format("MMM Do, Y")
 
 

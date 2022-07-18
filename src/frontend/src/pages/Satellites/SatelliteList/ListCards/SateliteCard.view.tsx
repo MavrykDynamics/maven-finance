@@ -50,6 +50,7 @@ export const SatelliteListItem = ({
   } = useSelector((state: State) => state.governance)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
+  const isSatelliteOracle = satellite.oracleRecords.length
 
   const currentlySupportingProposalId = satellite.proposalVotingHistory?.length
     ? satellite.proposalVotingHistory[0].proposalId
@@ -84,7 +85,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isExtendedListItem && satellite.isSatelliteOracle) || !satellite.isSatelliteOracle ? (
+            {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
               <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
                 <SatelliteMainText oracle>Your delegated MVK</SatelliteMainText>
                 <SatelliteSubText oracle>
@@ -100,7 +101,7 @@ export const SatelliteListItem = ({
               </SatelliteTextGroup>
             )}
 
-            {isExtendedListItem && satellite.isSatelliteOracle ? (
+            {isExtendedListItem && isSatelliteOracle ? (
               <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
                 <SatelliteMainText oracle>Signed feeds</SatelliteMainText>
                 <SatelliteSubText oracle>
@@ -116,7 +117,7 @@ export const SatelliteListItem = ({
                 icon="man"
                 text="Profile Details"
                 kind="transparent"
-                pathName={`/satellite-details/${satellite.address}/oracle`}
+                pathName={`/satellite-details/${satellite.address}`}
               />
             </SatelliteProfileDetails>
 
@@ -127,7 +128,7 @@ export const SatelliteListItem = ({
               </SatelliteSubText>
             </SatelliteTextGroup>
 
-            {(isExtendedListItem && satellite.isSatelliteOracle) || !satellite.isSatelliteOracle ? (
+            {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
               <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
                 <SatelliteMainText oracle>Fee</SatelliteMainText>
                 <SatelliteSubText oracle>
@@ -136,9 +137,9 @@ export const SatelliteListItem = ({
               </SatelliteTextGroup>
             ) : null}
 
-            {satellite.isSatelliteOracle ? (
+            {isSatelliteOracle ? (
               <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Oracle Status</SatelliteMainText>
+                <SatelliteMainText oracle>Oracle Status (fix)</SatelliteMainText>
                 <SatelliteSubText oracle>
                   <SatelliteOracleStatusComponent statusType="responded">responded</SatelliteOracleStatusComponent>
                 </SatelliteSubText>

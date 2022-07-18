@@ -305,6 +305,7 @@ function convertToSatelliteRecordInterface({
   }
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
+    oracleRecords: satelliteRecord?.user?.aggregator_oracle_records || [],
     description: satelliteRecord?.description || '',
     website: satelliteRecord?.website || '',
     participation: satelliteRecord?.participation || 0,
@@ -320,8 +321,6 @@ function convertToSatelliteRecordInterface({
     proposalVotingHistory,
     financialRequestsVotes,
     emergencyGovernanceVotes,
-    // TODO: mb add checking if satellite is oracle here
-    isSatelliteOracle: false
   }
 
   return newSatelliteRecord

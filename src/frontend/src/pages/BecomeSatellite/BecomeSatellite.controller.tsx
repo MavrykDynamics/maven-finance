@@ -35,7 +35,7 @@ export const BecomeSatellite = () => {
           totalDelegatedAmount: 0,
           registeredDateTime: new Date(),
           unregisteredDateTime: null,
-          isSatelliteOracle: false,
+          oracleRecords: [],
         }
   useEffect(() => {
     if (accountPkh) {

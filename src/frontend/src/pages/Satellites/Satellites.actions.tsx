@@ -10,7 +10,6 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
-  const oraclesIds = state.oracles.oraclesStorage.oraclesSatellitesIds.map(({ oracle_id }) => oracle_id)
 
   try {
     const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
@@ -23,10 +22,8 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
 
     delegationStorage.satelliteLedger = delegationStorage.satelliteLedger
       .map((satellite: SatelliteRecord) => {
-        satellite['isSatelliteOracle'] = false
-        if (oraclesIds.includes(satellite.address)) {
+        if (satellite.oracleRecords.length) {
           satellite['feeds'] = state.oracles.oraclesStorage.feeds.filter((feed) => feed.admin === satellite.address)
-          satellite['isSatelliteOracle'] = true
         }
 
         return satellite
