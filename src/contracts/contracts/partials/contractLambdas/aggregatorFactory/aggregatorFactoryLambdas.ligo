@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is
+function lambdaSetAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
     
     checkSenderIsAllowed(s); // check that sender is admin
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is
+function lambdaSetGovernance(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (*  updateMetadata lambda  *)
-function lambdaUpdateMetadata(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaUpdateMetadata(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block{
   
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -64,7 +64,7 @@ block{
 
 
 (*  updateConfig entrypoint  *)
-function lambdaUpdateConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaUpdateConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block{
 
     checkSenderIsAdmin(s);
@@ -88,7 +88,7 @@ block{
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaUpdateWhitelistContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -105,7 +105,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaUpdateGeneralContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -130,7 +130,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+function lambdaPauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
 block {
 
     checkSenderIsAllowed(s);
@@ -173,7 +173,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+function lambdaUnpauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorageType): return is
 block {
 
     checkSenderIsAllowed(s);
@@ -215,102 +215,30 @@ block {
 
 
 
-(*  togglePauseCreateAgg lambda *)
-function lambdaTogglePauseCreateAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType) : return is
 block {
 
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseCreateAgg(_parameters) -> {
+        | LambdaTogglePauseEntrypoint(params) -> {
+
+                case params.targetEntrypoint of [
+                    CreateAggregator (_v)             -> s.breakGlassConfig.createAggregatorIsPaused := _v
+                |   UntrackAggregator (_v)            -> s.breakGlassConfig.untrackAggregatorIsPaused := _v
+                |   TrackAggregator (_v)              -> s.breakGlassConfig.trackAggregatorIsPaused := _v
+                |   DistributeRewardXtz (_v)          -> s.breakGlassConfig.distributeRewardXtzIsPaused := _v
+                |   DistributeRewardStakedMvk (_v)    -> s.breakGlassConfig.distributeRewardStakedMvkIsPaused := _v
+                ]
                 
-                if s.breakGlassConfig.createAggregatorIsPaused then s.breakGlassConfig.createAggregatorIsPaused := False
-                else s.breakGlassConfig.createAggregatorIsPaused := True;
             }
         | _ -> skip
     ];
 
 } with (noOperations, s)
 
-
-
-(*  togglePauseUntrackAgg lambda *)
-function lambdaTogglePauseUntrackAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseUntrackAgg(_parameters) -> {
-                
-                if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
-                else s.breakGlassConfig.untrackAggregatorIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseTrackAgg lambda *)
-function lambdaTogglePauseTrackAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseTrackAgg(_parameters) -> {
-                
-                if s.breakGlassConfig.trackAggregatorIsPaused then s.breakGlassConfig.trackAggregatorIsPaused := False
-                else s.breakGlassConfig.trackAggregatorIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseDisRewardXtz lambda *)
-function lambdaTogglePauseDisRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseDisRewardXtz(_parameters) -> {
-                
-                if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
-                else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseDisRewardSMvk lambda *)
-function lambdaTogglePauseDisRewardSMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
-block {
-
-    checkSenderIsAdmin(s);
-
-    case aggregatorFactoryLambdaAction of [
-        | LambdaTogglePauseDisRewardSMvk(_parameters) -> {
-                
-                if s.breakGlassConfig.distributeRewardStakedMvkIsPaused then s.breakGlassConfig.distributeRewardStakedMvkIsPaused := False
-                else s.breakGlassConfig.distributeRewardStakedMvkIsPaused := True;
-
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 
 // ------------------------------------------------------------------------------
@@ -324,7 +252,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  createAggregator lambda  *)
-function lambdaCreateAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaCreateAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block {
 
     // break glass check
@@ -372,7 +300,7 @@ block {
                 
                 const aggregatorGeneralContracts : generalContractsType = map[];
 
-                const aggregatorLambdaLedger : map(string, bytes) = s.aggregatorLambdaLedger;
+                const aggregatorLambdaLedger : lambdaLedgerType = s.aggregatorLambdaLedger;
 
                 const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
                     requestRateUpdateIsPaused           = False;
@@ -394,7 +322,7 @@ block {
                 if String.length(aggregatorName) > s.config.aggregatorNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // new Aggregator Storage declaration
-                const originatedAggregatorStorage : aggregatorStorage = record [
+                const originatedaggregatorStorageType : aggregatorStorageType = record [
 
                     admin                     = s.admin;                                      // If governance proxy is the admin, it makes sense that the factory passes its admin to the farm it creates
                     metadata                  = aggregatorMetadata;
@@ -432,7 +360,7 @@ block {
                 const aggregatorOrigination : (operation * address) = createAggregatorFunc(
                     (None: option(key_hash)),
                     0tez,
-                    originatedAggregatorStorage
+                    originatedaggregatorStorageType
                 );
                 
                 s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
@@ -454,14 +382,14 @@ block {
                 // Add the aggregator to the governance general contracts map
                 if createAggregatorParams.2.addToGeneralContracts = True then {
                     
-                    const updateGeneralMapRecord : updateGeneralContractsParams = record [
+                    const updateGeneralMapRecord : updateGeneralContractsType = record [
                         generalContractName    = aggregatorName;
                         generalContractAddress = aggregatorOrigination.1;
                     ];
 
-                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsParams) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsParams))) of [
+                    const updateContractGeneralMapEntrypoint: contract(updateGeneralContractsType) = case (Tezos.get_entrypoint_opt("%updateGeneralContracts", s.governanceAddress): option(contract(updateGeneralContractsType))) of [
                             Some (contr) -> contr
-                        |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+                        |   None        -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsType))
                     ];
 
                     // updateContractGeneralMap operation
@@ -487,7 +415,7 @@ block {
 
 
 (*  trackAggregator lambda  *)
-function lambdaTrackAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaTrackAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block{
 
     // Check if sender is admin
@@ -515,7 +443,7 @@ block{
 
 
 (*  untrackAggregator lambda  *)
-function lambdaUntrackAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaUntrackAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block{
 
     // Check if sender is admin
@@ -547,7 +475,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  distributeRewardXtz lambda  *)
-function lambdaDistributeRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaDistributeRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block{
 
     // Break glass check
@@ -600,7 +528,7 @@ block{
 
 
 (*  distributeRewardStakedMvk lambda  *)
-function lambdaDistributeRewardStakedMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+function lambdaDistributeRewardStakedMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorageType): return is
 block{
 
     // Break glass check

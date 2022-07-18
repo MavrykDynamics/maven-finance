@@ -302,23 +302,23 @@
 //         beforeEach("Set signer to admin", async () => {
 //             await signerFactory(bob.sk)
 //         });
-//         it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
+//         before("Configure delegation ratio on delegation contract", async () => {
 //             try{
 //                 // Initial Values
-//                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const currentConfigValue = governanceFinancialStorage.config.votingPowerRatio;
-//                 const newConfigValue = 10001;
+//                 await signerFactory(bob.sk)
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const newConfigValue = 10;
 
 //                 // Operation
-//                 await chai.expect(governanceFinancialInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send()).to.be.rejected;
+//                 const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
+//                 await updateConfigOperation.confirmation();
 
 //                 // Final values
-//                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const updateConfigValue = governanceFinancialStorage.config.votingPowerRatio;
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const updateConfigValue = delegationStorage.config.delegationRatio;
 
 //                 // Assertions
-//                 assert.notEqual(newConfigValue, currentConfigValue);
-//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+//                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }

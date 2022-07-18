@@ -33,42 +33,26 @@
   },
   {
     "index": 8,
-    "name": "lambdaTogglePauseCreateAgg"
+    "name": "lambdaTogglePauseEntrypoint"
   },
   {
     "index": 9,
-    "name": "lambdaTogglePauseTrackAgg"
-  },
-  {
-    "index": 10,
-    "name": "lambdaTogglePauseUntrackAgg"
-  },
-  {
-    "index": 11,
-    "name": "lambdaTogglePauseDisRewardXtz"
-  },
-  {
-    "index": 12,
-    "name": "lambdaTogglePauseDisRewardSMvk"
-  },
-  {
-    "index": 13,
     "name": "lambdaCreateAggregator"
   },
   {
-    "index": 14,
+    "index": 10,
     "name": "lambdaTrackAggregator"
   },
   {
-    "index": 15,
+    "index": 11,
     "name": "lambdaUntrackAggregator"
   },
   {
-    "index": 16,
+    "index": 12,
     "name": "lambdaDistributeRewardXtz"
   },
   {
-    "index": 17,
+    "index": 13,
     "name": "lambdaDistributeRewardStakedMvk"
   }
 ]

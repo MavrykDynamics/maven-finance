@@ -1,32 +1,33 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // Farm Types
-#include "../partials/types/farmTypes.ligo"
+#include "../partials/contractTypes/farmTypes.ligo"
 
 // FarmFactory Types
-#include "../partials/types/farmFactoryTypes.ligo"
+#include "../partials/contractTypes/farmFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
-type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
+type createFarmFuncType is (option(key_hash) * tez * farmStorageType) -> (operation * address)
 const createFarmFunc: createFarmFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -42,17 +43,15 @@ type farmFactoryAction is
 |   SetGovernance               of (address)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmFactoryUpdateConfigParamsType
-|   UpdateWhitelistContracts    of updateWhitelistContractsParams
-|   UpdateGeneralContracts      of updateGeneralContractsParams
+|   UpdateWhitelistContracts    of updateWhitelistContractsType
+|   UpdateGeneralContracts      of updateGeneralContractsType
 |   MistakenTransfer            of transferActionType
 |   UpdateBlocksPerMinute       of (nat)
 
     // Pause / Break Glass Entrypoints
 |   PauseAll                    of (unit)
 |   UnpauseAll                  of (unit)
-|   TogglePauseCreateFarm       of (unit)
-|   TogglePauseTrackFarm        of (unit)
-|   TogglePauseUntrackFarm      of (unit)
+|   TogglePauseEntrypoint       of farmFactoryTogglePauseEntrypointType
 
     // Farm Factory Entrypoints
 |   CreateFarm                  of createFarmType
@@ -64,28 +63,11 @@ type farmFactoryAction is
 |   SetProductLambda            of setLambdaType
 
 
-type return is list (operation) * farmFactoryStorage
+type return is list (operation) * farmFactoryStorageType
 const noOperations: list (operation) = nil;
 
 // farm factory contract methods lambdas
-type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmFactoryStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmFactoryStorageType) -> return
 
 
 
@@ -99,13 +81,13 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : farmFactoryStorage) : unit is
+function checkSenderIsAllowed(var s : farmFactoryStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
         
 
 
-function checkSenderIsAdmin(const s: farmFactoryStorage): unit is
+function checkSenderIsAdmin(const s: farmFactoryStorageType): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
@@ -117,7 +99,7 @@ function checkNoAmount(const _p: unit): unit is
 
 
 
-function checkSenderIsCouncil(const s: farmFactoryStorage): unit is
+function checkSenderIsCouncil(const s: farmFactoryStorageType): unit is
 block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
@@ -132,7 +114,7 @@ block {
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -149,21 +131,6 @@ block{
   }
 } with unit
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -174,19 +141,19 @@ block{
 // Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkCreateFarmIsNotPaused(var s : farmFactoryStorage) : unit is
+function checkCreateFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
     if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkTrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
+function checkTrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
     if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkUntrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
+function checkUntrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
     if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
     else unit;
 
@@ -200,7 +167,7 @@ function checkUntrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(farmFactoryUnpackLambdaFunctionType)) of [
@@ -246,67 +213,67 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : farmFactoryStorage) : address is
+[@view] function getAdmin(const _: unit; var s : farmFactoryStorageType) : address is
   s.admin
 
 
 
 (* View: checkFarmExists *)
-[@view] function checkFarmExists (const farmContract: address; const s: farmFactoryStorage): bool is 
+[@view] function checkFarmExists (const farmContract: address; const s: farmFactoryStorageType): bool is 
     Set.mem(farmContract, s.trackedFarms)
 
 
 
 (* View: get config *)
-[@view] function getConfig (const _: unit; const s: farmFactoryStorage): farmFactoryConfigType is 
+[@view] function getConfig (const _: unit; const s: farmFactoryStorageType): farmFactoryConfigType is 
     s.config
 
 
 
 (* View: get break glass config *)
-[@view] function getBreakGlassConfig (const _: unit; const s: farmFactoryStorage): farmFactoryBreakGlassConfigType is 
+[@view] function getBreakGlassConfig (const _: unit; const s: farmFactoryStorageType): farmFactoryBreakGlassConfigType is 
     s.breakGlassConfig
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _: unit; const s: farmFactoryStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: farmFactoryStorageType): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts (const _: unit; const s: farmFactoryStorage): generalContractsType is 
+[@view] function getGeneralContracts (const _: unit; const s: farmFactoryStorageType): generalContractsType is 
     s.generalContracts
 
 
 
 (* View: get tracked farms *)
-[@view] function getTrackedFarms (const _: unit; const s: farmFactoryStorage): set(address) is 
+[@view] function getTrackedFarms (const _: unit; const s: farmFactoryStorageType): set(address) is 
     s.trackedFarms
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : farmFactoryStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : farmFactoryStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 
 
 (* View: get a farm lambda *)
-[@view] function farmLambdaOpt(const lambdaName: string; var s : farmFactoryStorage) : option(bytes) is
+[@view] function farmLambdaOpt(const lambdaName: string; var s : farmFactoryStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.farmLambdaLedger)
 
 
 
 (* View: get the farm lambda ledger *)
-[@view] function farmLambdaLedger(const _: unit; var s : farmFactoryStorage) : lambdaLedgerType is
+[@view] function farmLambdaLedger(const _: unit; var s : farmFactoryStorageType) : lambdaLedgerType is
   s.farmLambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -328,7 +295,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress: address; var s: farmFactoryStorage): return is
+function setAdmin(const newAdminAddress: address; var s: farmFactoryStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -347,7 +314,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : farmFactoryStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : farmFactoryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -366,7 +333,7 @@ block {
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmFactoryStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmFactoryStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -385,7 +352,7 @@ block {
 
 
 (* updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var s : farmFactoryStorage) : return is 
+function updateConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var s : farmFactoryStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -404,7 +371,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: farmFactoryStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: farmFactoryStorageType): return is
 block {
         
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -423,7 +390,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: farmFactoryStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: farmFactoryStorageType): return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -442,7 +409,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: farmFactoryStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -461,7 +428,7 @@ block {
 
 
 (*  UpdateBlocksPerMinute entrypoint *)
-function updateBlocksPerMinute(const newBlocksPerMinute: nat; var s: farmFactoryStorage): return is
+function updateBlocksPerMinute(const newBlocksPerMinute: nat; var s: farmFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateBlocksPerMinute"] of [
@@ -488,7 +455,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll entrypoint *)
-function pauseAll(var s: farmFactoryStorage): return is
+function pauseAll(var s: farmFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
@@ -507,7 +474,7 @@ block {
 
 
 (*  unpauseAll entrypoint *)
-function unpauseAll(var s: farmFactoryStorage): return is
+function unpauseAll(var s: farmFactoryStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
@@ -525,60 +492,24 @@ block {
 
 
 
-(*  togglePauseCreateFarm entrypoint *)
-function togglePauseCreateFarm(var s: farmFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateFarm"] of [
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: farmFactoryTogglePauseEntrypointType; const s: farmFactoryStorageType): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseCreateFarm(unit);
+    // init farm factory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
 
 } with response
 
 
-
-(*  togglePauseUntrackFarm entrypoint *)
-function togglePauseUntrackFarm(var s: farmFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackFarm"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseUntrackFarm(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
-
-} with response
-
-
-
-(*  togglePauseTrackFarm entrypoint *)
-function togglePauseTrackFarm(var s: farmFactoryStorage): return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackFarm"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseTrackFarm(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
-
-} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
@@ -591,7 +522,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createFarm entrypoint *)
-function createFarm(const createFarmParams: createFarmType; var s: farmFactoryStorage): return is 
+function createFarm(const createFarmParams: createFarmType; var s: farmFactoryStorageType): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateFarm"] of [
@@ -610,7 +541,7 @@ block{
 
 
 (* trackFarm entrypoint *)
-function trackFarm (const farmContract: address; var s: farmFactoryStorage): return is 
+function trackFarm (const farmContract: address; var s: farmFactoryStorageType): return is 
 block{
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackFarm"] of [
@@ -629,7 +560,7 @@ block{
 
 
 (* untrackFarm entrypoint *)
-function untrackFarm (const farmContract: address; var s: farmFactoryStorage): return is 
+function untrackFarm (const farmContract: address; var s: farmFactoryStorageType): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackFarm"] of [
@@ -656,7 +587,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: farmFactoryStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: farmFactoryStorageType): return is
 block{
     
     // check that sender is admin
@@ -672,7 +603,7 @@ block{
 
 
 (* setProductLambda entrypoint *)
-function setProductLambda(const setLambdaParams: setLambdaType; var s: farmFactoryStorage): return is
+function setProductLambda(const setLambdaParams: setLambdaType; var s: farmFactoryStorageType): return is
 block{
     
     // check that sender is admin
@@ -698,7 +629,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action: farmFactoryAction; var s: farmFactoryStorage): return is
+function main (const action: farmFactoryAction; var s: farmFactoryStorageType): return is
   block{
     
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  
@@ -720,9 +651,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorage): retu
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                  -> pauseAll(s)
         |   UnpauseAll (_parameters)                -> unpauseAll(s)
-        |   TogglePauseCreateFarm (_parameters)     -> togglePauseCreateFarm(s)
-        |   TogglePauseTrackFarm (_parameters)      -> togglePauseTrackFarm(s)
-        |   TogglePauseUntrackFarm (_parameters)    -> togglePauseUntrackFarm(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
             // Farm Factory Entrypoints
         |   CreateFarm (params)                     -> createFarm(params, s)

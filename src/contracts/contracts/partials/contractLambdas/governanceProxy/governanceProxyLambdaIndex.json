@@ -125,102 +125,142 @@
   },
   {
     "index": 31,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "pauseAllContractEntrypoint"
   },
   {
     "index": 32,
-    "name": "setGovernanceProxy"
+    "name": "unpauseAllContractEntrypoint"
   },
   {
     "index": 33,
-    "name": "createFarm"
+    "name": "toggleAggregatorEntrypoint"
   },
   {
     "index": 34,
-    "name": "trackFarm"
+    "name": "toggleAggregatorFacEntrypoint"
   },
   {
     "index": 35,
-    "name": "untrackFarm"
+    "name": "toggleDelegationEntrypoint"
   },
   {
     "index": 36,
-    "name": "initFarm"
+    "name": "toggleDoormanEntrypoint"
   },
   {
     "index": 37,
-    "name": "closeFarm"
+    "name": "toggleFarmEntrypoint"
   },
   {
     "index": 38,
-    "name": "createTreasury"
+    "name": "toggleFarmFacEntrypoint"
   },
   {
     "index": 39,
-    "name": "trackTreasury"
+    "name": "toggleTreasuryEntrypoint"
   },
   {
     "index": 40,
-    "name": "untrackTreasury"
+    "name": "toggleTreasuryFacEntrypoint"
   },
   {
     "index": 41,
-    "name": "transferTreasury"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 42,
-    "name": "mintMvkAndTransferTreasury"
+    "name": "setGovernanceProxy"
   },
   {
     "index": 43,
-    "name": "updateMvkOperatorsTreasury"
+    "name": "createFarm"
   },
   {
     "index": 44,
-    "name": "stakeMvkTreasury"
+    "name": "trackFarm"
   },
   {
     "index": 45,
-    "name": "unstakeMvkTreasury"
+    "name": "untrackFarm"
   },
   {
     "index": 46,
-    "name": "createAggregator"
+    "name": "initFarm"
   },
   {
     "index": 47,
-    "name": "trackAggregator"
+    "name": "closeFarm"
   },
   {
     "index": 48,
-    "name": "untrackAggregator"
+    "name": "createTreasury"
   },
   {
     "index": 49,
-    "name": "setAggregatorMaintainer"
+    "name": "trackTreasury"
   },
   {
     "index": 50,
-    "name": "updateMvkInflationRate"
+    "name": "untrackTreasury"
   },
   {
     "index": 51,
-    "name": "triggerMvkInflation"
+    "name": "transferTreasury"
   },
   {
     "index": 52,
-    "name": "addVestee"
+    "name": "mintMvkAndTransferTreasury"
   },
   {
     "index": 53,
-    "name": "removeVestee"
+    "name": "updateMvkOperatorsTreasury"
   },
   {
     "index": 54,
-    "name": "updateVestee"
+    "name": "stakeMvkTreasury"
   },
   {
     "index": 55,
+    "name": "unstakeMvkTreasury"
+  },
+  {
+    "index": 56,
+    "name": "createAggregator"
+  },
+  {
+    "index": 57,
+    "name": "trackAggregator"
+  },
+  {
+    "index": 58,
+    "name": "untrackAggregator"
+  },
+  {
+    "index": 59,
+    "name": "setAggregatorMaintainer"
+  },
+  {
+    "index": 60,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 61,
+    "name": "triggerMvkInflation"
+  },
+  {
+    "index": 62,
+    "name": "addVestee"
+  },
+  {
+    "index": 63,
+    "name": "removeVestee"
+  },
+  {
+    "index": 64,
+    "name": "updateVestee"
+  },
+  {
+    "index": 65,
     "name": "toggleVesteeLock"
   }
 ]

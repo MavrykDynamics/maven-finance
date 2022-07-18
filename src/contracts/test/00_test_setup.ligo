@@ -1,20 +1,14 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../contracts/partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../contracts/partials/generalContractsType.ligo"
-
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../contracts/partials/whitelistTokenContractsType.ligo"
+// Shared Types
+#include "../partials/shared/sharedTypes.ligo"
 
 // Delegation contract
-#include "../contracts/partials/types/mvkTokenTypes.ligo"
+#include "../contracts/partials/contractTypes/mvkTokenTypes.ligo"
 
 // Governance contract
-#include "../contracts/partials/types/governanceTypes.ligo"
+#include "../contracts/partials/contractTypes/governanceTypes.ligo"
 
 // Delegation contract
-#include "../contracts/partials/types/delegationTypes.ligo"
+#include "../contracts/partials/contractTypes/delegationTypes.ligo"
 
 // User addresses
 const _                     = Test.reset_state(4n,(list[]: list(tez)));
@@ -51,7 +45,7 @@ const storages = {
         generalContracts      = (Map.empty: generalContractsType);    // map of contract addresses
         whitelistContracts    = (Map.empty: whitelistContractsType);  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
         metadata              = (Big_map.empty: metadata);
-        token_metadata        = (Big_map.empty: tokenMetadata);
+        token_metadata        = (Big_map.empty: tokenMetadataType);
         totalSupply           = mvkTotalSupply;
         maximumSupply         = 1_000_000_000_000_000_000n;
         ledger                = Big_map.literal (list [
@@ -60,9 +54,9 @@ const storages = {
             (eve, mvkTotalSupply/4);
             (mallory, mvkTotalSupply/4);
         ]);
-        operators             = (Big_map.empty: operators);
+        operators             = (Big_map.empty: operatorsType);
     ];
-    const (doormanAddress, _, _) = Test.originate_from_file("contracts/main/doorman.ligo", "main", (nil: list(string)), Test.compile_value(doormanStorage), 0tez);
+    const (doormanAddress, _, _) = Test.originate_from_file("contracts/main/doorman.ligo", "main", (nil: list(string)), Test.compile_value(doormanStorageType), 0tez);
 
 
     // MVK Token storage and origination
@@ -72,7 +66,7 @@ const storages = {
         generalContracts      = (Map.empty: generalContractsType);    // map of contract addresses
         whitelistContracts    = (Map.empty: whitelistContractsType);  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
         metadata              = (Big_map.empty: metadata);
-        token_metadata        = (Big_map.empty: tokenMetadata);
+        token_metadata        = (Big_map.empty: tokenMetadataType);
         totalSupply           = mvkTotalSupply;
         maximumSupply         = 1_000_000_000_000_000_000n;
         ledger                = Big_map.literal (list [
@@ -81,7 +75,7 @@ const storages = {
             (eve, mvkTotalSupply/4);
             (mallory, mvkTotalSupply/4);
         ]);
-        operators             = (Big_map.empty: operators);
+        operators             = (Big_map.empty: operatorsType);
     ];
     const (mvkTokenAddress, _, _) = Test.originate_from_file("contracts/main/mvkToken.ligo", "main", (nil: list(string)), Test.compile_value(mvkTokenInitialStorage), 0tez);
 
@@ -95,7 +89,6 @@ const storages = {
             minQuorumPercentage         = 1000n;
             minYayVotePercentage        = 5100n;
             
-            votingPowerRatio            = 10000n;
             proposalSubmissionFee       = 10000000n;
             maxProposalsPerSatellite    = 20n;
             

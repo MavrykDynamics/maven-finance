@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  breakGlass lambda *)
-function lambdaBreakGlass(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaBreakGlass(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -39,7 +39,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
+function lambdaSetAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -56,7 +56,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
+function lambdaSetGovernance(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -73,7 +73,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
+function lambdaUpdateMetadata(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); 
@@ -94,7 +94,7 @@ block {
 
 
 (*  updateConfig lambda  *)
-function lambdaUpdateConfig(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaUpdateConfig(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
   
     checkSenderIsAdmin(s); 
@@ -122,7 +122,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorage): return is
+function lambdaUpdateWhitelistContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -139,7 +139,7 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorage): return is
+function lambdaUpdateGeneralContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -156,7 +156,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorage): return is
+function lambdaMistakenTransfer(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -189,7 +189,7 @@ block {
 
 
 (*  updateCouncilMemberInfo lambda - update the info of a council member *)
-function lambdaUpdateCouncilMemberInfo(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
+function lambdaUpdateCouncilMemberInfo(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
     case breakGlassLambdaAction of [
@@ -226,7 +226,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addCouncilMember lambda  *)
-function lambdaAddCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaAddCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -258,7 +258,7 @@ block {
                 ];
                 const emptyNatMap : natMapType       = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -292,7 +292,7 @@ block {
 
 
 (*  removeCouncilMember lambda  *)
-function lambdaRemoveCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaRemoveCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -319,7 +319,7 @@ block {
                 const emptyStringMap : stringMapType  = map [];
                 const emptyNatMap : natMapType        = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -353,7 +353,7 @@ block {
 
 
 (*  changeCouncilMember lambda  *)
-function lambdaChangeCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaChangeCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -389,7 +389,7 @@ block {
                 ];
                 const emptyNatMap : natMapType        = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -431,7 +431,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAllEntrypoints lambda  *)
-function lambdaPauseAllEntrypoints(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
+function lambdaPauseAllEntrypoints(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
     // Overall steps:
@@ -450,7 +450,7 @@ block {
                 const emptyStringMap   : stringMapType       = map [];
                 const emptyNatMap      : natMapType          = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -484,7 +484,7 @@ block {
 
 
 (*  unpauseAllEntrypoints lambda  *)
-function lambdaUnpauseAllEntrypoints(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
+function lambdaUnpauseAllEntrypoints(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is
 block {
 
     // Overall steps:
@@ -503,7 +503,7 @@ block {
                 const emptyStringMap   : stringMapType       = map [];
                 const emptyNatMap      : natMapType          = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -537,7 +537,7 @@ block {
 
 
 (*  propagateBreakGlass lambda  *)
-function lambdaPropagateBreakGlass(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaPropagateBreakGlass(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -556,7 +556,7 @@ block {
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap      : natMapType      = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -590,7 +590,7 @@ block {
 
 
 (*  setSingleContractAdmin lambda  *)
-function lambdaSetSingleContractAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaSetSingleContractAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -605,7 +605,7 @@ block {
     case breakGlassLambdaAction of [
         | LambdaSetSingleContractAdmin(setSingleContractParams) -> {
 
-                const newAdminAddress        : address = setSingleContractParams.newAdminAddress;
+                const newAdminAddress        : address = setSingleContractParams.newContractAdmin;
                 const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
 
                 // Check if the provided contract has a setAdmin entrypoint
@@ -632,7 +632,7 @@ block {
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap      : natMapType      = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -666,7 +666,7 @@ block {
 
 
 (*  setAllContractsAdmin lambda  *)
-function lambdaSetAllContractsAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaSetAllContractsAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -701,7 +701,7 @@ block {
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap  : natMapType          = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -735,7 +735,7 @@ block {
 
 
 (*  removeBreakGlassControl lambda  *)
-function lambdaRemoveBreakGlassControl(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaRemoveBreakGlassControl(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -754,7 +754,7 @@ block {
                 const emptyStringMap   : stringMapType       = map [];
                 const emptyNatMap      : natMapType          = map [];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -796,7 +796,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  flushAction lambda  *)
-function lambdaFlushAction(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaFlushAction(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     // Overall steps:
@@ -810,7 +810,7 @@ block {
         | LambdaFlushAction(actionId) -> {
                 
                 // Check if actionId exist
-                const actionToFlush: actionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
+                const actionToFlush: breakGlassActionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
                         Some (_action) -> _action
                     |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
@@ -828,7 +828,7 @@ block {
                     ("actionId" : string) -> actionId;
                 ];
 
-                var actionRecord : actionRecordType := record[
+                var actionRecord : breakGlassActionRecordType := record[
 
                     initiator             = Tezos.sender;
                     status                = "PENDING";
@@ -862,7 +862,7 @@ block {
 
 
 (*  signAction lambda  *)
-function lambdaSignAction(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function lambdaSignAction(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
     
     checkSenderIsCouncilMember(s);
@@ -872,7 +872,7 @@ block {
     case breakGlassLambdaAction of [
         | LambdaSignAction(actionId) -> {
                 
-                var _actionRecord : actionRecordType := case s.actionsLedger[actionId] of [
+                var _actionRecord : breakGlassActionRecordType := case s.actionsLedger[actionId] of [
                     | Some(_record) -> _record
                     | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
@@ -910,7 +910,7 @@ block {
                         ];
                         // fetch params end ---
 
-                        var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of [     
+                        var flushedActionRecord : breakGlassActionRecordType := case s.actionsLedger[flushedActionId] of [     
                             Some(_record) -> _record
                             | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                         ];

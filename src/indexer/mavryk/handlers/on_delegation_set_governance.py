@@ -1,0 +1,19 @@
+
+from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_governance
+from mavryk.types.delegation.storage import DelegationStorage
+from dipdup.models import Transaction
+from mavryk.types.delegation.parameter.set_governance import SetGovernanceParameter
+import mavryk.models as models
+
+async def on_delegation_set_governance(
+    ctx: HandlerContext,
+    set_governance: Transaction[SetGovernanceParameter, DelegationStorage],
+) -> None:
+    
+    # Get operation info
+    target_contract = set_governance.data.target_address
+    contract        = await models.Delegation.get(address = target_contract)
+
+    # Persist new admin
+    await persist_governance(set_governance, contract)
