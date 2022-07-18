@@ -36,6 +36,7 @@ async def on_delegation_register_as_satellite(
     satelliteRecord.description                     = description
     satelliteRecord.image                           = image
     satelliteRecord.website                         = website
+    satelliteRecord.currently_registered            = True
 
     satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
         user        = user,
