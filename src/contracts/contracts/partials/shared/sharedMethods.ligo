@@ -30,8 +30,8 @@ function updateGeneralContractsMap(const updateGeneralContractsParams : updateGe
     const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
 
     const existingAddress : option(address) = case Map.find_opt(contractName, generalContracts) of [
-            Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
-        |   None            -> (Some (contractAddress): option(address))
+            Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress) : option(address))
+        |   None            -> (Some (contractAddress) : option(address))
     ];
     
     const updatedGeneralContracts : generalContractsType = 
@@ -66,8 +66,8 @@ block{
     const contractAddress  : address = updateWhitelistContractsParams.whitelistContractAddress;
 
     const existingAddress : option(address) = case Map.find_opt(contractName, whitelistContracts) of [
-            Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
-        |   None            -> (Some (contractAddress): option(address))
+            Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress) : option(address))
+        |   None            -> (Some (contractAddress) : option(address))
     ];
 
     const updatedWhitelistContracts : whitelistContractsType = 

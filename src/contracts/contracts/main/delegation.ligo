@@ -219,7 +219,7 @@ block{
         // 1. Check if user is recorded in the Satellite Rewards Ledger
         // 2. Get Doorman Contract Address from the General Contracts Map on the Governance Contract
         // 3. Get user's staked MVK balance from the Doorman Contract
-        // 4. Get satellite rewards record of satellite that user is delegated to
+        // 4. Get satellite rewards record of satellite that user is delegated to (for reference)
         // 5. Calculate satellite unclaimed rewards
         //    - calculate rewards ratio: difference between satellite's accumulatedRewardsPerShare and user's current participationRewardsPerShare
         //    - user's satellite rewards is equal to his staked MVK balance multiplied by rewards ratio

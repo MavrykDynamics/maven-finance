@@ -45,7 +45,7 @@ const noOperations : list (operation) = nil;
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _: unit; const _store: storage) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _store: storage) : list(nat) is
   list[0n]
 
 

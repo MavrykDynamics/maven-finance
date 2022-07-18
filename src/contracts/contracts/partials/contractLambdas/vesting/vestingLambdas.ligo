@@ -64,7 +64,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType): return is
+function lambdaUpdateWhitelistContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
@@ -81,7 +81,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType): return is
+function lambdaUpdateGeneralContracts(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
@@ -98,7 +98,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType): return is
+function lambdaMistakenTransfer(const vestingLambdaAction : vestingLambdaActionType; var s: vestingStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -114,10 +114,10 @@ block {
                 checkSenderIsAdminOrGovernanceSatelliteContract(s);
 
                 // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
                   block{
                     const transferTokenOperation : operation = case transferParam.token of [
-                        |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
                         |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
                         |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];

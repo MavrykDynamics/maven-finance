@@ -135,7 +135,7 @@ block {
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
+function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); // check that sender is admin 
@@ -152,7 +152,7 @@ block {
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
+function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
@@ -169,7 +169,7 @@ block {
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType): return is
+function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
@@ -327,7 +327,7 @@ block {
                     // Create transfer token operation
                     // - check that token to be transferred are in the Whitelisted Token Contracts map
                     const transferTokenOperation : operation = case token of [
-                        |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
+                        |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
                         |   Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
                         |   Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
