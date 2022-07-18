@@ -1,71 +1,71 @@
 [
     {
-      "index": 0,
-      "name": "lambdaSetAdmin"
+        "index": 0,
+        "name": "lambdaSetAdmin"
     },
     {
-      "index": 1,
-      "name": "lambdaSetGovernance"
+        "index": 1,
+        "name": "lambdaSetGovernance"
     },
     {
-      "index": 2,
-      "name": "lambdaSetName"
+        "index": 2,
+        "name": "lambdaSetName"
     },
     {
-      "index": 3,
-      "name": "lambdaUpdateMetadata"
+        "index": 3,
+        "name": "lambdaUpdateMetadata"
     },
     {
-      "index": 4,
-      "name": "lambdaUpdateConfig"
+        "index": 4,
+        "name": "lambdaUpdateConfig"
     },
     {
-      "index": 5,
-      "name": "lambdaUpdateWhitelistContracts"
+        "index": 5,
+        "name": "lambdaUpdateWhitelistContracts"
     },
     {
-      "index": 6,
-      "name": "lambdaUpdateGeneralContracts"
+        "index": 6,
+        "name": "lambdaUpdateGeneralContracts"
     },
     {
-      "index": 7,
-      "name": "lambdaMistakenTransfer"
+        "index": 7,
+        "name": "lambdaMistakenTransfer"
     },
     {
-      "index": 8,
-      "name": "lambdaUpdateBlocksPerMinute"
+        "index": 8,
+        "name": "lambdaUpdateBlocksPerMinute"
     },
     {
-      "index": 9,
-      "name": "lambdaInitFarm"
+        "index": 9,
+        "name": "lambdaInitFarm"
     },
     {
-      "index": 10,
-      "name": "lambdaCloseFarm"
+        "index": 10,
+        "name": "lambdaCloseFarm"
     },
     {
-      "index": 11,
-      "name": "lambdaPauseAll"
+        "index": 11,
+        "name": "lambdaPauseAll"
     },
     {
-      "index": 12,
-      "name": "lambdaUnpauseAll"
+        "index": 12,
+        "name": "lambdaUnpauseAll"
     },
     {
-      "index": 13,
-      "name": "lambdaTogglePauseEntrypoint"
+        "index": 13,
+        "name": "lambdaTogglePauseEntrypoint"
     },
     {
-      "index": 14,
-      "name": "lambdaDeposit"
+        "index": 14,
+        "name": "lambdaDeposit"
     },
     {
-      "index": 15,
-      "name": "lambdaWithdraw"
+        "index": 15,
+        "name": "lambdaWithdraw"
     },
     {
-      "index": 16,
-      "name": "lambdaClaim"
+        "index": 16,
+        "name": "lambdaClaim"
     }    
 ]
   

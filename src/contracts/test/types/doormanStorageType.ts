@@ -2,24 +2,26 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type doormanStorageType = {
-  admin                     : string;
-  mvkTokenAddress           : string;
-  governanceAddress         : string;
-  metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
-  config                    : {
-    minMvkAmount  : BigNumber
-  } ;
+    admin                     : string;
+    mvkTokenAddress           : string;
+    governanceAddress         : string;
+    metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
-  whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
-  generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+    config                    : {
+        minMvkAmount  : BigNumber
+    } ;
 
-  breakGlassConfig          : {};
-  userStakeBalanceLedger    : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+    generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
-  unclaimedRewards          : BigNumber;
+    breakGlassConfig          : {};
+    userStakeBalanceLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  accumulatedFeesPerShare   : BigNumber;
+    unclaimedRewards          : BigNumber;
 
-  lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+    accumulatedFeesPerShare   : BigNumber;
+
+    lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+    
 };

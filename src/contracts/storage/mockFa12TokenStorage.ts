@@ -18,68 +18,70 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-          version: 'v1.0.0',
-          description: 'MOCK FA12',
-          authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-          source: {
-            tools: ['Ligo', 'Flextesa'],
-            location: 'https://ligolang.org/',
-          },
-          interfaces: ['TZIP-7'],
-          errors: [],
-          views: [],
-          assets: [
-            {
-              symbol: Buffer.from('FA12').toString('hex'),
-              name: Buffer.from('MOCKFA12').toString('hex'),
-              decimals: Buffer.from('6').toString('hex'),
-              icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
-              shouldPreferSymbol: true,
-              thumbnailUri: 'https://mavryk.finance/logo192.png'
-            }
-          ]
+            version: 'v1.0.0',
+            description: 'MOCK FA12',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            source: {
+                tools: ['Ligo', 'Flextesa'],
+                location: 'https://ligolang.org/',
+            },
+            interfaces: ['TZIP-7'],
+            errors: [],
+            views: [],
+            assets: [
+                {
+                symbol: Buffer.from('FA12').toString('hex'),
+                name: Buffer.from('MOCKFA12').toString('hex'),
+                decimals: Buffer.from('6').toString('hex'),
+                icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+                shouldPreferSymbol: true,
+                thumbnailUri: 'https://mavryk.finance/logo192.png'
+                }
+            ]
         }),
         'ascii',
-      ).toString('hex'),
+    ).toString('hex'),
   })
 
 const ledger = MichelsonMap.fromLiteral({
     [bob.pkh]: {
-      balance: singleUserSupply,
-      allowances: MichelsonMap.fromLiteral({})
+        balance: singleUserSupply,
+        allowances: MichelsonMap.fromLiteral({})
     },
     [alice.pkh]: {
-      balance: singleUserSupply,
-      allowances: MichelsonMap.fromLiteral({})
+        balance: singleUserSupply,
+        allowances: MichelsonMap.fromLiteral({})
     },
     [eve.pkh]: {
-      balance: singleUserSupply,
-      allowances: MichelsonMap.fromLiteral({})
+        balance: singleUserSupply,
+        allowances: MichelsonMap.fromLiteral({})
     },
     [mallory.pkh]: {
-      balance: singleUserSupply,
-      allowances: MichelsonMap.fromLiteral({})
+        balance: singleUserSupply,
+        allowances: MichelsonMap.fromLiteral({})
     }
   })
 
 const token_metadata = MichelsonMap.fromLiteral({
     0: {
-      token_id: '0',
-      token_info: MichelsonMap.fromLiteral({
-        symbol: Buffer.from('FA12').toString('hex'),
-        name: Buffer.from('MOCKFA12').toString('hex'),
-        decimals: Buffer.from('6').toString('hex'),
-        icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
-        shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
-        thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex')
-      }),
+        token_id: '0',
+        token_info: MichelsonMap.fromLiteral({
+            symbol: Buffer.from('FA12').toString('hex'),
+            name: Buffer.from('MOCKFA12').toString('hex'),
+            decimals: Buffer.from('6').toString('hex'),
+            icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+            shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
+            thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex')
+        }),
     },
   })
 
 export const mockFa12TokenStorage: mockFa12TokenStorageType = {
-  admin: bob.pkh,
-  metadata: metadata,
-  token_metadata: token_metadata,
-  totalSupply: initialSupply,
-  ledger: ledger,
+    
+    admin: bob.pkh,
+    metadata: metadata,
+    token_metadata: token_metadata,
+    totalSupply: initialSupply,
+    ledger: ledger,
+
 };
