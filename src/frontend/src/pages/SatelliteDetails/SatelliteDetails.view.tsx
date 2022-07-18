@@ -35,6 +35,31 @@ type SatelliteDetailsViewProps = {
   userStakedBalanceInSatellite: number
 }
 
+const renderVotingHistoryItem = (item: any, proposalLedger: any) => {
+  const filteredProposal = proposalLedger?.length
+    ? proposalLedger.find((proposal: any) => proposal.id === item.proposalId)
+    : null
+
+  return (
+    <SatelliteVotingHistoryListItem key={item.id}>
+      <p>
+        Proposal {item.proposalId} - {filteredProposal?.title}
+      </p>
+      <span className="satellite-voting-history-info">
+        Voted{' '}
+        {item.vote === 1 ? (
+          <b className="voting-yes">YES </b>
+        ) : item.vote === 2 ? (
+          <b className="voting-abstain">ABSTAIN </b>
+        ) : (
+          <b className="voting-no">NO </b>
+        )}
+        <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
+      </span>
+    </SatelliteVotingHistoryListItem>
+  )
+}
+
 export const SatelliteDetailsView = ({
   satellite,
   loading,
@@ -47,30 +72,7 @@ export const SatelliteDetailsView = ({
   const { participationMetrics } = useSelector((state: State) => state.delegation)
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const proposalLedger = governanceStorage.proposalLedger
-  const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
-
-  const options: HTMLReactParserOptions = {
-    replace: (domNode: any) => {
-      const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
-      if (!domNode.attribs || (isElement && domNode.name === 'script')) return
-      if (isElement) {
-        if (domNode.name === 'strong') {
-          return (
-            <SatelliteDescriptionText fontWeight={700}>
-              {domToReact(domNode.children, options)}
-            </SatelliteDescriptionText>
-          )
-        } else if (domNode.name === 'p') {
-          return (
-            <SatelliteDescriptionText fontWeight={400}>
-              {domToReact(domNode.children, options)}
-            </SatelliteDescriptionText>
-          )
-        } else return
-      } else return
-    },
-  }
 
   const emptyContainer = (
     <EmptyContainer>
@@ -81,31 +83,6 @@ export const SatelliteDetailsView = ({
 
   const isSameId = satellite?.address === params.satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
-
-  const renderVotingHistoryItem = (item: any) => {
-    const filteredProposal = proposalLedger?.length
-      ? proposalLedger.find((proposal: any) => proposal.id === item.proposalId)
-      : null
-
-    return (
-      <SatelliteVotingHistoryListItem key={item.id}>
-        <p>
-          Proposal {item.proposalId} - {filteredProposal?.title}
-        </p>
-        <span className="satellite-voting-history-info">
-          Voted{' '}
-          {item.vote === 1 ? (
-            <b className="voting-yes">YES </b>
-          ) : item.vote === 2 ? (
-            <b className="voting-abstain">ABSTAIN </b>
-          ) : (
-            <b className="voting-no">NO </b>
-          )}
-          <Time value={item.timestamp} format="\o\n M d\t\h, Y" />
-        </span>
-      </SatelliteVotingHistoryListItem>
-    )
-  }
 
   return (
     <Page>
@@ -126,7 +103,7 @@ export const SatelliteDetailsView = ({
           <SatelliteCardBottomRow>
             <SatelliteDescrBlock>
               <BlockName>Description:</BlockName>
-              <p>{parse(satellite.description, options)}</p>
+              <p>{satellite.description}</p>
               {satellite.website ? (
                 <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
                   Website
@@ -153,9 +130,9 @@ export const SatelliteDetailsView = ({
                 <SatelliteVotingInfoWrapper>
                   <BlockName>Voting History:</BlockName>
                   <div className="voting-info-list-wrapper scroll-block">
-                    {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
-                    {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
-                    {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
+                    {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                    {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                    {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
                   </div>
                 </SatelliteVotingInfoWrapper>
               ) : null}

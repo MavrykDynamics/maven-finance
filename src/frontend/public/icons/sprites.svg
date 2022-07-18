@@ -183,6 +183,13 @@
             <rect fill="none" stroke="none" width="24" height="24"></rect>
         </g>
     </symbol>
+    <symbol id="requestFeed" viewBox="0 0 24 24">
+        <circle cx="5" cy="5" r="3" stroke="#160E3F" stroke-width="1.5"/>
+        <circle cx="5" cy="19" r="3" stroke="#160E3F" stroke-width="1.5"/>
+        <circle cx="19" cy="19" r="3" stroke="#160E3F" stroke-width="1.5"/>
+        <path d="M11 4.88889H16C17.6569 4.88889 19 6.23203 19 7.88889V16M11 4.88889L14 1.5M11 4.88889L13.8235 8.25926" stroke="#160E3F" stroke-width="1.5"/>
+        <path d="M5 8V16" stroke="#160E3F" stroke-width="1.5"/>
+    </symbol>
     <symbol id="man-close" viewBox="0 0 24 24">
         <g>
             <path d="M5.25 6.75C6.90685 6.75 8.25 5.40685 8.25 3.75C8.25 2.09315 6.90685 0.75 5.25 0.75C3.59315 0.75 2.25 2.09315 2.25 3.75C2.25 5.40685 3.59315 6.75 5.25 6.75Z"

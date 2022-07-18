@@ -16,7 +16,7 @@ export const SatelliteListEmptyContainer = styled.figure<{ theme: MavrykTheme }>
   flex-direction: column;
   padding-top: 16px;
 `
-export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?: boolean }>`
+export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?: boolean; dataFeeds?: boolean }>`
   background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   align-items: center;
@@ -33,6 +33,29 @@ export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?:
     oracle
       ? css`
           margin-top: 30px;
+        `
+      : ''}
+
+  ${({ dataFeeds }) =>
+    dataFeeds
+      ? css`
+          margin-top: 30px;
+          input {
+            margin-left: 30px;
+            width: 375px;
+          }
+
+          .dropDown {
+            min-width: 330px;
+          }
+
+          button {
+            max-width: 250px;
+
+            svg {
+              fill: transparent;
+            }
+          }
         `
       : ''}
 `

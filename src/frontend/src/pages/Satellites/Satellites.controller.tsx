@@ -51,6 +51,8 @@ const Satellites = () => {
     dispatch(undelegate())
   }
 
+  console.log(oraclesStorage.feeds)
+
   return (
     <SatellitesView
       isLoading={loading}
@@ -61,6 +63,7 @@ const Satellites = () => {
         satelliteUserIsDelegatedTo: user.satelliteMvkIsDelegatedTo,
         items: satelliteLedger.slice(0, 3),
       }}
+      dataFeedsData={{ items: oraclesStorage.feeds.slice(0, 5) }}
     />
   )
 }

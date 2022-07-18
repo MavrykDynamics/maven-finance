@@ -15,7 +15,6 @@ import {
 export const GET_SATELLITE_BY_ADDRESS = 'GET_SATELLITE_BY_ADDRESS'
 export const getSatelliteByAddress = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
-  const oraclesIds = state.oracles.oraclesStorage.oraclesSatellitesIds.map(({ oracle_id }) => oracle_id)
 
   try {
     const satelliteRecordFromIndexer = await fetchFromIndexerWithPromise(
@@ -35,12 +34,10 @@ export const getSatelliteByAddress = (satelliteAddress: string) => async (dispat
       userVotingHistoryIndexer: userVotingHistoryIndexer?.mavryk_user?.[0],
     })
 
-    satelliteRecord['isSatelliteOracle'] = false
-    if (oraclesIds.includes(satelliteRecord.address)) {
+    if (satelliteRecord.oracleRecords.length) {
       satelliteRecord['feeds'] = state.oracles.oraclesStorage.feeds.filter(
         (feed) => feed.admin === satelliteRecord.address,
       )
-      satelliteRecord['isSatelliteOracle'] = true
     }
 
     dispatch({

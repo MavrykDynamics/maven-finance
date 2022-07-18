@@ -53,7 +53,7 @@ export const AppRoutes = () => {
       <Route exact path="/become-satellite">
         <BecomeSatellite />
       </Route>
-      <Route exact path="/satellite-details/:satelliteId/:isOracle?/">
+      <Route exact path="/satellite-details/:satelliteId/">
         <SatelliteDetails />
       </Route>
       <Route exact path="/governance">
