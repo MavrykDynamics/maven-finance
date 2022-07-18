@@ -88,7 +88,6 @@ export const setAggregatorFactoryLambdas = async (tezosToolkit: TezosToolkit, co
 
     aggregatorFactoryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
         batch.withContractCall(contract.methods.setLambda(name, aggregatorFactoryLambdas[index]))
-
     });
 
 
@@ -97,14 +96,13 @@ export const setAggregatorFactoryLambdas = async (tezosToolkit: TezosToolkit, co
 }
 
 export const setAggregatorFactoryProductLambdas = async (tezosToolkit: TezosToolkit, contract: AggregatorFactoryContractAbstraction) => {
+
     const batch = tezosToolkit.wallet
         .batch();
 
     aggregatorLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
         batch.withContractCall(contract.methods.setProductLambda(name, aggregatorLambdas[index]))
-
     });
-
 
     const op = await batch.send()
     await confirmOperation(tezosToolkit, op.opHash);
@@ -117,44 +115,44 @@ export class AggregatorFactory {
     tezos: TezosToolkit;
   
     constructor(contract: AggregatorFactoryContractAbstraction, tezos: TezosToolkit) {
-      this.contract = contract;
-      this.tezos = tezos;
+        this.contract = contract;
+        this.tezos = tezos;
     }
   
     static async init(
-      aggregatorFactoryContractAddress: string,
-      tezos: TezosToolkit
+        aggregatorFactoryContractAddress: string,
+        tezos: TezosToolkit
     ): Promise<AggregatorFactory> {
-      return new AggregatorFactory(
-        await tezos.contract.at(aggregatorFactoryContractAddress),
-        tezos
-      );
+        return new AggregatorFactory(
+            await tezos.contract.at(aggregatorFactoryContractAddress),
+            tezos
+        );
     }
 
     static async originate(
-      tezos: TezosToolkit,
-      storage: aggregatorFactoryStorageType
+        tezos: TezosToolkit,
+        storage: aggregatorFactoryStorageType
     ): Promise<AggregatorFactory> {       
 
       const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/aggregatorFactory.json`).toString()
+            fs.readFileSync(`${env.buildDir}/aggregatorFactory.json`).toString()
       );
       const operation: OriginationOperation = await tezos.contract
         .originate({
-          code: artifacts.michelson,
-          storage: storage,
+            code: artifacts.michelson,
+            storage: storage,
         })
         .catch((e) => {
-          console.error(e);
-          console.log('error no hash')
-          return null;
+            console.error(e);
+            console.log('error no hash')
+            return null;
         });
   
       await confirmOperation(tezos, operation.hash);
   
       return new AggregatorFactory(
-        await tezos.contract.at(operation.contractAddress),
-        tezos
+            await tezos.contract.at(operation.contractAddress),
+            tezos
       );
     }
 

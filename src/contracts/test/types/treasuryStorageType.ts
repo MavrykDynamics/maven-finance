@@ -2,20 +2,21 @@ import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
 export type treasuryStorageType = {
-  admin                     : string;
-  mvkTokenAddress           : string;
-  governanceAddress         : string;
 
-  name                      : string;
-  metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
+    admin                     : string;
+    mvkTokenAddress           : string;
+    governanceAddress         : string;
 
-  config                    : {};
-  breakGlassConfig          : {};
+    name                      : string;
+    metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
-  whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
-  whitelistTokenContracts   : MichelsonMap<MichelsonMapKey, unknown>;
-  generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+    config                    : {};
+    breakGlassConfig          : {};
 
-  lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistTokenContracts   : MichelsonMap<MichelsonMapKey, unknown>;
+    generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+
+    lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 
 }
