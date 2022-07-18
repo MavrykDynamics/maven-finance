@@ -102,16 +102,7 @@ type doormanLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-<<<<<<< HEAD:src/contracts/contracts/partials/types/doormanTypes.ligo
-// type doormanActionType is 
-//     SetAdmin    of address
-//   | Stake       of nat
-
-
-type doormanStorage is [@layout:comb] record [
-=======
 type doormanStorageType is [@layout:comb] record [
->>>>>>> 692fb711a00cb76e5adcc9aa4c017a1e3874efda:src/contracts/contracts/partials/contractTypes/doormanTypes.ligo
   admin                     : address;
   metadata                  : metadataType;
   config                    : doormanConfigType;
