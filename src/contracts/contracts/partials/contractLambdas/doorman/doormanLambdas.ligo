@@ -88,7 +88,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaUpdateWhitelistContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin
@@ -105,7 +105,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin
@@ -122,7 +122,7 @@ block {
 
 
 (*  mistaken lambda *)
-function lambdaMistakenTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaMistakenTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -143,12 +143,12 @@ block {
                 const mvkTokenAddress : address  = s.mvkTokenAddress;
 
                 // Create transfer operations
-                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)) : list(operation) is
                     block{
                         
                         // Check that token is not MVK (it would break staked MVK in the Doorman Contract) before creating the transfer operation
                         const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
                             |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
                             |   Fa2(token)  -> if token.tokenContractAddress = mvkTokenAddress then failwith(error_CANNOT_TRANSFER_MVK_TOKEN_USING_MISTAKEN_TRANSFER) else transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
@@ -166,7 +166,7 @@ block {
 
 
 (*  migrateFunds lambda - for migration to an upgraded Doorman Contract if necessary *)
-function lambdaMigrateFunds(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaMigrateFunds(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block {
 
     // Steps Overview:    
@@ -775,7 +775,7 @@ block {
 
 
 (*  compound lambda *)
-function lambdaCompound(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaCompound(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
 block{
 
     // Steps Overview: 
@@ -819,7 +819,7 @@ block{
 
 
 (* farmClaim lambda *)
-function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
+function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType) : return is
   block{
 
     // Steps Overview: 
@@ -995,7 +995,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                             token = (Fa2 (record[
                                 tokenContractAddress  = mvkTokenAddress;
                                 tokenId               = 0n;
-                            ]): tokenType);
+                            ]) : tokenType);
                             amount = transferedToken;
                         ]
                     ];

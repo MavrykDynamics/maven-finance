@@ -92,7 +92,7 @@ function checkSenderIsAllowed(var s : governanceSatelliteStorageType) : unit is
 
 
 // Allowed Senders : Admin
-function checkSenderIsAdmin(const s : governanceSatelliteStorageType): unit is
+function checkSenderIsAdmin(const s : governanceSatelliteStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
 
@@ -441,7 +441,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint  *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceSatelliteStorageType): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceSatelliteStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -460,7 +460,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint  *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceSatelliteStorageType): return is
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceSatelliteStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -747,7 +747,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : governanceSatelliteStorageType): return is
+function setLambda(const setLambdaParams : setLambdaType; var s : governanceSatelliteStorageType) : return is
 block{
     
     // check that sender is admin

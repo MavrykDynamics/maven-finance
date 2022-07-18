@@ -48,6 +48,7 @@ block {
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case councilLambdaAction of [
@@ -97,7 +98,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
+function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); // check that sender is admin
@@ -114,7 +115,7 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
+function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); // check that sender is admin
@@ -1785,7 +1786,7 @@ block {
                         } else skip;
 
                         if  tokenType = "FA12" then block {
-                            _tokenTransferType      := (Fa12(tokenContractAddress): tokenType);
+                            _tokenTransferType      := (Fa12(tokenContractAddress) : tokenType);
                         } else skip;
 
                         if  tokenType = "FA2" then block {
@@ -1799,7 +1800,7 @@ block {
                         // --- --- ---
 
                         const transferTokenOperation : operation = case _tokenTransferType of [ 
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
                             |   Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                             |   Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                         ];

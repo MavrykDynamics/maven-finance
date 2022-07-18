@@ -451,7 +451,7 @@ block {
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _ : unit; const s : governanceFinancialStorageType): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _ : unit; const s : governanceFinancialStorageType) : whitelistContractsType is 
     s.whitelistContracts
 
 
@@ -600,7 +600,7 @@ block {
 
 
 // (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceFinancialStorageType): return is
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : governanceFinancialStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -619,7 +619,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceFinancialStorageType): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : governanceFinancialStorageType) : return is
 block {
         
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -638,7 +638,7 @@ block {
 
 
 // (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : governanceFinancialStorageType): return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : governanceFinancialStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
@@ -657,7 +657,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams : transferActionType; var s : governanceFinancialStorageType): return is
+function mistakenTransfer(const destinationParams : transferActionType; var s : governanceFinancialStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -787,7 +787,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams : setLambdaType; var s : governanceFinancialStorageType): return is
+function setLambda(const setLambdaParams : setLambdaType; var s : governanceFinancialStorageType) : return is
 block{
     
     // check that sender is admin
