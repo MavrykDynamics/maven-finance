@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaSetAdmin(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
     checkSenderIsAllowed(s); 
@@ -26,7 +26,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaSetGovernance(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
     
     checkSenderIsAllowed(s);
@@ -43,7 +43,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaUpdateMetadata(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
     
     checkSenderIsAdmin(s); 
@@ -64,7 +64,7 @@ block {
 
 
 (* updateConfig lambda *)
-function lambdaUpdateConfig(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is 
+function lambdaUpdateConfig(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is 
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -88,7 +88,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaUpdateWhitelistContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -105,7 +105,7 @@ block {
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaUpdateGeneralContracts(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -122,7 +122,7 @@ block {
 
 
 (*  mistaken lambda *)
-function lambdaMistakenTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaMistakenTransfer(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -158,7 +158,7 @@ block {
 
 
 (*  migrateFunds lambda *)
-function lambdaMigrateFunds(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaMigrateFunds(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -180,7 +180,7 @@ block {
                 ];
 
                 // Create a transfer to transfer all funds
-                const transferParameters: transferType = list[
+                const transferParameters: fa2TransferType = list[
                   record[
                     from_=Tezos.self_address;
                     txs=list[
@@ -216,7 +216,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaPauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
     checkSenderIsAllowed(s);
@@ -246,7 +246,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaUnpauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
     checkSenderIsAllowed(s);
@@ -275,57 +275,22 @@ block {
 
 
 
-(*  togglePauseStake lambda *)
-function lambdaTogglePauseStake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+(*  togglePauseEntrypoint lambda *)
+function lambdaTogglePauseEntrypoint(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
-    
-    checkSenderIsAdmin(s); 
 
-    case doormanLambdaAction of [
-        | LambdaTogglePauseStake(_parameters) -> {
-                
-              if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
-              else s.breakGlassConfig.stakeIsPaused := True;
-                
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
-(*  togglePauseUnstake lambda *)
-function lambdaTogglePauseUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
-block {
-    
+    checkNoAmount(Unit);
     checkSenderIsAdmin(s);
 
     case doormanLambdaAction of [
-        | LambdaTogglePauseUnstake(_parameters) -> {
-                
-              if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
-              else s.breakGlassConfig.unstakeIsPaused := True;
-                
-            }
-        | _ -> skip
-    ];
+        | LambdaTogglePauseEntrypoint(params) -> {
 
-} with (noOperations, s)
-
-
-
-(*  togglePauseCompound lambda *)
-function lambdaTogglePauseCompound(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
-block {
-    
-    checkSenderIsAdmin(s);
-
-    case doormanLambdaAction of [
-        | LambdaTogglePauseCompound(_parameters) -> {
-                
-              if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
-              else s.breakGlassConfig.compoundIsPaused := True;
+                case params.targetEntrypoint of [
+                    Stake (_v)            -> s.breakGlassConfig.stakeIsPaused := _v
+                |   Unstake (_v)          -> s.breakGlassConfig.unstakeIsPaused := _v
+                |   Compound (_v)         -> s.breakGlassConfig.compoundIsPaused := _v
+                |   FarmClaim (_v)        -> s.breakGlassConfig.farmClaimIsPaused := _v
+                ]
                 
             }
         | _ -> skip
@@ -334,24 +299,6 @@ block {
 } with (noOperations, s)
 
 
-
-(*  togglePauseFarmClaim lambda *)
-function lambdaTogglePauseFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
-block {
-    
-    checkSenderIsAdmin(s);
-
-    case doormanLambdaAction of [
-        | LambdaTogglePauseFarmClaim(_parameters) -> {
-                
-              if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
-              else s.breakGlassConfig.farmClaimIsPaused := True;
-                
-            }
-        | _ -> skip
-    ];
-
-} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
@@ -364,7 +311,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  stake lambda *)
-function lambdaStake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaStake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
 
   // Steps Overview
@@ -408,7 +355,7 @@ block {
               ];
 
               // update user's MVK balance (stake) -> decrease user balance in mvk ledger
-              const transferParameters: transferType = list[
+              const transferParameters: fa2TransferType = list[
                 record[
                   from_=userAddress;
                   txs=list[
@@ -461,7 +408,7 @@ block {
 
 
 (*  unstake lambda *)
-function lambdaUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
   // Steps Overview
   // 1. verify that user is unstaking more than 0 sMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
@@ -559,7 +506,7 @@ block {
                 ];
 
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
-                const transferParameters: transferType = list[
+                const transferParameters: fa2TransferType = list[
                   record[
                     from_=Tezos.self_address;
                     txs=list[
@@ -591,7 +538,7 @@ block {
                 else skip;
                 // Set the user's participationFeesPerShare 
                 userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
-                // Update the doormanStorage
+                // Update the doormanStorageType
                 s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
 
 
@@ -613,7 +560,7 @@ block {
 
 
 (*  new unstake lambda *)
-function lambdaNewUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+function lambdaNewUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorageType) : return is
 block {
   // New unstake lambda for upgradability testing
 
@@ -695,7 +642,7 @@ block {
                 ];
 
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
-                const transferParameters: transferType = list[
+                const transferParameters: fa2TransferType = list[
                   record[
                     from_=Tezos.self_address;
                     txs=list[
@@ -727,7 +674,7 @@ block {
                 else skip;
                 // Set the user's participationFeesPerShare 
                 userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
-                // Update the doormanStorage
+                // Update the doormanStorageType
                 s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
 
 
@@ -749,7 +696,7 @@ block {
 
 
 (*  compound lambda *)
-function lambdaCompound(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaCompound(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block{
     
     checkCompoundIsNotPaused(s);
@@ -785,7 +732,7 @@ block{
 
 
 (* farmClaim lambda *)
-function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
   block{
     
     checkFarmClaimIsNotPaused(s);

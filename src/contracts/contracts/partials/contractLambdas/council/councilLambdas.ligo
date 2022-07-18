@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is
+function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorage) : return is
+function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -45,7 +45,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is
+function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -66,7 +66,7 @@ block {
 
 
 (*  updateConfig lambda  *)
-function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaUpdateConfig(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -97,7 +97,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorage): return is
+function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
 block {
     
     // check that sender is admin
@@ -115,7 +115,7 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorage): return is
+function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
 block {
     
     // check that sender is admin
@@ -133,7 +133,7 @@ block {
 
 
 (*  updateCouncilMemberInfo lambda - update the info of a council member *)
-function lambdaUpdateCouncilMemberInfo(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is
+function lambdaUpdateCouncilMemberInfo(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
     case councilLambdaAction of [
@@ -174,7 +174,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddMember lambda  *)
-function lambdaCouncilActionAddMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionAddMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -242,7 +242,7 @@ block {
 
 
 (*  councilActionRemoveMember lambda  *)
-function lambdaCouncilActionRemoveMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionRemoveMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -305,7 +305,7 @@ block {
 
 
 (*  councilActionChangeMember lambda  *)
-function lambdaCouncilActionChangeMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionChangeMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -377,7 +377,7 @@ block {
 
 
 (*  councilActionSetBaker lambda  *)
-function lambdaCouncilActionSetBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionSetBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -434,7 +434,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionUpdateBlocksPerMinute lambda  *)
-function lambdaCouncilActionUpdateBlocksPerMinute(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionUpdateBlocksPerMinute(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -505,7 +505,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddVestee lambda  *)
-function lambdaCouncilActionAddVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionAddVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -591,7 +591,7 @@ block {
 
 
 (*  councilActionRemoveVestee lambda  *)
-function lambdaCouncilActionRemoveVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionRemoveVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -667,7 +667,7 @@ block {
 
 
 (*  councilActionUpdateVestee lambda  *)
-function lambdaCouncilActionUpdateVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionUpdateVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -753,7 +753,7 @@ block {
 
 
 (*  councilActionToggleVesteeLock lambda  *)
-function lambdaCouncilActionToggleVesteeLock(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionToggleVesteeLock(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -836,7 +836,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionTransfer lambda  *)
-function lambdaCouncilActionTransfer(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionTransfer(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -907,7 +907,7 @@ block {
 
 
 (*  councilActionRequestTokens lambda  *)
-function lambdaCouncilActionRequestTokens(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionRequestTokens(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -991,7 +991,7 @@ block {
 
 
 (*  councilActionRequestMint lambda  *)
-function lambdaCouncilActionRequestMint(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionRequestMint(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Overall steps:
@@ -1064,7 +1064,7 @@ block {
 
 
 (*  councilActionSetContractBaker lambda  *)
-function lambdaCouncilActionSetContractBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionSetContractBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Overall steps:
@@ -1130,7 +1130,7 @@ block {
 
 
 (*  councilActionDropFinancialRequest lambda  *)
-function lambdaCouncilActionDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaCouncilActionDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     // Overall steps:
@@ -1201,7 +1201,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  flushAction lambda  *)
-function lambdaFlushAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaFlushAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
     // Overall steps:
@@ -1268,7 +1268,7 @@ block {
 
 
 (*  signAction lambda  *)
-function lambdaSignAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+function lambdaSignAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
     checkSenderIsCouncilMember(s);

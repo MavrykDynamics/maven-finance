@@ -41,16 +41,25 @@ type GovernanceSatelliteContractAbstraction<T extends ContractProvider | Wallet 
 
 
 export const setGovernanceSatelliteLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceSatelliteContractAbstraction) => {
-  const batch = tezosToolkit.wallet
-      .batch();
 
-  governanceSatelliteLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
-      batch.withContractCall(contract.methods.setLambda(name, governanceSatelliteLambdas[index]))
+  const lambdasPerBatch = 10;
 
-  });
+  const lambdasCount = governanceSatelliteLambdas.length;
+  const batchesCount = Math.ceil(lambdasCount / lambdasPerBatch);
+  
+  for(let i = 0; i < batchesCount; i++) {
+    
+    const batch = tezosToolkit.wallet.batch();
 
-  const setupGovernanceSatelliteLambdasOperation = await batch.send()
-  await confirmOperation(tezosToolkit, setupGovernanceSatelliteLambdasOperation.opHash);
+    governanceSatelliteLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {  
+      if(index < (lambdasPerBatch * (i + 1)) && (index >= lambdasPerBatch * i)){
+        batch.withContractCall(contract.methods.setLambda(name, governanceSatelliteLambdas[index]))
+      }
+    });
+
+    const setupGovernanceSatelliteLambdasOperation = await batch.send()
+    await confirmOperation(tezosToolkit, setupGovernanceSatelliteLambdasOperation.opHash);
+  }
 };
 
 

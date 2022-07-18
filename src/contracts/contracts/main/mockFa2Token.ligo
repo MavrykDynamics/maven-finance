@@ -1,11 +1,11 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Transfer Types: transferDestinationType
+#include "../partials/shared/transferTypes.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
 // MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 ////
 // COMMON TYPES

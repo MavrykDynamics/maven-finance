@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is
+function lambdaSetAdmin(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is
+function lambdaSetGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -45,7 +45,7 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is
+function lambdaUpdateMetadata(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); 
@@ -66,7 +66,7 @@ block {
 
 
 (* updateConfig lambda  *)
-function lambdaUpdateConfig(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is 
+function lambdaUpdateConfig(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -97,7 +97,7 @@ block {
 
 
 (* updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorage): return is
+function lambdaUpdateGeneralContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -114,7 +114,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage): return is
+function lambdaUpdateWhitelistContracts(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -131,7 +131,7 @@ block {
 
 
 (*  mistakenTransfer lambda *)
-function lambdaMistakenTransfer(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorage): return is
+function lambdaMistakenTransfer(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s: emergencyGovernanceStorageType): return is
 block {
 
     var operations : list(operation) := nil;
@@ -171,7 +171,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* triggerEmergencyControl lambda  *)
-function lambdaTriggerEmergencyControl(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is 
+function lambdaTriggerEmergencyControl(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -278,7 +278,7 @@ block {
 
 
 (* voteForEmergencyControl lambda  *)
-function lambdaVoteForEmergencyControl(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is 
+function lambdaVoteForEmergencyControl(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
     // Steps Overview:
@@ -384,7 +384,7 @@ block {
 
 
  (* dropEmergencyGovernance lambda  *)
-function lambdaDropEmergencyGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is 
+function lambdaDropEmergencyGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
     // Steps Overview:

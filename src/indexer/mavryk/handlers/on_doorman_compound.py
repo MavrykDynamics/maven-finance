@@ -1,0 +1,74 @@
+
+from mavryk.types.doorman.parameter.compound import CompoundParameter
+from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+from mavryk.types.doorman.storage import DoormanStorage
+import mavryk.models as models
+
+async def on_doorman_compound(
+    ctx: HandlerContext,
+    compound: Transaction[CompoundParameter, DoormanStorage],
+) -> None:
+
+    # Get operation info
+    doorman_address                 = compound.data.target_address
+    sender_address                  = compound.data.sender_address
+    sender_stake_balance_ledger     = compound.storage.userStakeBalanceLedger[sender_address]
+    smvk_balance                    = float(sender_stake_balance_ledger.balance)
+    participation_fees_per_share    = sender_stake_balance_ledger.participationFeesPerShare
+    timestamp                       = compound.data.timestamp
+    doorman                         = await models.Doorman.get(address=doorman_address)
+    unclaimed_rewards               = float(compound.storage.unclaimedRewards)
+    accumulated_fees_per_share      = float(compound.storage.accumulatedFeesPerShare)
+
+    # Get or create the interacting user
+    user, _             = await models.MavrykUser.get_or_create(
+        address=sender_address
+    )
+    amount                          = smvk_balance - user.smvk_balance
+    user.smvk_balance               = smvk_balance
+    await user.save()
+    
+    stake_account, _    = await models.DoormanStakeAccount.get_or_create(
+        user    = user,
+        doorman = doorman
+    )
+    stake_account.participation_fees_per_share  = participation_fees_per_share
+    stake_account.smvk_balance                  = smvk_balance
+    await stake_account.save()
+
+    # Calculate the MLI
+    # TODO: IS IT OK?
+    # mvkToken                    = await models.MVKToken.get(address=compound.storage.mvkTokenAddress)
+    # previous_mvk_total_supply   = float(mvkToken.total_supply)
+    # previous_smvk_total_supply  = smvk_total_supply - amount
+    # mli = 0.0
+    # if previous_mvk_total_supply > 0.0:
+    #     mli = previous_smvk_total_supply / previous_mvk_total_supply
+    
+    # Get doorman info
+    doorman_user    = await models.MavrykUser.get(
+        address = doorman_address
+    )
+    smvk_total_supply   = doorman_user.mvk_balance
+    smvk_users          = await models.MavrykUser.filter(smvk_balance__gt=0).count()
+    avg_smvk_per_user   = smvk_total_supply / smvk_users
+
+    # Create a stake record
+    stake_record = models.StakeHistoryData(
+        timestamp           = timestamp,
+        type                = models.StakeType.COMPOUND,
+        desired_amount      = amount,
+        final_amount        = amount,
+        doorman             = doorman,
+        from_               = user,
+        smvk_total_supply   = smvk_total_supply,
+        avg_smvk_per_user   = avg_smvk_per_user
+        # mvk_loyalty_index   = mli
+    )
+    await stake_record.save()
+
+    # Update doorman contract
+    doorman.unclaimed_rewards           = unclaimed_rewards
+    doorman.accumulated_fees_per_share  = accumulated_fees_per_share
+    await doorman.save()

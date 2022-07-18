@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSetAdmin(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -27,7 +27,7 @@ block {
 
 
 (*  setGovernance lambda *)
-function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSetGovernance(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
@@ -44,7 +44,7 @@ block {
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUpdateMetadata(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -65,7 +65,7 @@ block {
 
 
 (*  updateConfig lambda  *)
-function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is 
+function lambdaUpdateConfig(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -78,7 +78,6 @@ block {
                 const updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                    | ConfigVotingPowerRatio (_v)           -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.votingPowerRatio                       := updateConfigNewValue
                     | ConfigApprovalPercentage (_v)         -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.governanceSatelliteApprovalPercentage  := updateConfigNewValue
                     | ConfigSatelliteDurationInDays (_v)    -> s.config.governanceSatelliteDurationInDays       := updateConfigNewValue
                     | ConfigPurposeMaxLength (_v)           -> s.config.governancePurposeMaxLength              := updateConfigNewValue  
@@ -93,7 +92,7 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage): return is
+function lambdaUpdateWhitelistContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType): return is
 block {
     
     // check that sender is admin
@@ -111,7 +110,7 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage): return is
+function lambdaUpdateGeneralContracts(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType): return is
 block {
     
     // check that sender is admin
@@ -137,7 +136,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  suspendSatellite lambda *)
-function lambdaSuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -159,11 +158,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -260,7 +266,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -272,7 +278,7 @@ block {
 
 
 (*  unsuspendSatellite lambda *)
-function lambdaUnsuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUnsuspendSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -294,11 +300,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -394,7 +407,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -406,7 +419,7 @@ block {
 
 
 (*  banSatellite lambda *)
-function lambdaBanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaBanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -428,11 +441,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -528,7 +548,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -540,7 +560,7 @@ block {
 
 
 (*  unbanSatellite lambda *)
-function lambdaUnbanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUnbanSatellite(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -562,11 +582,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -662,7 +689,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -682,7 +709,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  removeAllSatelliteOracles lambda *)
-function lambdaRemoveAllSatelliteOracles(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaRemoveAllSatelliteOracles(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -704,11 +731,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -804,7 +838,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -816,7 +850,7 @@ block {
 
 
 (*  addOracleToAggregator lambda *)
-function lambdaAddOracleToAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaAddOracleToAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -839,11 +873,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -930,7 +971,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -942,7 +983,7 @@ block {
 
 
 (*  removeOracleInAggregator lambda *)
-function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaRemoveOracleInAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -965,11 +1006,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -1056,7 +1104,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -1077,7 +1125,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAggregatorMaintainer lambda *)
-function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaSetAggregatorMaintainer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1100,11 +1148,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -1191,7 +1246,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -1203,7 +1258,7 @@ block {
 
 
 (*  registerAggregator lambda *)
-function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaRegisterAggregator(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1245,7 +1300,7 @@ block {
 
 
 (*  updateAggregatorStatus lambda *)
-function lambdaUpdateAggregatorStatus(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaUpdateAggregatorStatus(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1268,11 +1323,18 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -1360,7 +1422,7 @@ block {
                         totalDelegatedAmount  = satellite.totalDelegatedAmount;
                     ];
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
                 }; 
 
             }
@@ -1380,7 +1442,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  dropAction lambda *)
-function lambdaDropAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaDropAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1405,7 +1467,7 @@ block {
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -1436,7 +1498,7 @@ block {
 
 
 (*  voteForAction lambda *)
-function lambdaVoteForAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorage) : return is
+function lambdaVoteForAction(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -1460,7 +1522,7 @@ block {
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
-                          Some (_satellite) -> skip
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
                         | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION)
                       ]
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
@@ -1483,13 +1545,13 @@ block {
                     | None            -> failwith(error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND)
                 ]; 
 
-                const satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType = case governanceSatelliteActionSnapshot[Tezos.sender] of [ 
+                const satelliteSnapshotRecord : satelliteSnapshotRecordType = case governanceSatelliteActionSnapshot[Tezos.sender] of [ 
                       Some(_record) -> _record
                     | None          -> failwith(error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT)
                 ];
 
                 // Save and update satellite's vote record
-                const voteType         : governanceSatelliteVoteChoiceType   = voteForAction.vote;
+                const voteType         : voteType   = voteForAction.vote;
                 const totalVotingPower : nat                                 = satelliteSnapshotRecord.totalVotingPower;
 
                 // Remove previous vote if user already voted

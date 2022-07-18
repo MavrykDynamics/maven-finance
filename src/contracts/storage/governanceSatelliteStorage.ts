@@ -12,7 +12,6 @@ const config = {
   governanceSatelliteApprovalPercentage  : 6700,
   governanceSatelliteDurationInDays      : 3,
   governancePurposeMaxLength             : 1000,
-  votingPowerRatio                       : 10000
 }
 
 const metadata = MichelsonMap.fromLiteral({

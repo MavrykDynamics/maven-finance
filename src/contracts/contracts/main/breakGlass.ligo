@@ -1,25 +1,29 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Governance Types
+#include "../partials/contractTypes/governanceTypes.ligo"
+
 // BreakGlass Types
-#include "../partials/types/breakGlassTypes.ligo"
+#include "../partials/contractTypes/breakGlassTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -33,54 +37,37 @@ type breakGlassAction is
     | SetGovernance                 of (address)
     | UpdateMetadata                of updateMetadataType
     | UpdateConfig                  of breakGlassUpdateConfigParamsType    
-    | UpdateWhitelistContracts      of updateWhitelistContractsParams
-    | UpdateGeneralContracts        of updateGeneralContractsParams
+    | UpdateWhitelistContracts      of updateWhitelistContractsType
+    | UpdateGeneralContracts        of updateGeneralContractsType
     | MistakenTransfer              of transferActionType
     | UpdateCouncilMemberInfo       of councilMemberInfoType
     
     // Internal Control of Council Members
-    | AddCouncilMember              of councilAddMemberType
+    | AddCouncilMember              of councilActionAddMemberType
     | RemoveCouncilMember           of address
-    | ChangeCouncilMember           of councilChangeMemberType
+    | ChangeCouncilMember           of councilActionChangeMemberType
     
     // Glass Broken Required
     | PropagateBreakGlass           of (unit)
-    | SetSingleContractAdmin        of setSingleContractAdminType
-    | SetAllContractsAdmin          of (address)               
-    | PauseAllEntrypoints           of (unit)             
+    | SetSingleContractAdmin        of setContractAdminType
+    | SetAllContractsAdmin          of (address)
+    | PauseAllEntrypoints           of (unit)
     | UnpauseAllEntrypoints         of (unit)
     | RemoveBreakGlassControl       of (unit)
 
     // Council Signing of Actions
-    | FlushAction                   of flushActionType
-    | SignAction                    of signActionType
+    | FlushAction                   of actionIdType
+    | SignAction                    of actionIdType
 
     // Lambda Entrypoints
     | SetLambda                     of setLambdaType
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * breakGlassStorage
+type return is list (operation) * breakGlassStorageType
 
 // break glass contract methods lambdas
-type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGlassStorage) -> return
-
-
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
+type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGlassStorageType) -> return
 
 
 
@@ -94,25 +81,25 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+function checkSenderIsAllowed(var s : breakGlassStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsAdmin(var s : breakGlassStorage) : unit is
+function checkSenderIsAdmin(var s : breakGlassStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
         else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
-function checkSenderIsCouncilMember(var s : breakGlassStorage) : unit is
+function checkSenderIsCouncilMember(var s : breakGlassStorageType) : unit is
     if Map.mem(Tezos.sender, s.councilMembers) then unit 
         else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 
 
-function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorage) : unit is
+function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorageType) : unit is
 block{
   const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
       Some(_address) -> _address
@@ -124,7 +111,7 @@ block{
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : breakGlassStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : breakGlassStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -149,24 +136,9 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 
-function checkGlassIsBroken(var s : breakGlassStorage) : unit is
+function checkGlassIsBroken(var s : breakGlassStorageType) : unit is
     if s.glassBroken = True then unit
       else failwith(error_GLASS_NOT_BROKEN);
-
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
 
 
 
@@ -189,7 +161,7 @@ function setAdminInContract(const contractAddress : address) : contract(address)
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(breakGlassUnpackLambdaFunctionType)) of [
@@ -236,61 +208,61 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : breakGlassStorage) : address is
+[@view] function getAdmin(const _: unit; var s : breakGlassStorageType) : address is
   s.admin
 
 
 
 (* View: get Glass broken variable *)
-[@view] function getGlassBroken(const _: unit; var s : breakGlassStorage) : bool is
+[@view] function getGlassBroken(const _: unit; var s : breakGlassStorageType) : bool is
   s.glassBroken
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : breakGlassStorage) : breakGlassConfigType is
+[@view] function getConfig(const _: unit; var s : breakGlassStorageType) : breakGlassConfigType is
   s.config
 
 
 
 (* View: get council members *)
-[@view] function getCouncilMembers(const _: unit; var s : breakGlassStorage) : councilMembersType is
+[@view] function getCouncilMembers(const _: unit; var s : breakGlassStorageType) : councilMembersType is
   s.councilMembers
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : breakGlassStorage) : whitelistContractsType is
+[@view] function getWhitelistContracts(const _: unit; var s : breakGlassStorageType) : whitelistContractsType is
   s.whitelistContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : breakGlassStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : breakGlassStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get an action *)
-[@view] function getActionOpt(const actionId: nat; var s : breakGlassStorage) : option(actionRecordType) is
+[@view] function getActionOpt(const actionId: nat; var s : breakGlassStorageType) : option(breakGlassActionRecordType) is
   Big_map.find_opt(actionId, s.actionsLedger)
 
 
 
 (* View: get the action counter *)
-[@view] function getActionCounter(const _: unit; var s : breakGlassStorage) : nat is
+[@view] function getActionCounter(const _: unit; var s : breakGlassStorageType) : nat is
   s.actionCounter
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : breakGlassStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : breakGlassStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : breakGlassStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : breakGlassStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -312,7 +284,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  breakGlass entrypoint *)
-function breakGlass(var s : breakGlassStorage) : return is 
+function breakGlass(var s : breakGlassStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBreakGlass"] of [
@@ -339,7 +311,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : breakGlassStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -358,7 +330,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceAddress : address; var s : breakGlassStorage) : return is
+function setGovernance(const newGovernanceAddress : address; var s : breakGlassStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -377,7 +349,7 @@ block {
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : breakGlassStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : breakGlassStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -396,7 +368,7 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorage) : return is 
+function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorageType) : return is 
 block {
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -415,7 +387,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint  *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: breakGlassStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: breakGlassStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -434,7 +406,7 @@ block {
 
 
 (*  updateGeneralContracts entrypoint  *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: breakGlassStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: breakGlassStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -453,7 +425,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: breakGlassStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: breakGlassStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -472,7 +444,7 @@ block {
 
 
 (* updateCouncilMemberInfo entrypoint *)
-function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : breakGlassStorage) : return is
+function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : breakGlassStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCouncilMemberInfo"] of [
@@ -498,7 +470,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addCouncilMember entrypoint  *)
-function addCouncilMember(const newCouncilMember : councilAddMemberType; var s : breakGlassStorage) : return is 
+function addCouncilMember(const newCouncilMember : councilActionAddMemberType; var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddCouncilMember"] of [
@@ -517,7 +489,7 @@ block {
 
 
 (*  removeCouncilMember entrypoint  *)
-function removeCouncilMember(const councilMemberAddress : address; var s : breakGlassStorage) : return is 
+function removeCouncilMember(const councilMemberAddress : address; var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveCouncilMember"] of [
@@ -536,7 +508,7 @@ block {
 
 
 (*  changeCouncilMember entrypoint  *)
-function changeCouncilMember(const changeCouncilMemberParams : councilChangeMemberType; var s : breakGlassStorage) : return is 
+function changeCouncilMember(const changeCouncilMemberParams : councilActionChangeMemberType; var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaChangeCouncilMember"] of [
@@ -563,7 +535,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAllEntrypoints entrypoint  *)
-function pauseAllEntrypoints(var s : breakGlassStorage) : return is
+function pauseAllEntrypoints(var s : breakGlassStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAllEntrypoints"] of [
@@ -582,7 +554,7 @@ block {
 
 
 (*  unpauseAllEntrypoints entrypoint  *)
-function unpauseAllEntrypoints(var s : breakGlassStorage) : return is
+function unpauseAllEntrypoints(var s : breakGlassStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAllEntrypoints"] of [
@@ -601,7 +573,7 @@ block {
 
 
 (*  propagateBreakGlass entrypoint  *)
-function propagateBreakGlass(var s : breakGlassStorage) : return is 
+function propagateBreakGlass(var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPropagateBreakGlass"] of [
@@ -620,7 +592,7 @@ block {
 
 
 (*  setSingleContractAdmin entrypoint  *)
-function setSingleContractAdmin(const setSingleContractAdminParams : setSingleContractAdminType; var s : breakGlassStorage) : return is 
+function setSingleContractAdmin(const setSingleContractAdminParams : setContractAdminType; var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetSingleContractAdmin"] of [
@@ -639,7 +611,7 @@ block {
 
 
 (*  setAllContractsAdmin entrypoint  *)
-function setAllContractsAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is 
+function setAllContractsAdmin(const newAdminAddress : address; var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAllContractsAdmin"] of [
@@ -658,7 +630,7 @@ block {
 
 
 (*  removeBreakGlassControl entrypoint  *)
-function removeBreakGlassControl(var s : breakGlassStorage) : return is 
+function removeBreakGlassControl(var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveBreakGlassControl"] of [
@@ -685,7 +657,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  flushAction entrypoint  *)
-function flushAction(const actionId: flushActionType; var s : breakGlassStorage) : return is 
+function flushAction(const actionId: actionIdType; var s : breakGlassStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaFlushAction"] of [
@@ -704,7 +676,7 @@ block {
 
 
 (*  signAction entrypoint  *)
-function signAction(const actionId: nat; var s : breakGlassStorage) : return is 
+function signAction(const actionId: nat; var s : breakGlassStorageType) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSignAction"] of [
@@ -730,7 +702,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: breakGlassStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: breakGlassStorageType): return is
 block{
     
     // check that sender is admin
@@ -756,7 +728,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : breakGlassAction; const s : breakGlassStorage) : return is 
+function main (const action : breakGlassAction; const s : breakGlassStorageType) : return is 
     block {
 
         checkNoAmount(Unit); // entrypoints should not receive any tez amount  

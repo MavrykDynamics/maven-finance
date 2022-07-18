@@ -1,40 +1,38 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Error Codes
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
 
-// Transfer Types: transferDestinationType
-#include "../partials/transferTypes.ligo"
-
-// Set Lambda Types
-#include "../partials/functionalTypes/setLambdaTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
 
 // MvkToken Types
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 // Treasury Type for mint and transfers
-#include "../partials/types/treasuryTypes.ligo"
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
 // Council Type for financial requests
-#include "../partials/types/councilTypes.ligo"
+#include "../partials/contractTypes/councilTypes.ligo"
 
 // Delegation Types
-#include "../partials/types/delegationTypes.ligo"
+#include "../partials/contractTypes/delegationTypes.ligo"
 
 // Governance Financial Type
-#include "../partials/types/governanceFinancialTypes.ligo"
+#include "../partials/contractTypes/governanceFinancialTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -45,15 +43,15 @@ type governanceFinancialAction is
     | SetGovernance                   of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceFinancialUpdateConfigParamsType
-    | UpdateGeneralContracts          of updateGeneralContractsParams
-    | UpdateWhitelistContracts        of updateWhitelistContractsParams
-    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+    | UpdateGeneralContracts          of updateGeneralContractsType
+    | UpdateWhitelistContracts        of updateWhitelistContractsType
+    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
     | MistakenTransfer                of transferActionType
 
       // Financial Governance Entrypoints
-    | RequestTokens                   of requestTokensType
-    | RequestMint                     of requestMintType
-    | SetContractBaker                of setContractBakerType
+    | RequestTokens                   of councilActionRequestTokensType
+    | RequestMint                     of councilActionRequestMintType
+    | SetContractBaker                of councilActionSetContractBakerType
     | DropFinancialRequest            of (nat)
     | VoteForRequest                  of voteForRequestType
 
@@ -62,10 +60,10 @@ type governanceFinancialAction is
 
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * governanceFinancialStorage
+type return is list (operation) * governanceFinancialStorageType
 
 // governance contract methods lambdas
-type governanceUnpackLambdaFunctionType is (governanceFinancialLambdaActionType * governanceFinancialStorage) -> return
+type governanceUnpackLambdaFunctionType is (governanceFinancialLambdaActionType * governanceFinancialStorageType) -> return
 
 
 
@@ -87,23 +85,6 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 
 // ------------------------------------------------------------------------------
 //
-// Error Codes Begin
-//
-// ------------------------------------------------------------------------------
-
-// Error Codes
-#include "../partials/errors.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Error Codes End
-//
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -112,13 +93,13 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : governanceFinancialStorage) : unit is
+function checkSenderIsAllowed(var s : governanceFinancialStorageType) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
         
 
 
-function checkSenderIsAdmin(var s : governanceFinancialStorage) : unit is
+function checkSenderIsAdmin(var s : governanceFinancialStorageType) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
@@ -136,7 +117,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 
-function checkSenderIsDoormanContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsDoormanContract(var s : governanceFinancialStorageType) : unit is
 block{
   const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
   const doormanAddress: address = case generalContractsOptViewDelegation of [
@@ -154,7 +135,7 @@ block{
 
 
 
-function checkSenderIsDelegationContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsDelegationContract(var s : governanceFinancialStorageType) : unit is
 block{
 
   const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
@@ -173,7 +154,7 @@ block{
 
 
 
-function checkSenderIsMvkTokenContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsMvkTokenContract(var s : governanceFinancialStorageType) : unit is
 block{
 
   const mvkTokenAddress : address = s.mvkTokenAddress;
@@ -184,7 +165,7 @@ block{
 
 
 
-function checkSenderIsCouncilContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsCouncilContract(var s : governanceFinancialStorageType) : unit is
 block{
 
   const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
@@ -203,7 +184,7 @@ block{
 
 
 
-function checkSenderIsEmergencyGovernanceContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsEmergencyGovernanceContract(var s : governanceFinancialStorageType) : unit is
 block{
 
   const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "emergencyGovernance", s.governanceAddress);
@@ -222,7 +203,7 @@ block{
 
 
 
-function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceFinancialStorage) : unit is
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : governanceFinancialStorageType) : unit is
 block{
   if Tezos.sender = s.admin then skip
   else {
@@ -239,31 +220,39 @@ block{
   }
 } with unit
 
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
-
-
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-
-
-// Treasury Transfer: transferTez, transferFa12Token, transferFa2Token
-#include "../partials/transferMethods.ligo"
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
+function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : governanceFinancialStorageType) : unit is
+  block{
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+    const delegationAddress: address = case generalContractsOptView of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+            ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
+    case satelliteOptView of [
+      Some (value) -> case value of [
+          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
+        | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
+      ]
+
+    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+
+    ];
+  } with (unit)
+
+// ------------------------------------------------------------------------------
+// Satellite Status Helper Functions
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
@@ -343,7 +332,7 @@ case (Tezos.get_entrypoint_opt(
 // Governance Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : governanceFinancialStorage) : governanceFinancialStorage is 
+function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; const votingPowerRatio: nat; var s : governanceFinancialStorageType) : governanceFinancialStorageType is 
 block {
     // init variables
     const financialRequestId    : nat     = satelliteSnapshot.requestId;
@@ -351,13 +340,13 @@ block {
     const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
     const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
 
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
+    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / votingPowerRatio);
     const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
     var totalVotingPower : nat := 0n;
     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
     else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
-    var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
+    var satelliteSnapshotRecord : satelliteSnapshotRecordType := record [
         totalStakedMvkBalance   = stakedMvkBalance; 
         totalDelegatedAmount    = totalDelegatedAmount; 
         totalVotingPower        = totalVotingPower;
@@ -386,7 +375,7 @@ block {
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function unpackLambda(const lambdaBytes : bytes; const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorage) : return is 
+function unpackLambda(const lambdaBytes : bytes; const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s : governanceFinancialStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceUnpackLambdaFunctionType)) of [
@@ -415,62 +404,62 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : governanceFinancialStorage) : address is
+[@view] function getAdmin(const _: unit; var s : governanceFinancialStorageType) : address is
   s.admin
 
 
 
 (* View: get config *)
-[@view] function getConfig(const _: unit; var s : governanceFinancialStorage) : governanceFinancialConfigType is
+[@view] function getConfig(const _: unit; var s : governanceFinancialStorageType) : governanceFinancialConfigType is
   s.config
 
 
 
 (* View: get Whitelist token contracts *)
-[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceFinancialStorage) : whitelistTokenContractsType is
+[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceFinancialStorageType) : whitelistTokenContractsType is
   s.whitelistTokenContracts
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts(const _: unit; var s : governanceFinancialStorage) : generalContractsType is
+[@view] function getGeneralContracts(const _: unit; var s : governanceFinancialStorageType) : generalContractsType is
   s.generalContracts
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _: unit; const s: governanceFinancialStorage): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _: unit; const s: governanceFinancialStorageType): whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get a financial request *)
-[@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceFinancialStorage) : option(financialRequestRecordType) is
+[@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceFinancialStorageType) : option(financialRequestRecordType) is
   Big_map.find_opt(requestId, s.financialRequestLedger)
 
 
 
 (* View: get a financial request snapshot *)
-[@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceFinancialStorage) : option(financialRequestSnapshotMapType) is
+[@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceFinancialStorageType) : option(financialRequestSnapshotMapType) is
   Big_map.find_opt(requestId, s.financialRequestSnapshotLedger)
 
 
 
 
 (* View: get financial request counter *)
-[@view] function getFinancialRequestCounter(const _: unit; var s : governanceFinancialStorage) : nat is
+[@view] function getFinancialRequestCounter(const _: unit; var s : governanceFinancialStorageType) : nat is
   s.financialRequestCounter
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : governanceFinancialStorage) : option(bytes) is
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceFinancialStorageType) : option(bytes) is
   Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : governanceFinancialStorage) : lambdaLedgerType is
+[@view] function getLambdaLedger(const _: unit; var s : governanceFinancialStorageType) : lambdaLedgerType is
   s.lambdaLedger
 
 // ------------------------------------------------------------------------------
@@ -511,7 +500,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : governanceFinancialStorage) : return is
+function setAdmin(const newAdminAddress : address; var s : governanceFinancialStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
@@ -531,7 +520,7 @@ block {
 
 
 (*  setGovernance entrypoint *)
-function setGovernance(const newGovernanceProxyAddress : address; var s : governanceFinancialStorage) : return is
+function setGovernance(const newGovernanceProxyAddress : address; var s : governanceFinancialStorageType) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
@@ -550,7 +539,7 @@ block {
 
 
 // (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceFinancialStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceFinancialStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -569,7 +558,7 @@ block {
 
 
 // (*  updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : governanceFinancialUpdateConfigParamsType; var s : governanceFinancialStorage) : return is 
+function updateConfig(const updateConfigParams : governanceFinancialUpdateConfigParamsType; var s : governanceFinancialStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -588,7 +577,7 @@ block {
 
 
 // (*  updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceFinancialStorage): return is
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: governanceFinancialStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
@@ -607,7 +596,7 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceFinancialStorage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: governanceFinancialStorageType): return is
 block {
         
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
@@ -626,7 +615,7 @@ block {
 
 
 // (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceFinancialStorage): return is
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsType; var s: governanceFinancialStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
@@ -645,7 +634,7 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: governanceFinancialStorage): return is
+function mistakenTransfer(const destinationParams: transferActionType; var s: governanceFinancialStorageType): return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
@@ -672,7 +661,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* requestTokens entrypoint *)
-function requestTokens(const requestTokensParams : councilActionRequestTokensType; var s : governanceFinancialStorage) : return is 
+function requestTokens(const requestTokensParams : councilActionRequestTokensType; var s : governanceFinancialStorageType) : return is 
 block {
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestTokens"] of [
@@ -691,7 +680,7 @@ block {
 
 
 (* requestMint entrypoint *)
-function requestMint(const requestMintParams : councilActionRequestMintType; var s : governanceFinancialStorage) : return is 
+function requestMint(const requestMintParams : councilActionRequestMintType; var s : governanceFinancialStorageType) : return is 
 block {
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestMint"] of [
@@ -710,7 +699,7 @@ block {
 
 
 (* setContractBaker entrypoint *)
-function setContractBaker(const setContractBakerParams : councilActionSetContractBakerType; var s : governanceFinancialStorage) : return is 
+function setContractBaker(const setContractBakerParams : councilActionSetContractBakerType; var s : governanceFinancialStorageType) : return is 
 block {
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractBaker"] of [
@@ -729,7 +718,7 @@ block {
 
 
 (* dropFinancialRequest entrypoint *)
-function dropFinancialRequest(const requestId : nat; var s : governanceFinancialStorage) : return is 
+function dropFinancialRequest(const requestId : nat; var s : governanceFinancialStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropFinancialRequest"] of [
@@ -748,7 +737,7 @@ block {
 
 
 (* voteForRequest entrypoint *)
-function voteForRequest(const voteForRequest : voteForRequestType; var s : governanceFinancialStorage) : return is 
+function voteForRequest(const voteForRequest : voteForRequestType; var s : governanceFinancialStorageType) : return is 
 block {
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForRequest"] of [
@@ -775,7 +764,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: governanceFinancialStorage): return is
+function setLambda(const setLambdaParams: setLambdaType; var s: governanceFinancialStorageType): return is
 block{
     
     // check that sender is admin
@@ -801,7 +790,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* main entrypoint *)
-function main (const action : governanceFinancialAction; const s : governanceFinancialStorage) : return is 
+function main (const action : governanceFinancialAction; const s : governanceFinancialStorageType) : return is 
 
     case action of [
           // Housekeeping Entrypoints
