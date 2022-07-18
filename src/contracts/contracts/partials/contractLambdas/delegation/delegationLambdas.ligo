@@ -146,7 +146,7 @@ block {
                 function transferOperationFold(const transferParam : transferDestinationType; const operationList : list(operation)) : list(operation) is
                     block{
                         const transferTokenOperation : operation = case transferParam.token of [
-                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address") : contract(unit)), transferParam.amount * 1mutez)
                             |   Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
                             |   Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                         ];
@@ -299,7 +299,7 @@ block {
     // 5. Verify that satellite exists 
     // 6. Get Doorman Contract Address from the General Contracts Map on the Governance Contract
     // 7. Check if user is delegated to a satellite or not
-    //    - User is already delegated to one satellite
+    //    - User is already delegated to one satellite (switch delegation to another satellite)
     //        - Check that new satellite is not the same as previously delegated satellite
     //        - Create operation to delegate to new satellite
     //        - Create operation to undelegate from previous satellite
@@ -435,7 +435,7 @@ block {
                     ];
                     delegateRewardsRecord.participationRewardsPerShare              := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
                     delegateRewardsRecord.satelliteReferenceAddress                 := satelliteAddress;
-                    s.satelliteRewardsLedger[userAddress]                          := delegateRewardsRecord;
+                    s.satelliteRewardsLedger[userAddress]                           := delegateRewardsRecord;
 
                     // Update satellite's total delegated amount (increment by user's staked MVK balance)
                     satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
@@ -464,7 +464,7 @@ block {
     // 5. Get Doorman Contract Address from the General Contracts Map on the Governance Contract
     // 6. Get user's staked MVK balance from the Doorman Contract
     // 7. Get satellite record
-    // 8. Check if satellite exists and status is not "INACTIVE"
+    // 8. Check if satellite exists and status is not "INACTIVE" - temporary check
     //    - Check that user's staked MVK balance does not exceed satellite's total delegated amount
     //    - Update satellite total delegated amount (decrement by user's staked MVK balance)
     //    - Update satellite record in storage
@@ -505,7 +505,7 @@ block {
                     |   None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
                 
-                // Init empty satellite record - for type checking
+                // Init empty satellite record - for type checking 
                 var emptySatelliteRecord : satelliteRecordType := record [
                     status                = "INACTIVE";        
                     stakedMvkBalance      = 0n;
@@ -635,7 +635,7 @@ block {
 
                 // Create new satellite record
                 const satelliteRecord: satelliteRecordType = case Map.find_opt(userAddress, s.satelliteLedger) of [
-                        Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
+                        Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS) : satelliteRecordType)
                     |   None -> record [            
                             status                = "ACTIVE";
                             stakedMvkBalance      = stakedMvkBalance;

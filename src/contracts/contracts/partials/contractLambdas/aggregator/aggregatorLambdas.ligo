@@ -396,7 +396,7 @@ block{
     //    - Reset deviationTriggerInfos for a new deviation round
     //    - Check if round price is within acceptable deviation boundaries 
     //    - If price is not within acceptable deviation boundaries, impose a penalty on the oracle that triggered the deviation round
-    //      - Exception of maintainer that should not be penalised
+    //      -   Exception of maintainer that should not be penalised
     // 5. Update storage with new round parameters
 
     checkRequestRateUpdateIsNotPaused(s); // Check that %requestRateUpdate entrypoint is not paused (e.g. glass broken)
@@ -631,7 +631,7 @@ block{
                     if s.deviationTriggerInfos.oracleAddress =/= s.maintainer then {                           
 
                         // add oracle that triggered deviation into the deviation trigger ban for a short duration of time to prevent any abuse 
-                        const updatedDeviationTriggerBan: deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.get_now() + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
+                        const updatedDeviationTriggerBan : deviationTriggerBanType = Map.update(s.deviationTriggerInfos.oracleAddress, Some( Tezos.get_now() + int (s.config.deviationTriggerBanDuration)), s.deviationTriggerBan);
                         s.deviationTriggerBan := updatedDeviationTriggerBan;
 
                     } else skip;

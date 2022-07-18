@@ -933,7 +933,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action: farmAction; var s: farmStorageType) : return is
+function main (const action : farmAction; var s: farmStorageType) : return is
 block{
 
     checkNoAmount(Unit); // entrypoints should not receive any tez amount  
