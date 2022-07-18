@@ -35,5 +35,6 @@ async def on_delegation_unregister_as_satellite(
         user = user
     )
     await user.save()
+
+    satelliteRecord.currently_registered    = False
     await satelliteRecord.save()
-    await satelliteRecord.delete()
