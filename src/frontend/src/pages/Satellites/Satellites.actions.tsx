@@ -158,5 +158,5 @@ export const undelegate = () => async (dispatch: any, getState: any) => {
   }
 }
 
-// TODO: remove it when after refactor
+// TODO: extract it?
 export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'

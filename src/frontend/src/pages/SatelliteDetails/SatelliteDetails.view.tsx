@@ -6,8 +6,6 @@ import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 import { Loader } from 'app/App.components/Loader/Loader.view'
-import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
-import { SatelliteSideBar } from 'pages/Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view
@@ -19,7 +17,6 @@ import {
   BlockName,
   SatelliteCardBottomRow,
   SatelliteDescrBlock,
-  SatelliteDescriptionText,
   SatelliteMetricsBlock,
   SatelliteVotingHistoryListItem,
   SatelliteVotingInfoWrapper,
@@ -60,28 +57,29 @@ const renderVotingHistoryItem = (item: any, proposalLedger: any) => {
   )
 }
 
+const emptyContainer = (
+  <EmptyContainer>
+    <img src="/images/not-found.svg" alt=" No proposals to show" />
+    <figcaption> No voting history to show</figcaption>
+  </EmptyContainer>
+)
+
 export const SatelliteDetailsView = ({
   satellite,
   loading,
   delegateCallback,
   undelegateCallback,
-  userStakedBalanceInSatellite,
+  userStakedBalanceInSatellite: myDelegatedMVK,
 }: SatelliteDetailsViewProps) => {
-  const params: { satelliteId: string } = useParams()
+  const { satelliteId } = useParams<{ satelliteId: string }>()
+
   const { user } = useSelector((state: State) => state.user)
   const { participationMetrics } = useSelector((state: State) => state.delegation)
-  const { governanceStorage } = useSelector((state: State) => state.governance)
-  const proposalLedger = governanceStorage.proposalLedger
-  const myDelegatedMVK = userStakedBalanceInSatellite
+  const {
+    governanceStorage: { proposalLedger = [] },
+  } = useSelector((state: State) => state.governance)
 
-  const emptyContainer = (
-    <EmptyContainer>
-      <img src="/images/not-found.svg" alt=" No proposals to show" />
-      <figcaption> No voting history to show</figcaption>
-    </EmptyContainer>
-  )
-
-  const isSameId = satellite?.address === params.satelliteId
+  const isSameId = satellite?.address === satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
   return (

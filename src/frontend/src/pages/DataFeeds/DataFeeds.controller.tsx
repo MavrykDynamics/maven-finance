@@ -4,22 +4,25 @@ import { State } from 'reducers'
 
 // view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import OracleList from '../Satellites/SatelliteList/SatellitesList.view'
+import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
+import { Button } from 'app/App.components/Button/Button.controller'
+import { Input } from 'app/App.components/Input/Input.controller'
+import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
 
 // const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+import { FEEDS_ALL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+
+// types
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 // styles
 import { Page } from 'styles'
 import { DataFeedsStyled } from './DataFeeds.styles'
-import { FEEDS_ALL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
-import { DropDown } from 'app/App.components/DropDown/DropDown.controller'
+import { EmptyContainer } from 'app/App.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
-import { Input } from 'app/App.components/Input/Input.controller'
-import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
-import { Button } from 'app/App.components/Button/Button.controller'
 
 // TODO: make it due to the data feeds
 const itemsForDropDown = [
@@ -29,6 +32,13 @@ const itemsForDropDown = [
   { text: 'Participation', value: 'participation' },
 ]
 
+const emptyContainer = (
+  <EmptyContainer>
+    <img src="/images/not-found.svg" alt=" No proposals to show" />
+    <figcaption> No oracles to show</figcaption>
+  </EmptyContainer>
+)
+// TODO: review sorting and filter logic, mb extract some common things from common sorting and filters
 export const DataFeeds = () => {
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => state.loading)
@@ -120,7 +130,7 @@ export const DataFeeds = () => {
         />
 
         <Button
-          text="Request data feed"
+          text="Request data feed (not implemented)"
           icon="requestFeed"
           kind={ACTION_PRIMARY}
           loading={loading}
@@ -128,15 +138,17 @@ export const DataFeeds = () => {
         />
       </SatelliteSearchFilter>
       <DataFeedsStyled>
-        <OracleList
-          listTitle={'Data feeds'}
-          loading={loading}
-          items={filteredSatelliteList}
-          listType={'feeds'}
-          name={FEEDS_ALL_LIST_NAME}
-          onClickHandler={() => {}}
-          additionaldata={{}}
-        />
+        {filteredSatelliteList.length ? (
+          <SatelliteList
+            listTitle={'Data feeds'}
+            loading={loading}
+            items={filteredSatelliteList}
+            listType={'feeds'}
+            name={FEEDS_ALL_LIST_NAME}
+          />
+        ) : (
+          emptyContainer
+        )}
       </DataFeedsStyled>
     </Page>
   )

@@ -189,9 +189,9 @@
     </symbol>
     <symbol id="openLink" viewBox="0 0 17 17" fill="none" >
         <g clip-path="url(#clip0_9049_5478)">
-        <path d="M15.8184 6.60509V1.50076L10.5 1.5" stroke="#8D86EB" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M15.5 2L6.5 10.8584" stroke="#8D86EB" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 1.5L2.75 1.5C2.05833 1.5 1.5 2.02111 1.5 2.66667L1.5 14.3333C1.5 14.9711 2.05833 15.5 2.75 15.5L14.25 15.5C14.9333 15.5 15.5 14.9711 15.5 14.3333L15.5 9.5" stroke="#8D86EB" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15.8184 6.60509V1.50076L10.5 1.5"  stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15.5 2L6.5 10.8584"  stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 1.5L2.75 1.5C2.05833 1.5 1.5 2.02111 1.5 2.66667L1.5 14.3333C1.5 14.9711 2.05833 15.5 2.75 15.5L14.25 15.5C14.9333 15.5 15.5 14.9711 15.5 14.3333L15.5 9.5"  stroke-linecap="round" stroke-linejoin="round"/>
         </g>
         <defs>
         <clipPath id="clip0_9049_5478">

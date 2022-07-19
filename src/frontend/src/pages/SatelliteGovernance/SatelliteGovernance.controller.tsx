@@ -30,8 +30,8 @@ import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.co
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 
 // actions
-import { getTotalDelegatedMVK } from '../Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
+import { getTotalDelegatedMVK } from 'pages/Satellites/helpers/Satellites.consts'
 
 // style
 import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'

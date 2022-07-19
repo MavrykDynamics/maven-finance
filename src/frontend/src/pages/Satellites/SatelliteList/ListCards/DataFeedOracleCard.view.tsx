@@ -4,12 +4,12 @@ import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.hel
 import { useHistory } from 'react-router'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
-
+// TODO: Answer, oracle status
 export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
   const history = useHistory()
 
   return (
-    <SatelliteItemStyle onClick={() => history.push(`/feed-details/${oracle.address}/`)} oracle>
+    <SatelliteItemStyle onClick={() => history.push(`/satellite-details/${oracle.address}/`)} oracle>
       <div className="item">
         <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
           Oracle

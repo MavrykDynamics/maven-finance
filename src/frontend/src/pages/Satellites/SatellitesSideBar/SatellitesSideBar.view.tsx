@@ -52,7 +52,7 @@ export const SateliteSideBarFAQ = () => (
     </FAQLink>
   </SideBarFaq>
 )
-
+// TODO: Satellite Contract (sometimes it's '' cuz do not have it in state), Oracle Contract, On-Chain Data Points, Total Value Secured, Average Rewards per Oracle
 const SatellitesSideBarView = ({
   userIsSatellite,
   isButton,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import moment from 'moment'
 
 // consts, helpers
@@ -13,12 +13,12 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
-import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
 import Chart from 'app/App.components/Chart/Chart.view'
 import { Button } from 'app/App.components/Button/Button.controller'
+import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
 
 // styles
 import {
@@ -30,6 +30,7 @@ import {
 } from './DataFeedsDetails.style'
 import { Page } from 'styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
+import { EmptyContainer } from 'app/App.style'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -37,9 +38,24 @@ type FeedDetailsProps = {
   oracles: Array<SatelliteRecord>
 }
 
+const emptyContainer = (
+  <EmptyContainer>
+    <img src="/images/not-found.svg" alt=" No proposals to show" />
+    <figcaption> No oracles to show</figcaption>
+  </EmptyContainer>
+)
+
+// TODO: add links to each text with QUESTION_MARK_SVG_ENCODED | INFO_SVG_ENCODED, Trusted answer, Deviation threshold, Oracle responses, Heartbeat, ENS address
 const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
-  const arrOfOracleRecords = feed?.oracle_records.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || []
+  const arrOfOracleRecords = useCallback(
+    () => feed?.oracle_records.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
+    [feed?.oracle_records],
+  )
+  const oraclesForFeed = useMemo(
+    () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
+    [oracles, arrOfOracleRecords],
+  )
 
   return feed ? (
     <Page>
@@ -52,11 +68,11 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
             <div className="top">
               <div className="name-part">
                 <DataFeedsTitle fontSize={25} fontWeidth={700}>
-                  {feed?.token_1_symbol}/{feed?.token_0_symbol}
+                  {feed.token_1_symbol}/{feed.token_0_symbol}
                 </DataFeedsTitle>
 
                 <DataFeedsTitle svgContent={QUESTION_MARK_SVG_ENCODED}>
-                  Learn how to use XTZ/USD in your smart contracts here
+                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
                 </DataFeedsTitle>
               </div>
               <div className="price-part">
@@ -156,7 +172,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                   Contract address
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={14} fontWeidth={600}>
-                  <TzAddress tzAddress={feed?.address || ''} hasIcon={false} />
+                  <TzAddress tzAddress={feed.address} hasIcon={false} />
                 </DataFeedValueText>
               </div>
               <div className="info-wrapper">
@@ -179,15 +195,17 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
         </div>
       </DataFeedsStyled>
 
-      <SatelliteList
-        listTitle={'Oracles data'}
-        loading={isLoading}
-        items={oracles.filter((satellite) => arrOfOracleRecords.includes(satellite.address))}
-        listType={'oracles'}
-        name={ORACLES_DATA_IN_FEED_LIST_NAME}
-        onClickHandler={() => {}}
-        additionaldata={{}}
-      />
+      {oraclesForFeed.length ? (
+        <SatelliteList
+          listTitle={'Oracles data'}
+          loading={isLoading}
+          items={oraclesForFeed}
+          listType={'oracles'}
+          name={ORACLES_DATA_IN_FEED_LIST_NAME}
+        />
+      ) : (
+        emptyContainer
+      )}
     </Page>
   ) : null
 }
