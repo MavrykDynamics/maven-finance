@@ -77,7 +77,7 @@ export const SatelliteDetailsView = ({
   const emptyContainer = (
     <EmptyContainer>
       <img src="/images/not-found.svg" alt=" No proposals to show" />
-      <figcaption> No Satellite to show</figcaption>
+      <figcaption> No voting history to show</figcaption>
     </EmptyContainer>
   )
 
@@ -95,7 +95,7 @@ export const SatelliteDetailsView = ({
           satellite={satellite}
           loading={loading}
           delegateCallback={delegateCallback}
-          // undelegateCallback={undelegateCallback}
+          undelegateCallback={undelegateCallback}
           userStakedBalance={myDelegatedMVK}
           satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
           isExtendedListItem={true}
@@ -124,18 +124,22 @@ export const SatelliteDetailsView = ({
                 </SatelliteMetricsBlock>
               </div>
 
-              {satellite.proposalVotingHistory?.length ||
-              satellite.financialRequestsVotes?.length ||
-              satellite.emergencyGovernanceVotes?.length ? (
-                <SatelliteVotingInfoWrapper>
-                  <BlockName>Voting History:</BlockName>
-                  <div className="voting-info-list-wrapper scroll-block">
-                    {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
-                    {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
-                    {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
-                  </div>
-                </SatelliteVotingInfoWrapper>
-              ) : null}
+              <SatelliteVotingInfoWrapper>
+                {satellite.proposalVotingHistory?.length ||
+                satellite.financialRequestsVotes?.length ||
+                satellite.emergencyGovernanceVotes?.length ? (
+                  <>
+                    <BlockName>Voting History:</BlockName>
+                    <div className="voting-info-list-wrapper scroll-block">
+                      {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                      {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                      {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item, proposalLedger))}
+                    </div>
+                  </>
+                ) : (
+                  <SatelliteVotingInfoWrapper>{emptyContainer}</SatelliteVotingInfoWrapper>
+                )}
+              </SatelliteVotingInfoWrapper>
             </div>
           </SatelliteCardBottomRow>
         </SatelliteListItem>

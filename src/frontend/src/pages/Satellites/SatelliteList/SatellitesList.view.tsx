@@ -16,15 +16,7 @@ import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { OracleCard } from './ListCards/DataFeedOracleCard.view'
 
-function SatteliteListView({
-  listTitle,
-  items,
-  onClickHandler,
-  name,
-  listType,
-  additionaldata,
-  loading,
-}: SatellitesListProps) {
+function SatteliteListView({ listTitle, items, name, listType, additionaldata, loading }: SatellitesListProps) {
   return items.length ? (
     <FRListWrapper className="oracle">
       {listTitle ? (
@@ -42,7 +34,8 @@ function SatteliteListView({
                 satellite={item}
                 key={item.address}
                 loading={loading}
-                delegateCallback={onClickHandler}
+                delegateCallback={additionaldata?.delegateCallback}
+                undelegateCallback={additionaldata?.undelegateCallback}
                 userStakedBalance={additionaldata?.userStakedBalance || 0}
                 satelliteUserIsDelegatedTo={additionaldata?.satelliteUserIsDelegatedTo || ''}
                 isExtendedListItem={additionaldata?.isAllOracles}

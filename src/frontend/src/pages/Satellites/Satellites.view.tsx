@@ -23,6 +23,8 @@ type OraclesViewProps = {
     userStakedBalance: number
     satelliteUserIsDelegatedTo: string
     items: SatelliteRecord[]
+    delegateCallback: (address: string) => void
+    undelegateCallback: () => void
   }
   dataFeedsData: {
     items: Array<Feed>
@@ -73,7 +75,6 @@ const SatellitesView = ({
               items={oracleSatellitesData.items}
               listType={'satellites'}
               name={SATELITES_TOP_LIST_NAME}
-              onClickHandler={delegateCallback}
               additionaldata={oracleSatellitesData}
             />
           </div>
