@@ -5,7 +5,7 @@ import { useLocation } from 'react-router'
 import { SatellitesListProps } from '../helpers/Satellites.types'
 import SatteliteListView from './SatellitesList.view'
 
-const SatteliteList = ({
+const SatelliteList = ({
   listTitle,
   items,
   onClickHandler,
@@ -35,4 +35,4 @@ const SatteliteList = ({
   )
 }
 
-export default SatteliteList
+export default SatelliteList

@@ -24,6 +24,7 @@ import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.cont
 import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
 import Satellites from 'pages/Satellites/Satellites.controller'
 import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
+import DataFeedDetails from 'pages/DataFeeds/details/DataFeedsDetails.controler'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -55,6 +56,9 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/satellite-details/:satelliteId/">
         <SatelliteDetails />
+      </Route>
+      <Route exact path="/feed-details/:feedId/">
+        <DataFeedDetails />
       </Route>
       <Route exact path="/governance">
         <Governance />

@@ -7,7 +7,7 @@ import { useHistory } from 'react-router'
 import { Page, PageContent } from 'styles'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { Feed } from './helpers/Satellites.types'
-import SatteliteList from './SatelliteList/SatellitesList.controller'
+import SatelliteList from './SatelliteList/SatellitesList.controller'
 import { InfoBlockWrapper } from './Satellites.style'
 import SatellitesSideBar from './SatellitesSideBar/SatellitesSideBar.controller'
 
@@ -67,7 +67,7 @@ const SatellitesView = ({
                 <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
               </svg>
             </div>
-            <SatteliteList
+            <SatelliteList
               listTitle={'Top Satellites'}
               loading={isLoading}
               items={oracleSatellitesData.items}
@@ -85,7 +85,7 @@ const SatellitesView = ({
                 <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
               </svg>
             </div>
-            <SatteliteList
+            <SatelliteList
               listTitle={'Popular Feeds'}
               loading={isLoading}
               items={dataFeedsData.items}

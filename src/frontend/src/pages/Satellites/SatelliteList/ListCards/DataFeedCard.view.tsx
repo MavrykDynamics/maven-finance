@@ -2,10 +2,12 @@ import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 import { SatelliteItemStyle } from './SatelliteCard.style'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { useHistory } from 'react-router'
 
 export const DataFeedCard = ({ feed }: { feed: Feed }) => {
+  const history = useHistory()
   return (
-    <SatelliteItemStyle>
+    <SatelliteItemStyle onClick={() => history.push(`/feed-details/${feed.address}/`)}>
       <div className="item">
         <h5>Feed</h5>
         <var>
