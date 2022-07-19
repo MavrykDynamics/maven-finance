@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+
 type userStakeBalanceRecordType is [@layout:comb] record[
     balance                                : nat;
     totalExitFeeRewardsClaimed             : nat;
@@ -7,8 +12,6 @@ type userStakeBalanceRecordType is [@layout:comb] record[
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
-type updateSatelliteBalanceType is (address)
-
 type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
@@ -16,20 +19,29 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     farmClaimIsPaused       : bool;
 ]
 
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
-
 type doormanConfigType is [@layout:comb] record [
     minMvkAmount     : nat;
     empty            : unit
 ];
 
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
+
+type delegationOnStakeChangeType is (address)
+
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
+
 type doormanUpdateConfigNewValueType is nat
 type doormanUpdateConfigActionType is 
-  ConfigMinMvkAmount          of unit
-| Empty                       of unit
+        ConfigMinMvkAmount          of unit
+    |   Empty                       of unit
+
 type doormanUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: doormanUpdateConfigNewValueType; 
-  updateConfigAction: doormanUpdateConfigActionType;
+    updateConfigNewValue    : doormanUpdateConfigNewValueType; 
+    updateConfigAction      : doormanUpdateConfigActionType;
 ]
 
 // vault and usdm types
@@ -60,38 +72,45 @@ type vaultLiquidateStakedMvkType is [@layout:comb] record [
     liquidator        : address; 
 ]
 type doormanPausableEntrypointType is
-  Stake             of bool
-| Unstake           of bool
-| Compound          of bool
-| FarmClaim         of bool
+        Stake             of bool
+    |   Unstake           of bool
+    |   Compound          of bool
+    |   FarmClaim         of bool
 
 type doormanTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : doormanPausableEntrypointType;
     empty             : unit
 ];
 
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
+
 type doormanLambdaActionType is 
 
-  // Housekeeping Lambdas
-  LambdaSetAdmin                    of address
-| LambdaSetGovernance               of (address)
-| LambdaUpdateMetadata              of updateMetadataType
-| LambdaUpdateConfig                of doormanUpdateConfigParamsType
-| LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts      of updateGeneralContractsType
-| LambdaMistakenTransfer            of transferActionType
-| LambdaMigrateFunds                of (address)
+        // Housekeeping Lambdas
+        LambdaSetAdmin                    of address
+    |   LambdaSetGovernance               of (address)
+    |   LambdaUpdateMetadata              of updateMetadataType
+    |   LambdaUpdateConfig                of doormanUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts      of updateGeneralContractsType
+    |   LambdaMistakenTransfer            of transferActionType
+    |   LambdaMigrateFunds                of (address)
 
-  // Pause / Break Glass Lambdas
-| LambdaPauseAll                    of (unit)
-| LambdaUnpauseAll                  of (unit)
-| LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
+        // Pause / Break Glass Lambdas
+    |   LambdaPauseAll                    of (unit)
+    |   LambdaUnpauseAll                  of (unit)
+    |   LambdaTogglePauseEntrypoint       of doormanTogglePauseEntrypointType
 
-  // Doorman Lambdas
-| LambdaStake                       of (nat)
-| LambdaUnstake                     of (nat)
-| LambdaCompound                    of (address)
-| LambdaFarmClaim                   of farmClaimType
+        // Doorman Lambdas
+    |   LambdaStake                       of (nat)
+    |   LambdaUnstake                     of (nat)
+    |   LambdaCompound                    of (address)
+    |   LambdaFarmClaim                   of farmClaimType
+
 
   // Vault Lambdas
 | LambdaVaultDepositStakedMvk       of vaultDepositStakedMvkType
@@ -101,6 +120,7 @@ type doormanLambdaActionType is
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type doormanStorageType is [@layout:comb] record [
   admin                     : address;

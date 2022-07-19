@@ -1,12 +1,12 @@
 import {
-  ContractAbstraction,
-  ContractMethod,
-  ContractMethodObject,
-  ContractProvider,
-  ContractView,
-  OriginationOperation,
-  TezosToolkit,
-  Wallet
+    ContractAbstraction,
+    ContractMethod,
+    ContractMethodObject,
+    ContractProvider,
+    ContractView,
+    OriginationOperation,
+    TezosToolkit,
+    Wallet
 } from "@taquito/taquito";
 import fs from "fs";
 
@@ -22,8 +22,8 @@ import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods
 type FarmContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
     updateWhitelistContracts: (
-      whitelistContractName:string,
-      whitelistContractAddress:string
+        whitelistContractName:string,
+        whitelistContractAddress:string
     ) => ContractMethod<T>;
     updateGeneralContracts: (
         generalContractName:string,
@@ -54,7 +54,6 @@ export const setFarmLambdas = async (tezosToolkit: TezosToolkit, contract: FarmC
 
     farmLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
         batch.withContractCall(contract.methods.setLambda(name, farmLambdas[index]))
-
     });
 
     const setupFarmLambdasOperation = await batch.send()
@@ -67,44 +66,44 @@ export class Farm {
     tezos: TezosToolkit;
   
     constructor(contract: FarmContractAbstraction, tezos: TezosToolkit) {
-      this.contract = contract;
-      this.tezos = tezos;
+        this.contract = contract;
+        this.tezos = tezos;
     }
   
     static async init(
-      farmContractAddress: string,
-      tezos: TezosToolkit
+        farmContractAddress: string,
+        tezos: TezosToolkit
     ): Promise<Farm> {
-      return new Farm(
-        await tezos.contract.at(farmContractAddress),
-        tezos
-      );
+        return new Farm(
+            await tezos.contract.at(farmContractAddress),
+            tezos
+        );
     }
 
     static async originate(
-      tezos: TezosToolkit,
-      storage: farmStorageType
+        tezos: TezosToolkit,
+        storage: farmStorageType
     ): Promise<Farm> {       
 
-      const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/farm.json`).toString()
-      );
-      const operation: OriginationOperation = await tezos.contract
-        .originate({
-          code: artifacts.michelson,
-          storage: storage,
-        })
-        .catch((e) => {
-          console.error(e);
-          console.log('error no hash')
-          return null;
-        });
-  
-      await confirmOperation(tezos, operation.hash);
-  
-      return new Farm(
-        await tezos.contract.at(operation.contractAddress),
-        tezos
-      );
+        const artifacts: any = JSON.parse(
+            fs.readFileSync(`${env.buildDir}/farm.json`).toString()
+        );
+        const operation: OriginationOperation = await tezos.contract
+            .originate({
+                code: artifacts.michelson,
+                storage: storage,
+            })
+            .catch((e) => {
+                console.error(e);
+                console.log('error no hash')
+                return null;
+            });
+    
+        await confirmOperation(tezos, operation.hash);
+    
+        return new Farm(
+            await tezos.contract.at(operation.contractAddress),
+            tezos
+        );
     }
 }

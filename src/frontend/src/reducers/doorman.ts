@@ -33,7 +33,7 @@ export interface DoormanStorage {
   admin: string
   breakGlassConfig: DoormanBreakGlassConfigType
   mvkTokenAddress: string
-  delegationAddress: string
+  delegationAddress : string
   exitFeePoolAddress: string
   tempMvkTotalSupply: number
   logExitFee?: number // to be removed after testing
@@ -61,7 +61,7 @@ const doormanDefaultState: DoormanState = {
       unstakeIsPaused: false,
     },
     mvkTokenAddress: '',
-    delegationAddress: '',
+    delegationAddress : '',
     exitFeePoolAddress: '',
     tempMvkTotalSupply: 0,
     logExitFee: 0, // to be removed after testing

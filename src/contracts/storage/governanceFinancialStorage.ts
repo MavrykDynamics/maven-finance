@@ -13,34 +13,33 @@ const config = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-  data: Buffer.from(
-    JSON.stringify({
-      name: 'MAVRYK Financial Governance Contract',
-      version: 'v1.0.0',
-      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-    }),
-    'ascii',
-  ).toString('hex'),
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+        name: 'MAVRYK Financial Governance Contract',
+        version: 'v1.0.0',
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex'),
 })
 
 export const governanceFinancialStorage: governanceFinancialStorageType = {
-  
-  admin                   : bob.pkh,
-  mvkTokenAddress         : "",
-  governanceAddress       : zeroAddress,
-  metadata                : metadata,
-  config                  : config,
-  
-  whitelistContracts      : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
-  generalContracts        : MichelsonMap.fromLiteral({}),
+    
+    admin                               : bob.pkh,
+    mvkTokenAddress                     : "",
+    governanceAddress                   : zeroAddress,
+    metadata                            : metadata,
+    config                              : config,
+    
+    whitelistContracts                  : MichelsonMap.fromLiteral({}),
+    whitelistTokenContracts             : MichelsonMap.fromLiteral({}),
+    generalContracts                    : MichelsonMap.fromLiteral({}),
 
-  snapshotStakedMvkTotalSupply       : new BigNumber(0),
+    financialRequestLedger              : MichelsonMap.fromLiteral({}),
+    financialRequestSnapshotLedger      : MichelsonMap.fromLiteral({}),
+    financialRequestCounter             : new BigNumber(1),
 
-  lambdaLedger                       : MichelsonMap.fromLiteral({}),
+    lambdaLedger                        : MichelsonMap.fromLiteral({}),
 
-  financialRequestLedger             : MichelsonMap.fromLiteral({}),
-  financialRequestSnapshotLedger     : MichelsonMap.fromLiteral({}),
-  financialRequestCounter            : new BigNumber(1),
 };

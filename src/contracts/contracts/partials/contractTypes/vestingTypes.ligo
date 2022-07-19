@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+
 type vesteeRecordType is [@layout:comb] record [
     
     // static variables initiated at start ----
@@ -28,13 +33,19 @@ type vesteeRecordType is [@layout:comb] record [
 
     lastClaimedTimestamp     : timestamp;       // timestamp of when vestee last claimed
 ] 
-type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
+type vesteeLedgerType is big_map(address, vesteeRecordType) 
+
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
 
 type addVesteeType is [@layout:comb] record [
-    vesteeAddress           : address;
-    totalAllocatedAmount    : nat;
-    cliffInMonths           : nat;
-    vestingInMonths         : nat;
+    vesteeAddress              : address;
+    totalAllocatedAmount       : nat;
+    cliffInMonths              : nat;
+    vestingInMonths            : nat;
 ]
 
 type updateVesteeType is [@layout:comb] record [
@@ -44,28 +55,36 @@ type updateVesteeType is [@layout:comb] record [
     newVestingInMonths         : nat;
 ]
 
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
+
 type vestingLambdaActionType is 
 
-  // Housekeeping Entrypoints
-| LambdaSetAdmin                      of (address)
-| LambdaSetGovernance                 of (address)
-| LambdaUpdateMetadata                of updateMetadataType
-| LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
-| LambdaUpdateGeneralContracts        of updateGeneralContractsType
-| LambdaMistakenTransfer              of transferActionType
+        // Housekeeping Entrypoints
+    |   LambdaSetAdmin                      of (address)
+    |   LambdaSetGovernance                 of (address)
+    |   LambdaUpdateMetadata                of updateMetadataType
+    |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
 
-  // Internal Vestee Control Entrypoints
-| LambdaAddVestee                     of (addVesteeType)
-| LambdaRemoveVestee                  of (address)
-| LambdaUpdateVestee                  of (updateVesteeType)
-| LambdaToggleVesteeLock              of (address)
+        // Internal Vestee Control Entrypoints
+    |   LambdaAddVestee                     of (addVesteeType)
+    |   LambdaRemoveVestee                  of (address)
+    |   LambdaUpdateVestee                  of (updateVesteeType)
+    |   LambdaToggleVesteeLock              of (address)
 
-  // Vestee Entrypoints
-| LambdaClaim                         of (unit)
+        // Vestee Entrypoints
+    |   LambdaClaim                         of (unit)
+
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type vestingStorageType is [@layout:comb] record [
     admin               : address;

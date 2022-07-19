@@ -12,14 +12,14 @@
 function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s); // check that sender is admin
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case councilLambdaAction of [
-        | LambdaSetAdmin(newAdminAddress) -> {
+        |   LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -30,14 +30,14 @@ block {
 function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorageType) : return is
 block {
     
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAllowed(s);
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     case councilLambdaAction of [
-        | LambdaSetGovernance(newGovernanceAddress) -> {
+        |   LambdaSetGovernance(newGovernanceAddress) -> {
                 s.governanceAddress := newGovernanceAddress;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -48,17 +48,18 @@ block {
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance Proxy Contract address)
 
     case councilLambdaAction of [
-        | LambdaUpdateMetadata(updateMetadataParams) -> {
+        |   LambdaUpdateMetadata(updateMetadataParams) -> {
                 
                 const metadataKey   : string = updateMetadataParams.metadataKey;
                 const metadataHash  : bytes = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -73,23 +74,23 @@ block {
   checkSenderIsAdmin(s); // check that sender is admin
 
   case councilLambdaAction of [
-        | LambdaUpdateConfig(updateConfigParams) -> {
+        |   LambdaUpdateConfig(updateConfigParams) -> {
 
                 const updateConfigAction    : councilUpdateConfigActionType   = updateConfigParams.updateConfigAction;
                 const updateConfigNewValue  : councilUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
-                    | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
-                    | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
-                    | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
-                    | ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
-                    | ConfigRequestTokenNameMaxLength (_v)  -> s.config.requestTokenNameMaxLength         := updateConfigNewValue  
-                    | ConfigRequestPurposeMaxLength (_v)    -> s.config.requestPurposeMaxLength           := updateConfigNewValue  
+                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
+                    |   ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+                    |   ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
+                    |   ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
+                    |   ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
+                    |   ConfigRequestTokenNameMaxLength (_v)  -> s.config.requestTokenNameMaxLength         := updateConfigNewValue  
+                    |   ConfigRequestPurposeMaxLength (_v)    -> s.config.requestPurposeMaxLength           := updateConfigNewValue  
                 ];
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -97,17 +98,16 @@ block {
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
+function lambdaUpdateWhitelistContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin
     
     case councilLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+        |   LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
                 s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -115,17 +115,16 @@ block {
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType): return is
+function lambdaUpdateGeneralContracts(const councilLambdaAction : councilLambdaActionType; var s: councilStorageType) : return is
 block {
     
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin
     
     case councilLambdaAction of [
-        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+        |   LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -136,18 +135,23 @@ block {
 function lambdaUpdateCouncilMemberInfo(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is
 block {
 
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (name, image, website) and check max length is not exceeded
+    // 3. Update Council Member info with new info provided
+
     case councilLambdaAction of [
-        | LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
+        |   LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
                 
                 // Check if sender is a member of the council
-                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
-                    Some (_info) -> _info
-                |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.get_sender(), s.councilMembers) of [
+                        Some (_info) -> _info
+                    |   None -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
                 ];
                 
                 // Validate inputs
-                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.name)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.image)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Update member info
@@ -156,10 +160,10 @@ block {
                 councilMember.image     := councilMemberInfo.image;
 
                 // Update storage
-                s.councilMembers[Tezos.sender]  := councilMember;   
+                s.councilMembers[Tezos.get_sender()]  := councilMember;   
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -177,19 +181,22 @@ block {
 function lambdaCouncilActionAddMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (name, image, website) and check max length is not exceeded
+    // 3. Check if new Council Member to be added is not already in the Council 
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: addCouncilMember
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionAddMember(newCouncilMember) -> {
+        |   LambdaCouncilActionAddMember(newCouncilMember) -> {
 
                 // Validate inputs
-                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
@@ -199,19 +206,19 @@ block {
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
                 const addressMap          : addressMapType     = map [
-                        ("councilMemberAddress" : string) -> newCouncilMember.memberAddress
-                    ];
+                    ("councilMemberAddress" : string) -> newCouncilMember.memberAddress
+                ];
                 const stringMap           : stringMapType      = map [
-                        ("councilMemberName": string) -> newCouncilMember.memberName;
-                        ("councilMemberImage": string) -> newCouncilMember.memberImage;
-                        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
+                    ("councilMemberName"    : string) -> newCouncilMember.memberName;
+                    ("councilMemberImage"   : string) -> newCouncilMember.memberImage;
+                    ("councilMemberWebsite" : string) -> newCouncilMember.memberWebsite
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "addCouncilMember";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -222,11 +229,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -234,7 +241,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
                 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -245,15 +252,18 @@ block {
 function lambdaCouncilActionRemoveMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check that Address to be removed is a Council Member
+    // 3. Check that Council (Signing) Threshold will not be affected with the removal of the Council Member
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: removeCouncilMember
+    // 4. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionRemoveMember(councilMemberAddress) -> {
+        |   LambdaCouncilActionRemoveMember(councilMemberAddress) -> {
                 
                 // Check if council member is in the council
                 if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
@@ -266,15 +276,15 @@ block {
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
                 const addressMap          : addressMapType     = map [
-                        ("councilMemberAddress" : string) -> councilMemberAddress
-                    ];
+                    ("councilMemberAddress" : string) -> councilMemberAddress
+                ];
                 const emptyStringMap      : stringMapType      = map [];
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "removeCouncilMember";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -285,11 +295,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -297,7 +307,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -308,19 +318,23 @@ block {
 function lambdaCouncilActionChangeMember(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (name, image, website) and check max length is not exceeded
+    // 3. Check that new Council Member to be added is not already in the Council
+    // 4. Check that old Council Member to be removed is in the Council
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: changeCouncilMember
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
+        |   LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
@@ -334,20 +348,20 @@ block {
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
                 const addressMap          : addressMapType     = map [
-                    ("oldCouncilMemberAddress" : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-                    ("newCouncilMemberAddress" : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
+                    ("oldCouncilMemberAddress"  : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
+                    ("newCouncilMemberAddress"  : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
                 const stringMap           : stringMapType      = map [
-                    ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
+                    ("newCouncilMemberName"     : string) -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberWebsite"  : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                    ("newCouncilMemberImage"    : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "changeCouncilMember";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -358,18 +372,18 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
                 // increment action counter
                 s.actionCounter := s.actionCounter + 1n;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -380,24 +394,25 @@ block {
 function lambdaCouncilActionSetBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
     // 2. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: setBaker
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionSetBaker(setBakerParams) -> {
+        |   LambdaCouncilActionSetBaker(setBakerParams) -> {
                 
                 const emptyAddressMap     : addressMapType     = map [];
                 const emptyStringMap      : stringMapType      = map [];
                 const emptyNatMap         : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "setBaker";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -408,18 +423,18 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = setBakerParams;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
                 // increment action counter
                 s.actionCounter := s.actionCounter + 1n;
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -437,21 +452,24 @@ block {
 function lambdaCouncilActionUpdateBlocksPerMinute(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check that new blocks per minute will not break the system (cannot be zero)
+    // 3. Check that provided contract has an updateBlocksPerMinute entrypoint
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: updateBlocksPerMinute
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilUpdateBlocksPerMin(councilActionUpdateBlocksPerMinParam) -> {
+        |   LambdaCouncilUpdateBlocksPerMin(councilActionUpdateBlocksPerMinParam) -> {
                 
                 // Check that blocks per minute will not break the system
                 if councilActionUpdateBlocksPerMinParam.newBlocksPerMinute = 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE)
                 else skip;
 
-                // Check if the provided contract has a updateBlocksPerMinute entrypoint
+                // Check if the provided contract has an updateBlocksPerMinute entrypoint
                 const _checkEntrypoint: contract(nat)    = sendUpdateBlocksPerMinuteParams(councilActionUpdateBlocksPerMinParam.contractAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -465,9 +483,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "updateBlocksPerMinute";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -478,11 +496,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -490,7 +508,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -508,25 +526,31 @@ block {
 function lambdaCouncilActionAddVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract address from the General Contracts Map on the Governance Contract
+    // 3. Check if addVestee entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee already exists
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: addVestee
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionAddVestee(addVesteeParams) -> {
+        |   LambdaCouncilActionAddVestee(addVesteeParams) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+                
+                // Check if addVestee entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
 
                 // init parameters
@@ -538,11 +562,11 @@ block {
                 // Check if the vestee already exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
-                    Some (_value) -> case _value of [
-                            Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
-                        |   None -> skip
-                    ]
-                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_value) -> case _value of [
+                                Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
+                            |   None -> skip
+                        ]
+                    |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -558,9 +582,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "addVestee";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -571,11 +595,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -583,7 +607,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -594,35 +618,41 @@ block {
 function lambdaCouncilActionRemoveVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Check if removeVestee entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee exists on the Vesting Contract
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: removeVestee
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionRemoveVestee(vesteeAddress) -> {
+        |   LambdaCouncilActionRemoveVestee(vesteeAddress) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if removeVestee entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(address) = sendRemoveVesteeParams(vestingAddress);
 
-                // Check if the vestee already exists
+                // Check if the vestee exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
-                    Some (_value) -> case _value of [
-                            Some (_vestee) -> skip
-                        |   None -> failwith (error_VESTEE_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_value) -> case _value of [
+                                Some (_vestee) -> skip
+                            |   None -> failwith (error_VESTEE_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -634,9 +664,9 @@ block {
                 const emptyNatMap : natMapType        = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "removeVestee";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -647,11 +677,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -659,7 +689,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -670,25 +700,31 @@ block {
 function lambdaCouncilActionUpdateVestee(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Check if updateVestee entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee exists on the Vesting Contract
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: updateVestee
+    // 6. Increment action counter
     
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
+        |   LambdaCouncilActionUpdateVestee(updateVesteeParams) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if updateVestee entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(updateVesteeType)  = sendUpdateVesteeParams(vestingAddress);
 
                 // init parameters
@@ -697,14 +733,14 @@ block {
                 const newCliffInMonths          : nat      = updateVesteeParams.newCliffInMonths;
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
-                // Check if the vestee already exists
+                // Check if the vestee exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
-                    Some (_value) -> case _value of [
-                            Some (_vestee) -> skip
-                        |   None -> failwith (error_VESTEE_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_value) -> case _value of [
+                                Some (_vestee) -> skip
+                            |   None -> failwith (error_VESTEE_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -720,9 +756,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "updateVestee";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -733,11 +769,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -745,7 +781,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -756,35 +792,41 @@ block {
 function lambdaCouncilActionToggleVesteeLock(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Vesting Contract Address from the General Contracts Map on the Governance Contract
+    // 3. Check if toggleVesteeLock entrypoint exists on the Vesting Contract
+    // 4. Check if the vestee exists on the Vesting Contract
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: toggleVesteeLock
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
+        |   LambdaCouncilToggleVesteeLock(vesteeAddress) -> {
                 
-                // Check if entrypoint exists on Vesting Contract
+                // Get Vesting Contract Address from the General Contracts Map on the Governance Contract
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                 const vestingAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if toggleVesteeLock entrypoint exists on the Vesting Contract
                 const _checkEntrypoint: contract(address) = sendToggleVesteeLockParams(vestingAddress);
 
-                // Check if the vestee already exists
+                // Check if the vestee exists
                 const vesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case vesteeOptView of [
-                    Some (_value) -> case _value of [
-                            Some (_vestee) -> skip
-                        |   None -> failwith (error_VESTEE_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
+                        Some (_value) -> case _value of [
+                                Some (_vestee) -> skip
+                            |   None -> failwith (error_VESTEE_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -796,9 +838,9 @@ block {
                 const emptyNatMap : natMapType        = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "toggleVesteeLock";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -809,11 +851,11 @@ block {
                     natMap                = emptyNatMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -821,7 +863,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -839,20 +881,23 @@ block {
 function lambdaCouncilActionTransfer(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (purpose) does not exceed max length
+    // 3. Check if tokenType provided is correct
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: transfer
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilActionTransfer(councilActionTransferParams) -> {
+        |   LambdaCouncilActionTransfer(councilActionTransferParams) -> {
                 
                 // Validate inputs
                 if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // Check if type is correct
+                // Check if token type is correct
                 if councilActionTransferParams.tokenType = "FA12" or
                 councilActionTransferParams.tokenType = "FA2" or
                 councilActionTransferParams.tokenType = "TEZ" then skip
@@ -874,9 +919,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "transfer";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -887,11 +932,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -899,7 +944,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -910,29 +955,36 @@ block {
 function lambdaCouncilActionRequestTokens(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (purpose, token name) does not exceed max length
+    // 3. Get Governance Financial Address from the General Contracts Map on the Governance Contract 
+    // 4. Check if requestTokens entrypoint exists on the Governance Financial Contract 
+    // 5. Check if tokenType provided is correct
+    // 6. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: requestTokens
+    // 7. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {                
+        |   LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {                
 
                 // Validate inputs
                 if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // Check if entrypoint exist on Governance Contract
+                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                const governanceFinancialAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if requestTokens entrypoint exists on the Governance Financial Contract 
                 const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(governanceFinancialAddress);
 
                 // Check if type is correct
@@ -958,9 +1010,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "requestTokens";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -971,11 +1023,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -983,7 +1035,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -994,28 +1046,34 @@ block {
 function lambdaCouncilActionRequestMint(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Validate inputs (purpose) does not exceed max length
+    // 3. Get Governance Financial Address from the General Contracts Map on the Governance Contract 
+    // 4. Check if requestTokens entrypoint exists on the Governance Financial Contract 
+    // 5. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: requestMint
+    // 6. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilRequestMint(councilActionRequestMintParams) -> {
+        |   LambdaCouncilRequestMint(councilActionRequestMintParams) -> {
                 
                 // Validate inputs
                 if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
-                // Check if entrypoint exists on Governance Contract
+                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                const governanceFinancialAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
+                // Check if requestTokens entrypoint exists on the Governance Financial Contract 
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -1031,9 +1089,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "requestMint";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1044,11 +1102,11 @@ block {
                     natMap                = natMap;     
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1056,7 +1114,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -1067,26 +1125,31 @@ block {
 function lambdaCouncilActionSetContractBaker(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Get Governance Financial Address from the General Contracts Map on the Governance Contract 
+    // 3. Check if setContractBaker entrypoint exists on the Governance Financial Contract 
+    // 4. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: setContractBaker
+    // 5. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
+        |   LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
-                // Check if entrypoint exist on Governance contract
+                // Get Governance Financial Address from the General Contracts Map on the Governance Contract 
                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress: address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                const governanceFinancialAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                         ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(governanceFinancialAddress);
+
+                // Check if setContractBaker entrypoint exists on the Governance Financial Contract 
+                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendSetContractBakerParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = councilActionSetContractBakerParams.keyHash; 
 
@@ -1097,9 +1160,9 @@ block {
                 const emptyNatMap       : natMapType         = map [];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "setContractBaker";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1110,11 +1173,11 @@ block {
                     natMap                = emptyNatMap;     
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1122,7 +1185,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -1133,20 +1196,22 @@ block {
 function lambdaCouncilActionDropFinancialRequest(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if Financial Request exists
+    // 3. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: dropFinancialRequest
+    // 4. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilDropFinancialReq(requestId) -> {
+        |   LambdaCouncilDropFinancialReq(requestId) -> {
                 
                 // Check if financial request exists
                 const _request: councilActionRecordType = case Big_map.find_opt(requestId, s.councilActionsLedger) of [
                         Some (_action) -> _action
-                    |   None -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
+                    |   None           -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
                 ];
 
                 if _request.status  = "FLUSHED" then failwith(error_FINANCIAL_REQUEST_DROPPED)
@@ -1161,9 +1226,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "dropFinancialRequest";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1174,11 +1239,11 @@ block {
                     natMap                = natMap;     
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1186,7 +1251,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -1204,20 +1269,22 @@ block {
 function lambdaFlushAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
 
-    // Overall steps:
-    // 1. Check that sender is a council member
-    // 2. Create and save new council action record, set the sender as a signer of the action
-    // 3. Increment action counter
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if Council Action exists
+    // 3. Create and save new council action record, set the sender as a signer of the action
+    //      - Action Type: flushAction
+    // 4. Increment action counter
     
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaFlushAction(actionId) -> {
+        |   LambdaFlushAction(actionId) -> {
                 
-                // Check if council action
+                // Check if council action exists
                 const _request: councilActionRecordType = case Big_map.find_opt(actionId, s.councilActionsLedger) of [
                         Some (_action) -> _action
-                    |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                    |   None           -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 if _request.status  = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)
@@ -1235,9 +1302,9 @@ block {
                 ];
 
                 var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.sender;
+                    initiator             = Tezos.get_sender();
                     actionType            = "flushAction";
-                    signers               = set[Tezos.sender];
+                    signers               = set[Tezos.get_sender()];
 
                     status                = "PENDING";
                     signersCount          = 1n;
@@ -1248,11 +1315,11 @@ block {
                     natMap                = natMap;
                     keyHash               = keyHash;
 
-                    startDateTime         = Tezos.now;
-                    startLevel            = Tezos.level;             
-                    executedDateTime      = Tezos.now;
-                    executedLevel         = Tezos.level;
-                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.get_now();
+                    startLevel            = Tezos.get_level();             
+                    executedDateTime      = Tezos.get_now();
+                    executedLevel         = Tezos.get_level();
+                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
                 ];
                 s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -1260,7 +1327,7 @@ block {
                 s.actionCounter := s.actionCounter + 1n;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (noOperations, s)
@@ -1271,31 +1338,41 @@ block {
 function lambdaSignAction(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
 block {
     
+    // Steps Overview:
+    // 1. Check if sender is a Council Member
+    // 2. Check if Council Action exists
+    //      - check that council action has not been flushed
+    //      - check that council action has not expired
+    //      - check if council member has already signed for this action
+    // 3. Update signers and signersCount for Council Action record
+    // 4. Execute action if signers threshold has been reached     
+    
     checkSenderIsCouncilMember(s);
 
     var operations : list(operation) := nil;
 
     case councilLambdaAction of [
-        | LambdaSignAction(actionId) -> {
+        |   LambdaSignAction(actionId) -> {
                 
+                // check if council action exists
                 var _councilActionRecord : councilActionRecordType := case s.councilActionsLedger[actionId] of [
-                      Some(_record) -> _record
-                    | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                        Some(_record) -> _record
+                    |   None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                 ];
 
                 // check if council action has been flushed
                 if _councilActionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED) else skip;
 
                 // check if council action has expired
-                if Tezos.now > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+                if Tezos.get_now() > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
-                // check if signer already signer
-                if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
+                // check if council member has already signed for this action
+                if Set.mem(Tezos.get_sender(), _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := _councilActionRecord.signersCount + 1n;
                 _councilActionRecord.signersCount  := signersCount;
-                _councilActionRecord.signers       := Set.add(Tezos.sender, _councilActionRecord.signers);
+                _councilActionRecord.signers       := Set.add(Tezos.get_sender(), _councilActionRecord.signers);
                 s.councilActionsLedger[actionId]   := _councilActionRecord;
 
                 const actionType : string = _councilActionRecord.actionType;
@@ -1316,36 +1393,36 @@ block {
 
                         // fetch params begin ---
                         const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberName : string = case _councilActionRecord.stringMap["councilMemberName"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberImage : string = case _councilActionRecord.stringMap["councilMemberImage"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const councilMemberWebsite : string = case _councilActionRecord.stringMap["councilMemberWebsite"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                         if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
                         const councilMemberInfo: councilMemberInfoType  = record[
-                            name=councilMemberName;
-                            image=councilMemberImage;
-                            website=councilMemberWebsite;
+                            name    = councilMemberName;
+                            image   = councilMemberImage;
+                            website = councilMemberWebsite;
                         ];
 
                         if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
@@ -1360,8 +1437,8 @@ block {
 
                         // fetch params begin ---
                         const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1372,6 +1449,7 @@ block {
                         // Check if removing the council member won't impact the threshold
                         if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                         else skip;
+
                         s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
 
                     } else skip;
@@ -1383,34 +1461,34 @@ block {
 
                         // fetch params begin ---
                         const oldCouncilMemberAddress : address = case _councilActionRecord.addressMap["oldCouncilMemberAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberAddress : address = case _councilActionRecord.addressMap["newCouncilMemberAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberName : string = case _councilActionRecord.stringMap["newCouncilMemberName"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberImage : string = case _councilActionRecord.stringMap["newCouncilMemberImage"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |    None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCouncilMemberWebsite : string = case _councilActionRecord.stringMap["newCouncilMemberWebsite"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                        if String.length(newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(newCouncilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(newCouncilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                         if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
@@ -1422,9 +1500,9 @@ block {
                         else skip;
 
                         const councilMemberInfo: councilMemberInfoType  = record[
-                            name=newCouncilMemberName;
-                            image=newCouncilMemberImage;
-                            website=newCouncilMemberWebsite;
+                            name    = newCouncilMemberName;
+                            image   = newCouncilMemberImage;
+                            website = newCouncilMemberWebsite;
                         ];
 
                         s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
@@ -1458,12 +1536,13 @@ block {
                         
                         // fetch params begin ---
                         const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
+                        
                         const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1474,6 +1553,7 @@ block {
                         );
                         
                         operations := updateBlocksPerMinuteOperation # operations;
+
                     } else skip;
 
                     // ------------------------------------------------------------------------------
@@ -1491,23 +1571,23 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const totalAllocatedAmount : nat = case _councilActionRecord.natMap["totalAllocatedAmount"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const cliffInMonths : nat = case _councilActionRecord.natMap["cliffInMonths"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const vestingInMonths : nat = case _councilActionRecord.natMap["vestingInMonths"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1520,11 +1600,11 @@ block {
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const addVesteeOperation : operation = Tezos.transaction(
@@ -1544,18 +1624,18 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const removeVesteeOperation : operation = Tezos.transaction(
@@ -1575,23 +1655,23 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newTotalAllocatedAmount : nat = case _councilActionRecord.natMap["newTotalAllocatedAmount"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newCliffInMonths : nat = case _councilActionRecord.natMap["newCliffInMonths"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const newVestingInMonths : nat = case _councilActionRecord.natMap["newVestingInMonths"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1604,11 +1684,11 @@ block {
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const updateVesteeOperation : operation = Tezos.transaction(
@@ -1628,18 +1708,18 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch end begin ---
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
                         const vestingAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const toggleVesteeLockOperation : operation = Tezos.transaction(
@@ -1669,32 +1749,32 @@ block {
 
                         // fetch params begin ---
                         const receiverAddress : address = case _councilActionRecord.addressMap["receiverAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
-                        const from_  : address   = Tezos.self_address;
+                        const from_  : address   = Tezos.get_self_address();
                         const to_    : address   = receiverAddress;
                         const amt    : nat       = tokenAmount;
                         
@@ -1702,25 +1782,27 @@ block {
                         var _tokenTransferType : tokenType := Tez;
 
                         if  tokenType = "TEZ" then block {
-                        _tokenTransferType      := (Tez: tokenType); 
+                            _tokenTransferType      := (Tez: tokenType); 
                         } else skip;
 
                         if  tokenType = "FA12" then block {
-                        _tokenTransferType      := (Fa12(tokenContractAddress): tokenType);
+                            _tokenTransferType      := (Fa12(tokenContractAddress) : tokenType);
                         } else skip;
 
                         if  tokenType = "FA2" then block {
-                        _tokenTransferType      := (Fa2(record [
-                            tokenContractAddress   = tokenContractAddress;
-                            tokenId                = tokenId;
-                        ]): tokenType); 
+
+                            _tokenTransferType     := (Fa2(record [
+                                tokenContractAddress    = tokenContractAddress;
+                                tokenId                 = tokenId;
+                            ]) : tokenType); 
+
                         } else skip;
                         // --- --- ---
 
                         const transferTokenOperation : operation = case _tokenTransferType of [ 
-                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
-                            | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
-                            | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                            |   Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address") : contract(unit)), amt * 1mutez)
+                            |   Fa12(token) -> transferFa12Token(from_, to_, amt, token)
+                            |   Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                         ];
 
                         operations := transferTokenOperation # operations;
@@ -1734,43 +1816,43 @@ block {
 
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenName : string = case _councilActionRecord.stringMap["tokenName"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(purpose)   > s.config.requestPurposeMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                         if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const requestTokensParams : councilActionRequestTokensType = record[
@@ -1784,12 +1866,12 @@ block {
                         ];
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const requestTokensOperation : operation = Tezos.transaction(
@@ -1809,18 +1891,18 @@ block {
 
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
-                              Some(_string) -> _string
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_string) -> _string
+                            |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
@@ -1828,12 +1910,12 @@ block {
                         if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const requestMintParams : councilActionRequestMintType = record[
@@ -1859,18 +1941,18 @@ block {
                         
                         // fetch params begin ---
                         const targetContractAddress : address = case _councilActionRecord.addressMap["targetContractAddress"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const setContractBakerParams : councilActionSetContractBakerType = record[
@@ -1881,7 +1963,7 @@ block {
                         const setContractBakerOperation : operation = Tezos.transaction(
                             setContractBakerParams,
                             0tez, 
-                            sendContractBakerParams(governanceFinancialAddress)
+                            sendSetContractBakerParams(governanceFinancialAddress)
                         );
 
                         operations := setContractBakerOperation # operations;
@@ -1895,18 +1977,18 @@ block {
                         
                         // fetch params begin ---
                         const requestId : nat = case _councilActionRecord.natMap["requestId"] of [
-                              Some(_address) -> _address
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_address) -> _address
+                            |   None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                        const governanceFinancialAddress: address = case generalContractsOptView of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        const governanceFinancialAddress : address = case generalContractsOptView of [
+                                Some (_optionContract) -> case _optionContract of [
+                                        Some (_contract)    -> _contract
+                                    |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                                 ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
 
                         const dropFinancialRequestOperation : operation = Tezos.transaction(
@@ -1934,14 +2016,14 @@ block {
 
                         // fetch params begin ---
                         const flushedCouncilActionId : nat = case _councilActionRecord.natMap["actionId"] of [
-                              Some(_nat) -> _nat
-                            | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+                                Some(_nat) -> _nat
+                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
 
                         var flushedCouncilActionRecord : councilActionRecordType := case s.councilActionsLedger[flushedCouncilActionId] of [      
-                              Some(_record) -> _record
-                            | None -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+                                Some(_record) -> _record
+                            |   None          -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
                         ];
 
                         if flushedCouncilActionRecord.status  = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)
@@ -1964,8 +2046,8 @@ block {
                     // update council action record status
                     _councilActionRecord.status              := "EXECUTED";
                     _councilActionRecord.executed            := True;
-                    _councilActionRecord.executedDateTime    := Tezos.now;
-                    _councilActionRecord.executedLevel       := Tezos.level;
+                    _councilActionRecord.executedDateTime    := Tezos.get_now();
+                    _councilActionRecord.executedLevel       := Tezos.get_level();
                     
                     // save council action record
                     s.councilActionsLedger[actionId]         := _councilActionRecord;
@@ -1973,7 +2055,7 @@ block {
                 } else skip;
 
             }
-        | _ -> skip
+        |   _ -> skip
     ];
 
 } with (operations, s)
