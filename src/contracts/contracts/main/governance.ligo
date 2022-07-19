@@ -57,6 +57,7 @@ type governanceAction is
     |   ExecuteProposal                 of (unit)
     |   ProcessProposalPayment          of actionIdType
     |   ProcessProposalSingleData       of (unit)
+    |   ClaimProposalRewards            of claimProposalRewardsType
     |   DropProposal                    of actionIdType
 
         // Lambda Entrypoints
@@ -539,45 +540,6 @@ block {
 
 
 
-// helper function to setup new proposal round
-function sendRewardsToVoters(var s : governanceStorageType) : operation is
-block{
-
-    // Get all satellites who voted during the governance round
-    const highestVotedProposalId : nat   = s.cycleHighestVotedProposalId;
-    const proposal : proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
-            Some (_record) -> _record
-        |   None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
-    ];
-    const voters : votersMapType         = proposal.voters;
-    
-    // Create set of voters' addresses
-    var votersAddresses : set(address)  := (Set.empty : set(address));
-    function getVotersAddresses(const voters : set(address); const voter: address * votingRoundRecordType) : set(address) is
-        Set.add(voter.0, voters);
-    var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
-
-    // Get total governance rewards for voters
-    const roundReward: nat  = s.currentCycleInfo.cycleTotalVotersReward;
-    
-    // Get Delegation Contract address from the general contracts map
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-            Some(_address) -> _address
-        |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-    ];
-
-    // Send rewards to all satellites
-    const distributeRewardsEntrypoint: contract(set(address) * nat) =
-        case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED) : contract(set(address) * nat))
-        ];
-    const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
-
-} with (distributeOperation)
-
-
-
 function sendRewardToProposer(var s : governanceStorageType) : operation is
 block {
 
@@ -614,9 +576,7 @@ function setupProposalRound(var s : governanceStorageType) : governanceStorageTy
 block {
 
     // reset state variables
-    const emptyProposalSet  : set(nat)                      = set [];
-    const emptyVotesMap     : big_map(address, nat)         = big_map [];
-    const emptyProposerMap  : big_map(address, set(nat))    = big_map [];
+    const emptyProposalMap  : map(actionIdType, nat)    = map [];
 
     // ------------------------------------------------------------------
     // Get staked MVK Total Supply and calculate quorum
@@ -654,9 +614,7 @@ block {
     s.currentCycleInfo.cycleEndLevel                 := Tezos.get_level() + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
     s.currentCycleInfo.minQuorumStakedMvkTotal       := minQuorumStakedMvkTotal;
-    s.roundProposals                := emptyProposalSet;    // flush proposals
-    s.roundProposers                := emptyProposerMap;    // flush proposals
-    s.roundVotes                    := emptyVotesMap;       // flush voters
+    s.cycleProposals                                 := emptyProposalMap;    // flush proposals
     s.cycleHighestVotedProposalId                    := 0n;                  // flush proposal id voted through - reset to 0 
 
     // Increase the cycle counter
@@ -676,10 +634,6 @@ block {
     s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.roundEndLevel + s.currentCycleInfo.blocksPerVotingRound;
 
     s.timelockProposalId := 0n;                  // flush proposal id in timelock - reset to 0
-
-    // flush current round votes - to prepare for voting round
-    const emptyCurrentRoundVotes : big_map(address, nat) = big_map[];
-    s.roundVotes := emptyCurrentRoundVotes;
 
 } with (s)
 
@@ -1320,6 +1274,25 @@ block {
 
 
 
+// (* claimProposalRewards entrypoint *)
+function claimProposalRewards(const claimParams: claimProposalRewardsType; var s : governanceStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimProposalRewards"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaClaimProposalRewards(claimParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
 // (* dropProposal entrypoint *)
 function dropProposal(const proposalId : actionIdType; var s : governanceStorageType) : return is 
 block {
@@ -1406,6 +1379,7 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   ExecuteProposal(_parameters)                -> executeProposal(s)
         |   ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
         |   ProcessProposalSingleData(_parameters)      -> processProposalSingleData(s)
+        |   ClaimProposalRewards(parameters)            -> claimProposalRewards(parameters, s)
         |   DropProposal(parameters)                    -> dropProposal(parameters, s)
 
             // Lambda Entrypoints

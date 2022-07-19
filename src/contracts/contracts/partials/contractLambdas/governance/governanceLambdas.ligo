@@ -541,9 +541,10 @@ block {
                         
                             Some (proposal) -> block{
 
-                                // Send governance rewards to all satellite voters (if there is at least one)
-                                if Map.size(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
-                                else skip;
+                                // Enable the claim for the satellite who voted
+                                var highestVotedProposal                        := proposal;
+                                highestVotedProposal.claimReady                 := True;
+                                s.proposalLedger[s.cycleHighestVotedProposalId] := highestVotedProposal;
 
                                 // Calculate YAY votes required for proposal to be successful and move on to the Timelock round
                                 const yayVotesRequired: nat = (proposal.quorumStakedMvkTotal * proposal.minYayVotePercentage) / 10000n;
@@ -705,13 +706,12 @@ block {
 
                 // init new proposal params
                 const proposalId                : nat                                     = s.nextProposalId;
-                const emptyProposalVotersMap    : proposalVotersMapType                   = map [];
-                const emptyVotersMap            : votersMapType                           = map [];
+                const emptyVotersSet            : set(address)                            = set [];
                 const proposalMetadata          : map(nat, option(proposalMetadataType))  = map [];
                 const paymentMetadata           : map(nat, option(paymentMetadataType))   = map [];
 
                 // Get total number of proposals from satellite for current cycle
-                var satelliteProposals : set(nat) := case s.roundProposers[Tezos.get_sender()] of [
+                var satelliteProposals : set(nat) := case s.cycleProposers[(s.cycleCounter,Tezos.get_sender())] of [
                         Some (_proposals) -> _proposals
                     |   None              -> Set.empty
                 ];
@@ -735,13 +735,14 @@ block {
                     sourceCode                          = newProposal.sourceCode;                       // source code repo url
 
                     successReward                       = s.config.successReward;                       // log of successful proposal reward for voters - may change over time
+                    totalVotersReward                   = s.currentCycleInfo.cycleTotalVotersReward;    // log of the cycle total rewards for voters
                     executed                            = False;                                        // boolean: executed set to true if proposal is executed
                     paymentProcessed                    = False;                                        // boolean: set to true if proposal payment has been processed 
                     locked                              = False;                                        // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
+                    claimReady                          = False;                                        // boolean: set to true if the voters are able to claim the rewards
 
                     proposalVoteCount                   = 0n;                                           // proposal round: pass votes count (to proceed to voting round)
                     proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
-                    proposalVotersMap                   = emptyProposalVotersMap;                       // proposal round ledger
 
                     minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;      // min vote percentage of total MVK supply required to pass proposal round
                     minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;       // min staked MVK votes required for proposal round to pass
@@ -752,7 +753,7 @@ block {
                     nayVoteStakedMvkTotal               = 0n;                                           // voting round: nay MVK total 
                     passVoteCount                       = 0n;                                           // voting round: pass count
                     passVoteStakedMvkTotal              = 0n;                                           // voting round: pass MVK total 
-                    voters                              = emptyVotersMap;                               // voting round ledger
+                    voters                              = emptyVotersSet;                               // voting round ledger
 
                     minQuorumPercentage                 = s.config.minQuorumPercentage;                 // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
                     minQuorumStakedMvkTotal             = s.currentCycleInfo.minQuorumStakedMvkTotal;   // log of min quorum in MVK
@@ -776,7 +777,7 @@ block {
 
                 // Add new proposal to satellite's proposals set
                 satelliteProposals                                      := Set.add(proposalId, satelliteProposals);
-                s.roundProposers[Tezos.get_sender()]   := satelliteProposals;
+                s.cycleProposers[(s.cycleCounter,Tezos.get_sender())]   := satelliteProposals;
 
                 // ------------------------------------------------------------------
                 // Add Proposal Metadata and Payment Metadata 
@@ -834,7 +835,7 @@ block {
                 ];
 
                 // Add proposal id to current round proposals and initialise with zero positive votes in MVK 
-                s.roundProposals   := Set.add(proposalId, s.roundProposals);
+                s.cycleProposals   := Map.add(proposalId, 0n, s.cycleProposals);
 
                 // Increment next proposal id
                 s.nextProposalId := proposalId + 1n;
@@ -1180,7 +1181,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Set.mem(proposalId, s.roundProposals);
+                const checkProposalExistsFlag : bool = Map.mem(proposalId, s.cycleProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
@@ -1203,7 +1204,13 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = Big_map.mem(Tezos.get_sender(), s.roundVotes);
+                const checkIfSatelliteHasVotedFlag : bool = case Big_map.find_opt((s.cycleCounter, Tezos.get_sender()), s.roundVotes) of [
+                        Some (_voteRound)   -> case _voteRound of [
+                                Proposal (_proposalId)      -> True
+                            |   Voting (_voteType)          -> False
+                        ] 
+                   |    None                -> False
+                ];
 
                 // Compute satellite's votes 
                 if checkIfSatelliteHasVotedFlag = False then block {
@@ -1218,13 +1225,15 @@ block {
                     // Update proposal with satellite's vote
                     _proposal.proposalVoteCount                     := _proposal.proposalVoteCount + 1n;    
                     _proposal.proposalVoteStakedMvkTotal            := newProposalVoteStakedMvkTotal;
-                    _proposal.proposalVotersMap[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now());
                     
                     // Update proposal with new vote
-                    s.proposalLedger[proposalId] := _proposal;
+                    s.proposalLedger[proposalId]    := _proposal;
+
+                    // Update cycle proposal with its updated vote smvk
+                    s.cycleProposals[proposalId]    := _proposal.proposalVoteStakedMvkTotal;
 
                     // Update current round votes with satellite
-                    s.roundVotes[Tezos.get_sender()] := proposalId;
+                    s.roundVotes[(s.cycleCounter, Tezos.get_sender())] := (Proposal (proposalId): roundVoteType);
 
                 } else block {
 
@@ -1233,8 +1242,11 @@ block {
                     // -------------------------------------------
 
                     // Check if satellite already voted for this proposal (double-counting check)
-                    case s.roundVotes[Tezos.get_sender()] of [
-                            Some (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else skip
+                    case s.roundVotes[(s.cycleCounter, Tezos.get_sender())] of [
+                            Some (_voteRound)   -> case _voteRound of [
+                                    Proposal (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else skip
+                                |   Voting (_voteType)      -> failwith(error_VOTE_NOT_FOUND)
+                            ]
                         |   None                -> failwith(error_VOTE_NOT_FOUND)
                     ];
                     
@@ -1244,16 +1256,18 @@ block {
                     // Update proposal with satellite's vote
                     _proposal.proposalVoteCount               := _proposal.proposalVoteCount + 1n;
                     _proposal.proposalVoteStakedMvkTotal      := newProposalVoteStakedMvkTotal;
-                    _proposal.proposalVotersMap[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now());
 
                     // -------------------------------------------
                     // Recalculate votes for previous proposal voted on 
                     // -------------------------------------------
 
                     // Get id of proposal that was previously voted on
-                    const previousVotedProposalId : nat = case s.roundVotes[Tezos.get_sender()] of [
-                            Some(_id) -> _id
-                        |   None      -> failwith(error_PROPOSAL_NOT_FOUND)
+                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleCounter, Tezos.get_sender())] of [
+                            Some (_voteRound)   -> case _voteRound of [
+                                    Proposal (_proposalId)  -> _proposalId
+                                |   Voting (_voteType)      -> failwith(error_VOTE_NOT_FOUND)
+                            ]
+                        |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
 
                     // Get previous proposal record
@@ -1272,27 +1286,32 @@ block {
                     else previousProposalProposalVoteStakedMvkTotal := abs(previousProposalProposalVoteStakedMvkTotal - satelliteSnapshot.totalVotingPower); 
                     
                     _previousProposal.proposalVoteStakedMvkTotal := previousProposalProposalVoteStakedMvkTotal;
-
-                    // Remove user from previous proposal that he voted on, decrement previously voted proposal by satellite snapshot's total voting power
-                    remove Tezos.get_sender() from map _previousProposal.proposalVotersMap;        
                     
                     // -------------------------------------------
                     // Update Storage
                     // -------------------------------------------
                 
                     // Update proposal with satellite's vote
-                    s.proposalLedger[proposalId] := _proposal;
-                    s.proposalLedger[previousVotedProposalId] := _previousProposal;
+                    s.proposalLedger[proposalId]                := _proposal;
+                    s.proposalLedger[previousVotedProposalId]   := _previousProposal;
+
+                    // Update cycle proposals with their updated vote smvk
+                    s.cycleProposals[proposalId]                    := _proposal.proposalVoteStakedMvkTotal;
+                    s.cycleProposals[previousVotedProposalId]       := _previousProposal.proposalVoteStakedMvkTotal;
 
                     // Update current round votes with satellite
-                    s.roundVotes[Tezos.get_sender()] := proposalId;    
+                    s.roundVotes[(s.cycleCounter, Tezos.get_sender())] := (Proposal (proposalId) : roundVoteType);
                 };
 
                 // Update the current round highest voted proposal
-                s.cycleHighestVotedProposalId   := case Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger) of [
-                        Some (_highestVotedProposal)    -> if _proposal.proposalVoteStakedMvkTotal > _highestVotedProposal.proposalVoteStakedMvkTotal then proposalId else s.cycleHighestVotedProposalId
-                    |   None                            -> proposalId
+                const highestVote: nat  = case Big_map.find_opt(s.cycleHighestVotedProposalId, s.proposalLedger) of [
+                        Some (_highestVotedProposal)    -> if _proposal.proposalVoteStakedMvkTotal > _highestVotedProposal.proposalVoteStakedMvkTotal then _proposal.proposalVoteStakedMvkTotal else _highestVotedProposal.proposalVoteStakedMvkTotal
+                    |   None                            -> _proposal.proposalVoteStakedMvkTotal
                 ];
+                function findHighestVotedProposalIdFold(const currentHighestVotedProposalId: actionIdType; const proposalVote: actionIdType * nat): actionIdType is
+                if proposalVote.1 >= highestVote then proposalVote.0 else currentHighestVotedProposalId;
+
+                s.cycleHighestVotedProposalId   := Map.fold(findHighestVotedProposalIdFold, s.cycleProposals, s.cycleHighestVotedProposalId);
 
             }
         |   _ -> skip
@@ -1356,7 +1375,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Set.mem(s.cycleHighestVotedProposalId, s.roundProposals);
+                const checkProposalExistsFlag : bool = Map.mem(s.cycleHighestVotedProposalId, s.cycleProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
@@ -1377,55 +1396,53 @@ block {
                 //  i.e. (satelliteAddress, voteType - Yay | Nay | Pass)
 
                 // Check if satellite has voted
-                const checkIfSatelliteHasVotedFlag : bool = Big_map.mem(Tezos.get_sender(), s.roundVotes);
-                
-                // Compute satellite's votes 
-                if checkIfSatelliteHasVotedFlag = False then block {
-                    
-                    // -------------------------------------------
-                    // Satellite has not voted - add new vote
-                    // -------------------------------------------
-                    
-                    // Save new vote
-                    _proposal.voters[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now(), voteType);
+                const previousVoteOpt : option(voteType) = case Big_map.find_opt((s.cycleCounter, Tezos.get_sender()), s.roundVotes) of [
+                        Some (_voteRound)   -> case _voteRound of [
+                                Proposal (_proposalId)  -> (None : option(voteType))
+                            |   Voting (_voteType)      -> (Some (_voteType) : option(voteType))
+                        ]
+                    |   None                -> (None : option(voteType))
+                ];
 
-                    // Set proposal record based on vote type 
-                    var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
-                    
-                    // Update proposal with satellite's vote
-                    s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
+                case previousVoteOpt of [
+                        Some (_previousVote)    -> block {
+                            // -------------------------------------------
+                            // Satellite has already voted - change of vote
+                            // -------------------------------------------
 
-                } else block {
-                    
-                    // -------------------------------------------
-                    // Satellite has already voted - change of vote
-                    // -------------------------------------------
-                    
-                    // Get previous vote
-                    var previousVote : (nat * timestamp * voteType) := case _proposal.voters[Tezos.get_sender()] of [ 
-                        | None                -> failwith(error_VOTE_NOT_FOUND)
-                        | Some(_previousVote) -> _previousVote
-                    ];
+                            // Check if new vote is the same as old vote
+                            if _previousVote = voteType then failwith (error_VOTE_ALREADY_RECORDED)
+                            else skip;
 
-                    const previousVoteType = previousVote.2;
+                            // Save new vote
+                            s.roundVotes        := Big_map.update((s.cycleCounter, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
+                            _proposal.voters    := Set.add(Tezos.get_sender(), _proposal.voters);
 
-                    // Check if new vote is the same as old vote
-                    if previousVoteType = voteType then failwith (error_VOTE_ALREADY_RECORDED)
-                    else skip;
+                            // Set proposal record based on vote type 
+                            var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
 
-                    // Save new vote
-                    _proposal.voters[Tezos.get_sender()] := (satelliteSnapshot.totalVotingPower, Tezos.get_now(), voteType);
+                            // Unset previous vote in proposal record
+                            var _proposal : proposalRecordType := unsetProposalRecordVote(_previousVote, satelliteSnapshot.totalVotingPower, _proposal);
+                            
+                            // Update proposal with new vote changes
+                            s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
+                        }
+                    |   None            -> block {
+                            // -------------------------------------------
+                            // Satellite has not voted - add new vote
+                            // -------------------------------------------
+                            
+                            // Save new vote
+                            s.roundVotes        := Big_map.update((s.cycleCounter, Tezos.get_sender()), Some (Voting (voteType)), s.roundVotes);
+                            _proposal.voters    := Set.add(Tezos.get_sender(), _proposal.voters);
 
-                    // Set proposal record based on vote type 
-                    var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
-
-                    // Unset previous vote in proposal record
-                    var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
-                    
-                    // Update proposal with new vote changes
-                    s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
-                    
-                }
+                            // Set proposal record based on vote type 
+                            var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
+                            
+                            // Update proposal with satellite's vote
+                            s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
+                    }
+                ];
 
             }
         |   _ -> skip
@@ -1785,6 +1802,68 @@ block {
 
 
 
+(* claimProposalRewards lambda *)
+function lambdaClaimProposalRewards(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
+block {
+
+    var operations : list(operation) := nil;
+
+    case governanceLambdaAction of [
+        |   LambdaClaimProposalRewards(claimParams) -> {
+            
+            // Get values from params
+            const satelliteAddress : address         = claimParams.satelliteAddress;
+            const proposalIds : set(actionIdType)    = claimParams.proposalIds;
+
+            // Get Delegation Contract address from the general contracts map
+            const delegationAddress : address = case s.generalContracts["delegation"] of [
+                    Some(_address) -> _address
+                |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+            ];
+
+            // Get the distribute reward entrypoint
+            const claimSatellite : set(address)  = set [satelliteAddress];
+            const distributeRewardsEntrypoint: contract(set(address) * nat) =
+                case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
+                        Some(contr) -> contr
+                    |   None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED) : contract(set(address) * nat))
+                ];
+
+            // Define the fold function for the set of proposal ids
+            for proposalId in set proposalIds block{
+                case Big_map.find_opt(proposalId, s.proposalLedger) of [
+                        Some (_record) -> block{
+                            // Check the satellite voted on the proposal
+                            if Set.mem(satelliteAddress, _record.voters) then skip else failwith(error_VOTE_NOT_FOUND);
+
+                            // Check the satellite did not already claimed its reward for this proposal
+                            const satelliteRewardProposalKey: (actionIdType*address)    = (proposalId, satelliteAddress);
+                            if Big_map.mem(satelliteRewardProposalKey, s.proposalRewards) then skip else failwith(error_PROPOSAL_REWARD_ALREADY_CLAIMED);
+
+                            // Check if the reward can be claimed
+                            if _record.claimReady then skip else failwith(error_PROPOSAL_REWARD_CANNOT_BE_CLAIMED);
+
+                            // Add the reward to the storage
+                            s.proposalRewards   := Big_map.add(satelliteRewardProposalKey, unit, s.proposalRewards);
+
+                            // Calculate the reward
+                            const satelliteReward: nat  = _record.totalVotersReward / Set.cardinal(_record.voters);
+
+                            const distributeOperation: operation = Tezos.transaction((claimSatellite, satelliteReward), 0tez, distributeRewardsEntrypoint);
+                            operations  := distributeOperation # operations;
+                        }
+                    |   None -> failwith(error_PROPOSAL_NOT_FOUND)
+                ];
+            };
+
+        }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
 (* dropProposal lambda *)
 function lambdaDropProposal(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
@@ -1797,7 +1876,7 @@ block {
     //      -   Check that proposal has not been dropped
     // 3. Check if sender is proposer or admin 
     //      -   Set proposal status to "DROPPED"
-    //      -   Remove proposal from currentCycleInfo.roundProposers
+    //      -   Remove proposal from currentCycleInfo.cycleProposers
     //      -   If current round is a timelock or voting round (where there is only one proposal), restart the cycle
 
 
@@ -1822,7 +1901,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that proposal exists in the current round's proposals
-                const checkProposalExistsFlag : bool = Set.mem(proposalId, s.roundProposals);
+                const checkProposalExistsFlag : bool = Map.mem(proposalId, s.cycleProposals);
                 if checkProposalExistsFlag = False then failwith(error_PROPOSAL_NOT_FOUND)
                 else skip;
 
@@ -1841,12 +1920,15 @@ block {
                     _proposal.status               := "DROPPED";
                     s.proposalLedger[proposalId]   := _proposal;
 
-                    // Remove proposal from currentCycleInfo.roundProposers
-                    var satelliteProposals   : set(nat)  := case s.roundProposers[_proposal.proposerAddress] of [
+                    // Remove proposal from currentCycleInfo.cycleProposers
+                    var satelliteProposals   : set(nat)  := case s.cycleProposers[(s.cycleCounter, _proposal.proposerAddress)] of [
                             Some (_proposals) -> _proposals
                         |   None              -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
-                    s.roundProposers[_proposal.proposerAddress] := Set.remove(proposalId, satelliteProposals);
+                    s.cycleProposers[(s.cycleCounter, _proposal.proposerAddress)] := Set.remove(proposalId, satelliteProposals);
+
+                    // Remove proposal from current cycle proposal
+                    s.cycleProposals    := Map.remove(proposalId, s.cycleProposals);
 
                     // If current round is a timelock or voting round (where there is only one proposal), restart the cycle
                     if s.currentCycleInfo.round = (Voting : roundType) or s.currentCycleInfo.round = (Timelock : roundType) 

@@ -251,9 +251,6 @@ block {
                 // Create new Financial Request Record
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyFinancialRequestVotersMap  : financialRequestVotersMapType = map [];
-
                 // init empty keyHash field - mainly used for setContractBaker entrypoint
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -272,7 +269,6 @@ block {
                     tokenType                           = requestTokensParams.tokenType;
                     tokenId                             = requestTokensParams.tokenId;
                     requestPurpose                      = requestTokensParams.purpose; 
-                    voters                              = emptyFinancialRequestVotersMap;
                     keyHash                             = keyHash;
 
                     yayVoteStakedMvkTotal               = 0n;
@@ -365,9 +361,6 @@ block {
                 // Create new Financial Request Record
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyFinancialRequestVotersMap  : financialRequestVotersMapType = map [];
-
                 // init empty keyHash field - mainly used for setContractBaker entrypoint
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -386,7 +379,6 @@ block {
                     tokenType                           = "FA2";
                     tokenId                             = 0n;
                     requestPurpose                      = requestMintParams.purpose;
-                    voters                              = emptyFinancialRequestVotersMap;
                     keyHash                             = keyHash;
 
                     yayVoteStakedMvkTotal               = 0n;
@@ -478,9 +470,6 @@ block {
                 // ------------------------------------------------------------------
                 // Create new Financial Request Record
                 // ------------------------------------------------------------------
-
-                // init empty voters map
-                const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
   
                 // Create new financial request record
                 var newFinancialRequest : financialRequestRecordType := record [
@@ -497,7 +486,6 @@ block {
                     tokenType                           = "NIL";
                     tokenId                             = 0n;
                     requestPurpose                      = "Set Contract Baker";
-                    voters                              = emptyFinancialRequestVotersMap;
                     keyHash                             = setContractBakerParams.keyHash;
 
                     yayVoteStakedMvkTotal               = 0n;
@@ -652,36 +640,29 @@ block {
                 const voteType          : voteType   = voteForRequest.vote;
 
                 // Remove previous vote if user already voted
-                case _financialRequest.voters[Tezos.get_sender()] of [
+                case s.financialRequestVoters[(financialRequestId, Tezos.get_sender())] of [
                     
-                        Some (_voteRecord) -> case _voteRecord.vote of [
+                        Some (_voteType) -> case _voteType of [
 
-                                Yay(_v)   ->    if _voteRecord.totalVotingPower > _financialRequest.yayVoteStakedMvkTotal 
+                                Yay(_v)   ->    if totalVotingPower > _financialRequest.yayVoteStakedMvkTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _financialRequest.yayVoteStakedMvkTotal := abs(_financialRequest.yayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                                else _financialRequest.yayVoteStakedMvkTotal := abs(_financialRequest.yayVoteStakedMvkTotal - totalVotingPower)
 
-                            |   Nay(_v)   ->    if _voteRecord.totalVotingPower > _financialRequest.nayVoteStakedMvkTotal 
+                            |   Nay(_v)   ->    if totalVotingPower > _financialRequest.nayVoteStakedMvkTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _financialRequest.nayVoteStakedMvkTotal := abs(_financialRequest.nayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                                else _financialRequest.nayVoteStakedMvkTotal := abs(_financialRequest.nayVoteStakedMvkTotal - totalVotingPower)
 
-                            |   Pass(_v)  ->    if _voteRecord.totalVotingPower > _financialRequest.passVoteStakedMvkTotal 
+                            |   Pass(_v)  ->    if totalVotingPower > _financialRequest.passVoteStakedMvkTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _financialRequest.passVoteStakedMvkTotal := abs(_financialRequest.passVoteStakedMvkTotal - _voteRecord.totalVotingPower)                    
+                                                else _financialRequest.passVoteStakedMvkTotal := abs(_financialRequest.passVoteStakedMvkTotal - totalVotingPower)                    
                         ]
 
                     |   None -> skip
 
                 ];
 
-                // init new vote record
-                const newVoteRecord : financialRequestVoteType = record [
-                    vote             = voteType;
-                    totalVotingPower = totalVotingPower;
-                    timeVoted        = Tezos.get_now();
-                ];
-
                 // Update financial request map of voters with new vote
-                _financialRequest.voters[Tezos.get_sender()] := newVoteRecord;
+                s.financialRequestVoters[(financialRequestId, Tezos.get_sender())] := voteType;
 
                 // Compute financial request vote totals and execute financial request if enough votes have been gathered
                 case voteType of [
