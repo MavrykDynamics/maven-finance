@@ -13,7 +13,7 @@ async def on_farm_deposit(
     # Get operation info
     farm_address                    = deposit.data.target_address
     depositor_address               = deposit.data.sender_address
-    depositor_storage               = deposit.storage.depositors[depositor_address]
+    depositor_storage               = deposit.storage.depositorLedger[depositor_address]
     balance                         = int(depositor_storage.balance)
     participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
     claimed_rewards                 = float(depositor_storage.claimedRewards)

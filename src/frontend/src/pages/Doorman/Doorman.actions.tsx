@@ -197,7 +197,7 @@ export const getDoormanStorage = () => async (dispatch: any, getState: any) => {
       admin: storage.admin,
       breakGlassConfig: doormanBreakGlassConfig,
       mvkTokenAddress: storage.mvkTokenAddress,
-      delegationAddress: storage.delegationAddress,
+      delegationAddress : storage.delegationAddress,
       exitFeePoolAddress: storage.exitFeePoolAddress,
       userStakeBalanceLedger: userStakeBalanceLedger,
       userStakeRecordsLedger: userStakeRecordsLedger,

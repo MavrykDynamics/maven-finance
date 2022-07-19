@@ -10,6 +10,6 @@ type stringMapType    is map(string, string);
 type natMapType       is map(string, nat);
 
 type voteType is 
-  Yay     of unit
-| Nay     of unit
-| Pass    of unit
+        Yay     of unit
+    |   Nay     of unit
+    |   Pass    of unit

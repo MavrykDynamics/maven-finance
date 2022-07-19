@@ -26,27 +26,26 @@
 
 type emergencyGovernanceAction is 
 
-    // Housekeeping Entrypoints
-    SetAdmin                  of (address)
-  | SetGovernance             of (address)
-  | UpdateMetadata            of updateMetadataType
-  | UpdateConfig              of emergencyUpdateConfigParamsType    
-  | UpdateGeneralContracts    of updateGeneralContractsType
-  | UpdateWhitelistContracts  of updateWhitelistContractsType
-  | MistakenTransfer          of transferActionType
+        // Housekeeping Entrypoints
+        SetAdmin                  of (address)
+    |   SetGovernance             of (address)
+    |   UpdateMetadata            of updateMetadataType
+    |   UpdateConfig              of emergencyUpdateConfigParamsType    
+    |   UpdateGeneralContracts    of updateGeneralContractsType
+    |   UpdateWhitelistContracts  of updateWhitelistContractsType
+    |   MistakenTransfer          of transferActionType
 
-    // Emergency Governance Entrypoints
-  | TriggerEmergencyControl   of triggerEmergencyControlType
-  | VoteForEmergencyControl   of (unit)
-  | DropEmergencyGovernance   of (unit)
+        // Emergency Governance Entrypoints
+    |   TriggerEmergencyControl   of triggerEmergencyControlType
+    |   VoteForEmergencyControl   of (unit)
+    |   DropEmergencyGovernance   of (unit)
 
-    // Lambda Entrypoints
-  | SetLambda                 of setLambdaType
+        // Lambda Entrypoints
+    |   SetLambda                 of setLambdaType
 
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * emergencyGovernanceStorageType
-
 
 // emergencyGovernance contract methods lambdas
 type emergencyGovernanceUnpackLambdaFunctionType is (emergencyGovernanceLambdaActionType * emergencyGovernanceStorageType) -> return
@@ -79,63 +78,72 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
 function checkSenderIsAllowed(var s : emergencyGovernanceStorageType) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
+// Allowed Senders: Admin
 function checkSenderIsAdmin(var s : emergencyGovernanceStorageType) : unit is
-  if (Tezos.sender = s.admin) then unit
-  else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+    if (Tezos.get_sender() = s.admin) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
-function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorageType) : unit is
-block{
-  if (Tezos.sender = s.mvkTokenAddress) then skip
-  else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
-} with unit
+// Allowed Senders: MVK Token Contract
+function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorageType) : unit is    
+    if (Tezos.get_sender() = s.mvkTokenAddress) then unit
+    else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
 
 
 
+// Allowed Senders: Doorman Contract
 function checkSenderIsDoormanContract(var s : emergencyGovernanceStorageType) : unit is
 block{
-  const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-  const doormanAddress: address = case generalContractsOptView of [
-      Some (_optionContract) -> case _optionContract of [
-              Some (_contract)    -> _contract
-          |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-          ]
-  |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
-  if (Tezos.sender = doormanAddress) then skip
-  else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
+
+    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+    const doormanAddress : address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    if (Tezos.get_sender() = doormanAddress) then skip
+    else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
+
 } with unit
 
 
 
+// Allowed Senders: Admin, Governance Satellite Contract
 function checkSenderIsAdminOrGovernanceSatelliteContract(var s : emergencyGovernanceStorageType) : unit is
 block{
-  if Tezos.sender = s.admin then skip
-  else {
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-    const governanceSatelliteAddress: address = case generalContractsOptView of [
-        Some (_optionContract) -> case _optionContract of [
-                Some (_contract)    -> _contract
-            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-            ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-    if Tezos.sender = governanceSatelliteAddress then skip
-      else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
-  }
+    if Tezos.get_sender() = s.admin then skip
+    else {
+
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+        const governanceSatelliteAddress : address = case generalContractsOptView of [
+                Some (_optionContract) -> case _optionContract of [
+                        Some (_contract)    -> _contract
+                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                ]
+            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    }
 } with unit
 
 
 
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 // ------------------------------------------------------------------------------
@@ -148,13 +156,14 @@ function checkNoAmount(const _p : unit) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to %breakGlass entrypoint on specified contract
 function triggerBreakGlass(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%breakGlass",
-      contractAddress) : option(contract(unit))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
-  ];
+    case (Tezos.get_entrypoint_opt(
+        "%breakGlass",
+        contractAddress) : option(contract(unit))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND) : contract(unit))
+        ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -166,12 +175,13 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
 function unpackLambda(const lambdaBytes : bytes; const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(emergencyGovernanceUnpackLambdaFunctionType)) of [
-        Some(f) -> f(emergencyGovernanceLambdaAction, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+            Some(f) -> f(emergencyGovernanceLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -212,57 +222,56 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get admin variable *)
-[@view] function getAdmin(const _: unit; var s : emergencyGovernanceStorageType) : address is
-  s.admin
+[@view] function getAdmin(const _ : unit; var s : emergencyGovernanceStorageType) : address is
+    s.admin
 
 
 
 (* View: config *)
-[@view] function getConfig (const _: unit; var s : emergencyGovernanceStorageType) : emergencyConfigType is
-  s.config
+[@view] function getConfig (const _ : unit; var s : emergencyGovernanceStorageType) : emergencyConfigType is
+    s.config
 
 
 
 (* View: get general contracts *)
-[@view] function getGeneralContracts (const _: unit; var s : emergencyGovernanceStorageType) : generalContractsType is
-  s.generalContracts
+[@view] function getGeneralContracts (const _ : unit; var s : emergencyGovernanceStorageType) : generalContractsType is
+    s.generalContracts
 
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _: unit; const s: emergencyGovernanceStorageType): whitelistContractsType is 
+[@view] function getWhitelistContracts (const _ : unit; const s : emergencyGovernanceStorageType) : whitelistContractsType is 
     s.whitelistContracts
 
 
 
 (* View: get emergency governance *)
-[@view] function getEmergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
-  Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
+[@view] function getEmergencyGovernanceOpt (const recordId : nat; var s : emergencyGovernanceStorageType) : option(emergencyGovernanceRecordType) is
+    Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
 
 
 
 (* View: get current emergency governance id *)
-[@view] function getCurrentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorageType) : nat is
-  s.currentEmergencyGovernanceId
+[@view] function getCurrentEmergencyGovernanceId (const _ : unit; var s : emergencyGovernanceStorageType) : nat is
+    s.currentEmergencyGovernanceId
 
 
 
 (* View: get next emergency governance id *)
-[@view] function getNextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorageType) : nat is
-  s.nextEmergencyGovernanceId
+[@view] function getNextEmergencyGovernanceId (const _ : unit; var s : emergencyGovernanceStorageType) : nat is
+    s.nextEmergencyGovernanceId
 
 
 
 (* View: get a lambda *)
-[@view] function getLambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorageType) : option(bytes) is
-  Map.find_opt(lambdaName, s.lambdaLedger)
+[@view] function getLambdaOpt(const lambdaName : string; var s : emergencyGovernanceStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
 
 
 
 (* View: get the lambda ledger *)
-[@view] function getLambdaLedger(const _: unit; var s : emergencyGovernanceStorageType) : lambdaLedgerType is
-  s.lambdaLedger
-
+[@view] function getLambdaLedger(const _ : unit; var s : emergencyGovernanceStorageType) : lambdaLedgerType is
+    s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -287,8 +296,8 @@ function setAdmin(const newAdminAddress : address; var s : emergencyGovernanceSt
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -306,8 +315,8 @@ function setGovernance(const newGovernanceAddress : address; var s : emergencyGo
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -325,8 +334,8 @@ function updateMetadata(const updateMetadataParams : updateMetadataType; var s :
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -344,8 +353,8 @@ function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
     
     // init emergencyGovernance lambda action
@@ -359,12 +368,12 @@ block {
 
 
 (* updateGeneralContracts entrypoint  *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: emergencyGovernanceStorageType): return is
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -378,12 +387,12 @@ block {
 
 
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: emergencyGovernanceStorageType): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : emergencyGovernanceStorageType) : return is
 block {
         
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -397,12 +406,12 @@ block {
 
 
 (*  mistakenTransfer entrypoint *)
-function mistakenTransfer(const destinationParams: transferActionType; var s: emergencyGovernanceStorageType): return is
+function mistakenTransfer(const destinationParams : transferActionType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -428,8 +437,8 @@ function triggerEmergencyControl(const triggerEmergencyControlParams : triggerEm
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTriggerEmergencyControl"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -447,8 +456,8 @@ function voteForEmergencyControl(var s : emergencyGovernanceStorageType) : retur
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForEmergencyControl"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -466,8 +475,8 @@ function dropEmergencyGovernance(var s : emergencyGovernanceStorageType) : retur
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropEmergencyGovernance"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init emergencyGovernance lambda action
@@ -489,7 +498,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setLambda entrypoint *)
-function setLambda(const setLambdaParams: setLambdaType; var s: emergencyGovernanceStorageType): return is
+function setLambda(const setLambdaParams : setLambdaType; var s : emergencyGovernanceStorageType) : return is
 block{
     
     // check that sender is admin
@@ -500,7 +509,7 @@ block{
     const lambdaBytes   = setLambdaParams.func_bytes;
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
-} with(noOperations, s)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
@@ -516,20 +525,20 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
 
     case action of [
 
-        // Housekeeping Entrypoints
-      | SetAdmin(parameters)                  -> setAdmin(parameters, s)
-      | SetGovernance(parameters)             -> setGovernance(parameters, s)
-      | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
-      | UpdateConfig(parameters)              -> updateConfig(parameters, s)
-      | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-      | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
-      | MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
+            // Housekeeping Entrypoints
+        |   SetAdmin(parameters)                  -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)             -> setGovernance(parameters, s)
+        |   UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
+        |   UpdateConfig(parameters)              -> updateConfig(parameters, s)
+        |   UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+        |   UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
+        |   MistakenTransfer(parameters)          -> mistakenTransfer(parameters, s)
 
-        // Emergency Governance Entrypoints
-      | TriggerEmergencyControl(parameters)   -> triggerEmergencyControl(parameters, s)
-      | VoteForEmergencyControl(_parameters)  -> voteForEmergencyControl(s)
-      | DropEmergencyGovernance(_parameters)  -> dropEmergencyGovernance(s)
+            // Emergency Governance Entrypoints
+        |   TriggerEmergencyControl(parameters)   -> triggerEmergencyControl(parameters, s)
+        |   VoteForEmergencyControl(_parameters)  -> voteForEmergencyControl(s)
+        |   DropEmergencyGovernance(_parameters)  -> dropEmergencyGovernance(s)
 
-        // Lambda Entrypoints
-      | SetLambda(parameters)                 -> setLambda(parameters, s)
-  ]
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                 -> setLambda(parameters, s)
+    ]

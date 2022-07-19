@@ -45,7 +45,7 @@ const noOperations : list (operation) = nil;
 
 
 (* all_tokens View *)
-[@view] function all_tokens(const _: unit; const _store: storage) : list(nat) is
+[@view] function all_tokens(const _ : unit; const _store: storage) : list(nat) is
   list[0n]
 
 
@@ -109,15 +109,15 @@ function transfer (const from_ : address; const to_ : address; const value : amt
     else skip;
 
     (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.sender then block {
-      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.sender, s);
+    if from_ =/= Tezos.get_sender() then block {
+      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.get_sender(), s);
 
       if spenderAllowance < value then
         failwith("NotEnoughAllowance")
       else skip;
 
       (* Decrease any allowances *)
-      senderAccount.allowances[Tezos.sender] := abs(spenderAllowance - value);
+      senderAccount.allowances[Tezos.get_sender()] := abs(spenderAllowance - value);
     } else skip;
 
     (* Update sender balance *)
@@ -142,7 +142,7 @@ function approve (const spender : address; const value : amt; var s : storage) :
   block {
 
     (* Create or get sender account *)
-    var senderAccount : account := getAccount(Tezos.sender, s);
+    var senderAccount : account := getAccount(Tezos.get_sender(), s);
 
     (* Get current spender allowance *)
     const spenderAllowance : amt = getAllowance(senderAccount, spender, s);
@@ -156,7 +156,7 @@ function approve (const spender : address; const value : amt; var s : storage) :
     senderAccount.allowances[spender] := value;
 
     (* Update storage *)
-    s.ledger[Tezos.sender] := senderAccount;
+    s.ledger[Tezos.get_sender()] := senderAccount;
 
   } with (noOperations, s)
 

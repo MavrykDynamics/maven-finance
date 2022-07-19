@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Storage Types
 // ------------------------------------------------------------------------------
 
 type depositorType is address;
@@ -10,29 +10,34 @@ type depositorRecordType is [@layout:comb] record[
     unclaimedRewards                : tokenBalanceType;
     claimedRewards                  : tokenBalanceType;
 ]
+type depositorLedgerType is big_map(depositorType, depositorRecordType)
+
 type claimedRewardsType is [@layout:comb] record[
-    unpaid: tokenBalanceType;
-    paid: tokenBalanceType;
+    unpaid                      : tokenBalanceType;
+    paid                        : tokenBalanceType;
 ]
+
 type plannedRewardsType is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalanceType;
-    totalRewards: tokenBalanceType;
+    totalBlocks                 : nat;
+    currentRewardPerBlock       : tokenBalanceType;
+    totalRewards                : tokenBalanceType;
 ]
+
 type lpStandardType is
-    Fa12 of unit
-|   Fa2 of unit
+        Fa12 of unit
+    |   Fa2 of unit
+
 type lpTokenType is [@layout:comb] record[
-    tokenAddress: address;
-    tokenId: nat;
-    tokenStandard: lpStandardType;
-    tokenBalance: tokenBalanceType;
+    tokenAddress                : address;
+    tokenId                     : nat;
+    tokenStandard               : lpStandardType;
+    tokenBalance                : tokenBalanceType;
 ]
 
 type farmBreakGlassConfigType is [@layout:comb] record [
-    depositIsPaused         : bool;
-    withdrawIsPaused        : bool;
-    claimIsPaused           : bool;
+    depositIsPaused             : bool;
+    withdrawIsPaused            : bool;
+    claimIsPaused               : bool;
 ]
 
 type farmConfigType is record [
@@ -43,69 +48,81 @@ type farmConfigType is record [
     plannedRewards              : plannedRewardsType;
 ]
 
+
 // ------------------------------------------------------------------------------
-// Inputs
+// Action Types
 // ------------------------------------------------------------------------------
+
 
 (* initFarm entrypoint inputs *)
 type initFarmParamsType is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
-    blocksPerMinute: nat;
-    forceRewardFromTransfer: bool;
-    infinite: bool;
+    totalBlocks                 : nat;
+    currentRewardPerBlock       : nat;
+    blocksPerMinute             : nat;
+    forceRewardFromTransfer     : bool;
+    infinite                    : bool;
 ]
+
 
 (* updateConfig entrypoint inputs *)
 type farmUpdateConfigNewValueType is nat
 type farmUpdateConfigActionType is 
-  ConfigForceRewardFromTransfer of unit
-| ConfigRewardPerBlock of unit
+        ConfigForceRewardFromTransfer of unit
+    |   ConfigRewardPerBlock of unit
 type farmUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: farmUpdateConfigNewValueType; 
-  updateConfigAction: farmUpdateConfigActionType;
+    updateConfigNewValue    : farmUpdateConfigNewValueType; 
+    updateConfigAction      : farmUpdateConfigActionType;
 ]
 
+
 type farmPausableEntrypointType is
-  Deposit     of bool
-| Withdraw    of bool
-| Claim       of bool
+        Deposit     of bool
+    |   Withdraw    of bool
+    |   Claim       of bool
 
 type farmTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : farmPausableEntrypointType;
     empty             : unit
 ];
 
+
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
+
 type farmLambdaActionType is 
 
-  // Housekeeping Entrypoints
-    LambdaSetAdmin                    of (address)
-|   LambdaSetGovernance               of (address)
-|   LambdaSetName                     of (string)
-|   LambdaUpdateMetadata              of updateMetadataType
-|   LambdaUpdateConfig                of farmUpdateConfigParamsType
-|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
-|   LambdaUpdateGeneralContracts      of updateGeneralContractsType
-|   LambdaMistakenTransfer            of transferActionType
+        // Housekeeping Entrypoints
+        LambdaSetAdmin                    of (address)
+    |   LambdaSetGovernance               of (address)
+    |   LambdaSetName                     of (string)
+    |   LambdaUpdateMetadata              of updateMetadataType
+    |   LambdaUpdateConfig                of farmUpdateConfigParamsType
+    |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts      of updateGeneralContractsType
+    |   LambdaMistakenTransfer            of transferActionType
 
-    // Farm Admin Entrypoints
-|   LambdaUpdateBlocksPerMinute       of (nat)
-|   LambdaInitFarm                    of initFarmParamsType
-|   LambdaCloseFarm                   of (unit)
+        // Farm Admin Entrypoints
+    |   LambdaUpdateBlocksPerMinute       of (nat)
+    |   LambdaInitFarm                    of initFarmParamsType
+    |   LambdaCloseFarm                   of (unit)
 
-    // Pause / Break Glass Entrypoints
-|   LambdaPauseAll                    of (unit)
-|   LambdaUnpauseAll                  of (unit)
-|   LambdaTogglePauseEntrypoint       of farmTogglePauseEntrypointType
+        // Pause / Break Glass Entrypoints
+    |   LambdaPauseAll                    of (unit)
+    |   LambdaUnpauseAll                  of (unit)
+    |   LambdaTogglePauseEntrypoint       of farmTogglePauseEntrypointType
 
-    // Farm Entrypoints
-|   LambdaDeposit                     of nat
-|   LambdaWithdraw                    of nat
-|   LambdaClaim                       of address
+        // Farm Entrypoints
+    |   LambdaDeposit                     of nat
+    |   LambdaWithdraw                    of nat
+    |   LambdaClaim                       of address
+
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+
 
 type farmStorageType is [@layout:comb] record[
     admin                       : address;
@@ -124,7 +141,7 @@ type farmStorageType is [@layout:comb] record[
     lastBlockUpdate             : nat;
     accumulatedRewardsPerShare  : tokenBalanceType;
     claimedRewards              : claimedRewardsType;
-    depositors                  : big_map(depositorType, depositorRecordType);
+    depositorLedger             : depositorLedgerType;
     open                        : bool;
     init                        : bool;
     initBlock                   : nat;

@@ -1,67 +1,67 @@
 [
     {
-      "index": 0,
-      "name": "lambdaSetAdmin"
+        "index": 0,
+        "name": "lambdaSetAdmin"
     },
     {
-      "index": 1,
-      "name": "lambdaSetGovernance"
+        "index": 1,
+        "name": "lambdaSetGovernance"
     },
     {
-      "index": 2,
-      "name": "lambdaUpdateMetadata"
+        "index": 2,
+        "name": "lambdaUpdateMetadata"
     },
     {
-      "index": 3,
-      "name": "lambdaUpdateConfig"
+        "index": 3,
+        "name": "lambdaUpdateConfig"
     },
     {
-      "index": 4,
-      "name": "lambdaUpdateWhitelistContracts"
+        "index": 4,
+        "name": "lambdaUpdateWhitelistContracts"
     },
     {
-      "index": 5,
-      "name": "lambdaUpdateGeneralContracts"
+        "index": 5,
+        "name": "lambdaUpdateGeneralContracts"
     },
     {
-      "index": 6,
-      "name": "lambdaMistakenTransfer"
+        "index": 6,
+        "name": "lambdaMistakenTransfer"
     },
     {
-      "index": 7,
-      "name": "lambdaMigrateFunds"
+        "index": 7,
+        "name": "lambdaMigrateFunds"
     },
     {
-      "index": 8,
-      "name": "lambdaPauseAll"
+        "index": 8,
+        "name": "lambdaPauseAll"
     },
     {
-      "index": 9,
-      "name": "lambdaUnpauseAll"
+        "index": 9,
+        "name": "lambdaUnpauseAll"
     },
     {
-      "index": 10,
-      "name": "lambdaTogglePauseEntrypoint"
+        "index": 10,
+        "name": "lambdaTogglePauseEntrypoint"
     },
     {
-      "index": 11,
-      "name": "lambdaStake"
+        "index": 11,
+        "name": "lambdaStake"
     },
     {
-      "index": 12,
-      "name": "lambdaUnstake"
+        "index": 12,
+        "name": "lambdaUnstake"
     },
     {
-      "index": 13,
-      "name": "lambdaCompound"
+        "index": 13,
+        "name": "lambdaCompound"
     },
     {
-      "index": 14,
-      "name": "lambdaFarmClaim"
+        "index": 14,
+        "name": "lambdaFarmClaim"
     },
     {
-      "index": 15,
-      "name": "lambdaNewUnstake"
+        "index": 15,
+        "name": "lambdaNewUnstake"
     }
 ]
   
