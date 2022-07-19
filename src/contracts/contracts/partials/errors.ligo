@@ -515,6 +515,8 @@
 [@inline] const error_NO_PROPOSAL_TO_VOTE_FOR                                                                           = 365n;
 [@inline] const error_NO_PROPOSAL_TO_EXECUTE                                                                            = 366n;
 [@inline] const error_VOTE_NOT_FOUND                                                                                    = 367n;
+[@inline] const error_PROPOSAL_REWARD_ALREADY_CLAIMED                                                                   = 367n;
+[@inline] const error_PROPOSAL_REWARD_CANNOT_BE_CLAIMED                                                                 = 367n;
 [@inline] const error_VOTE_ALREADY_RECORDED                                                                             = 368n;
 [@inline] const error_CURRENT_ROUND_NOT_FINISHED                                                                        = 369n;
 [@inline] const error_MAX_PROPOSAL_REACHED                                                                              = 370n;

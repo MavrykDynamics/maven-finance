@@ -273,9 +273,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeSuspended" : string) -> satelliteToBeSuspended
@@ -293,7 +290,6 @@ block {
 
                     governanceType                     = "SUSPEND";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -449,9 +445,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeUnsuspended" : string) -> satelliteToBeUnsuspended
@@ -469,7 +462,6 @@ block {
 
                     governanceType                     = "UNSUSPEND";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -625,9 +617,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeBanned" : string) -> satelliteToBeBanned
@@ -645,7 +634,6 @@ block {
 
                     governanceType                     = "BAN";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -801,9 +789,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeUnbanned" : string) -> satelliteToBeUnbanned
@@ -821,7 +806,6 @@ block {
 
                     governanceType                     = "UNBAN";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -985,9 +969,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteAddress" : string) -> satelliteAddress
@@ -1005,7 +986,6 @@ block {
 
                     governanceType                     = "REMOVE_ALL_SATELLITE_ORACLES";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1162,9 +1142,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("oracleAddress"     : string)   -> oracleAddress;
@@ -1183,7 +1160,6 @@ block {
 
                     governanceType                     = "ADD_ORACLE_TO_AGGREGATOR";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1340,9 +1316,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("oracleAddress"     : string)   -> oracleAddress;
@@ -1361,7 +1334,6 @@ block {
 
                     governanceType                     = "REMOVE_ORACLE_IN_AGGREGATOR";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1516,9 +1488,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
@@ -1537,7 +1506,6 @@ block {
 
                     governanceType                     = "SET_AGGREGATOR_MAINTAINER";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1737,9 +1705,6 @@ block {
                 // Create new Governance Satellite Action
                 // ------------------------------------------------------------------
 
-                // init empty voters map
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
@@ -1759,7 +1724,6 @@ block {
 
                     governanceType                     = "UPDATE_AGGREGATOR_STATUS";
                     governancePurpose                  = purpose;
-                    voters                             = emptyVotersMap;
 
                     addressMap                         = addressMap;
                     stringMap                          = stringMap;
@@ -2139,35 +2103,28 @@ block {
                 const voteType         : voteType   = voteForAction.vote;
 
                 // Remove previous vote if user already voted
-                case _governanceSatelliteActionRecord.voters[Tezos.get_sender()] of [
+                case s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] of [
                     
-                        Some (_voteRecord) -> case _voteRecord.vote of [
+                        Some (_voteType) -> case _voteType of [
 
-                                Yay(_v)   ->    if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.yayVoteStakedMvkTotal 
+                                Yay(_v)   ->    if totalVotingPower > _governanceSatelliteActionRecord.yayVoteStakedMvkTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _governanceSatelliteActionRecord.yayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.yayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                                else _governanceSatelliteActionRecord.yayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.yayVoteStakedMvkTotal - totalVotingPower)
 
-                            |   Nay(_v)   ->    if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.nayVoteStakedMvkTotal 
+                            |   Nay(_v)   ->    if totalVotingPower > _governanceSatelliteActionRecord.nayVoteStakedMvkTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _governanceSatelliteActionRecord.nayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.nayVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                                else _governanceSatelliteActionRecord.nayVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.nayVoteStakedMvkTotal - totalVotingPower)
 
-                            |   Pass(_v)  ->    if _voteRecord.totalVotingPower > _governanceSatelliteActionRecord.passVoteStakedMvkTotal 
+                            |   Pass(_v)  ->    if totalVotingPower > _governanceSatelliteActionRecord.passVoteStakedMvkTotal 
                                                 then failwith(error_CALCULATION_ERROR) 
-                                                else _governanceSatelliteActionRecord.passVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.passVoteStakedMvkTotal - _voteRecord.totalVotingPower)
+                                                else _governanceSatelliteActionRecord.passVoteStakedMvkTotal := abs(_governanceSatelliteActionRecord.passVoteStakedMvkTotal - totalVotingPower)
                         ]
 
                     |   None -> skip
                 ];
 
-                // init new vote record
-                const newVoteRecord : governanceSatelliteVoteType     = record [
-                    vote             = voteType;
-                    totalVotingPower = totalVotingPower;
-                    timeVoted        = Tezos.get_now();
-                ];
-
                 // Update governance satellite action map of voters with new vote
-                _governanceSatelliteActionRecord.voters[Tezos.get_sender()] := newVoteRecord;
+                s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] := voteType;
                 
                 // Compute governance satellite action vote totals and execute governance satellite action if enough votes have been gathered
                 case voteType of [

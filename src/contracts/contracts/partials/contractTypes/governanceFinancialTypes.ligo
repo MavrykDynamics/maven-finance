@@ -11,13 +11,6 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-
-type financialRequestVoteType is [@layout:comb] record [
-    vote              : voteType;
-    totalVotingPower  : nat; 
-    timeVoted         : timestamp;
-] 
-type financialRequestVotersMapType is map (address, financialRequestVoteType)
 type financialRequestRecordType is [@layout:comb] record [
 
     requesterAddress                    : address;
@@ -32,7 +25,6 @@ type financialRequestRecordType is [@layout:comb] record [
     tokenType                           : string;
     tokenId                             : nat;
     requestPurpose                      : string;
-    voters                              : financialRequestVotersMapType; 
     keyHash                             : option(key_hash);
 
     yayVoteStakedMvkTotal               : nat;
@@ -127,6 +119,7 @@ type governanceFinancialStorageType is [@layout:comb] record [
     // financial governance storage 
     financialRequestLedger              : financialRequestLedgerType;
     financialRequestCounter             : nat;
+    financialRequestVoters              : big_map((actionIdType*address), voteType);
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;

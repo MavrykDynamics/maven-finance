@@ -26,20 +26,19 @@ const metadata = MichelsonMap.fromLiteral({
 
 export const governanceFinancialStorage: governanceFinancialStorageType = {
   
-    admin                   : bob.pkh,
-    mvkTokenAddress         : "",
-    governanceAddress       : zeroAddress,
-    metadata                : metadata,
-    config                  : config,
+    admin                               : bob.pkh,
+    mvkTokenAddress                     : "",
+    governanceAddress                   : zeroAddress,
+    metadata                            : metadata,
+    config                              : config,
     
-    whitelistContracts      : MichelsonMap.fromLiteral({}),
-    whitelistTokenContracts : MichelsonMap.fromLiteral({}),
-    generalContracts        : MichelsonMap.fromLiteral({}),
-    
-    snapshotStakedMvkTotalSupply       : new BigNumber(0),
-    
-    lambdaLedger                       : MichelsonMap.fromLiteral({}),
-    
-    financialRequestLedger             : MichelsonMap.fromLiteral({}),
-    financialRequestCounter            : new BigNumber(1),
+    whitelistContracts                  : MichelsonMap.fromLiteral({}),
+    whitelistTokenContracts             : MichelsonMap.fromLiteral({}),
+    generalContracts                    : MichelsonMap.fromLiteral({}),
+
+    financialRequestLedger              : MichelsonMap.fromLiteral({}),
+    financialRequestVoters              : MichelsonMap.fromLiteral({}),
+    financialRequestCounter             : new BigNumber(1),
+        
+    lambdaLedger                        : MichelsonMap.fromLiteral({}),
 };

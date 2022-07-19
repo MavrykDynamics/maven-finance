@@ -549,7 +549,7 @@
 //                 const finalNextProposalId = governanceStorage.nextProposalId;
 //                 const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
 //                 const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
-//                 const newCurrentRoundProposal = governanceStorage..roundProposals.get(nextProposalId);
+//                 const newCurrentRoundProposal = governanceStorage..cycleProposals.get(nextProposalId);
 
 //                 console.log("PROPOSAL: ", newProposal)
 

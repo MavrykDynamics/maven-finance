@@ -32,8 +32,8 @@ export type governanceStorageType = {
         minQuorumStakedMvkTotal    : BigNumber;
     };
 
-    roundProposals                     : Array<string>;
-    roundProposers                     : MichelsonMap<MichelsonMapKey, unknown>;
+    cycleProposals                     : MichelsonMap<MichelsonMapKey, unknown>;
+    cycleProposers                     : MichelsonMap<MichelsonMapKey, unknown>;
     roundVotes                         : MichelsonMap<MichelsonMapKey, unknown>;
 
     cycleHighestVotedProposalId        : BigNumber;

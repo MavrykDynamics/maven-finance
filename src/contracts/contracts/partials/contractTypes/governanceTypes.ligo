@@ -3,6 +3,9 @@
 // ------------------------------------------------------------------------------
 
 
+// Delegation Types
+#include "./delegationTypes.ligo"
+
 // Vote Types
 #include "../shared/voteTypes.ligo"
 
@@ -38,6 +41,7 @@ type proposalMetadataType is [@layout:comb] record[
     title               : string;
     data                : bytes;
 ]
+
 type paymentMetadataType is [@layout:comb] record[
     title               : string;
     transaction         : transferDestinationType;
@@ -52,17 +56,16 @@ type newProposalType is [@layout:comb] record [
     paymentMetadata     : option(list(paymentMetadataType));
 ]
 
-// Stores all voter data during proposal round
-type proposalRoundVoteType is (nat * timestamp)                             // total voting power (staked MVK) * timestamp
-type proposalVotersMapType is map (address, proposalRoundVoteType)
+// Stores all voter data during proposal and voting rounds
+type roundVoteType is 
+    Proposal    of actionIdType
+|   Voting      of voteType
 
 // Stores all voter data during voting round
 type votingRoundVoteType is [@layout:comb] record [
     vote  : voteType;
     empty : unit;   // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
-type votingRoundRecordType is (nat * timestamp * voteType)   // total voting power (staked MVK) * timestamp * voteType
-type votersMapType is map (address, votingRoundRecordType)
 
 type proposalRecordType is [@layout:comb] record [
     
@@ -78,13 +81,14 @@ type proposalRecordType is [@layout:comb] record [
     sourceCode                        : string;                  // link to github / repo
   
     successReward                     : nat;                     // log of successful proposal reward for voters - may change over time
+    totalVotersReward                 : nat;                     // log of the cycle total rewards for voters
     executed                          : bool;                    // true / false
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
+    claimReady                        : bool;
   
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
-    proposalVotersMap                 : proposalVotersMapType;   // proposal round ledger
   
     minProposalRoundVotePercentage    : nat;                     // min vote percentage of total MVK supply required to pass proposal round
     minProposalRoundVotesRequired     : nat;                     // min staked MVK votes required for proposal round to pass
@@ -95,7 +99,7 @@ type proposalRecordType is [@layout:comb] record [
     nayVoteStakedMvkTotal             : nat;                     // voting round: nay MVK total
     passVoteCount                     : nat;                     // voting round: pass count - number of satellites
     passVoteStakedMvkTotal            : nat;                     // voting round: pass MVK total
-    voters                            : votersMapType;           // voting round ledger
+    voters                            : set(address);            // voting round ledger
   
     minQuorumPercentage               : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
     minQuorumStakedMvkTotal           : nat;                     // log of min quorum in MVK - capture state at this point
@@ -214,6 +218,11 @@ type updateSatelliteSnapshotType is [@layout:comb] record [
     delegationRatio         : nat;
 ]
 
+type claimProposalRewardsType is [@layout:comb] record [
+    satelliteAddress        : address;
+    proposalIds             : set(actionIdType);
+]
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -249,6 +258,7 @@ type governanceLambdaActionType is
     |   LambdaExecuteProposal                       of (unit)
     |   LambdaProcessProposalPayment                of actionIdType
     |   LambdaProcessProposalSingleData             of (unit)
+    |   LambdaClaimProposalRewards                  of claimProposalRewardsType
     |   LambdaDropProposal                          of actionIdType
 
 
@@ -271,13 +281,14 @@ type governanceStorageType is [@layout:comb] record [
     whitelistDevelopers               : whitelistDevelopersType;  
 
     proposalLedger                    : proposalLedgerType;
+    proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
     snapshotLedger                    : snapshotLedgerType;
     
-    currentCycleInfo                  : currentCycleInfoType;       // current round state variables - will be flushed periodically
+    currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
 
-    roundProposals                    : set(actionIdType);            // proposal ids in the current cycle
-    roundProposers                    : big_map(address, set(nat));   // proposer, 
-    roundVotes                        : big_map(address, nat);        // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+    cycleProposals                    : map(actionIdType, nat);                 // proposal ids in the current cycle, proposal vote smvk total
+    cycleProposers                    : big_map((nat*address), set(nat));       // cycleCounter*proposer --> set of actionIds
+    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (cycleCounter*satelliteAddress, proposal id) | voting round: (cycleCounter*satelliteAddress, voteType)
 
     nextProposalId                    : nat;                        // counter of next proposal id
     cycleCounter                      : nat;                        // counter of current cycle 
