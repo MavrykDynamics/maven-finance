@@ -15,6 +15,7 @@ import SatteliteList from 'pages/Satellites/SatelliteList/SatellitesList.view'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Page } from 'styles'
+import { EmptyContainer } from 'app/App.style'
 
 type OracleSatellitesViewProps = {
   handleSelect: (e: any) => void
@@ -29,6 +30,14 @@ const itemsForDropDown = [
   { text: 'Participation', value: 'participation' },
 ]
 
+const emptyContainer = (
+  <EmptyContainer>
+    <img src="/images/not-found.svg" alt=" No proposals to show" />
+    <figcaption> No oracles to show</figcaption>
+  </EmptyContainer>
+)
+
+// TODO: check sorting, cuz it working a bit strange
 const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: OracleSatellitesViewProps) => {
   const loading = useSelector((state: State) => state.loading)
 
@@ -74,17 +83,21 @@ const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: Or
         </DropdownContainer>
       </SatelliteSearchFilter>
 
-      <SatteliteList
-        loading={loading}
-        items={satellitesList}
-        listType={'satellites'}
-        name={SATELITES_NODES_LIST_NAME}
-        onClickHandler={() => null}
-        additionaldata={{
-          isAllOracles: true,
-          fullUtemsCount: satellitesList.length,
-        }}
-      />
+      {satellitesList.length ? (
+        <SatteliteList
+          loading={loading}
+          items={satellitesList}
+          listType={'satellites'}
+          name={SATELITES_NODES_LIST_NAME}
+          onClickHandler={() => null}
+          additionaldata={{
+            isAllOracles: true,
+            fullUtemsCount: satellitesList.length,
+          }}
+        />
+      ) : (
+        emptyContainer
+      )}
     </Page>
   )
 }

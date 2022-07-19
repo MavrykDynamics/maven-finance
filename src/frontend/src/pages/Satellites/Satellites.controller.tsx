@@ -1,27 +1,28 @@
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
-import { getTotalDelegatedMVK } from 'pages/Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import React, { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+// types
 import { State } from 'reducers'
+
+// view
 import SatellitesView from './Satellites.view'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+
+// consts, helpers, actions
 import { getMvkTokenStorage, getDoormanStorage } from 'pages/Doorman/Doorman.actions'
+import { getTotalDelegatedMVK } from './helpers/Satellites.consts'
+import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 
 const Satellites = () => {
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const {
+    delegationStorage: { satelliteLedger = [] },
+  } = useSelector((state: State) => state.delegation)
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => state.loading)
   const { user } = useSelector((state: State) => state.user)
   const dispatch = useDispatch()
 
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage } = useSelector((state: State) => state.doorman)
-  const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
-  const userStakedBalance = accountPkh ? parseFloat(userStakeBalanceLedger?.get(accountPkh) || '0') : 0
-  const satelliteUserIsDelegatedTo = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb' //accountPkh
-  // ? delegationStorage?.delegateLedger.get(accountPkh)?.satelliteAddress || ''
-  // : ''
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   useEffect(() => {
     if (accountPkh) {
@@ -31,15 +32,17 @@ const Satellites = () => {
     dispatch(getDelegationStorage())
   }, [dispatch, accountPkh])
 
-  const satelliteLedger = delegationStorage?.satelliteLedger
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
 
-  const tabsInfo = {
-    totalDelegetedMVK: <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />,
-    totalSatelliteOracles: 0,
-    numberOfDataFeeds:
-      oraclesStorage.feeds.length > 50 ? oraclesStorage.feeds.length + '+' : oraclesStorage.feeds.length,
-  }
+  const tabsInfo = useMemo(
+    () => ({
+      totalDelegetedMVK: <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />,
+      totalSatelliteOracles: satelliteLedger.length,
+      numberOfDataFeeds:
+        oraclesStorage.feeds.length > 50 ? oraclesStorage.feeds.length + '+' : oraclesStorage.feeds.length,
+    }),
+    [satelliteLedger, oraclesStorage.feeds, totalDelegatedMVK],
+  )
 
   const delegateCallback = (satelliteAddress: string) => {
     dispatch(delegate(satelliteAddress))

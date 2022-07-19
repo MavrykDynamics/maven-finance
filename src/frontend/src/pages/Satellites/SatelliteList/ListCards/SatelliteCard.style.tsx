@@ -47,6 +47,9 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
     svg {
       width: 16px;
       height: 16px;
+      fill: ${headerColor};
+      stroke: ${headerColor};
+      transition: 0.5s all;
     }
   }
 
@@ -54,6 +57,13 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
     border-color: ${cyanColor};
     box-shadow: 0px 4px 4px ${boxShadowColor};
     cursor: pointer;
+
+    .svg-wrapper {
+      svg {
+        fill: ${cyanColor};
+        stroke: ${cyanColor};
+      }
+    }
   }
 
   ${({ oracle }) =>

@@ -1,11 +1,8 @@
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import {
-  getTotalDelegatedMVK,
-  checkIfUserIsSatellite,
-} from 'pages/Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+import { checkIfUserIsSatellite, getTotalDelegatedMVK } from '../helpers/Satellites.consts'
 import SatellitesSideBarView from './SatellitesSideBar.view'
 
 const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {

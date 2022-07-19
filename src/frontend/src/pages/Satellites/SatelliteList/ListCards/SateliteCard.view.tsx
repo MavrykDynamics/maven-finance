@@ -34,7 +34,7 @@ import {
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
-
+// TODO: check validy of output data with Victor, cuz he knows more about it
 export const SatelliteListItem = ({
   satellite,
   loading,
@@ -64,14 +64,15 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
 
-  const getOracleStatus = (oracle: SatelliteRecord): 'responded' | 'noResponse' | 'awaiting' => {
-    let status: 'responded' | 'noResponse' | 'awaiting' = 'noResponse'
+  // TODO: add checking for oracle status after answer
+  // const getOracleStatus = (oracle: SatelliteRecord): 'responded' | 'noResponse' | 'awaiting' => {
+  //   let status: 'responded' | 'noResponse' | 'awaiting' = 'noResponse'
 
-    if (oracle.oracleRecords.length > 0 && oracle.active) {
-    }
+  //   if (oracle.oracleRecords.length > 0 && oracle.active) {
+  //   }
 
-    return status
-  }
+  //   return status
+  // }
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>

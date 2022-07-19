@@ -20,7 +20,6 @@ import {
   ValidRegisterAsSatelliteForm,
 } from '../../utils/TypesAndInterfaces/Forms'
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
-import { SatelliteSideBar } from '../Satellites/old_version/SatelliteSideBar_old/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
 import {
   BecomeSatelliteButttons,
@@ -30,6 +29,7 @@ import {
   BecomeSatelliteFormTitle,
 } from './BecomeSatellite.style'
 import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPercent'
+import SatellitesSideBar from 'pages/Satellites/SatellitesSideBar/SatellitesSideBar.controller'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -319,7 +319,7 @@ export const BecomeSatelliteView = ({
             />
           </BecomeSatelliteButttons>
         </BecomeSatelliteForm>
-        <SatelliteSideBar isButton={false} />
+        <SatellitesSideBar isButton={false} />
       </PageContent>
     </Page>
   )

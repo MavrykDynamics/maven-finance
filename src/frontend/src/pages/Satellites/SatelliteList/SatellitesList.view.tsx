@@ -45,6 +45,8 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
             return <DataFeedCard feed={item} key={item.address} />
           case 'oracles':
             return <OracleCard oracle={item} key={item.address} />
+          default:
+            return null
         }
       })}
 

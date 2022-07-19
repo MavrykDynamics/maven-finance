@@ -20,7 +20,7 @@ const SatelliteList = ({
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, name)
     return items.slice(from, to)
-  }, [currentPage, items])
+  }, [currentPage, items, name])
 
   return (
     <SatteliteListView
