@@ -1,12 +1,12 @@
 import {
-  ContractAbstraction,
-  ContractMethod,
-  ContractMethodObject,
-  ContractProvider,
-  ContractView,
-  OriginationOperation,
-  TezosToolkit,
-  Wallet
+    ContractAbstraction,
+    ContractMethod,
+    ContractMethodObject,
+    ContractProvider,
+    ContractView,
+    OriginationOperation,
+    TezosToolkit,
+    Wallet
 } from "@taquito/taquito";
 import fs from "fs";
 
@@ -24,27 +24,27 @@ import {BigNumber} from "bignumber.js";
 type TreasuryContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
     updateWhitelistContracts: (
-      whitelistContractName:string,
-      whitelistContractAddress:string
+        whitelistContractName:string,
+        whitelistContractAddress:string
     ) => ContractMethod<T>;
     updateGeneralContracts: (
-      generalContractName:string,
-      generalContractAddress:string
+        generalContractName:string,
+        generalContractAddress:string
     ) => ContractMethod<T>;
     updateWhitelistTokenContracts: (
-      whitelistTokenContractName:string,
-      whitelistTokenContractAddress:string
+        whitelistTokenContractName:string,
+        whitelistTokenContractAddress:string
     ) => ContractMethod<T>;
     updateMvkOperators: (
-      updateOperators:  [
-        update_operators : {
-          add_operator : {
-            owner : string,
-            operator : string,
-            token_id: Number
-          } 
-        }
-      ]
+        updateOperators:  [
+            update_operators : {
+                add_operator : {
+                    owner : string,
+                    operator : string,
+                    token_id: Number
+                } 
+            }
+        ]
     ) => ContractMethod<T>;
 };
 
@@ -72,7 +72,6 @@ export const setTreasuryLambdas = async (tezosToolkit: TezosToolkit, contract: T
 
     treasuryLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
         batch.withContractCall(contract.methods.setLambda(name, treasuryLambdas[index]))
-
     });
 
     const setupTreasuryLambdasOperation = await batch.send()
@@ -85,45 +84,45 @@ export class Treasury {
     tezos: TezosToolkit;
   
     constructor(contract: TreasuryContractAbstraction, tezos: TezosToolkit) {
-      this.contract = contract;
-      this.tezos = tezos;
+        this.contract = contract;
+        this.tezos = tezos;
     }
   
     static async init(
-      treasuryAddress: string,
-      tezos: TezosToolkit
+        treasuryAddress: string,
+        tezos: TezosToolkit
     ): Promise<Treasury> {
-      return new Treasury(
-        await tezos.contract.at(treasuryAddress),
-        tezos
-      );
+        return new Treasury(
+            await tezos.contract.at(treasuryAddress),
+            tezos
+        );
     }
 
     static async originate(
-      tezos: TezosToolkit,
-      storage: treasuryStorageType
+        tezos: TezosToolkit,
+        storage: treasuryStorageType
     ): Promise<Treasury> {      
 
-      const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/treasury.json`).toString()
-      );
-      const operation: OriginationOperation = await tezos.contract
-        .originate({
-          code: artifacts.michelson,
-          storage: storage,
-        })
-        .catch((e) => {
-          console.error(e);
-          console.log('error no hash')
-          return null;
-        });
-  
-      await confirmOperation(tezos, operation.hash);
-  
-      return new Treasury(
-        await tezos.contract.at(operation.contractAddress),
-        tezos
-      );
+        const artifacts: any = JSON.parse(
+            fs.readFileSync(`${env.buildDir}/treasury.json`).toString()
+        );
+        const operation: OriginationOperation = await tezos.contract
+            .originate({
+                code: artifacts.michelson,
+                storage: storage,
+            })
+            .catch((e) => {
+                console.error(e);
+                console.log('error no hash')
+                return null;
+            });
+    
+        await confirmOperation(tezos, operation.hash);
+    
+        return new Treasury(
+            await tezos.contract.at(operation.contractAddress),
+            tezos
+        );
     }
 
   }

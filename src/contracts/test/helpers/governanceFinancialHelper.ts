@@ -1,12 +1,12 @@
 import {
-  ContractAbstraction,
-  ContractMethod,
-  ContractMethodObject,
-  ContractProvider,
-  ContractView,
-  OriginationOperation,
-  TezosToolkit,
-  Wallet
+    ContractAbstraction,
+    ContractMethod,
+    ContractMethodObject,
+    ContractProvider,
+    ContractView,
+    OriginationOperation,
+    TezosToolkit,
+    Wallet
 } from "@taquito/taquito";
 import fs from "fs";
 
@@ -22,16 +22,16 @@ import {OnChainView} from "@taquito/taquito/dist/types/contract/contract-methods
 type GovernanceFinancialContractMethods<T extends ContractProvider | Wallet> = {
     setLambda: (number, string) => ContractMethod<T>;
     updateWhitelistContracts: (
-      whitelistContractName:string,
-      whitelistContractAddress:string
+        whitelistContractName:string,
+        whitelistContractAddress:string
     ) => ContractMethod<T>;
     updateGeneralContracts: (
         generalContractName:string,
         generalContractAddress:string
     ) => ContractMethod<T>;
     updateWhitelistTokenContracts: (
-      whitelistTokenContractName:string,
-      whitelistTokenContractAddress:string
+        whitelistTokenContractName:string,
+        whitelistTokenContractAddress:string
     ) => ContractMethod<T>;
 };
 
@@ -53,10 +53,11 @@ type GovernanceFinancialContractAbstraction<T extends ContractProvider | Wallet 
 
 
 export const setGovernanceFinancialLambdas = async (tezosToolkit: TezosToolkit, contract: GovernanceFinancialContractAbstraction) => {
+        
     const batch = tezosToolkit.wallet
         .batch();
 
-        governanceFinancialLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
+    governanceFinancialLambdaIndex.forEach(({index, name}: { index: number, name: string }) => {
         batch.withContractCall(contract.methods.setLambda(name, governanceFinancialLambdas[index]))
     });
 
@@ -70,45 +71,45 @@ export class GovernanceFinancial {
     tezos: TezosToolkit;
   
     constructor(contract: GovernanceFinancialContractAbstraction, tezos: TezosToolkit) {
-      this.contract = contract;
-      this.tezos = tezos;
+        this.contract = contract;
+        this.tezos = tezos;
     }
   
     static async init(
-      governanceFinancialContractAddress: string,
-      tezos: TezosToolkit
+        governanceFinancialContractAddress: string,
+        tezos: TezosToolkit
     ): Promise<GovernanceFinancial> {
-      return new GovernanceFinancial(
-        await tezos.contract.at(governanceFinancialContractAddress),
-        tezos
-      );
+        return new GovernanceFinancial(
+            await tezos.contract.at(governanceFinancialContractAddress),
+            tezos
+        );
     }
 
     static async originate(
-      tezos: TezosToolkit,
-      storage: governanceFinancialStorageType
+        tezos: TezosToolkit,
+        storage: governanceFinancialStorageType
     ): Promise<GovernanceFinancial> {       
 
-      const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/governanceFinancial.json`).toString()
-      );
-      const operation: OriginationOperation = await tezos.contract
-        .originate({
-          code: artifacts.michelson,
-          storage: storage,
-        })
-        .catch((e) => {
-          console.error(e);
-          console.log('error no hash')
-          return null;
-        });
-  
-      await confirmOperation(tezos, operation.hash);
-  
-      return new GovernanceFinancial(
-        await tezos.contract.at(operation.contractAddress),
-        tezos
-      );
+        const artifacts: any = JSON.parse(
+            fs.readFileSync(`${env.buildDir}/governanceFinancial.json`).toString()
+        );
+        const operation: OriginationOperation = await tezos.contract
+            .originate({
+                code: artifacts.michelson,
+                storage: storage,
+            })
+            .catch((e) => {
+                console.error(e);
+                console.log('error no hash')
+                return null;
+            });
+    
+        await confirmOperation(tezos, operation.hash);
+    
+        return new GovernanceFinancial(
+            await tezos.contract.at(operation.contractAddress),
+            tezos
+        );
     }
 
   }

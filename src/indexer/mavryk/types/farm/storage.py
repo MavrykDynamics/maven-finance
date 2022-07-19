@@ -69,7 +69,7 @@ class ClaimedRewards(BaseModel):
     paid: str
 
 
-class Depositors(BaseModel):
+class DepositorLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -95,7 +95,7 @@ class FarmStorage(BaseModel):
     lastBlockUpdate: str
     accumulatedRewardsPerShare: str
     claimedRewards: ClaimedRewards
-    depositors: Dict[str, Depositors]
+    depositorLedger: Dict[str, DepositorLedger]
     open: bool
     init: bool
     initBlock: str

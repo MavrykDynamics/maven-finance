@@ -1,58 +1,58 @@
 [
-  {
-    "index": 0,
-    "name": "lambdaSetAdmin"
-  },
-  {
-    "index": 1,
-    "name": "lambdaSetGovernance"
-  },
-  {
-    "index": 2,
-    "name": "lambdaUpdateMetadata"
-  },
-  {
-    "index": 3,
-    "name": "lambdaUpdateConfig"
-  },
-  {
-    "index": 4,
-    "name": "lambdaUpdateWhitelistContracts"
-  },
-  {
-    "index": 5,
-    "name": "lambdaUpdateGeneralContracts"
-  },
-  {
-    "index": 6,
-    "name": "lambdaPauseAll"
-  },
-  {
-    "index": 7,
-    "name": "lambdaUnpauseAll"
-  },
-  {
-    "index": 8,
-    "name": "lambdaTogglePauseEntrypoint"
-  },
-  {
-    "index": 9,
-    "name": "lambdaCreateAggregator"
-  },
-  {
-    "index": 10,
-    "name": "lambdaTrackAggregator"
-  },
-  {
-    "index": 11,
-    "name": "lambdaUntrackAggregator"
-  },
-  {
-    "index": 12,
-    "name": "lambdaDistributeRewardXtz"
-  },
-  {
-    "index": 13,
-    "name": "lambdaDistributeRewardStakedMvk"
-  }
+    {
+        "index": 0,
+        "name": "lambdaSetAdmin"
+    },
+    {
+        "index": 1,
+        "name": "lambdaSetGovernance"
+    },
+    {
+        "index": 2,
+        "name": "lambdaUpdateMetadata"
+    },
+    {
+        "index": 3,
+        "name": "lambdaUpdateConfig"
+    },
+    {
+        "index": 4,
+        "name": "lambdaUpdateWhitelistContracts"
+    },
+    {
+        "index": 5,
+        "name": "lambdaUpdateGeneralContracts"
+    },
+    {
+        "index": 6,
+        "name": "lambdaPauseAll"
+    },
+    {
+        "index": 7,
+        "name": "lambdaUnpauseAll"
+    },
+    {
+        "index": 8,
+        "name": "lambdaTogglePauseEntrypoint"
+    },
+    {
+        "index": 9,
+        "name": "lambdaCreateAggregator"
+    },
+    {
+        "index": 10,
+        "name": "lambdaTrackAggregator"
+    },
+    {
+        "index": 11,
+        "name": "lambdaUntrackAggregator"
+    },
+    {
+        "index": 12,
+        "name": "lambdaDistributeRewardXtz"
+    },
+    {
+        "index": 13,
+        "name": "lambdaDistributeRewardStakedMvk"
+    }
 ]

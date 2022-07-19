@@ -3,22 +3,24 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type governanceSatelliteStorageType = {
-  admin                               : string;
-  metadata                            : MichelsonMap<MichelsonMapKey, unknown>;
-  config                              : {};
 
-  mvkTokenAddress                     : string;
-  governanceAddress                   : string;
+    admin                               : string;
+    metadata                            : MichelsonMap<MichelsonMapKey, unknown>;
+    config                              : {};
 
-  whitelistContracts                  : MichelsonMap<MichelsonMapKey, unknown>;
-  generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
+    mvkTokenAddress                     : string;
+    governanceAddress                   : string;
 
-  governanceSatelliteActionLedger     : MichelsonMap<MichelsonMapKey, unknown>;
-  governanceSatelliteSnapshotLedger   : MichelsonMap<MichelsonMapKey, unknown>;
-  governanceSatelliteCounter          : BigNumber;
+    whitelistContracts                  : MichelsonMap<MichelsonMapKey, unknown>;
+    generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  satelliteOracleLedger               : MichelsonMap<MichelsonMapKey, unknown>;
-  aggregatorLedger                    : MichelsonMap<MichelsonMapKey, unknown>;
+    governanceSatelliteActionLedger     : MichelsonMap<MichelsonMapKey, unknown>;
+    governanceSatelliteSnapshotLedger   : MichelsonMap<MichelsonMapKey, unknown>;
+    governanceSatelliteCounter          : BigNumber;
 
-  lambdaLedger                        : MichelsonMap<MichelsonMapKey, unknown>;
+    satelliteOracleLedger               : MichelsonMap<MichelsonMapKey, unknown>;
+    aggregatorLedger                    : MichelsonMap<MichelsonMapKey, unknown>;
+
+    lambdaLedger                        : MichelsonMap<MichelsonMapKey, unknown>;
+    
 };
