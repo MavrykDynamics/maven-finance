@@ -19,14 +19,6 @@ type governanceSatelliteConfigType is [@layout:comb] record [
     maxActionsPerSatellite                 : nat;
 ]
 
-type governanceSatelliteVoteType is [@layout:comb] record [
-    vote              : voteType;
-    totalVotingPower  : nat; 
-    timeVoted         : timestamp;
-]
-
-type governanceSatelliteVotersMapType is map (address, governanceSatelliteVoteType)
-
 type governanceSatelliteActionRecordType is [@layout:comb] record [
     initiator                          : address;
     status                             : bool;     // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
@@ -34,7 +26,6 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     
     governanceType                     : string;   // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
     governancePurpose                  : string;
-    voters                             : governanceSatelliteVotersMapType; 
 
     addressMap                         : addressMapType;
     stringMap                          : stringMapType;
@@ -233,6 +224,7 @@ type governanceSatelliteStorageType is record [
     // governance satellite storage 
     governanceSatelliteActionLedger         : governanceSatelliteActionLedgerType;
     governanceSatelliteCounter              : nat;
+    governanceSatelliteVoters               : big_map((actionIdType*address), voteType);
 
     // spam check
     currentCycleActionsInitiators           : actionsInitiatorsType;

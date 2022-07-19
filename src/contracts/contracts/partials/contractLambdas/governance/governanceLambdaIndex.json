@@ -93,6 +93,10 @@
     },
     {
         "index": 23,
+        "name": "lambdaClaimProposalReward"
+    },
+    {
+        "index": 24,
         "name": "lambdaDropProposal"
     }
 ]
