@@ -34,8 +34,6 @@ const Satellites = () => {
   const satelliteLedger = delegationStorage?.satelliteLedger
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
 
-  console.log('satelliteLedger', satelliteLedger)
-
   const tabsInfo = {
     totalDelegetedMVK: <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />,
     totalSatelliteOracles: 0,
@@ -51,8 +49,6 @@ const Satellites = () => {
     dispatch(undelegate())
   }
 
-  console.log(oraclesStorage.feeds)
-
   return (
     <SatellitesView
       isLoading={loading}
@@ -62,6 +58,8 @@ const Satellites = () => {
         userStakedBalance: user.mySMvkTokenBalance,
         satelliteUserIsDelegatedTo: user.satelliteMvkIsDelegatedTo,
         items: satelliteLedger.slice(0, 3),
+        delegateCallback,
+        undelegateCallback,
       }}
       dataFeedsData={{ items: oraclesStorage.feeds.slice(0, 5) }}
     />

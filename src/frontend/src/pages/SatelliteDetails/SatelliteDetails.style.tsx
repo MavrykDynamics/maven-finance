@@ -36,6 +36,7 @@ export const SatelliteCardBottomRow = styled.div`
     display: flex;
     justify-content: space-between;
     column-gap: 130px;
+    align-items: center;
   }
 
   p {

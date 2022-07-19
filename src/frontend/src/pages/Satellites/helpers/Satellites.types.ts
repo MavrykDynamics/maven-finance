@@ -5,7 +5,7 @@ export type SatellitesListProps = {
   items: Array<any>
   listType: 'satellites' | 'feeds' | 'oracles'
   name: string
-  onClickHandler: (arg0: any) => void
+  onClickHandler?: (arg0: any) => void
   selectedItem?: any
   loading: boolean
   additionaldata?: Record<string, any>
@@ -75,6 +75,7 @@ export type SatelliteListItemProps = {
   satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (satelliteAddress: string) => void
+  undelegateCallback: () => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
   isDetailsPage?: boolean

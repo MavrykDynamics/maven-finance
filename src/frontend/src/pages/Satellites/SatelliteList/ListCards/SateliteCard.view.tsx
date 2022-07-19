@@ -6,7 +6,7 @@ import { State } from 'reducers'
 import { SatelliteListItemProps } from '../../helpers/Satellites.types'
 
 // consts, helpers, actions
-import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
 
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
@@ -31,11 +31,15 @@ import {
   SatelliteCardRow,
   SatelliteOracleStatusComponent,
 } from './SatelliteCard.style'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 
 export const SatelliteListItem = ({
   satellite,
   loading,
   delegateCallback,
+  undelegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   isExtendedListItem = false,
@@ -59,6 +63,15 @@ export const SatelliteListItem = ({
   const currentlySupportingProposal = proposalLedger?.length
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
+
+  const getOracleStatus = (oracle: SatelliteRecord): 'responded' | 'noResponse' | 'awaiting' => {
+    let status: 'responded' | 'noResponse' | 'awaiting' = 'noResponse'
+
+    if (oracle.oracleRecords.length > 0 && oracle.active) {
+    }
+
+    return status
+  }
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
@@ -149,19 +162,35 @@ export const SatelliteListItem = ({
         </div>
 
         <SatelliteCardButtons>
-          {/* {satellite.active ? ( */}
-          <Button
-            text="Delegate"
-            icon="man-check"
-            kind={ACTION_PRIMARY}
-            loading={loading}
-            onClick={() => delegateCallback(satellite.address)}
-          />
-          {/* ) : (
-            <div>
-              <StatusFlag status={DOWN} text={'INACTIVE'} />
-            </div>
-          )} */}
+          {userIsDelegatedToThisSatellite ? (
+            <>
+              {satellite.active ? (
+                <Button
+                  text="Undelegate"
+                  icon="man-close"
+                  kind={ACTION_SECONDARY}
+                  loading={loading}
+                  onClick={() => undelegateCallback()}
+                />
+              ) : null}
+            </>
+          ) : (
+            <>
+              {satellite.active ? (
+                <Button
+                  text="Delegate"
+                  icon="man-check"
+                  kind={ACTION_PRIMARY}
+                  loading={loading}
+                  onClick={() => delegateCallback(satellite.address)}
+                />
+              ) : (
+                <div>
+                  <StatusFlag status={DOWN} text={'INACTIVE'} />
+                </div>
+              )}
+            </>
+          )}
         </SatelliteCardButtons>
       </SatelliteCardInner>
 

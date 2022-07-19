@@ -6,8 +6,8 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
 
 export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
-  console.log(oracle)
   const history = useHistory()
+
   return (
     <SatelliteItemStyle onClick={() => history.push(`/feed-details/${oracle.address}/`)} oracle>
       <div className="item">

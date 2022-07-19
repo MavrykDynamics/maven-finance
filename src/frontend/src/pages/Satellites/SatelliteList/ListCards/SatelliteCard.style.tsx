@@ -152,12 +152,12 @@ export const SideBySideImageAndText = styled.div<{ isExtendedListItem?: boolean 
   flex-direction: row;
   align-items: center;
   width: ${({ isExtendedListItem }) => (isExtendedListItem ? '25%' : '40%')};
+  margin-right: 10px;
 `
 export const SatelliteTextGroup = styled.div<{ oracle?: boolean; isExtendedListItem?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-left: 10px;
   width: 112px;
   justify-content: center;
 
@@ -228,6 +228,7 @@ export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme; isExtend
   padding-right: ${({ isExtendedListItem }) => (isExtendedListItem ? '15px' : '')};
   display: flex;
   justify-content: flex-end;
+  margin-right: 15px;
   button.transparent {
     color: ${({ theme }) => theme.headerSkyColor};
     font-weight: 600;
