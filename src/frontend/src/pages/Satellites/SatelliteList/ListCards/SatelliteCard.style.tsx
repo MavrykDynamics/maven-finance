@@ -2,12 +2,13 @@ import styled, { css } from 'styled-components/macro'
 import { Card, cyanColor, skyColor, royalPurpleColor, headerColor, boxShadowColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
-export const SatelliteItemStyle = styled(Card)`
+export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
   margin-top: 0;
   margin-bottom: 10px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 16px 40px;
+  transition: 0.5s all;
 
   .item {
     h5 {
@@ -26,7 +27,41 @@ export const SatelliteItemStyle = styled(Card)`
       font-size: 14px;
       line-height: 14px;
     }
+
+    &.center-v {
+      display: flex;
+      align-items: center;
+    }
+
+    .secondary {
+      color: ${cyanColor};
+      font-weight: 600;
+      stroke: ${cyanColor};
+    }
   }
+
+  .svg-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &:hover {
+    border-color: ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+    cursor: pointer;
+  }
+
+  ${({ oracle }) =>
+    oracle
+      ? css`
+          grid-template-columns: repeat(4, 1fr) 75px;
+        `
+      : ''}
 `
 
 export const SatelliteOracleStatusComponent = styled.div<{ statusType: 'responded' | 'noResponse' | 'awaiting' }>`
@@ -40,6 +75,7 @@ export const SatelliteOracleStatusComponent = styled.div<{ statusType: 'responde
   font-size: 12px;
   line-height: 12px;
   text-align: center;
+  max-width: 110px;
   color: ${({ statusType }) =>
     statusType === 'responded' ? '#27AE60' : statusType === 'noResponse' ? '#FF4343' : '#FFCA43'};
 `

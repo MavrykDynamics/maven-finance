@@ -14,6 +14,7 @@ import { SatellitesListProps } from '../helpers/Satellites.types'
 import { FRListWrapper } from 'pages/FinacialRequests/FRList/FRList.styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { OracleCard } from './ListCards/DataFeedOracleCard.view'
 
 function SatteliteListView({
   listTitle,
@@ -50,7 +51,7 @@ function SatteliteListView({
           case 'feeds':
             return <DataFeedCard feed={item} key={item.address} />
           case 'oracles':
-            return null // oracle listitem component
+            return <OracleCard oracle={item} key={item.address} />
         }
       })}
 
