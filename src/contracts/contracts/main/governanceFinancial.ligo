@@ -511,6 +511,12 @@ block {
 
 
 
+(* View: get Governance address *)
+[@view] function getGovernanceAddress(const _ : unit; var s : governanceFinancialStorageType) : address is
+    s.governanceAddress
+
+
+
 (* View: get Whitelist token contracts *)
 [@view] function getWhitelistTokenContracts(const _ : unit; var s : governanceFinancialStorageType) : whitelistTokenContractsType is
     s.whitelistTokenContracts
@@ -538,6 +544,12 @@ block {
 (* View: get financial request counter *)
 [@view] function getFinancialRequestCounter(const _ : unit; var s : governanceFinancialStorageType) : nat is
     s.financialRequestCounter
+
+
+
+(* View: get a financial request voter *)
+[@view] function getFinancialRequestVoterOpt(const requestIdAndVoter : (actionIdType*address); var s : governanceFinancialStorageType) : option(voteType) is
+    Big_map.find_opt(requestIdAndVoter, s.financialRequestVoters)
 
 
 
