@@ -143,7 +143,7 @@ type farmStorageType is [@layout:comb] record[
     init                        : bool;
     initBlock                   : nat;
 
-    minBlockTime                : nat;
+    minBlockTimeSnapshot        : nat;
 
     lambdaLedger                : lambdaLedgerType;
 ]
