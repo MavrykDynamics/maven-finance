@@ -93,8 +93,6 @@ const storages = {
             maxProposalsPerSatellite    = 20n;
             
             newBlockTimeLevel           = 0n;
-            newBlocksPerMinute          = 0n;
-            blocksPerMinute             = 2n;
             
             blocksPerProposalRound      = 14400n;
             blocksPerVotingRound        = 14400n;

@@ -11,8 +11,8 @@ type farmFactoryBreakGlassConfigType is [@layout:comb] record [
 
 
 type farmFactoryConfigType is [@layout:comb] record [
-    blocksPerMinute         : nat;
     farmNameMaxLength       : nat;
+    empty                   : unit;
 ]
 
 
@@ -78,7 +78,6 @@ type farmFactoryLambdaActionType is
     |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts      of updateGeneralContractsType
     |   LambdaMistakenTransfer            of transferActionType
-    |   LambdaUpdateBlocksPerMinute       of (nat)
 
         // Pause / Break Glass Entrypoints
     |   LambdaPauseAll                    of (unit)

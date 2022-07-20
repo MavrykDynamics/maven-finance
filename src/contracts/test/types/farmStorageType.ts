@@ -23,7 +23,6 @@ export type farmStorageType = {
 
                                 infinite                : Boolean;
                                 forceRewardFromTransfer : Boolean;
-                                blocksPerMinute         : BigNumber;
 
                                 plannedRewards : {
                                   totalBlocks           : BigNumber;
@@ -52,6 +51,8 @@ export type farmStorageType = {
   open                      : Boolean;
   init                      : Boolean;
   initBlock                 : BigNumber;
+
+  minBlockTime              : BigNumber;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 

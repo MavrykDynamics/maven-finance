@@ -71,7 +71,6 @@ export const farmStorage: farmStorageType = {
                                     tokenPair                : tokenPair,
                                     infinite                 : false,
                                     forceRewardFromTransfer  : false,
-                                    blocksPerMinute          : new BigNumber(2),
                                     plannedRewards           : plannedRewards,
                                 },
     
@@ -91,6 +90,7 @@ export const farmStorage: farmStorageType = {
     open                      : false,
     init                      : false,
     initBlock                 : new BigNumber(0),
+    minBlockTime              : new BigNumber(0),
 
     lambdaLedger              : MichelsonMap.fromLiteral({})
 };
