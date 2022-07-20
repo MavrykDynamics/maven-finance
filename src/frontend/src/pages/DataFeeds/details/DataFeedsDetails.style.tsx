@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { cyanColor } from 'styles'
 
 export const DataFeedsStyled = styled.div`
   display: flex;
@@ -143,6 +144,14 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
     margin: 0 auto;
     margin-bottom: 45px;
   }
+
+  &.link {
+    transition: 0.25s all;
+    cursor: pointer;
+    &:hover {
+      color: ${cyanColor};
+    }
+  }
 `
 
 export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?: number }>`
@@ -157,6 +166,13 @@ export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?:
     margin: 0 auto;
     margin-bottom: 30px;
   }
+
+  &.descr {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `
 
 export const DataFeedValueText = styled.div<{ fontWeidth?: number; fontSize?: number }>`
@@ -170,5 +186,39 @@ export const DataFeedValueText = styled.div<{ fontWeidth?: number; fontSize?: nu
     width: 22px;
     height: 22px;
     margin-right: 7px;
+  }
+`
+
+export const UsersListWrapper = styled.div`
+  margin-top: 30px;
+
+  .see-all-link {
+    right: 45px !important;
+  }
+`
+
+export const UsersListCardsWrapper = styled.div`
+  display: flex;
+  column-gap: 20px;
+  margin-top: 30px;
+  overflow: hidden;
+`
+
+export const UserSmallCard = styled.div`
+  display: flex;
+  align-items: center;
+  background: #160e3f;
+  border: 1px solid #503eaa;
+  border-radius: 10px;
+  padding: 20px 35px;
+
+  .img-wrapper {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #8d86eb;
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `

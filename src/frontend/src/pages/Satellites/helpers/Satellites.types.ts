@@ -3,7 +3,7 @@ import { SatelliteRecord } from "utils/TypesAndInterfaces/Delegation"
 export type SatellitesListProps = {
   listTitle?: string
   items: Array<any>
-  listType: 'satellites' | 'feeds' | 'oracles'
+  listType: 'satellites' | 'feeds' | 'oracles' | 'userFeeds'
   name: string
   onClickHandler?: (arg0: any) => void
   selectedItem?: any

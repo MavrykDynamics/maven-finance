@@ -15,6 +15,7 @@ import { FRListWrapper } from 'pages/FinacialRequests/FRList/FRList.styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { PAGINATION_SIDE_RIGHT } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { OracleCard } from './ListCards/DataFeedOracleCard.view'
+import { UserDataFeedCard } from './ListCards/UsersFeedCard.view'
 
 function SatteliteListView({ listTitle, items, name, listType, additionaldata, loading }: SatellitesListProps) {
   return items.length ? (
@@ -43,6 +44,8 @@ function SatteliteListView({ listTitle, items, name, listType, additionaldata, l
             )
           case 'feeds':
             return <DataFeedCard feed={item} key={item.address} />
+          case 'userFeeds':
+            return <UserDataFeedCard feed={item} key={item.address} />
           case 'oracles':
             return <OracleCard oracle={item} key={item.address} />
           default:

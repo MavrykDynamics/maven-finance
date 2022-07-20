@@ -13,6 +13,7 @@ export const SATELITES_TOP_LIST_NAME = 'topSatelitesOracle'
 export const FEEDS_TOP_LIST_NAME = 'topDataFeedsOracle'
 export const FEEDS_ALL_LIST_NAME = 'allDataFeedsOracle'
 export const ORACLES_DATA_IN_FEED_LIST_NAME = 'oraclesDataFromFeed'
+export const USER_DATA_FEEDS_LIST_NAME = 'userDataFeeds'
 export const SATELITES_NODES_LIST_NAME = 'satelitesNodes'
 
 export const WAITING_PROPOSALS_LIST_NAME = 'waitingProposals'
@@ -40,6 +41,7 @@ export const LIST_NAMES_MAPPER: Record<string, number> = {
   [SATELITES_NODES_LIST_NAME]: 5,
   [FEEDS_TOP_LIST_NAME]: 5,
   [ORACLES_DATA_IN_FEED_LIST_NAME]: 5,
+  [USER_DATA_FEEDS_LIST_NAME]: 3,
   [FEEDS_ALL_LIST_NAME]: 10,
 }
 
