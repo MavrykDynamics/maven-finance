@@ -543,7 +543,7 @@ block {
 
                                 // Enable the claim for the satellite who voted
                                 var highestVotedProposal                        := proposal;
-                                highestVotedProposal.claimReady                 := True;
+                                highestVotedProposal.rewardClaimReady                 := True;
                                 s.proposalLedger[s.cycleHighestVotedProposalId] := highestVotedProposal;
 
                                 // Calculate YAY votes required for proposal to be successful and move on to the Timelock round
@@ -739,7 +739,7 @@ block {
                     executed                            = False;                                        // boolean: executed set to true if proposal is executed
                     paymentProcessed                    = False;                                        // boolean: set to true if proposal payment has been processed 
                     locked                              = False;                                        // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
-                    claimReady                          = False;                                        // boolean: set to true if the voters are able to claim the rewards
+                    rewardClaimReady                    = False;                                        // boolean: set to true if the voters are able to claim the rewards
 
                     proposalVoteCount                   = 0n;                                           // proposal round: pass votes count (to proceed to voting round)
                     proposalVoteStakedMvkTotal          = 0n;                                           // proposal round pass vote total mvk from satellites who voted pass
@@ -1802,14 +1802,14 @@ block {
 
 
 
-(* claimProposalRewards lambda *)
-function lambdaClaimProposalRewards(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
+(* distributeProposalRewards lambda *)
+function lambdaDistributeProposalRewards(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorageType) : return is 
 block {
 
     var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
-        |   LambdaClaimProposalRewards(claimParams) -> {
+        |   LambdaDistributeProposalRewards(claimParams) -> {
             
             // Get values from params
             const satelliteAddress : address         = claimParams.satelliteAddress;
@@ -1838,10 +1838,10 @@ block {
 
                             // Check the satellite did not already claimed its reward for this proposal
                             const satelliteRewardProposalKey: (actionIdType*address)    = (proposalId, satelliteAddress);
-                            if Big_map.mem(satelliteRewardProposalKey, s.proposalRewards) then skip else failwith(error_PROPOSAL_REWARD_ALREADY_CLAIMED);
+                            if Big_map.mem(satelliteRewardProposalKey, s.proposalRewards) then failwith(error_PROPOSAL_REWARD_ALREADY_CLAIMED) else skip;
 
                             // Check if the reward can be claimed
-                            if _record.claimReady then skip else failwith(error_PROPOSAL_REWARD_CANNOT_BE_CLAIMED);
+                            if _record.rewardClaimReady then skip else failwith(error_PROPOSAL_REWARD_CANNOT_BE_CLAIMED);
 
                             // Add the reward to the storage
                             s.proposalRewards   := Big_map.add(satelliteRewardProposalKey, unit, s.proposalRewards);
