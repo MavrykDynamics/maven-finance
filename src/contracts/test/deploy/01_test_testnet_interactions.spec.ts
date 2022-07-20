@@ -950,16 +950,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates farm factory blocks per minute', async () => {
-            try{
-                // Operation
-                const operation = await councilInstance.methods.councilActionUpdateBlocksPerMin(farmFactoryAddress.address, 3).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin adds a new vestee', async () => {
             try{
                 // Operation
@@ -1670,21 +1660,6 @@ describe("Testnet interactions helper", async () => {
             try{
                 // Operation
                 const operation = await farmFactoryInstance.methods.updateConfig(100, "configFarmNameMaxLength").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
-        it('Admin updates blocks per minute', async () => {
-            try{
-                // Operation
-                councilStorage  = await councilInstance.storage();
-                const actionId  = councilStorage.actionCounter;
-                var operation = await councilInstance.methods.councilActionUpdateBlocksPerMin(farmFactoryAddress.address, 3).send();
-                await operation.confirmation();
-                await signerFactory(alice.sk)
-                operation = await councilInstance.methods.signAction(actionId).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
