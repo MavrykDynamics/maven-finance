@@ -12,12 +12,8 @@
 // Shared Methods
 #include "../partials/shared/sharedMethods.ligo"
 
-// ------------------------------------------------------------------------------
-// Common Types
-// ------------------------------------------------------------------------------
-
-// Transfer Types: transferDestinationType
-#include "../partials/shared/transferTypes.ligo"
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -53,11 +49,12 @@ type aggregatorFactoryAction is
     |   UpdateConfig                    of aggregatorFactoryUpdateConfigParamsType
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
     |   UpdateGeneralContracts          of updateGeneralContractsType
+    |   MistakenTransfer                of transferActionType
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                        of (unit)
     |   UnpauseAll                      of (unit)
-    |   TogglePauseEntrypoint          of aggregatorFactoryTogglePauseEntrypointType
+    |   TogglePauseEntrypoint           of aggregatorFactoryTogglePauseEntrypointType
 
         // Aggregator Factory Entrypoints
     |   CreateAggregator                of createAggregatorParamsType
@@ -98,10 +95,28 @@ function checkSenderIsAllowed(var s : aggregatorFactoryStorageType) : unit is
 
 
 
-// Allowed Senders: Admin
-function checkSenderIsAdmin(const s: aggregatorFactoryStorageType) : unit is
+function checkSenderIsAdmin(const s: aggregatorFactoryStorageType): unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
     else unit
+
+
+
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorFactoryStorageType) : unit is
+block{
+    if Tezos.get_sender() = s.admin then skip
+    else {
+        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
+        const governanceSatelliteAddress: address = case generalContractsOptView of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
+                ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+        ];
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    }
+} with unit
 
 
 
@@ -412,7 +427,7 @@ block{
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init aggregator lambda action
+    // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
     // init response
@@ -431,7 +446,7 @@ block{
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init aggregator lambda action
+    // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
     // init response
@@ -450,7 +465,7 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init aggregator lambda action
+    // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
     // init response
@@ -469,8 +484,27 @@ block {
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // init aggregator lambda action
+    // init aggregator factory lambda action
     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: aggregatorFactoryStorageType): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
@@ -723,11 +757,12 @@ block{
         |   UpdateConfig (parameters)                     -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)                 -> mistakenTransfer(parameters, s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                        -> pauseAll(s)
         |   UnpauseAll (_parameters)                      -> unpauseAll(s)
-        |   TogglePauseEntrypoint (parameters)           -> togglePauseEntrypoint(parameters, s)
+        |   TogglePauseEntrypoint (parameters)            -> togglePauseEntrypoint(parameters, s)
 
             // Aggregator Factory Entrypoints  
         |   CreateAggregator (parameters)                 -> createAggregator(parameters, s)
