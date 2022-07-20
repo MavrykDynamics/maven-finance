@@ -415,14 +415,14 @@ block {
       checkTokenSaleHasEnded(s);
 
       // init parameters
-      const buyer                  : address    = Tezos.sender;
+      const buyer                  : address    = Tezos.get_sender();
       
       const vestingOptionOneInMonths    : nat               = s.config.vestingOptionOneInMonths;
       const vestingOptionTwoInMonths    : nat               = s.config.vestingOptionTwoInMonths;
       const vestingOptionThreeInMonths  : nat               = s.config.vestingOptionThreeInMonths;
       
       const today                       : timestamp         = Tezos.now;
-      const todayBlocks                 : nat               = Tezos.level;
+      const todayBlocks                 : nat               = Tezos.get_level();
       const tokenSaleEndTimestamp       : timestamp         = s.tokenSaleEndTimestamp;
       const tokenSaleEndBlockLevel      : nat               = s.tokenSaleEndBlockLevel;
       var operations                    : list(operation)  := nil;
@@ -491,10 +491,10 @@ block {
           var monthsToClaim : nat := 0n;
           if optionOneLastClaimedBlockLevel = 0n then block {
             // first claim
-            monthsToClaim := abs(Tezos.level - tokenSaleEndBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(Tezos.get_level() - tokenSaleEndBlockLevel) / oneMonthBlocks;
           } else block {
             // has claimed before
-            monthsToClaim := abs(Tezos.level - optionOneLastClaimedBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(Tezos.get_level() - optionOneLastClaimedBlockLevel) / oneMonthBlocks;
 
             // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
             // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
@@ -542,7 +542,7 @@ block {
           userTokenSaleRecord.optionOneMonthsClaimed          := userTokenSaleRecord.optionOneMonthsClaimed + monthsToClaim;
           userTokenSaleRecord.optionOneClaimedAmount          := userTokenSaleRecord.optionOneClaimedAmount + optionOneTokenAmount;
           userTokenSaleRecord.optionOneLastClaimed            := Tezos.now;
-          userTokenSaleRecord.optionOneLastClaimedBlockLevel  := Tezos.level;
+          userTokenSaleRecord.optionOneLastClaimedBlockLevel  := Tezos.get_level();
 
         };
 
@@ -558,10 +558,10 @@ block {
           var monthsToClaim : nat := 0n;
           if optionTwoLastClaimedBlockLevel = 0n then block {
             // first claim 
-            monthsToClaim := abs(Tezos.level - tokenSaleEndBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(Tezos.get_level() - tokenSaleEndBlockLevel) / oneMonthBlocks;
           } else block {
             // has claimed before
-            monthsToClaim := abs(Tezos.level - optionTwoLastClaimedBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(Tezos.get_level() - optionTwoLastClaimedBlockLevel) / oneMonthBlocks;
 
             // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
             // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
@@ -605,7 +605,7 @@ block {
           userTokenSaleRecord.optionTwoMonthsClaimed          := userTokenSaleRecord.optionTwoMonthsClaimed + monthsToClaim;
           userTokenSaleRecord.optionTwoClaimedAmount          := userTokenSaleRecord.optionTwoClaimedAmount + optionTwoTokenAmount;
           userTokenSaleRecord.optionTwoLastClaimed            := Tezos.now;
-          userTokenSaleRecord.optionTwoLastClaimedBlockLevel  := Tezos.level;
+          userTokenSaleRecord.optionTwoLastClaimedBlockLevel  := Tezos.get_level();
 
         };
 
@@ -622,10 +622,10 @@ block {
           var monthsToClaim : nat := 0n;
           if optionThreeLastClaimedBlockLevel = 0n then block {
             // first claim 
-            monthsToClaim := abs(Tezos.level - tokenSaleEndBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(Tezos.get_level() - tokenSaleEndBlockLevel) / oneMonthBlocks;
           } else block {
             // has claimed before
-            monthsToClaim := abs(Tezos.level - optionThreeLastClaimedBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(Tezos.get_level() - optionThreeLastClaimedBlockLevel) / oneMonthBlocks;
 
             // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
             // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
@@ -669,7 +669,7 @@ block {
           userTokenSaleRecord.optionThreeMonthsClaimed          := userTokenSaleRecord.optionThreeMonthsClaimed + monthsToClaim;
           userTokenSaleRecord.optionThreeClaimedAmount          := userTokenSaleRecord.optionThreeClaimedAmount + optionThreeTokenAmount;
           userTokenSaleRecord.optionThreeLastClaimed            := Tezos.now;
-          userTokenSaleRecord.optionThreeLastClaimedBlockLevel  := Tezos.level;
+          userTokenSaleRecord.optionThreeLastClaimedBlockLevel  := Tezos.get_level();
 
         };
 

@@ -472,7 +472,7 @@ block {
 
 
 
-// helper function to setup new proposal round
+// helper function to send rewards to vote
 function sendRewardsToVoters(var s : governanceStorageType) : operation is
 block{
 

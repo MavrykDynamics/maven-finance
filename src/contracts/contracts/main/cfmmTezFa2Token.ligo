@@ -185,12 +185,12 @@ function ceildiv(const numerator : nat; const denominator : nat) is abs( (- nume
 
 // helper function - check sender is admin
 function checkSenderIsAdmin(var s : cfmmStorage) : unit is
-  if (Tezos.sender = s.admin) then unit
+  if (Tezos.get_sender() = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function - check sender is from token address
 function checkSenderIsTokenAddress(var s : cfmmStorage) : unit is
-  if (Tezos.sender = s.tokenAddress) then unit
+  if (Tezos.get_sender() = s.tokenAddress) then unit
   else failwith("Error. Sender must be from the token address.");
 
 // helper function - check no pending pool updates
@@ -210,7 +210,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 // helper function - check if call is from an implicit account
 function checkFromImplicitAccount(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.source) then unit
+    if (Tezos.get_sender() = Tezos.source) then unit
     else failwith("Error. Call must be from an implicit account.");
 
 
@@ -432,8 +432,8 @@ block {
 
     // send token from sender to cfmm
     const sendTokenToCfmmOperation : operation = transferFa2Token(
-        Tezos.sender,           // from_
-        Tezos.self_address,     // to_
+        Tezos.get_sender(),           // from_
+        Tezos.get_self_address(),     // to_
         tokensDeposited,        // token amount
         s.tokenId,              // token id
         s.tokenAddress          // token contract address
@@ -441,7 +441,7 @@ block {
     operations := sendTokenToCfmmOperation # operations;
 
     // send tez from sender to cfmm
-    // const sendTezToCfmmOperation : operation = transferTez( (get_contract(Tezos.self_address) : contract(unit)), cashDeposited);
+    // const sendTezToCfmmOperation : operation = transferTez( (get_contract(Tezos.get_self_address()) : contract(unit)), cashDeposited);
     // operations := sendTezToCfmmOperation # operations;
 
     // mint LP Tokens and send to sender
@@ -500,13 +500,13 @@ block {
     const newCashPool : nat = abs(cashPool - cashWithdrawn);
 
     // burn LP Token operation
-    const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.sender, (0 - lpTokensBurned), s);
+    const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.get_sender(), (0 - lpTokensBurned), s);
     operations := burnLpTokenOperation # operations;
 
     // send withdrawn tokens to sender 
     const withdrawnTokensToSenderOperation : operation = transferFa2Token(
-        Tezos.self_address,     // from_
-        Tezos.sender,           // to_
+        Tezos.get_self_address(),     // from_
+        Tezos.get_sender(),           // to_
         tokensWithdrawn,        // token amount
         s.tokenId,              // token id
         s.tokenAddress          // token contract address
@@ -583,7 +583,7 @@ block {
 
     // send tokens_withdrawn from exchange to sender
     const withdrawTokensOperation : operation = transferFa2Token(
-        Tezos.self_address,     // from_
+        Tezos.get_self_address(),     // from_
         recipient,              // to_
         tokensBought,           // token amount
         s.tokenId,              // token id
@@ -645,8 +645,8 @@ block {
 
     // send tokens_sold from sender to cfmm
     const sendSoldTokensToCfmmOperation : operation = transferFa2Token(
-        Tezos.sender,           // from_
-        Tezos.self_address,     // to_
+        Tezos.get_sender(),           // from_
+        Tezos.get_self_address(),     // to_
         tokensSold,             // token amount
         s.tokenId,              // token id
         s.tokenAddress          // token contract address
@@ -734,8 +734,8 @@ block {
 
     // accept tokens from sender
     const acceptTokensFromSenderOperation : operation = transferFa2Token(
-        Tezos.sender,           // from_
-        Tezos.self_address,     // to_
+        Tezos.get_sender(),           // from_
+        Tezos.get_self_address(),     // to_
         tokensSold,             // token amount
         s.tokenId,              // token id
         s.tokenAddress          // token contract address
@@ -772,7 +772,7 @@ block {
 
     // Token is FA2
     const balanceOfRequestRecord : balanceOfRequestType = record [
-        owner     = Tezos.self_address;
+        owner     = Tezos.get_self_address();
         token_id  = s.tokenId;
     ];
     var balanceOfRequests : list(balanceOfRequestType) := nil;
@@ -780,7 +780,7 @@ block {
     
     const getFa2TokenBalanceParams : balanceOfParamsType = record [
         requests = balanceOfRequests;
-        callback = getUpdateFa2TokenPoolInternalEntrypoint(Tezos.self_address);
+        callback = getUpdateFa2TokenPoolInternalEntrypoint(Tezos.get_self_address());
     ];
     const getFa2TokenBalanceOperation : operation = Tezos.transaction(
         getFa2TokenBalanceParams,

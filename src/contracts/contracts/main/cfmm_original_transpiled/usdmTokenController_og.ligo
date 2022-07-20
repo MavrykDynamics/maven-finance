@@ -131,7 +131,7 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 // helper function - check sender is admin
 function checkSenderIsAdmin(var s : controllerStorage) : unit is
-  if (Tezos.sender = s.admin) then unit
+  if (Tezos.get_sender() = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function to get vaultWithdrawTez entrypoint
@@ -261,7 +261,7 @@ block {
     const cfmmAddress       : address           = s.cfmmAddress;
 
     // check if sender is from the cfmm address
-    if Tezos.sender =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
+    if Tezos.get_sender() =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
 
     // check that last drift update is before current time
     if s.lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
@@ -290,7 +290,7 @@ block {
 // (* todo: restore when ligo interpret is fixed
 //    let cfmm_price (storage : storage) (tez : tez) (token : nat) : result =      *)
 // let cfmm_price (storage, tez, token : storage * nat * nat) : result =
-//   if Tezos.sender <> storage.cfmm_address then
+//   if Tezos.get_sender() <> storage.cfmm_address then
 //     (failwith error_CALLER_MUST_BE_CFMM : result)
 //   else
 //     let delta = abs (Tezos.now - storage.last_drift_update) in
@@ -336,7 +336,7 @@ block {
     // make vault handle
     const handle : vaultHandleType = record [
         id     = createParams.id;
-        owner  = Tezos.sender;
+        owner  = Tezos.get_sender();
     ];
 
     // check if vault already exists
@@ -350,7 +350,7 @@ block {
 
             // params for vault with tez storage origination
             const originateVaultWithTezStorage : vaultTezStorage = record [
-                admin               = Tezos.self_address;
+                admin               = Tezos.get_self_address();
                 handle              = handle;
                 depositors          = createParams.depositors;
                 vaultCollateralType = XTZ(unit);
@@ -389,7 +389,7 @@ block {
 
             // params for vault with token storage origination
             const originateVaultWithTokenStorage : vaultTokenStorage = record [
-                admin                   = Tezos.self_address;
+                admin                   = Tezos.get_self_address();
                 handle                  = handle;
                 depositors              = createParams.depositors;
                 collateralTokenAddress  = tokenCollateralContractAddress;
@@ -431,7 +431,7 @@ block {
 
             // params for vault with token storage origination
             const originateVaultWithTokenStorage : vaultTokenStorage = record [
-                admin                   = Tezos.self_address;
+                admin                   = Tezos.get_self_address();
                 handle                  = handle;
                 depositors              = createParams.depositors;
                 collateralTokenAddress  = tokenCollateralContractAddress;
@@ -477,7 +477,7 @@ block {
     const vaultId           : vaultIdType       = withdrawParams.id; 
     const withdrawAmount    : tez               = withdrawParams.amount;
     const recipient         : contract(unit)    = withdrawParams.to_;
-    const initiator         : vaultOwnerType    = Tezos.sender;
+    const initiator         : vaultOwnerType    = Tezos.get_sender();
     var operations          : list(operation)  := nil;
 
     // make vault handle
@@ -521,7 +521,7 @@ block {
     // init variables for convenience
     const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
     const depositAmount   : tez               = registerDepositParams.amount;
-    const initiator       : vaultOwnerType    = Tezos.sender;
+    const initiator       : vaultOwnerType    = Tezos.get_sender();
 
     // get vault
     var _vault : vaultType := getVault(vaultHandle, s);
@@ -551,7 +551,7 @@ block {
     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
     const quantity          : nat                     = liquidateParams.quantity;
     const recipient         : contract(unit)          = liquidateParams.to_;
-    const initiator         : initiatorAddressType    = Tezos.sender;
+    const initiator         : initiatorAddressType    = Tezos.get_sender();
     const target            : nat                     = s.target; 
     var operations          : list(operation)        := nil;
 
@@ -609,7 +609,7 @@ block {
     // init variables for convenience
     const id                : nat                     = mintOrBurnParams.id; 
     const quantity          : int                     = mintOrBurnParams.quantity;
-    const initiator         : initiatorAddressType    = Tezos.sender;
+    const initiator         : initiatorAddressType    = Tezos.get_sender();
     var operations          : list(operation)        := nil;
 
     // make vault handle
