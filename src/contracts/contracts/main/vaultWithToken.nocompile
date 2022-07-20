@@ -10,7 +10,7 @@ type vaultActionType is
 const noOperations : list (operation) = nil;
 
 function checkSenderIsAdmin(var s : vaultTokenStorage) : unit is
-  if (Tezos.sender = s.admin) then unit
+  if (Tezos.get_sender() = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function to get registerDeposit entrypoint
@@ -101,12 +101,12 @@ block {
     
     // check if sender is owner
     var isOwnerCheck : bool := False;
-    if Tezos.sender = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
+    if Tezos.get_sender() = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
 
     // check if sender is a whitelisted depositor
     const isAbleToDeposit : bool = case s.depositors of [
         | Any -> True
-        | Whitelist(_depositors) -> _depositors contains Tezos.sender
+        | Whitelist(_depositors) -> _depositors contains Tezos.get_sender()
     ];
     
     // check that sender is either the vault owner or a depositor
@@ -145,7 +145,7 @@ function vaultEditTokenDepositor(const editDepositorParams : editDepositorType; 
 block {
 
     // set new depositor only if sender is the vault owner
-    if Tezos.sender =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
+    if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
     else block {
 
         // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
