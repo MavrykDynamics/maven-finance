@@ -180,7 +180,7 @@ block{
         |   None           -> failwith(error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND)
     ];
 
-    if (Tezos.sender = usdmTokenControllerAddress) then skip
+    if (Tezos.get_sender() = usdmTokenControllerAddress) then skip
     else failwith(error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED);
 
 } with unit

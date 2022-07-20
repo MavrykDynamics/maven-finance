@@ -1047,7 +1047,7 @@ block{
                 // init parameters
                 const depositAmount  : nat     = vaultDepositStakedMvkParams.depositAmount;
                 const vaultId        : nat     = vaultDepositStakedMvkParams.vaultId;
-                const vaultOwner     : address = Tezos.sender;
+                const vaultOwner     : address = Tezos.get_sender();
 
                 // get vault through on-chain views to USDM Token Controller
                 // Find USDM Token Controller address
@@ -1077,7 +1077,7 @@ block{
                 const vaultAddress : address = vault.address;
 
                 // Compound rewards for user and vault before any changes in balance takes place
-                s := compoundUserRewards(Tezos.sender, s);
+                s := compoundUserRewards(Tezos.get_sender(), s);
                 s := compoundUserRewards(vaultAddress, s);
 
                 // check that user has a record in stake balance ledger and sufficient balance
@@ -1160,7 +1160,7 @@ block{
                 // init parameters
                 const withdrawAmount  : nat     = vaultWithdrawStakedMvkParams.withdrawAmount;
                 const vaultId         : nat     = vaultWithdrawStakedMvkParams.vaultId;
-                const vaultOwner      : address = Tezos.sender;
+                const vaultOwner      : address = Tezos.get_sender();
 
                 // get vault through on-chain views to USDM Token Controller
                 // Find USDM Token Controller address
@@ -1190,7 +1190,7 @@ block{
                 const vaultAddress : address = vault.address;
 
                 // Compound rewards for user and vault before any changes in balance takes place
-                s := compoundUserRewards(Tezos.sender, s);
+                s := compoundUserRewards(Tezos.get_sender(), s);
                 s := compoundUserRewards(vaultAddress, s);
 
                 // check that user has a record in stake balance ledger and sufficient balance
