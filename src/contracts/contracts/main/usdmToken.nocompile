@@ -137,15 +137,15 @@ function checkBalance(const spenderBalance: tokenBalance; const tokenAmount: tok
   else unit
 
 function checkOwnership(const owner: owner): unit is
-  if Tezos.sender =/= owner then failwith("FA2_NOT_OWNER")
+  if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
   else unit
 
 function checkOperator(const owner: owner; const token_id: tokenId; const operators: operators): unit is
-  if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
+  if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
   else failwith ("FA2_NOT_OPERATOR")
 
 function checkSenderIsAdmin(const store: storage): unit is
-  if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+  if Tezos.get_sender() =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
 function checkNoAmount(const _p: unit): unit is
@@ -294,7 +294,7 @@ function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storag
 block {
 
   // check sender is from cfmm contract
-  if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+  if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
   const quantity        : int      = mintOrBurnParams.quantity;
   const targetAddress   : address  = mintOrBurnParams.target;
