@@ -25,6 +25,7 @@ type financialRequestRecordType is [@layout:comb] record [
     tokenType                           : string;
     tokenId                             : nat;
     requestPurpose                      : string;
+    voters                              : set(address);
     keyHash                             : option(key_hash);
 
     yayVoteStakedMvkTotal               : nat;

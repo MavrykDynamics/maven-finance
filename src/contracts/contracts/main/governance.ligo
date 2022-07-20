@@ -740,6 +740,12 @@ block {
 
 
 
+(* View: get a proposal reward *)
+[@view] function getProposalRewardOpt(const proposalIdAndVoter : (actionIdType*address); var s : governanceStorageType) : option(unit) is
+    Big_map.find_opt(proposalIdAndVoter, s.proposalRewards)
+
+
+
 (* View: get a satellite snapshot *)
 [@view] function getSnapshotOpt(const satelliteAddress : address; var s : governanceStorageType) : option(governanceSatelliteSnapshotRecordType) is
     Big_map.find_opt(satelliteAddress, s.snapshotLedger)
@@ -749,6 +755,24 @@ block {
 (* View: get current cycle info *)
 [@view] function getCurrentCycleInfo(const _ : unit; var s : governanceStorageType) : currentCycleInfoType is
     s.currentCycleInfo
+
+
+
+(* View: get all proposals id and smvk of the current proposal *)
+[@view] function getCycleProposals(const _ : unit; var s : governanceStorageType) : map(actionIdType, nat) is
+    s.cycleProposals
+
+
+
+(* View: get all proposals proposed by a satellite on a given cycle *)
+[@view] function getCycleProposerOpt(const cycleAndProposer : (nat*address); var s : governanceStorageType) : set(nat) is
+    Big_map.find_opt(cycleAndProposer, s.cycleProposers)
+
+
+
+(* View: get the latest vote of the voter on a given cycle *)
+[@view] function getRoundVoteOpt(const cycleAndProposer : (nat*address); var s : governanceStorageType) : roundVoteType is
+    Big_map.find_opt(cycleAndProposer, s.roundVotes)
 
 
 

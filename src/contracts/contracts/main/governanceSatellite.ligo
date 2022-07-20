@@ -234,9 +234,9 @@ block{
     ];
 
     // Check if the cycle is different and empty the storage map if it is
-    if s.currentGovernanceCycle =/= currentCycle then {
-        s.currentGovernanceCycle        := currentCycle;
-        s.currentCycleActionsInitiators := (big_map []: actionsInitiatorsType);
+    if s.governanceCycleSnapshot =/= currentCycle then {
+        s.governanceCycleSnapshot        := currentCycle;
+        s.cycleActionsInitiators := (big_map []: actionsInitiatorsType);
     } else skip;
     
 } with(s)
@@ -258,7 +258,7 @@ block{
     ];
 
     // Check if the snapshot is up to date with the saved cycle
-    const currentCycle: nat = s.currentGovernanceCycle;
+    const currentCycle: nat = s.governanceCycleSnapshot;
 
     // Check if a snapshot needs to be created
     const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
@@ -413,6 +413,24 @@ block {
 (* View: get governance satellite counter *)
 [@view] function getGovernanceSatelliteCounter(const _ : unit; var s : governanceSatelliteStorageType) : nat is
     s.governanceSatelliteCounter
+
+
+
+(* View: get governance satellite voter *)
+[@view] function getGovernanceSatelliteVoterOpt(const requestIdAndVoter : (actionIdType*address); var s : governanceSatelliteStorageType) : option(voteType) is
+    Big_map.find_opt(requestIdAndVoter, s.governanceSatelliteVoters)
+
+
+
+(* View: get cycle action initiator *)
+[@view] function getCycleActionsInitiatorOpt(const initiator : address; var s : governanceSatelliteStorageType) : option(set(actionIdType)) is
+    Big_map.find_opt(initiator, s.cycleActionsInitiators)
+
+
+
+(* View: get governance cycle snapshot *)
+[@view] function getGovernanceCycleSnapshot(const _ : unit; var s : governanceSatelliteStorageType) : nat is
+    s.governanceCycleSnapshot
 
 
 

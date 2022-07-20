@@ -268,7 +268,8 @@ block {
                     tokenName                           = requestTokensParams.tokenName; 
                     tokenType                           = requestTokensParams.tokenType;
                     tokenId                             = requestTokensParams.tokenId;
-                    requestPurpose                      = requestTokensParams.purpose; 
+                    requestPurpose                      = requestTokensParams.purpose;
+                    voters                              = set[];
                     keyHash                             = keyHash;
 
                     yayVoteStakedMvkTotal               = 0n;
@@ -379,6 +380,7 @@ block {
                     tokenType                           = "FA2";
                     tokenId                             = 0n;
                     requestPurpose                      = requestMintParams.purpose;
+                    voters                              = set[];
                     keyHash                             = keyHash;
 
                     yayVoteStakedMvkTotal               = 0n;
@@ -486,6 +488,7 @@ block {
                     tokenType                           = "NIL";
                     tokenId                             = 0n;
                     requestPurpose                      = "Set Contract Baker";
+                    voters                              = set[];
                     keyHash                             = setContractBakerParams.keyHash;
 
                     yayVoteStakedMvkTotal               = 0n;
@@ -663,6 +666,9 @@ block {
 
                 // Update financial request map of voters with new vote
                 s.financialRequestVoters[(financialRequestId, Tezos.get_sender())] := voteType;
+
+                // Save voter in the storage
+                _financialRequest.voters := Set.add(Tezos.get_sender(), _financialRequest.voters);
 
                 // Compute financial request vote totals and execute financial request if enough votes have been gathered
                 case voteType of [
