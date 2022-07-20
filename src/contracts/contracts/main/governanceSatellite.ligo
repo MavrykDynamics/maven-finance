@@ -56,7 +56,7 @@ type governanceSatelliteAction is
     |   UpdateAggregatorStatus        of updateAggregatorStatusActionType
 
         // Mistaken Transfer Governance
-    |   MistakenTransferFix           of mistakenTransferFixParamsType
+    |   FixMistakenTransfer           of fixMistakenTransferParamsType
 
         // Governance Vote Actions
     |   DropAction                    of dropActionType
@@ -101,9 +101,9 @@ function checkSenderIsAdmin(const s : governanceSatelliteStorageType) : unit is
 // Allowed Senders : Admin, Self
 function checkSenderIsAdminOrSelf(var s : governanceSatelliteStorageType) : unit is
 block{
-    if Tezos.sender = s.admin then skip
+    if Tezos.get_sender() = s.admin then skip
     else {
-        if Tezos.sender = Tezos.self_address then skip
+        if Tezos.get_sender() = Tezos.get_self_address() then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
 } with unit
@@ -741,17 +741,17 @@ block {
 // Mistaken Transfer Governance Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(*  mistakenTransferFix entrypoint  *)
-function mistakenTransferFix(const mistakenTransferFixParams : mistakenTransferFixParamsType; var s : governanceSatelliteStorageType) : return is 
+(*  fixMistakenTransfer entrypoint  *)
+function fixMistakenTransfer(const fixMistakenTransferParams : fixMistakenTransferParamsType; var s : governanceSatelliteStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransferFix"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaFixMistakenTransfer"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaMistakenTransferFix(mistakenTransferFixParams);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaFixMistakenTransfer(fixMistakenTransferParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -878,7 +878,7 @@ block{
         |   UpdateAggregatorStatus(parameters)        -> updateAggregatorStatus(parameters, s)
 
             // Mistaken Transfer Governance
-        |   MistakenTransferFix(parameters)           -> mistakenTransferFix(parameters, s)
+        |   FixMistakenTransfer(parameters)           -> fixMistakenTransfer(parameters, s)
 
             // Governance Actions
         |   DropAction(parameters)                    -> dropAction(parameters, s)

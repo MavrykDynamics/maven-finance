@@ -143,8 +143,8 @@ block {
                     // Check if token is not MVK (it would break SMVK) before creating the transfer operation
                     const transferTokenOperation : operation = case transferParam.token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
-                        | Fa12(token) -> transferFa12Token(Tezos.self_address, transferParam.to_, transferParam.amount, token)
-                        | Fa2(token)  -> transferFa2Token(Tezos.self_address, transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
                     ];
                   } with(transferTokenOperation # operationList);
                 
@@ -193,6 +193,9 @@ block {
                 // init params
                 const satelliteToBeSuspended  : address = suspendSatelliteParams.satelliteToBeSuspended;
                 const purpose                 : string  = suspendSatelliteParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -386,6 +389,9 @@ block {
                 const satelliteToBeUnsuspended  : address = unsuspendSatelliteParams.satelliteToBeUnsuspended;
                 const purpose                   : string  = unsuspendSatelliteParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -578,6 +584,9 @@ block {
                 const satelliteToBeBanned      : address = banSatelliteParams.satelliteToBeBanned;
                 const purpose                  : string  = banSatelliteParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -769,6 +778,9 @@ block {
                 // init params
                 const satelliteToBeUnbanned    : address = unbanSatelliteParams.satelliteToBeUnbanned;
                 const purpose                  : string  = unbanSatelliteParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -969,6 +981,9 @@ block {
                 // init params
                 const satelliteAddress    : address = removeAllSatelliteOraclesParams.satelliteAddress;
                 const purpose             : string  = removeAllSatelliteOraclesParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -1163,6 +1178,9 @@ block {
                 const aggregatorAddress  : address = addOracleToAggregatorParams.aggregatorAddress;
                 const purpose            : string  = addOracleToAggregatorParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -1356,6 +1374,9 @@ block {
                 const oracleAddress        : address = removeOracleInAggregatorParams.oracleAddress;
                 const aggregatorAddress    : address = removeOracleInAggregatorParams.aggregatorAddress;
                 const purpose              : string  = removeOracleInAggregatorParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -1558,6 +1579,9 @@ block {
                 const aggregatorAddress    : address  = setAggregatorMaintainerParams.aggregatorAddress;
                 const maintainerAddress    : address  = setAggregatorMaintainerParams.maintainerAddress;
                 const purpose              : string   = setAggregatorMaintainerParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -1793,6 +1817,9 @@ block {
                 const status               : string  = updateAggregatorStatusParams.status;
                 const purpose              : string  = updateAggregatorStatusParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -1957,19 +1984,22 @@ block {
 // Mistaken Transfer Governance Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  mistakenTransferFix lambda *)
-function lambdaMistakenTransferFix(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
+(*  fixMistakenTransfer lambda *)
+function lambdaFixMistakenTransfer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
     case governanceSatelliteLambdaAction of [
-        | LambdaMistakenTransferFix(mistakenTransferFixParams) -> {
+        | LambdaFixMistakenTransfer(fixMistakenTransferParams) -> {
                 
                 // init params
-                const targetContractAddress    : address                = mistakenTransferFixParams.targetContractAddress;
-                const transferList             : transferActionType     = mistakenTransferFixParams.transferList;
-                const purpose                  : string                 = mistakenTransferFixParams.purpose;
+                const targetContractAddress    : address                = fixMistakenTransferParams.targetContractAddress;
+                const transferList             : transferActionType     = fixMistakenTransferParams.transferList;
+                const purpose                  : string                 = fixMistakenTransferParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // get delegation address
                 const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
@@ -1989,7 +2019,7 @@ block {
                 ];
 
                 // get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
                       Some (value) -> case value of [
                           Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
@@ -2026,7 +2056,7 @@ block {
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                        initiator                          = Tezos.sender;
+                        initiator                          = Tezos.get_sender();
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
@@ -2048,8 +2078,8 @@ block {
                         stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
                         stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
 
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
                 const actionId : nat = s.governanceSatelliteCounter;
