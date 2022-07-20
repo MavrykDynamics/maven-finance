@@ -229,7 +229,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -290,6 +290,7 @@ block {
 
                     governanceType                     = "SUSPEND";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -318,12 +319,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite action ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -401,7 +402,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -462,6 +463,7 @@ block {
 
                     governanceType                     = "UNSUSPEND";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -490,12 +492,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -573,7 +575,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -634,6 +636,7 @@ block {
 
                     governanceType                     = "BAN";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -662,12 +665,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -745,7 +748,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -806,6 +809,7 @@ block {
 
                     governanceType                     = "UNBAN";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -834,12 +838,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -925,7 +929,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -986,6 +990,7 @@ block {
 
                     governanceType                     = "REMOVE_ALL_SATELLITE_ORACLES";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1014,12 +1019,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -1098,7 +1103,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -1160,6 +1165,7 @@ block {
 
                     governanceType                     = "ADD_ORACLE_TO_AGGREGATOR";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1188,12 +1194,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -1272,7 +1278,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -1334,6 +1340,7 @@ block {
 
                     governanceType                     = "REMOVE_ORACLE_IN_AGGREGATOR";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1362,12 +1369,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -1454,7 +1461,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -1506,6 +1513,7 @@ block {
 
                     governanceType                     = "SET_AGGREGATOR_MAINTAINER";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
@@ -1534,12 +1542,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -1671,7 +1679,7 @@ block {
                 s   := updateGovernanceCycleLimitation(s);
 
                 // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)   -> Set.size(_actionsIds)
                     |   None                -> 0n
                 ];
@@ -1724,6 +1732,7 @@ block {
 
                     governanceType                     = "UPDATE_AGGREGATOR_STATUS";
                     governancePurpose                  = purpose;
+                    voters                             = set [];
 
                     addressMap                         = addressMap;
                     stringMap                          = stringMap;
@@ -1752,12 +1761,12 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.currentCycleActionsInitiators) of [
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
                         Some (_actionsIds)  -> _actionsIds
                     |   None                -> set []
                 ];
                 createdActions                  := Set.add(actionId, createdActions);
-                s.currentCycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.currentCycleActionsInitiators);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
 
                 // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
@@ -1784,6 +1793,20 @@ block {
 (*  fixMistakenTransfer lambda *)
 function lambdaFixMistakenTransfer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
 block {
+
+    // Steps Overview:    
+    // 1. Check that no tez is sent to the entrypoint
+    // 2. Get necessary contracts and config info
+    //      -   Get Doorman Contract address from the General Contracts Map on the Governance Contract
+    //      -   Get Delegation Contract address from the General Contracts Map on the Governance Contract
+    //      -   Get delegation ratio (i.e. voting power ratio) from Delegation Contract Config
+    // 3. Get / Check Satellite Records
+    //      -   Get satellite record for initiator
+    //      -   Check if address given for specified oracle is valid
+    // 4. Take snapshot of current total staked MVK supply 
+    // 5. Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    // 6. Create new governance satellite action record - "MISTAKEN_TRANSFER_FIX"
+    // 6. Update storage with new records 
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     
@@ -1798,6 +1821,20 @@ block {
                 // Validate inputs
                 if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
+                // ------------------------------------------------------------------
+                // Get necessary contracts and info
+                // ------------------------------------------------------------------
+
+                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+                
                 // get delegation address
                 const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
                 const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
@@ -1808,49 +1845,56 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
-                // get voting power ratio
-                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
-                const votingPowerRatio: nat                     = case configView of [
-                        Some (_optionConfig) -> _optionConfig.delegationRatio
-                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
+                // ------------------------------------------------------------------
+                // Get / Check Satellite Records
+                // ------------------------------------------------------------------
 
-                // get satellite record for initiator
+                // Refresh the governance cycle 
+                s   := updateGovernanceCycleLimitation(s);
+
+                // Check if the satellite created too much actions this cycle
+                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
+                        Some (_actionsIds)   -> Set.size(_actionsIds)
+                    |   None                -> 0n
+                ];
+                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
+
+                // Get satellite record for initiator
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
                 case satelliteOptView of [
-                      Some (value) -> case value of [
-                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                        | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                      ]
-                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                        Some (value) -> case value of [
+                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
+                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
+                        ]
+                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                const emptyVotersMap  : governanceSatelliteVotersMapType    = map [];
+
+                // ------------------------------------------------------------------
+                // Snapshot Staked MVK Total Supply
+                // ------------------------------------------------------------------
+
+                // Take snapshot of current total staked MVK supply 
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
+                        Some (value) -> value
+                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
+
+                // Calculate staked MVK votes required for approval based on config's approval percentage
+                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
+
+                // ------------------------------------------------------------------
+                // Create new Governance Satellite Action
+                // ------------------------------------------------------------------
+
                 const addressMap      : addressMapType     = map [
                     ("targetContractAddress" : string)   -> targetContractAddress;
                 ];
                 const emptyStringMap  : stringMapType                       = map [];
                 const emptyNatMap     : natMapType                          = map [];
 
-                // get doorman contract address
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // get staked MVK total supply
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                      Some (value) -> value
-                    | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                const stakedMvkRequiredForApproval: nat = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
+                // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.get_sender();
@@ -1859,7 +1903,7 @@ block {
 
                         governanceType                     = "MISTAKEN_TRANSFER_FIX";
                         governancePurpose                  = purpose;
-                        voters                             = emptyVotersMap;
+                        voters                             = set [];
 
                         addressMap                         = addressMap;
                         stringMap                          = emptyStringMap;
@@ -1879,35 +1923,25 @@ block {
                         expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
                     ];
 
+                // ------------------------------------------------------------------
+                // Update Storage
+                // ------------------------------------------------------------------
+
                 const actionId : nat = s.governanceSatelliteCounter;
 
-                // save action to governance satellite ledger
+                // Save the action id for this satellite
+                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
+                        Some (_actionsIds)  -> _actionsIds
+                    |   None                -> set []
+                ];
+                createdActions                  := Set.add(actionId, createdActions);
+                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
+
+                // Save action to governance satellite ledger
                 s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
-                // increment governance satellite counter
+                // Increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
-
-                // create snapshot in governanceSatelliteSnapshotLedger (to be filled with satellite's )
-                const emptyGovernanceSatelliteActionSnapshotMap  : governanceSatelliteSnapshotMapType     = map [];
-                s.governanceSatelliteSnapshotLedger[actionId] := emptyGovernanceSatelliteActionSnapshotMap;
-
-                // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-                const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
-                      Some (value) -> value
-                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                for satelliteAddress -> satellite in map activeSatellites block {
-                    const satelliteSnapshot : actionSatelliteSnapshotType = record [
-                        satelliteAddress      = satelliteAddress;
-                        actionId              = actionId;
-                        stakedMvkBalance      = satellite.stakedMvkBalance;
-                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
-                    ];
-
-                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
-                }; 
 
             }
         | _ -> skip
@@ -2125,7 +2159,10 @@ block {
 
                 // Update governance satellite action map of voters with new vote
                 s.governanceSatelliteVoters[(actionId, Tezos.get_sender())] := voteType;
-                
+
+                // Save voter in the storage
+                _governanceSatelliteActionRecord.voters := Set.add(Tezos.get_sender(), _governanceSatelliteActionRecord.voters);
+
                 // Compute governance satellite action vote totals and execute governance satellite action if enough votes have been gathered
                 case voteType of [
 
