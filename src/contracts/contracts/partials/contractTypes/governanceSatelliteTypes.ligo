@@ -178,7 +178,7 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
     newStatus                   : string;
 ]
 
-type mistakenTransferFixParamsType is [@layout:comb] record [
+type fixMistakenTransferParamsType is [@layout:comb] record [
     targetContractAddress   : address;
     purpose                 : string;
     transferList            : transferActionType;
@@ -218,7 +218,7 @@ type governanceSatelliteLambdaActionType is
     |   LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
 
         // Mistaken Transfer Governance
-    |   LambdaMistakenTransferFix           of mistakenTransferFixParamsType
+    |   LambdaFixMistakenTransfer           of fixMistakenTransferParamsType
 
         // Governance Actions
     |   LambdaVoteForAction                 of voteForActionType
