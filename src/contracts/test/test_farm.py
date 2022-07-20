@@ -134,13 +134,11 @@
 #         # Initial parameters
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -166,14 +164,12 @@
 #         # Initial parameters
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
         
 #         # Init farm operation
 #         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
 #             res = self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
-#                 "blocksPerMinute": blocksPerMinute,
 #                 "forceRewardFromTransfer": False,
 #                 "infinite": False
 #             }).interpret(storage=init_farm_storage, sender=alice)
@@ -199,13 +195,11 @@
 #         # Initial parameters
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -215,7 +209,6 @@
 #             res = self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
-#                 "blocksPerMinute": blocksPerMinute,
 #                 "forceRewardFromTransfer": False,
 #                 "infinite": False
 #             }).interpret(storage=res.storage, source=bob)
@@ -241,14 +234,12 @@
 #         # Initial parameters
 #         totalBlocks     = 0
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
         
 #         # Init farm operation
 #         with self.raisesMichelsonError(error_codes.error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION):
 #             self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
-#                 "blocksPerMinute": blocksPerMinute,
 #                 "forceRewardFromTransfer": False,
 #                 "infinite": False
 #             }).interpret(storage=init_farm_storage, source=bob)
@@ -262,14 +253,12 @@
 #         # Initial parameters
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 0
         
 #         # Init farm operation
 #         with self.raisesMichelsonError(error_codes.error_INVALID_BLOCKS_PER_MINUTE):
 #             self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
-#                 "blocksPerMinute": blocksPerMinute,
 #                 "forceRewardFromTransfer": False,
 #                 "infinite": False
 #             }).interpret(storage=init_farm_storage, source=bob)
@@ -300,13 +289,11 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -328,13 +315,11 @@
 #         secondDeposit               = 50
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -359,13 +344,13 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -387,13 +372,13 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -415,13 +400,13 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmFA2Contract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -443,13 +428,13 @@
 #         firstDepositedAmount        = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -499,13 +484,13 @@
 #         firstWithdraw               = 50
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -530,13 +515,13 @@
 #         firstWithdraw               = 50
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -557,13 +542,13 @@
 #         firstWithdraw               = 200
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -584,13 +569,13 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -619,13 +604,13 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmFA2Contract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -654,13 +639,13 @@
 #         totalDepositAmount          = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -693,13 +678,13 @@
 #         totalWithdrawAmount         = 1
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -732,13 +717,13 @@
 #         totalWithdrawAmount         = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -785,13 +770,13 @@
 #         # Initial values
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -813,13 +798,13 @@
 #         firstDeposit                = 100
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -843,13 +828,13 @@
 #         bobDepositAmount            = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -902,13 +887,13 @@
 #         bobDepositAmount            = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmFA2Contract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -958,13 +943,13 @@
 #         bobDepositAmount            = 4
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1017,13 +1002,13 @@
 #         totalDepositAmount      = 2
 #         totalBlocks             = 100
 #         currentRewardPerBlock   = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1062,13 +1047,13 @@
 #         totalDepositAmount      = 2
 #         totalBlocks             = 100
 #         currentRewardPerBlock   = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1110,13 +1095,13 @@
 #         totalDepositAmount      = 2
 #         totalBlocks             = 100
 #         currentRewardPerBlock   = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1149,13 +1134,13 @@
 #         totalDepositAmount      = 2
 #         totalBlocks             = 100
 #         currentRewardPerBlock   = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1195,13 +1180,13 @@
 #         totalDepositAmount      = 2
 #         totalBlocks             = 100
 #         currentRewardPerBlock   = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1234,13 +1219,13 @@
 #         totalWithdrawAmount     = 1
 #         totalBlocks             = 100
 #         currentRewardPerBlock   = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1282,13 +1267,13 @@
 #         eveDepositAmount            = 10
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1343,13 +1328,13 @@
 #         eveDepositAmount            = 10
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1469,13 +1454,13 @@
 #         withdrawAmount = 1
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1527,13 +1512,13 @@
 #         finalclaimIsPaused = claimIsPaused
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1574,13 +1559,13 @@
 #         withdrawAmount = 1
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1636,13 +1621,13 @@
 #         withdrawAmount = 1
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1703,13 +1688,13 @@
 #         depositAmount = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1742,13 +1727,13 @@
 #         withdrawAmount = 2
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1780,13 +1765,13 @@
 #         claimIsPaused = init_farm_storage['breakGlassConfig']['claimIsPaused']
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob, level=0)
@@ -1822,13 +1807,13 @@
 #         finalclaimIsPaused = claimIsPaused;
 #         totalBlocks                 = 100
 #         currentRewardPerBlock       = 1000
-#         blocksPerMinute = 2
+
         
 #         # Init farm operation
 #         res = self.farmContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -1854,269 +1839,6 @@
 #         print('✅ Non-admin should not be to pause claim entrypoint')
 #         print('claim is paused:')
 #         print(finalclaimIsPaused)
-    
-#     ###
-#     # %updateBlocksPerMinute
-#     ##
-#     def test_70_council_should_increase_blocks_per_minute_farm(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-        
-#         # Initial values
-#         totalBlocks                 = 10000
-#         currentRewardPerBlock       = self.MVK(500)
-#         blocksPerMinute             = 2
-#         newBlocksPerMinute          = 3
-#         totalRewards                = totalBlocks * currentRewardPerBlock
-
-#         # Init farm operation
-#         res = self.farmContract.initFarm({
-#             "currentRewardPerBlock": currentRewardPerBlock,
-#             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
-#             "forceRewardFromTransfer": False,
-#             "infinite": False
-#         }).interpret(storage=init_farm_storage, source=bob)
-#         lastBlockUpdate = res.storage['lastBlockUpdate']
-
-#         # Some tests operations to see if the total rewards are affected
-#         res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+2000)
-#         res = self.farmContract.deposit(self.MVK()).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+5000)
-#         res = self.farmContract.withdraw(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+5500)
-#         res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+6000, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-#         # Operation
-#         res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, sender=councilAddress, level=lastBlockUpdate+6000)
-#         storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-#         storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-#         storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-#         storageTotalRewards = res.storage['config']['plannedRewards']["totalRewards"]
-
-#         # Some tests operations to see if the total rewards are affected
-#         res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+6000, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         bobClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-#         res = self.farmContract.deposit(self.MVK(8)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+10200)
-#         res = self.farmContract.withdraw(self.MVK()).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+11000)
-
-#         # # Final claims
-#         res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+storageTotalBlocks, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         aliceClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-#         res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+storageTotalBlocks, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         bobClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-#         res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+storageTotalBlocks, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         eveClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-#         totalClaim = aliceClaim + bobClaim + eveClaim
-
-#         self.assertEqual(totalRewards, pytest.approx(totalClaim,0.01))
-#         self.assertEqual(totalRewards, storageTotalRewards)
-#         self.assertEqual(newBlocksPerMinute, storageBlocksPerMinute)
-#         self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
-#         self.assertNotEqual(totalBlocks, storageTotalBlocks)
-
-#         print('----')
-#         print('✅ Council should be to call updateBlocksPerMinute entrypoint')
-#         print('blocksPerMinute:')
-#         print(storageBlocksPerMinute)
-#         print('new totalBlocks:')
-#         print(storageTotalBlocks)
-#         print('new currentRewardPerBlock:')
-#         print(storageRewardPerBlock)
-#         print('total rewards claim:')
-#         print(totalClaim)
-
-#     def test_71_council_should_decrease_blocks_per_minute_farm(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-        
-#         # Initial values
-#         totalBlocks                 = 10000
-#         currentRewardPerBlock       = self.MVK(500)
-#         blocksPerMinute             = 2
-#         newBlocksPerMinute          = 1
-#         totalRewards                = totalBlocks * currentRewardPerBlock
-
-#         # Init farm operation
-#         res = self.farmContract.initFarm({
-#             "currentRewardPerBlock": currentRewardPerBlock,
-#             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
-#             "forceRewardFromTransfer": False,
-#             "infinite": False
-#         }).interpret(storage=init_farm_storage, source=bob)
-#         lastBlockUpdate = res.storage['lastBlockUpdate']
-
-#         # Some tests operations to see if the total rewards are affected
-#         res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+2000)
-#         res = self.farmContract.deposit(self.MVK(1)).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+3000)
-#         res = self.farmContract.withdraw(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+4000)
-#         res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+4200, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-#         # Operation
-#         res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, sender=councilAddress, level=lastBlockUpdate+4200)
-#         storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-#         storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-#         storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-#         storageTotalRewards = res.storage['config']['plannedRewards']["totalRewards"]
-
-#         # Some tests operations to see if the total rewards are affected
-#         res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+4200, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         bobClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-#         res = self.farmContract.deposit(self.MVK(8)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4500)
-#         res = self.farmContract.withdraw(self.MVK(1)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4600)
-
-#         # Final claims
-#         res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+storageTotalBlocks, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         aliceClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-#         res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+storageTotalBlocks, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         bobClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-#         res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+storageTotalBlocks, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         eveClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-#         totalClaim = aliceClaim + bobClaim + eveClaim
-
-#         self.assertEqual(totalRewards, pytest.approx(totalClaim,0.01))
-#         self.assertEqual(totalRewards, storageTotalRewards)
-#         self.assertEqual(newBlocksPerMinute, storageBlocksPerMinute)
-#         self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
-#         self.assertNotEqual(totalBlocks, storageTotalBlocks)
-
-#         print('----')
-#         print('✅ Council should be to call updateBlocksPerMinute entrypoint')
-#         print('blocksPerMinute:')
-#         print(storageBlocksPerMinute)
-#         print('new totalBlocks:')
-#         print(storageTotalBlocks)
-#         print('new currentRewardPerBlock:')
-#         print(storageRewardPerBlock)
-#         print('total rewards claim:')
-#         print(totalClaim)
-
-#     def test_72_non_council_update_blocks_per_minute(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-        
-#         # Initial values
-#         totalBlocks                 = 100
-#         currentRewardPerBlock       = 1000
-#         blocksPerMinute             = 2
-#         newBlocksPerMinute          = 3
-
-#         # Init farm operation
-#         res = self.farmContract.initFarm({
-#             "currentRewardPerBlock": currentRewardPerBlock,
-#             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
-#             "forceRewardFromTransfer": False,
-#             "infinite": False
-#         }).interpret(storage=init_farm_storage, source=bob)
-
-#         # Operation
-#         res = self.farmContract.updateWhitelistContracts("council", bob).interpret(storage=res.storage, sender=bob);
-#         res = self.farmContract.updateWhitelistContracts("farmFactory", bob).interpret(storage=res.storage, sender=bob);
-#         with self.raisesMichelsonError(error_codes.error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED):
-#             res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=alice)
-#             storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-#             storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-#             storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-#             self.assertEqual(blocksPerMinute,storageBlocksPerMinute)
-#             self.assertEqual(currentRewardPerBlock,storageRewardPerBlock)
-#             self.assertEqual(totalBlocks,storageTotalBlocks)
-#         print('----')
-#         print('✅ Non-council should not be to call updateBlocksPerMinute entrypoint')
-#         print('blocksPerMinute:')
-#         print(blocksPerMinute)
-
-#     def test_73_council_update_blocks_per_minute_farm_non_init(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-        
-#         # Initial values
-#         newBlocksPerMinute          = 3
-
-#         # Operation
-#         with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
-#             res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=init_farm_storage, sender=councilAddress)
-#             storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-#             storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-#             storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-#             self.assertEqual(0,storageBlocksPerMinute)
-#             self.assertEqual(0,storageRewardPerBlock)
-#             self.assertEqual(0,storageTotalBlocks)
-#         print('----')
-#         print('✅ Council should not be to call updateBlocksPerMinute entrypoint if the farm has not yet been initiated')
-#         print('blocksPerMinute:')
-#         print(0)
-
-#     def test_74_update_blocks_per_minute_infinite_farm(self):
-#         init_farm_storage = deepcopy(self.farmStorage)
-        
-#         # Initial values
-#         totalBlocks                         = 0
-#         currentRewardPerBlock               = self.MVK(500)
-#         blocksPerMinute                     = 2
-#         newBlocksPerMinute                  = 3
-
-#         # Reward proportionnality testing
-#         expectedRewardsForFiveMinutes       = 10 * currentRewardPerBlock # For 2BPM
-#         blocksForTwoMinutes                 = 4 # For 2BPM
-#         blocksForThreeMinutes               = 9 # For 9BPM
-
-#         # Init farm operation
-#         res = self.farmContract.initFarm({
-#             "currentRewardPerBlock": currentRewardPerBlock,
-#             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
-#             "forceRewardFromTransfer": False,
-#             "infinite": True
-#         }).interpret(storage=init_farm_storage, source=bob)
-#         lastBlockUpdate = res.storage['lastBlockUpdate']
-
-#         # Some tests operations to see if the total rewards are affected
-#         res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-
-#         # Operation
-#         res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, sender=councilAddress, level=lastBlockUpdate+blocksForTwoMinutes)
-#         storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-#         storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-
-#         # Some tests operations to see if the total rewards are affected
-#         res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+blocksForThreeMinutes+blocksForTwoMinutes, view_results={
-#             governanceAddress+"%getGeneralContractOpt": doormanAddress,
-#         });
-#         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-#         self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
-#         self.assertEqual(aliceClaim, pytest.approx(expectedRewardsForFiveMinutes, 0.01))
-
-#         print('----')
-#         print('✅ Infinite farm should be to update its blocks per minute')
-#         print('blocksPerMinute:')
-#         print(storageBlocksPerMinute)
-#         print('new currentRewardPerBlock:')
-#         print(storageRewardPerBlock)
-#         print('total rewards claim:')
-#         print(aliceClaim)
 
 #     ##
 #     # %closeFarm
@@ -2127,14 +1849,14 @@
 #         # Initial values
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
+
 #         userDepositAmount          = 2
 
 #         # Init farm operation
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -2191,14 +1913,14 @@
 #         # Initial values
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
+
 #         userDepositAmount          = 2
 
 #         # Init farm operation
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -2250,14 +1972,14 @@
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
 #         newRewardPerBlock = 2000
-#         blocksPerMinute = 2
+
 #         userDepositAmount          = 2
 
 #         # Init farm operation
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -2304,14 +2026,14 @@
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
 #         newRewardPerBlock = 500
-#         blocksPerMinute = 2
+
 #         userDepositAmount          = 2
 
 #         # Init farm operation
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -2358,14 +2080,14 @@
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
 #         newRewardPerBlock = 2000
-#         blocksPerMinute = 2
+
 #         userDepositAmount          = 2
 
 #         # Init farm operation
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -2412,14 +2134,14 @@
 #         totalBlocks     = 100
 #         currentRewardPerBlock  = 1000
 #         newRewardPerBlock = 2000
-#         blocksPerMinute = 2
+
 #         userDepositAmount          = 2
 
 #         # Init farm operation
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
 #         }).interpret(storage=init_farm_storage, source=bob)
@@ -2464,7 +2186,7 @@
 #         # Initial parameters
 #         totalBlocks     = 0
 #         currentRewardPerBlock  = 1000
-#         blocksPerMinute = 2
+
 #         aliceDepositAmount          = 2
 #         bobDepositAmount            = 2
 #         totalBlocks                 = 100
@@ -2474,7 +2196,7 @@
 #         res = self.farmInfiniteContract.initFarm({
 #             "currentRewardPerBlock": currentRewardPerBlock,
 #             "totalBlocks": totalBlocks,
-#             "blocksPerMinute": blocksPerMinute,
+
 #             "forceRewardFromTransfer": False,
 #             "infinite": True
 #         }).interpret(storage=init_infinite_farm_storage, source=bob)
