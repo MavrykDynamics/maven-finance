@@ -123,6 +123,39 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  mistakenTransfer lambda *)
+function lambdaMistakenTransfer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case governanceSatelliteLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrSelf(s);
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -160,6 +193,9 @@ block {
                 // init params
                 const satelliteToBeSuspended  : address = suspendSatelliteParams.satelliteToBeSuspended;
                 const purpose                 : string  = suspendSatelliteParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -243,6 +279,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -258,6 +295,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
+
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -350,6 +389,9 @@ block {
                 const satelliteToBeUnsuspended  : address = unsuspendSatelliteParams.satelliteToBeUnsuspended;
                 const purpose                   : string  = unsuspendSatelliteParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -432,6 +474,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -448,6 +491,8 @@ block {
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
 
+                    transferList                       = emptyTransferList;
+
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
                     passVoteStakedMvkTotal             = 0n;
@@ -460,7 +505,7 @@ block {
                     expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
 
                 ];
-
+                
                 // ------------------------------------------------------------------
                 // Update Storage
                 // ------------------------------------------------------------------
@@ -538,6 +583,9 @@ block {
                 // init params
                 const satelliteToBeBanned      : address = banSatelliteParams.satelliteToBeBanned;
                 const purpose                  : string  = banSatelliteParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -621,6 +669,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -637,6 +686,8 @@ block {
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
 
+                    transferList                       = emptyTransferList;
+                    
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
                     passVoteStakedMvkTotal             = 0n;
@@ -728,6 +779,9 @@ block {
                 const satelliteToBeUnbanned    : address = unbanSatelliteParams.satelliteToBeUnbanned;
                 const purpose                  : string  = unbanSatelliteParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -810,6 +864,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -825,6 +880,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
+                        
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -924,6 +981,9 @@ block {
                 // init params
                 const satelliteAddress    : address = removeAllSatelliteOraclesParams.satelliteAddress;
                 const purpose             : string  = removeAllSatelliteOraclesParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
@@ -1007,6 +1067,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -1022,6 +1083,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
+                    
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -1115,6 +1178,9 @@ block {
                 const aggregatorAddress  : address = addOracleToAggregatorParams.aggregatorAddress;
                 const purpose            : string  = addOracleToAggregatorParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -1198,6 +1264,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
             
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -1213,6 +1280,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
+                        
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -1306,6 +1375,9 @@ block {
                 const aggregatorAddress    : address = removeOracleInAggregatorParams.aggregatorAddress;
                 const purpose              : string  = removeOracleInAggregatorParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -1389,6 +1461,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -1404,6 +1477,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
+
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -1505,6 +1580,9 @@ block {
                 const maintainerAddress    : address  = setAggregatorMaintainerParams.maintainerAddress;
                 const purpose              : string   = setAggregatorMaintainerParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -1578,6 +1656,7 @@ block {
                 ];
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -1593,6 +1672,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = emptyStringMap;
                     natMap                             = emptyNatMap;
+
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -1736,6 +1817,9 @@ block {
                 const status               : string  = updateAggregatorStatusParams.status;
                 const purpose              : string  = updateAggregatorStatusParams.purpose;
 
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
                 // ------------------------------------------------------------------
                 // Get necessary contracts and info
                 // ------------------------------------------------------------------
@@ -1810,6 +1894,7 @@ block {
                     ("status" : string)              -> status
                 ];
                 const emptyNatMap       : natMapType         = map [];
+                const emptyTransferList : transferActionType = list [];
 
                 // Create new governance satellite action record
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -1825,6 +1910,8 @@ block {
                     addressMap                         = addressMap;
                     stringMap                          = stringMap;
                     natMap                             = emptyNatMap;
+                    
+                    transferList                       = emptyTransferList;
 
                     yayVoteStakedMvkTotal              = 0n;
                     nayVoteStakedMvkTotal              = 0n;
@@ -1889,6 +1976,150 @@ block {
 
 // ------------------------------------------------------------------------------
 // Aggregator Governance Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Mistaken Transfer Governance Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(*  fixMistakenTransfer lambda *)
+function lambdaFixMistakenTransfer(const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType; var s : governanceSatelliteStorageType) : return is
+block {
+    
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    
+    case governanceSatelliteLambdaAction of [
+        | LambdaFixMistakenTransfer(fixMistakenTransferParams) -> {
+                
+                // init params
+                const targetContractAddress    : address                = fixMistakenTransferParams.targetContractAddress;
+                const transferList             : transferActionType     = fixMistakenTransferParams.transferList;
+                const purpose                  : string                 = fixMistakenTransferParams.purpose;
+
+                // Validate inputs
+                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
+                // get delegation address
+                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
+                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get voting power ratio
+                const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);
+                const votingPowerRatio: nat                     = case configView of [
+                        Some (_optionConfig) -> _optionConfig.delegationRatio
+                    |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                // get satellite record for initiator
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
+                case satelliteOptView of [
+                      Some (value) -> case value of [
+                          Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
+                        | None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
+                      ]
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                const emptyVotersMap  : governanceSatelliteVotersMapType    = map [];
+                const addressMap      : addressMapType     = map [
+                    ("targetContractAddress" : string)   -> targetContractAddress;
+                ];
+                const emptyStringMap  : stringMapType                       = map [];
+                const emptyNatMap     : natMapType                          = map [];
+
+                // get doorman contract address
+                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress: address = case doormanAddressGeneralContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // get staked MVK total supply
+                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
+                      Some (value) -> value
+                    | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
+
+                const stakedMvkRequiredForApproval: nat = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
+
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
+
+                        initiator                          = Tezos.get_sender();
+                        status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+                        executed                           = False;
+
+                        governanceType                     = "MISTAKEN_TRANSFER_FIX";
+                        governancePurpose                  = purpose;
+                        voters                             = emptyVotersMap;
+
+                        addressMap                         = addressMap;
+                        stringMap                          = emptyStringMap;
+                        natMap                             = emptyNatMap;
+
+                        transferList                       = transferList;
+
+                        yayVoteStakedMvkTotal              = 0n;
+                        nayVoteStakedMvkTotal              = 0n;
+                        passVoteStakedMvkTotal             = 0n;
+
+                        snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
+                        stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
+                        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+
+                        startDateTime                      = Tezos.get_now();            
+                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
+                    ];
+
+                const actionId : nat = s.governanceSatelliteCounter;
+
+                // save action to governance satellite ledger
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
+
+                // increment governance satellite counter
+                s.governanceSatelliteCounter := actionId + 1n;
+
+                // create snapshot in governanceSatelliteSnapshotLedger (to be filled with satellite's )
+                const emptyGovernanceSatelliteActionSnapshotMap  : governanceSatelliteSnapshotMapType     = map [];
+                s.governanceSatelliteSnapshotLedger[actionId] := emptyGovernanceSatelliteActionSnapshotMap;
+
+                // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
+                      Some (value) -> value
+                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                for satelliteAddress -> satellite in map activeSatellites block {
+                    const satelliteSnapshot : actionSatelliteSnapshotType = record [
+                        satelliteAddress      = satelliteAddress;
+                        actionId              = actionId;
+                        stakedMvkBalance      = satellite.stakedMvkBalance;
+                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
+                    ];
+
+                    s := setSatelliteSnapshot(satelliteSnapshot, votingPowerRatio, s);
+                }; 
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Mistaken Transfer Governance Lambdas End
 // ------------------------------------------------------------------------------
 
 
@@ -2513,6 +2744,29 @@ block {
                                     // Update aggregator status
                                     aggregatorRecord.status               := aggregatorNewStatus;
                                     s.aggregatorLedger[aggregatorAddress] := aggregatorRecord;
+
+                                } else skip;
+
+                                // Governance: Mistaken Transfer Fix
+                                if _governanceSatelliteActionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then block {
+
+                                    // get parameters
+                                    const targetContractAddress : address = case _governanceSatelliteActionRecord.addressMap["targetContractAddress"] of [
+                                         Some(_address) -> _address
+                                       | None -> failwith(error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND)
+                                    ];
+
+                                    const transferList : transferActionType = _governanceSatelliteActionRecord.transferList;
+
+                                    // call mistaken transfer entrypoint
+                                    const mistakenTransferOperation : operation = Tezos.transaction(
+                                        transferList,
+                                        0tez,
+                                        getMistakenTransferEntrypoint(targetContractAddress)
+                                    );
+
+                                    operations := mistakenTransferOperation # operations;
+                                    
 
                                 } else skip;
 
