@@ -85,7 +85,7 @@ type proposalRecordType is [@layout:comb] record [
     executed                          : bool;                    // true / false
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
-    claimReady                        : bool;
+    rewardClaimReady                  : bool;
   
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
@@ -218,7 +218,7 @@ type updateSatelliteSnapshotType is [@layout:comb] record [
     delegationRatio         : nat;
 ]
 
-type claimProposalRewardsType is [@layout:comb] record [
+type distributeProposalRewardsType is [@layout:comb] record [
     satelliteAddress        : address;
     proposalIds             : set(actionIdType);
 ]
@@ -258,7 +258,7 @@ type governanceLambdaActionType is
     |   LambdaExecuteProposal                       of (unit)
     |   LambdaProcessProposalPayment                of actionIdType
     |   LambdaProcessProposalSingleData             of (unit)
-    |   LambdaClaimProposalRewards                  of claimProposalRewardsType
+    |   LambdaDistributeProposalRewards             of distributeProposalRewardsType
     |   LambdaDropProposal                          of actionIdType
 
 

@@ -58,6 +58,7 @@ export const governanceStorage: governanceStorageType = {
     generalContracts        : MichelsonMap.fromLiteral({}),
 
     proposalLedger          : MichelsonMap.fromLiteral({}),
+    proposalRewards         : MichelsonMap.fromLiteral({}),
     snapshotLedger          : MichelsonMap.fromLiteral({}),
 
     // startLevel              : new BigNumber(1),
