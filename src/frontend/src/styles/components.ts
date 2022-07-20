@@ -11,6 +11,41 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   min-height: 100vh;
   max-width: 1170px;
   padding-top: 32px;
+
+  .oracle-list-wrapper {
+    position: relative;
+
+    .see-all-link{
+      display: flex;
+      align-items: center;
+      position: absolute;
+      right: 0;
+      top: 15px;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      text-decoration-line: underline;
+      color: #8D86EB;
+      cursor: pointer;
+      transition: 0.5s all;
+
+      &:hover {
+        color: #86d4c9;
+        svg {
+          stroke: #86d4c9;
+        }
+      }
+
+      svg {
+        margin-left: 5px;
+        height: 13px;
+        width: 18px;
+        transform: rotate(180deg);
+        stroke: #8D86EB;
+        transition: 0.5s all;
+      }
+    }
+  }
 `
 
 export const GridPage = styled.div`
@@ -77,38 +112,5 @@ export const PageContent = styled.section`
   align-items: start;
   padding-top: 30px;
 
-  .oracle-list-wrapper {
-    position: relative;
-
-    .see-all-link{
-      display: flex;
-      align-items: center;
-      position: absolute;
-      right: 0;
-      top: 15px;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 21px;
-      text-decoration-line: underline;
-      color: #8D86EB;
-      cursor: pointer;
-      transition: 0.5s all;
-
-      &:hover {
-        color: #86d4c9;
-        svg {
-          stroke: #86d4c9;
-        }
-      }
-
-      svg {
-        margin-left: 5px;
-        height: 13px;
-        width: 18px;
-        transform: rotate(180deg);
-        stroke: #8D86EB;
-        transition: 0.5s all;
-      }
-    }
-  }
+  
 `

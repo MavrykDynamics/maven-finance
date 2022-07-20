@@ -27,10 +27,15 @@ import {
   DataFeedsTitle,
   DataFeedSubTitleText,
   DataFeedValueText,
+  UsersListCardsWrapper,
+  UsersListWrapper,
+  UserSmallCard,
 } from './DataFeedsDetails.style'
 import { Page } from 'styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
+import { usersData } from 'pages/UsersOracles/users.const'
+import { useHistory } from 'react-router'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -56,6 +61,8 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
     () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
     [oracles, arrOfOracleRecords],
   )
+
+  const history = useHistory()
 
   return feed ? (
     <Page>
@@ -206,6 +213,28 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
       ) : (
         emptyContainer
       )}
+
+      <UsersListWrapper className="oracle-list-wrapper">
+        <GovRightContainerTitleArea>
+          <h1>Users</h1>
+        </GovRightContainerTitleArea>
+
+        <div className="see-all-link" onClick={() => history.push('/users')}>
+          See all users
+          <svg>
+            <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
+          </svg>
+        </div>
+
+        <UsersListCardsWrapper>
+          {usersData.map((user) => (
+            <UserSmallCard>
+              <div className="img-wrapper">logo</div>
+              {user.name}
+            </UserSmallCard>
+          ))}
+        </UsersListCardsWrapper>
+      </UsersListWrapper>
     </Page>
   ) : null
 }

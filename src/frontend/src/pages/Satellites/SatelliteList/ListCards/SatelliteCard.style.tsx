@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, cyanColor, skyColor, royalPurpleColor, headerColor, boxShadowColor } from 'styles'
+import { Card, cyanColor, headerColor, boxShadowColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
@@ -9,6 +9,11 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
   grid-template-columns: repeat(4, 1fr);
   padding: 16px 40px;
   transition: 0.5s all;
+
+  &.userFeed {
+    grid-template-columns: repeat(5, auto);
+    padding: 25px 40px;
+  }
 
   .item {
     h5 {

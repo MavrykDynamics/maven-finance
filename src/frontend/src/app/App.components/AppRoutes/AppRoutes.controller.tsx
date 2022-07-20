@@ -25,6 +25,8 @@ import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
 import Satellites from 'pages/Satellites/Satellites.controller'
 import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
 import DataFeedDetails from 'pages/DataFeeds/details/DataFeedsDetails.controler'
+import Users from 'pages/UsersOracles/Users.controller'
+import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -80,6 +82,12 @@ export const AppRoutes = () => {
       </Route>
       <Route exact path="/mavryk-council">
         <Council />
+      </Route>
+      <Route exact path="/users">
+        <Users />
+      </Route>
+      <Route exact path="/user-details/:userId/">
+        <UserDetails />
       </Route>
       <ProtectedRoute
         path="/submit-proposal"
