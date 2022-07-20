@@ -1144,3 +1144,13 @@
 
 [@inline] const error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                                                          = 829n;
 [@inline] const error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                                                       = 829n;
+
+
+// ------------------------------------------------------------------------------
+//
+// Token Pool Controller Errors
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_TOKEN_POOL_CONTRACT_NOT_FOUND                                                                     = 829n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 829n;

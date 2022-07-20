@@ -44,7 +44,7 @@ type delegationAction is
         // Pause / Break Glass Entrypoints
     |   PauseAll                          of (unit)
     |   UnpauseAll                        of (unit)
-    |   TogglePauseEntrypoint            of delegationTogglePauseEntrypointType
+    |   TogglePauseEntrypoint             of delegationTogglePauseEntrypointType
 
         // Delegation Entrypoints
     |   DelegateToSatellite               of delegateToSatelliteType    
@@ -778,8 +778,6 @@ block{
 
 } with response
 
-
-
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1012,7 +1010,7 @@ block{
             // Pause / Break Glass Entrypoints
         |   PauseAll(_parameters)                         -> pauseAll(s)
         |   UnpauseAll(_parameters)                       -> unpauseAll(s)
-        |   TogglePauseEntrypoint(parameters)            -> togglePauseEntrypoint(parameters, s)
+        |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
         
             // Delegation Entrypoints
         |   DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)

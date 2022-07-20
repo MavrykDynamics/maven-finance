@@ -262,7 +262,7 @@ function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storag
 block {
 
   // check sender is from cfmm contract
-  if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+  if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
   const quantity        : int      = mintOrBurnParams.quantity;
   const targetAddress   : address  = mintOrBurnParams.target;

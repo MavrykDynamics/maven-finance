@@ -84,13 +84,13 @@ const oneMonthBlocks : int = (s.config.blocksPerMinute * 60 * 24) * 30;
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAdmin(var s : tokenSaleStorage) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.self_address) then unit
+    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
 
 
@@ -280,10 +280,10 @@ block {
       else if Tezos.now > s.config.whitelistStartTimestamp then block {
 
           // check if user is whitelisted
-          if checkInWhitelistAddresses(Tezos.sender, s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
+          if checkInWhitelistAddresses(Tezos.get_sender(), s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
 
           // find or create whitelist user token sale record
-          var whitelistUserTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.sender] of [
+          var whitelistUserTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.get_sender()] of [
               Some(_record) -> _record
             | None           -> record [
                 amountBoughtInTez   = 0n;
@@ -305,7 +305,7 @@ block {
       else skip;
 
       // find or create user token sale record
-      var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.sender] of [
+      var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.get_sender()] of [
           Some(_record) -> _record
         | None           -> record [
             amountBoughtInTez   = 0n;
@@ -330,7 +330,7 @@ block {
       // update token sale ledger
       userTokenSaleRecord.amount      := userTokenSaleRecord.amountBoughtInTez + amountInTez;
       userTokenSaleRecord.lastBought  := Tezos.now;
-      s.tokenSaleLedger[Tezos.sender] := userTokenSaleRecord;
+      s.tokenSaleLedger[Tezos.get_sender()] := userTokenSaleRecord;
 
 } with (operations, s)
 
@@ -343,7 +343,7 @@ block {
       checkTokenSaleHasEnded(s);
 
       // init parameters
-      const buyer                  : address    = Tezos.sender;
+      const buyer                  : address    = Tezos.get_sender();
       const dailyYield             : nat        = s.config.dailyYield;
       const overallAmountTotal     : nat        = s.overallAmountTotal;
       const tokenPerTez            : nat        = s.tokenPerTez;
@@ -356,7 +356,7 @@ block {
       const endVestingTimestamp    : timestamp  = s.endVestingTimestamp;
       
       const today                  : timestamp  = Tezos.now;
-      const todayBlocks            : nat        = Tezos.level;
+      const todayBlocks            : nat        = Tezos.get_level();
 
       // date at which any user can make the first claim
       // const firstClaimPeriod : timestamp = tokenSaleEndTimestamp * (vestingInMonths * oneMonthInSeconds);

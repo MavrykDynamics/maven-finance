@@ -145,6 +145,8 @@ type tokenPoolAction is
     |   AddLiquidity                  of addLiquidityActionType
     |   RemoveLiquidity               of removeLiquidityActionType 
 
+    |   Transfer                      of transferActionType
+
 const noOperations : list (operation) = nil;
 type return is list (operation) * tokenPoolStorage
 
@@ -167,17 +169,17 @@ function ceildiv(const numerator : nat; const denominator : nat) is abs( (- nume
 
 // helper function - check sender is admin
 function checkSenderIsAdmin(var s : tokenPoolStorage) : unit is
-  if (Tezos.sender = s.admin) then unit
+  if (Tezos.get_sender() = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function - check sender is from cash token address
 function checkSenderIsCashTokenAddress(var s : tokenPoolStorage) : unit is
-  if (Tezos.sender = s.cashTokenAddress) then unit
+  if (Tezos.get_sender() = s.cashTokenAddress) then unit
   else failwith("Error. Sender must be from the cash token address.");
 
 // helper function - check sender is from token address
 function checkSenderIsTokenAddress(var s : tokenPoolStorage) : unit is
-  if (Tezos.sender = s.tokenAddress) then unit
+  if (Tezos.get_sender() = s.tokenAddress) then unit
   else failwith("Error. Sender must be from the token address.");
 
 // helper function - check that no tez is sent
@@ -187,7 +189,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 // helper function - check if call is from an implicit account
 function checkFromImplicitAccount(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.source) then unit
+    if (Tezos.get_sender() = Tezos.source) then unit
     else failwith("Error. Call must be from an implicit account.");
 
 
@@ -257,44 +259,6 @@ function getOnPriceActionInUsdmEntrypoint(const tokenContractAddress : address) 
   | None -> (failwith("Error. OnPriceAction entrypoint in token contract not found") : contract(onPriceActionType))
   ]
 
-
-
-// ----- Transfer Helper Functions Begin -----
-
-function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
-
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenContractAddress: address): operation is
-    block{
-        const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
-
-        const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            ];
-    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: fa2TransferType = list[
-            record[
-                from_ = from_;
-                txs = list[
-                    record[
-                        to_      = to_;
-                        token_id = tokenId;
-                        amount   = tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
-            Some (c) -> c
-        |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        ];
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function mintOrBurnLpToken(const target : address; const quantity : int; const lpTokenAddress : address; var s : tokenPoolStorage) : operation is 
 block {
@@ -396,8 +360,8 @@ block {
 
     // send token from sender to token pool
     const sendTokenToPoolOperation : operation = transferFa2Token(
-        Tezos.sender,               // from_
-        Tezos.self_address,         // to_
+        Tezos.get_sender(),               // from_
+        Tezos.get_self_address(),         // to_
         tokensDeposited,            // token amount
         tokenId,                    // token id
         tokenContractAddress        // token contract address
@@ -449,13 +413,13 @@ block {
     const newTokenPool : nat = abs(tokenPool - tokensWithdrawn);
 
     // burn LP Token operation
-    const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.sender, (0 - lpTokensBurned), lpTokenContractAddress, s);
+    const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.get_sender(), (0 - lpTokensBurned), lpTokenContractAddress, s);
     operations := burnLpTokenOperation # operations;
 
     // send withdrawn tokens to sender 
     const withdrawnTokensToSenderOperation : operation = transferFa2Token(
-        Tezos.self_address,     // from_
-        Tezos.sender,           // to_
+        Tezos.get_self_address(),     // from_
+        Tezos.get_sender(),           // to_
         tokensWithdrawn,        // token amount
         tokenId,                // token id
         tokenContractAddress    // token contract address
@@ -472,6 +436,54 @@ block {
 } with (operations, s)
 
 
+
+(* transfer entrypoint *)
+function transfer(const transferTokenParams : transferActionType; var s : treasuryStorageType) : return is 
+block {
+    
+    // Steps Overview:
+    // 1. Check that sender is in whitelist (governance)
+    // 2. Send transfer operation from Treasury account to user account
+
+    if not checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+    else skip;
+
+    // break glass check
+    checkTransferIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    // const txs : list(transferDestinationType)   = transferTokenParams.txs;
+    const txs : list(transferDestinationType)   = transferTokenParams;
+    
+    const whitelistTokenContracts   : whitelistTokenContractsType   = s.whitelistTokenContracts;
+
+    function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
+    block {
+
+        const token        : tokenType        = destination.token;
+        const to_          : ownerType        = destination.to_;
+        const amt          : tokenAmountType  = destination.amount;
+        const from_        : address          = Tezos.get_self_address(); // token pool
+        
+        const transferTokenOperation : operation = case token of [
+            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
+            | Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
+            | Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+        ];
+
+        accumulator := transferTokenOperation # accumulator;
+
+    } with accumulator;
+
+    const emptyOperation : list(operation) = list[];
+    operations := List.fold(transferAccumulator, txs, emptyOperation);
+
+} with (operations, s)
+
+
+
+
 function main (const action : tokenPoolAction; const s : tokenPoolStorage) : return is 
 
     case action of [
@@ -481,6 +493,8 @@ function main (const action : tokenPoolAction; const s : tokenPoolStorage) : ret
 
         |   AddLiquidity(parameters)                  -> addLiquidity(parameters, s)
         |   RemoveLiquidity(parameters)               -> removeLiquidity(parameters, s)
+
+        |   Transfer(parameters)                      -> transfer(parameters, s)
         
         
     ]
