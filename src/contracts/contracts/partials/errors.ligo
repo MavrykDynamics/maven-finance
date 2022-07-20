@@ -28,32 +28,33 @@
 [@inline] const error_ONLY_PROPOSER_ALLOWED                                                                             = 18n;
 [@inline] const error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED                                 = 19n;
 
-[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                                                        = 20n;
-[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                                                   = 21n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                                                                    = 20n;
+[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                                                               = 21n;
 [@inline] const error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND                                                                   = 22n;
 [@inline] const error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND                                                           = 23n;
 [@inline] const error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                                                                  = 24n;
-[@inline] const error_PAUSE_ALL_ENTRYPOINT_NOT_FOUND                                                                    = 25n;
-[@inline] const error_UNPAUSE_ALL_ENTRYPOINT_NOT_FOUND                                                                  = 26n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                                                              = 27n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                   = 28n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                     = 29n;
-[@inline] const error_SET_NAME_ENTRYPOINT_NOT_FOUND                                                                     = 30n;
-[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND                                             = 31n;
-[@inline] const error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND                                                     = 32n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                                                    = 33n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                                                     = 34n;
+[@inline] const error_PAUSE_ALL_ENTRYPOINT_NOT_FOUND                                                                    = 24n;
+[@inline] const error_UNPAUSE_ALL_ENTRYPOINT_NOT_FOUND                                                                  = 24n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                                                              = 25n;
+[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                   = 26n;
+[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                     = 27n;
+[@inline] const error_SET_NAME_ENTRYPOINT_NOT_FOUND                                                                     = 28n;
+[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND                                             = 29n;
+[@inline] const error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_NOT_FOUND                                                        = 30n;
+[@inline] const error_MISTAKEN_TRANSFER_ENTRYPOINT_NOT_FOUND                                                            = 32n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                                                    = 31n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                                                     = 32n;
 
-[@inline] const error_COUNCIL_SIZE_EXCEEDED                                                                             = 35n;
-[@inline] const error_COUNCIL_MEMBER_ALREADY_EXISTS                                                                     = 36n;
-[@inline] const error_COUNCIL_MEMBER_NOT_FOUND                                                                          = 37n;
-[@inline] const error_COUNCIL_THRESHOLD_ERROR                                                                           = 38n;
-[@inline] const error_COUNCIL_ACTION_NOT_FOUND                                                                          = 39n;
-[@inline] const error_COUNCIL_ACTION_EXECUTED                                                                           = 40n;
-[@inline] const error_COUNCIL_ACTION_FLUSHED                                                                            = 41n;
-[@inline] const error_COUNCIL_ACTION_EXPIRED                                                                            = 42n;
-[@inline] const error_COUNCIL_ACTION_PARAMETER_NOT_FOUND                                                                = 43n;
-[@inline] const error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER                                                           = 44n;
+[@inline] const error_COUNCIL_SIZE_EXCEEDED                                                                             = 33n;
+[@inline] const error_COUNCIL_MEMBER_ALREADY_EXISTS                                                                     = 34n;
+[@inline] const error_COUNCIL_MEMBER_NOT_FOUND                                                                          = 35n;
+[@inline] const error_COUNCIL_THRESHOLD_ERROR                                                                           = 36n;
+[@inline] const error_COUNCIL_ACTION_NOT_FOUND                                                                          = 37n;
+[@inline] const error_COUNCIL_ACTION_EXECUTED                                                                           = 38n;
+[@inline] const error_COUNCIL_ACTION_FLUSHED                                                                            = 39n;
+[@inline] const error_COUNCIL_ACTION_EXPIRED                                                                            = 40n;
+[@inline] const error_COUNCIL_ACTION_PARAMETER_NOT_FOUND                                                                = 41n;
+[@inline] const error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER                                                           = 42n;
 
 
 
@@ -932,23 +933,24 @@
 [@inline] const error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED                                               = 669n;
 
 // CONTRACT SPECIFIC ERRORS
-[@inline] const error_ONLY_INITIATOR_CAN_DROP_ACTION                                                                    = 670n;
-[@inline] const error_GOVERNANCE_SATELLITE_ACTION_DROPPED                                                               = 671n;
-[@inline] const error_GOVERNANCE_SATELLITE_ACTION_NOT_FOUND                                                             = 672n;
-[@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXECUTED                                                              = 673n;
-[@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXPIRED                                                               = 674n;
-[@inline] const error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND                                                    = 675n;
+[@inline] const error_ONLY_INITIATOR_CAN_DROP_ACTION                                                                    = 666n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_DROPPED                                                               = 667n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_NOT_FOUND                                                             = 668n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXECUTED                                                              = 669n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_EXPIRED                                                               = 670n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND                                                    = 671n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND                                                   = 671n;
 
-[@inline] const error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                                             = 676n;
-[@inline] const error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 677n;
-[@inline] const error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT                                                            = 678n;
-[@inline] const error_SNAPSHOT_STAKED_MVK_TOTAL_SUPPLY_NOT_FOUND                                                        = 679n;
+[@inline] const error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION                                             = 672n;
+[@inline] const error_ONLY_SATELLITES_ALLOWED_TO_VOTE_FOR_GOVERNANCE_ACTION                                             = 673n;
+[@inline] const error_SATELLITE_NOT_FOUND_IN_ACTION_SNAPSHOT                                                            = 674n;
+[@inline] const error_SNAPSHOT_STAKED_MVK_TOTAL_SUPPLY_NOT_FOUND                                                        = 675n;
 
-[@inline] const error_SATELLITE_ORACLE_RECORD_NOT_FOUND                                                                 = 680n;
-[@inline] const error_ORACLE_NOT_FOUND                                                                                  = 681n;
-[@inline] const error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 682n;
-[@inline] const error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND                                               = 683n;
-[@inline] const error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR                                                = 684n;
+[@inline] const error_SATELLITE_ORACLE_RECORD_NOT_FOUND                                                                 = 676n;
+[@inline] const error_ORACLE_NOT_FOUND                                                                                  = 677n;
+[@inline] const error_AGGREGATOR_NEW_STATUS_NOT_FOUND                                                                   = 678n;
+[@inline] const error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND                                               = 679n;
+[@inline] const error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR                                                = 680n;
 
 // ENTRYPOINTS NOT FOUND ERRORS
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND                                   = 685n;
