@@ -57,7 +57,7 @@ type governanceAction is
     |   ExecuteProposal                 of (unit)
     |   ProcessProposalPayment          of actionIdType
     |   ProcessProposalSingleData       of (unit)
-    |   ClaimProposalRewards            of claimProposalRewardsType
+    |   DistributeProposalRewards       of distributeProposalRewardsType
     |   DropProposal                    of actionIdType
 
         // Lambda Entrypoints
@@ -1274,17 +1274,17 @@ block {
 
 
 
-// (* claimProposalRewards entrypoint *)
-function claimProposalRewards(const claimParams: claimProposalRewardsType; var s : governanceStorageType) : return is 
+// (* distributeProposalRewards entrypoint *)
+function distributeProposalRewards(const claimParams: distributeProposalRewardsType; var s : governanceStorageType) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimProposalRewards"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeProposalRewards"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaClaimProposalRewards(claimParams);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaDistributeProposalRewards(claimParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1379,7 +1379,7 @@ function main (const action : governanceAction; const s : governanceStorageType)
         |   ExecuteProposal(_parameters)                -> executeProposal(s)
         |   ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
         |   ProcessProposalSingleData(_parameters)      -> processProposalSingleData(s)
-        |   ClaimProposalRewards(parameters)            -> claimProposalRewards(parameters, s)
+        |   DistributeProposalRewards(parameters)       -> distributeProposalRewards(parameters, s)
         |   DropProposal(parameters)                    -> dropProposal(parameters, s)
 
             // Lambda Entrypoints
