@@ -277,13 +277,13 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 // helper function - check sender is admin
 function checkSenderIsAdmin(var s : controllerStorage) : unit is
-  if (Tezos.sender = s.admin) then unit
+  if (Tezos.get_sender() = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 
 
 function checkSenderIsSelf(const _p : unit) : unit is
-    if (Tezos.sender = Tezos.self_address) then unit
+    if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith("Error. Only self is allowed");
 
 
@@ -730,7 +730,7 @@ block {
     // make vault handle
     const handle : vaultHandleType = record [
         id     = newVaultId;
-        owner  = Tezos.sender;
+        owner  = Tezos.get_sender();
     ];
 
     // check if vault already exists
@@ -741,7 +741,7 @@ block {
 
     // params for vault with tez storage origination
     const originateVaultStorage : vaultStorage = record [
-        admin                       = Tezos.self_address;
+        admin                       = Tezos.get_self_address();
         handle                      = handle;
         depositors                  = createParams.depositors;
     ];
@@ -767,7 +767,7 @@ block {
             address                    = vaultOrigination.1; // vault address
             collateralBalanceLedger    = collateralBalanceLedgerMap;
             usdmOutstanding            = 0n;
-            lastMintBlockLevel         = Tezos.level;
+            lastMintBlockLevel         = Tezos.get_level();
         ];
         
         // update controller storage with new vault
@@ -780,7 +780,7 @@ block {
             address                    = vaultOrigination.1; // vault address
             collateralBalanceLedger    = emptyCollateralBalanceLedgerMap;
             usdmOutstanding            = 0n;
-            lastMintBlockLevel         = Tezos.level;
+            lastMintBlockLevel         = Tezos.get_level();
         ];
 
         // update controller storage with new vault
@@ -804,7 +804,7 @@ block {
 
     // init parameters 
     const vaultId     : vaultIdType      = closeVaultParams.vaultId;
-    const vaultOwner  : vaultOwnerType   = Tezos.sender;
+    const vaultOwner  : vaultOwnerType   = Tezos.get_sender();
     var operations    : list(operation) := nil;
     
     // make vault handle
@@ -939,8 +939,8 @@ block {
     const withdrawTokenAmount    : nat               = withdrawParams.tokenAmount;
     const tokenName              : string            = withdrawParams.tokenName;
     // const recipient              : contract(unit)    = withdrawParams.to_;
-    const recipient              : address           = Tezos.sender;
-    const initiator              : vaultOwnerType    = Tezos.sender;
+    const recipient              : address           = Tezos.get_sender();
+    const initiator              : vaultOwnerType    = Tezos.get_sender();
     var operations               : list(operation)  := nil;
 
     // make vault handle
@@ -1051,7 +1051,7 @@ block {
     const depositAmount   : nat               = registerDepositParams.amount;
     const tokenName       : string            = registerDepositParams.tokenName;
 
-    const initiator       : address           = Tezos.sender; // vault address that initiated deposit
+    const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
     // check if token exists in collateral token ledger
     const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
@@ -1091,8 +1091,8 @@ block {
     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
     const usdmQuantity      : nat                     = liquidateParams.usdmQuantity;
 
-    const recipient         : address                 = Tezos.sender;
-    const initiator         : initiatorAddressType    = Tezos.sender;
+    const recipient         : address                 = Tezos.get_sender();
+    const initiator         : initiatorAddressType    = Tezos.get_sender();
     
     var operations          : list(operation)        := nil;
 
@@ -1293,7 +1293,7 @@ block {
     // init variables for convenience
     const id                : nat                     = mintOrBurnParams.id; 
     var quantity            : int                    := mintOrBurnParams.quantity;
-    const initiator         : initiatorAddressType    = Tezos.sender;
+    const initiator         : initiatorAddressType    = Tezos.get_sender();
     var operations          : list(operation)        := nil;
 
     // make vault handle
@@ -1350,7 +1350,7 @@ block {
         if vault.usdmOutstanding > 0n then block {
             
             const lastMintBlockLevel   : nat   = vault.lastMintBlockLevel;
-            const today                : nat   = Tezos.level;
+            const today                : nat   = Tezos.get_level();
             const dailyServiceLoanFee  : nat   = s.config.dailyServiceLoanFee;                   // daily service loan fee
             const blocksPerDay         : nat   = s.config.blocksPerMinute * 60n * 24n;           // 2880 blocks per day -> if 2 blocks per minute 
             
@@ -1375,7 +1375,7 @@ block {
             quantity := quantity - totalServiceLoanFee
 
             // update vault last mint block level
-            vault.lastMintBlockLevel = Tezos.level;
+            vault.lastMintBlockLevel = Tezos.get_level();
 
         } else skip;
 
@@ -1408,7 +1408,7 @@ block {
     // init variables for convenience
     const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
     const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
-    const vaultOwner      : vaultOwnerType    = Tezos.sender;
+    const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
     const tokenName       : string            = "sMVK";
     var operations        : list(operation)  := nil;
 
@@ -1465,7 +1465,7 @@ block {
     // init variables for convenience
     const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
     const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
-    const vaultOwner      : vaultOwnerType    = Tezos.sender;
+    const vaultOwner      : vaultOwnerType    = Tezos.get_sender();
     const tokenName       : string            = "sMVK";
     var operations        : list(operation)  := nil;
 
@@ -1594,7 +1594,7 @@ block {
     ];
 
     // check if sender is from the cfmm address
-    if Tezos.sender =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
+    if Tezos.get_sender() =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
 
     var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of [
           Some(_timestamp) -> _timestamp
