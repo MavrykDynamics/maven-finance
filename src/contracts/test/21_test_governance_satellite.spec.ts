@@ -1720,7 +1720,7 @@ describe("Governance Satellite tests", async () => {
     });  // end %updateAggregatorStatus tests
 
 
-  describe("%mistakenTransferFix", async () => {
+  describe("%fixMistakenTransfer", async () => {
 
     it('Any satellite should be able to create a governance action to resolve a mistaken transfer made by a user', async () => {
         try{        
@@ -1767,7 +1767,7 @@ describe("Governance Satellite tests", async () => {
             assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
 
             // Satellite Bob creates a governance action
-            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.mistakenTransferFix(
+            const governanceSatelliteOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
                     aggregatorFactoryAddress.address,
                     purpose,
                     [
@@ -1869,7 +1869,7 @@ describe("Governance Satellite tests", async () => {
         } 
     });
     
-});  // end %mistakenTransferFix tests
+});  // end %fixMistakenTransfer tests
 
   describe("permissions tests", async () => {
 
