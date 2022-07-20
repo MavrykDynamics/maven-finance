@@ -296,7 +296,7 @@ function updateDurationAndRewards(var s: farmStorageType) : farmStorageType is
 block {
     
     // Get last block time
-    const lastBlockTime : nat       = s.minBlockTime;
+    const lastBlockTime : nat       = s.minBlockTimeSnapshot;
     const currentBlockTime : nat    = Tezos.get_min_block_time();
 
     if lastBlockTime =/= currentBlockTime then {
@@ -323,8 +323,8 @@ block {
             s.config.plannedRewards.totalBlocks := newTotalBlocks;
         };
 
-        // Update farm storage with new config values (minBlockTime and currentRewardPerBlock)
-        s.minBlockTime                                  := currentBlockTime;
+        // Update farm storage with new config values (minBlockTimeSnapshot and currentRewardPerBlock)
+        s.minBlockTimeSnapshot                                  := currentBlockTime;
         s.config.plannedRewards.currentRewardPerBlock   := (newCurrentRewardPerBlock/fixedPointAccuracy);
 
 
@@ -563,6 +563,12 @@ block {
 (*  View: get init block *)
 [@view] function getInitBlock(const _ : unit; const s: farmStorageType) : nat is
     s.initBlock
+
+
+
+(*  View: get min block time snapshot *)
+[@view] function getMinBlockTimeSnapshot(const _ : unit; const s: farmStorageType) : nat is
+    s.minBlockTimeSnapshot
 
 
 

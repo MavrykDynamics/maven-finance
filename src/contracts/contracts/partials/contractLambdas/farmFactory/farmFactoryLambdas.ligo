@@ -406,7 +406,7 @@ block{
                     init                        = True;
                     initBlock                   = Tezos.get_level();
 
-                    minBlockTime                = 0n;
+                    minBlockTimeSnapshot                = 0n;
 
                     lambdaLedger                = farmLambdaLedger;
                 ];
