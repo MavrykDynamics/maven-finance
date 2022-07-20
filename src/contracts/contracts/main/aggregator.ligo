@@ -699,6 +699,11 @@ block {
 
 
 
+(* View: get name variable *)
+[@view] function getName(const _ : unit; var s : aggregatorStorageType) : string is
+    s.name
+
+
 (* View: get config *)
 [@view] function getConfig(const _ : unit; var s : aggregatorStorageType) : aggregatorConfigType is
     s.config

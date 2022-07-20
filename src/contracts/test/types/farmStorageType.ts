@@ -52,7 +52,7 @@ export type farmStorageType = {
   init                      : Boolean;
   initBlock                 : BigNumber;
 
-  minBlockTime              : BigNumber;
+  minBlockTimeSnapshot              : BigNumber;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 
