@@ -182,6 +182,10 @@ export const DataFeedValueText = styled.div<{ fontWeidth?: number; fontSize?: nu
   color: #86d4c9;
   display: flex;
 
+  p {
+    margin: 0;
+  }
+
   svg {
     width: 22px;
     height: 22px;

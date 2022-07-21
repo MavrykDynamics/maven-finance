@@ -44,6 +44,7 @@ export const SatelliteListItem = ({
   userStakedBalance,
   satelliteUserIsDelegatedTo,
   isExtendedListItem = false,
+  isDetailsPage = false,
   className = '',
   children,
 }: SatelliteListItemProps) => {
@@ -79,46 +80,46 @@ export const SatelliteListItem = ({
       <SatelliteCardInner>
         <div className="rows-wrapper">
           <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
-            <SideBySideImageAndText isExtendedListItem={isExtendedListItem}>
+            <SideBySideImageAndText>
               <SatelliteProfileImageContainer>
                 <AvatarStyle>
                   <SatelliteProfileImage src={satellite.image} />
                 </AvatarStyle>
               </SatelliteProfileImageContainer>
 
-              <SatelliteTextGroup isExtendedListItem={isExtendedListItem}>
+              <SatelliteTextGroup>
                 <SatelliteMainText>{satellite.name}</SatelliteMainText>
                 <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
               </SatelliteTextGroup>
             </SideBySideImageAndText>
 
-            <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-              <SatelliteMainText oracle>Delegated MVK</SatelliteMainText>
-              <SatelliteSubText oracle>
+            <SatelliteTextGroup>
+              <SatelliteMainText>Delegated MVK</SatelliteMainText>
+              <SatelliteSubText>
                 <CommaNumber value={totalDelegatedMVK} />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
             {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
-              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Your delegated MVK</SatelliteMainText>
-                <SatelliteSubText oracle>
+              <SatelliteTextGroup>
+                <SatelliteMainText>Your delegated MVK</SatelliteMainText>
+                <SatelliteSubText>
                   {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : (
-              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Free sMVK Space</SatelliteMainText>
-                <SatelliteSubText oracle>
+              <SatelliteTextGroup>
+                <SatelliteMainText>Free sMVK Space</SatelliteMainText>
+                <SatelliteSubText>
                   <CommaNumber value={sMvkBalance - totalDelegatedMVK} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
             )}
 
             {isExtendedListItem && isSatelliteOracle ? (
-              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Signed feeds</SatelliteMainText>
-                <SatelliteSubText oracle>
+              <SatelliteTextGroup>
+                <SatelliteMainText>Signed feeds</SatelliteMainText>
+                <SatelliteSubText>
                   <CommaNumber value={Number(satellite.feeds?.length || 0)} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
@@ -126,35 +127,37 @@ export const SatelliteListItem = ({
           </SatelliteCardTopRow>
 
           <SatelliteCardTopRow isExtendedListItem={isExtendedListItem}>
-            <SatelliteProfileDetails isExtendedListItem={isExtendedListItem}>
-              <RoutingButton
-                icon="man"
-                text="Profile Details"
-                kind="transparent"
-                pathName={`/satellite-details/${satellite.address}`}
-              />
+            <SatelliteProfileDetails>
+              {!isDetailsPage && (
+                <RoutingButton
+                  icon="man"
+                  text="Profile Details"
+                  kind="transparent"
+                  pathName={`/satellite-details/${satellite.address}`}
+                />
+              )}
             </SatelliteProfileDetails>
 
-            <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-              <SatelliteMainText oracle>Participation</SatelliteMainText>
-              <SatelliteSubText oracle>
+            <SatelliteTextGroup>
+              <SatelliteMainText>Participation</SatelliteMainText>
+              <SatelliteSubText>
                 <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
               </SatelliteSubText>
             </SatelliteTextGroup>
 
             {(isExtendedListItem && isSatelliteOracle) || !isSatelliteOracle ? (
-              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Fee</SatelliteMainText>
-                <SatelliteSubText oracle>
+              <SatelliteTextGroup>
+                <SatelliteMainText>Fee</SatelliteMainText>
+                <SatelliteSubText>
                   <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : null}
 
             {isSatelliteOracle ? (
-              <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Oracle Status</SatelliteMainText>
-                <SatelliteSubText oracle>
+              <SatelliteTextGroup>
+                <SatelliteMainText>Oracle Status</SatelliteMainText>
+                <SatelliteSubText>
                   <SatelliteOracleStatusComponent statusType={oracleStatusType}>
                     {oracleDataMapper[oracleStatusType]}
                   </SatelliteOracleStatusComponent>

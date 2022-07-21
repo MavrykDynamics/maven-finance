@@ -97,6 +97,7 @@ export const SatelliteDetailsView = ({
           userStakedBalance={myDelegatedMVK}
           satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
           isExtendedListItem={true}
+          isDetailsPage={true}
         >
           <SatelliteCardBottomRow>
             <SatelliteDescrBlock>

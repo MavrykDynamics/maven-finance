@@ -9,6 +9,7 @@ type OraclesSideBarProps = {
   numberOfSatellites: number
   totalDelegatedMVK: number
   totalOracleNetworks: number
+  averageRevard?: number
   satelliteFactory: string
   isButton: boolean
   infoBlockAddresses: {
@@ -60,6 +61,7 @@ const SatellitesSideBarView = ({
   numberOfSatellites,
   totalOracleNetworks,
   infoBlockAddresses,
+  averageRevard,
 }: OraclesSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
@@ -75,15 +77,16 @@ const SatellitesSideBarView = ({
 
         <h2>Info</h2>
         <SideBarItem>
-          <h3>Satellite Contract (fix)</h3>
+          <h3>Satellite Contract</h3>
           <var>
             <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Oracle Contract (fix)</h3>
+          <h3>Oracle Contract</h3>
           <var>
-            <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} />
+            NO DATA
+            {/* <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} /> */}
           </var>
         </SideBarItem>
         <SideBarItem>
@@ -103,9 +106,10 @@ const SatellitesSideBarView = ({
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>On-Chain Data Points (fix)</h3>
+          <h3>On-Chain Data Points</h3>
           <var>
-            <CommaNumber value={numberOfSatellites} showDecimal={false} />
+            NO DATA
+            {/* <CommaNumber value={numberOfSatellites} showDecimal={false} /> */}
           </var>
         </SideBarItem>
         <SideBarItem>
@@ -121,12 +125,12 @@ const SatellitesSideBarView = ({
           </var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Total Value Secured (fix)</h3>
-          <var>-</var>
+          <h3>Total Value Secured</h3>
+          <var>NO DATA</var>
         </SideBarItem>
         <SideBarItem>
-          <h3>Average Rewards per Oracle (fix)</h3>
-          <var>-</var>
+          <h3>Average Rewards per Oracle</h3>
+          <var>{averageRevard ? <CommaNumber value={averageRevard} endingText={'MVK'} /> : '-'}</var>
         </SideBarItem>
       </SideBarSection>
 

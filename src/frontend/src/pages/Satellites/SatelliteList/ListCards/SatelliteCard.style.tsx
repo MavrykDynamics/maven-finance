@@ -106,12 +106,14 @@ export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
     margin-top: 20px;
   }
 `
+
 export const SatelliteCardTopRow = styled.div<{ isExtendedListItem?: boolean }>`
   width: 100%;
   column-gap: 20px;
   display: grid;
   grid-template-columns: ${({ isExtendedListItem }) => (isExtendedListItem ? '1fr 1fr 1fr 1fr' : '1.75fr 1fr 1.3fr')};
 `
+
 export const SatelliteCardInner = styled.div`
   display: flex;
   padding: 25px 0 17px 25px;
@@ -123,6 +125,7 @@ export const SatelliteCardInner = styled.div`
     row-gap: 17px;
   }
 `
+
 export const SatelliteCardButtons = styled.div`
   display: flex;
   flex-direction: column;
@@ -163,13 +166,14 @@ export const SatelliteProfileImage = styled.div`
   height: 100%;
 `
 
-export const SideBySideImageAndText = styled.div<{ isExtendedListItem?: boolean }>`
+export const SideBySideImageAndText = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-right: 10px;
 `
-export const SatelliteTextGroup = styled.div<{ oracle?: boolean; isExtendedListItem?: boolean }>`
+
+export const SatelliteTextGroup = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -179,11 +183,12 @@ export const SatelliteTextGroup = styled.div<{ oracle?: boolean; isExtendedListI
     margin-left: 70px;
   }
 `
-export const SatelliteMainText = styled.div<{ theme: MavrykTheme; oracle?: boolean }>`
-  color: ${({ theme }) => theme.valueColor};
-  font-weight: 700;
+
+export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.headerSkyColor};
+  font-weight: 600;
+  line-height: 21px;
   font-size: 14px;
-  line-height: 14px;
   margin-bottom: 2px;
   width: 100%;
   overflow: hidden;
@@ -195,21 +200,13 @@ export const SatelliteMainText = styled.div<{ theme: MavrykTheme; oracle?: boole
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  ${({ oracle, theme }) =>
-    oracle
-      ? css`
-          color: ${theme.headerSkyColor};
-          font-weight: 600;
-          line-height: 21px;
-        `
-      : ''}
 `
-export const SatelliteSubText = styled.div<{ theme: MavrykTheme; oracle?: boolean }>`
-  color: ${({ theme }) => theme.headerSkyColor};
-  font-weight: 400;
+
+export const SatelliteSubText = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.valueColor};
+  font-weight: 700;
   font-size: 14px;
-  line-height: 21px;
+  line-height: 14px;
   white-space: nowrap;
 
   &.toClick {
@@ -219,19 +216,9 @@ export const SatelliteSubText = styled.div<{ theme: MavrykTheme; oracle?: boolea
   p {
     margin: 0;
   }
-
-  ${({ oracle, theme }) =>
-    oracle
-      ? css`
-          color: ${theme.valueColor};
-          font-weight: 700;
-          font-size: 14px;
-          line-height: 14px;
-        `
-      : ''}
 `
 
-export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme; isExtendedListItem?: boolean }>`
+export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: center;
   margin-right: 15px;
