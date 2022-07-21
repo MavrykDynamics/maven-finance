@@ -24,11 +24,9 @@ const UserDetails = () => {
     [selectedUser, feeds],
   )
 
-  const [allFeeds, setAllFeeds] = useState<Feed[]>(feedsForUser)
   const [filteredFeedsList, setFilteredFeedsList] = useState<Feed[]>(feedsForUser)
 
   useEffect(() => {
-    setAllFeeds(feeds)
     setFilteredFeedsList(feeds)
   }, [feeds])
 

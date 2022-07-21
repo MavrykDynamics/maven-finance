@@ -17,7 +17,7 @@ const UsersPagination = () => {
 
   const prevIndex = useMemo(() => {
     return usersData.findIndex((item) => item.id === userId) || 0
-  }, [usersData, userId])
+  }, [userId])
 
   const prevFeed = usersData?.[prevIndex - 1]
   const nextFeed = usersData?.[prevIndex + 1]

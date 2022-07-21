@@ -49,7 +49,6 @@ const itemsForDropDown = [
   { text: 'Participation', value: 'participation' },
 ]
 
-// TODO: add links to each text with QUESTION_MARK_SVG_ENCODED | INFO_SVG_ENCODED, Trusted answer, Deviation threshold, Oracle responses, Heartbeat, ENS address
 const UserDetailsView = ({
   user,
   isLoading,
@@ -104,7 +103,7 @@ const UserDetailsView = ({
         <div className="item">
           <a href="#">
             <h5>
-              Total value locked{' '}
+              Total value locked
               <svg>
                 <use xlinkHref="/icons/sprites.svg#info" />
               </svg>
