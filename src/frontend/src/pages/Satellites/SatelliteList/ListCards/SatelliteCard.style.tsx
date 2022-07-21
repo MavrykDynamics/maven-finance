@@ -11,7 +11,7 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
   transition: 0.5s all;
 
   &.userFeed {
-    grid-template-columns: repeat(5, auto);
+    grid-template-columns: 0.75fr 1fr 0.75fr 1.5fr 0.75fr;
     padding: 25px 40px;
   }
 
