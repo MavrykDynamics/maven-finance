@@ -1154,3 +1154,24 @@
 
 [@inline] const error_TOKEN_POOL_CONTRACT_NOT_FOUND                                                                     = 829n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 829n;
+[@inline] const error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED                                                  = 829n;
+
+[@inline] const error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                             = 829n;
+[@inline] const error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 829n;
+[@inline] const error_TOKEN_POOL_RESERVES_RATIO_NOT_MET                                                                 = 829n;
+[@inline] const error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT                                                             = 829n;
+
+
+// ------------------------------------------------------------------------------
+//
+// Vault Controller Errors
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_VAULT_CONTROLLER_CONTRACT_NOT_FOUND                                                               = 829n;
+
+[@inline] const error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 829n;
+[@inline] const error_LOAN_TOKEN_NOT_FOUND                                                                              = 829n;
+[@inline] const error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 829n;
+[@inline] const error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 829n;
+
