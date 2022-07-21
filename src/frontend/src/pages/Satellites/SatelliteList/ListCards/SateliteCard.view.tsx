@@ -34,6 +34,7 @@ import {
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
+import { getOracleStatus } from 'pages/Satellites/helpers/Satellites.consts'
 // TODO: check validy of output data with Victor, cuz he knows more about it
 export const SatelliteListItem = ({
   satellite,
@@ -52,6 +53,7 @@ export const SatelliteListItem = ({
   const {
     governanceStorage: { proposalLedger },
   } = useSelector((state: State) => state.governance)
+  const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const isSatelliteOracle = satellite.oracleRecords.length
@@ -64,15 +66,13 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
 
-  // TODO: add checking for oracle status after answer
-  // const getOracleStatus = (oracle: SatelliteRecord): 'responded' | 'noResponse' | 'awaiting' => {
-  //   let status: 'responded' | 'noResponse' | 'awaiting' = 'noResponse'
+  const oracleStatusType = getOracleStatus(satellite, feeds)
 
-  //   if (oracle.oracleRecords.length > 0 && oracle.active) {
-  //   }
-
-  //   return status
-  // }
+  const oracleDataMapper = {
+    responded: 'Responded',
+    noResponse: 'No Response',
+    awaiting: 'Awaiting',
+  }
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
@@ -153,9 +153,11 @@ export const SatelliteListItem = ({
 
             {isSatelliteOracle ? (
               <SatelliteTextGroup oracle isExtendedListItem={isExtendedListItem}>
-                <SatelliteMainText oracle>Oracle Status (fix)</SatelliteMainText>
+                <SatelliteMainText oracle>Oracle Status</SatelliteMainText>
                 <SatelliteSubText oracle>
-                  <SatelliteOracleStatusComponent statusType="responded">responded</SatelliteOracleStatusComponent>
+                  <SatelliteOracleStatusComponent statusType={oracleStatusType}>
+                    {oracleDataMapper[oracleStatusType]}
+                  </SatelliteOracleStatusComponent>
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : null}
