@@ -17,7 +17,7 @@ type collateralNameType          is string;
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type configType is [@layout:comb] record [
+type vaultControllerConfigType is [@layout:comb] record [
     
     collateralRatio           : nat;    // collateral ratio
     liquidationRatio          : nat;    // liquidation ratio
@@ -28,7 +28,6 @@ type configType is [@layout:comb] record [
     minimumLoanFee            : nat;    // minimum loan fee - taken at first minting
     annualServiceLoanFee      : nat;    // annual service loan fee - compounding over time    
     dailyServiceLoanFee       : nat;    // daily service loan fee - compounding over time (annualServiceLoanFee / 365)
-    // blocksPerMinute           : nat;  // use new helper from jakarta
 
     decimals                  : nat;    // decimals 
 
@@ -172,7 +171,6 @@ type repayActionType is [@layout:comb] record [
     quantity    : nat;
 ]
 
-
 type vaultControllerPausableEntrypointType is
 
         // Vault Entrypoints
@@ -240,7 +238,8 @@ type vaultControllerLambdaActionType is
 type vaultControllerStorage is [@layout:comb] record [
 
     admin                       : address;
-    config                      : configType;
+    metadata                    : metadataType;
+    config                      : vaultControllerConfigType;
     breakGlassConfig            : vaultControllerBreakGlassConfigType;
 
     mvkTokenAddress             : address;
