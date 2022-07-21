@@ -1792,7 +1792,6 @@ describe("Testnet interactions helper", async () => {
                 const operation = await farmInstance.methods.initFarm(
                     12000,
                     100,
-                    2,
                     false,
                     false
                 ).send();

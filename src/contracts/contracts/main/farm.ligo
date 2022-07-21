@@ -49,7 +49,7 @@ type farmAction is
         // Pause / Break Glass Entrypoints
     |   PauseAll                    of (unit)
     |   UnpauseAll                  of (unit)
-    |   TogglePauseEntrypoint      of farmTogglePauseEntrypointType
+    |   TogglePauseEntrypoint       of farmTogglePauseEntrypointType
 
         // Farm Entrypoints
     |   Deposit                     of nat
@@ -317,15 +317,16 @@ block {
             const newTotalBlocks        : nat = (lastBlockTime * s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / currentBlockTime;
             const remainingBlocks       : nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
             
-            newCurrentRewardPerBlock    := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
+            newCurrentRewardPerBlock    := (totalUnclaimedRewards * fixedPointAccuracy * fixedPointAccuracy) / remainingBlocks;
             
             // Update new total blocks
-            s.config.plannedRewards.totalBlocks := newTotalBlocks;
+            s.config.plannedRewards.totalBlocks := newTotalBlocks / fixedPointAccuracy;
         };
 
         // Update farm storage with new config values (minBlockTimeSnapshot and currentRewardPerBlock)
-        s.minBlockTimeSnapshot                                  := currentBlockTime;
+        s.minBlockTimeSnapshot                          := currentBlockTime;
         s.config.plannedRewards.currentRewardPerBlock   := (newCurrentRewardPerBlock/fixedPointAccuracy);
+        s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
 
 
     } else skip;
@@ -991,7 +992,7 @@ block{
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                   -> pauseAll(s)
         |   UnpauseAll (_parameters)                 -> unpauseAll(s)
-        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
+        |   TogglePauseEntrypoint (parameters)       -> togglePauseEntrypoint(parameters, s)
 
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)
@@ -999,6 +1000,6 @@ block{
         |   Claim (parameters)                       -> claim(parameters, s)
 
             // Lambda Entrypoints
-        |   SetLambda(parameters)                    -> setLambda(parameters, s)
+        |   SetLambda (parameters)                   -> setLambda(parameters, s)
     ]
 )

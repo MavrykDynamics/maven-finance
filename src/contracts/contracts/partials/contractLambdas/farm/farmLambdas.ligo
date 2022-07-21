@@ -277,7 +277,7 @@ block{
                 s.config.plannedRewards.currentRewardPerBlock   := initFarmParams.currentRewardPerBlock;
                 s.config.plannedRewards.totalBlocks             := initFarmParams.totalBlocks;
                 s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
-                s.minBlockTimeSnapshot                                  := Tezos.get_min_block_time();
+                s.minBlockTimeSnapshot                          := 15n;
                 s.open                                          := True ;
                 s.init                                          := True ;
 
