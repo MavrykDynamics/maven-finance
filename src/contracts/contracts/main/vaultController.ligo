@@ -235,7 +235,7 @@ function getVaultLiquidateStakedMvkEntrypoint(const contractAddress : address) :
         ]
 
 
-// helper function to send transfer operation to Token Pool
+// helper function to send %transfer operation in Token Pool Contract
 function getTransferEntrypointInTokenPoolContract(const contractAddress : address) : contract(transferActionType) is
     case (Tezos.get_entrypoint_opt(
         "%transfer",
@@ -246,13 +246,34 @@ function getTransferEntrypointInTokenPoolContract(const contractAddress : addres
 
 
 
-// helper function to get transfer entrypoint
+// helper function to get %transfer entrypoint in a FA2 Token Contract
 function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(fa2TransferType) is
     case (Tezos.get_entrypoint_opt(
         "%transfer",
         tokenAddress) : option(contract(fa2TransferType))) of [
                 Some(contr) -> contr
             |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(fa2TransferType))
+        ];
+
+
+// helper function to get %onBorrow entrypoint in Token Pool Contract
+function getOnBorrowEntrypointInTokenPoolContract(const contractAddress : address) : contract(onBorrowActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%onBorrow",
+        contractAddress) : option(contract(onBorrowActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onBorrowActionType))
+        ];
+
+
+
+// helper function to get %onRepay entrypoint in Token Pool Contract
+function getOnRepayEntrypointInTokenPoolContract(const contractAddress : address) : contract(onRepayActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%onRepay",
+        contractAddress) : option(contract(onRepayActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onRepayActionType))
         ];
 
 // ------------------------------------------------------------------------------
@@ -385,6 +406,27 @@ block {
 // Contract Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const vaultControllerLambdaAction : vaultControllerLambdaActionType; var s : vaultControllerStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(vaultControllerUnpackLambdaFunctionType)) of [
+            Some(f) -> f(vaultControllerLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -417,13 +459,13 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get token in collateral token ledger *)
-[@view] function viewGetTokenRecordByName(const tokenName : string; var s : vaultControllerStorage) : option(collateralTokenRecordType) is
+[@view] function viewGetTokenRecordByName(const tokenName : string; var s : vaultControllerStorageType) : option(collateralTokenRecordType) is
     Map.find_opt(tokenName, s.collateralTokenLedger)
 
 
 
 (* View: get token by token contract address in collateral token ledger *)
-[@view] function viewGetTokenRecordByAddress(const tokenContractAddress : address; var s : vaultControllerStorage) : option(collateralTokenRecordType) is
+[@view] function viewGetTokenRecordByAddress(const tokenContractAddress : address; var s : vaultControllerStorageType) : option(collateralTokenRecordType) is
 block {
 
   var tokenName : string := "empty";
@@ -441,19 +483,19 @@ block {
 
 
 (* View: get owned vaults by user *)
-[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; var s : vaultControllerStorage) : option(ownerVaultSetType) is
+[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; var s : vaultControllerStorageType) : option(ownerVaultSetType) is
     Big_map.find_opt(ownerAddress, s.ownerLedger)
 
 
 
 (* View: get vault by handle *)
-[@view] function getVaultOpt(const vaultHandle : vaultHandleType; var s : vaultControllerStorage) : option(vaultType) is
+[@view] function getVaultOpt(const vaultHandle : vaultHandleType; var s : vaultControllerStorageType) : option(vaultType) is
     Big_map.find_opt(vaultHandle, s.vaults)
 
 
 
 (* View: get contract address - e.g. find delegation address to pass to vault for delegating MVK to satellite  *)
-[@view] function getContractAddressOpt(const contractName : string; var s : vaultControllerStorage) : option(address) is
+[@view] function getContractAddressOpt(const contractName : string; var s : vaultControllerStorageType) : option(address) is
     Map.find_opt(contractName, s.generalContracts)
 
 // ------------------------------------------------------------------------------
@@ -675,7 +717,7 @@ block {
 
 
 (*  togglePauseEntrypoint entrypoint  *)
-function togglePauseEntrypoint(const targetEntrypoint : delegationTogglePauseEntrypointType; const s : vaultControllerStorageType) : return is
+function togglePauseEntrypoint(const targetEntrypoint : vaultControllerTogglePauseEntrypointType; const s : vaultControllerStorageType) : return is
 block{
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
@@ -920,7 +962,7 @@ function main (const action : vaultControllerAction; const s : vaultControllerSt
         |   Default(_params) -> ((nil : list(operation)), s)
         
             // Housekeeping Entrypoints
-            SetAdmin(parameters)                          -> setAdmin(parameters, s) 
+        |   SetAdmin(parameters)                          -> setAdmin(parameters, s) 
         |   SetGovernance(parameters)                     -> setGovernance(parameters, s) 
         |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         |   UpdateConfig(parameters)                      -> updateConfig(parameters, s)

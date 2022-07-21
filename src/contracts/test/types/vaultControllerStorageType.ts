@@ -4,6 +4,7 @@ import { BigNumber } from 'bignumber.js'
 export type vaultControllerStorageType = {
 
     admin                       : string;
+    metadata                    : MichelsonMap<MichelsonMapKey, unknown>;    
     config                      : {};
     breakGlassConfig            : {};
 
