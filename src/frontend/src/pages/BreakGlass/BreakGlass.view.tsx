@@ -1,12 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
-  BGStyled,
-  BGTop,
-  BGInfo,
-  BGStatusIndicator,
-  BGMiddleWrapper,
   BGCardsWrapper,
+  BGInfo,
+  BGMiddleWrapper,
+  BGStatusIndicator,
+  BGStyled,
   BGTitle,
+  BGTop,
 } from './BreakGlass.style'
 import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
@@ -56,7 +56,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
         </BGStatusIndicator>
         <BGInfo>
           <p>
-            The breakglass protocal (BGP) allows MVK holders to shutdown the system without waiting for a central
+            The breakglass protocol (BGP) allows MVK holders to shutdown the system without waiting for a central
             authority. The BGP is triggered through the Emergency governance vote.
           </p>
 

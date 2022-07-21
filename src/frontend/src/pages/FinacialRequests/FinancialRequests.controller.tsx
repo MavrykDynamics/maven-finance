@@ -29,7 +29,7 @@ export const FinancialRequests = () => {
     governancePhase,
   } = useSelector((state: State) => state.governance)
   const { headData } = useSelector((state: State) => state.preferences)
-
+  console.log(financialRequestLedger)
   const daysLeftOfPeriod = calcTimeToBlock(headData?.knownLevel, currentRoundEndLevel)
 
   useEffect(() => {

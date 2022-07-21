@@ -65,6 +65,11 @@ export const GOVERNANCE_STORAGE_QUERY = `
         voter_id
         voting_power
       }
+      governance_financial {
+        governance {
+          address
+        }
+      }
     }
     governance_proposal_record {
       current_cycle_end_level
@@ -201,4 +206,3 @@ query GetCurrentRoundProposalsQuery {
 
 export const CURRENT_ROUND_PROPOSALS_QUERY_NAME = 'GetCurrentRoundProposalsQuery'
 export const CURRENT_ROUND_PROPOSALS_QUERY_VARIABLE = {}
-

@@ -1,10 +1,11 @@
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
-import { PAGINATION_SIDE_RIGHT, PAGINATION_SIDE_LEFT } from './Pagination/pagination.consts'
+import { PAGINATION_SIDE_LEFT, PAGINATION_SIDE_RIGHT } from './Pagination/pagination.consts'
 
 export type FinancialRequestBody = {
   executed: boolean
   expiration_datetime: string
   governance_financial_id: string
+  governance_financial: { governance: { address: string } }
   id: number
   key_hash: null
   nay_vote_smvk_total: number

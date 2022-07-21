@@ -1,6 +1,5 @@
 /* @ts-ignore */
 import Time from 'react-pure-time'
-import { Link } from 'react-router-dom'
 
 // view
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -16,10 +15,11 @@ type Props = {
   action_type: string
   signers_count: number
   num_council_members: number
+  council_id: string
 }
 
 export const CouncilPastActionView = (props: Props) => {
-  const { executed_datetime, action_type, signers_count, num_council_members } = props
+  const { executed_datetime, action_type, signers_count, num_council_members, council_id } = props
   return (
     <CouncilPastActionStyled>
       <div>
@@ -33,13 +33,19 @@ export const CouncilPastActionView = (props: Props) => {
         <h4>{getSeparateCamelCase(action_type)}</h4>
       </div>
       <div>
-        <p>Approved / vetoed</p>
+        <p>Multi-sig Approval</p>
         <h4>
           {signers_count}/{num_council_members}
         </h4>
       </div>
       <figure>
-        <a target="_blank" href="https://tzkt.io/" rel="noreferrer">
+        <a
+          target="_blank"
+          href={`https://${
+            process.env.NODE_ENV === 'development' ? process.env.REACT_APP_NETWORK + '.' : ''
+          }tzkt.io/${council_id}/operations/`}
+          rel="noreferrer"
+        >
           <Icon id="send" />
         </a>
       </figure>
