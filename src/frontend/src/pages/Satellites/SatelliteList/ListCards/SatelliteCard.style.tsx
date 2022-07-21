@@ -107,9 +107,10 @@ export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
   }
 `
 export const SatelliteCardTopRow = styled.div<{ isExtendedListItem?: boolean }>`
-  display: flex;
   width: 100%;
-  column-gap: 15px;
+  column-gap: 20px;
+  display: grid;
+  grid-template-columns: ${({ isExtendedListItem }) => (isExtendedListItem ? '1fr 1fr 1fr 1fr' : '1.75fr 1fr 1.3fr')};
 `
 export const SatelliteCardInner = styled.div`
   display: flex;
@@ -166,25 +167,17 @@ export const SideBySideImageAndText = styled.div<{ isExtendedListItem?: boolean 
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: ${({ isExtendedListItem }) => (isExtendedListItem ? '25%' : '40%')};
   margin-right: 10px;
 `
 export const SatelliteTextGroup = styled.div<{ oracle?: boolean; isExtendedListItem?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 112px;
   justify-content: center;
 
   &.voted {
     margin-left: 70px;
   }
-  ${({ oracle, isExtendedListItem }) =>
-    oracle
-      ? css`
-          width: ${isExtendedListItem ? '20%' : '30%'};
-        `
-      : ''}
 `
 export const SatelliteMainText = styled.div<{ theme: MavrykTheme; oracle?: boolean }>`
   color: ${({ theme }) => theme.valueColor};
@@ -239,10 +232,8 @@ export const SatelliteSubText = styled.div<{ theme: MavrykTheme; oracle?: boolea
 `
 
 export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme; isExtendedListItem?: boolean }>`
-  width: ${({ isExtendedListItem }) => (isExtendedListItem ? '25%' : '40%')};
-  padding-right: ${({ isExtendedListItem }) => (isExtendedListItem ? '15px' : '')};
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-right: 15px;
   button.transparent {
     color: ${({ theme }) => theme.headerSkyColor};
