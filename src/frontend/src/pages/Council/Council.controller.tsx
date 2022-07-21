@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { useLocation } from 'react-router'
@@ -10,7 +10,7 @@ import type { CouncilPastAction } from '../../reducers/council'
 // actions, consts
 import { getCouncilPastActionsStorage, getCouncilPendingActionsStorage } from './Council.actions'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { COUNSIL_LIST_NAME, calculateSlicePositions } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { calculateSlicePositions, COUNCIL_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // view
 import Icon from '../../app/App.components/Icon/Icon.view'
@@ -38,22 +38,22 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 // styles
 import { Page } from 'styles'
 import { CouncilStyled } from './Council.style'
-import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
+import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 
 export const Council = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const [isGoback, setIsGoback] = useState(false)
+  const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(false)
   const { councilMembers } = councilStorage
 
   const isUserInCouncilMembers = Boolean(councilMembers.find((item: CouncilMember) => item.user_id === accountPkh)?.id)
-  const isPendindList = councilPendingActions.length && isUserInCouncilMembers
+  const isPendingList = councilPendingActions.length && isUserInCouncilMembers
 
-  const curentCouncilPastActions = useMemo(
+  const currentCouncilPastActions = useMemo(
     () =>
       isPendingSignature
         ? councilPastActions?.filter((item: CouncilPastAction) => item.initiator_id === accountPkh)
@@ -62,7 +62,7 @@ export const Council = () => {
   )
 
   const itemsForDropDown = [
-    { text: 'Chose action', value: '' },
+    { text: 'Choose action', value: '' },
     { text: 'Add Vestee', value: 'addVestee' },
     { text: 'Add Council Member', value: 'addCouncilMember' },
     { text: 'Update Vestee', value: 'updateVestee' },
@@ -107,22 +107,22 @@ export const Council = () => {
   }, [isUserInCouncilMembers])
 
   const { pathname, search } = useLocation()
-  const currentPage = getPageNumber(search, COUNSIL_LIST_NAME)
+  const currentPage = getPageNumber(search, COUNCIL_LIST_NAME)
 
   const paginatedItemsList = useMemo(() => {
-    const [from, to] = calculateSlicePositions(currentPage, COUNSIL_LIST_NAME)
-    return curentCouncilPastActions.slice(from, to)
-  }, [currentPage, curentCouncilPastActions])
+    const [from, to] = calculateSlicePositions(currentPage, COUNCIL_LIST_NAME)
+    return currentCouncilPastActions.slice(from, to)
+  }, [currentPage, currentCouncilPastActions])
 
   return (
     <Page>
       <PageHeader page={'council'} kind={PRIMARY} loading={loading} />
       <CouncilStyled>
-        {isGoback ? (
+        {isGoBack ? (
           <button
             onClick={() => {
               setIsPendingSignature(true)
-              setIsGoback(false)
+              setIsGoBack(false)
             }}
             className="go-back"
           >
@@ -131,9 +131,9 @@ export const Council = () => {
           </button>
         ) : null}
 
-        <article className={`council-details ${isPendindList ? 'is-user-member' : ''}`}>
+        <article className={`council-details ${isPendingList ? 'is-user-member' : ''}`}>
           <div className="council-actions">
-            {isPendingSignature && isPendindList ? (
+            {isPendingSignature && isPendingList ? (
               <>
                 <h1>Pending Signature</h1>
                 <article className="pending">
@@ -186,7 +186,7 @@ export const Council = () => {
               </DropdownCard>
             ) : null}
 
-            {curentCouncilPastActions?.length ? (
+            {currentCouncilPastActions?.length ? (
               <>
                 <h1 className={`past-actions ${isPendingSignature ? 'is-user-member' : ''}`}>
                   {isPendingSignature ? 'My ' : null}Past Council Actions
@@ -198,22 +198,23 @@ export const Council = () => {
                     action_type={item.action_type}
                     signers_count={item.signers_count}
                     num_council_members={councilMembers.length}
+                    council_id={item.council_id}
                   />
                 ))}
-                <Pagination itemsCount={curentCouncilPastActions.length} listName={COUNSIL_LIST_NAME} />
+                <Pagination itemsCount={currentCouncilPastActions.length} listName={COUNCIL_LIST_NAME} />
               </>
             ) : null}
           </div>
 
           <aside
             className={`council-members ${isPendingSignature ? 'is-user-member' : ''} ${
-              isPendindList && isPendingSignature ? 'is-pending-list' : ''
+              isPendingList && isPendingSignature ? 'is-pending-list' : ''
             }`}
           >
             {isPendingSignature ? (
               <CouncilPendingReviewView
                 onClick={() => {
-                  setIsGoback(true)
+                  setIsGoBack(true)
                   setIsPendingSignature(false)
                 }}
               />

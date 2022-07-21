@@ -8,8 +8,6 @@ import { getPageNumber, getRequestStatus } from '../FinancialRequests.helpers'
 import { calculateSlicePositions, PAGINATION_SIDE_RIGHT } from '../Pagination/pagination.consts'
 
 import { FRListProps } from '../FinancialRequests.types'
-
-import { EmptyContainer } from 'app/App.style'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { FRListWrapper } from './FRList.styles'
 
@@ -28,12 +26,12 @@ function FRList({ listTitle, items, noItemsText, handleItemSelect, selectedItem,
         <h1>{listTitle}</h1>
       </GovRightContainerTitleArea>
       {paginatedItemsList.map((item) => {
-        const financiaRequestTitle = `${item.request_type} ${item.request_purpose}`
+        const financialRequestTitle = `${item.request_type} ${item.request_purpose}`
         return (
           <FRSListItem
             onClickHandler={() => handleItemSelect(item)}
             id={item.id}
-            title={financiaRequestTitle}
+            title={financialRequestTitle}
             status={getRequestStatus(item)}
             selected={selectedItem?.id === item.id}
           />

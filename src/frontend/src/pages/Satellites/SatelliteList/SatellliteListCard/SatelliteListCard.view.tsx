@@ -11,7 +11,7 @@ import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../../app/App.components
 import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
 import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
-import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
+import { SatelliteRecord, SatelliteStatus } from '../../../../utils/TypesAndInterfaces/Delegation'
 
 // style
 import {
@@ -29,6 +29,7 @@ import {
   SideBySideImageAndText,
 } from './SatelliteListCard.style'
 import { AvatarStyle } from '../../../../app/App.components/Avatar/Avatar.style'
+import { getEnumKeyByEnumValue } from '../../../../utils/storageToTypeConverter'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
@@ -68,10 +69,11 @@ export const SatelliteListCard = ({
   const currentlySupportingProposal = proposalLedger?.length
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
-
+  // @ts-ignore
+  const satelliteStatus = getEnumKeyByEnumValue(SatelliteStatus, satellite.status)
   const delegationButtons = userIsDelegatedToThisSatellite ? (
     <>
-      {satellite.active ? (
+      {satellite.status === SatelliteStatus.ACTIVE ? (
         <Button
           text="Undelegate"
           icon="man-close"
@@ -83,7 +85,7 @@ export const SatelliteListCard = ({
     </>
   ) : (
     <>
-      {satellite.active ? (
+      {satellite.status === SatelliteStatus.ACTIVE ? (
         <Button
           text="Delegate"
           icon="man-check"
@@ -93,7 +95,7 @@ export const SatelliteListCard = ({
         />
       ) : (
         <div>
-          <StatusFlag status={DOWN} text={'INACTIVE'} />
+          <StatusFlag status={DOWN} text={`${satelliteStatus}`} />
         </div>
       )}
     </>

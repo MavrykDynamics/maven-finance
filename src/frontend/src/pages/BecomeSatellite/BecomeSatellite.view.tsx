@@ -19,7 +19,7 @@ import {
   RegisterAsSatelliteFormInputStatus,
   ValidRegisterAsSatelliteForm,
 } from '../../utils/TypesAndInterfaces/Forms'
-import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
+import { isNotAllWhitespace, isValidLength, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
 import {
@@ -34,7 +34,7 @@ import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPerce
 type BecomeSatelliteViewProps = {
   loading: boolean
   myTotalStakeBalance: number
-  minimumStakedMvkBalance: number
+  satelliteConfig: any
   accountPkh?: string
   registerCallback: (form: RegisterAsSatelliteForm) => void
   updateSatelliteCallback: (form: RegisterAsSatelliteForm) => void
@@ -59,7 +59,7 @@ const FORM_VALID_DEFAULT = {
 export const BecomeSatelliteView = ({
   loading,
   myTotalStakeBalance,
-  minimumStakedMvkBalance,
+  satelliteConfig,
   accountPkh,
   registerCallback,
   updateSatelliteCallback,
@@ -119,8 +119,8 @@ export const BecomeSatelliteView = ({
     }
   }, [updateSatellite, usersSatellite])
   useEffect(() => {
-    setBalanceOk(myTotalStakeBalance >= minimumStakedMvkBalance)
-  }, [accountPkh, myTotalStakeBalance, minimumStakedMvkBalance])
+    setBalanceOk(myTotalStakeBalance >= satelliteConfig.minimumStakedMvkBalance)
+  }, [accountPkh, myTotalStakeBalance, satelliteConfig])
 
   useEffect(() => {
     handleValidate('FEE')
@@ -130,13 +130,16 @@ export const BecomeSatelliteView = ({
     let updatedState, validityCheckResult
     switch (formField) {
       case 'NAME':
-        validityCheckResult = isNotAllWhitespace(form.name)
+        validityCheckResult =
+          isNotAllWhitespace(form.name) && isValidLength(form.name, 1, satelliteConfig.satelliteNameMaxLength)
         setValidForm({ ...validForm, name: validityCheckResult })
         updatedState = { ...validForm, name: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, name: updatedState.name ? 'success' : 'error' })
         break
       case 'DESCRIPTION':
-        validityCheckResult = isNotAllWhitespace(form.description)
+        validityCheckResult =
+          isNotAllWhitespace(form.description) &&
+          isValidLength(form.description, 1, satelliteConfig.satelliteDescriptionMaxLength)
         setValidForm({ ...validForm, description: validityCheckResult })
         updatedState = { ...validForm, description: validityCheckResult }
         setFormInputStatus({
@@ -145,7 +148,8 @@ export const BecomeSatelliteView = ({
         })
         break
       case 'WEBSITE':
-        validityCheckResult = isNotAllWhitespace(form.website)
+        validityCheckResult =
+          isNotAllWhitespace(form.website) && isValidLength(form.website, 1, satelliteConfig.satelliteWebsiteMaxLength)
         setValidForm({ ...validForm, website: validityCheckResult })
         updatedState = { ...validForm, website: validityCheckResult }
         setFormInputStatus({
@@ -194,7 +198,7 @@ export const BecomeSatelliteView = ({
           )}
           <CommaNumber
             className="label"
-            value={Number(minimumStakedMvkBalance)}
+            value={Number(satelliteConfig.minimumStakedMvkBalance)}
             beginningText={'1 - Stake at least'}
             endingText={'MVK'}
           />

@@ -39,6 +39,7 @@ export const BREAK_GLASS_STORAGE_QUERY_VARIABLE = {}
 export const BREAK_GLASS_STATUS_QUERY = `
   query GetBreakGlassStatusQuery {
     farm {
+      name
       address
       claim_paused
       deposit_paused
@@ -66,6 +67,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
       unstake_paused
     }
     treasury {
+      name
       mint_mvk_and_transfer_paused
       stake_mvk_paused
       transfer_paused
@@ -83,4 +85,3 @@ export const BREAK_GLASS_STATUS_QUERY = `
 
 export const BREAK_GLASS_STATUS_QUERY_NAME = 'GetBreakGlassStatusQuery'
 export const BREAK_GLASS_STATUS_QUERY_VARIABLE = {}
-

@@ -1,12 +1,12 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { headerColor, royalPurpleColor } from '../../../styles/colors'
+import { headerColor, royalPurpleColor } from 'styles/colors'
 
-export const AccordeonWrapper = styled.div<{ theme: MavrykTheme }>`
+export const AccordionWrapper = styled.div<{ theme: MavrykTheme }>`
   transition: 0.5s all;
 `
 
-export const AccordeonToggler = styled.div<{ theme: MavrykTheme }>`
+export const AccordionToggler = styled.div<{ theme: MavrykTheme }>`
   display: flex;
 
   justify-content: center;
@@ -18,7 +18,7 @@ export const AccordeonToggler = styled.div<{ theme: MavrykTheme }>`
   font-size: 16px;
   color: ${headerColor};
 
-  .accordeon-icon {
+  .accordion-icon {
     width: 16px;
     height: 12px;
     margin-left: 7px;
@@ -29,7 +29,7 @@ export const AccordeonToggler = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
+export const AccordionContent = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   height: 100%;
   max-height: 0;
@@ -44,7 +44,8 @@ export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
 
   opacity: 0;
   transition: opacity 0.5s max-height 0.4s ease-in-out;
-  &.expaned {
+
+  &.expanded {
     opacity: 1;
     max-height: 185px;
   }
@@ -54,10 +55,12 @@ export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     border-radius: 10px;
   }
+
   &::-webkit-scrollbar {
     width: 15px;
     background-color: transparent;
   }
+
   &::-webkit-scrollbar-thumb {
     background-clip: padding-box;
     border-left: 5px solid rgba(0, 0, 0, 0);
@@ -68,13 +71,13 @@ export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const AccordeonItem = styled.div<{ status: boolean; theme: MavrykTheme }>`
+export const AccordionItem = styled.div<{ status: boolean; theme: MavrykTheme }>`
   font-weight: 400;
   font-size: 14px;
   margin: 5px 0;
-  color: ${({ status, theme }) => (status ? theme.upColor : theme.downColor)};
+  color: ${({ status, theme }) => (status ? theme.downColor : theme.upColor)};
 
-  .trunkated_text {
+  .truncated_text {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -83,6 +86,7 @@ export const AccordeonItem = styled.div<{ status: boolean; theme: MavrykTheme }>
   &:last-child {
     margin-bottom: 0;
   }
+
   &:first-child {
     margin-top: 0;
   }

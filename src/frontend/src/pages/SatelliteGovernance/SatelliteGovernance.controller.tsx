@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -11,8 +11,8 @@ import type { GovernanceSatelliteItem } from '../../reducers/governance'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import {
-  getSateliteGovernanceListName,
   calculateSlicePositions,
+  getSatelliteGovernanceListName,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // view
@@ -34,11 +34,12 @@ import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSi
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 
 // style
-import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'
-import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
+import { SatelliteGovernanceStyled } from './SatelliteGovernance.style'
+import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
+import { SatelliteStatus } from '../../utils/TypesAndInterfaces/Delegation'
 
 const itemsForDropDown = [
-  { text: 'Chose action', value: '' },
+  { text: 'Choose action', value: '' },
   { text: 'Suspend Satellite', value: 'suspendSatellite' },
   { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
   { text: 'Ban Satellite', value: 'banSatellite' },
@@ -73,7 +74,11 @@ export const SatelliteGovernance = () => {
   const satelliteLedger = delegationStorage?.satelliteLedger
   const { totalOracleNetworks } = oraclesStorage
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
-  const satelliteLedgerActive = useMemo(() => satelliteLedger.filter((item) => item.active), [satelliteLedger])
+  const satelliteLedgerActive = useMemo(
+    () => satelliteLedger.filter((item) => item.status === SatelliteStatus.ACTIVE),
+    [satelliteLedger],
+  )
+  console.log(satelliteLedger)
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
@@ -131,7 +136,7 @@ export const SatelliteGovernance = () => {
     dispatch(getGovernanceSatelliteStorage())
   }, [dispatch])
 
-  const listName = useMemo(() => getSateliteGovernanceListName(activeTab), [activeTab])
+  const listName = useMemo(() => getSatelliteGovernanceListName(activeTab), [activeTab])
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 

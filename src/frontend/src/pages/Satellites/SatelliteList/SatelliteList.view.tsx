@@ -124,7 +124,7 @@ const ListWithSatellites = ({
   const paginatedItemsList = useMemo(() => {
     const [from, to] = calculateSlicePositions(currentPage, listName)
     return satellitesList.slice(from, to)
-  }, [currentPage, satellitesList])
+  }, [currentPage, listName, satellitesList])
 
   return (
     <SatelliteListStyled>

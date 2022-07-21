@@ -1,23 +1,28 @@
-import qs from "qs"
-import moment from "moment"
-import { ProposalStatus } from "utils/TypesAndInterfaces/Governance"
-import { FinancialRequestBody } from "./FinancialRequests.types"
+import qs from 'qs'
+import moment from 'moment'
+import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
+import { FinancialRequestBody } from './FinancialRequests.types'
 
-export const distinctRequestsByExecuting = (mixedUpRequests: Array<FinancialRequestBody>): {
-  ongoing: Array<FinancialRequestBody>,past : Array<FinancialRequestBody>
+export const distinctRequestsByExecuting = (
+  mixedUpRequests: Array<FinancialRequestBody>,
+): {
+  ongoing: Array<FinancialRequestBody>
+  past: Array<FinancialRequestBody>
 } => {
-  const ongoing: Array<FinancialRequestBody> = [], past: Array<FinancialRequestBody> = []
-  if(!mixedUpRequests) return { ongoing, past }
+  const ongoing: Array<FinancialRequestBody> = [],
+    past: Array<FinancialRequestBody> = []
+  if (!mixedUpRequests) return { ongoing, past }
 
-  mixedUpRequests.forEach(request => {
-    if(request.executed){
+  mixedUpRequests.forEach((request) => {
+    if (request.executed || new Date(request.expiration_datetime).getTime() < +Date.now()) {
       past.push(request)
-    }else {
+    } else {
       ongoing.push(request)
     }
   })
   return {
-    ongoing, past
+    ongoing,
+    past,
   }
 }
 
@@ -26,10 +31,22 @@ export const getPageNumber = (search: string, listName: string): number => {
   return Number((page as Record<string, string>)?.[listName]) || 1
 }
 
-export const updatePageInUrl = ({page, newPage, listName, pathname, restQP}: {page: any, newPage: number, listName: string, pathname: string, restQP: any}) => {
-  const { [listName]: removedEl, ...newPageParams} = page as Record<string, string>
-  
-  if(Number(newPage) !== 1){
+export const updatePageInUrl = ({
+  page,
+  newPage,
+  listName,
+  pathname,
+  restQP,
+}: {
+  page: any
+  newPage: number
+  listName: string
+  pathname: string
+  restQP: any
+}) => {
+  const { [listName]: removedEl, ...newPageParams } = page as Record<string, string>
+
+  if (Number(newPage) !== 1) {
     newPageParams[listName] = newPage.toString()
   }
 
@@ -41,17 +58,15 @@ export const updatePageInUrl = ({page, newPage, listName, pathname, restQP}: {pa
 }
 
 export const getRequestStatus = (request: FinancialRequestBody) => {
-  if(!request.executed) {
+  if (!request.executed) {
     if (new Date(request.expiration_datetime).getTime() < +Date.now()) {
-      return  ProposalStatus.ONGOING
+      return ProposalStatus.DEFEATED
     } else {
-      return  ProposalStatus.DEFEATED
+      return ProposalStatus.ONGOING
     }
   } else {
-    return  ProposalStatus.EXECUTED
+    return ProposalStatus.EXECUTED
   }
 }
 
-export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format("MMMM Do hh:mm Z")
-
-
+export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format('MMMM Do hh:mm Z')
