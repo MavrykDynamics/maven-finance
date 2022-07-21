@@ -27,7 +27,7 @@ import UsersPagination from '../pagination/UsersPagination.controler'
 import { Page } from 'styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
-import { DataFeedsTitle } from 'pages/DataFeeds/details/DataFeedsDetails.style'
+import { DataFeedsTitle, DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
 import { UserDetailsStyled } from './UsersDetails.style'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -88,33 +88,42 @@ const UserDetailsView = ({
           </DataFeedsTitle>
         </div>
 
-        <div className="item">
-          <h5>Official website</h5>
-          <a href={user.website}>
-            <var>
-              {user.website}{' '}
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#openLink" />
-              </svg>
-            </var>
-          </a>
-        </div>
+        <div className="left-side-wrapper">
+          {user?.descr && (
+            <DataFeedSubTitleText fontSize={14} fontWeidth={400}>
+              {user.descr}
+            </DataFeedSubTitleText>
+          )}
+          <div className="bottom">
+            <div className="item">
+              <h5>Official website</h5>
+              <a href={user.website}>
+                <var>
+                  {user.website}{' '}
+                  <svg>
+                    <use xlinkHref="/icons/sprites.svg#openLink" />
+                  </svg>
+                </var>
+              </a>
+            </div>
 
-        <div className="item">
-          <a href="#">
-            <h5>
-              Total value locked
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#info" />
-              </svg>
-            </h5>
-          </a>
-          <var>{user.valueLocked}</var>
-        </div>
+            <div className="item">
+              <a href="#">
+                <h5>
+                  Total value locked
+                  <svg>
+                    <use xlinkHref="/icons/sprites.svg#info" />
+                  </svg>
+                </h5>
+              </a>
+              <var>{user.valueLocked}</var>
+            </div>
 
-        <div className="item">
-          <h5>User since</h5>
-          <var>{getDate_MDY_Format(user.creationDate)}</var>
+            <div className="item">
+              <h5>User since</h5>
+              <var>{getDate_MDY_Format(user.creationDate)}</var>
+            </div>
+          </div>
         </div>
       </UserDetailsStyled>
 
