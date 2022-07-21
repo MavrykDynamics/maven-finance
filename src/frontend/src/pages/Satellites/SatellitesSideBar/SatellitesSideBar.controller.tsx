@@ -2,6 +2,7 @@ import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+import { calcWithoutPrecision } from 'utils/calcFunctions'
 import { checkIfUserIsSatellite, getTotalDelegatedMVK } from '../helpers/Satellites.consts'
 import SatellitesSideBarView from './SatellitesSideBar.view'
 
@@ -9,7 +10,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
-  const { feedsFactory } = useSelector((state: State) => state.oracles.oraclesStorage)
+  const { feedsFactory, feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
   const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
   const {
     oraclesStorage: { totalOracleNetworks },
@@ -19,6 +20,16 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
   const numSatellites = satelliteLedger?.length || 0
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
+  const averageRevard = feeds?.length
+    ? calcWithoutPrecision(
+        (
+          feeds.reduce((acc, { reward_amount_smvk }) => {
+            acc += reward_amount_smvk
+            return acc
+          }, 0) / (feeds.length || 1)
+        ).toString(),
+      )
+    : undefined
 
   useEffect(() => {
     dispatch(getDelegationStorage())
@@ -37,6 +48,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
         oracle: feedsFactory[0]?.address || '',
         aggregator: feedsFactory[0]?.address || '',
       }}
+      averageRevard={averageRevard}
     />
   )
 }

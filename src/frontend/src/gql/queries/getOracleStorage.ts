@@ -20,6 +20,9 @@ export const ORACLE_STORAGE_QUERY = `
       round
       reward_amount_xtz
       reward_amount_smvk
+      per_thousand_deviation_trigger
+      last_completed_round_pct_oracle_response
+      percent_oracle_threshold
       oracle_rewards_xtz {
         oracle_id
         xtz

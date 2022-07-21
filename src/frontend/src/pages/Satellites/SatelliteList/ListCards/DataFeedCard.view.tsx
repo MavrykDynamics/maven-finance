@@ -3,6 +3,7 @@ import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 import { SatelliteItemStyle } from './SatelliteCard.style'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { useHistory } from 'react-router'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 // TODO: Answer
 export const DataFeedCard = ({ feed }: { feed: Feed }) => {
   const history = useHistory()
@@ -16,7 +17,9 @@ export const DataFeedCard = ({ feed }: { feed: Feed }) => {
       </div>
       <div className="item">
         <h5>Answer</h5>
-        <var>$ {feed.reward_amount_smvk / 0.25}</var>
+        <var>
+          <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+        </var>
       </div>
       <div className="item">
         <h5>Contact address</h5>

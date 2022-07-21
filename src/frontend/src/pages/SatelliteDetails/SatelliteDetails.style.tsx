@@ -111,6 +111,7 @@ export const SatelliteVotingHistoryListItem = styled.div`
   .satellite-voting-history-info {
     flex-shrink: 0;
     padding-left: 16px;
+    color: ${skyColor};
   }
 
   b {

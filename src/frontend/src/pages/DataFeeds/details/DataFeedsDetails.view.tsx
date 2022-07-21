@@ -36,6 +36,7 @@ import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
 import { usersData } from 'pages/UsersOracles/users.const'
 import { useHistory } from 'react-router'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -103,7 +104,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                   Deviation threshold
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  0.5% (fix)
+                  <CommaNumber value={feed.per_thousand_deviation_trigger / 1000} endingText="%" />
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
@@ -111,10 +112,10 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                   Oracle responses
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
-                  Minimum of 21
+                  Minimum of {feed.percent_oracle_threshold}
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  31/31 (fix)
+                  {feed.last_completed_round_pct_oracle_response}/{feed.percent_oracle_threshold}
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
@@ -187,7 +188,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                   ENS address
                 </DataFeedsTitle>
                 <DataFeedValueText fontSize={14} fontWeidth={600}>
-                  eth-usd.data.eth (fix)
+                  eth-usd.data.eth
                 </DataFeedValueText>
               </div>
             </div>
