@@ -42,7 +42,7 @@ export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?:
           margin-top: 30px;
           input {
             margin-left: 30px;
-            width: 375px;
+            max-width: 375px;
           }
 
           .dropDown {

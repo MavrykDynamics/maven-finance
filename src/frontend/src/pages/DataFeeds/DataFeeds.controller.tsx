@@ -24,12 +24,17 @@ import { EmptyContainer } from 'app/App.style'
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { SatelliteSearchFilter } from 'pages/Satellites/SatelliteList/SatelliteList.style'
 
-// TODO: make it due to the data feeds
 const itemsForDropDown = [
-  { text: 'Lowest Fee', value: 'satelliteFee' },
-  { text: 'Highest Fee', value: 'satelliteFee' },
-  { text: 'Delegated MVK', value: 'totalDelegatedAmount' },
-  { text: 'Participation', value: 'participation' },
+  { text: 'Cryptocurrencies (USD pairs)', value: 'cryptocurUDS' },
+  { text: 'Stablecoins', value: 'stableCoins' },
+  { text: 'Cryptocurrencies (BNB pairs)', value: 'cryptocurBNB' },
+  { text: 'Proof of Reserve', value: 'proofReserve' },
+  { text: 'Indexes', value: 'indexes' },
+  { text: 'Cryptocurrencies (ETH pairs)', value: 'cryptocurETH' },
+  { text: 'Foreign Exchange', value: 'forExchange' },
+  { text: 'Commodities', value: 'commodities' },
+  { text: 'Cryptocurrencies (Other)', value: 'cryptocurOther' },
+  { text: 'Ethereum Gas', value: 'ethGas' },
 ]
 
 const emptyContainer = (
@@ -49,7 +54,7 @@ export const DataFeeds = () => {
   const [allSatellites, setAllSatellites] = useState<Feed[]>(oraclesStorage.feeds)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<Feed[]>(oraclesStorage.feeds)
 
-  // TODO: make sorting | filtering due to data feeds
+  // TODO: make filtering due to data feeds
   const handleSelect = (selectedOption: any) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
@@ -61,17 +66,19 @@ export const DataFeeds = () => {
         dataToSort.sort((a: any, b: any) => {
           let res = 0
           switch (sortLabel) {
-            case 'Lowest Fee':
-              res = Number(a[sortValue]) - Number(b[sortValue])
-              break
-            case 'Highest Fee':
-            case 'Delegated MVK':
-            case 'Participation':
+            case 'Cryptocurrencies (USD pairs)':
+            case 'Stablecoins':
+            case 'Cryptocurrencies (BNB pairs)':
+            case 'Proof of Reserve':
+            case 'Indexes':
+            case 'Cryptocurrencies (ETH pairs)':
+            case 'Foreign Exchange':
+            case 'Commodities':
+            case 'Cryptocurrencies (Other)':
+            case 'Ethereum Gas':
             default:
-              res = Number(b[sortValue]) - Number(a[sortValue])
-              break
+              return res
           }
-          return res
         })
         return dataToSort
       })
@@ -130,7 +137,7 @@ export const DataFeeds = () => {
         />
 
         <Button
-          text="Request data feed (not implemented)"
+          text="Request data feed (FIX)"
           icon="requestFeed"
           kind={ACTION_PRIMARY}
           loading={loading}

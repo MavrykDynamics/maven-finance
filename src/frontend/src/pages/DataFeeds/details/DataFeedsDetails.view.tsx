@@ -37,6 +37,7 @@ import { EmptyContainer } from 'app/App.style'
 import { usersData } from 'pages/UsersOracles/users.const'
 import { useHistory } from 'react-router'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { InputErrorMessage } from 'app/App.components/Input/Input.style'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -65,6 +66,8 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
 
   const history = useHistory()
 
+  const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
+
   return feed ? (
     <Page>
       <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
@@ -85,10 +88,20 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
               </div>
               <div className="price-part">
                 <DataFeedValueText fontSize={22} fontWeidth={600}>
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#trustShield" />
-                  </svg>
-                  $ 1,937.34 (fix)
+                  {isTrustedAnswer ? (
+                    <>
+                      <svg>
+                        <use xlinkHref="/icons/sprites.svg#trustShield" />
+                      </svg>
+                      <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                    </>
+                  ) : (
+                    <>
+                      <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                      &nbsp;
+                      <InputErrorMessage>(Not Trusted)</InputErrorMessage>
+                    </>
+                  )}
                 </DataFeedValueText>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} className="margin-r">
                   Trusted answer

@@ -31,6 +31,16 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
       font-weight: 700;
       font-size: 14px;
       line-height: 14px;
+      display: flex;
+      column-gap: 10px;
+
+      div {
+        line-height: 100%;
+      }
+
+      p {
+        margin: 0;
+      }
     }
 
     &.center-v {
