@@ -142,8 +142,6 @@ type governanceConfigType is [@layout:comb] record [
     proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
     maxProposalsPerSatellite            : nat;  // number of active proposals a satellite can make
 
-    blocksPerMinute                     : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
-
     blocksPerProposalRound              : nat;  // to determine duration of proposal round
     blocksPerVotingRound                : nat;  // to determine duration of voting round
     blocksPerTimelockRound              : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks

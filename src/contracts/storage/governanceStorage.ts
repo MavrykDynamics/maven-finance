@@ -21,8 +21,6 @@ const config = {
     maxProposalsPerSatellite            : 20,
 
     newBlockTimeLevel                   : 0,
-    newBlocksPerMinute                  : 0,
-    blocksPerMinute                     : 2,
 
     blocksPerProposalRound              : 14400,
     blocksPerVotingRound                : 14400,

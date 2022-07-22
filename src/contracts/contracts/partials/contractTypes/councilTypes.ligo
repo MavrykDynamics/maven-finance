@@ -56,10 +56,6 @@ type councilConfigType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
-type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [ 
-    contractAddress             : address;
-    newBlocksPerMinute          : nat;
-] 
 
 type councilUpdateConfigNewValueType is nat
 type councilUpdateConfigActionType is 
@@ -144,9 +140,6 @@ type councilLambdaActionType is
     |   LambdaCouncilActionRemoveMember             of address
     |   LambdaCouncilActionChangeMember             of councilActionChangeMemberType
     |   LambdaCouncilActionSetBaker                 of setBakerType
-
-        // Council Actions for Contracts
-    |   LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
 
         // Council Actions for Vesting
     |   LambdaCouncilActionAddVestee                of addVesteeType

@@ -43,14 +43,13 @@ type farmAction is
     |   MistakenTransfer            of transferActionType
 
         // Farm Admin Entrypoints
-    |   UpdateBlocksPerMinute       of (nat)
     |   InitFarm                    of initFarmParamsType
     |   CloseFarm                   of (unit)
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                    of (unit)
     |   UnpauseAll                  of (unit)
-    |   TogglePauseEntrypoint      of farmTogglePauseEntrypointType
+    |   TogglePauseEntrypoint       of farmTogglePauseEntrypointType
 
         // Farm Entrypoints
     |   Deposit                     of nat
@@ -292,6 +291,50 @@ block{
 // Farm Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to update the farm duration and rewards based on the current protocol block time
+function updateDurationAndRewards(var s: farmStorageType) : farmStorageType is
+block {
+    
+    // Get last block time
+    const lastBlockTime : nat       = s.minBlockTimeSnapshot;
+    const currentBlockTime : nat    = Tezos.get_min_block_time();
+
+    if lastBlockTime =/= currentBlockTime then {
+        
+        // Calculate new rewards per block
+        var newCurrentRewardPerBlock : nat := 0n;
+        if s.config.infinite then {
+
+            newCurrentRewardPerBlock := currentBlockTime * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / lastBlockTime;
+
+        }
+        else {
+
+            // Unclaimed rewards
+            const totalUnclaimedRewards : nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid + s.claimedRewards.paid));
+
+            // Updates rewards and total blocks accordingly
+            const newTotalBlocks        : nat = (lastBlockTime * s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / currentBlockTime;
+            const remainingBlocks       : nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
+            
+            newCurrentRewardPerBlock    := (totalUnclaimedRewards * fixedPointAccuracy * fixedPointAccuracy) / remainingBlocks;
+            
+            // Update new total blocks
+            s.config.plannedRewards.totalBlocks := newTotalBlocks / fixedPointAccuracy;
+        };
+
+        // Update farm storage with new config values (minBlockTimeSnapshot and currentRewardPerBlock)
+        s.minBlockTimeSnapshot                          := currentBlockTime;
+        s.config.plannedRewards.currentRewardPerBlock   := (newCurrentRewardPerBlock/fixedPointAccuracy);
+        s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
+
+
+    } else skip;
+
+} with (s)
+
+
+
 // helper function to update farm blocks 
 function updateBlock(var s: farmStorageType) : farmStorageType is
 block{
@@ -344,13 +387,14 @@ block{
 // helper function to update farm
 function updateFarm(var s : farmStorageType) : farmStorageType is
 block{
-    s := case s.config.lpToken.tokenBalance = 0n of [
+    s   := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
         |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
                     True -> s
                 |   False -> updateFarmParameters(s)
             ]
-        ];
+    ];
+    s   := updateDurationAndRewards(s);
 } with (s)
 
 
@@ -520,6 +564,12 @@ block {
 (*  View: get init block *)
 [@view] function getInitBlock(const _ : unit; const s: farmStorageType) : nat is
     s.initBlock
+
+
+
+(*  View: get min block time snapshot *)
+[@view] function getMinBlockTimeSnapshot(const _ : unit; const s: farmStorageType) : nat is
+    s.minBlockTimeSnapshot
 
 
 
@@ -708,23 +758,6 @@ block {
 // ------------------------------------------------------------------------------
 // Farm Admin Entrypoints End
 // ------------------------------------------------------------------------------
-
-(*  updateBlocksPerMinute Entrypoint *)
-function updateBlocksPerMinute(const blocksPerMinute: nat; var s: farmStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateBlocksPerMinute"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaUpdateBlocksPerMinute(blocksPerMinute);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
-
-} with response
 
 
 
@@ -953,14 +986,13 @@ block{
         |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
             // Farm Admin Entrypoints
-        |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)
         |   InitFarm (parameters)                    -> initFarm(parameters, s)
         |   CloseFarm (_parameters)                  -> closeFarm(s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                   -> pauseAll(s)
         |   UnpauseAll (_parameters)                 -> unpauseAll(s)
-        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
+        |   TogglePauseEntrypoint (parameters)       -> togglePauseEntrypoint(parameters, s)
 
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)
@@ -968,6 +1000,6 @@ block{
         |   Claim (parameters)                       -> claim(parameters, s)
 
             // Lambda Entrypoints
-        |   SetLambda(parameters)                    -> setLambda(parameters, s)
+        |   SetLambda (parameters)                   -> setLambda(parameters, s)
     ]
 )

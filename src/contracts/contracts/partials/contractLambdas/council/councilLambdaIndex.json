@@ -45,50 +45,46 @@
     },
     {
         "index": 11,
-        "name": "lambdaCouncilActionUpdateBlocksPerMinute"
-    },
-    {
-        "index": 12,
         "name": "lambdaCouncilActionAddVestee"
     },
     {
-        "index": 13,
+        "index": 12,
         "name": "lambdaCouncilActionRemoveVestee"
     },
     {
-        "index": 14,
+        "index": 13,
         "name": "lambdaCouncilActionUpdateVestee"
     },
     {
-        "index": 15,
+        "index": 14,
         "name": "lambdaCouncilActionToggleVesteeLock"
     },
     {
-        "index": 16,
+        "index": 15,
         "name": "lambdaCouncilActionTransfer"
     },
     {
-        "index": 17,
+        "index": 16,
         "name": "lambdaCouncilActionRequestTokens"
     },
     {
-        "index": 18,
+        "index": 17,
         "name": "lambdaCouncilActionRequestMint"
     },
     {
-        "index": 19,
+        "index": 18,
         "name": "lambdaCouncilActionSetContractBaker"
     },
     {
-        "index": 20,
+        "index": 19,
         "name": "lambdaCouncilActionDropFinancialRequest"
     },
     {
-        "index": 21,
+        "index": 20,
         "name": "lambdaFlushAction"
     },
     {
-        "index": 22,
+        "index": 21,
         "name": "lambdaSignAction"
     }
 ]

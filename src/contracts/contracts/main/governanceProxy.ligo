@@ -183,7 +183,7 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
         "%setAdmin",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -193,7 +193,7 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
         "%setGovernance",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
         ];
 
 

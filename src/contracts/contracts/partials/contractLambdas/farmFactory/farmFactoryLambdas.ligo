@@ -157,36 +157,6 @@ block {
 
 } with (operations, s)
 
-
-
-(*  UpdateBlocksPerMinute lambda *)
-function lambdaUpdateBlocksPerMinute(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
-block {
-
-    checkSenderIsCouncil(s); // check that sender is the Council Contract
-
-    var operations : list(operation) := nil;
-
-    case farmFactoryLambdaAction of [
-        |   LambdaUpdateBlocksPerMinute(newBlocksPerMinute) -> {
-                
-                // Update blocksPerMinute in each farm within trackedFarms
-                for farmAddress in set s.trackedFarms 
-                block {
-                    case (Tezos.get_entrypoint_opt("%updateBlocksPerMinute", farmAddress) : option(contract(nat))) of [
-                            Some(contr) -> operations := Tezos.transaction(newBlocksPerMinute, 0tez, contr) # operations
-                        |   None        -> skip
-                    ];
-                };
-
-                s.config.blocksPerMinute := newBlocksPerMinute;
-
-            }
-        |   _ -> skip
-    ];
-
-} with (operations, s)
-
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -399,7 +369,6 @@ block{
                     lpToken                     = farmLPToken;
                     infinite                    = farmInfinite;
                     forceRewardFromTransfer     = farmForceRewardFromTransfer;
-                    blocksPerMinute             = s.config.blocksPerMinute;
                     plannedRewards              = farmPlannedRewards;
                 ];
 
@@ -436,6 +405,8 @@ block{
                     open                        = True ;
                     init                        = True;
                     initBlock                   = Tezos.get_level();
+
+                    minBlockTimeSnapshot        = Tezos.get_min_block_time();
 
                     lambdaLedger                = farmLambdaLedger;
                 ];
