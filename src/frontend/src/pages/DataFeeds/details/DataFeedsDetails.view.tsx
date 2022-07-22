@@ -4,7 +4,7 @@ import moment from 'moment'
 // consts, helpers
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
 import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
-import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
 import { QUESTION_MARK_SVG_ENCODED, INFO_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
 
@@ -31,13 +31,14 @@ import {
   UsersListWrapper,
   UserSmallCard,
 } from './DataFeedsDetails.style'
-import { Page } from 'styles'
+import { cyanColor, downColor, Page } from 'styles'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import { EmptyContainer } from 'app/App.style'
 import { usersData } from 'pages/UsersOracles/users.const'
 import { useHistory } from 'react-router'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { Timer } from 'app/App.components/Timer/Timer.controller'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -67,6 +68,16 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
   const history = useHistory()
 
   const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
+  const heartbeatUpdateInfo =
+    moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') >= 30
+      ? `
+  Price feed is outdated, missed the schedule price update at ${getDate_MDHMS_Format({
+    timestamp: new Date(feed?.last_completed_round_price_timestamp || '').getTime() + 1000 * 60 * 30,
+  })}
+  `
+      : `
+  Price feed updated every 30 mins, starting from latest time it was updated
+  `
 
   return feed ? (
     <Page>
@@ -143,11 +154,19 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>
-                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600} svgContent={INFO_SVG_ENCODED}>
                   Heartbeat
+                  <div className="info_about_heartbeat_update">{heartbeatUpdateInfo}</div>
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
-                  0.5% (fix)
+                  <Timer
+                    options={{
+                      showZeros: false,
+                      negativeColor: downColor,
+                      defaultColor: cyanColor,
+                    }}
+                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
+                  />
                 </DataFeedValueText>
               </DataFeedInfoBlock>
               <DataFeedInfoBlock>

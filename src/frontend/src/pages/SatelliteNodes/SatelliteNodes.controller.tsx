@@ -7,7 +7,6 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 import { State } from 'reducers'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import { useEventCallback } from '@mui/material'
 
 const SatelliteNodes = () => {
   const {
@@ -22,11 +21,12 @@ const SatelliteNodes = () => {
     dispatch(getDelegationStorage())
     setAllSatellites(satelliteLedger)
     setFilteredSatelliteList(satelliteLedger)
-  }, [satelliteLedger])
+  }, [])
 
-  const handleSearch = useEventCallback((e: any) => {
+  const handleSearch = (e: any) => {
     const searchQuery = e.target.value
     let searchResult: SatelliteRecord[] = []
+
     if (searchQuery !== '') {
       searchResult = allSatellites.filter(
         (item: SatelliteRecord) =>
@@ -38,9 +38,9 @@ const SatelliteNodes = () => {
     }
 
     setFilteredSatelliteList(searchResult)
-  })
+  }
 
-  const handleSelect = useEventCallback((selectedOption: any) => {
+  const handleSelect = (selectedOption: any) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
 
@@ -66,7 +66,7 @@ const SatelliteNodes = () => {
         return dataToSort
       })
     }
-  })
+  }
 
   return (
     <OracleSatellitesView

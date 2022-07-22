@@ -2,6 +2,7 @@ import qs from "qs"
 import moment from "moment"
 import { ProposalStatus } from "utils/TypesAndInterfaces/Governance"
 import { FinancialRequestBody } from "./FinancialRequests.types"
+import { DateCellTemplate } from "@silevis/reactgrid"
 
 export const distinctRequestsByExecuting = (mixedUpRequests: Array<FinancialRequestBody>): {
   ongoing: Array<FinancialRequestBody>,past : Array<FinancialRequestBody>
@@ -54,5 +55,6 @@ export const getRequestStatus = (request: FinancialRequestBody) => {
 
 export const getDate_MDHMTZ_Format = (time: string) => moment(new Date(time)).format("MMMM Do hh:mm Z")
 export const getDate_MDY_Format = (time: string) => moment(new Date(time)).format("MMM Do, Y")
+export const getDate_MDHMS_Format = ({time, timestamp} : {time?: string, timestamp?: number}) => moment(time ? new Date(time) : timestamp || Date.now() ).format("MMM Do, HH:MM:SS")
 
 

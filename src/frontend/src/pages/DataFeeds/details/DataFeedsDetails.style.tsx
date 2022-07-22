@@ -154,13 +154,58 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   }
 `
 
-export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?: number }>`
+export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?: number; svgContent?: string }>`
   font-weight: ${({ fontWeidth }) => fontWeidth || 400};
   font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : '12px')};
   line-height: 25px;
   color: #77a4f2;
   position: relative;
   width: fit-content;
+  position: relative;
+
+  .info_about_heartbeat_update {
+    display: block;
+    font-size: 10px;
+    position: absolute;
+    top: -40px;
+    left: 0;
+    display: block;
+    width: 225px;
+    padding: 3px 5px;
+    border-radius: 10px;
+    line-height: 15px;
+    background: #160e3f;
+    border: 1px solid #503eaa;
+    color: #8d86eb;
+    /* display: none; */
+    opacity: 0;
+    transition: 0.25s all;
+  }
+
+  &:hover {
+    .info_about_heartbeat_update {
+      opacity: 1;
+    }
+  }
+
+  ${({ svgContent }) =>
+    svgContent
+      ? css`
+          &::before {
+            position: absolute;
+            right: -20px;
+            width: 15px;
+            height: 15px;
+            background-repeat: no-repeat;
+            background-size: cover;
+            top: 50%;
+            transform: translateY(-50%);
+            content: '';
+            ${svgContent}
+            cursor: pointer;
+          }
+        `
+      : ''}
 
   &.title {
     margin: 0 auto;
