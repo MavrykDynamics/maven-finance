@@ -952,6 +952,80 @@ describe("Farm", async () => {
                 } 
             });
 
+            it('Admin should be able to increase the rewards of a farm', async () => {
+                try{
+                    // Initial values
+                    await signerFactory(bob.sk);
+                    farmStorage                     = await farmInstance.storage();
+                    const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                    const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+                    const newRewards                = 150;
+
+                    // Operation
+                    const operation = await farmInstance.methods.updateConfig(newRewards, "configRewardPerBlock").send();
+                    await operation.confirmation()
+
+                    // Final values
+                    farmStorage                     = await farmInstance.storage();
+                    const updatedTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                    const updatedRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+
+                    // Assertions
+                    assert.equal(updatedRewardsPerBlock, newRewards);
+                    assert.equal(updatedRewardsPerBlock > currentRewardsPerBlock, true);
+                    assert.notEqual(currentRewardsPerBlock, updatedRewardsPerBlock);
+                    assert.notEqual(currentTotalRewards, updatedTotalRewards);
+
+                    // Logs
+                    console.log("Initial :")
+                    console.log("  Total rewards:", currentTotalRewards)
+                    console.log("  Rewards per block:", currentRewardsPerBlock)
+                    console.log("Updated :")
+                    console.log("  Total rewards:", updatedTotalRewards)
+                    console.log("  Rewards per block:", updatedRewardsPerBlock)
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                } 
+            });
+
+            it('Admin should be able to decrease the rewards of a farm', async () => {
+                try{
+                    // Initial values
+                    await signerFactory(bob.sk);
+                    farmStorage                     = await farmInstance.storage();
+                    const currentTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                    const currentRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+                    const newRewards                = 120;
+
+                    // Operation
+                    const operation = await farmInstance.methods.updateConfig(newRewards, "configRewardPerBlock").send();
+                    await operation.confirmation()
+
+                    // Final values
+                    farmStorage                     = await farmInstance.storage();
+                    const updatedTotalRewards       = farmStorage.config.plannedRewards.totalRewards.toNumber();
+                    const updatedRewardsPerBlock    = farmStorage.config.plannedRewards.currentRewardPerBlock.toNumber();
+
+                    // Assertions
+                    assert.equal(updatedRewardsPerBlock, newRewards);
+                    assert.equal(updatedRewardsPerBlock > currentRewardsPerBlock, false);
+                    assert.notEqual(currentRewardsPerBlock, updatedRewardsPerBlock);
+                    assert.notEqual(currentTotalRewards, updatedTotalRewards);
+
+                    // Logs
+                    console.log("Initial :")
+                    console.log("  Total rewards:", currentTotalRewards)
+                    console.log("  Rewards per block:", currentRewardsPerBlock)
+                    console.log("Updated :")
+                    console.log("  Total rewards:", updatedTotalRewards)
+                    console.log("  Rewards per block:", updatedRewardsPerBlock)
+
+                } catch(e){
+                    console.dir(e, {depth: 5});
+                } 
+            });
+
             it('Non-admin should not be able to force the rewards to come from transfers instead of minting', async () => {
                 try{
                     // Toggle to transfer
