@@ -24,11 +24,19 @@ async def on_farm_withdraw(
     accumulated_rewards_per_share   = float(withdraw.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(withdraw.storage.claimedRewards.unpaid)
     paid_rewards                    = float(withdraw.storage.claimedRewards.paid)
+    total_rewards                   = float(withdraw.storage.config.plannedRewards.totalRewards)
+    current_reward_per_block        = float(withdraw.storage.config.plannedRewards.currentRewardPerBlock)
+    total_blocks                    = int(withdraw.storage.config.plannedRewards.totalBlocks)
+    min_block_time_snapshot         = int(withdraw.storage.minBlockTimeSnapshot)
 
     # Create and update records
     farm                            = await models.Farm.get(
         address = farm_address
     )
+    farm.total_rewards              = total_rewards
+    farm.current_reward_per_block   = current_reward_per_block
+    farm.total_blocks               = total_blocks
+    farm.min_block_time_snapshot    = min_block_time_snapshot
     farm.lp_token_balance           = lp_token_balance
     farm.accumulated_mvk_per_share  = accumulated_rewards_per_share
     farm.last_block_update          = last_block_update

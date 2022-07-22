@@ -8,4 +8,4 @@ async def on_aggregator_toggle_pause_entrypoint(
     ctx: HandlerContext,
     toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, AggregatorStorage],
 ) -> None:
-    ...
+    breakpoint()
