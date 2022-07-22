@@ -1,5 +1,5 @@
 // Setup a list of addresses
-const userAmount                    = 25n;
+const userAmount                    = 200n;
 const _ = {
     for i := 0 to int(userAmount){
         const newAccount            = Test.new_account();
