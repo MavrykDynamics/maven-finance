@@ -4866,7 +4866,6 @@
 //                 assert.equal(endConfig.plannedRewards.currentRewardPerBlock, MVK(100));
 //                 assert.equal(endConfig.plannedRewards.totalBlocks, 100);
 //                 assert.equal(endConfig.infinite, false);
-//                 assert.equal(endConfig.blocksPerMinute, 2);
 //                 assert.equal(endConfig.forceRewardFromTransfer, false);
 //                 assert.equal(farmStorage.init, true);
 //                 assert.equal(farmStorage.open, true);

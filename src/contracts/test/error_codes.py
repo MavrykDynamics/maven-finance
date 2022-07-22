@@ -28,8 +28,8 @@ error_ONLY_WHITELISTED_ADDRESSES_ALLOWED                                        
 error_ONLY_PROPOSER_ALLOWED                                                                             = 18
 error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED                                 = 19
 
-error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                                                        = 20
-error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                                                   = 21
+error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                                                        = 20
+error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                                                   = 21
 error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND                                                                   = 22
 error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND                                                           = 23
 error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                                                                  = 24
@@ -40,7 +40,7 @@ error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND                           
 error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND                                                     = 29
 error_SET_NAME_ENTRYPOINT_NOT_FOUND                                                                     = 30
 error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND                                             = 31
-error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND                                                     = 32
+error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_NOT_FOUND                                                     = 32
 error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                                                    = 33
 error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                                                     = 34
 
