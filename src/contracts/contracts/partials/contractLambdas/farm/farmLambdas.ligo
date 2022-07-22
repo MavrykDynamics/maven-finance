@@ -130,7 +130,7 @@ block {
                         s.config.forceRewardFromTransfer := updateConfigNewValue = 1n;
 
                     }
-                |   ConfigRewardPerBlock (_v)          -> block {
+                |   ConfigRewardPerBlock (_v)           -> block {
                         
                         // Check if Farm has been initiated
                         checkFarmIsInit(s);
@@ -138,14 +138,10 @@ block {
                         // Update Farm storage
                         s := updateFarm(s);
 
-                        // Check that currentRewardPerBlock does not exceed new reward per block
-                        const currentRewardPerBlock : nat = s.config.plannedRewards.currentRewardPerBlock;
-                        if currentRewardPerBlock > updateConfigNewValue then failwith(error_CONFIG_VALUE_ERROR) else skip;
-
                         // Calculate new total rewards
-                        const totalClaimedRewards : nat = s.claimedRewards.unpaid + s.claimedRewards.paid;
-                        const remainingBlocks : nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
-                        const newTotalRewards : nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
+                        const totalClaimedRewards : nat     = s.claimedRewards.unpaid + s.claimedRewards.paid;
+                        const remainingBlocks : nat         = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
+                        const newTotalRewards : nat         = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
 
                         // Update farm storage
                         s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
