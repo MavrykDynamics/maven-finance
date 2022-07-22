@@ -27,9 +27,11 @@ async def on_governance_propose(
     invoice                = storage_record.invoice
     code                   = storage_record.sourceCode
     success_reward         = float(storage_record.successReward)
+    total_voters_reward    = float(storage_record.totalVotersReward)
     executed               = storage_record.executed
     locked                 = storage_record.locked
     payment_processed      = storage_record.paymentProcessed
+    reward_claim_ready     = storage_record.rewardClaimReady
     proposal_vote_count    = int(storage_record.proposalVoteCount)
     proposal_vote_smvk     = float(storage_record.proposalVoteStakedMvkTotal)
     min_vote_pct           = int(storage_record.minProposalRoundVotePercentage)
