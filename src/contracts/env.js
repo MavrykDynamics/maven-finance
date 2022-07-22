@@ -16,7 +16,7 @@ module.exports = {
   buildDir: "build",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",
-  ligoVersion: "0.46.1",
+  ligoVersion: "0.47.0",
   network: "development",
   networks: {
     development: {
