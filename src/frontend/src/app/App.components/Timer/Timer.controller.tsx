@@ -5,10 +5,16 @@ import { useEffect, useState } from 'react'
 import { TimerView } from './Timer.view'
 
 type TimerProps = {
-  deadline: string
+  deadline?: string
+  timestamp?: number
+  options?: {
+    showZeros?: boolean
+    negativeColor?: string
+    defaultColor?: string
+  }
 }
 
-export const Timer = ({ deadline }: TimerProps) => {
+export const Timer = ({ deadline, timestamp, options }: TimerProps) => {
   const toSecond = 1000,
     toMinute = toSecond * 60,
     toHour = toMinute * 60,
@@ -21,7 +27,7 @@ export const Timer = ({ deadline }: TimerProps) => {
     seconds: 0,
   })
 
-  const countDown = new Date(deadline).getTime()
+  const countDown = deadline ? new Date(deadline).getTime() : timestamp || Date.now()
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,7 +44,15 @@ export const Timer = ({ deadline }: TimerProps) => {
     return () => clearInterval(interval)
   }, [])
 
-  return <TimerView seconds={strings.seconds} minutes={strings.minutes} hours={strings.hours} days={strings.days} />
+  return (
+    <TimerView
+      seconds={strings.seconds}
+      minutes={strings.minutes}
+      hours={strings.hours}
+      days={strings.days}
+      options={options || {}}
+    />
+  )
 }
 
 Timer.propTypes = {
