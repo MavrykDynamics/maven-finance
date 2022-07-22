@@ -3,7 +3,7 @@ import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 import { SatelliteItemStyle } from './SatelliteCard.style'
 import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import { useHistory } from 'react-router'
-// TODO: Answer
+// TODO: category, network
 export const UserDataFeedCard = ({ feed }: { feed: Feed }) => {
   const history = useHistory()
   return (

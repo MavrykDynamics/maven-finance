@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { cyanColor, headerColor } from 'styles'
+import { cyanColor, headerColor, skyColor } from 'styles'
 
 export const UserDetailsStyled = styled.div`
   display: flex;
@@ -40,7 +40,7 @@ export const UserDetailsStyled = styled.div`
 
   .item {
     h5 {
-      color: ${headerColor};
+      color: ${skyColor};
       font-weight: 400;
       font-size: 14px;
       line-height: 21px;

@@ -36,7 +36,7 @@ export const SatelliteCardBottomRow = styled.div`
     display: flex;
     justify-content: space-between;
     column-gap: 130px;
-    align-items: center;
+    align-items: flex-start;
   }
 
   p {
@@ -69,7 +69,7 @@ export const SatelliteMetricsBlock = styled.div`
   h5 {
     margin: 0;
     font-weight: 400;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 16px;
     color: ${skyColor};
   }

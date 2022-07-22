@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, cyanColor, headerColor, boxShadowColor } from 'styles'
+import { Card, cyanColor, headerColor, boxShadowColor, skyColor } from 'styles'
 import { MavrykTheme } from 'styles/interfaces'
 
 export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
@@ -17,7 +17,7 @@ export const SatelliteItemStyle = styled(Card)<{ oracle?: boolean }>`
 
   .item {
     h5 {
-      color: ${headerColor};
+      color: ${skyColor};
       font-weight: 400;
       font-size: 14px;
       line-height: 21px;

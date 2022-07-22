@@ -117,6 +117,7 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   color: #8d86eb;
   position: relative;
   width: fit-content;
+  text-transform: capitalize;
 
   ${({ svgContent }) =>
     svgContent
