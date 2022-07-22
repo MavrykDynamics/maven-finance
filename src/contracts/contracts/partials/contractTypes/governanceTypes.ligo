@@ -232,8 +232,8 @@ type governanceLambdaActionType is
 | LambdaStartNextRound                        of (bool)
 | LambdaPropose                               of newProposalType
 | LambdaProposalRoundVote                     of actionIdType
-| LambdaUpdateProposalData                 of updateProposalDataType
-| LambdaUpdatePaymentData                  of updatePaymentDataType
+| LambdaUpdateProposalData                    of updateProposalDataType
+| LambdaUpdatePaymentData                  	  of updatePaymentDataType
 | LambdaLockProposal                          of actionIdType
 | LambdaVotingRoundVote                       of votingRoundVoteType
 | LambdaExecuteProposal                       of (unit)
@@ -258,7 +258,7 @@ type governanceStorageType is [@layout:comb] record [
     
     whitelistContracts                : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts                  : generalContractsType;
-    whitelistDevelopers               : whitelistDevelopersType;  
+    whitelistDevelopers               : whitelistDevelopersType;
 
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;

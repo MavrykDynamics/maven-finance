@@ -14,8 +14,10 @@ export type governanceSatelliteStorageType = {
   generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
 
   governanceSatelliteActionLedger     : MichelsonMap<MichelsonMapKey, unknown>;
-  governanceSatelliteSnapshotLedger   : MichelsonMap<MichelsonMapKey, unknown>;
   governanceSatelliteCounter          : BigNumber;
+
+  currentCycleActionsInitiators       : MichelsonMap<MichelsonMapKey, unknown>;
+  currentGovernanceCycle              : BigNumber;
 
   satelliteOracleLedger               : MichelsonMap<MichelsonMapKey, unknown>;
   aggregatorLedger                    : MichelsonMap<MichelsonMapKey, unknown>;

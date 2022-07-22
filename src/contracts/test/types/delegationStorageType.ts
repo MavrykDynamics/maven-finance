@@ -1,5 +1,7 @@
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder'
 
+import { BigNumber } from "bignumber.js";
+
 export type delegationStorageType = {
   
   admin               : string;
@@ -15,6 +17,7 @@ export type delegationStorageType = {
 
   delegateLedger      : MichelsonMap<MichelsonMapKey, unknown>
   satelliteLedger     : MichelsonMap<MichelsonMapKey, unknown>
+  satelliteCounter    : BigNumber
   satelliteRewardsLedger: MichelsonMap<MichelsonMapKey, unknown>
 
   lambdaLedger        : MichelsonMap<MichelsonMapKey, unknown>

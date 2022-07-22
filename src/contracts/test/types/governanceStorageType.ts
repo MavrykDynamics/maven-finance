@@ -28,14 +28,15 @@ export type governanceStorageType = {
     roundStartLevel            : BigNumber;
     roundEndLevel              : BigNumber;
     cycleEndLevel              : BigNumber;
-    roundProposals             : MichelsonMap<MichelsonMapKey, unknown>;
-    roundProposers             : MichelsonMap<MichelsonMapKey, unknown>;
-    roundVotes                 : MichelsonMap<MichelsonMapKey, unknown>;
     cycleTotalVotersReward     : BigNumber;
     minQuorumStakedMvkTotal    : BigNumber;
   };
 
-  cycleHighestVotedProposalId : BigNumber;
+  roundProposals                     : Array<string>;
+  roundProposers                     : MichelsonMap<MichelsonMapKey, unknown>;
+  roundVotes                         : MichelsonMap<MichelsonMapKey, unknown>;
+
+  cycleHighestVotedProposalId        : BigNumber;
   timelockProposalId                 : BigNumber;
 
   lambdaLedger                       : MichelsonMap<MichelsonMapKey, unknown>;

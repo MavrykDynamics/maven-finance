@@ -74,12 +74,13 @@ export const governanceStorage: governanceStorageType = {
     roundStartLevel           : new BigNumber(0),
     roundEndLevel             : new BigNumber(0),
     cycleEndLevel             : new BigNumber(0),
-    roundProposals            : MichelsonMap.fromLiteral({}),
-    roundProposers            : MichelsonMap.fromLiteral({}),
-    roundVotes                : MichelsonMap.fromLiteral({}),
     cycleTotalVotersReward    : new BigNumber(0),
     minQuorumStakedMvkTotal   : new BigNumber(0)
   },
+
+  roundProposals            : [],
+  roundProposers            : MichelsonMap.fromLiteral({}),
+  roundVotes                : MichelsonMap.fromLiteral({}),
 
   cycleHighestVotedProposalId        : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),

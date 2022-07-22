@@ -81,6 +81,7 @@ export const delegationStorage: delegationStorageType = {
   delegateLedger      : MichelsonMap.fromLiteral({}),
   // satelliteLedger     : satelliteLedger,
   satelliteLedger     : MichelsonMap.fromLiteral({}),
+  satelliteCounter    : new BigNumber(0),
   satelliteRewardsLedger: MichelsonMap.fromLiteral({}),
   // satelliteRewardsLedger  : satelliteRewardsLedger,
 
