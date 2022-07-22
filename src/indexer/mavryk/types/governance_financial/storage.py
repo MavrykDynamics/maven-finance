@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra, Field
 
@@ -14,36 +14,6 @@ class Config(BaseModel):
 
     financialRequestApprovalPercentage: str
     financialRequestDurationInDays: str
-
-
-class VoteItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nay: Dict[str, Any]
-
-
-class VoteItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pass_: Dict[str, Any] = Field(..., alias='pass')
-
-
-class VoteItem2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    yay: Dict[str, Any]
-
-
-class Voters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    vote: Union[VoteItem, VoteItem1, VoteItem2]
-    totalVotingPower: str
-    timeVoted: str
 
 
 class FinancialRequestLedger(BaseModel):
@@ -61,7 +31,7 @@ class FinancialRequestLedger(BaseModel):
     tokenType: str
     tokenId: str
     requestPurpose: str
-    voters: Dict[str, Voters]
+    voters: List[str]
     keyHash: Optional[str]
     yayVoteStakedMvkTotal: str
     nayVoteStakedMvkTotal: str
@@ -73,13 +43,41 @@ class FinancialRequestLedger(BaseModel):
     expiryDateTime: str
 
 
-class FinancialRequestSnapshotLedger(BaseModel):
+class Key(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    totalStakedMvkBalance: str
-    totalDelegatedAmount: str
-    totalVotingPower: str
+    nat: str
+    address: str
+
+
+class ValueItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nay: Dict[str, Any]
+
+
+class ValueItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    pass_: Dict[str, Any] = Field(..., alias='pass')
+
+
+class ValueItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    yay: Dict[str, Any]
+
+
+class FinancialRequestVoter(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key
+    value: Union[ValueItem, ValueItem1, ValueItem2]
 
 
 class GovernanceFinancialStorage(BaseModel):
@@ -95,7 +93,6 @@ class GovernanceFinancialStorage(BaseModel):
     whitelistContracts: Dict[str, str]
     generalContracts: Dict[str, str]
     financialRequestLedger: Dict[str, FinancialRequestLedger]
-    financialRequestSnapshotLedger: Dict[str, Dict[str, FinancialRequestSnapshotLedger]]
     financialRequestCounter: str
-    snapshotStakedMvkTotalSupply: str
+    financialRequestVoters: List[FinancialRequestVoter]
     lambdaLedger: Dict[str, str]
