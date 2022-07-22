@@ -10,6 +10,8 @@ async def on_governance_satellite_update_config(
     update_config: Transaction[UpdateConfigParameter, GovernanceSatelliteStorage],
 ) -> None:
 
+    breakpoint()
+
     # Get operation values
     satellite_address       = update_config.data.target_address
     updated_value           = int(update_config.parameter.updateConfigNewValue)

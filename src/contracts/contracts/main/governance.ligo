@@ -765,13 +765,13 @@ block {
 
 
 (* View: get all proposals proposed by a satellite on a given cycle *)
-[@view] function getCycleProposerOpt(const cycleAndProposer : (nat*address); var s : governanceStorageType) : set(nat) is
+[@view] function getCycleProposerOpt(const cycleAndProposer : (nat*address); var s : governanceStorageType) : option(set(nat)) is
     Big_map.find_opt(cycleAndProposer, s.cycleProposers)
 
 
 
 (* View: get the latest vote of the voter on a given cycle *)
-[@view] function getRoundVoteOpt(const cycleAndProposer : (nat*address); var s : governanceStorageType) : roundVoteType is
+[@view] function getRoundVoteOpt(const cycleAndProposer : (nat*address); var s : governanceStorageType) : option(roundVoteType) is
     Big_map.find_opt(cycleAndProposer, s.roundVotes)
 
 
