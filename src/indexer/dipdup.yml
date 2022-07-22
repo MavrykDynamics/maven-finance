@@ -120,10 +120,6 @@ templates:
         pattern:
           - destination: <farm_contract>
             entrypoint: updateGeneralContracts
-      - callback: on_farm_update_blocks_per_minute
-        pattern:
-          - destination: <farm_contract>
-            entrypoint: updateBlocksPerMinute
       - callback: on_farm_init_farm
         pattern:
           - destination: <farm_contract>
@@ -551,10 +547,6 @@ indexes:
         pattern:
           - destination: farm
             entrypoint: updateGeneralContracts
-      - callback: on_farm_update_blocks_per_minute
-        pattern:
-          - destination: farm
-            entrypoint: updateBlocksPerMinute
       - callback: on_farm_init_farm
         pattern:
           - destination: farm
@@ -622,10 +614,6 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: updateGeneralContracts
-      - callback: on_farm_factory_update_blocks_per_minute
-        pattern:
-          - destination: farm_factory
-            entrypoint: updateBlocksPerMinute
       - callback: on_farm_factory_pause_all
         pattern:
           - destination: farm_factory
@@ -1143,6 +1131,10 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: updateAggregatorStatus
+      - callback: on_governance_satellite_fix_mistaken_transfer
+        pattern:
+          - destination: governance_satellite
+            entrypoint: fixMistakenTransfer
       - callback: on_governance_satellite_drop_action
         pattern:
           - destination: governance_satellite

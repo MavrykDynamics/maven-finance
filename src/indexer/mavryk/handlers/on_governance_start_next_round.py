@@ -10,6 +10,8 @@ async def on_governance_start_next_round(
     start_next_round: Transaction[StartNextRoundParameter, GovernanceStorage],
 ) -> None:
     
+    breakpoint() # reward claim ready to implement
+
     # Get operation values
     governance_address                  = start_next_round.data.target_address
     current_round                       = start_next_round.storage.currentCycleInfo.round

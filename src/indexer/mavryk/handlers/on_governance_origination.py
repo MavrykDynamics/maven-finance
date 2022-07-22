@@ -20,7 +20,6 @@ async def on_governance_origination(
     min_yay_vote_percentage                 = int(governance_origination.storage.config.minYayVotePercentage)
     proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMutez)
     max_proposals_per_delegate              = int(governance_origination.storage.config.maxProposalsPerSatellite)
-    blocks_per_minute                       = int(governance_origination.storage.config.blocksPerMinute)
     blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
     blocks_per_voting_round                 = int(governance_origination.storage.config.blocksPerVotingRound)
     blocks_per_timelock_round               = int(governance_origination.storage.config.blocksPerTimelockRound)
@@ -39,7 +38,7 @@ async def on_governance_origination(
     current_cycle_total_voters_reward       = int(governance_origination.storage.currentCycleInfo.cycleTotalVotersReward)
     next_proposal_id                        = int(governance_origination.storage.nextProposalId)
     cycle_counter                           = int(governance_origination.storage.cycleCounter)
-    cycle_highest_voted_proposal_id  = int(governance_origination.storage.cycleHighestVotedProposalId )
+    cycle_highest_voted_proposal_id         = int(governance_origination.storage.cycleHighestVotedProposalId )
     timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
 
     # Current round
@@ -64,7 +63,6 @@ async def on_governance_origination(
     governance.min_yay_vote_percentage                 = min_yay_vote_percentage
     governance.proposal_submission_fee_mutez           = proposal_submission_fee
     governance.max_proposal_per_satellite              = max_proposals_per_delegate
-    governance.blocks_per_minute                       = blocks_per_minute
     governance.blocks_per_proposal_round               = blocks_per_Proposal_round
     governance.blocks_per_voting_round                 = blocks_per_voting_round
     governance.blocks_per_timelock_round               = blocks_per_timelock_round
