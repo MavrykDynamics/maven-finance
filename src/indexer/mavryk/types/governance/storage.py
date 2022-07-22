@@ -20,7 +20,6 @@ class Config(BaseModel):
     minYayVotePercentage: str
     proposalSubmissionFeeMutez: str
     maxProposalsPerSatellite: str
-    blocksPerMinute: str
     blocksPerProposalRound: str
     blocksPerVotingRound: str
     blocksPerTimelockRound: str
@@ -85,44 +84,6 @@ class PaymentMetadatum(BaseModel):
     transaction: Transaction
 
 
-class ProposalVotersMap(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    timestamp: str
-
-
-class OrItem(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nay: Dict[str, Any]
-
-
-class OrItem1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    pass_: Dict[str, Any] = Field(..., alias='pass')
-
-
-class OrItem2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    yay: Dict[str, Any]
-
-
-class Voters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    nat: str
-    timestamp: str
-    or_: Union[OrItem, OrItem1, OrItem2] = Field(..., alias='or')
-
-
 class ProposalLedger(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -137,12 +98,13 @@ class ProposalLedger(BaseModel):
     invoice: str
     sourceCode: str
     successReward: str
+    totalVotersReward: str
     executed: bool
     paymentProcessed: bool
     locked: bool
+    rewardClaimReady: bool
     proposalVoteCount: str
     proposalVoteStakedMvkTotal: str
-    proposalVotersMap: Dict[str, ProposalVotersMap]
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
     yayVoteCount: str
@@ -151,7 +113,7 @@ class ProposalLedger(BaseModel):
     nayVoteStakedMvkTotal: str
     passVoteCount: str
     passVoteStakedMvkTotal: str
-    voters: Dict[str, Voters]
+    voters: List[str]
     minQuorumPercentage: str
     minQuorumStakedMvkTotal: str
     minYayVotePercentage: str
@@ -163,6 +125,22 @@ class ProposalLedger(BaseModel):
     currentCycleEndLevel: str
 
 
+class Key(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
+    address: str
+
+
+class ProposalReward(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key
+    value: Dict[str, Any]
+
+
 class SnapshotLedger(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -170,6 +148,7 @@ class SnapshotLedger(BaseModel):
     totalStakedMvkBalance: str
     totalDelegatedAmount: str
     totalVotingPower: str
+    ready: bool
     cycle: str
 
 
@@ -205,11 +184,68 @@ class CurrentCycleInfo(BaseModel):
     roundStartLevel: str
     roundEndLevel: str
     cycleEndLevel: str
-    roundProposals: Dict[str, str]
-    roundProposers: Dict[str, List[str]]
-    roundVotes: Dict[str, str]
     cycleTotalVotersReward: str
     minQuorumStakedMvkTotal: str
+
+
+class Key1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
+    address: str
+
+
+class CycleProposer(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key1
+    value: List[str]
+
+
+class Key2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
+    address: str
+
+
+class ValueItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    proposal: str
+
+
+class ValueItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nay: Dict[str, Any]
+
+
+class ValueItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    pass_: Dict[str, Any] = Field(..., alias='pass')
+
+
+class ValueItem3(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    yay: Dict[str, Any]
+
+
+class RoundVote(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key2
+    value: Union[ValueItem, ValueItem1, ValueItem2, ValueItem3]
 
 
 class GovernanceStorage(BaseModel):
@@ -225,8 +261,12 @@ class GovernanceStorage(BaseModel):
     generalContracts: Dict[str, str]
     whitelistDevelopers: List[str]
     proposalLedger: Dict[str, ProposalLedger]
+    proposalRewards: List[ProposalReward]
     snapshotLedger: Dict[str, SnapshotLedger]
     currentCycleInfo: CurrentCycleInfo
+    cycleProposals: Dict[str, str]
+    cycleProposers: List[CycleProposer]
+    roundVotes: List[RoundVote]
     nextProposalId: str
     cycleCounter: str
     cycleHighestVotedProposalId: str
