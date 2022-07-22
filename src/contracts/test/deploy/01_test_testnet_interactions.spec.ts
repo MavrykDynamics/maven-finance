@@ -950,16 +950,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates farm factory blocks per minute', async () => {
-            try{
-                // Operation
-                const operation = await councilInstance.methods.councilActionUpdateBlocksPerMin(farmFactoryAddress.address, 3).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin adds a new vestee', async () => {
             try{
                 // Operation
@@ -1676,21 +1666,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin updates blocks per minute', async () => {
-            try{
-                // Operation
-                councilStorage  = await councilInstance.storage();
-                const actionId  = councilStorage.actionCounter;
-                var operation = await councilInstance.methods.councilActionUpdateBlocksPerMin(farmFactoryAddress.address, 3).send();
-                await operation.confirmation();
-                await signerFactory(alice.sk)
-                operation = await councilInstance.methods.signAction(actionId).send()
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
         it('Admin pauses create farm entrypoint', async () => {
             try{
                 // Operation
@@ -1817,7 +1792,6 @@ describe("Testnet interactions helper", async () => {
                 const operation = await farmInstance.methods.initFarm(
                     12000,
                     100,
-                    2,
                     false,
                     false
                 ).send();

@@ -46,7 +46,6 @@ type farmFactoryAction is
     |   UpdateWhitelistContracts    of updateWhitelistContractsType
     |   UpdateGeneralContracts      of updateGeneralContractsType
     |   MistakenTransfer            of transferActionType
-    |   UpdateBlocksPerMinute       of (nat)
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                    of (unit)
@@ -438,25 +437,6 @@ block {
 
 } with response
 
-
-
-(*  UpdateBlocksPerMinute entrypoint *)
-function updateBlocksPerMinute(const newBlocksPerMinute : nat; var s : farmFactoryStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateBlocksPerMinute"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateBlocksPerMinute(newBlocksPerMinute);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
-
-} with response
-
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -659,7 +639,6 @@ block{
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
         |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
-        |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                  -> pauseAll(s)

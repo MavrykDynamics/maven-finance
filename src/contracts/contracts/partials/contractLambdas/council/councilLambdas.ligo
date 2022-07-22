@@ -444,79 +444,6 @@ block {
 // ------------------------------------------------------------------------------
 
 
-// ------------------------------------------------------------------------------
-// Council Actions for Contracts Begin
-// ------------------------------------------------------------------------------
-
-(*  councilActionUpdateBlocksPerMinute lambda  *)
-function lambdaCouncilActionUpdateBlocksPerMinute(const councilLambdaAction : councilLambdaActionType; var s : councilStorageType) : return is 
-block {
-
-    // Steps Overview:
-    // 1. Check if sender is a Council Member
-    // 2. Check that new blocks per minute will not break the system (cannot be zero)
-    // 3. Check that provided contract has an updateBlocksPerMinute entrypoint
-    // 4. Create and save new council action record, set the sender as a signer of the action
-    //      - Action Type: updateBlocksPerMinute
-    // 5. Increment action counter
-
-    checkSenderIsCouncilMember(s);
-
-    case councilLambdaAction of [
-        |   LambdaCouncilUpdateBlocksPerMin(councilActionUpdateBlocksPerMinParam) -> {
-                
-                // Check that blocks per minute will not break the system
-                if councilActionUpdateBlocksPerMinParam.newBlocksPerMinute = 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE)
-                else skip;
-
-                // Check if the provided contract has an updateBlocksPerMinute entrypoint
-                const _checkEntrypoint: contract(nat)    = sendUpdateBlocksPerMinuteParams(councilActionUpdateBlocksPerMinParam.contractAddress);
-
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const addressMap : addressMapType     = map [
-                    ("contractAddress": string) -> councilActionUpdateBlocksPerMinParam.contractAddress
-                ];
-                const emptyStringMap : stringMapType  = map [];
-                const natMap : natMapType             = map [
-                    ("newBlocksPerMinute"  : string) -> councilActionUpdateBlocksPerMinParam.newBlocksPerMinute;
-                ];
-
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "updateBlocksPerMinute";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = natMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-// ------------------------------------------------------------------------------
-// Council Actions for Contracts End
-// ------------------------------------------------------------------------------
-
 
 // ------------------------------------------------------------------------------
 // Council Actions for Vesting Begin
@@ -1523,41 +1450,6 @@ block {
 
                     // ------------------------------------------------------------------------------
                     // Council Actions for Internal Control End
-                    // ------------------------------------------------------------------------------
-
-
-
-                    // ------------------------------------------------------------------------------
-                    // Council Actions for Contracts Begin
-                    // ------------------------------------------------------------------------------
-
-                    // updateBlocksPerMinute action type
-                    if actionType = "updateBlocksPerMinute" then block {
-                        
-                        // fetch params begin ---
-                        const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of [
-                                Some(_nat) -> _nat
-                            |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-                        ];
-                        
-                        const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of [
-                                Some(_address) -> _address
-                            |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
-                        ];
-                        // fetch params end ---
-
-                        const updateBlocksPerMinuteOperation : operation = Tezos.transaction(
-                            newBlocksPerMinute,
-                            0tez, 
-                            sendUpdateBlocksPerMinuteParams(contractAddress)
-                        );
-                        
-                        operations := updateBlocksPerMinuteOperation # operations;
-
-                    } else skip;
-
-                    // ------------------------------------------------------------------------------
-                    // Council Actions for Contracts End
                     // ------------------------------------------------------------------------------
 
 

@@ -54,9 +54,6 @@ type councilAction is
     |   CouncilActionChangeMember                   of councilActionChangeMemberType
     |   CouncilActionSetBaker                       of setBakerType
 
-        // Council Actions for Contracts
-    |   CouncilActionUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
-
         // Council Actions for Vesting
     |   CouncilActionAddVestee                      of addVesteeType
     |   CouncilActionRemoveVestee                   of address
@@ -131,15 +128,6 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to update blocksPerMinute on a specified contract
-function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : contract(nat) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateBlocksPerMinute",
-        contractAddress) : option(contract(nat))) of [
-                Some(contr) -> contr
-            |   None        -> (failwith(error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND) : contract(nat))
-        ];
 
 
 
@@ -575,33 +563,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Council Actions for Contracts Entrypoints Begin
-// ------------------------------------------------------------------------------
-
-(*  councilActionUpdateBlocksPerMinute entrypoint  *)
-function councilActionUpdateBlocksPerMinute(const councilActionUpdateBlocksPerMinParam : councilActionUpdateBlocksPerMinType ; var s : councilStorageType) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionUpdateBlocksPerMinute"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilUpdateBlocksPerMin(councilActionUpdateBlocksPerMinParam);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
-
-} with response
-
-// ------------------------------------------------------------------------------
-// Council Actions for Contracts Entrypoints End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Council Actions for Vesting Entrypoints Begin
 // ------------------------------------------------------------------------------
 
@@ -886,9 +847,6 @@ function main (const action : councilAction; const s : councilStorageType) : ret
         |   CouncilActionRemoveMember(parameters)         -> councilActionRemoveMember(parameters, s)
         |   CouncilActionChangeMember(parameters)         -> councilActionChangeMember(parameters, s)
         |   CouncilActionSetBaker(parameters)             -> councilActionSetBaker(parameters, s)
-
-            // Council actions for Contracts
-        |   CouncilActionUpdateBlocksPerMin(parameters)   -> councilActionUpdateBlocksPerMinute(parameters, s)
 
             // Council Actions for Vesting
         |   CouncilActionAddVestee(parameters)            -> councilActionAddVestee(parameters, s)
