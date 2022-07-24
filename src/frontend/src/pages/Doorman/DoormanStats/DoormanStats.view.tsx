@@ -1,7 +1,5 @@
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
-
-import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 // components
@@ -22,7 +20,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   const { exchangeRate, mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  const { doormanAddress } = useSelector((state: State) => state.contractAddresses)
+  const { doormanAddress, mvkTokenAddress } = useSelector((state: State) => state.contractAddresses)
   const { user } = useSelector((state: State) => state.user)
   const totalSupply = mvkTokenStorage?.totalSupply ?? 0
   const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
@@ -34,10 +32,18 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
     <DoormanStatsStyled>
       <DoormanStatsHeader>MVK Staking contract details</DoormanStatsHeader>
       <DoormanList>
+        {mvkTokenAddress?.address ? (
+          <div>
+            <h4>MVK Token address</h4>
+            <var className="click-address">
+              <TzAddress tzAddress={mvkTokenAddress?.address} hasIcon />
+            </var>
+          </div>
+        ) : null}
         {doormanAddress?.address ? (
           <div>
-            <h4>Contract address</h4>
-            <var className="click-addrese">
+            <h4>Doorman address</h4>
+            <var className="click-address">
               <TzAddress tzAddress={doormanAddress?.address} hasIcon />
             </var>
           </div>

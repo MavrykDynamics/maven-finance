@@ -57,7 +57,6 @@ export const SatelliteListCard = ({
   const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const sMvkBalance = satellite.sMvkBalance
-  console.log(totalDelegatedMVK, sMvkBalance)
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
@@ -154,7 +153,7 @@ export const SatelliteListCard = ({
           </SatelliteTextGroup>
           <SatelliteTextGroup>
             <SatelliteMainText>
-              <CommaNumber value={Number(satellite.satelliteFee / 100)} endingText="%" />
+              <CommaNumber value={Number(satellite.satelliteFee)} endingText="%" />
             </SatelliteMainText>
             <SatelliteSubText>Fee</SatelliteSubText>
           </SatelliteTextGroup>

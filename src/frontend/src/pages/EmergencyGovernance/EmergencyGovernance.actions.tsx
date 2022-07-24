@@ -75,7 +75,11 @@ export const submitEmergencyGovernanceProposal =
       })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.emergencyGovernanceAddress.address)
       console.log('contract', contract)
-      const transaction = await contract?.methods.triggerEmergencyControl(form.title, form.description).send()
+      const triggerFee = state.emergencyGovernance.emergencyGovernanceStorage.config.requiredFeeMutez || 0
+      console.log(triggerFee)
+      const transaction = await contract?.methods
+        .triggerEmergencyControl(form.title, form.description)
+        .send({ amount: triggerFee })
       console.log('transaction', transaction)
 
       dispatch(showToaster(INFO, 'Submitting emergency proposal...', 'Please wait 30s'))
