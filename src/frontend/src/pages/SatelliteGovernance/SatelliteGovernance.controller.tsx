@@ -58,10 +58,11 @@ const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelli
 }
 
 const getPastActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+  console.log(list)
   return list.filter((item: any) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime).getTime()
-    return expirationDatetime < timeNow
+    return expirationDatetime < timeNow || item.status === 0
   })
 }
 
@@ -78,7 +79,7 @@ export const SatelliteGovernance = () => {
     () => satelliteLedger.filter((item) => item.status === SatelliteStatus.ACTIVE),
     [satelliteLedger],
   )
-  console.log(satelliteLedger)
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
@@ -242,19 +243,19 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList.map((item: any) => {
-        const linkAdress = item.governance_satellite_action_parameters?.[0]?.value || ''
+        const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
         return (
           <SatelliteGovernanceCard
             key={item.id}
             id={item.id}
-            satellite={item.governance_satellite_id}
+            satelliteId={item.linkAddress || item.initiator_id}
             date={item.expiration_datetime}
             executed={item.executed}
             status={item.status}
             purpose={item.governance_purpose}
             governanceType={item.governance_type}
-            linkAdress={linkAdress}
+            linkAddress={linkAddress}
             yayVotesSmvkTotal={item.yay_vote_smvk_total}
             nayVotesSmvkTotal={item.nay_vote_smvk_total}
             snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}

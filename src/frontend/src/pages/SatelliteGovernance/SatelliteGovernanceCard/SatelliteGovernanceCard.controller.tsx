@@ -1,15 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
 import * as React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { VotingArea } from '../../Governance/VotingArea/VotingArea.controller'
 import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 
@@ -25,17 +24,17 @@ import {
   SatelliteGovernanceCardTitleTextGroup,
   SatelliteGovernanceCardTopSection,
 } from './SatelliteGovernanceCard.style'
-import { VotingAreaStyled, VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
+import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 
 type Props = {
-  satellite: string
+  satelliteId: string
   date: string
   executed: boolean
   status: number
   id: number
   purpose: string
   governanceType: string
-  linkAdress: string
+  linkAddress: string
   smvkPercentageForApproval: number
   yayVotesSmvkTotal: number
   nayVotesSmvkTotal: number
@@ -45,13 +44,13 @@ type Props = {
 
 export const SatelliteGovernanceCard = ({
   id,
-  satellite,
+  satelliteId,
   date,
   executed,
   status,
   purpose,
   governanceType,
-  linkAdress,
+  linkAddress,
   smvkPercentageForApproval,
   yayVotesSmvkTotal,
   nayVotesSmvkTotal,
@@ -59,6 +58,7 @@ export const SatelliteGovernanceCard = ({
   snapshotSmvkTotalSupply,
 }: Props) => {
   const dispatch = useDispatch()
+  console.log(satelliteId)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
@@ -92,6 +92,8 @@ export const SatelliteGovernanceCard = ({
     ? ProposalStatus.DROPPED
     : isEndingVotingTime
     ? ProposalStatus.ONGOING
+    : expirationDatetime < timeNow
+    ? ProposalStatus.DEFEATED
     : ProposalStatus.ACTIVE
 
   return (
@@ -115,7 +117,7 @@ export const SatelliteGovernanceCard = ({
         <SatelliteGovernanceCardTitleTextGroup>
           <h3>Satellite</h3>
           <p>
-            <TzAddress tzAddress={satellite} hasIcon={false} />
+            <TzAddress tzAddress={satelliteId} hasIcon={false} />
           </p>
         </SatelliteGovernanceCardTitleTextGroup>
         <SatelliteGovernanceArrowButton>
@@ -139,8 +141,8 @@ export const SatelliteGovernanceCard = ({
           <div>
             <h3>Purpose</h3>
             <p className="purpose">{purpose}</p>
-            {linkAdress ? (
-              <Link className={'view-satellite'} to={`/satellite-details/${linkAdress}`}>
+            {linkAddress ? (
+              <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
                 View Satellite
               </Link>
             ) : null}
@@ -155,7 +157,7 @@ export const SatelliteGovernanceCard = ({
             ) : null}
           </div>
           <div className="voting-block">
-            <h3>Vote Satistics</h3>
+            <h3>Vote Statistics</h3>
             <b className="voting-ends">
               Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" />{' '}
               {timeFormat} CEST

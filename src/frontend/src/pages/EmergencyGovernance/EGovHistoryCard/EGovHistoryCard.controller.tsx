@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import * as React from 'react'
+import { useEffect, useRef, useState } from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 
@@ -8,7 +8,6 @@ import { EmergencyGovernanceLedgerType } from '../EmergencyGovernance.controller
 
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-import { EmergencyGovernancePastProposal } from '../mockEGovProposals'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 import {
@@ -23,6 +22,7 @@ type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceLedgerType
 }
 export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) => {
+  console.log(emergencyGovernance)
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const ref = useRef(null)
@@ -80,11 +80,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
         <div className={'accordion ' + `${expanded}`} ref={ref}>
           <h3>Description</h3>
           <p>{emergencyGovernance.description}</p>
-          {/* <ul>
-            <li>What the exact fatal flaw was</li>
-            <li>What the break glass triggered</li>
-            <li>What actions the council took</li>
-          </ul> */}
         </div>
       </EGovHistoryCardDropDown>
     </EGovHistoryCardStyled>

@@ -380,7 +380,8 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
       id: record.id,
       title: record.title,
       description: record.description,
-      status: record.status,
+      executedLevel: record.executed_level,
+      startLevel: record.start_level,
       dropped: record.dropped,
       executed: record.executed,
       proposerId: record.proposer_id,
@@ -390,6 +391,7 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
       expirationTimestamp: new Date(record.expiration_timestamp),
       sMvkPercentageRequired: record.smvk_percentage_required / 100,
       sMvkRequiredForTrigger: calcWithoutPrecision(record.smvk_required_for_trigger),
+      totalsMvkVotes: calcWithoutPrecision(record.total_smvk_votes),
       voters,
     }
     eGovRecords.push(newEGovRecord)
@@ -398,8 +400,8 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
     emergencyGovernanceLedger: eGovRecords,
     address: storage?.address,
     config: {
-      minStakedMvkRequiredToTrigger: storage?.min_smvk_required_to_trigger,
-      minStakedMvkRequiredToVote: storage?.min_smvk_required_to_vote,
+      minStakedMvkRequiredToTrigger: calcWithoutPrecision(storage?.min_smvk_required_to_trigger),
+      minStakedMvkRequiredToVote: calcWithoutPrecision(storage?.min_smvk_required_to_vote),
       requiredFeeMutez: calcWithoutMu(storage?.required_fee_mutez),
       voteExpiryDays: storage?.vote_expiry_days,
       sMvkPercentageRequired: storage?.smvk_percentage_required / 100,
