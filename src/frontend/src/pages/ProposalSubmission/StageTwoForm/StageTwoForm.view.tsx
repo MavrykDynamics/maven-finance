@@ -140,7 +140,8 @@ export const StageTwoFormView = ({
           <article key={item.id}>
             <div className="step-bytes-title">
               <label>
-                <span>4{alphabet[item.id] || item.id}</span> - Enter Proposal Bytes Title
+                {/* <span>4{alphabet[item.id] || item.id}</span> - Enter Proposal Bytes Title */}
+                <span>4a</span> - Enter Proposal Bytes Title
               </label>
               <Input
                 type="text"
@@ -153,7 +154,8 @@ export const StageTwoFormView = ({
             </div>
 
             <label>
-              <span>4{alphabet[item.id] || item.id}</span> - Enter Proposal Bytes data
+              {/* <span>4{alphabet[item.id] || item.id}</span> - Enter Proposal Bytes data */}
+              <span>4b</span> - Enter Proposal Bytes data
             </label>
             <TextArea
               type="text"
