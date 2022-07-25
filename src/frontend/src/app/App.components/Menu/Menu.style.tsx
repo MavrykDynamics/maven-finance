@@ -28,6 +28,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   @media screen and (max-width: 1460px) {
     &:not(.menu-expanded) {
       width: 72px;
+
       .desctop-logo,
       a .navLinkSubTitle,
       a .navLinkTitle {
@@ -53,9 +54,11 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
       background: ${backdropColor};
       z-index: 30;
       align-items: flex-start;
+
       .burger-menu {
         margin: 21px 29px 0 auto;
         transform: rotate(45deg);
+
         > div {
           display: none;
         }
@@ -96,6 +99,7 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   @media screen and (max-width: 1460px) {
     display: flex;
   }
+
   > div {
     width: 100%;
     height: 2px;
@@ -116,8 +120,6 @@ export const MenuTopSection = styled.div`
   max-width: 270px;
   min-height: 100vh;
   height: 100%;
-  display: flex;
-  flex-direction: column;
   background-color: ${({ theme }) => theme.containerColor};
   position: relative;
 `

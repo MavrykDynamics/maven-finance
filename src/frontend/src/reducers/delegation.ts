@@ -28,6 +28,7 @@ import {
   DelegationStorage,
   ParticipationMetrics,
   SatelliteRecord,
+  SatelliteStatus,
 } from '../utils/TypesAndInterfaces/Delegation'
 
 export const DELEGATE = 'DELEGATE'
@@ -70,7 +71,7 @@ const delegationDefaultState: DelegationState = {
   delegationStorage: getItemFromStorage('DelegationStorage') || defaultDelegationStorage,
   amount: 0,
   currentSatellite: {
-    active: false,
+    status: SatelliteStatus.INACTIVE,
     address: '',
     description: '',
     website: '',
@@ -97,7 +98,7 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
     case GET_DELEGATION_STORAGE:
       return {
         ...state,
-          delegationStorage: action.delegationStorage,
+        delegationStorage: action.delegationStorage,
       }
     case DELEGATE_REQUEST:
       return {

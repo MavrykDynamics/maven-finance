@@ -1,28 +1,28 @@
 import Icon from 'app/App.components/Icon/Icon.view'
 import * as React from 'react'
-import { AccordeonWrapper, AccordeonItem, AccordeonToggler, AccordeonContent } from './Accordeon.style'
+import { AccordionContent, AccordionItem, AccordionToggler, AccordionWrapper } from './Accordeon.style'
 
-type AccordeonViewProps = {
-  accordeonId: string
+type AccordionViewProps = {
+  accordionId: string
   isExpanded: boolean
   methods: Record<string, boolean>
-  accordeonClickHandler: (accId: string) => void
+  accordionClickHandler: (accId: string) => void
 }
 
-export const BGAccordeon = ({ methods, accordeonClickHandler, accordeonId, isExpanded }: AccordeonViewProps) => {
+export const BGAccordion = ({ methods, accordionClickHandler, accordionId, isExpanded }: AccordionViewProps) => {
   const methodsList = methods ? Object.keys(methods) : []
   return (
-    <AccordeonWrapper>
-      <AccordeonToggler onClick={() => accordeonClickHandler(accordeonId)}>
-        Methods {<Icon className={`accordeon-icon ${isExpanded ? '' : 'down'}`} id="accordeon_icon" />}
-      </AccordeonToggler>
-      <AccordeonContent className={`${isExpanded ? 'expaned' : ''}`}>
+    <AccordionWrapper>
+      <AccordionToggler onClick={() => accordionClickHandler(accordionId)}>
+        Methods {<Icon className={`accordion-icon ${isExpanded ? '' : 'down'}`} id="accordion_icon" />}
+      </AccordionToggler>
+      <AccordionContent className={`${isExpanded ? 'expanded' : ''}`}>
         {methodsList.map((method: string) => (
-          <AccordeonItem key={method} status={methods[method]}>
-            <div className="trunkated_text">{method}</div>
-          </AccordeonItem>
+          <AccordionItem key={method} status={methods[method]}>
+            <div className="truncated_text">{method}</div>
+          </AccordionItem>
         ))}
-      </AccordeonContent>
-    </AccordeonWrapper>
+      </AccordionContent>
+    </AccordionWrapper>
   )
 }

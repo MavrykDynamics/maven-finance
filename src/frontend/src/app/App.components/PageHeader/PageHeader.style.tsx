@@ -58,7 +58,8 @@ export const PageHeaderTextArea = styled.div`
 
   > p {
     color: ${whiteColor};
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 500;
     margin: 0;
   }
 `
@@ -78,6 +79,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
     switch (page) {
       case 'governance':
       case 'council':
+      case 'financial requests':
       case 'break glass':
       case 'emergency governance':
       case 'proposal submission':
@@ -90,6 +92,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
     switch (page) {
       case 'governance':
       case 'council':
+      case 'financial requests':
       case 'dashboard':
       case 'staking':
         return 'fit-content'
@@ -109,8 +112,9 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '130px'
       case 'governance':
       case 'council':
+      case 'financial requests':
       case 'proposal submission':
-        return '156px'
+        return '158px'
       case 'satellite-governance':
         return '192px'
       case 'data-feeds':
@@ -125,8 +129,9 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '-20px'
       case 'governance':
       case 'council':
+      case 'financial requests':
       case 'proposal submission':
-        return '6px'
+        return '7px'
       case 'emergency governance':
         return '-2px'
       default:

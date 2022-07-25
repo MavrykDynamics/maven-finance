@@ -1,14 +1,14 @@
 import { State } from '../../reducers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import {
-  BREAK_GLASS_STORAGE_QUERY,
-  BREAK_GLASS_STORAGE_QUERY_NAME,
-  BREAK_GLASS_STORAGE_QUERY_VARIABLE,
   BREAK_GLASS_STATUS_QUERY,
   BREAK_GLASS_STATUS_QUERY_NAME,
   BREAK_GLASS_STATUS_QUERY_VARIABLE,
+  BREAK_GLASS_STORAGE_QUERY,
+  BREAK_GLASS_STORAGE_QUERY_NAME,
+  BREAK_GLASS_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries'
-import storageToTypeConverter, { convertBreakGlassStatusStorageType } from '../../utils/storageToTypeConverter'
+import storageToTypeConverter from '../../utils/storageToTypeConverter'
 
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
 export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'
@@ -36,8 +36,8 @@ export const getBreakGlassStatus = (accountPkh?: string) => async (dispatch: any
     BREAK_GLASS_STATUS_QUERY_NAME,
     BREAK_GLASS_STATUS_QUERY_VARIABLE,
   )
-
-  const convertedStorage = convertBreakGlassStatusStorageType(storage)
+  console.log(storage)
+  const convertedStorage = storageToTypeConverter('breakGlassStatus', storage)
 
   dispatch({
     type: GET_BREAK_GLASS_STATUS,

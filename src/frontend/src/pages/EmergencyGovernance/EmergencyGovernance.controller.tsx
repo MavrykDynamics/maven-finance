@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 
@@ -12,11 +12,10 @@ import { getEmergencyGovernanceStorage } from './EmergencyGovernance.actions'
 import { EmergencyGovernanceView } from './EmergencyGovernance.view'
 import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { MOCK_E_GOV_PAST_PROPOSALS } from './mockEGovProposals'
-import { MOCK_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST, MOCK_PAST_PROPOSAL_LIST } from '../Governance/mockProposals'
+import { MOCK_PAST_PROPOSAL_LIST } from '../Governance/mockProposals'
 import { EmergencyGovProposalModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.controller'
 import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.actions'
-import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
-import { ProposalStatus, ProposalVote } from '../../utils/TypesAndInterfaces/Governance'
+import { proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
 
 export type EmergencyGovernanceLedgerType = {
   id: number
@@ -36,7 +35,7 @@ export const EmergencyGovernance = () => {
   const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-
+  console.log(emergencyGovernanceStorage)
   const selectedProposal = MOCK_PAST_PROPOSAL_LIST.values().next().value
 
   const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger

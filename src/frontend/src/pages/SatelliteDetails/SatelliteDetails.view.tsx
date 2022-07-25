@@ -4,7 +4,7 @@ import Time from 'react-pure-time'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
-import { Page, PageContent } from 'styles'
+import { Page } from 'styles'
 import { Loader } from 'app/App.components/Loader/Loader.view'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -12,6 +12,7 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
+
 // style
 import {
   BlockName,

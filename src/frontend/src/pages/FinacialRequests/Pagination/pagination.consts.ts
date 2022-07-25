@@ -1,12 +1,12 @@
-export const COUNSIL_LIST_NAME = 'counsil'
+export const COUNCIL_LIST_NAME = 'council'
 export const EMERGENCY_GOVERNANCE_LIST_NAME = 'emergencyGov'
 
 export const PAST_REQUESTS_FINANCIAL_REQUESTS_LIST = 'pastFR'
 export const ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST = 'ongoingFR'
 
-export const ONGOING_ACTIONS_SATELITE_GOVERNANCE_LIST = 'ongoingActionsSatelitesGov'
-export const PAST_ACTIONS_SATELITE_GOVERNANCE_LIST = 'pastActionsSatelitesGov'
-export const MY_ACTIONS_SATELITE_GOVERNANCE_LIST = 'myActionsSatelitesGov'
+export const ONGOING_ACTIONS_SATELLITE_GOVERNANCE_LIST = 'ongoingActionsSatellitesGov'
+export const PAST_ACTIONS_SATELLITE_GOVERNANCE_LIST = 'pastActionsSatellitesGov'
+export const MY_ACTIONS_SATELLITE_GOVERNANCE_LIST = 'myActionsSatellitesGov'
 
 export const SATELITES_OVERVIEW_LIST_NAME = 'saletitesGov'
 export const SATELITES_TOP_LIST_NAME = 'topSatelitesOracle'
@@ -15,6 +15,7 @@ export const FEEDS_ALL_LIST_NAME = 'allDataFeedsOracle'
 export const ORACLES_DATA_IN_FEED_LIST_NAME = 'oraclesDataFromFeed'
 export const USER_DATA_FEEDS_LIST_NAME = 'userDataFeeds'
 export const SATELITES_NODES_LIST_NAME = 'satelitesNodes'
+export const SATELLITES_OVERVIEW_LIST_NAME = 'satellitesOverviewList'
 
 export const WAITING_PROPOSALS_LIST_NAME = 'waitingProposals'
 export const WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME = 'waitingFPProposals'
@@ -24,13 +25,13 @@ export const NEXT_PROPOSALS_LIST_NAME = 'nextProposals'
 export const ONGOING_VOTING_PROPOSALS_LIST_NAME = 'ongoingVotingProposals'
 
 export const LIST_NAMES_MAPPER: Record<string, number> = {
-  [COUNSIL_LIST_NAME]:  10,
+  [COUNCIL_LIST_NAME]: 10,
   [EMERGENCY_GOVERNANCE_LIST_NAME]: 5,
   [PAST_REQUESTS_FINANCIAL_REQUESTS_LIST]: 5,
   [ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST]: 5,
-  [ONGOING_ACTIONS_SATELITE_GOVERNANCE_LIST]: 7,
-  [PAST_ACTIONS_SATELITE_GOVERNANCE_LIST]: 7,
-  [MY_ACTIONS_SATELITE_GOVERNANCE_LIST]: 7,
+  [ONGOING_ACTIONS_SATELLITE_GOVERNANCE_LIST]: 7,
+  [PAST_ACTIONS_SATELLITE_GOVERNANCE_LIST]: 7,
+  [MY_ACTIONS_SATELLITE_GOVERNANCE_LIST]: 7,
   [WAITING_PROPOSALS_LIST_NAME]: 10,
   [WAITING_FOR_PAYMENT_PROPOSALS_LIST_NAME]: 10,
   [HISTORY_PROPOSALS_LIST_NAME]: 10,
@@ -43,6 +44,7 @@ export const LIST_NAMES_MAPPER: Record<string, number> = {
   [ORACLES_DATA_IN_FEED_LIST_NAME]: 5,
   [USER_DATA_FEEDS_LIST_NAME]: 3,
   [FEEDS_ALL_LIST_NAME]: 10,
+  [SATELLITES_OVERVIEW_LIST_NAME]: 10,
 }
 
 export const calculateSlicePositions = (currentPage: number, listName: string) => {
@@ -50,15 +52,15 @@ export const calculateSlicePositions = (currentPage: number, listName: string) =
   return [(currentPage - 1) * itemsPerPage, currentPage * itemsPerPage]
 }
 
-export const getSateliteGovernanceListName = (tabId: string) => {
-  switch(tabId){
+export const getSatelliteGovernanceListName = (tabId: string) => {
+  switch (tabId) {
     case 'past':
-      return PAST_ACTIONS_SATELITE_GOVERNANCE_LIST;
+      return PAST_ACTIONS_SATELLITE_GOVERNANCE_LIST
     case 'ongoing':
-      return ONGOING_ACTIONS_SATELITE_GOVERNANCE_LIST;
+      return ONGOING_ACTIONS_SATELLITE_GOVERNANCE_LIST
     case 'my':
     default:
-      return MY_ACTIONS_SATELITE_GOVERNANCE_LIST
+      return MY_ACTIONS_SATELLITE_GOVERNANCE_LIST
   }
 }
 

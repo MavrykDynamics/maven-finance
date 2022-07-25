@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Page } from 'styles'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -11,8 +11,8 @@ import type { GovernanceSatelliteItem } from '../../reducers/governance'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { getPageNumber } from 'pages/FinacialRequests/FinancialRequests.helpers'
 import {
-  getSateliteGovernanceListName,
   calculateSlicePositions,
+  getSatelliteGovernanceListName,
 } from 'pages/FinacialRequests/Pagination/pagination.consts'
 
 // view
@@ -34,11 +34,12 @@ import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 import { getTotalDelegatedMVK } from 'pages/Satellites/helpers/Satellites.consts'
 
 // style
-import { SatelliteGovernanceStyled, AvailableActionsStyle } from './SatelliteGovernance.style'
-import { DropdownWrap, DropdownCard } from '../../app/App.components/DropDown/DropDown.style'
+import { SatelliteGovernanceStyled } from './SatelliteGovernance.style'
+import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
+import { SatelliteStatus } from '../../utils/TypesAndInterfaces/Delegation'
 
 const itemsForDropDown = [
-  { text: 'Chose action', value: '' },
+  { text: 'Choose action', value: '' },
   { text: 'Suspend Satellite', value: 'suspendSatellite' },
   { text: 'Unsuspend Satellite', value: 'unsuspendSatellite' },
   { text: 'Ban Satellite', value: 'banSatellite' },
@@ -57,10 +58,11 @@ const getOngoingActionsList = (list: GovernanceSatelliteItem): GovernanceSatelli
 }
 
 const getPastActionsList = (list: GovernanceSatelliteItem): GovernanceSatelliteItem => {
+  console.log(list)
   return list.filter((item: any) => {
     const timeNow = Date.now()
     const expirationDatetime = new Date(item.expiration_datetime).getTime()
-    return expirationDatetime < timeNow
+    return expirationDatetime < timeNow || item.status === 0
   })
 }
 
@@ -73,7 +75,11 @@ export const SatelliteGovernance = () => {
   const satelliteLedger = delegationStorage?.satelliteLedger
   const { totalOracleNetworks } = oraclesStorage
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
-  const satelliteLedgerActive = useMemo(() => satelliteLedger.filter((item) => item.active), [satelliteLedger])
+  const satelliteLedgerActive = useMemo(
+    () => satelliteLedger.filter((item) => item.status === SatelliteStatus.ACTIVE),
+    [satelliteLedger],
+  )
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
@@ -131,7 +137,7 @@ export const SatelliteGovernance = () => {
     dispatch(getGovernanceSatelliteStorage())
   }, [dispatch])
 
-  const listName = useMemo(() => getSateliteGovernanceListName(activeTab), [activeTab])
+  const listName = useMemo(() => getSatelliteGovernanceListName(activeTab), [activeTab])
   const { pathname, search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
@@ -237,19 +243,19 @@ export const SatelliteGovernance = () => {
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList.map((item: any) => {
-        const linkAdress = item.governance_satellite_action_parameters?.[0]?.value || ''
+        const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
         return (
           <SatelliteGovernanceCard
             key={item.id}
             id={item.id}
-            satellite={item.governance_satellite_id}
+            satelliteId={item.linkAddress || item.initiator_id}
             date={item.expiration_datetime}
             executed={item.executed}
             status={item.status}
             purpose={item.governance_purpose}
             governanceType={item.governance_type}
-            linkAdress={linkAdress}
+            linkAddress={linkAddress}
             yayVotesSmvkTotal={item.yay_vote_smvk_total}
             nayVotesSmvkTotal={item.nay_vote_smvk_total}
             snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}

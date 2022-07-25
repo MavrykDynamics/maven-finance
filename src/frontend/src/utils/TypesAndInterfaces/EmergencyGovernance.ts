@@ -18,7 +18,9 @@ export interface EmergencyGovernanceProposalRecord {
   sMvkPercentageRequired: number
   sMvkRequiredForTrigger: number
   startTimestamp: Date
-  status: boolean
+  executedLevel: number
+  startLevel: number
+  totalsMvkVotes: number
   title: string
   voters: EmergencyGovProposalVoter[]
 }

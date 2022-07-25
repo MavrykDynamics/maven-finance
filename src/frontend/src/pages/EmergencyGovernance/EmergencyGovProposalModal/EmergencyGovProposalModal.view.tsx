@@ -1,5 +1,4 @@
 import { Button } from 'app/App.components/Button/Button.controller'
-import * as PropTypes from 'prop-types'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
 import {
@@ -14,7 +13,6 @@ import {
 } from '../../ProposalSubmission/ProposalSubmission.style'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
-import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 
 type EmergencyGovProposalModalViewProps = {
   loading: boolean
@@ -79,7 +77,7 @@ export const EmergencyGovProposalModalView = ({
                     </div> */}
                     <div>
                       <label>2 - Fee</label>
-                      <FormTitleEntry>{fee}XTZ</FormTitleEntry>
+                      <FormTitleEntry>{fee} XTZ</FormTitleEntry>
                     </div>
                   </FormTitleAndFeeContainer>
 
