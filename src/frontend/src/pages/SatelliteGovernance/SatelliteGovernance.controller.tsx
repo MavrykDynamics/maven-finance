@@ -37,6 +37,7 @@ import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 import { SatelliteGovernanceStyled } from './SatelliteGovernance.style'
 import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 import { SatelliteStatus } from '../../utils/TypesAndInterfaces/Delegation'
+import { EmptyContainer } from '../../app/App.style'
 
 const itemsForDropDown = [
   { text: 'Choose action', value: '' },
@@ -146,6 +147,13 @@ export const SatelliteGovernance = () => {
     return separateRecord.slice(from, to)
   }, [currentPage, separateRecord])
 
+  const emptyContainer = (
+    <EmptyContainer>
+      <img src="/images/not-found.svg" alt=" No proposals to show" />
+      <figcaption> No actions to show</figcaption>
+    </EmptyContainer>
+  )
+
   return (
     <Page>
       <PageHeader page={'satellite-governance'} kind={PRIMARY} />
@@ -242,28 +250,30 @@ export const SatelliteGovernance = () => {
         </SlidingTabButtonsStyled>
       </SatelliteGovernanceStyled>
 
-      {paginatedItemsList.map((item: any) => {
-        const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
+      {paginatedItemsList?.length
+        ? paginatedItemsList.map((item: any) => {
+            const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
-        return (
-          <SatelliteGovernanceCard
-            key={item.id}
-            id={item.id}
-            satelliteId={item.linkAddress || item.initiator_id}
-            date={item.expiration_datetime}
-            executed={item.executed}
-            status={item.status}
-            purpose={item.governance_purpose}
-            governanceType={item.governance_type}
-            linkAddress={linkAddress}
-            yayVotesSmvkTotal={item.yay_vote_smvk_total}
-            nayVotesSmvkTotal={item.nay_vote_smvk_total}
-            snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}
-            passVoteSmvkTotal={item.pass_vote_smvk_total}
-            smvkPercentageForApproval={item.smvk_percentage_for_approval}
-          />
-        )
-      })}
+            return (
+              <SatelliteGovernanceCard
+                key={item.id}
+                id={item.id}
+                satelliteId={item.linkAddress || item.initiator_id}
+                date={item.expiration_datetime}
+                executed={item.executed}
+                status={item.status}
+                purpose={item.governance_purpose}
+                governanceType={item.governance_type}
+                linkAddress={linkAddress}
+                yayVotesSmvkTotal={item.yay_vote_smvk_total}
+                nayVotesSmvkTotal={item.nay_vote_smvk_total}
+                snapshotSmvkTotalSupply={item.snapshot_smvk_total_supply}
+                passVoteSmvkTotal={item.pass_vote_smvk_total}
+                smvkPercentageForApproval={item.smvk_percentage_for_approval}
+              />
+            )
+          })
+        : emptyContainer}
 
       <Pagination itemsCount={separateRecord.length} listName={listName} />
     </Page>
