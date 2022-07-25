@@ -1334,6 +1334,7 @@ describe("Testnet interactions helper", async () => {
                 councilStorage              = await councilInstance.storage()
                 governanceFinancialStorage  = await governanceFinancialInstance.storage()
                 const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 2
+                await signerFactory(bob.sk)
                 const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "yay").send()
                 await operation.confirmation();
             } catch(e){
@@ -3246,6 +3247,57 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin resolve a mistaken transfer', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var contractAccount         = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress.address)
+                var userAccount             = await mvkTokenStorage.ledger.get(bob.pkh)
+                const tokenAmount           = MVK(200);
+                const purpose               = "Transfer made by mistake to the aggregator factory"
+
+                // Mistake Operation
+                const transferOperation     = await mvkTokenInstance.methods.transfer([
+                    {
+                        from_: bob.pkh,
+                        txs: [
+                            {
+                                to_: aggregatorFactoryAddress.address,
+                                token_id: 0,
+                                amount: tokenAmount
+                            }
+                        ]
+                    }
+                ]).send();
+                await transferOperation.confirmation();
+
+                // Satellite Bob creates a governance action
+                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
+                        aggregatorFactoryAddress.address,
+                        purpose,
+                        [
+                            {
+                                "to_"    : bob.pkh,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress": mvkTokenAddress.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : tokenAmount
+                            }
+                        ]
+                    ).send();
+                await governanceSatelliteOperation.confirmation();
+
+                const operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
