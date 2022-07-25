@@ -44,7 +44,7 @@ export const Council = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { councilStorage, councilPastActions, councilPendingActions } = useSelector((state: State) => state.council)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
   const [isGoBack, setIsGoBack] = useState(false)
   const [sliderKey, setSliderKey] = useState(1)
   const [isPendingSignature, setIsPendingSignature] = useState(false)
@@ -131,7 +131,11 @@ export const Council = () => {
           </button>
         ) : null}
 
-        <article className={`council-details ${isPendingList ? 'is-user-member' : ''}`}>
+        <article
+          className={`council-details ${isPendingList ? 'is-user-member' : ''} ${
+            isPendingSignature ? 'is-pending-signature' : ''
+          }`}
+        >
           <div className="council-actions">
             {isPendingSignature && isPendingList ? (
               <>
