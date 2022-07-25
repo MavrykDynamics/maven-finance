@@ -4,9 +4,15 @@ import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.hel
 import { useHistory } from 'react-router'
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DataFeedSubTitleText } from 'pages/DataFeeds/details/DataFeedsDetails.style'
-// TODO: Answer, oracle status
+import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
+// TODO: date and answer
 export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
   const history = useHistory()
+  const { feeds } = useSelector((state: State) => state.oracles.oraclesStorage)
+  const oracleStatusType = getOracleStatus(oracle, feeds)
 
   return (
     <SatelliteItemStyle onClick={() => history.push(`/satellite-details/${oracle.address}/`)} oracle>
@@ -29,7 +35,9 @@ export const OracleCard = ({ oracle }: { oracle: SatelliteRecord }) => {
         <var>{getDate_MDY_Format(oracle.unregisteredDateTime?.toString() || '')}</var>
       </div>
       <div className="item center-v">
-        <SatelliteOracleStatusComponent statusType="responded">responded</SatelliteOracleStatusComponent>
+        <SatelliteOracleStatusComponent statusType={oracleStatusType}>
+          {ORACLE_STATUSES_MAPPER[oracleStatusType]}
+        </SatelliteOracleStatusComponent>
       </div>
       <div className="svg-wrapper">
         <svg>

@@ -53,7 +53,7 @@ export const SateliteSideBarFAQ = () => (
     </FAQLink>
   </SideBarFaq>
 )
-// TODO: Satellite Contract (sometimes it's '' cuz do not have it in state), Oracle Contract, On-Chain Data Points, Total Value Secured, Average Rewards per Oracle
+
 const SatellitesSideBarView = ({
   userIsSatellite,
   isButton,
@@ -79,14 +79,17 @@ const SatellitesSideBarView = ({
         <SideBarItem>
           <h3>Satellite Contract</h3>
           <var>
-            <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
+            {infoBlockAddresses.satellite ? (
+              <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
+            ) : (
+              'NO DATA'
+            )}
           </var>
         </SideBarItem>
         <SideBarItem>
           <h3>Oracle Contract</h3>
           <var>
-            NO DATA
-            {/* <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} /> */}
+            <TzAddress tzAddress={infoBlockAddresses.aggregator} hasIcon={false} />
           </var>
         </SideBarItem>
         <SideBarItem>

@@ -43,7 +43,7 @@ const emptyContainer = (
     <figcaption> No oracles to show</figcaption>
   </EmptyContainer>
 )
-// TODO: review sorting and filter logic, mb extract some common things from common sorting and filters
+// TODO: filters after category field will be implemented
 export const DataFeeds = () => {
   const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => state.loading)
@@ -54,7 +54,6 @@ export const DataFeeds = () => {
   const [allSatellites, setAllSatellites] = useState<Feed[]>(oraclesStorage.feeds)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<Feed[]>(oraclesStorage.feeds)
 
-  // TODO: make filtering due to data feeds
   const handleSelect = (selectedOption: any) => {
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
@@ -137,11 +136,13 @@ export const DataFeeds = () => {
         />
 
         <Button
-          text="Request data feed (FIX)"
+          text="Request data feed"
           icon="requestFeed"
           kind={ACTION_PRIMARY}
           loading={loading}
-          onClick={() => {}}
+          onClick={() => {
+            // TODO: implement request data feed ORACLE_SI
+          }}
         />
       </SatelliteSearchFilter>
       <DataFeedsStyled>

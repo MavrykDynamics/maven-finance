@@ -5,7 +5,7 @@ import { getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.hel
 import { useHistory } from 'react-router'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { InputErrorMessage } from 'app/App.components/Input/Input.style'
-// TODO: Answer
+
 export const DataFeedCard = ({ feed }: { feed: Feed }) => {
   const history = useHistory()
   const isTrustedAnswer = feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold

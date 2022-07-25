@@ -43,10 +43,16 @@ const emptyContainer = (
 )
 
 const itemsForDropDown = [
-  { text: 'Lowest Fee', value: 'satelliteFee' },
-  { text: 'Highest Fee', value: 'satelliteFee' },
-  { text: 'Delegated MVK', value: 'totalDelegatedAmount' },
-  { text: 'Participation', value: 'participation' },
+  { text: 'Cryptocurrencies (USD pairs)', value: 'cryptocurUDS' },
+  { text: 'Stablecoins', value: 'stableCoins' },
+  { text: 'Cryptocurrencies (BNB pairs)', value: 'cryptocurBNB' },
+  { text: 'Proof of Reserve', value: 'proofReserve' },
+  { text: 'Indexes', value: 'indexes' },
+  { text: 'Cryptocurrencies (ETH pairs)', value: 'cryptocurETH' },
+  { text: 'Foreign Exchange', value: 'forExchange' },
+  { text: 'Commodities', value: 'commodities' },
+  { text: 'Cryptocurrencies (Other)', value: 'cryptocurOther' },
+  { text: 'Ethereum Gas', value: 'ethGas' },
 ]
 
 const UserDetailsView = ({

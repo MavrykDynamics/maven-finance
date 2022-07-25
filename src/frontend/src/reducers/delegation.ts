@@ -4,6 +4,8 @@ import {
   DELEGATE_REQUEST,
   DELEGATE_RESULT,
   GET_DELEGATION_STORAGE,
+  REGISTER_FEED,
+  REGISTER_FEED_ERROR,
   UNDELEGATE_ERROR,
   UNDELEGATE_REQUEST,
   UNDELEGATE_RESULT,
@@ -193,6 +195,18 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
         type: SATELLITE_ACTION,
         currentSatellite: action.currentSatellite,
       }
+    case REGISTER_FEED:
+      // TODO: implement state change after success action ORACLES_SI
+      return {
+        ...state,
+        error: undefined,
+      }
+      case REGISTER_FEED_ERROR:
+        // TODO: implement state change after unsuccess action ORACLES_SI
+        return {
+          ...state,
+          error: action.error,
+        }
     default:
       return state
   }

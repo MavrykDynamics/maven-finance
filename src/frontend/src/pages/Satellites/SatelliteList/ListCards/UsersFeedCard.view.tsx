@@ -24,12 +24,12 @@ export const UserDataFeedCard = ({ feed }: { feed: Feed }) => {
 
       <div className="item">
         <h5>Network</h5>
-        <var>network</var>
+        <var>{feed.network || ''}</var>
       </div>
 
       <div className="item">
         <h5>Category</h5>
-        <var>Cryptocurrency(USD pairs)</var>
+        <var>{feed.category || ''}</var>
       </div>
 
       <div className="item">
