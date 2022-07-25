@@ -1,5 +1,6 @@
+import moment from 'moment'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { calcWithoutPrecision } from 'utils/calcFunctions'
@@ -18,6 +19,13 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
 
   const satelliteLedger = delegationStorage?.satelliteLedger
   const numSatellites = satelliteLedger?.length || 0
+  const dataPointsCount = useMemo(
+    () =>
+      feeds.filter(
+        (feed) => moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') <= 60,
+      ).length,
+    [feeds],
+  )
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, satelliteLedger)
   const averageRevard = feeds?.length
@@ -49,6 +57,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
         aggregator: feedsFactory[0]?.address || '',
       }}
       averageRevard={averageRevard}
+      dataPointsCount={dataPointsCount}
     />
   )
 }
