@@ -34,8 +34,8 @@ import {
 import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
-import { getOracleStatus } from 'pages/Satellites/helpers/Satellites.consts'
-// TODO: check validy of output data with Victor, cuz he knows more about it
+import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
+
 export const SatelliteListItem = ({
   satellite,
   loading,
@@ -68,12 +68,6 @@ export const SatelliteListItem = ({
     : null
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
-
-  const oracleDataMapper = {
-    responded: 'Responded',
-    noResponse: 'No Response',
-    awaiting: 'Awaiting',
-  }
 
   return (
     <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
@@ -159,7 +153,7 @@ export const SatelliteListItem = ({
                 <SatelliteMainText>Oracle Status</SatelliteMainText>
                 <SatelliteSubText>
                   <SatelliteOracleStatusComponent statusType={oracleStatusType}>
-                    {oracleDataMapper[oracleStatusType]}
+                    {ORACLE_STATUSES_MAPPER[oracleStatusType]}
                   </SatelliteOracleStatusComponent>
                 </SatelliteSubText>
               </SatelliteTextGroup>

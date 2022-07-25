@@ -47,8 +47,6 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const governanceStorage = storageToTypeConverter('governance', res[9])
   const oraclesStorage = storageToTypeConverter('oracle', res[10])
 
-  console.log(oraclesStorage)
-
   // if (addressesStorage) updateContractAddresses(addressesStorage)
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceId

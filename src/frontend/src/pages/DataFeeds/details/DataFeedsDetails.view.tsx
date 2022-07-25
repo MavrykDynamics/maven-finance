@@ -44,6 +44,7 @@ type FeedDetailsProps = {
   feed: Feed | null
   isLoading: boolean
   oracles: Array<SatelliteRecord>
+  registerFeedHandler: () => void
 }
 
 const emptyContainer = (
@@ -53,8 +54,7 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-// TODO: add links to each text with QUESTION_MARK_SVG_ENCODED | INFO_SVG_ENCODED, Trusted answer, Deviation threshold, Oracle responses, Heartbeat, ENS address
-const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => {
+const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
   const [isClickedRegister, setClickedRegister] = useState(false)
   const arrOfOracleRecords = useCallback(
     () => feed?.oracle_records.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
@@ -93,7 +93,13 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                   {feed.token_1_symbol}/{feed.token_0_symbol}
                 </DataFeedsTitle>
 
-                <DataFeedsTitle svgContent={QUESTION_MARK_SVG_ENCODED}>
+                <DataFeedsTitle
+                  svgContent={QUESTION_MARK_SVG_ENCODED}
+                  onClick={() => {
+                    // TODO: add link for question mark icon click ORACLE_SI
+                    // history.push('/somewhere')
+                  }}
+                >
                   Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
                 </DataFeedsTitle>
               </div>
@@ -116,6 +122,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                 </DataFeedValueText>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} className="margin-r">
                   Trusted answer
+                  <div className="on-svg-hover-info">trusted answer info on hover</div>
                 </DataFeedsTitle>
               </div>
             </div>
@@ -123,6 +130,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Trigger parameters
+                  <div className="on-svg-hover-info">trigger parameters info on hover</div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Deviation threshold
@@ -134,6 +142,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Oracle responses
+                  <div className="on-svg-hover-info">oracle responses info on hover</div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   Minimum of {feed.percent_oracle_threshold}
@@ -145,6 +154,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Last update
+                  <div className="on-svg-hover-info">last update info on hover</div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   {getDate_MDY_Format(feed.last_completed_round_price_timestamp)}
@@ -156,7 +166,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
               <DataFeedInfoBlock>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600} svgContent={INFO_SVG_ENCODED}>
                   Heartbeat
-                  <div className="info_about_heartbeat_update">{heartbeatUpdateInfo}</div>
+                  <div className="on-svg-hover-info">{heartbeatUpdateInfo}</div>
                 </DataFeedSubTitleText>
                 <DataFeedValueText fontSize={16} fontWeidth={600}>
                   <Timer
@@ -172,6 +182,7 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
               <DataFeedInfoBlock>
                 <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
                   Decimals
+                  <div className="on-svg-hover-info">decimals info on hover</div>
                 </DataFeedsTitle>
                 <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
                   {moment(new Date(feed.last_completed_round_price_timestamp)).fromNow()}
@@ -191,11 +202,12 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles }: FeedDetailsProps) => 
                 </DataFeedSubTitleText>
 
                 <Button
-                  text="Register (not implemented)"
+                  text="Register"
                   kind={ACTION_PRIMARY}
                   loading={isLoading}
                   onClick={() => {
                     setClickedRegister(true)
+                    registerFeedHandler()
                   }}
                 />
               </div>

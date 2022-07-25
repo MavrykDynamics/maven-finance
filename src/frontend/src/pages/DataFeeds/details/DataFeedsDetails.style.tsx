@@ -5,6 +5,25 @@ export const DataFeedsStyled = styled.div`
   display: flex;
   flex-direction: column;
 
+  .on-svg-hover-info {
+    display: block;
+    font-size: 12px;
+    position: absolute;
+    bottom: 110%;
+    left: 0;
+    display: block;
+    width: fit-content;
+    min-width: 150px;
+    padding: 3px 5px;
+    border-radius: 7px;
+    line-height: 15px;
+    background: #160e3f;
+    border: 1px solid #503eaa;
+    color: #8d86eb;
+    opacity: 0;
+    transition: 0.5s all;
+  }
+
   .top-section-wrapper {
     display: flex;
     justify-content: space-between;
@@ -118,6 +137,14 @@ export const DataFeedsTitle = styled.div<{ fontWeidth?: number; fontSize?: numbe
   position: relative;
   width: fit-content;
   text-transform: capitalize;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    .on-svg-hover-info {
+      opacity: 1;
+    }
+  }
 
   ${({ svgContent }) =>
     svgContent
@@ -164,27 +191,8 @@ export const DataFeedSubTitleText = styled.div<{ fontWeidth?: number; fontSize?:
   width: fit-content;
   position: relative;
 
-  .info_about_heartbeat_update {
-    display: block;
-    font-size: 10px;
-    position: absolute;
-    top: -40px;
-    left: 0;
-    display: block;
-    width: 225px;
-    padding: 3px 5px;
-    border-radius: 10px;
-    line-height: 15px;
-    background: #160e3f;
-    border: 1px solid #503eaa;
-    color: #8d86eb;
-    /* display: none; */
-    opacity: 0;
-    transition: 0.25s all;
-  }
-
   &:hover {
-    .info_about_heartbeat_update {
+    .on-svg-hover-info {
       opacity: 1;
     }
   }

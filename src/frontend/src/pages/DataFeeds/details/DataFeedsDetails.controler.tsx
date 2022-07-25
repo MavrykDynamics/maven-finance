@@ -8,6 +8,7 @@ import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 // view
 import DataFeedDetailsView from './DataFeedsDetails.view'
+import { registerFeedAction } from 'pages/Satellites/Satellites.actions'
 
 const DataFeedDetails = () => {
   const dispatch = useDispatch()
@@ -23,7 +24,14 @@ const DataFeedDetails = () => {
     setSelectedFeed(oraclesStorage.feeds.find((feed) => feed.address === feedId) || null)
   }, [dispatch, feedId, oraclesStorage.feeds])
 
-  return <DataFeedDetailsView feed={selectedFeed} isLoading={isLoading} oracles={satelliteLedger} />
+  return (
+    <DataFeedDetailsView
+      feed={selectedFeed}
+      isLoading={isLoading}
+      oracles={satelliteLedger}
+      registerFeedHandler={() => dispatch(registerFeedAction())}
+    />
+  )
 }
 
 export default DataFeedDetails

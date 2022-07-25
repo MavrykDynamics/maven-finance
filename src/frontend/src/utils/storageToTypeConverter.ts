@@ -1,5 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
-import { InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
+import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 
 import { ContractAddressesState } from '../reducers/contractAddresses'
 import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
@@ -108,7 +108,7 @@ function convertToTreasuryAddressType(storage: any): {treasuryAddresses: Array<T
 
 function convertToOracleStorageType(storage: any): InitialOracleStorageType {
   return {
-    feeds: storage?.aggregator,
+    feeds: storage?.aggregator.map((feed: Feed) => ({...feed, category: 'Cryptocurrency (USD pairs)', network: 'Tezos'})),
     feedsFactory: storage?.aggregator_factory,
     oraclesSatellitesIds: storage?.aggregator_oracle_record,
     totalOracleNetworks: storage?.aggregator ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0) : 0,

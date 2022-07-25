@@ -60,6 +60,8 @@ export type Feed = {
   token_1_symbol: string
   withdraw_reward_smvk_paused: boolean
   withdraw_reward_xtz_paused: boolean
+  network?: string,
+  category?: string,
 }
 
 export type InitialOracleStorageType = {
