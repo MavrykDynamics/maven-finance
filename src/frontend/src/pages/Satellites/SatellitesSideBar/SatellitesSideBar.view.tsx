@@ -79,17 +79,13 @@ const SatellitesSideBarView = ({
         <SideBarItem>
           <h3>Satellite Contract</h3>
           <var>
-            {infoBlockAddresses.satellite ? (
-              <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
-            ) : (
-              'NO DATA'
-            )}
+            <TzAddress tzAddress={infoBlockAddresses.satellite} hasIcon={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
           <h3>Oracle Contract</h3>
           <var>
-            <TzAddress tzAddress={infoBlockAddresses.aggregator} hasIcon={false} />
+            <TzAddress tzAddress={infoBlockAddresses.oracle} hasIcon={false} />
           </var>
         </SideBarItem>
         <SideBarItem>

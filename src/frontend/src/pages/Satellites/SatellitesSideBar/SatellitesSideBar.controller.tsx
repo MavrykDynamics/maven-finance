@@ -44,7 +44,7 @@ const SatellitesSideBar = ({ isButton = true }: { isButton?: boolean }) => {
       satelliteFactory={delegationAddress?.address || ''}
       totalOracleNetworks={totalOracleNetworks}
       infoBlockAddresses={{
-        satellite: currentSatellite.address,
+        satellite: delegationAddress?.address || '',
         oracle: feedsFactory[0]?.address || '',
         aggregator: feedsFactory[0]?.address || '',
       }}
