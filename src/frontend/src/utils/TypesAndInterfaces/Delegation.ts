@@ -83,7 +83,6 @@ export interface SatelliteRecord {
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
-  feeds?: Array<Feed>
   oracleRecords: Array<any>
 }
 

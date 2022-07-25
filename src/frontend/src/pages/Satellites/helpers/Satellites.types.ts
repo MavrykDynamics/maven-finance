@@ -68,9 +68,6 @@ export type InitialOracleStorageType = {
   feeds: Array<Feed>,
   feedsFactory: Array<FeedFactory>,
   totalOracleNetworks: number,
-  oraclesSatellitesIds: Array<{
-    oracle_id: string
-  }>
 }
 
 export type SatelliteListItemProps = {

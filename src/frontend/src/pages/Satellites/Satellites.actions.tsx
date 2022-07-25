@@ -9,8 +9,6 @@ import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
   try {
     const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
       DELEGATION_STORAGE_QUERY,
@@ -19,19 +17,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     )
 
     const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer?.delegation[0])
-
-    delegationStorage.satelliteLedger = delegationStorage.satelliteLedger
-      .map((satellite: SatelliteRecord) => {
-        if (satellite.oracleRecords.length) {
-          satellite['feeds'] = state.oracles.oraclesStorage.feeds.filter((feed) => feed.admin === satellite.address)
-        }
-
-        return satellite
-      })
-      .sort(
-        (satellite1: SatelliteRecord, satellite2: SatelliteRecord) =>
-          (satellite2?.feeds?.length || 0) - (satellite1?.feeds?.length || 0),
-      )
 
     dispatch({
       type: GET_DELEGATION_STORAGE,
@@ -158,7 +143,6 @@ export const undelegate = () => async (dispatch: any, getState: any) => {
   }
 }
 
-// TODO: extract it?
 export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'
 
 export const REGISTER_FEED = 'REGISTER_FEED'
@@ -177,7 +161,7 @@ export const registerFeedAction = () => async (dispatch: any, getState: any) => 
   }
 
   try {
-    // TODO: Implement it action ORACLES_SI
+    // TODO: Implement this action ORACLES_SI
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))

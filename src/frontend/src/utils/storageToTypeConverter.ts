@@ -110,7 +110,6 @@ function convertToOracleStorageType(storage: any): InitialOracleStorageType {
   return {
     feeds: storage?.aggregator.map((feed: Feed) => ({...feed, category: 'Cryptocurrency (USD pairs)', network: 'Tezos'})),
     feedsFactory: storage?.aggregator_factory,
-    oraclesSatellitesIds: storage?.aggregator_oracle_record,
     totalOracleNetworks: storage?.aggregator ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0) : 0,
   }
 }

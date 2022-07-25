@@ -22,8 +22,6 @@ export const TimerView = ({
   days,
   options: { showZeros = true, negativeColor = downColor, defaultColor = headerColor },
 }: TimerViewProps) => {
-  console.log(seconds, minutes, hours, days, showZeros)
-
   return (
     <TimerStyled negativeColor={negativeColor} defaultColor={defaultColor}>
       <ul>
