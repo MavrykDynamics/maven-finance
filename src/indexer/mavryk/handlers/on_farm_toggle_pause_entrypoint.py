@@ -3,9 +3,19 @@ from mavryk.types.farm.storage import FarmStorage
 from dipdup.models import Transaction
 from mavryk.types.farm.parameter.toggle_pause_entrypoint import TogglePauseEntrypointParameter
 from dipdup.context import HandlerContext
+import mavryk.models as models
 
 async def on_farm_toggle_pause_entrypoint(
     ctx: HandlerContext,
     toggle_pause_entrypoint: Transaction[TogglePauseEntrypointParameter, FarmStorage],
 ) -> None:
-    breakpoint()
+
+    # Get operation info
+    farm_address    = toggle_pause_entrypoint.data.target_address
+    farm            = await models.Farm.get(address=farm_address)
+
+    # Update record
+    farm.deposit_paused     = toggle_pause_entrypoint.storage.breakGlassConfig.depositIsPaused
+    farm.withdraw_paused    = toggle_pause_entrypoint.storage.breakGlassConfig.withdrawIsPaused
+    farm.claim_paused       = toggle_pause_entrypoint.storage.breakGlassConfig.claimIsPaused
+    await farm.save()

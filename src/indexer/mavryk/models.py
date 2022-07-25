@@ -746,10 +746,10 @@ class GovernanceSatelliteSnapshotRecord(Model):
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshots', null=True)
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshots')
     ready                                   = fields.BooleanField(default=True)
-    total_smvk_balance                      = fields.FloatField()
-    total_delegated_amount                  = fields.FloatField()
-    total_voting_power                      = fields.FloatField()
-    cycle                                   = fields.BigIntField()
+    total_smvk_balance                      = fields.FloatField(default=0.0)
+    total_delegated_amount                  = fields.FloatField(default=0.0)
+    total_voting_power                      = fields.FloatField(default=0.0)
+    cycle                                   = fields.BigIntField(default=0)
 
     class Meta:
         table = 'governance_satellite_snapshot_record'
@@ -834,10 +834,10 @@ class GovernanceSatelliteActionRecordParameter(Model):
 
 class GovernanceSatelliteActionRecordTransfer(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='governance_satellite_action_parameters')
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='governance_satellite_action_transfers')
     token_contract_address                  = fields.CharField(max_length=36)
     token_type                              = fields.IntEnumField(enum_type=TokenType)
-    from_                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_record_transfer_sender')
+    token_id                                = fields.SmallIntField(default=0)
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_record_transfer_receiver')
     amount                                  = fields.BigIntField(default=0)
 

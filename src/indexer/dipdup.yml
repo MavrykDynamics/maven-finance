@@ -695,22 +695,42 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: delegateToSatellite
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
       - callback: on_delegation_undelegate_from_satellite
         pattern:
           - destination: delegation
             entrypoint: undelegateFromSatellite
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
       - callback: on_delegation_register_as_satellite
         pattern:
           - destination: delegation
             entrypoint: registerAsSatellite
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
       - callback: on_delegation_unregister_as_satellite
         pattern:
           - destination: delegation
             entrypoint: unregisterAsSatellite
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
       - callback: on_delegation_update_satellite_record
         pattern:
           - destination: delegation
             entrypoint: updateSatelliteRecord
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
       - callback: on_delegation_distribute_reward
         pattern:
           - destination: delegation
@@ -719,10 +739,22 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: updateSatelliteStatus
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
       - callback: on_delegation_on_stake_change
         pattern:
           - destination: delegation
             entrypoint: onStakeChange
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
+          - destination: governance
+            source: delegation
+            entrypoint: updateSatelliteSnapshot
+            optional: true
   # Vesting contract indexes
   vesting:
     kind: operation
@@ -1061,6 +1093,10 @@ indexes:
         pattern:
           - destination: governance_financial
             entrypoint: voteForRequest
+          - destination: governance
+            source: governance_financial
+            entrypoint: updateSatelliteSnapshot
+            optional: true
   # Governance Satellite contract indexes
   governance_satellite:
     kind: operation
@@ -1143,6 +1179,10 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: voteForAction
+          - destination: governance
+            source: governance_satellite
+            entrypoint: updateSatelliteSnapshot
+            optional: true
   # Aggregator contract indexes
   aggregator:
     kind: operation
