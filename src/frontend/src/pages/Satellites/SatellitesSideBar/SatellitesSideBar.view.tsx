@@ -9,6 +9,7 @@ type OraclesSideBarProps = {
   numberOfSatellites: number
   totalDelegatedMVK: number
   totalOracleNetworks: number
+  dataPointsCount: number
   averageRevard?: number
   satelliteFactory: string
   isButton: boolean
@@ -62,6 +63,7 @@ const SatellitesSideBarView = ({
   totalOracleNetworks,
   infoBlockAddresses,
   averageRevard,
+  dataPointsCount,
 }: OraclesSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
@@ -107,8 +109,7 @@ const SatellitesSideBarView = ({
         <SideBarItem>
           <h3>On-Chain Data Points</h3>
           <var>
-            NO DATA
-            {/* <CommaNumber value={numberOfSatellites} showDecimal={false} /> */}
+            <CommaNumber value={dataPointsCount} showDecimal={false} />
           </var>
         </SideBarItem>
         <SideBarItem>
@@ -125,7 +126,9 @@ const SatellitesSideBarView = ({
         </SideBarItem>
         <SideBarItem>
           <h3>Total Value Secured</h3>
-          <var>NO DATA</var>
+          <var>
+            <CommaNumber value={dataPointsCount} showDecimal={false} />
+          </var>
         </SideBarItem>
         <SideBarItem>
           <h3>Average Rewards per Oracle</h3>

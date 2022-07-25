@@ -168,7 +168,7 @@ export const SatelliteListItem = ({
         <SatelliteCardButtons>
           {userIsDelegatedToThisSatellite ? (
             <>
-              {satellite.active ? (
+              {satellite.status === 0 ? (
                 <Button
                   text="Undelegate"
                   icon="man-close"
@@ -180,7 +180,7 @@ export const SatelliteListItem = ({
             </>
           ) : (
             <>
-              {satellite.active ? (
+              {satellite.status === 0 ? (
                 <Button
                   text="Delegate"
                   icon="man-check"
