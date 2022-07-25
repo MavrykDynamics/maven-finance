@@ -3,7 +3,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import { Card, CardHeader } from 'styles'
 
 export const ChartStyled = styled(Card)<{ theme: MavrykTheme }>`
-  // TODO: remove it later
+  // TODO: remove it, when implementing chart
   height: 392px;
   h2 {
     text-align: center;

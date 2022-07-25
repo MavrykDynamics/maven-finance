@@ -7,12 +7,15 @@ import { SatelliteListItemProps } from '../../helpers/Satellites.types'
 
 // consts, helpers, actions
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
+import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
+import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
 
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
 
 //styles
 import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
@@ -31,10 +34,6 @@ import {
   SatelliteCardRow,
   SatelliteOracleStatusComponent,
 } from './SatelliteCard.style'
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
-import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
-import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
 
 export const SatelliteListItem = ({
   satellite,
@@ -66,6 +65,11 @@ export const SatelliteListItem = ({
   const currentlySupportingProposal = proposalLedger?.length
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
+
+  const signedFeedsCount = React.useMemo(
+    () => feeds.filter((feed) => feed.admin === satellite.address).length,
+    [feeds, satellite.address],
+  )
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
 
@@ -114,7 +118,7 @@ export const SatelliteListItem = ({
               <SatelliteTextGroup>
                 <SatelliteMainText>Signed feeds</SatelliteMainText>
                 <SatelliteSubText>
-                  <CommaNumber value={Number(satellite.feeds?.length || 0)} />
+                  <CommaNumber value={signedFeedsCount} />
                 </SatelliteSubText>
               </SatelliteTextGroup>
             ) : null}

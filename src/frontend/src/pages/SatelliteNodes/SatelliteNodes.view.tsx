@@ -37,7 +37,6 @@ const emptyContainer = (
   </EmptyContainer>
 )
 
-// TODO: check sorting, cuz it working a bit strange
 const OracleSatellitesView = ({ handleSelect, handleSearch, satellitesList }: OracleSatellitesViewProps) => {
   const loading = useSelector((state: State) => state.loading)
 
