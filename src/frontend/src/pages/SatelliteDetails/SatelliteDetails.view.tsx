@@ -15,6 +15,8 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
+import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+
 // style
 import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
 import { EmptyContainer } from '../../app/App.style'
@@ -36,8 +38,10 @@ export const SatelliteDetailsView = ({
 }: SatelliteDetailsViewProps) => {
   const params: { satelliteId: string } = useParams()
   const { user } = useSelector((state: State) => state.user)
-  const { participationMetrics } = useSelector((state: State) => state.delegation)
+  const { participationMetrics, delegationStorage } = useSelector((state: State) => state.delegation)
   const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
   const proposalLedger = governanceStorage.proposalLedger
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
@@ -116,6 +120,7 @@ export const SatelliteDetailsView = ({
               userStakedBalance={myDelegatedMVK}
               satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
               isDetailsPage
+              userIsSatellite={userIsSatellite}
             >
               <SatelliteCardBottomRow>
                 <div className="descr satellite-info-block">

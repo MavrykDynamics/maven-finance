@@ -39,6 +39,7 @@ type SatelliteListCardViewProps = {
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
   isDetailsPage?: boolean
+  userIsSatellite: boolean
   className?: string
   children?: React.ReactNode
 }
@@ -52,6 +53,7 @@ export const SatelliteListCard = ({
   isDetailsPage = false,
   children = null,
   className = '',
+  userIsSatellite,
 }: SatelliteListCardViewProps) => {
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const proposalLedger = governanceStorage.proposalLedger
@@ -158,7 +160,7 @@ export const SatelliteListCard = ({
             <SatelliteSubText>Fee</SatelliteSubText>
           </SatelliteTextGroup>
         </SatelliteCardTopRow>
-        <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
+        <SatelliteCardButtons>{!userIsSatellite ? delegationButtons : null}</SatelliteCardButtons>
       </SatelliteCardInner>
       {children ? (
         children

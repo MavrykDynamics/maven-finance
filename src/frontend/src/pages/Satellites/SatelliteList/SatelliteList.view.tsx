@@ -13,6 +13,7 @@ import { darkMode, lightMode } from '../../../styles'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter } from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
+import { checkIfUserIsSatellite } from '../SatelliteSideBar/SatelliteSideBar.controller'
 
 type SatelliteListViewProps = {
   loading: boolean
@@ -81,6 +82,9 @@ const ListWithSatellites = ({
   listName,
 }: SatelliteListViewProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
   const selectOptions = [
     { value: 'satelliteFee', label: 'Lowest Fee' },
     { value: 'satelliteFee', label: 'Highest Fee' },
@@ -164,6 +168,7 @@ const ListWithSatellites = ({
               undelegateCallback={undelegateCallback}
               userStakedBalance={userStakedBalance}
               satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+              userIsSatellite={userIsSatellite}
             />
           )
         })
