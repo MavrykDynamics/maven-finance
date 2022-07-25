@@ -24,13 +24,11 @@ import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
 import {
   FinancialRequestRecord,
   FinancialRequestVote,
+  GovernanceRoundType,
   GovernanceStorage,
   ProposalRecordType,
   ProposalVote,
   SnapshotRecordType,
-  GovernanceRoundType,
-  CurrentRoundProposalsStorageType,
-  ProposalStatusType,
 } from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { TreasuryType } from './TypesAndInterfaces/Treasury'
@@ -71,6 +69,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
       res = convertToBreakGlassStorageType(storage)
       setItemInStorage('BreakGlassStorage', res)
       break
+    case 'breakGlassStatus':
+      res = convertBreakGlassStatusStorageType(storage)
+      setItemInStorage('BreakGlassStatus', res)
+      break
     case 'council':
       res = convertToCouncilStorageType(storage)
       setItemInStorage('CouncilStorage', res)
@@ -99,10 +101,13 @@ export default function storageToTypeConverter(contract: string, storage: any): 
   return res
 }
 
-function convertToTreasuryAddressType(storage: any): {treasuryAddresses: Array<TreasuryType>, treasuryFactoryAddress: string} {
+function convertToTreasuryAddressType(storage: any): {
+  treasuryAddresses: Array<TreasuryType>
+  treasuryFactoryAddress: string
+} {
   return {
     treasuryAddresses: storage?.treasury,
-    treasuryFactoryAddress: storage?.treasury_factory[0].address
+    treasuryFactoryAddress: storage?.treasury_factory[0].address,
   }
 }
 
@@ -163,7 +168,6 @@ function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
 function convertToDelegationStorageType(storage: any): DelegationStorage {
   const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(storage?.satellite_records)
 
- 
   return {
     breakGlassConfig: {
       delegateToSatelliteIsPaused: storage?.delegate_to_satellite_paused,
@@ -190,7 +194,6 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
 }
 
 function convertToSatelliteRecordsInterface(satelliteRecordObject: any): SatelliteRecord[] {
- 
   const satelliteRecords: SatelliteRecord[] = []
   if (Array.isArray(satelliteRecordObject)) {
     satelliteRecordObject.map((satelliteRecordFromIndexer: any) => {
@@ -313,8 +316,8 @@ function convertToSatelliteRecordInterface({
     sMvkBalance: calcWithoutPrecision(satelliteRecord?.user.smvk_balance),
     name: satelliteRecord?.name || '',
     registeredDateTime: new Date(satelliteRecord?.registered_datetime),
-    satelliteFee: parseFloat(satelliteRecord?.fee || '0'),
-    active: Boolean(satelliteRecord?.active),
+    satelliteFee: parseFloat(satelliteRecord?.fee || '0') / 100,
+    status: satelliteRecord?.status,
     totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
     unregisteredDateTime: new Date(satelliteRecord?.unregistered_datetime),
     proposalVotingHistory,
@@ -391,7 +394,8 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
       id: record.id,
       title: record.title,
       description: record.description,
-      status: record.status,
+      executedLevel: record.executed_level,
+      startLevel: record.start_level,
       dropped: record.dropped,
       executed: record.executed,
       proposerId: record.proposer_id,
@@ -401,6 +405,7 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
       expirationTimestamp: new Date(record.expiration_timestamp),
       sMvkPercentageRequired: record.smvk_percentage_required / 100,
       sMvkRequiredForTrigger: calcWithoutPrecision(record.smvk_required_for_trigger),
+      totalsMvkVotes: calcWithoutPrecision(record.total_smvk_votes),
       voters,
     }
     eGovRecords.push(newEGovRecord)
@@ -409,8 +414,8 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
     emergencyGovernanceLedger: eGovRecords,
     address: storage?.address,
     config: {
-      minStakedMvkRequiredToTrigger: storage?.min_smvk_required_to_trigger,
-      minStakedMvkRequiredToVote: storage?.min_smvk_required_to_vote,
+      minStakedMvkRequiredToTrigger: calcWithoutPrecision(storage?.min_smvk_required_to_trigger),
+      minStakedMvkRequiredToVote: calcWithoutPrecision(storage?.min_smvk_required_to_vote),
       requiredFeeMutez: calcWithoutMu(storage?.required_fee_mutez),
       voteExpiryDays: storage?.vote_expiry_days,
       sMvkPercentageRequired: storage?.smvk_percentage_required / 100,
@@ -494,8 +499,6 @@ function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
   }
 }
 
-
-
 function convertToCouncilStorageType(storage: any): CouncilStorage {
   const councilActionsLedger: CouncilActionRecord[] = [],
     councilMembers: { address: string }[] = []
@@ -546,7 +549,7 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
     },
     actionCounter: storage?.action_counter,
     councilActionsLedger,
-    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : []
+    councilMembers: storage?.council_council_members?.length ? storage.council_council_members : [],
   }
 }
 
@@ -566,7 +569,6 @@ function convertToVestingStorageType(storage: any): VestingStorage {
 function convertGovernanceRound(round: number): GovernanceRoundType {
   return round === 0 ? 'PROPOSAL' : round === 1 ? 'VOTING' : round === 2 ? 'TIME_LOCK' : ''
 }
-
 
 function convertToGovernanceStorageType(storage: {
   governance: any
@@ -676,9 +678,6 @@ function convertGovernanceFinancialRequestVoteToInterface(
   return financialRequestVotes
 }
 
-
-
-
 function convertGovernanceProposalRecordToInterface(
   governance_proposal_record: {
     pass_vote_smvk_total: any
@@ -782,8 +781,6 @@ function convertGovernanceSatelliteSnapshotRecordsToInterface(
 }
 
 export function convertGovernanceProposalRecordItemToStorageType(item: any): ProposalRecordType {
-
-
   const convertData = {
     id: item.id,
     proposerId: item.proposer_id,
@@ -829,112 +826,118 @@ export function convertCurrentRoundProposalsStorageType(storage: {
   const governanceProposalRecord = storage?.governance_proposal_record
   const mapProposalRecordType = governanceProposalRecord?.length
     ? new Map(
-      governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
+        governanceProposalRecord.map((item, i) => [`${i}`, convertGovernanceProposalRecordItemToStorageType(item)]),
       )
-      : undefined
-      return mapProposalRecordType
-    }
+    : undefined
+  return mapProposalRecordType
+}
 
-    export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
-      const convert = [] as Record<string, unknown>[]
+export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
+  const convert = [] as Record<string, unknown>[]
 
-      if (storage?.doorman?.length) {
-        storage.doorman.forEach((item: any) => {
-          convert.push({
-            title: 'Doorman',
-            type: 'General Contracts',
-            address: item.address,
-            methods: {
-              compound: item.compound_paused,
-              'distribute reward': item.distribute_reward_paused,
-              'farm claimed': item.farm_claimed_paused,
-              unstake: item.unstake_paused,
-            },
-          })
-        })
-      } 
+  if (storage?.doorman?.length) {
+    storage.doorman.forEach((item: any) => {
+      convert.push({
+        title: 'Doorman',
+        type: 'General Contracts',
+        address: item.address,
+        methods: {
+          compound: item.compound_paused,
+          'distribute reward': item.distribute_reward_paused,
+          'farm claimed': item.farm_claimed_paused,
+          unstake: item.unstake_paused,
+        },
+      })
+    })
+  }
 
-      if (storage?.delegation?.length) {
-        storage.delegation.forEach((item: any) => {
-          convert.push({
-            title: 'Delegation',
-            type: "General Contracts",
-            address: item.address,
-            methods: {
-              'delegate to satellite': item.delegate_to_satellite_paused,
-              'distribute reward': item.distribute_reward_paused,
-              'register as satellite': item.register_as_satellite_paused,
-              'undelegate from satellite': item.undelegate_from_satellite_paused,
-              'unregister as satellite': item.unregister_as_satellite_paused,
-              'update satellite record': item.update_satellite_record_paused,
-            },
-          })
-        })
-      }
-      
-      if (storage?.farm_factory?.length) {
-        storage.farm_factory.forEach((item: any) => {
-          convert.push({
-            title: 'Farm factory',
-            type: 'Farms',
-            address: item.address,
-            methods: {
-              'create farm': item.create_farm_paused,
-              'track farm': item.track_farm_paused,
-              'untrack farm': item.untrack_farm_paused,
-            },
-          })
-        })
-      }
+  if (storage?.delegation?.length) {
+    storage.delegation.forEach((item: any) => {
+      convert.push({
+        title: 'Delegation',
+        type: 'General Contracts',
+        address: item.address,
+        methods: {
+          'delegate to satellite': item.delegate_to_satellite_paused,
+          'distribute reward': item.distribute_reward_paused,
+          'register as satellite': item.register_as_satellite_paused,
+          'undelegate from satellite': item.undelegate_from_satellite_paused,
+          'unregister as satellite': item.unregister_as_satellite_paused,
+          'update satellite record': item.update_satellite_record_paused,
+        },
+      })
+    })
+  }
 
-      if (storage?.farm?.length ) {
-        storage.farm.forEach((item: any) => {
-          convert.push({
-            title: 'Farms',
-            type: 'Farms',
-            address: item.address,
-            methods: {
-              claim: item.claim_paused,
-              deposit: item.deposit_paused,
-              withdraw: item.withdraw_paused,
-            },
-          })
-        })
-      }
-    
-      if (storage?.treasury?.length) {
-        storage.treasury.forEach((item: any) => {
-          convert.push({
-            title: 'Treasury',
-            type: 'Treasury',
-            address: item.address,
-            methods: {
-              'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
-              'stake mvk': item.stake_mvk_paused,
-              transfer: item.transfer_paused,
-              'unstake mvk': item.unstake_mvk_paused,
-            },
-          })
-        })
-      }
+  if (storage?.farm_factory?.length) {
+    storage.farm_factory.forEach((item: any) => {
+      convert.push({
+        title: 'Farm factory',
+        type: 'Farms',
+        address: item.address,
+        methods: {
+          'create farm': item.create_farm_paused,
+          'track farm': item.track_farm_paused,
+          'untrack farm': item.untrack_farm_paused,
+        },
+      })
+    })
+  }
 
-      if (storage?.treasury_factory?.length) {
-        storage.treasury_factory.forEach((item: any) => {
-          convert.push({
-            title: 'Treasury Factory',
-            type: 'Treasury',
-            address: item.address,
-            methods: {
-              'create treasury paused': item.create_treasury_paused,
-              'track treasury paused': item.track_treasury_paused,
-              'untrack treasury paused': item.untrack_treasury_paused,
-            },
-          })
-        })
-      }
-      
+  if (storage?.farm?.length) {
+    storage.farm.forEach((item: any) => {
+      console.log(item)
+      convert.push({
+        title: item.name,
+        type: 'Farms',
+        address: item.address,
+        methods: {
+          claim: item.claim_paused,
+          deposit: item.deposit_paused,
+          withdraw: item.withdraw_paused,
+        },
+      })
+    })
+  }
+
+  if (storage?.treasury?.length) {
+    storage.treasury.forEach((item: any) => {
+      convert.push({
+        title: item.name,
+        type: 'Treasury',
+        address: item.address,
+        methods: {
+          'mint mvk and transfer': item.mint_mvk_and_transfer_paused,
+          'stake mvk': item.stake_mvk_paused,
+          transfer: item.transfer_paused,
+          'unstake mvk': item.unstake_mvk_paused,
+        },
+      })
+    })
+  }
+
+  if (storage?.treasury_factory?.length) {
+    storage.treasury_factory.forEach((item: any) => {
+      convert.push({
+        title: 'Treasury Factory',
+        type: 'Treasury',
+        address: item.address,
+        methods: {
+          'create treasury paused': item.create_treasury_paused,
+          'track treasury paused': item.track_treasury_paused,
+          'untrack treasury paused': item.untrack_treasury_paused,
+        },
+      })
+    })
+  }
+
   return convert
 }
 
-
-
+export function getEnumKeyByEnumValue<T extends { [index: string]: string }>(
+  myEnum: T,
+  enumValue: string,
+): keyof T | null {
+  let keys = Object.keys(myEnum).filter((x) => myEnum[x] == enumValue)
+  return keys.length > 0 ? keys[0] : null
+}

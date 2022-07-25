@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 // helpers, actions
 import { distinctRequestsByExecuting, getDate_MDHMTZ_Format, getRequestStatus } from './FinancialRequests.helpers'
 import {
-  PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
   ONGOING_REQUESTS_FINANCIAL_REQUESTS_LIST,
+  PAST_REQUESTS_FINANCIAL_REQUESTS_LIST,
 } from './Pagination/pagination.consts'
 
 // types
@@ -21,11 +21,11 @@ import FRVoting from './FRVoting/FRVoting.view'
 import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
 import {
   FinancialRequestsContainer,
-  FinancialRequestsStyled,
   FinancialRequestsRightContainer,
+  FinancialRequestsStyled,
   InfoBlockDescr,
-  InfoBlockTitle,
   InfoBlockListValue,
+  InfoBlockTitle,
 } from './FinancialRequests.style'
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { EmptyContainer } from 'app/App.style'
@@ -146,7 +146,9 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
             <div className="list">
               <div className="list_item">
                 <InfoBlockListValue fontColor="#77A4F2">Governance Contract</InfoBlockListValue>
-                <InfoBlockListValue fontColor="#86D4C9">no info</InfoBlockListValue>
+                <InfoBlockListValue fontColor="#86D4C9">
+                  <TzAddress tzAddress={rightSideContent.governance_financial.governance.address} hasIcon={false} />
+                </InfoBlockListValue>
               </div>
 
               <div className="list_item">

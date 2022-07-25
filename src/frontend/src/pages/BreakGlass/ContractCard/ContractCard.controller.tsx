@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 
-import { ContractCardWrapper, ContractCardTopSection } from './ContractCard.style'
+import { ContractCardTopSection, ContractCardWrapper } from './ContractCard.style'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-import { BGAccordeon } from '../Accordeon/Accordeon.view'
+import { BGAccordion } from '../Accordeon/Accordeon.view'
 
 type ContractCardProps = {
   contract: Record<string, unknown>
@@ -17,8 +17,8 @@ export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps)
   const title = contract.title as string
   const address = contract.address as string
   const methods = contract.methods as Record<string, boolean>
-
-  const isStatusLive = methods ? Object.keys(methods).some((method) => methods[method]) : false
+  console.log(title)
+  const isStatusPaused = methods ? Object.keys(methods).some((method) => methods[method]) : false
 
   return (
     <ContractCardWrapper className={isActive ? 'active' : ''} onClick={onClick}>
@@ -31,8 +31,8 @@ export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps)
 
         <div className="card-flag-wrapper">
           <StatusFlag
-            text={isStatusLive ? 'LIVE' : 'PAUSED'}
-            status={isStatusLive ? ProposalStatus.EXECUTED : ProposalStatus.DEFEATED}
+            text={isStatusPaused ? 'PAUSED' : 'LIVE'}
+            status={isStatusPaused ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
           />
         </div>
 
@@ -40,11 +40,11 @@ export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps)
           <TzAddress tzAddress={address} hasIcon />
         </div>
       </ContractCardTopSection>
-      <BGAccordeon
-        accordeonId={title}
+      <BGAccordion
+        accordionId={title}
         isExpanded={isExpanded}
         methods={methods}
-        accordeonClickHandler={() => setExpanded(!isExpanded)}
+        accordionClickHandler={() => setExpanded(!isExpanded)}
       />
     </ContractCardWrapper>
   )

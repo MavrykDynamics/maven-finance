@@ -3,6 +3,7 @@ import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 
 const isIPFS = require('is-ipfs')
+
 /**
  * File contains different functions used to validate input throughout the dapp
  */
@@ -78,5 +79,8 @@ export function mathRoundTwoDigit(digit: string | number | undefined): number | 
   return digit ? Math.round(+digit * 100) / 100 : 0
 }
 
-
 export const containsCode = (str: string) => /<[a-z][\s\S]*>/i.test(str) || /eval/i.test(str)
+
+export function isValidLength(input: string, minLength: number, maxLength: number) {
+  return input.length >= minLength && input.length <= maxLength
+}

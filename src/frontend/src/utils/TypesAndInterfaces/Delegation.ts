@@ -66,6 +66,13 @@ export interface SatelliteFinancialRequestVotingHistory extends FinancialRequest
   }
 }
 
+export enum SatelliteStatus {
+  ACTIVE = 0,
+  SUSPENDED = 1,
+  BANNED = 2,
+  INACTIVE = 3,
+}
+
 export interface SatelliteRecord {
   address: string
   name: string
@@ -74,7 +81,7 @@ export interface SatelliteRecord {
   website: string
   participation: number
   satelliteFee: number
-  active: boolean
+  status: SatelliteStatus
   mvkBalance: number
   sMvkBalance: number
   totalDelegatedAmount: number
