@@ -74,7 +74,7 @@ export const SatelliteDetailsView = ({
   const isSameId = satellite?.address === params.satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
-  const renderVotingHistoryItem = (item: any) => {
+  const renderVotingHistoryItem = (governanceType: string, item: any) => {
     const filteredProposal = proposalLedger?.length
       ? proposalLedger.find((proposal: any) => proposal.id === item.proposalId)
       : null
@@ -82,7 +82,7 @@ export const SatelliteDetailsView = ({
     return (
       <div className="satellite-voting-history" key={item.id}>
         <p>
-          Proposal {item.proposalId} - {filteredProposal?.title}
+          {governanceType} Proposal {item.proposalId} - {filteredProposal?.title}
         </p>
         <span className="satellite-voting-history-info">
           Voted{' '}
@@ -146,9 +146,13 @@ export const SatelliteDetailsView = ({
                   <div>
                     <h4>Voting History:</h4>
                     <div>
-                      {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem(item))}
-                      {satellite.financialRequestsVotes?.map((item) => renderVotingHistoryItem(item))}
-                      {satellite.emergencyGovernanceVotes?.map((item) => renderVotingHistoryItem(item))}
+                      {satellite.proposalVotingHistory?.map((item) => renderVotingHistoryItem('Governance', item))}
+                      {satellite.financialRequestsVotes?.map((item) =>
+                        renderVotingHistoryItem('Financial Request', item),
+                      )}
+                      {satellite.emergencyGovernanceVotes?.map((item) =>
+                        renderVotingHistoryItem('Emergency Governance', item),
+                      )}
                     </div>
                   </div>
                 ) : null}

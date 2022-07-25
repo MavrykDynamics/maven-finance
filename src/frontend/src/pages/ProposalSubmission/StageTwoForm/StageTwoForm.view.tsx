@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -9,9 +9,9 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import {
+  ProposalBytesType,
   ProposalUpdateForm,
   ProposalUpdateFormInputStatus,
-  ProposalBytesType,
 } from '../../../utils/TypesAndInterfaces/Forms'
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -166,11 +166,11 @@ export const StageTwoFormView = ({
             />
           </article>
         ))}
-        {/* <StyledTooltip placement="top" title="Insert new bytes pair">
+        <StyledTooltip placement="top" title="Insert new bytes pair">
           <button onClick={handleCreateNewByte} className="step-plus-bytes">
             +
           </button>
-        </StyledTooltip> */}
+        </StyledTooltip>
       </div>
 
       <FormButtonContainer>
