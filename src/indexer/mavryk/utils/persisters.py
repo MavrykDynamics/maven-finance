@@ -1,5 +1,6 @@
 from dateutil import parser
 import mavryk.models as models
+from mavryk.types.governance_satellite.storage import TokenItem as fa12, TokenItem1 as fa2, TokenItem2 as tez
 
 ###
 #
@@ -228,7 +229,6 @@ async def persist_financial_request(action):
             smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
-            satellites_snapshot             = action.storage.financialRequestSnapshotLedger[requestID]
 
             treasury, _             = await models.Treasury.get_or_create(
                 address     = treasuryAddress
@@ -263,21 +263,6 @@ async def persist_financial_request(action):
                 requested_datetime              = requested_datetime
             )
             await requestRecord.save()
-
-            for satellite_address in satellites_snapshot:
-                satellite_snapshot_record   = satellites_snapshot[satellite_address]
-                user, _                     = await models.MavrykUser.get_or_create(
-                    address = satellite_address
-                )
-                await user.save()
-                satellite_snapshot, _   = await models.GovernanceFinancialRequestSatelliteSnapshotRecord.get_or_create(
-                    governance_financial_request    = requestRecord,
-                    user                            = user
-                )
-                satellite_snapshot.total_smvk_balance              = float(satellite_snapshot_record.totalStakedMvkBalance)
-                satellite_snapshot.total_delegated_amount          = float(satellite_snapshot_record.totalDelegatedAmount)
-                satellite_snapshot.total_voting_power              = float(satellite_snapshot_record.totalVotingPower)
-                await satellite_snapshot.save()
 
 async def persist_governance_satellite_action(action):
     # Get operation values
@@ -314,10 +299,10 @@ async def persist_governance_satellite_action(action):
             smvk_required_for_approval      = float(action_record_storage.stakedMvkRequiredForApproval)
             expiration_datetime             = parser.parse(action_record_storage.expiryDateTime)
             start_datetime                  = parser.parse(action_record_storage.startDateTime)
-            satellites_snapshot             = action.storage.governanceSatelliteSnapshotLedger[action_id]
             address_map                     = action_record_storage.addressMap
             string_map                      = action_record_storage.stringMap
             nat_map                         = action_record_storage.natMap
+            transfer_list                   = action_record_storage.transferList
 
             initiator, _                    = await models.MavrykUser.get_or_create(
                 address = initiator_address
@@ -343,45 +328,64 @@ async def persist_governance_satellite_action(action):
             # Parameters
             for key in address_map:
                 value   = address_map[key]
-                council_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
+                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
                 )
-                await council_action_record_parameter.save()
+                await governance_satellite_action_record_parameter.save()
 
             for key in string_map:
                 value   = string_map[key]
-                council_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
+                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
                 )
-                await council_action_record_parameter.save()
+                await governance_satellite_action_record_parameter.save()
 
             for key in nat_map:
                 value   = nat_map[key]
-                council_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
+                governance_satellite_action_record_parameter = models.GovernanceSatelliteActionRecordParameter(
                     governance_satellite_action     = action_record,
                     name                            = key,
                     value                           = value
                 )
-                await council_action_record_parameter.save()
+                await governance_satellite_action_record_parameter.save()
 
-            for satellite_address in satellites_snapshot:
-                satellite_snapshot_record   = satellites_snapshot[satellite_address]
-                user, _                     = await models.MavrykUser.get_or_create(
-                    address = satellite_address
+            for value in transfer_list:
+                token_id                = 0
+                token_type              = models.TokenType.OTHER
+                token_contract_address  = ""
+                amount                  = float(value.amount)
+                to_                     = value.to_
+
+                receiver, _             = await models.MavrykUser.get_or_create(
+                    address = to_
                 )
-                await user.save()
-                satellite_snapshot, _   = await models.GovernanceSatelliteActionSatelliteSnapshotRecord.get_or_create(
+                await receiver.save()
+
+                if type(value.token) == fa12:
+                    token_type              = models.TokenType.FA12
+                    token_contract_address  = value.token.fa12
+                elif type(value.token) == fa2:
+                    token_type              = models.TokenType.FA2
+                    token_id                = int(value.token.fa2.tokenId)
+                    token_contract_address  = value.token.fa2.tokenContractAddress
+                elif type(value.token) == tez:
+                    token_type  = models.TokenType.XTZ
+                    
+                governance_satellite_action_record_transfer = models.GovernanceSatelliteActionRecordTransfer(
                     governance_satellite_action     = action_record,
-                    user                            = user
+                    token_contract_address          = token_contract_address,
+                    token_type                      = token_type,
+                    token_id                        = token_id,
+                    to_                             = receiver,
+                    amount                          = amount
                 )
-                satellite_snapshot.total_smvk_balance              = float(satellite_snapshot_record.totalStakedMvkBalance)
-                satellite_snapshot.total_delegated_amount          = float(satellite_snapshot_record.totalDelegatedAmount)
-                satellite_snapshot.total_voting_power              = float(satellite_snapshot_record.totalVotingPower)
-                await satellite_snapshot.save()
+                await governance_satellite_action_record_transfer.save()
+                
+            
 
 ###
 #
