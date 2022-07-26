@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+import {  cyanColor, boxShadowColor } from 'styles'
 
 import { MavrykTheme } from './interfaces'
 
@@ -60,6 +61,13 @@ export const Card = styled.div<{ theme: MavrykTheme }>`
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
   border: 1px solid ${({ theme }) => theme.cardBorderColor};
+`
+
+export const CardHover = styled(Card)`
+  &:hover {
+    border-color: ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+  }
 `
 
 export const CardHeader = styled.h2<{ theme: MavrykTheme }>`

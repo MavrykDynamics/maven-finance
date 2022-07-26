@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
-import { Card, cyanColor, downColor, upColor, skyColor, headerColor, royalPurpleColor } from 'styles'
+import { CardHover, cyanColor, downColor, upColor, skyColor, headerColor, royalPurpleColor } from 'styles'
 
-export const CouncilMemberStyled = styled(Card)`
+export const CouncilMemberStyled = styled(CardHover)`
   margin: 0;
   display: flex;
   align-items: center;
