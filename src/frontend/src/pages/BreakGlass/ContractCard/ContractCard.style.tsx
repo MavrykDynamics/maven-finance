@@ -37,9 +37,11 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     align-items: center;
     font-weight: 600;
     font-size: 24px;
+    line-height: 24px;
     color: ${headerColor};
     width: 180px;
     padding-right: 10px;
+    text-transform: capitalize;
 
     .truncate-title {
       white-space: nowrap;
@@ -64,6 +66,7 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     grid-column-start: 1;
     grid-column-end: 3;
     color: ${cyanColor};
+    margin-top: 5px;
 
     svg {
       stroke: rgb(134, 212, 201);
