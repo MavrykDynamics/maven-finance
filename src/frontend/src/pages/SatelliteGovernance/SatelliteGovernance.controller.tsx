@@ -28,6 +28,7 @@ import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGove
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
+import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 
 // actions
 import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
@@ -81,6 +82,8 @@ export const SatelliteGovernance = () => {
     [satelliteLedger],
   )
 
+  const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
+
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
   const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
@@ -96,7 +99,7 @@ export const SatelliteGovernance = () => {
     const filterPast = getPastActionsList(governanceSatelliteActionRecord)
     setSeparateRecord(filterOngoing.length ? filterOngoing : filterPast)
     setActiveTab(filterOngoing.length ? 'ongoing' : 'past')
-  }, [governanceSatelliteActionRecord])
+  }, [governanceSatelliteActionRecord, userIsSatellite])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -242,7 +245,7 @@ export const SatelliteGovernance = () => {
           <ButtonStyled buttonActive={activeTab === 'past'} onClick={() => handleTabChange('past')}>
             <ButtonText>Past Actions</ButtonText>
           </ButtonStyled>
-          {accountPkh ? (
+          {userIsSatellite ? (
             <ButtonStyled buttonActive={activeTab === 'my'} onClick={() => handleTabChange('my')}>
               <ButtonText>My Actions</ButtonText>
             </ButtonStyled>
