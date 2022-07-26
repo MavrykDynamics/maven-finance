@@ -1,9 +1,9 @@
 import styled from 'styled-components/macro'
-import { Card, royalPurpleColor, cyanColor, boxShadowColor, headerColor } from 'styles'
+import { CardHover, royalPurpleColor, cyanColor, boxShadowColor, headerColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
-export const SatelliteGovernanceCardStyled = styled(Card)<{ theme: MavrykTheme }>`
+export const SatelliteGovernanceCardStyled = styled(CardHover)`
   width: 100%;
   border-radius: 10px;
   margin-bottom: 15px;
@@ -11,11 +11,6 @@ export const SatelliteGovernanceCardStyled = styled(Card)<{ theme: MavrykTheme }
   padding: 0;
   cursor: pointer;
   overflow: hidden;
-
-  &:hover {
-    border-color: ${cyanColor};
-    box-shadow: 0px 4px 4px ${boxShadowColor};
-  }
 `
 export const SatelliteGovernanceCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
   width: 100%;

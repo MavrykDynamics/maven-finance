@@ -1,3 +1,4 @@
+import { Link, useLocation } from 'react-router-dom'
 import { AvatarStyle } from '../../../app/App.components/Avatar/Avatar.style'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 
@@ -8,11 +9,13 @@ type Props = {
   image: string
   name: string
   user_id: string
+  website: string
 }
 
 export const CouncilMemberView = (props: Props) => {
-  const { image, name, user_id } = props
-  return (
+  const { image, name, user_id, website } = props
+  const href = website?.length ? website : `/satellite-details/${user_id}`
+  const content = (
     <CouncilMemberStyled>
       <AvatarStyle>
         <img
@@ -30,4 +33,12 @@ export const CouncilMemberView = (props: Props) => {
       </figcaption>
     </CouncilMemberStyled>
   )
+  if (website) {
+    return (
+      <a target="_blank" rel="noreferrer" href={href}>
+        {content}
+      </a>
+    )
+  }
+  return <Link to={href}>{content}</Link>
 }

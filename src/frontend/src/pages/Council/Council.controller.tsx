@@ -228,7 +228,13 @@ export const Council = () => {
               <div>
                 <h1>Council Members</h1>
                 {councilMembers.map((item: CouncilMember) => (
-                  <CouncilMemberView key={item.id} image={item.image} name={item.name} user_id={item.user_id} />
+                  <CouncilMemberView
+                    key={item.id}
+                    image={item.image}
+                    name={item.name}
+                    user_id={item.user_id}
+                    website={item.website}
+                  />
                 ))}
               </div>
             ) : null}
