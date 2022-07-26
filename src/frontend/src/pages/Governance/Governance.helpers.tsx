@@ -179,12 +179,16 @@ export const normalizeTokenStandart = (standatd: TokenStandardType, address: str
 
 const BEFORE_DIGIT = 24
 const AFTER_DIGIT = 12
-export const getShortByte = (byte: string): string => {
+export const getShortByte = (
+  byte: string,
+  beforeDigit: number = BEFORE_DIGIT,
+  afterDigit: number = AFTER_DIGIT,
+): string => {
   const shortBype = byte.length
     ? [
-        byte.substring(0, BEFORE_DIGIT),
-        byte.length > BEFORE_DIGIT ? '...' : '',
-        byte.length > BEFORE_DIGIT ? byte.substring(byte.length - AFTER_DIGIT) : '',
+        byte.substring(0, beforeDigit),
+        byte.length > beforeDigit ? '...' : '',
+        byte.length > beforeDigit ? byte.substring(byte.length - afterDigit) : '',
       ]
     : []
 

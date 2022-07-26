@@ -17,6 +17,7 @@ import {
   getTimestampByLevel,
   processProposalPayment,
 } from './Governance.actions'
+import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 
 // helpers
 import {
@@ -26,6 +27,9 @@ import {
   getProposalStatusInfo,
 } from './Governance.helpers'
 import { calcWithoutPrecision, calcWithoutMu } from '../../utils/calcFunctions'
+
+// components
+import Icon from '../../app/App.components/Icon/Icon.view'
 
 // view
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -283,6 +287,11 @@ export const GovernanceView = ({
   const timeFormat = new Date(votingEnding).getHours() + ':' + new Date(votingEnding).getMinutes()
   const isEndedVotingTime = votingTime < timeNow
 
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    dispatch(showToaster('SUCCESS', 'Copied to Clipboard', `${getShortByte(text, 16, 16)}`))
+  }
+
   // console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
 
   return (
@@ -436,7 +445,10 @@ export const GovernanceView = ({
                           <span className="proposal-list-bites">
                             <input type="checkbox" className="byte-input" id={unique} />
                             <span className="byte">
-                              {item.bytes} <label htmlFor={unique}>hide</label>
+                              <button onClick={() => handleCopyToClipboard(item.bytes)}>
+                                {item.bytes} <Icon id="copyToClipboard" />
+                              </button>
+                              <br /> <label htmlFor={unique}>hide</label>
                             </span>
                             <span className="short-byte">
                               {getShortByte(item.bytes)} <label htmlFor={unique}>see all</label>

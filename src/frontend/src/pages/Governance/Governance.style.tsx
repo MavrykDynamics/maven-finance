@@ -37,6 +37,24 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   .byte,
   .hide {
     display: none;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      vertical-align: sub;
+      margin-left: 4px;
+      stroke: ${cyanColor};
+    }
+
+    button {
+      color: inherit;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+      line-height: inherit;
+      font-size: inherit;
+    }
   }
 
   .byte-input {
