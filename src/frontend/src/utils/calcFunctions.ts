@@ -29,12 +29,12 @@ export function calcTimeToBlock(currentBlockLevel?: number, endBlockLevel?: numb
   return daysUntilEndBlockReached
 }
 
-export function calcWithoutPrecision(amount: string): number {
-  const numberMu = parseFloat(amount) || 0
+export function calcWithoutPrecision(amount: string| number): number {
+  const numberMu = parseFloat(amount?.toString()) || 0
   return numberMu > 0 ? numberMu / PRECISION_NUMBER : 0
 }
 
-export function calcWithoutMu(amount: string): number {
-  const numberMu = parseFloat(amount) || 0
+export function calcWithoutMu(amount: string | number): number {
+  const numberMu = parseFloat(amount?.toString()) || 0
   return numberMu > 0 ? numberMu / 1000000 : 0
 }
