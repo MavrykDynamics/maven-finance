@@ -224,6 +224,46 @@ function sendSetContractBakerParams(const contractAddress : address) : contract(
 
 
 // ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function createCouncilAction(const actionType : string; const addressMap : addressMapType; const stringMap : stringMapType; const natMap : natMapType; const keyHash : option(key_hash); var s : councilStorageType) : councilStorageType is 
+block {
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.get_sender();
+        actionType            = actionType;
+        signers               = set[Tezos.get_sender()];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        addressMap            = addressMap;
+        stringMap             = stringMap;
+        natMap                = natMap;
+        keyHash               = keyHash;
+
+        startDateTime         = Tezos.get_now();
+        startLevel            = Tezos.get_level();             
+        executedDateTime      = Tezos.get_now();
+        executedLevel         = Tezos.get_level();
+        expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with(s)
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
