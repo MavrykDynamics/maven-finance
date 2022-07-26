@@ -42,7 +42,7 @@ contracts:
     address: KT1F2qmyT89YqXLZ9QkaLbbXzS3KUs6h2epj
     typename: doorman
   farm:
-    address: KT1KBxqm1CVSZU2wZzSKsXavTTbb1fBoGNMQ
+    address: KT18eiHR3ZV8ka8b8nHHwt6eS1dvHQci9gYa #KT1KBxqm1CVSZU2wZzSKsXavTTbb1fBoGNMQ
     typename: farm
   farm_factory:
     address: KT19JR7Jj1D7My45y4NFVsuMNckvKxXPzZot
