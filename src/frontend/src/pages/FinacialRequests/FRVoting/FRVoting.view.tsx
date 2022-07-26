@@ -24,13 +24,16 @@ import {
 import { PRECISION_NUMBER } from 'utils/constants'
 
 type FRVotingProps = {
-  showButtons: boolean
+  isActiveVoting: boolean
+  walletConnected: boolean
   loading: boolean
   selectedRequest: FinancialRequestBody
 }
 
-const FRVoting = ({ showButtons, loading, selectedRequest }: FRVotingProps) => {
+const FRVoting = ({ walletConnected, isActiveVoting, loading, selectedRequest }: FRVotingProps) => {
   const dispatch = useDispatch()
+
+  const handleConnect = () => dispatch(connect({ forcePermission: false }))
 
   const [votingStats, setVoteStatistics] = useState({
     totalVotes: selectedRequest.pass_vote_smvk_total + selectedRequest.nay_vote_smvk_total,
@@ -78,7 +81,7 @@ const FRVoting = ({ showButtons, loading, selectedRequest }: FRVotingProps) => {
 
   return (
     <>
-      <VotingContainer showButtons={!showButtons}>
+      <VotingContainer showButtons={!walletConnected && !walletConnected}>
         <QuorumBar width={votingStats.quorum}>
           Quorum <b>{votingStats.quorum.toFixed(2)}%</b>
         </QuorumBar>
@@ -102,24 +105,33 @@ const FRVoting = ({ showButtons, loading, selectedRequest }: FRVotingProps) => {
         </VotingBarStyled>
       </VotingContainer>
 
-      {showButtons ? (
+      {walletConnected && isActiveVoting ? (
         <VotingAreaStyled>
-          <VotingButtonsContainer className="FRVoting">
-            <Button
-              text={'Approve'}
-              onClick={() => handleVotingRoundVote('FOR')}
-              type={SUBMIT}
-              kind={'votingFor'}
-              loading={loading}
-            />
-            <Button
-              text={'Disapprove'}
-              onClick={() => handleVotingRoundVote('AGAINST')}
-              type={SUBMIT}
-              kind={'votingAgainst'}
-              loading={loading}
-            />
-          </VotingButtonsContainer>
+          {isActiveVoting ? (
+            walletConnected ? (
+              <VotingButtonsContainer className="FRVoting">
+                <Button
+                  text={'Approve'}
+                  onClick={() => handleVotingRoundVote('FOR')}
+                  type={SUBMIT}
+                  kind={'votingFor'}
+                  loading={loading}
+                />
+                <Button
+                  text={'Disapprove'}
+                  onClick={() => handleVotingRoundVote('AGAINST')}
+                  type={SUBMIT}
+                  kind={'votingAgainst'}
+                  loading={loading}
+                />
+              </VotingButtonsContainer>
+            ) : (
+              <div className="voted-block">
+                <CommaNumber className="voted-label" value={votingStats.totalVotes} endingText={'voted MVK'} />
+                <NoWalletConnectedButton handleConnect={handleConnect} />
+              </div>
+            )
+          ) : null}
         </VotingAreaStyled>
       ) : null}
     </>
