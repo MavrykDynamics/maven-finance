@@ -286,7 +286,7 @@ export const BecomeSatelliteView = ({
               disabled={disabled}
               value={form.fee}
               onBlur={(e: any) => handleValidate('FEE')}
-              inputStatus={formInputStatus.fee}
+              inputStatus={disabled ? '' : formInputStatus.fee}
               onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
             />
           </div>
