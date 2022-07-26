@@ -13,10 +13,12 @@ const dropShadow = keyframes`
   }
 `
 
-export const VotingContainer = styled.aside<{ theme: MavrykTheme }>`
+export const VotingContainer = styled.aside<{ theme: MavrykTheme; showButtons?: boolean }>`
   display: flex;
   flex-direction: column;
   margin-top: 42px;
+
+  margin-bottom: ${({ showButtons }) => (showButtons ? '42px' : '0')};
 
   text-align: end;
 `
