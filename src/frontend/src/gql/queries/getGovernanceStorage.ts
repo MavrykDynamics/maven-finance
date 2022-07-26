@@ -2,7 +2,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
   query GetGovernanceStorageQuery {
     governance(where: {active: {_eq: true}}) {
       address
-      blocks_per_minute
       blocks_per_proposal_round
       blocks_per_timelock_round
       blocks_per_voting_round
