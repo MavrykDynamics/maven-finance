@@ -273,30 +273,14 @@ block {
                 ];
                 const emptyNatMap : natMapType       = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "addCouncilMember";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "addCouncilMember",
+                    addressMap,
+                    stringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -337,30 +321,14 @@ block {
                 const emptyStringMap : stringMapType  = map [];
                 const emptyNatMap : natMapType        = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "removeCouncilMember";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;    
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "removeCouncilMember",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -412,30 +380,14 @@ block {
                 ];
                 const emptyNatMap : natMapType        = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "changeCouncilMember";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "changeCouncilMember",
+                    addressMap,
+                    stringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -474,30 +426,14 @@ block {
                 const emptyStringMap   : stringMapType       = map [];
                 const emptyNatMap      : natMapType          = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "pauseAllEntrypoints";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "pauseAllEntrypoints",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -528,30 +464,14 @@ block {
                 const emptyStringMap   : stringMapType       = map [];
                 const emptyNatMap      : natMapType          = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "unpauseAllEntrypoints";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n; 
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "unpauseAllEntrypoints",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -582,30 +502,14 @@ block {
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap      : natMapType      = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "propagateBreakGlass";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "propagateBreakGlass",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
                 
             }
         |   _ -> skip
@@ -668,30 +572,14 @@ block {
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap      : natMapType      = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "setSingleContractAdmin";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "setSingleContractAdmin",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
                 
             }
         |   _ -> skip
@@ -746,30 +634,14 @@ block {
                 const emptyStringMap   : stringMapType   = map [];
                 const emptyNatMap  : natMapType          = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "setAllContractsAdmin";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "setAllContractsAdmin",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -800,30 +672,14 @@ block {
                 const emptyStringMap   : stringMapType       = map [];
                 const emptyNatMap      : natMapType          = map [];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "removeBreakGlassControl";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "removeBreakGlassControl",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -877,30 +733,14 @@ block {
                     ("actionId" : string) -> actionId;
                 ];
 
-                var actionRecord : breakGlassActionRecordType := record[
-
-                    initiator             = Tezos.get_sender();
-                    status                = "PENDING";
-                    actionType            = "flushAction";
-                    executed              = False;
-
-                    signers               = set[Tezos.get_sender()];
-                    signersCount          = 1n;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = natMap;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.actionsLedger[s.actionCounter] := actionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create break glass action
+                s   := createBreakGlassAction(
+                    "flushAction",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    natMap,
+                    s
+                );
 
             }
         |   _ -> skip
