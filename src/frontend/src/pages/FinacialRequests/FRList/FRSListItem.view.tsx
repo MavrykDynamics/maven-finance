@@ -18,7 +18,7 @@ const FRSListItem = ({
   return (
     <FRListItem selected={selected} onClick={onClickHandler}>
       <ListItemLeftSide className="financial-request">
-        <span>{id + 1}</span>
+        <span>{id}</span>
         <h4>{title}</h4>
       </ListItemLeftSide>
       {additionalText && dividedPassVoteMvkTotal && (

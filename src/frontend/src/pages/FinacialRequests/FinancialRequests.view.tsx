@@ -29,6 +29,7 @@ import {
 } from './FinancialRequests.style'
 import { ProposalStatus } from 'utils/TypesAndInterfaces/Governance'
 import { EmptyContainer } from 'app/App.style'
+import { calcWithoutMu, calcWithoutPrecision } from 'utils/calcFunctions'
 
 type FinancialRequestsViewProps = {
   ready: boolean
@@ -48,6 +49,8 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
   }
 
   const rightItemStatus = rightSideContent && getRequestStatus(rightSideContent)
+
+  console.log('rightSideContent', rightSideContent)
 
   return (
     <FinancialRequestsStyled>
@@ -80,16 +83,21 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
       {rightSideContent && (
         <FinancialRequestsRightContainer>
           <GovRightContainerTitleArea className="financial-request">
-            <h1>{`${rightSideContent.request_type} ${rightSideContent.request_purpose}`}</h1>
+            <h1>{rightSideContent.request_type}</h1>
             <StatusFlag text={rightItemStatus} status={rightItemStatus} />
           </GovRightContainerTitleArea>
+          <InfoBlockTitle>{rightSideContent.request_purpose}</InfoBlockTitle>
 
           <div className="voting_ending">
             Voting {rightItemStatus !== ProposalStatus.ONGOING ? 'ended' : 'ending'} on{' '}
             {getDate_MDHMTZ_Format(rightSideContent.expiration_datetime)}
           </div>
 
-          <FRVoting ready={ready} loading={loading} selectedRequest={rightSideContent} />
+          <FRVoting
+            showButtons={ready && rightItemStatus === ProposalStatus.ONGOING}
+            loading={loading}
+            selectedRequest={rightSideContent}
+          />
 
           <hr />
 
@@ -118,7 +126,14 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
               <div className="list_item">
                 <InfoBlockListValue fontColor="#77A4F2">Amount Requested</InfoBlockListValue>
                 <InfoBlockListValue fontColor="#86D4C9">
-                  <CommaNumber value={rightSideContent.token_amount} endingText="MVK" />
+                  <CommaNumber
+                    value={
+                      rightSideContent.token_name === 'MVK'
+                        ? calcWithoutPrecision(rightSideContent.token_amount)
+                        : calcWithoutMu(rightSideContent.token_amount)
+                    }
+                    endingText={rightSideContent.token_name}
+                  />
                 </InfoBlockListValue>
               </div>
 
