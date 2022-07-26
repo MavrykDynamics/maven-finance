@@ -85,7 +85,7 @@ spec:
               value: https://api.jakartanet.tzkt.io
             - name: TZKT_MAINNET_URL
               value: https://api.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.5.3
+          image: tezosdynamics/mavryk-indexer:v0.6.1
           imagePullPolicy: Always
           ports:
             - name: metrics
@@ -141,52 +141,52 @@ data:
         address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
         typename: liquidity_baking
       mvk:
-        address: KT1KgUQ26ciUCrkZrDoV26ezvW2TiZTjZ1TQ
+        address: KT1GcZvpvkJced2DYqruHAgQtXHR8hxtuRuk
         typename: mvk
       governance:
-        address: KT1XYGTH2ogxW1roAYWrTtUcsXVyu414shxM
+        address: KT1XewhiHrQkFrPCQdE7W1EfYysprYN9qWhy
         typename: governance
       doorman:
-        address: KT1EbCBmz4sdEiVs4R4iUgeEm4hZzjuJ6xMD
+        address: KT1F2qmyT89YqXLZ9QkaLbbXzS3KUs6h2epj
         typename: doorman
       farm:
-        address: KT1B1AiBSiG2z8mPZvgKc5Rv1WxoKJVWw27t
+        address: KT18eiHR3ZV8ka8b8nHHwt6eS1dvHQci9gYa #KT1KBxqm1CVSZU2wZzSKsXavTTbb1fBoGNMQ
         typename: farm
       farm_factory:
-        address: KT1LwHbAUBvTbRZbr2tgRHykrYvZD4x76rSa
+        address: KT19JR7Jj1D7My45y4NFVsuMNckvKxXPzZot
         typename: farm_factory
       delegation:
-        address: KT1CMAgdQipgpTZ2ejW6xWeE7TVdbKefTdmQ
+        address: KT1V4QrhG6hgVQCLxHrqnCroe2H8CujuYPfF
         typename: delegation
       vesting:
-        address: KT1EBHf15fU5Dho88DDpzrZkh5v9EfRTLHZT
+        address: KT1UAmSm45MuQVTFoeCLReh5jjSfnjrSBfjm
         typename: vesting
       emergency_governance:
-        address: KT1TiPdAN9SpKFL23WcYqFsgwPxq6d4YoG7v
+        address: KT1MtvyZMU13mNeKCYYu7z8eLUiYFL68zFW8
         typename: emergency_governance
       council:
-        address: KT1CkevWWpee584oiZXAmm78vTWiYezSK5ZQ
+        address: KT1DXkLdLthLbJ1DYrRJYHYJRbMp6ovrZbtC
         typename: council
       break_glass:
-        address: KT1XsnpSVhTfCHG9Eq2eYAC8arvM6oE9tZvv
+        address: KT1NHvMP9j8UVi3FPxmwDeF1NcNaP96cHNJG
         typename: break_glass
       governance_financial:
-        address: KT1NAuqiAaS4rTiGxqWU6C4yUHEN7LFBkpQb
+        address: KT1WbJ6ud5FHE5Fh73iFqx8A9QCEvrU1s7tX
         typename: governance_financial
       governance_satellite:
-        address: KT1QdNZVmU6eHQUiw74E47E4kExWNK3vazbG
+        address: KT1CT8Rd8VauVHEq1cP3wFZyAZCFXu3Ud9te
         typename: governance_satellite
       aggregator:
-        address: KT1HitmjJgX6MccVJ8o5pvUco3p4iStohJHi
+        address: KT1CLja4pdVgQkpC8MfURfoi81xVYcGFdS1V
         typename: aggregator
       aggregator_factory:
-        address: KT1RjYz5QD5EfcRicmzuiYfXH2rQmCpgvcZe
+        address: KT1BcD2zRseb8GmhqyGfY7erWiwpEV8fMPJk
         typename: aggregator_factory
       treasury:
-        address: KT1HyW4eKjp6igpH6HNuwwPrVnkbf8wajZU2
+        address: KT1STdsf9ekdqwwgsY3TPHNjvin2Y8Fki52U
         typename: treasury
       treasury_factory:
-        address: KT1Q58LZnrNh5ETnofJtj3KFyCNMJFwmgWd2
+        address: KT1BumVyAcsJLxBavQPJLstbrSJFk3r1tjg5
         typename: treasury_factory
 
     datasources:
@@ -228,10 +228,6 @@ data:
             pattern:
               - destination: <farm_contract>
                 entrypoint: updateGeneralContracts
-          - callback: on_farm_update_blocks_per_minute
-            pattern:
-              - destination: <farm_contract>
-                entrypoint: updateBlocksPerMinute
           - callback: on_farm_init_farm
             pattern:
               - destination: <farm_contract>
@@ -516,6 +512,10 @@ data:
             pattern:
               - destination: governance
                 entrypoint: startNextRound
+          - callback: on_governance_update_satellite_snapshot
+            pattern:
+              - destination: governance
+                entrypoint: updateSatelliteSnapshot
           - callback: on_governance_propose
             pattern:
               - destination: governance
@@ -659,10 +659,6 @@ data:
             pattern:
               - destination: farm
                 entrypoint: updateGeneralContracts
-          - callback: on_farm_update_blocks_per_minute
-            pattern:
-              - destination: farm
-                entrypoint: updateBlocksPerMinute
           - callback: on_farm_init_farm
             pattern:
               - destination: farm
@@ -730,10 +726,6 @@ data:
             pattern:
               - destination: farm_factory
                 entrypoint: updateGeneralContracts
-          - callback: on_farm_factory_update_blocks_per_minute
-            pattern:
-              - destination: farm_factory
-                entrypoint: updateBlocksPerMinute
           - callback: on_farm_factory_pause_all
             pattern:
               - destination: farm_factory
@@ -811,22 +803,42 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: delegateToSatellite
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
           - callback: on_delegation_undelegate_from_satellite
             pattern:
               - destination: delegation
                 entrypoint: undelegateFromSatellite
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
           - callback: on_delegation_register_as_satellite
             pattern:
               - destination: delegation
                 entrypoint: registerAsSatellite
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
           - callback: on_delegation_unregister_as_satellite
             pattern:
               - destination: delegation
                 entrypoint: unregisterAsSatellite
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
           - callback: on_delegation_update_satellite_record
             pattern:
               - destination: delegation
                 entrypoint: updateSatelliteRecord
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
           - callback: on_delegation_distribute_reward
             pattern:
               - destination: delegation
@@ -835,10 +847,22 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: updateSatelliteStatus
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
           - callback: on_delegation_on_stake_change
             pattern:
               - destination: delegation
                 entrypoint: onStakeChange
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
+              - destination: governance
+                source: delegation
+                entrypoint: updateSatelliteSnapshot
+                optional: true
       # Vesting contract indexes
       vesting:
         kind: operation
@@ -989,10 +1013,6 @@ data:
             pattern:
               - destination: council
                 entrypoint: councilActionSetBaker
-          - callback: on_council_council_action_update_blocks_per_min
-            pattern:
-              - destination: council
-                entrypoint: councilActionUpdateBlocksPerMin
           - callback: on_council_council_action_add_vestee
             pattern:
               - destination: council
@@ -1181,6 +1201,10 @@ data:
             pattern:
               - destination: governance_financial
                 entrypoint: voteForRequest
+              - destination: governance
+                source: governance_financial
+                entrypoint: updateSatelliteSnapshot
+                optional: true
       # Governance Satellite contract indexes
       governance_satellite:
         kind: operation
@@ -1251,6 +1275,10 @@ data:
             pattern:
               - destination: governance_satellite
                 entrypoint: updateAggregatorStatus
+          - callback: on_governance_satellite_fix_mistaken_transfer
+            pattern:
+              - destination: governance_satellite
+                entrypoint: fixMistakenTransfer
           - callback: on_governance_satellite_drop_action
             pattern:
               - destination: governance_satellite
@@ -1259,6 +1287,10 @@ data:
             pattern:
               - destination: governance_satellite
                 entrypoint: voteForAction
+              - destination: governance
+                source: governance_satellite
+                entrypoint: updateSatelliteSnapshot
+                optional: true
       # Aggregator contract indexes
       aggregator:
         kind: operation
