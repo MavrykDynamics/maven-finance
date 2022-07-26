@@ -1,7 +1,8 @@
+import { useLocation } from 'react-router-dom'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
-import * as React from 'react'
+
 import { VotingAreaStyled, VotingButtonsContainer } from './VotingArea.style'
 import { connect } from '../../../app/App.components/ConnectWallet/ConnectWallet.actions'
 import { useDispatch, useSelector } from 'react-redux'
@@ -48,7 +49,8 @@ export const VotingArea = ({
   const satelliteLedger = delegationStorage?.satelliteLedger
   const accountPkhIsSatellite =
     satelliteLedger?.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0] !== undefined
-
+  const location = useLocation()
+  const onProposalHistoryPage = location.pathname === '/proposal-history'
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
@@ -62,7 +64,7 @@ export const VotingArea = ({
 
   return (
     <>
-      {ready && governancePhase === 'VOTING' && accountPkhIsSatellite ? (
+      {onProposalHistoryPage || (ready && governancePhase === 'VOTING' && accountPkhIsSatellite) ? (
         <VotingBar
           totalMVKVoted={dividedPassVoteMvkTotal}
           totalCirculatingMVKSupply={mvkTokenStorage.totalSupply}
@@ -71,7 +73,7 @@ export const VotingArea = ({
         />
       ) : null}
       <VotingAreaStyled>
-        {!ready && governancePhase !== 'TIME_LOCK' && (
+        {!onProposalHistoryPage && !ready && governancePhase !== 'TIME_LOCK' && (
           <div className="voted-block">
             <CommaNumber className="voted-label" value={dividedPassVoteMvkTotal} endingText={'voted MVK'} />
             <NoWalletConnectedButton handleConnect={handleConnect} />
