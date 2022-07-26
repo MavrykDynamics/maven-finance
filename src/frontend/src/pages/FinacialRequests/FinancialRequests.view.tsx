@@ -94,7 +94,8 @@ export const FinancialRequestsView = ({ ready, loading, financialRequestsList }:
           </div>
 
           <FRVoting
-            showButtons={ready && rightItemStatus === ProposalStatus.ONGOING}
+            isActiveVoting={rightItemStatus === ProposalStatus.ONGOING}
+            walletConnected={ready}
             loading={loading}
             selectedRequest={rightSideContent}
           />

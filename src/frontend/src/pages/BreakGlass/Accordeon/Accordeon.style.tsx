@@ -33,7 +33,7 @@ export const AccordionContent = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   height: 100%;
   max-height: 0;
-  height: 185px;
+  height: fit-content;
   overflow-y: scroll;
   overflow-x: hidden;
   padding-left: 30px;

@@ -8,26 +8,21 @@ import { BGAccordion } from '../Accordeon/Accordeon.view'
 
 type ContractCardProps = {
   contract: Record<string, unknown>
-  isActive?: Boolean
+  isActive?: boolean
+  isExpanded: boolean
   onClick?: () => void
+  handleExpandAccordeon: (id: string | null) => void
 }
-export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps) => {
-  const [isExpanded, setExpanded] = useState(false)
-
-  const title = contract.title as string
+export const ContractCard = ({ contract, isActive, onClick, isExpanded, handleExpandAccordeon }: ContractCardProps) => {
+  const title = (contract.title as string).replace(/([a-z0-9])([A-Z])/g, '$1 $2')
   const address = contract.address as string
   const methods = contract.methods as Record<string, boolean>
-  console.log(title)
   const isStatusPaused = methods ? Object.keys(methods).some((method) => methods[method]) : false
 
   return (
     <ContractCardWrapper className={isActive ? 'active' : ''} onClick={onClick}>
       <ContractCardTopSection>
-        <div className="card-title">
-          <div className="truncate-title" title={title}>
-            {title}
-          </div>
-        </div>
+        <div className="card-title">{title}</div>
 
         <div className="card-flag-wrapper">
           <StatusFlag
@@ -44,7 +39,13 @@ export const ContractCard = ({ contract, isActive, onClick }: ContractCardProps)
         accordionId={title}
         isExpanded={isExpanded}
         methods={methods}
-        accordionClickHandler={() => setExpanded(!isExpanded)}
+        accordionClickHandler={() => {
+          if (isExpanded) {
+            handleExpandAccordeon(null)
+          } else {
+            handleExpandAccordeon(address)
+          }
+        }}
       />
     </ContractCardWrapper>
   )
