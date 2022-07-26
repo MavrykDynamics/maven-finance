@@ -215,31 +215,16 @@ block {
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "addCouncilMember";
-                    signers               = set[Tezos.get_sender()];
+                // create council action
+                s   := createCouncilAction(
+                    "addCouncilMember",
+                    addressMap,
+                    stringMap,
+                    emptyNatMap,
+                    keyHash,
+                    s
+                );
 
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = emptyNatMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
-                
             }
         |   _ -> skip
     ];
@@ -281,30 +266,15 @@ block {
                 const emptyStringMap      : stringMapType      = map [];
                 const emptyNatMap         : natMapType         = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "removeCouncilMember";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "removeCouncilMember",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -358,30 +328,15 @@ block {
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "changeCouncilMember";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = emptyNatMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "removeCouncilMember",
+                    addressMap,
+                    stringMap,
+                    emptyNatMap,
+                    keyHash,
+                    s
+                );
             }
         |   _ -> skip
     ];
@@ -409,30 +364,15 @@ block {
                 const emptyStringMap      : stringMapType      = map [];
                 const emptyNatMap         : natMapType         = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "setBaker";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-                    keyHash               = setBakerParams;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "setBaker",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    setBakerParams,
+                    s
+                );
             }
         |   _ -> skip
     ];
@@ -508,30 +448,15 @@ block {
                     ("vestingInMonths"       : string) -> vestingInMonths;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "addVestee";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = natMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "addVestee",
+                    addressMap,
+                    emptyStringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -590,30 +515,15 @@ block {
                 const emptyStringMap : stringMapType  = map [];
                 const emptyNatMap : natMapType        = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "removeVestee";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "removeVestee",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -682,30 +592,15 @@ block {
                     ("newVestingInMonths"       : string) -> newVestingInMonths;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "updateVestee";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = natMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "updateVestee",
+                    addressMap,
+                    emptyStringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -764,30 +659,15 @@ block {
                 const emptyStringMap : stringMapType  = map [];
                 const emptyNatMap : natMapType        = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "toggleVesteeLock";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "toggleVesteeLock",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -845,30 +725,15 @@ block {
                     ("tokenId"               : string) -> councilActionTransferParams.tokenId;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "transfer";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = natMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "transfer",
+                    addressMap,
+                    stringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -936,30 +801,15 @@ block {
                     ("tokenId"               : string) -> councilActionRequestTokensParams.tokenId;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "requestTokens";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = natMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "requestTokens",
+                    addressMap,
+                    stringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1015,30 +865,15 @@ block {
                     ("tokenAmount"           : string) -> councilActionRequestMintParams.tokenAmount;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "requestMint";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = natMap;     
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "requestMint",
+                    addressMap,
+                    stringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1086,30 +921,15 @@ block {
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "setContractBaker";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = emptyNatMap;     
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "setContractBaker",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1146,36 +966,21 @@ block {
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
-                const addressMap : addressMapType     = map [];
-                const stringMap : stringMapType       = map [];
-                const natMap : natMapType             = map [
+                const emptyAddressMap : addressMapType      = map [];
+                const emptyStringMap : stringMapType        = map [];
+                const natMap : natMapType                   = map [
                     ("requestId"           : string) -> requestId;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "dropFinancialRequest";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = addressMap;
-                    stringMap             = stringMap;
-                    natMap                = natMap;     
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
+                // create council action
+                s   := createCouncilAction(
+                    "dropFinancialRequest",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1228,31 +1033,16 @@ block {
                     ("actionId" : string) -> actionId;
                 ];
 
-                var councilActionRecord : councilActionRecordType := record[
-                    initiator             = Tezos.get_sender();
-                    actionType            = "flushAction";
-                    signers               = set[Tezos.get_sender()];
-
-                    status                = "PENDING";
-                    signersCount          = 1n;
-                    executed              = False;
-
-                    addressMap            = emptyAddressMap;
-                    stringMap             = emptyStringMap;
-                    natMap                = natMap;
-                    keyHash               = keyHash;
-
-                    startDateTime         = Tezos.get_now();
-                    startLevel            = Tezos.get_level();             
-                    executedDateTime      = Tezos.get_now();
-                    executedLevel         = Tezos.get_level();
-                    expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
-                ];
-                s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
-
-                // increment action counter
-                s.actionCounter := s.actionCounter + 1n;
-
+                // create council action
+                s   := createCouncilAction(
+                    "flushAction",
+                    emptyAddressMap,
+                    emptyStringMap,
+                    natMap,
+                    keyHash,
+                    s
+                );
+                
             }
         |   _ -> skip
     ];

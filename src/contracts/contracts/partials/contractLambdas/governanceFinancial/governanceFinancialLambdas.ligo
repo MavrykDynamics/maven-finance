@@ -206,99 +206,19 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        |   LambdaRequestTokens(requestTokensParams) -> {
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptViewDoorman of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat)         = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply: nat     = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Validation Checks 
-                // ------------------------------------------------------------------
-
-                // Check if token type provided matches the standard (FA12, FA2, TEZ)
-                if requestTokensParams.tokenType = "FA12" or requestTokensParams.tokenType = "FA2" or requestTokensParams.tokenType = "TEZ" then skip
-                else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
-
-                // If tokens are requested, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
-                if requestTokensParams.tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(requestTokensParams.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
-
-                // ------------------------------------------------------------------
-                // Create new Financial Request Record
-                // ------------------------------------------------------------------
-
-                // init empty keyHash field - mainly used for setContractBaker entrypoint
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                // Create new financial request record
-                var newFinancialRequest : financialRequestRecordType := record [
-
-                    requesterAddress                    = Tezos.get_sender();
-                    requestType                         = "TRANSFER";
-                    status                              = True;                  // status : True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                            = False;
-
-                    treasuryAddress                     = requestTokensParams.treasuryAddress;
-                    tokenContractAddress                = requestTokensParams.tokenContractAddress;
-                    tokenAmount                         = requestTokensParams.tokenAmount;
-                    tokenName                           = requestTokensParams.tokenName; 
-                    tokenType                           = requestTokensParams.tokenType;
-                    tokenId                             = requestTokensParams.tokenId;
-                    requestPurpose                      = requestTokensParams.purpose;
-                    voters                              = set[];
-                    keyHash                             = keyHash;
-
-                    yayVoteStakedMvkTotal               = 0n;
-                    nayVoteStakedMvkTotal               = 0n;
-                    passVoteStakedMvkTotal              = 0n;
-
-                    snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
-                    stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
-
-                    requestedDateTime                   = Tezos.get_now();               
-                    expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
-                
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current financial request counter
-                const financialRequestId : nat = s.financialRequestCounter;
-
-                // Save request to financial request ledger
-                s.financialRequestLedger[financialRequestId] := newFinancialRequest;
-
-                // Increment financial request counter
-                s.financialRequestCounter := financialRequestId + 1n;
-
-            }
+        |   LambdaRequestTokens(requestTokensParams) -> 
+                s   := createGovernanceFinancialRequest(
+                    "TRANSFER",
+                    requestTokensParams.treasuryAddress,
+                    requestTokensParams.tokenContractAddress,
+                    requestTokensParams.tokenAmount,
+                    requestTokensParams.tokenName,
+                    requestTokensParams.tokenType,
+                    requestTokensParams.tokenId,
+                    (None : option(key_hash)),
+                    requestTokensParams.purpose,
+                    s
+                )
         |   _ -> skip
     ];
 
@@ -325,91 +245,19 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        |   LambdaRequestMint(requestMintParams) -> {
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-  
-                // Get MVK Token Contract from storage
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptViewDoorman of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat)        = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply: nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-                const stakedMvkRequiredForApproval : nat  = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Financial Request Record
-                // ------------------------------------------------------------------
-
-                // init empty keyHash field - mainly used for setContractBaker entrypoint
-                const keyHash : option(key_hash) = (None : option(key_hash));
-
-                // Create new financial request record
-                var newFinancialRequest : financialRequestRecordType := record [
-
-                    requesterAddress                    = Tezos.get_sender();
-                    requestType                         = "MINT";
-                    status                              = True;                  // status : True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                            = False;
-
-                    treasuryAddress                     = requestMintParams.treasuryAddress;
-                    tokenContractAddress                = mvkTokenAddress;
-                    tokenAmount                         = requestMintParams.tokenAmount;
-                    tokenName                           = "MVK"; 
-                    tokenType                           = "FA2";
-                    tokenId                             = 0n;
-                    requestPurpose                      = requestMintParams.purpose;
-                    voters                              = set[];
-                    keyHash                             = keyHash;
-
-                    yayVoteStakedMvkTotal               = 0n;
-                    nayVoteStakedMvkTotal               = 0n;
-                    passVoteStakedMvkTotal              = 0n;
-
-                    snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
-                    stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
-
-                    requestedDateTime                   = Tezos.get_now();               
-                    expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current financial request counter
-                const financialRequestId : nat = s.financialRequestCounter;
-
-                // Save request to financial request ledger
-                s.financialRequestLedger[financialRequestId] := newFinancialRequest;
-
-                // increment financial request counter
-                s.financialRequestCounter := financialRequestId + 1n;
-
-            }
+        |   LambdaRequestMint(requestMintParams) -> 
+                s   := createGovernanceFinancialRequest(
+                    "MINT",
+                    requestMintParams.treasuryAddress,
+                    s.mvkTokenAddress,
+                    requestMintParams.tokenAmount,
+                    "MVK",
+                    "FA2",
+                    0n,
+                    (None : option(key_hash)),
+                    requestMintParams.purpose,
+                    s
+                )
         |   _ -> skip
     ];
 
@@ -436,88 +284,19 @@ block {
     checkSenderIsCouncilContract(s); // check that sender is from the Council Contract
 
     case governanceFinancialLambdaAction of [
-        |   LambdaSetContractBaker(setContractBakerParams) -> {
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-                
-                // Get MVK Token Contract from storage - used as placeholder here
-                const mvkTokenAddress : address = s.mvkTokenAddress;
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptViewDoorman of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat)        = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply: nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's financial request approval percentage
-                const stakedMvkRequiredForApproval : nat = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Financial Request Record
-                // ------------------------------------------------------------------
-  
-                // Create new financial request record
-                var newFinancialRequest : financialRequestRecordType := record [
-
-                    requesterAddress                    = Tezos.get_sender();
-                    requestType                         = "SET_CONTRACT_BAKER";
-                    status                              = True;                  // status : True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                            = False;
-
-                    treasuryAddress                     = setContractBakerParams.targetContractAddress;
-                    tokenContractAddress                = mvkTokenAddress;
-                    tokenAmount                         = 0n;
-                    tokenName                           = "NIL"; 
-                    tokenType                           = "NIL";
-                    tokenId                             = 0n;
-                    requestPurpose                      = "Set Contract Baker";
-                    voters                              = set[];
-                    keyHash                             = setContractBakerParams.keyHash;
-
-                    yayVoteStakedMvkTotal               = 0n;
-                    nayVoteStakedMvkTotal               = 0n;
-                    passVoteStakedMvkTotal              = 0n;
-
-                    snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
-                    stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
-
-                    requestedDateTime                   = Tezos.get_now();              
-                    expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current financial request counter
-                const financialRequestId : nat = s.financialRequestCounter;
-
-                // save request to financial request ledger
-                s.financialRequestLedger[financialRequestId] := newFinancialRequest;
-
-                // increment financial request counter
-                s.financialRequestCounter := financialRequestId + 1n;
-
-            }
+        |   LambdaSetContractBaker(setContractBakerParams) -> 
+                s   := createGovernanceFinancialRequest(
+                    "SET_CONTRACT_BAKER",
+                    setContractBakerParams.targetContractAddress,
+                    s.mvkTokenAddress,
+                    0n,
+                    "NIL",
+                    "NIL",
+                    0n,
+                    setContractBakerParams.keyHash,
+                    "Set Contract Baker",
+                    s
+                )
         |   _ -> skip
     ];
 

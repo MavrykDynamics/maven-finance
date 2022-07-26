@@ -460,6 +460,102 @@ block{
     ];
 
 } with(totalVotingPower, updateSnapshotOperation)
+
+
+
+// Helper function to create a governance financial request
+function createGovernanceFinancialRequest(const requestType : string; const treasuryAddress : address; const tokenContractAddress : address; const tokenAmount : tokenBalanceType; const tokenName : string; const tokenType : string; const tokenId : tokenIdType; const keyHash : option(key_hash); const purpose : string; var s : governanceFinancialStorageType): governanceFinancialStorageType is
+block{
+
+    // ------------------------------------------------------------------
+    // Get necessary contracts and info
+    // ------------------------------------------------------------------
+
+    // Get Doorman Contract address from the General Contracts Map on the Governance Contract
+    const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+    const doormanAddress : address = case generalContractsOptViewDoorman of [
+            Some (_optionContract) -> case _optionContract of [
+                    Some (_contract)    -> _contract
+                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+            ]
+        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // ------------------------------------------------------------------
+    // Snapshot Staked MVK Total Supply
+    // ------------------------------------------------------------------
+
+    // Take snapshot of current total staked MVK supply 
+    const getBalanceView : option (nat)         = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
+    const snapshotStakedMvkTotalSupply: nat     = case getBalanceView of [
+            Some (value) -> value
+        |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+    ];
+
+    // Calculate staked MVK votes required for approval based on config's financial request approval percentage
+    const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+    // ------------------------------------------------------------------
+    // Validation Checks 
+    // ------------------------------------------------------------------
+
+    // Check if token type provided matches the standard (FA12, FA2, TEZ)
+    if tokenType = "FA12" or tokenType = "FA2" or tokenType = "TEZ" then skip
+    else failwith(error_WRONG_TOKEN_TYPE_PROVIDED);
+
+    // If tokens are requested, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
+    if tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
+
+    // ------------------------------------------------------------------
+    // Create new Financial Request Record
+    // ------------------------------------------------------------------
+
+    // Create new financial request record
+    var newFinancialRequest : financialRequestRecordType := record [
+
+        requesterAddress                    = Tezos.get_sender();
+        requestType                         = requestType;
+        status                              = True;                  // status : True - "ACTIVE", False - "INACTIVE/DROPPED"
+        executed                            = False;
+
+        treasuryAddress                     = treasuryAddress;
+        tokenContractAddress                = tokenContractAddress;
+        tokenAmount                         = tokenAmount;
+        tokenName                           = tokenName; 
+        tokenType                           = tokenType;
+        tokenId                             = tokenId;
+        requestPurpose                      = purpose;
+        voters                              = set[];
+        keyHash                             = keyHash;
+
+        yayVoteStakedMvkTotal               = 0n;
+        nayVoteStakedMvkTotal               = 0n;
+        passVoteStakedMvkTotal              = 0n;
+
+        snapshotStakedMvkTotalSupply        = snapshotStakedMvkTotalSupply;
+        stakedMvkPercentageForApproval      = s.config.financialRequestApprovalPercentage; 
+        stakedMvkRequiredForApproval        = stakedMvkRequiredForApproval; 
+
+        requestedDateTime                   = Tezos.get_now();               
+        expiryDateTime                      = Tezos.get_now() + (86_400 * s.config.financialRequestDurationInDays);
+    
+    ];
+
+    // ------------------------------------------------------------------
+    // Update Storage
+    // ------------------------------------------------------------------
+
+    // Get current financial request counter
+    const financialRequestId : nat = s.financialRequestCounter;
+
+    // Save request to financial request ledger
+    s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+
+    // Increment financial request counter
+    s.financialRequestCounter := financialRequestId + 1n;
+
+} with (s)
+
 // ------------------------------------------------------------------------------
 // Governance Helper Functions End
 // ------------------------------------------------------------------------------

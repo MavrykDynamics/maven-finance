@@ -172,6 +172,46 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 // ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function createBreakGlassAction(const actionType : string; const addressMap : addressMapType ; const stringMap : stringMapType; const natMap : natMapType; var s : breakGlassStorageType) : breakGlassStorageType is
+block {
+
+    var actionRecord : breakGlassActionRecordType := record[
+
+        initiator             = Tezos.get_sender();
+        status                = "PENDING";
+        actionType            = actionType;
+        executed              = False;
+
+        signers               = set[Tezos.get_sender()];
+        signersCount          = 1n;
+
+        addressMap            = addressMap;
+        stringMap             = stringMap;
+        natMap                = natMap;
+
+        startDateTime         = Tezos.get_now();
+        startLevel            = Tezos.get_level();             
+        executedDateTime      = Tezos.get_now();
+        executedLevel         = Tezos.get_level();
+        expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (s)
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 

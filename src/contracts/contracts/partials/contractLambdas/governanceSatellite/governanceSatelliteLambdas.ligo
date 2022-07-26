@@ -194,85 +194,6 @@ block {
                 const satelliteToBeSuspended  : address = suspendSatelliteParams.satelliteToBeSuspended;
                 const purpose                 : string  = suspendSatelliteParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Check if address given for satellite to be suspended is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteToBeSuspended, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeSuspended" : string) -> satelliteToBeSuspended
@@ -281,57 +202,17 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "SUSPEND",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "SUSPEND";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-                    
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite action ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite action counter
-                s.governanceSatelliteCounter := actionId + 1n;
-                
             }
         |   _ -> skip
     ];
@@ -367,85 +248,6 @@ block {
                 const satelliteToBeUnsuspended  : address = unsuspendSatelliteParams.satelliteToBeUnsuspended;
                 const purpose                   : string  = unsuspendSatelliteParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Check if address given for satellite to be unsuspended is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteToBeUnsuspended, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeUnsuspended" : string) -> satelliteToBeUnsuspended
@@ -454,56 +256,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "UNSUSPEND";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-                
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "UNSUSPEND",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -540,85 +302,6 @@ block {
                 const satelliteToBeBanned      : address = banSatelliteParams.satelliteToBeBanned;
                 const purpose                  : string  = banSatelliteParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-                
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-                
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Check if address given for satellite to be banned is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteToBeBanned, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeBanned" : string) -> satelliteToBeBanned
@@ -627,56 +310,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "BAN";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-
-                    transferList                       = emptyTransferList;
-                    
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "BAN",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -713,85 +356,6 @@ block {
                 const satelliteToBeUnbanned    : address = unbanSatelliteParams.satelliteToBeUnbanned;
                 const purpose                  : string  = unbanSatelliteParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                //  Check if address given for satellite to be unbanned is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteToBeUnbanned, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeUnbanned" : string) -> satelliteToBeUnbanned
@@ -800,56 +364,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "UNBAN";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-                        
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "UNBAN",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -894,85 +418,6 @@ block {
                 const satelliteAddress    : address = removeAllSatelliteOraclesParams.satelliteAddress;
                 const purpose             : string  = removeAllSatelliteOraclesParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-                
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Check if address given for specified satellite is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("satelliteAddress" : string) -> satelliteAddress
@@ -981,56 +426,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "REMOVE_ALL_SATELLITE_ORACLES";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-                    
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "REMOVE_ALL_SATELLITE_ORACLES",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1068,85 +473,6 @@ block {
                 const aggregatorAddress  : address = addOracleToAggregatorParams.aggregatorAddress;
                 const purpose            : string  = addOracleToAggregatorParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Check if address given for specified oracle is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("oracleAddress"     : string)   -> oracleAddress;
@@ -1155,57 +481,17 @@ block {
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
-            
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "ADD_ORACLE_TO_AGGREGATOR";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-                        
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "ADD_ORACLE_TO_AGGREGATOR",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1243,85 +529,6 @@ block {
                 const aggregatorAddress    : address = removeOracleInAggregatorParams.aggregatorAddress;
                 const purpose              : string  = removeOracleInAggregatorParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // Check if address given for specified oracle is valid
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", oracleAddress, delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> skip
-                            |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("oracleAddress"     : string)   -> oracleAddress;
@@ -1331,56 +538,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "REMOVE_ORACLE_IN_AGGREGATOR";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "REMOVE_ORACLE_IN_AGGREGATOR",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1426,75 +593,6 @@ block {
                 const maintainerAddress    : address  = setAggregatorMaintainerParams.maintainerAddress;
                 const purpose              : string   = setAggregatorMaintainerParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
@@ -1504,56 +602,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "SET_AGGREGATOR_MAINTAINER";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = emptyStringMap;
-                    natMap                             = emptyNatMap;
-
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "SET_AGGREGATOR_MAINTAINER",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1644,75 +702,6 @@ block {
                 const status               : string  = updateAggregatorStatusParams.status;
                 const purpose              : string  = updateAggregatorStatusParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-                
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 // init maps
                 const addressMap        : addressMapType     = map [
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
@@ -1723,56 +712,16 @@ block {
                 const emptyNatMap       : natMapType         = map [];
                 const emptyTransferList : transferActionType = list [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                    initiator                          = Tezos.get_sender();
-                    status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                    executed                           = False;
-
-                    governanceType                     = "UPDATE_AGGREGATOR_STATUS";
-                    governancePurpose                  = purpose;
-                    voters                             = set [];
-
-                    addressMap                         = addressMap;
-                    stringMap                          = stringMap;
-                    natMap                             = emptyNatMap;
-                    
-                    transferList                       = emptyTransferList;
-
-                    yayVoteStakedMvkTotal              = 0n;
-                    nayVoteStakedMvkTotal              = 0n;
-                    passVoteStakedMvkTotal             = 0n;
-
-                    snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                    stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                    startDateTime                      = Tezos.get_now();            
-                    expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-
-                ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                // Get current action counter
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "UPDATE_AGGREGATOR_STATUS",
+                    addressMap,
+                    stringMap,
+                    emptyNatMap,
+                    emptyTransferList,
+                    purpose,
+                    s
+                );
 
             }
         |   _ -> skip
@@ -1818,130 +767,22 @@ block {
                 const transferList             : transferActionType     = fixMistakenTransferParams.transferList;
                 const purpose                  : string                 = fixMistakenTransferParams.purpose;
 
-                // Validate inputs
-                if String.length(purpose)    > s.config.governancePurposeMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
-
-                // ------------------------------------------------------------------
-                // Get necessary contracts and info
-                // ------------------------------------------------------------------
-
-                // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-                const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-                
-                // get delegation address
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress: address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
-                // ------------------------------------------------------------------
-                // Get / Check Satellite Records
-                // ------------------------------------------------------------------
-
-                // Refresh the governance cycle 
-                s   := updateGovernanceCycleLimitation(s);
-
-                // Check if the satellite created too much actions this cycle
-                const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)   -> Set.size(_actionsIds)
-                    |   None                -> 0n
-                ];
-                if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
-
-                // Get satellite record for initiator
-                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
-                case satelliteOptView of [
-                        Some (value) -> case value of [
-                                Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                            |   None              -> failwith(error_ONLY_SATELLITES_ALLOWED_TO_INITIATE_GOVERNANCE_ACTION)
-                        ]
-                    |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
-
-                // ------------------------------------------------------------------
-                // Snapshot Staked MVK Total Supply
-                // ------------------------------------------------------------------
-
-                // Take snapshot of current total staked MVK supply 
-                const getBalanceView : option (nat) = Tezos.call_view ("get_balance", (doormanAddress, 0n), s.mvkTokenAddress);
-                const snapshotStakedMvkTotalSupply : nat = case getBalanceView of [
-                        Some (value) -> value
-                    |   None         -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
-                ];
-
-                // Calculate staked MVK votes required for approval based on config's approval percentage
-                const stakedMvkRequiredForApproval : nat     = abs((snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                // ------------------------------------------------------------------
-                // Create new Governance Satellite Action
-                // ------------------------------------------------------------------
-
                 const addressMap      : addressMapType     = map [
                     ("targetContractAddress" : string)   -> targetContractAddress;
                 ];
                 const emptyStringMap  : stringMapType                       = map [];
                 const emptyNatMap     : natMapType                          = map [];
 
-                // Create new governance satellite action record
-                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
-
-                        initiator                          = Tezos.get_sender();
-                        status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                        executed                           = False;
-
-                        governanceType                     = "MISTAKEN_TRANSFER_FIX";
-                        governancePurpose                  = purpose;
-                        voters                             = set [];
-
-                        addressMap                         = addressMap;
-                        stringMap                          = emptyStringMap;
-                        natMap                             = emptyNatMap;
-
-                        transferList                       = transferList;
-
-                        yayVoteStakedMvkTotal              = 0n;
-                        nayVoteStakedMvkTotal              = 0n;
-                        passVoteStakedMvkTotal             = 0n;
-
-                        snapshotStakedMvkTotalSupply       = snapshotStakedMvkTotalSupply;
-                        stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                        startDateTime                      = Tezos.get_now();            
-                        expiryDateTime                     = Tezos.get_now() + (86_400 * s.config.governanceSatelliteDurationInDays);
-                    ];
-
-                // ------------------------------------------------------------------
-                // Update Storage
-                // ------------------------------------------------------------------
-
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // Save the action id for this satellite
-                var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-                        Some (_actionsIds)  -> _actionsIds
-                    |   None                -> set []
-                ];
-                createdActions                  := Set.add(actionId, createdActions);
-                s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
-                // Save action to governance satellite ledger
-                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
-
-                // Increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                // create action
+                s   := createGovernanceSatelliteAction(
+                    "MISTAKEN_TRANSFER_FIX",
+                    addressMap,
+                    emptyStringMap,
+                    emptyNatMap,
+                    transferList,
+                    purpose,
+                    s
+                );
 
             }
         | _ -> skip
