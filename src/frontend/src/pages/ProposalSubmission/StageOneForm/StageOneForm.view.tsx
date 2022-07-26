@@ -34,6 +34,7 @@ type StageOneFormViewProps = {
   formInputStatus: SubmitProposalFormInputStatus
   handleOnBlur: (e: any, formField: string) => void
   handleSubmitProposal: () => void
+  proposalId: number | undefined
 }
 export const StageOneFormView = ({
   locked,
@@ -44,10 +45,14 @@ export const StageOneFormView = ({
   formInputStatus,
   handleOnBlur,
   handleSubmitProposal,
+  proposalId,
 }: StageOneFormViewProps) => {
   const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
+
+  const disabled = Boolean(proposalId) || !isProposalRound
+
   return (
     <>
       <FormHeaderGroup>
@@ -69,7 +74,7 @@ export const StageOneFormView = ({
             onChange={(e: any) => setForm({ ...form, title: e.target.value })}
             onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
             inputStatus={formInputStatus.title}
-            disabled={!isProposalRound}
+            disabled={disabled}
           />
         </FormTitleContainer>
         <div>
@@ -89,7 +94,7 @@ export const StageOneFormView = ({
         onChange={(e: any) => setForm({ ...form, description: e.target.value })}
         onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
         inputStatus={formInputStatus.description}
-        disabled={!isProposalRound}
+        disabled={disabled}
       />
       <div className="source-code-input-wrap">
         <label>5 - Please add a link to the source code changes (if you have)</label>
@@ -99,14 +104,14 @@ export const StageOneFormView = ({
           onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
           onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
           inputStatus={formInputStatus.sourceCodeLink}
-          disabled={!isProposalRound}
+          disabled={disabled}
         />
       </div>
       <FormButtonContainer>
         <Button
           icon="auction"
           kind="actionPrimary"
-          disabled={!isProposalRound}
+          disabled={disabled}
           text={'Submit Proposal'}
           onClick={handleSubmitProposal}
         />

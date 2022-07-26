@@ -20,8 +20,9 @@ import { submitProposal } from '../ProposalSubmission.actions'
 
 type StageOneFormProps = {
   locked: boolean
+  proposalId: number | undefined
 }
-export const StageOneForm = ({ locked }: StageOneFormProps) => {
+export const StageOneForm = ({ locked, proposalId }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage } = useSelector((state: State) => state.governance)
@@ -52,6 +53,8 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
     invoiceTable: 'success',
     sourceCodeLink: '',
   })
+
+  console.log('%c ||||| proposalId', 'color:yellowgreen', proposalId)
 
   const handleOnBlur = (e: any, formField: string) => {
     let updatedState, validityCheckResult
@@ -129,6 +132,7 @@ export const StageOneForm = ({ locked }: StageOneFormProps) => {
       locked={locked}
       form={form}
       fee={fee}
+      proposalId={proposalId}
       successReward={successReward}
       setForm={setForm}
       formInputStatus={formInputStatus}

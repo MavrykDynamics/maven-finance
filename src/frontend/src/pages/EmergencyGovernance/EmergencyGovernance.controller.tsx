@@ -35,7 +35,7 @@ export const EmergencyGovernance = () => {
   const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  console.log(emergencyGovernanceStorage)
+
   const selectedProposal = MOCK_PAST_PROPOSAL_LIST.values().next().value
 
   const emergencyGovernanceLedger = emergencyGovernanceStorage?.emergencyGovernanceLedger

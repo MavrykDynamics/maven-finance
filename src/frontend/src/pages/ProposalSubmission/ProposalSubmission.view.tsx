@@ -35,7 +35,7 @@ export const ProposalSubmissionView = ({
       <PageHeader page={'proposal submission'} kind={PRIMARY} />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       <ProposalSubmissionForm>
-        {activeTab === 1 && <StageOneForm locked={locked} />}
+        {activeTab === 1 && <StageOneForm locked={locked} proposalId={proposalId} />}
         {activeTab === 2 && <StageTwoForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
         {activeTab === 3 && <StageThreeForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
       </ProposalSubmissionForm>
