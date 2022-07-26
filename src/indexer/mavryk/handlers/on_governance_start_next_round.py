@@ -23,7 +23,7 @@ async def on_governance_start_next_round(
     current_cycle_proposals             = start_next_round.storage.cycleProposals
     current_round_votes                 = start_next_round.storage.roundVotes
     cycle_counter                       = int(start_next_round.storage.cycleCounter)
-    highest_voted_proposal              = int(start_next_round.storage.cycleHighestVotedProposalId )
+    highest_voted_proposal              = int(start_next_round.storage.cycleHighestVotedProposalId)
     timelock_proposal                   = int(start_next_round.storage.timelockProposalId)
 
     # Current round
@@ -51,14 +51,13 @@ async def on_governance_start_next_round(
     await governance.save()
 
     # Update highest voted proposal
-    if highest_voted_proposal in start_next_round.storage.proposalLedger:
-        highest_voted_proposal_storage  = start_next_round.storage.proposalLedger[highest_voted_proposal]
+    if start_next_round.storage.cycleHighestVotedProposalId in start_next_round.storage.proposalLedger:
+        highest_voted_proposal_storage  = start_next_round.storage.proposalLedger[start_next_round.storage.cycleHighestVotedProposalId]
         highest_voted_proposal_record   = await models.GovernanceProposalRecord.get(
             id  = highest_voted_proposal
         )
         highest_voted_proposal_record.reward_claim_ready    = highest_voted_proposal_storage.rewardClaimReady
         await highest_voted_proposal_record.save()
-        breakpoint()
 
     # Update round proposals
     round_proposals = await models.GovernanceProposalRecord.filter(current_round_proposal=True).all()

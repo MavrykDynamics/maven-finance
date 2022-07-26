@@ -120,7 +120,7 @@ class MVKToken(Model):
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)
-    next_inflation_timestamp                = fields.DatetimeField()
+    next_inflation_timestamp                = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'mvk_token'
@@ -743,8 +743,8 @@ class GovernanceProposalRecordVote(Model):
 
 class GovernanceSatelliteSnapshotRecord(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshots', null=True)
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshots')
+    governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
+    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records_votes')
     ready                                   = fields.BooleanField(default=True)
     total_smvk_balance                      = fields.FloatField(default=0.0)
     total_delegated_amount                  = fields.FloatField(default=0.0)

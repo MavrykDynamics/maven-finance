@@ -21,7 +21,6 @@ async def on_governance_financial_vote_for_request(
     vote                = vote_for_request.parameter.vote
     request_id          = int(vote_for_request.parameter.requestId)
     request_storage     = vote_for_request.storage.financialRequestLedger[vote_for_request.parameter.requestId]
-    voter_storage       = request_storage.voters[voter_address]
     timestamp           = vote_for_request.data.timestamp
     yay_smvk_total      = float(request_storage.yayVoteStakedMvkTotal)
     nay_smvk_total      = float(request_storage.nayVoteStakedMvkTotal)
@@ -55,7 +54,6 @@ async def on_governance_financial_vote_for_request(
     
     # Create or update the satellite snapshot
     if update_satellite_snapshot:
-        breakpoint()
         satellite_snapshots = update_satellite_snapshot.storage.snapshotLedger
         governance_snapshot = await models.GovernanceSatelliteSnapshotRecord.get_or_none(
             governance  = governance,
@@ -76,11 +74,16 @@ async def on_governance_financial_vote_for_request(
             await governance_snapshot.save()
 
     # Register vote
+    satellite_snapshot      = await models.GovernanceSatelliteSnapshotRecord.get(
+        governance  = governance,
+        user        = voter,
+        cycle       = governance.cycle_counter
+    )
     vote_record, _          = await models.GovernanceFinancialRequestRecordVote.get_or_create(
         governance_financial_request    = financial_request,
         voter                           = voter
     )
     vote_record.timestamp       = timestamp
+    vote_record.voting_power    = satellite_snapshot.total_voting_power
     vote_record.vote            = vote_type
-    vote_record.voting_power    = float(voter_storage.totalVotingPower)
     await vote_record.save()
