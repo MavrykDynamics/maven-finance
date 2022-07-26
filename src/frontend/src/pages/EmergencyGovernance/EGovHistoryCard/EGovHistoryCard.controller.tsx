@@ -41,6 +41,8 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
     ? emergencyGovernance.executedTimestamp
     : emergencyGovernance.startTimestamp
 
+  console.log('%c ||||| emergencyGovernance', 'color:yellowgreen', emergencyGovernance)
+
   return (
     <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
       <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
