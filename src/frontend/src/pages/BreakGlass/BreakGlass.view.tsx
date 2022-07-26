@@ -25,6 +25,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
   const [selectedContract, setSelectedContract] = useState<string>('')
   const [activeCard, setActiveCard] = React.useState<null | string>(null)
+  const [openedAccordeon, setOpenedAcordeon] = React.useState<null | string>(null)
 
   const uniqueContracts = useMemo(() => {
     return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[]) : []
@@ -100,6 +101,8 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
                   setActiveCard(address || '')
                 }
               }}
+              isExpanded={openedAccordeon === item.address}
+              handleExpandAccordeon={setOpenedAcordeon}
             />
           )
         })}
