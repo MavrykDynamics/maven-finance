@@ -54,8 +54,6 @@ export const StageOneForm = ({ locked, proposalId }: StageOneFormProps) => {
     sourceCodeLink: '',
   })
 
-  console.log('%c ||||| proposalId', 'color:yellowgreen', proposalId)
-
   const handleOnBlur = (e: any, formField: string) => {
     let updatedState, validityCheckResult
     switch (formField) {

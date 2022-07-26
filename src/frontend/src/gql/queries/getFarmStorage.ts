@@ -2,7 +2,6 @@ export const FARM_STORAGE_QUERY = `
   query FarmStorageQuery {
     farm {
       address
-      blocks_per_minute
       claim_paused
       deposit_paused
       farm_factory_id
@@ -32,7 +31,6 @@ export const FARM_STORAGE_QUERY = `
       create_farm_paused
       track_farm_paused
       untrack_farm_paused
-      blocks_per_minute
       admin
       farm_name_max_length
       farms {
@@ -45,7 +43,6 @@ export const FARM_STORAGE_QUERY = `
         infinite
         deposit_paused
         claim_paused
-        blocks_per_minute
         address
         total_rewards
         unpaid_rewards

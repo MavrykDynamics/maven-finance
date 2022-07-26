@@ -424,7 +424,15 @@ export const GovernanceView = ({
 
           <article>
             <RightSideSubHeader>Source Code</RightSideSubHeader>
-            <RightSideSubContent>{rightSideContent.sourceCode || 'No link to source code given'}</RightSideSubContent>
+            <RightSideSubContent>
+              {rightSideContent.sourceCode ? (
+                <a href={rightSideContent.sourceCode} target="_blank" rel="noreferrer">
+                  {rightSideContent.sourceCode}
+                </a>
+              ) : (
+                'No link to source code given'
+              )}
+            </RightSideSubContent>
           </article>
 
           <article>
