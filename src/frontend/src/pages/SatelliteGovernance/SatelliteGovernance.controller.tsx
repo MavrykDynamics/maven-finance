@@ -28,7 +28,7 @@ import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGove
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
-import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // actions
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
