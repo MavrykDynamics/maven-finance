@@ -1,8 +1,10 @@
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
+// types
+import type { ProposalDataType } from '../../../utils/TypesAndInterfaces/Governance'
 
-import { Button } from '../../../app/App.components/Button/Button.controller'
 // components
+import { Button } from '../../../app/App.components/Button/Button.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { StyledTooltip } from '../../../app/App.components/Tooltip/Tooltip.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
@@ -28,35 +30,6 @@ import {
   FormTitleEntry,
 } from '../ProposalSubmission.style'
 
-const alphabet = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-]
-
 type StageTwoFormViewProps = {
   locked: boolean
   form: ProposalUpdateForm
@@ -67,6 +40,7 @@ type StageTwoFormViewProps = {
   formInputStatus: ProposalUpdateFormInputStatus
   handleOnBlur: any
   handleUpdateProposal: () => void
+  proposalData: ProposalDataType[] | undefined
 }
 export const StageTwoFormView = ({
   locked,
@@ -78,11 +52,15 @@ export const StageTwoFormView = ({
   handleOnBlur,
   handleUpdateProposal,
   proposalId,
+  proposalData,
 }: StageTwoFormViewProps) => {
   const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   const disabled = !isProposalRound || !form.title
+
+  const isEdit = proposalData?.length
+
   const handleCreateNewByte = () => {
     setForm({
       ...form,
@@ -90,8 +68,10 @@ export const StageTwoFormView = ({
         ...form.proposalBytes,
         {
           id: form.proposalBytes.length,
+          bytes: '',
+          governance_proposal_record_id: 0,
+          record_internal_id: 0,
           title: '',
-          data: '',
         },
       ],
     })
@@ -99,13 +79,14 @@ export const StageTwoFormView = ({
 
   const handleChangeTitle = (index: number, text: string) => {
     const cloneProposalBytes = [...form.proposalBytes]
+    console.log('%c ||||| cloneProposalBytes', 'color:yellowgreen', cloneProposalBytes)
     cloneProposalBytes[index].title = text
     setForm({ ...form, proposalBytes: cloneProposalBytes })
   }
 
   const handleChangeData = (index: number, text: string) => {
     const cloneProposalBytes = [...form.proposalBytes]
-    cloneProposalBytes[index].data = text
+    cloneProposalBytes[index].bytes = text
     setForm({ ...form, proposalBytes: cloneProposalBytes })
   }
 
@@ -136,54 +117,66 @@ export const StageTwoFormView = ({
         </div>
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
-        {form.proposalBytes.map((item: ProposalBytesType) => (
-          <article key={item.id}>
-            <div className="step-bytes-title">
+        {form.proposalBytes.map((item: ProposalDataType, i) => {
+          console.log('%c ||||| item', 'color:yellowgreen', item)
+          return (
+            <article key={item.id}>
+              <div className="step-bytes-title">
+                <label>
+                  <span>{i + 4}a</span> - Enter Proposal Bytes Title
+                </label>
+                <Input
+                  type="text"
+                  value={item.title}
+                  onChange={(e: any) => handleChangeTitle(i, e.target.value)}
+                  onBlur={(e: any) => handleOnBlur(i, e.target.value, 'title')}
+                  inputStatus={isEdit ? '' : formInputStatus.title}
+                  disabled={disabled}
+                />
+              </div>
+
               <label>
-                {/* <span>4{alphabet[item.id] || item.id}</span> - Enter Proposal Bytes Title */}
-                <span>4a</span> - Enter Proposal Bytes Title
+                <span>{i + 4}b</span> - Enter Proposal Bytes data
               </label>
-              <Input
+              <TextArea
                 type="text"
-                value={item.title}
-                onChange={(e: any) => handleChangeTitle(item.id, e.target.value)}
-                onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'title')}
-                inputStatus={formInputStatus.title}
+                className="step-2-textarea"
+                value={item.bytes}
+                onChange={(e: any) => handleChangeData(i, e.target.value)}
+                onBlur={(e: any) => handleOnBlur(i, e.target.value, 'data')}
+                inputStatus={isEdit ? '' : formInputStatus.proposalBytes}
                 disabled={disabled}
               />
-            </div>
-
-            <label>
-              {/* <span>4{alphabet[item.id] || item.id}</span> - Enter Proposal Bytes data */}
-              <span>4b</span> - Enter Proposal Bytes data
-            </label>
-            <TextArea
-              type="text"
-              className="step-2-textarea"
-              value={item.data}
-              onChange={(e: any) => handleChangeData(item.id, e.target.value)}
-              onBlur={(e: any) => handleOnBlur(item.id, e.target.value, 'data')}
-              inputStatus={formInputStatus.proposalBytes}
-              disabled={disabled}
-            />
-          </article>
-        ))}
+            </article>
+          )
+        })}
         <StyledTooltip placement="top" title="Insert new bytes pair">
-          <button onClick={handleCreateNewByte} className="step-plus-bytes">
+          <button disabled={disabled} onClick={handleCreateNewByte} className="step-plus-bytes">
             +
           </button>
         </StyledTooltip>
       </div>
 
       <FormButtonContainer>
-        <Button
-          icon="bytes"
-          className="bytes"
-          text="Submit Bytes"
-          kind="actionPrimary"
-          disabled={disabled}
-          onClick={handleUpdateProposal}
-        />
+        {isEdit ? (
+          <Button
+            icon="pencil-stroke"
+            // className="bytes"
+            text="Edit Proposal"
+            kind="actionPrimary"
+            disabled={disabled}
+            onClick={handleUpdateProposal}
+          />
+        ) : (
+          <Button
+            icon="bytes"
+            className="bytes"
+            text="Submit Bytes"
+            kind="actionPrimary"
+            disabled={disabled}
+            onClick={handleUpdateProposal}
+          />
+        )}
       </FormButtonContainer>
     </>
   )

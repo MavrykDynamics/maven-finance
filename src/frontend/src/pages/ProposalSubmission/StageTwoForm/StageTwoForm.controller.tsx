@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react'
 import { StageTwoFormView } from './StageTwoForm.view'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useState, useEffect } from 'react'
+
+// types
+import type { ProposalDataType } from '../../../utils/TypesAndInterfaces/Governance'
 
 import {
   ProposalUpdateForm,
@@ -18,17 +21,20 @@ type StageTwoFormProps = {
   accountPkh?: string
   proposalId: number | undefined
   proposalTitle: string
+  proposalData: ProposalDataType[] | undefined
 }
 
 export const PROPOSAL_BYTE = {
+  bytes: '',
+  governance_proposal_record_id: 0,
   id: 0,
+  record_internal_id: 0,
   title: '',
-  data: '',
 }
 
-export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: StageTwoFormProps) => {
+export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, proposalData }: StageTwoFormProps) => {
   const dispatch = useDispatch()
-  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { fee, governancePhase } = governanceStorage
   const isProposalRound = governancePhase === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
@@ -36,6 +42,21 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
     title: proposalTitle,
     proposalBytes: [PROPOSAL_BYTE],
   })
+
+  useEffect(() => {
+    if (proposalData?.length) {
+      console.log('%c ||||| proposalData', 'color:yellowgreen', proposalData)
+      const prepareObj = {
+        title: proposalTitle,
+        proposalBytes: proposalData,
+      }
+
+      console.log('%c ||||| prepareObj', 'color:green', prepareObj)
+      setForm(prepareObj)
+    }
+  }, [proposalData, proposalTitle])
+
+  console.log('%c ||||| form', 'color:red', form)
 
   const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
     title: false,
@@ -79,15 +100,17 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
   }
 
   const handleUpdateProposal = async () => {
-    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    if (formIsValid) {
-      await dispatch(updateProposal(form, proposalId, clearState))
-    }
+    //const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
+    // if (formIsValid) {
+    //   await dispatch(updateProposal(form, proposalId, clearState))
+    // }
+
+    await dispatch(updateProposal(form, proposalId, clearState))
   }
 
-  useEffect(() => {
-    if (!isProposalRound) clearState()
-  }, [isProposalRound])
+  // useEffect(() => {
+  //   if (!isProposalRound) clearState()
+  // }, [isProposalRound])
 
   return (
     <StageTwoFormView
@@ -100,6 +123,7 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
       handleUpdateProposal={handleUpdateProposal}
+      proposalData={proposalData}
     />
   )
 }

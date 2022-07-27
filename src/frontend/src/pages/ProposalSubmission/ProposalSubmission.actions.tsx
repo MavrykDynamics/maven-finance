@@ -1,3 +1,4 @@
+import { OpKind } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import governanceAddress from 'deployments/governanceAddress.json'
@@ -92,25 +93,33 @@ export const updateProposal =
       })
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
 
-      const dataName = form.proposalBytes[0].title
-      const packedParam = form.proposalBytes[0].data
-      const transaction = await contract?.methods.updateProposalData(proposalId, dataName, packedParam).send()
-      console.log('transaction', transaction)
+      const listTransactions = form.proposalBytes.map((item) => {
+        return {
+          kind: OpKind.TRANSACTION,
+          ...contract?.methods.updateProposalData(proposalId, item.title, item.bytes).toTransferParams(),
+        }
+      })
+
+      const batch =
+        // @ts-ignore
+        contract && listTransactions.length ? await state.wallet.tezos?.wallet.batch(listTransactions) : null
+
+      const batchOp = await batch?.send()
 
       dispatch(showToaster(INFO, 'Updating proposal...', 'Please wait 30s'))
-
-      const done = await transaction?.confirmation()
+      const done = await batchOp?.confirmation()
       console.log('done', done)
-      callback?.()
-      dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
 
-      dispatch({
+      //callback?.()
+      await dispatch(showToaster(SUCCESS, 'Proposal updated.', 'All good :)'))
+
+      await dispatch({
         type: PROPOSAL_UPDATE_RESULT,
       })
 
-      dispatch(getGovernanceStorage())
-      dispatch(getDelegationStorage())
-      dispatch(getCurrentRoundProposals())
+      // await dispatch(getGovernanceStorage())
+      // await dispatch(getDelegationStorage())
+      // await dispatch(getCurrentRoundProposals())
     } catch (error: any) {
       console.error(error)
       dispatch(showToaster(ERROR, 'Error', error.message))

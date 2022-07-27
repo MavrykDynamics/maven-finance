@@ -1,4 +1,6 @@
 import { InputStatusType } from '../../app/App.components/Input/Input.controller'
+import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
+
 
 /**
  * Types for forms
@@ -49,7 +51,7 @@ export type ProposalBytesType = {
 
 export type ProposalUpdateForm = {
   title: string
-  proposalBytes: ProposalBytesType[]
+  proposalBytes: ProposalDataType[]
 }
 export type ValidProposalUpdateForm = {
   title: boolean | undefined

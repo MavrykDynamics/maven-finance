@@ -1,6 +1,9 @@
 import * as React from 'react'
 import { Page } from 'styles'
 
+// types
+import type { ProposalDataType, ProposalPaymentType } from '../../utils/TypesAndInterfaces/Governance'
+
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernancePhase } from '../../reducers/governance'
@@ -22,6 +25,7 @@ type ProposalSubmissionViewProps = {
   locked: boolean
   proposalId: number | undefined
   proposalTitle: string
+  proposalData: ProposalDataType[] | undefined
 }
 export const ProposalSubmissionView = ({
   locked,
@@ -29,6 +33,7 @@ export const ProposalSubmissionView = ({
   handleChangeTab,
   proposalId,
   proposalTitle,
+  proposalData,
 }: ProposalSubmissionViewProps) => {
   return (
     <Page>
@@ -36,7 +41,14 @@ export const ProposalSubmissionView = ({
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       <ProposalSubmissionForm>
         {activeTab === 1 && <StageOneForm locked={locked} proposalId={proposalId} />}
-        {activeTab === 2 && <StageTwoForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
+        {activeTab === 2 && (
+          <StageTwoForm
+            locked={locked}
+            proposalId={proposalId}
+            proposalTitle={proposalTitle}
+            proposalData={proposalData}
+          />
+        )}
         {activeTab === 3 && <StageThreeForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
       </ProposalSubmissionForm>
     </Page>
