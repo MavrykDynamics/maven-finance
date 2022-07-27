@@ -24,6 +24,8 @@ export const ProposalSubmission = () => {
   //   dispatch(getGovernanceStorage())
   // }, [accountPkh])
 
+  const proposalData = findUserCurrentRoundProposal?.proposalData
+
   const handleChangeTab = (tabId: number) => {
     setActiveTab(tabId)
   }
@@ -39,6 +41,7 @@ export const ProposalSubmission = () => {
       locked={locked}
       proposalId={findUserCurrentRoundProposal?.id}
       proposalTitle={findUserCurrentRoundProposal?.title || ''}
+      proposalData={proposalData}
     />
   )
 }
