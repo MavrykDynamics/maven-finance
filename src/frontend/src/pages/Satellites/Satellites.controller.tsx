@@ -1,30 +1,28 @@
-import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
-import * as React from 'react'
-import { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+// types
 import { State } from 'reducers'
-import { Page, PageContent } from 'styles'
 
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { SatelliteList } from './SatelliteList/SatelliteList.controller'
-import { delegate, getDelegationStorage, undelegate } from './Satellites.actions'
-import { SatelliteSideBar } from './SatelliteSideBar/SatelliteSideBar.controller'
+// view
+import SatellitesView from './Satellites.view'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
-export const Satellites = () => {
-  const dispatch = useDispatch()
+// consts, helpers, actions
+import { getMvkTokenStorage, getDoormanStorage } from 'pages/Doorman/Doorman.actions'
+import { getTotalDelegatedMVK } from './helpers/Satellites.consts'
+import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
+
+const Satellites = () => {
+  const {
+    delegationStorage: { satelliteLedger = [] },
+  } = useSelector((state: State) => state.delegation)
+  const { oraclesStorage } = useSelector((state: State) => state.oracles)
   const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { doormanStorage } = useSelector((state: State) => state.doorman)
   const { user } = useSelector((state: State) => state.user)
-  const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
-  const satelliteLedger = delegationStorage?.satelliteLedger
-  const userStakedBalance = accountPkh ? parseFloat(userStakeBalanceLedger?.get(accountPkh) || '0') : 0
-  const satelliteUserIsDelegatedTo = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb' //accountPkh
-  // ? delegationStorage?.delegateLedger.get(accountPkh)?.satelliteAddress || ''
-  // : ''
+  const dispatch = useDispatch()
+
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   useEffect(() => {
     if (accountPkh) {
@@ -34,6 +32,18 @@ export const Satellites = () => {
     dispatch(getDelegationStorage())
   }, [dispatch, accountPkh])
 
+  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+
+  const tabsInfo = useMemo(
+    () => ({
+      totalDelegetedMVK: <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />,
+      totalSatelliteOracles: satelliteLedger.length,
+      numberOfDataFeeds:
+        oraclesStorage.feeds.length > 50 ? oraclesStorage.feeds.length + '+' : oraclesStorage.feeds.length,
+    }),
+    [satelliteLedger, oraclesStorage.feeds, totalDelegatedMVK],
+  )
+
   const delegateCallback = (satelliteAddress: string) => {
     dispatch(delegate(satelliteAddress))
   }
@@ -41,21 +51,22 @@ export const Satellites = () => {
   const undelegateCallback = () => {
     dispatch(undelegate())
   }
+
   return (
-    <Page>
-      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
-      <PageContent>
-        <SatelliteList
-          satellitesList={satelliteLedger}
-          loading={loading}
-          delegateCallback={delegateCallback}
-          undelegateCallback={undelegateCallback}
-          userStakedBalance={user.mySMvkTokenBalance}
-          satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-          listName="satellitesOverviewList"
-        />
-        <SatelliteSideBar />
-      </PageContent>
-    </Page>
+    <SatellitesView
+      isLoading={loading}
+      tabsInfo={tabsInfo}
+      delegateCallback={delegateCallback}
+      oracleSatellitesData={{
+        userStakedBalance: user.mySMvkTokenBalance,
+        satelliteUserIsDelegatedTo: user.satelliteMvkIsDelegatedTo,
+        items: satelliteLedger.slice(0, 3),
+        delegateCallback,
+        undelegateCallback,
+      }}
+      dataFeedsData={{ items: oraclesStorage.feeds.slice(0, 5) }}
+    />
   )
 }
+
+export default Satellites

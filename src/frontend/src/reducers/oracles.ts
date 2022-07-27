@@ -1,25 +1,18 @@
-import { GET_ORACLES_STORAGE } from '../pages/Oracles/Oracles.actions'
-
-export type AggregatorType =  Record<string, unknown>[]
+import { InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
+import { GET_ORACLES_STORAGE } from 'pages/Satellites/Satellites.actions'
 
 export interface OraclesState {
   oraclesStorage: {
-    aggregator: AggregatorType
-    aggregator_factory: Record<string, unknown>[]
-    totalOracleNetworks: number
-  }
+  } & InitialOracleStorageType
 }
 
 const oraclesDefaultState: OraclesState = {
   oraclesStorage: {
-    aggregator: [],
-    aggregator_factory: [],
+    feeds: [],
+    feedsFactory: [],
     totalOracleNetworks: 0,
   },
 } 
-
-const getTotalOracleNetworks = (aggregator: AggregatorType) =>
-  aggregator.reduce((acc, cur: any) => acc + cur.oracle_records.length, 0)
 
 export function oracles(state = oraclesDefaultState, action: any): OraclesState {
   switch (action.type) {
@@ -29,7 +22,6 @@ export function oracles(state = oraclesDefaultState, action: any): OraclesState 
         oraclesStorage: {
           ...state.oraclesStorage,
           ...action.oraclesStorage,
-          totalOracleNetworks: action.oraclesStorage?.aggregator ? getTotalOracleNetworks(action.oraclesStorage.aggregator) : 0,
         },
       }
     default:

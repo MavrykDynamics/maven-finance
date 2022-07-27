@@ -2,7 +2,7 @@ import { fetchFromIndexer, getInitialData } from '../gql/fetchGraphQL'
 import storageToTypeConverter from '../utils/storageToTypeConverter'
 
 import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
-import { GET_DELEGATION_STORAGE } from '../pages/Satellites/Satellites.actions'
+import { GET_DELEGATION_STORAGE, GET_ORACLES_STORAGE } from '../pages/Satellites/Satellites.actions'
 import { GET_FARM_FACTORY_STORAGE, GET_FARM_STORAGE } from '../pages/Farms/Farms.actions'
 import {
   GET_EMERGENCY_GOVERNANCE_STORAGE,
@@ -15,7 +15,6 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
-import { GET_ORACLES_STORAGE } from '../pages/Oracles/Oracles.actions'
 import {
   CONTRACT_ADDRESSES_QUERY,
   CONTRACT_ADDRESSES_QUERY_NAME,
@@ -46,7 +45,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const councilStorage = storageToTypeConverter('council', res[7]?.council?.[0])
   const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
-  const oraclesStorage = res[10]
+  const oraclesStorage = storageToTypeConverter('oracle', res[10])
 
   // if (addressesStorage) updateContractAddresses(addressesStorage)
 

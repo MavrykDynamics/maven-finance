@@ -18,7 +18,7 @@ export const BecomeSatellite = () => {
   const satelliteLedger = delegationStorage?.satelliteLedger
   const { user } = useSelector((state: State) => state.user)
 
-  const usersSatellite =
+  const usersSatellite: SatelliteRecord =
     accountPkh && satelliteLedger
       ? getUsersSatelliteIfExists(accountPkh, satelliteLedger)
       : {
@@ -35,6 +35,7 @@ export const BecomeSatellite = () => {
           totalDelegatedAmount: 0,
           registeredDateTime: new Date(),
           unregisteredDateTime: null,
+          oracleRecords: [],
         }
   useEffect(() => {
     if (accountPkh) {

@@ -1,28 +1,27 @@
-import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 import * as React from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+
 import { State } from 'reducers'
 
 import { SatelliteDetailsView } from './SatelliteDetails.view'
-import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
+
 import { getSatelliteByAddress } from './SatelliteDetails.actions'
+import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
-  const location = useLocation()
   const loading = useSelector((state: State) => state.loading)
-  const { delegationStorage, currentSatellite } = useSelector((state: State) => state.delegation)
-  // const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
-  // const neededSatellite = currentSatellite
+  const { currentSatellite } = useSelector((state: State) => state.delegation)
   const { user } = useSelector((state: State) => state.user)
 
+  let { satelliteId } = useParams<{ satelliteId: string }>()
+
   useEffect(() => {
-    const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
-    dispatch(getSatelliteByAddress(pathAddress))
+    dispatch(getSatelliteByAddress(satelliteId))
     dispatch(getDelegationStorage())
-  }, [dispatch, location])
+  }, [dispatch, satelliteId])
 
   const delegateCallback = (address: string) => {
     dispatch(delegate(address))
@@ -41,8 +40,4 @@ export const SatelliteDetails = () => {
       userStakedBalanceInSatellite={user.mySMvkTokenBalance}
     />
   )
-}
-
-function getDesiredSatellite(satelliteAddress: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
-  return satelliteLedger?.filter((item: SatelliteRecord) => item.address === satelliteAddress)[0]
 }
