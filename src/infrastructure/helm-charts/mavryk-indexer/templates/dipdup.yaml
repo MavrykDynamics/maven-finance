@@ -1,4 +1,39 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dipdup-prometheus
+  labels:
+    app: dipdup
+spec:
+  ports:
+    - name: metrics
+      port: 9090
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    app: dipdup
+  type: ClusterIP
+---
+# Source: indexer-mavryk/charts/sealed-secrets/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dipdup
+  namespace: kube-prometheus-stack
+  labels:
+    release: 'prod'
+spec:
+  endpoints:
+    - honorLabels: true
+      port: metrics
+  namespaceSelector:
+    matchNames:
+      - mavryk-indexer
+  selector:
+    matchLabels:
+      app: dipdup
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,43 +52,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: docker-pull-credentials
-      initContainers:
-        - name: empty-db
-          args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
-          env:
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_HOST
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PORT
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_USERNAME
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: POSTGRES_PASSWORD
-            - name: ADMIN_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: indexer
-                  key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: TZKT_URL
-              value: https://api.jakartanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.4.2
-          imagePullPolicy: Always
-          volumeMounts:
-            - name: config-volume
-              mountPath: /mavryk/dipdup.yml
-              subPath: dipdup.yml
       containers:
         - name: dipdup
           args: ['-c', 'dipdup.yml', 'run']
@@ -62,31 +60,37 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_HOST
+                  key: POSTGRES_HOST_PROD
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PORT
+                  key: POSTGRES_PORT_PROD
             - name: POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_USERNAME
+                  key: POSTGRES_USERNAME_PROD
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: POSTGRES_PASSWORD
+                  key: POSTGRES_PASSWORD_PROD
             - name: ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-            - name: TZKT_URL
+            - name: TZKT_TESTNET_URL
               value: https://api.jakartanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.4.2
+            - name: TZKT_MAINNET_URL
+              value: https://api.tzkt.io
+          image: tezosdynamics/mavryk-indexer:v0.5.3
           imagePullPolicy: Always
+          ports:
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
           volumeMounts:
             - name: config-volume
               mountPath: /mavryk/dipdup.yml
@@ -119,13 +123,23 @@ data:
       admin_secret: ${ADMIN_SECRET:-changeme}
       select_limit: 1000
 
+    prometheus:
+      host: 0.0.0.0
+      port: 9090
+      update_interval: 5
+
     advanced:
       reindex:
         manual: wipe
         migration: exception
         rollback: ignore
+        config_modified: wipe
+        schema_modified: wipe
 
     contracts:
+      liquidity_baking:
+        address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
+        typename: liquidity_baking
       mvk:
         address: KT1KgUQ26ciUCrkZrDoV26ezvW2TiZTjZ1TQ
         typename: mvk
@@ -176,15 +190,18 @@ data:
         typename: treasury_factory
 
     datasources:
-      tzkt:
+      tzkt_testnet:
         kind: tzkt
-        url: ${TZKT_URL:-changeme}
+        url: ${TZKT_TESTNET_URL:-changeme}
+      tzkt_mainnet:
+        kind: tzkt
+        url: ${TZKT_MAINNET_URL:-changeme}
 
     templates:
       # Template for Farm Factory
       farm_template:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -250,7 +267,7 @@ data:
       # Template for treasury Factory
       treasury_template:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -296,7 +313,7 @@ data:
       # Template for aggregator factory
       aggregator_template:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -373,10 +390,40 @@ data:
                 entrypoint: withdrawRewardStakedMvk
 
     indexes:
+      # Liquidity Baking contract indexes
+      liquidity_baking:
+        kind: operation
+        datasource: tzkt_mainnet
+        types:
+          - origination
+          - transaction
+        contracts:
+          - liquidity_baking
+        handlers:
+          - callback: on_liquidity_baking_add_liquidity
+            pattern:
+              - destination: liquidity_baking
+                entrypoint: addLiquidity
+          - callback: on_liquidity_baking_remove_liquidity
+            pattern:
+              - destination: liquidity_baking
+                entrypoint: removeLiquidity
+          - callback: on_liquidity_baking_token_to_xtz
+            pattern:
+              - destination: liquidity_baking
+                entrypoint: tokenToXtz
+          - callback: on_liquidity_baking_xtz_to_token
+            pattern:
+              - destination: liquidity_baking
+                entrypoint: xtzToToken
+          - callback: on_liquidity_baking_token_to_token
+            pattern:
+              - destination: liquidity_baking
+                entrypoint: tokenToToken
       # MVK Token contract indexes
       mvk:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -426,7 +473,7 @@ data:
       # Governance contract indexes
       governance:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -512,7 +559,7 @@ data:
       # Doorman contract indexes
       doorman:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -581,7 +628,7 @@ data:
       # Farm contract indexes
       farm:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -651,7 +698,7 @@ data:
       # Farm Factory contract indexes
       farm_factory:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -717,7 +764,7 @@ data:
       # Delegation contract indexes
       delegation:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -795,7 +842,7 @@ data:
       # Vesting contract indexes
       vesting:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -845,7 +892,7 @@ data:
       # Emergency Governance contract indexes
       emergency_governance:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -891,7 +938,7 @@ data:
       # Council contract indexes
       council:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -993,7 +1040,7 @@ data:
       # Break Glass contract indexes
       break_glass:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -1079,7 +1126,7 @@ data:
       # Governance Financial contract indexes
       governance_financial:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -1137,7 +1184,7 @@ data:
       # Governance Satellite contract indexes
       governance_satellite:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -1215,7 +1262,7 @@ data:
       # Aggregator contract indexes
       aggregator:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -1297,7 +1344,7 @@ data:
       # Aggregator Factory contract indexes
       aggregator_factory:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -1354,7 +1401,7 @@ data:
       # Treasury contract indexes
       treasury:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction
@@ -1404,7 +1451,7 @@ data:
       # Treasury Factory contract indexes
       treasury_factory:
         kind: operation
-        datasource: tzkt
+        datasource: tzkt_testnet
         types:
           - origination
           - transaction

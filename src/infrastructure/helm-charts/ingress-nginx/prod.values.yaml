@@ -671,10 +671,11 @@ ingress-nginx:
 
       serviceMonitor:
         enabled: true
-        additionalLabels: {}
+        additionalLabels:
+          release: 'prod'
         ## The label to use to retrieve the job name from.
         ## jobLabel: "app.kubernetes.io/name"
-        namespace: ''
+        namespace: 'kube-prometheus-stack'
         namespaceSelector: {}
         ## Default: scrape .Release.Namespace only
         ## To scrape all, use the following:

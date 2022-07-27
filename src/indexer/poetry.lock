@@ -253,7 +253,7 @@ http = ["httpx"]
 
 [[package]]
 name = "dipdup"
-version = "5.2.2"
+version = "5.2.3"
 description = "Python SDK for developing indexers of Tezos smart contracts inspired by The Graph"
 category = "main"
 optional = false
@@ -875,11 +875,11 @@ test = ["pytest-mock (>=3.3)", "pytest (>=4.3)"]
 
 [[package]]
 name = "urllib3"
-version = "1.26.9"
+version = "1.26.10"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <4"
 
 [package.extras]
 brotli = ["brotlicffi (>=0.8.0)", "brotli (>=1.0.9)", "brotlipy (>=0.6.0)"]
@@ -909,7 +909,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.4"
-content-hash = "535ac31ae7ab12735fd2ee248dcb5b56c1f3e30c0e5b7f6072c3089e463fb17c"
+content-hash = "ff53fcf9457c1a5ec4acb4c142eb1a0deef7e177f4c3ce42c987e5e6658bb5a8"
 
 [metadata.files]
 aiohttp = [
@@ -1103,8 +1103,8 @@ datamodel-code-generator = [
     {file = "datamodel_code_generator-0.12.3-py3-none-any.whl", hash = "sha256:cd667c030ae925d1577fbc28869ee2e7c390ee375788f3ba6c28ed7598b86060"},
 ]
 dipdup = [
-    {file = "dipdup-5.2.2-py3-none-any.whl", hash = "sha256:0533169ecb2f671dcd5834a9c276a13690cf598e985f245351930041374ef369"},
-    {file = "dipdup-5.2.2.tar.gz", hash = "sha256:62cee4478df7b6946fa7aa04c30ad7e263341ca1bdfcde0d24502a788ee2d334"},
+    {file = "dipdup-5.2.3-py3-none-any.whl", hash = "sha256:aafe597d18ccdf6798f14a979f0e6ef6e37e22473d954b7fead86b40b01fc95c"},
+    {file = "dipdup-5.2.3.tar.gz", hash = "sha256:4f375835a26ced2bd78450ad4d1587dbbaf70596558d4db70dec6a1b41cbf640"},
 ]
 dnspython = [
     {file = "dnspython-2.2.1-py3-none-any.whl", hash = "sha256:a851e51367fb93e9e1361732c1d60dab63eff98712e503ea7d92e6eccb109b4f"},
@@ -1658,10 +1658,7 @@ tzlocal = [
     {file = "tzlocal-4.2-py3-none-any.whl", hash = "sha256:89885494684c929d9191c57aa27502afc87a579be5cdd3225c77c463ea043745"},
     {file = "tzlocal-4.2.tar.gz", hash = "sha256:ee5842fa3a795f023514ac2d801c4a81d1743bbe642e3940143326b3a00addd7"},
 ]
-urllib3 = [
-    {file = "urllib3-1.26.9-py2.py3-none-any.whl", hash = "sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14"},
-    {file = "urllib3-1.26.9.tar.gz", hash = "sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e"},
-]
+urllib3 = []
 websockets = [
     {file = "websockets-10.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:661f641b44ed315556a2fa630239adfd77bd1b11cb0b9d96ed8ad90b0b1e4978"},
     {file = "websockets-10.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b529fdfa881b69fe563dbd98acce84f3e5a67df13de415e143ef053ff006d500"},
