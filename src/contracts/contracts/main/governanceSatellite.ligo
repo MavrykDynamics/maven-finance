@@ -15,6 +15,9 @@
 // Transfer Methods
 #include "../partials/shared/transferMethods.ligo"
 
+// Permission Methods
+#include "../partials/shared/permissionMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
@@ -44,9 +47,8 @@ type governanceSatelliteAction is
 
         // Satellite Governance
     |   SuspendSatellite              of suspendSatelliteActionType
-    |   UnsuspendSatellite            of unsuspendSatelliteActionType
     |   BanSatellite                  of banSatelliteActionType
-    |   UnbanSatellite                of unbanSatelliteActionType
+    |   RestoreSatellite              of restoreSatelliteActionType
 
         // Satellite Oracle Governance
     |   RemoveAllSatelliteOracles     of removeAllSatelliteOraclesActionType
@@ -222,6 +224,23 @@ function sendUpdateSatelliteSnapshotOperationToGovernance(const governanceAddres
 // General Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// helper function to check if a satellite can interact with an action
+function checkActionInteraction(const actionRecord : governanceSatelliteActionRecordType) : unit is
+block {
+
+    // Check if governance satellite action has been dropeed
+    if actionRecord.status    = False then failwith(error_GOVERNANCE_SATELLITE_ACTION_DROPPED)  else skip;
+
+    // Check if governance satellite action has already been executed
+    if actionRecord.executed  = True  then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXECUTED) else skip;
+
+    // Check if governance satellite action has expired
+    if Tezos.get_now() > actionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
+
+} with (unit)
+
+
+
 // helper function to reset the number of actions created by satellites bases on the current governance cycle
 function updateGovernanceCycleLimitation(var s: governanceSatelliteStorageType): governanceSatelliteStorageType is
 block{
@@ -276,14 +295,7 @@ block{
     if createSatelliteSnapshot then{
 
         // Get the delegation address
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-        const delegationAddress: address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
         // Get the satellite record
         const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
@@ -349,24 +361,10 @@ block {
     // ------------------------------------------------------------------
 
     // Get Doorman Contract address from the General Contracts Map on the Governance Contract
-    const doormanAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-    const doormanAddress : address = case doormanAddressGeneralContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
     // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-    const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-    const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     // ------------------------------------------------------------------
     // Get / Check Satellite Records
@@ -465,6 +463,431 @@ block {
 
 // ------------------------------------------------------------------------------
 // General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Vote Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to create an operation to a satellite status
+function updateSatelliteStatus(const targetSatellite : address; const newStatus : string; const delegationAddress : address; var operationList : list(operation)) : list(operation) is
+block {
+
+    // Create operation to update satellite status in Delegation Contract
+    const updateSatelliteStatusParams : updateSatelliteStatusParamsType = record [
+        satelliteAddress = targetSatellite;
+        newStatus        = newStatus;
+    ];
+
+    const updateSatelliteStatusOperation : operation = Tezos.transaction(
+        updateSatelliteStatusParams,
+        0tez,
+        getUpdateSatelliteStatusInDelegationEntrypoint(delegationAddress)
+    );
+
+    operationList := updateSatelliteStatusOperation # operationList;
+
+} with (operationList)
+
+
+
+// helper function to add a remove an oracle from an aggregator
+function updateOracleInAggregator(const oracleAddress : address; const addOracle : bool; var operationList : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+block {
+
+    operationList := case s.satelliteOracleLedger[oracleAddress] of [
+            Some(_record) -> block {
+
+                for aggregatorAddress -> _aggregatorRecord in map _record.aggregatorPairs {
+
+                    const updateOperation : operation = case addOracle of [
+                            True    -> Tezos.transaction(
+                                oracleAddress, 
+                                0tez, 
+                                getAddOracleInAggregatorEntrypoint(aggregatorAddress)
+                            )
+                        |   False   -> Tezos.transaction(
+                                oracleAddress, 
+                                0tez, 
+                                getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+                            )
+                    ];
+
+                    operationList := updateOperation # operationList;
+                };                  
+
+            } with operationList
+        |   None -> operationList
+    ];
+
+} with (operationList)
+
+
+
+// helper function to trigger the suspend action during the vote
+function triggerSuspendSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const delegationAddress : address; var operationList : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+block {
+
+    // Get address of satellite to be suspended from governance satellite action record address map
+    const satelliteToBeSuspended : address = case actionRecord.addressMap["satelliteToBeSuspended"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_SATELLITE_NOT_FOUND)
+    ];
+
+    // Update the satellite status
+    operationList   := updateSatelliteStatus(satelliteToBeSuspended, "SUSPENDED", delegationAddress, operationList);
+
+    // if satellite has oracles, create operations to remove satellite oracles from aggregators
+    operationList   := updateOracleInAggregator(satelliteToBeSuspended, False, operationList, s);
+
+} with (operationList)
+
+
+
+// helper function to trigger the ban action during the vote
+function triggerBanSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const delegationAddress : address; var operationList : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+block {
+
+    // Get address of satellite to be banned from governance satellite action record address map
+    const satelliteToBeBanned : address = case actionRecord.addressMap["satelliteToBeBanned"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_SATELLITE_NOT_FOUND)
+    ];
+
+    // Update the satellite status
+    operationList   := updateSatelliteStatus(satelliteToBeBanned, "BANNED", delegationAddress, operationList);
+
+    // if satellite has oracles, create operations to remove satellite oracles from aggregators
+    operationList   := updateOracleInAggregator(satelliteToBeBanned, False, operationList, s);
+
+} with (operationList)
+
+
+
+// helper function to trigger the restore action during the vote
+function triggerRestoreSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; const delegationAddress : address; var operationList : list(operation); const s : governanceSatelliteStorageType) : list(operation) is
+block {
+
+    // Get address of satellite to be restored from governance satellite action record address map
+    const satelliteToBeRestored : address = case actionRecord.addressMap["satelliteToBeRestored"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_SATELLITE_NOT_FOUND)
+    ];
+
+    // Update the satellite status
+    operationList   := updateSatelliteStatus(satelliteToBeRestored, "ACTIVE", delegationAddress, operationList);
+
+    // if satellite has oracles, create operations to add satellite oracles to aggregators
+    operationList   := updateOracleInAggregator(satelliteToBeRestored, True, operationList, s);
+
+} with (operationList)
+
+
+
+// helper function to trigger the add oracle to aggregator action during the vote
+function triggerAddOracleToAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operationList : list(operation); var s : governanceSatelliteStorageType) : return is
+block {
+
+    // Get oracle address from governance satellite action record address map
+    const oracleAddress : address = case actionRecord.addressMap["oracleAddress"] of [
+            Some(_address) -> _address
+        |   None            -> failwith(error_ORACLE_NOT_FOUND)
+    ];
+
+    // Get aggregator address from governance satellite action record address map
+    const aggregatorAddress : address = case actionRecord.addressMap["aggregatorAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
+    ];
+
+    // Get aggregator record and add satellite to oracles set
+    var aggregatorRecord : aggregatorRecordType := case s.aggregatorLedger[aggregatorAddress] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
+    ];
+    aggregatorRecord.oracles := Set.add(oracleAddress, aggregatorRecord.oracles);
+
+    // Get or create satellite oracle record
+    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
+            Some(_record) -> _record
+        |   None -> record [
+                aggregatorsSubscribed = 0n;
+                aggregatorPairs       = (map[] : aggregatorPairsMapType);
+            ]
+    ];
+
+    // Update satellite oracle record with new aggregator
+    satelliteOracleRecord.aggregatorsSubscribed  := satelliteOracleRecord.aggregatorsSubscribed + 1n;
+    satelliteOracleRecord.aggregatorPairs[aggregatorAddress] := record [
+        aggregatorPair      = aggregatorRecord.aggregatorPair;
+        aggregatorAddress   = aggregatorAddress;
+        startDateTime       = Tezos.get_now();
+    ];
+
+    // Update storage
+    s.satelliteOracleLedger[oracleAddress] := satelliteOracleRecord;
+    s.aggregatorLedger[aggregatorAddress]  := aggregatorRecord;
+
+    // Create operation to add oracle to aggregator
+    const addOracleInAggregatorOperation : operation = Tezos.transaction(
+        oracleAddress, 
+        0tez, 
+        getAddOracleInAggregatorEntrypoint(aggregatorAddress)
+    );
+
+    operationList := addOracleInAggregatorOperation # operationList;
+
+} with (operationList, s)
+
+
+
+// helper function to trigger the remove oracle to aggregator action during the vote
+function triggerRemoveOracleInAggregatorSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operationList : list(operation); var s : governanceSatelliteStorageType) : return is
+block {
+
+    // Get oracle address from governance satellite action record address map
+    const oracleAddress : address = case actionRecord.addressMap["oracleAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_ORACLE_NOT_FOUND)
+    ];
+
+    // Get aggregator address from governance satellite action record address map
+    const aggregatorAddress : address = case actionRecord.addressMap["aggregatorAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
+    ];
+
+    const removeOracleInAggregatorOperation : operation = Tezos.transaction(
+        oracleAddress, 
+        0tez, 
+        getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+    );
+
+    operationList := removeOracleInAggregatorOperation # operationList;
+
+    // Get satellite oracle record
+    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[oracleAddress] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
+    ];
+    
+    // check that number of aggregators subscribed is not zero, before subtracting
+    if satelliteOracleRecord.aggregatorsSubscribed < 1n then failwith(error_SATELLITE_AGGREGATORS_SUBSCRIBED_CALCULATION_ERROR) else skip;
+    satelliteOracleRecord.aggregatorsSubscribed  := abs(satelliteOracleRecord.aggregatorsSubscribed - 1n);
+
+    // Remove aggregator from satellite oracle record
+    remove aggregatorAddress from map satelliteOracleRecord.aggregatorPairs;
+
+    // Update storage
+    s.satelliteOracleLedger[oracleAddress] := satelliteOracleRecord;
+
+} with (operationList, s)
+
+
+
+// helper function to trigger the remove all satellite oracles action during the vote
+function triggerRemoveAllSatelliteOraclesSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operationList : list(operation); var s : governanceSatelliteStorageType) : return is
+block {
+
+    // Get satellite address from governance satellite action record address map
+    const satelliteAddress : address = case actionRecord.addressMap["satelliteAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_SATELLITE_NOT_FOUND)
+    ];
+
+    // Get satellite oracle record
+    var satelliteOracleRecord : satelliteOracleRecordType := case s.satelliteOracleLedger[satelliteAddress] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_SATELLITE_ORACLE_RECORD_NOT_FOUND)
+    ];
+
+    // Loop to remove satellite's (i.e. oracle's) address in aggregators
+    for aggregatorAddress -> _aggregatorRecord in map satelliteOracleRecord.aggregatorPairs {
+
+        const removeOracleInAggregatorOperation : operation = Tezos.transaction(
+            satelliteAddress, 
+            0tez, 
+            getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+        );
+
+        operationList := removeOracleInAggregatorOperation # operationList;
+
+        remove aggregatorAddress from map satelliteOracleRecord.aggregatorPairs;
+    };      
+
+    // Update satellite oracle record and ledger
+    satelliteOracleRecord.aggregatorsSubscribed  := 0n;
+    s.satelliteOracleLedger[satelliteAddress] := satelliteOracleRecord;
+
+} with(operationList, s)
+
+
+
+// helper function to trigger the set aggregator maintainer action during the vote
+function triggerSetAggregatorMaintainerSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operationList : list(operation)) : list(operation) is
+block {
+
+    // Get aggregator address from governance satellite action record address map
+    const aggregatorAddress : address = case actionRecord.addressMap["aggregatorAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
+    ];
+
+    // Get maintainer address from governance satellite action record address map
+    const newMaintainerAddress : address = case actionRecord.addressMap["maintainerAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_MAINTAINER_ADDRESS_NOT_FOUND)
+    ];
+
+    // Create operation to set aggregator new maintainer
+    const setNewMaintainerOperation : operation = Tezos.transaction(
+        newMaintainerAddress,
+        0tez,
+        getSetMaintainerInAggregatorEntrypoint(aggregatorAddress)
+    );
+
+    operationList := setNewMaintainerOperation # operationList;
+
+} with (operationList)
+
+
+
+// helper function to trigger the update aggregator status action during the vote
+function triggerUpdateAggregatorStatusSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operationList : list(operation); var s : governanceSatelliteStorageType) : return is
+block {
+
+    // Get aggregator address from governance satellite action record address map
+    const aggregatorAddress : address = case actionRecord.addressMap["aggregatorAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_AGGREGATOR_CONTRACT_NOT_FOUND)
+    ];
+
+    // Get aggregator new status from governance satellite action record string map
+    const aggregatorNewStatus : string = case actionRecord.stringMap["status"] of [
+            Some(_status) -> _status
+        |   None          -> failwith(error_AGGREGATOR_NEW_STATUS_NOT_FOUND)
+    ];
+
+    // Get aggregator record
+    var aggregatorRecord : aggregatorRecordType := case s.aggregatorLedger[aggregatorAddress] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_AGGREGATOR_RECORD_IN_GOVERNANCE_SATELLITE_NOT_FOUND)
+    ];
+
+    // Create operation to pause or unpause aggregator based on status input
+    if aggregatorNewStatus = "ACTIVE" then block {
+
+        // unpause all entrypoints in aggregator
+        const unpauseAllInAggregatorOperation : operation = Tezos.transaction(
+            unit,
+            0tez,
+            getUnpauseAllInAggregatorEntrypoint(aggregatorAddress)
+        );
+
+        operationList := unpauseAllInAggregatorOperation # operationList;
+
+    } else if aggregatorNewStatus = "INACTIVE" then block {
+
+        // pause all entrypoints in aggregator
+        const pauseAllInAggregatorOperation : operation = Tezos.transaction(
+            unit,
+            0tez,
+            getPauseAllInAggregatorEntrypoint(aggregatorAddress)
+        );
+
+        operationList := pauseAllInAggregatorOperation # operationList;
+
+    } else skip;
+
+    // Update aggregator status
+    aggregatorRecord.status               := aggregatorNewStatus;
+    s.aggregatorLedger[aggregatorAddress] := aggregatorRecord;
+
+} with (operationList, s)
+
+
+
+// helper function to trigger the fix mistaken transfer action during the vote
+function triggerFixMistakenTransferSatelliteAction(const actionRecord : governanceSatelliteActionRecordType; var operationList : list(operation)) : list(operation) is
+block {
+
+    // get parameters
+    const targetContractAddress : address = case actionRecord.addressMap["targetContractAddress"] of [
+            Some(_address) -> _address
+        | None -> failwith(error_GOVERNANCE_SATELLITE_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const transferList : transferActionType = actionRecord.transferList;
+
+    // call mistaken transfer entrypoint
+    const mistakenTransferOperation : operation = Tezos.transaction(
+        transferList,
+        0tez,
+        getMistakenTransferEntrypoint(targetContractAddress)
+    );
+
+    operationList := mistakenTransferOperation # operationList;
+
+} with (operationList)
+
+
+
+// helper function to execute a governance action during the vote
+function executeGovernanceSatelliteAction(var actionRecord : governanceSatelliteActionRecordType; const actionId : actionIdType; const delegationAddress : address; var operationList : list(operation); var s : governanceSatelliteStorageType) : return is
+block {
+
+    // Governance: Suspend Satellite
+    if actionRecord.governanceType = "SUSPEND" then operationList      := triggerSuspendSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
+
+    // Governance: Ban Satellite
+    if actionRecord.governanceType = "BAN" then operationList          := triggerBanSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
+
+    // Governance: Restore Satellite
+    if actionRecord.governanceType = "RESTORE" then operationList      := triggerRestoreSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
+
+    // Governance: Add Oracle To Aggregator
+    if actionRecord.governanceType = "ADD_ORACLE_TO_AGGREGATOR" then block {
+        const addOracleToAggregatorActionTrigger : return       = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operationList, s);
+        s           := addOracleToAggregatorActionTrigger.1;
+        operationList  := addOracleToAggregatorActionTrigger.0;
+    } else skip;
+
+    // Governance: Remove Oracle In Aggregator
+    if actionRecord.governanceType = "REMOVE_ORACLE_IN_AGGREGATOR" then block {
+        const removeOracleInAggregatorActionTrigger : return    = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operationList, s);
+        s           := removeOracleInAggregatorActionTrigger.1;
+        operationList  := removeOracleInAggregatorActionTrigger.0;
+    } else skip;
+
+    // Governance: Remove All Satellite Oracles (in aggregators)
+    if actionRecord.governanceType = "REMOVE_ALL_SATELLITE_ORACLES" then block {
+        const removeAllSatelliteOraclesActionTrigger : return    = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operationList, s);
+        s           := removeAllSatelliteOraclesActionTrigger.1;
+        operationList  := removeAllSatelliteOraclesActionTrigger.0;
+    } else skip;
+
+    // Governance: Set new Aggregator Maintainer
+    if actionRecord.governanceType = "SET_AGGREGATOR_MAINTAINER" then operationList     := triggerSetAggregatorMaintainerSatelliteAction(actionRecord, operationList);
+
+    // Governance: Update Aggregator Status
+    if actionRecord.governanceType = "UPDATE_AGGREGATOR_STATUS" then block {
+        const updateAggregatorStatusActionTrigger : return    = triggerUpdateAggregatorStatusSatelliteAction(actionRecord, operationList, s);
+        s           := updateAggregatorStatusActionTrigger.1;
+        operationList  := updateAggregatorStatusActionTrigger.0;
+    } else skip;
+
+    // Governance: Mistaken Transfer Fix
+    if actionRecord.governanceType = "MISTAKEN_TRANSFER_FIX" then operationList         := triggerFixMistakenTransferSatelliteAction(actionRecord, operationList);
+
+    actionRecord.executed                       := True;
+    s.governanceSatelliteActionLedger[actionId] := actionRecord;
+
+} with (operationList, s)
+
+// ------------------------------------------------------------------------------
+// Vote Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -779,25 +1202,6 @@ block {
 
 
 
-(*  unsuspendSatellite entrypoint  *)
-function unsuspendSatellite(const unsuspendSatelliteParams : unsuspendSatelliteActionType ; var s : governanceSatelliteStorageType) : return is 
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnsuspendSatellite"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUnsuspendSatellite(unsuspendSatelliteParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
-
-} with response
-
-
-
 (*  banSatellite entrypoint  *)
 function banSatellite(const banSatelliteParams : banSatelliteActionType; var s : governanceSatelliteStorageType) : return is 
 block {
@@ -817,17 +1221,17 @@ block {
 
 
 
-(*  unbanSatellite entrypoint  *)
-function unbanSatellite(const unbanSatelliteParams : unbanSatelliteActionType; var s : governanceSatelliteStorageType) : return is 
+(*  restoreSatellite entrypoint  *)
+function restoreSatellite(const restoreSatelliteParams : restoreSatelliteActionType; var s : governanceSatelliteStorageType) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnbanSatellite"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRestoreSatellite"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUnbanSatellite(unbanSatelliteParams);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRestoreSatellite(restoreSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -1096,9 +1500,8 @@ block{
 
             // Satellite Governance 
         |   SuspendSatellite(parameters)              -> suspendSatellite(parameters, s)
-        |   UnsuspendSatellite(parameters)            -> unsuspendSatellite(parameters, s)
         |   BanSatellite(parameters)                  -> banSatellite(parameters, s)
-        |   UnbanSatellite(parameters)                -> unbanSatellite(parameters, s)
+        |   RestoreSatellite(parameters)              -> restoreSatellite(parameters, s)
 
             // Satellite Oracle Governance
         |   RemoveAllSatelliteOracles(parameters)     -> removeAllSatelliteOracles(parameters, s)

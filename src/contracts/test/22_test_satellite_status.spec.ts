@@ -357,9 +357,9 @@
 
 //         });
 
-//         describe("%unsuspendSatellite", async () => {
+//         describe("%restoreSatellite", async () => {
 
-//             it('Suspended satellite should not be able to unsuspend a satellite', async () => {
+//             it('Suspended satellite should not be able to restore a satellite', async () => {
 //                 try{
     
 //                     // Initial Values
@@ -368,7 +368,7 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
@@ -377,7 +377,7 @@
 //                 }
 //             });
     
-//             it('Banned satellite should not be able to unsuspend a satellite', async () => {
+//             it('Banned satellite should not be able to restore a satellite', async () => {
 //                 try{
     
 //                     // Initial Values
@@ -386,7 +386,7 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -427,46 +427,6 @@
     
 //                     // Operation
 //                     await chai.expect(governanceSatelliteInstance.methods.banSatellite(bob.pkh, "Test purpose").send()).to.be.rejected;
-    
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "BANNED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-
-//         })
-
-//         describe("%unbanSatellite", async () => {
-
-//             it('Suspended satellite should not be able to unban a satellite', async () => {
-//                 try{
-    
-//                     // Initial Values
-//                     await signerFactory(alice.sk);
-//                     delegationStorage       = await delegationInstance.storage()
-//                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
-    
-//                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unbanSatellite(eve.pkh, "Test purpose").send()).to.be.rejected;
-    
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-    
-//             it('Banned satellite should not be able to unban a satellite', async () => {
-//                 try{
-    
-//                     // Initial Values
-//                     await signerFactory(eve.sk);
-//                     delegationStorage       = await delegationInstance.storage()
-//                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
-    
-//                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unbanSatellite(eve.pkh, "Test purpose").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -1351,7 +1311,7 @@
 
 //         describe("%updateProposalData", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1481,7 +1441,7 @@
 
 //         describe("%updatePaymentData", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1611,7 +1571,7 @@
 
 //         describe("%lockProposal", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1741,7 +1701,7 @@
 
 //         describe("%proposalRoundVote", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1891,7 +1851,7 @@
 
 //         describe("%votingRoundVote", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -2063,7 +2023,7 @@
 
 //         describe("%processProposalPayment", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose and set council admin to governance proxy", async () => {
+//             before("Admin restores and restores satellites so they can propose and set council admin to governance proxy", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -2321,7 +2281,7 @@
 
 //         describe("%dropProposal", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)

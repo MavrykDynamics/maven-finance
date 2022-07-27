@@ -3153,21 +3153,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin unsuspends a satellite', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin bans a satellite', async () => {
             try{
                 // Operation
@@ -3183,12 +3168,12 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin unbans a satellite', async () => {
+        it('Admin restores a satellite', async () => {
             try{
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.unbanSatellite(alice.pkh, "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();

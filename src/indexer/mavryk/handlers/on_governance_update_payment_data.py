@@ -60,7 +60,7 @@ async def on_governance_update_payment_data(
         # Get internal data id
         internal_id = 0
         for key in payment_metadata:
-            if payment_metadata[key].title == title:
+            if payment_metadata[key] and payment_metadata[key].title == title:
                 int(key)
         payment_record, _     = await models.GovernanceProposalRecordPayment.get_or_create(
             governance_proposal_record  = proposal,

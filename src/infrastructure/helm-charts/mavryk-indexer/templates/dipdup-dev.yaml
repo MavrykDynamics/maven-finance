@@ -85,7 +85,7 @@ spec:
               value: https://api.jakartanet.tzkt.io
             - name: TZKT_MAINNET_URL
               value: https://api.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.6.1
+          image: tezosdynamics/mavryk-indexer:v0.6.2
           imagePullPolicy: Always
           ports:
             - name: metrics

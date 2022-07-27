@@ -24,7 +24,7 @@ type governanceSatelliteActionRecordType is [@layout:comb] record [
     status                             : bool;     // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     executed                           : bool;     // false on creation; set to true when financial request is executed successfully
     
-    governanceType                     : string;   // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
+    governanceType                     : string;   // "SUSPEND", "BAN", "RESTORE", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
     governancePurpose                  : string;
     voters                             : set(address);
 
@@ -95,18 +95,13 @@ type suspendSatelliteActionType is [@layout:comb] record [
     purpose                     : string;
 ]
 
-type unsuspendSatelliteActionType is [@layout:comb] record [
-    satelliteToBeUnsuspended    : address;
-    purpose                     : string;
-]
-
 type banSatelliteActionType is [@layout:comb] record [
     satelliteToBeBanned         : address;
     purpose                     : string;
 ]
 
-type unbanSatelliteActionType is [@layout:comb] record [
-    satelliteToBeUnbanned       : address;
+type restoreSatelliteActionType is [@layout:comb] record [
+    satelliteToBeRestored       : address;
     purpose                     : string;
 ]
 
@@ -183,9 +178,8 @@ type governanceSatelliteLambdaActionType is
 
         // Satellite Governance
     |   LambdaSuspendSatellite              of suspendSatelliteActionType
-    |   LambdaUnsuspendSatellite            of unsuspendSatelliteActionType
     |   LambdaBanSatellite                  of banSatelliteActionType
-    |   LambdaUnbanSatellite                of unbanSatelliteActionType
+    |   LambdaRestoreSatellite              of restoreSatelliteActionType
 
         // Satellite Oracle Governance
     |   LambdaRemoveAllSatelliteOracles     of removeAllSatelliteOraclesActionType
