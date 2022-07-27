@@ -1,6 +1,46 @@
 from tortoise import Model, fields
 from enum import IntEnum
 
+###
+# Tezos Ecosystem
+###
+class DexType(IntEnum):
+    ADD_LIQUIDITY     = 0
+    REMOVE_LIQUIDITY  = 1
+    XTZ_TO_TOKEN      = 2
+    TOKEN_TO_XTZ      = 3
+    TOKEN_TO_TOKEN    = 4
+
+class LiquidityBaking(Model):
+    address                                 = fields.CharField(pk=True, max_length=36)
+    token_pool                              = fields.BigIntField(default=0)
+    xtz_pool                                = fields.BigIntField(default=0)
+    lqt_total                               = fields.BigIntField(default=0)
+    token_address                           = fields.CharField(max_length=36, default="")
+    lqt_address                             = fields.CharField(max_length=36, default="")
+    xtz_decimals                            = fields.SmallIntField(default=6)
+    token_decimals                          = fields.SmallIntField(default=8)
+
+    class Meta:
+        table = 'liquidity_baking'
+
+class LiquidityBakingHistoryData(Model):
+    id                                      = fields.BigIntField(pk=True)
+    liquidity_baking                        = fields.ForeignKeyField('models.LiquidityBaking', related_name='history_data')
+    timestamp                               = fields.DatetimeField()
+    type                                    = fields.IntEnumField(enum_type=DexType)
+    token_pool                              = fields.BigIntField(default=0)
+    xtz_pool                                = fields.BigIntField(default=0)
+    lqt_total                               = fields.BigIntField(default=0)
+    xtz_token_price                         = fields.FloatField(default=0.0)
+    token_xtz_price                         = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'liquidity_baking_history_data'
+
+###
+# Mavryk Ecosystem
+###
 class StakeType(IntEnum):
     STAKE               = 0
     UNSTAKE             = 1
@@ -474,6 +514,7 @@ class SatelliteRecord(Model):
     description                             = fields.TextField(default="")
     image                                   = fields.TextField(default="")
     website                                 = fields.TextField(default="")
+    currently_registered                    = fields.BooleanField(default=True)
 
     class Meta:
         table = 'satellite_record'
@@ -502,10 +543,10 @@ class CouncilActionRecord(Model):
     id                                      = fields.BigIntField(pk=True)
     council                                 = fields.ForeignKeyField('models.Council', related_name='council_action_records')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
-    start_datetime                          = fields.DatetimeField()
-    executed_datetime                       = fields.DatetimeField()
+    start_datetime                          = fields.DatetimeField(null=True)
+    executed_datetime                       = fields.DatetimeField(null=True)
     executed_level                          = fields.BigIntField(default=0)
-    expiration_datetime                     = fields.DatetimeField()
+    expiration_datetime                     = fields.DatetimeField(null=True)
     action_type                             = fields.CharField(max_length=48)
     status                                  = fields.IntEnumField(enum_type=ActionStatus)
     executed                                = fields.BooleanField(default=False)
@@ -564,9 +605,9 @@ class EmergencyGovernanceRecord(Model):
     total_smvk_votes                        = fields.FloatField(default=0)
     smvk_percentage_required                = fields.FloatField(default=0)
     smvk_required_for_trigger               = fields.FloatField(default=0)
-    start_timestamp                         = fields.DatetimeField()
-    executed_timestamp                      = fields.DatetimeField()
-    expiration_timestamp                    = fields.DatetimeField()
+    start_timestamp                         = fields.DatetimeField(null=True)
+    executed_timestamp                      = fields.DatetimeField(null=True)
+    expiration_timestamp                    = fields.DatetimeField(null=True)
     start_level                             = fields.BigIntField(default=0)
     executed_level                          = fields.BigIntField(default=0)
 
@@ -577,7 +618,7 @@ class EmergencyGovernanceVote(Model):
     id                                      = fields.BigIntField(pk=True)
     emergency_governance_record             = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='voters')
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_votes')
-    timestamp                               = fields.DatetimeField()
+    timestamp                               = fields.DatetimeField(null=True)
     smvk_amount                             = fields.BigIntField(default=0)
 
     class Meta:
@@ -598,10 +639,10 @@ class BreakGlassActionRecord(Model):
     id                                      = fields.BigIntField(pk=True)
     break_glass                             = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_action_records')
     initiator                               = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_initiator')
-    start_datetime                          = fields.DatetimeField()
-    executed_datetime                       = fields.DatetimeField()
+    start_datetime                          = fields.DatetimeField(null=True)
+    executed_datetime                       = fields.DatetimeField(null=True)
     executed_level                          = fields.BigIntField(default=0)
-    expiration_datetime                     = fields.DatetimeField()
+    expiration_datetime                     = fields.DatetimeField(null=True)
     action_type                             = fields.CharField(max_length=48)
     status                                  = fields.IntEnumField(enum_type=ActionStatus)
     executed                                = fields.BooleanField(default=False)
@@ -655,7 +696,7 @@ class GovernanceProposalRecord(Model):
     min_yay_vote_percentage                 = fields.FloatField(default=0)
     quorum_count                            = fields.BigIntField(default=0)
     quorum_smvk_total                       = fields.FloatField(default=0)
-    start_datetime                          = fields.DatetimeField()
+    start_datetime                          = fields.DatetimeField(null=True)
     cycle                                   = fields.BigIntField(default=0)
     current_cycle_start_level               = fields.BigIntField(default=0)
     current_cycle_end_level                 = fields.BigIntField(default=0)
@@ -733,8 +774,8 @@ class GovernanceFinancialRequestRecord(Model):
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    expiration_datetime                     = fields.DatetimeField()
-    requested_datetime                      = fields.DatetimeField()
+    expiration_datetime                     = fields.DatetimeField(null=True)
+    requested_datetime                      = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'governance_financial_request_record'
@@ -775,8 +816,8 @@ class GovernanceSatelliteActionRecord(Model):
     snapshot_smvk_total_supply              = fields.FloatField(default=0.0)
     smvk_percentage_for_approval            = fields.SmallIntField(default=0)
     smvk_required_for_approval              = fields.FloatField(default=0.0)
-    expiration_datetime                     = fields.DatetimeField()
-    start_datetime                          = fields.DatetimeField()
+    expiration_datetime                     = fields.DatetimeField(null=True)
+    start_datetime                          = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'governance_satellite_action_record'
@@ -846,7 +887,7 @@ class GovernanceSatelliteSatelliteOracleAggregatorPairRecord(Model):
     governance_satellite_satellite_oracle_record= fields.ForeignKeyField('models.GovernanceSatelliteSatelliteOracleRecord', related_name='aggregator_pairs')
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_satellite_oracle_aggregator_pair_records')
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='governance_satellite_satellite_oracle_aggregator_pair_records')
-    start_timestamp                         = fields.DatetimeField()
+    start_timestamp                         = fields.DatetimeField(null=True)
     token_0_symbol                          = fields.CharField(max_length=32)
     token_1_symbol                          = fields.CharField(max_length=32)
 
@@ -866,7 +907,7 @@ class AggregatorDeviationTriggerBan(Model):
     id                                      = fields.BigIntField(pk=True)
     aggregator                              = fields.ForeignKeyField('models.Aggregator', related_name='deviation_trigger_bans')
     oracle                                  = fields.ForeignKeyField('models.MavrykUser', related_name='aggregator_deviation_trigger_bans')
-    timestamp                               = fields.DatetimeField()
+    timestamp                               = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'aggregator_deviation_trigger_ban'
