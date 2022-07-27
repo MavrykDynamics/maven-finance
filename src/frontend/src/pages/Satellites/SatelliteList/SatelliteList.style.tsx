@@ -1,5 +1,5 @@
-import styled from 'styled-components/macro'
-import { Card } from 'styles'
+import styled, { css } from 'styled-components/macro'
+import { boxShadowColor, Card, cyanColor, royalPurpleColor, skyColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -16,7 +16,7 @@ export const SatelliteListEmptyContainer = styled.figure<{ theme: MavrykTheme }>
   flex-direction: column;
   padding-top: 16px;
 `
-export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme }>`
+export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme; oracle?: boolean; dataFeeds?: boolean }>`
   background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   align-items: center;
@@ -28,6 +28,36 @@ export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme }>`
     width: 320px;
     height: 40px;
   }
+
+  ${({ oracle }) =>
+    oracle
+      ? css`
+          margin-top: 30px;
+        `
+      : ''}
+
+  ${({ dataFeeds }) =>
+    dataFeeds
+      ? css`
+          margin-top: 30px;
+          input {
+            margin-left: 30px;
+            max-width: 375px;
+          }
+
+          .dropDown {
+            min-width: 330px;
+          }
+
+          button {
+            max-width: 250px;
+
+            svg {
+              fill: transparent;
+            }
+          }
+        `
+      : ''}
 `
 export const SelectContainer = styled.div`
   display: flex;

@@ -35,6 +35,12 @@ export const DELEGATION_STORAGE_QUERY = `
         user {
           smvk_balance
           mvk_balance
+          aggregator_oracle_records {
+            active
+            aggregator_id
+            id
+            oracle_id
+          }
           emergency_governance_votes {
             emergency_governance_record_id
             id
