@@ -15,6 +15,9 @@
 // Transfer Methods
 #include "../partials/shared/transferMethods.ligo"
 
+// Permission Methods
+#include "../partials/shared/permissionMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
@@ -143,14 +146,8 @@ function checkSenderIsAdminOrGovernanceSatelliteContract(var s : aggregatorStora
 block{
   if Tezos.get_sender() = s.admin then skip
   else {
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-    const governanceSatelliteAddress: address = case generalContractsOptView of [
-        Some (_optionContract) -> case _optionContract of [
-                Some (_contract)    -> _contract
-            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-            ]
-    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const governanceSatelliteAddress: address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
     if Tezos.get_sender() = governanceSatelliteAddress then skip
       else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
   }
@@ -241,40 +238,6 @@ function checkOracleIsNotBannedForDeviationTrigger(const s : aggregatorStorageTy
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
-// Satellite Status Helper Functions
-// ------------------------------------------------------------------------------
-
-// helper function to check that satellite is not suspended or banned
-function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress : address; var s : aggregatorStorageType) : unit is
-    block{
-
-        // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-        const delegationAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
-
-        // Get Satellite Record and check status from on-chain view %getSatelliteOpt on Delegation Contract
-        const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-        case satelliteOptView of [
-                Some (value) -> case value of [
-                        Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else skip
-                    |   None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
-                ]
-            |   None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-        ];
-
-    } with (unit)
-
-// ------------------------------------------------------------------------------
-// Satellite Status Helper Functions
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
@@ -565,14 +528,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s : aggregat
   var total: nat := 0n;
 
   // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-  const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-  const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
+  const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
   // Get delegation ratio from Delegation contract config through on-chain view (delegationRatio equivalent to votingPowerRatio)
   const configView: option(delegationConfigType)  = Tezos.call_view ("getConfig", unit, delegationAddress);

@@ -345,14 +345,7 @@ block {
                 ];
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // --------------------------------------------------------------
                 //
@@ -505,14 +498,7 @@ block {
                 s := updateRewards(userAddress, s);
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -615,14 +601,7 @@ block {
                 if s.satelliteCounter >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_REACHED) else skip;
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -729,7 +708,8 @@ block {
                 checkUserIsSatellite(userAddress, s);
 
                 // Check that satellite is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(userAddress, s);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                checkSatelliteStatus(userAddress, delegationAddress, True, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
                 const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
@@ -776,7 +756,8 @@ block {
                 const userAddress : address  = Tezos.get_sender();
 
                 // check satellite is not banned
-                checkSatelliteIsNotBanned(userAddress, s);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                checkSatelliteStatus(userAddress, delegationAddress, False, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
                 const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
@@ -866,24 +847,10 @@ block {
             const totalReward : nat = distributeRewardParams.totalStakedMvkReward;
 
             // Get Satellite Treasury Address from the General Contracts Map on the Governance Contract
-            const generalContractsOptViewSatelliteTreasury : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "satelliteTreasury", s.governanceAddress);
-            const treasuryAddress : address = case generalContractsOptViewSatelliteTreasury of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
+            const treasuryAddress : address = getContractAddressFromGovernanceContract("satelliteTreasury", s.governanceAddress, error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND);
 
             // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-            const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-            const doormanAddress : address = case generalContractsOptViewDoorman of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
+            const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
             // Send the rewards from the Satellite Treasury Contract to the Doorman Contract
             const transferParam : transferActionType = list[
@@ -1003,14 +970,7 @@ block {
         |   LambdaOnStakeChange(userAddress) -> {
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Update the satellite snapshot on the governance contract before updating its record
                 const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);

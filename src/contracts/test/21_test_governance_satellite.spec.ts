@@ -547,7 +547,7 @@
 //         });
 //     }); // end %updateConfig tests
 
-//     describe("%suspendSatellite, %unsuspendSatellite", async () => {
+//     describe("%suspendSatellite, %restoreSatellite", async () => {
 
 //         it('Any satellite should be able to create a governance action to suspend a satellite', async () => {
 //             try{        
@@ -660,7 +660,7 @@
 //         });
 
         
-//         it('Any satellite should be able to create a governance action to unsuspend a satellite', async () => {
+//         it('Any satellite should be able to create a governance action to restore a satellite', async () => {
 //           try{        
 
 //             // some init constants
@@ -678,11 +678,11 @@
 
 //               // governance satellite action params
 //               const satelliteToBeSuspended   = alice.pkh;
-//               const purpose                  = "Test Unsuspend Satellite";            
+//               const purpose                  = "Test restore Satellite";            
   
-//               // Satellite Bob creates a governance action - unsuspend Alice
+//               // Satellite Bob creates a governance action - restore Alice
 //               await signerFactory(bob.sk);
-//               const governanceSatelliteOperation = await governanceSatelliteInstance.methods.unsuspendSatellite(
+//               const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
 //                       satelliteToBeSuspended,
 //                       purpose
 //                   ).send();
@@ -705,7 +705,7 @@
   
 //               // check details of governance satellite action
 //               assert.equal(governanceAction.initiator,                                 bob.pkh);
-//               assert.equal(governanceAction.governanceType,                            "UNSUSPEND");
+//               assert.equal(governanceAction.governanceType,                            "RESTORE");
 //               assert.equal(governanceAction.status,                                    true);
 //               assert.equal(governanceAction.executed,                                  false);
 //               assert.equal(governanceAction.governancePurpose,                         purpose);
@@ -786,7 +786,7 @@
 
 //             // governance satellite action params
 //             const satelliteToBeSuspended   = alice.pkh;
-//             const purpose                  = "Test Unsuspend Satellite";            
+//             const purpose                  = "Test Restore Satellite";            
 
 //             // Satellite Bob exceeds the number of actions it can create this round
 //             await chai.expect(governanceSatelliteInstance.methods.suspendSatellite(satelliteToBeSuspended, purpose).send()).to.be.eventually.rejected;
@@ -820,10 +820,10 @@
 //         } 
 //     });
         
-//     });  // end %suspendSatellite, %unsuspendSatellite tests
+//     });  // end %suspendSatellite, %restoreSatellite tests
 
 
-//     describe("%banSatellite, #unbanSatellite", async () => {
+//     describe("%banSatellite, #restoreSatellite", async () => {
 
 //       it('Any satellite should be able to create a governance action to ban a satellite', async () => {
 //           try{        
@@ -936,7 +936,7 @@
 //       });
 
       
-//       it('Any satellite should be able to create a governance action to unban a satellite', async () => {
+//       it('Any satellite should be able to create a governance action to restore a satellite', async () => {
 //         try{        
 
 //           // some init constants
@@ -954,11 +954,11 @@
 
 //             // governance satellite action params
 //             const satelliteToBeSuspended   = alice.pkh;
-//             const purpose                  = "Test Unban Satellite";            
+//             const purpose                  = "Test Restore Satellite";            
 
-//             // Satellite Bob creates a governance action - unban Alice
+//             // Satellite Bob creates a governance action - restore Alice
 //             await signerFactory(bob.sk);
-//             const governanceSatelliteOperation = await governanceSatelliteInstance.methods.unbanSatellite(
+//             const governanceSatelliteOperation = await governanceSatelliteInstance.methods.restoreSatellite(
 //                     satelliteToBeSuspended,
 //                     purpose
 //                 ).send();
@@ -981,7 +981,7 @@
 
 //             // check details of governance satellite action
 //             assert.equal(governanceAction.initiator,                                 bob.pkh);
-//             assert.equal(governanceAction.governanceType,                            "UNBAN");
+//             assert.equal(governanceAction.governanceType,                            "RESTORE");
 //             assert.equal(governanceAction.status,                                    true);
 //             assert.equal(governanceAction.executed,                                  false);
 //             assert.equal(governanceAction.governancePurpose,                         purpose);
@@ -1008,7 +1008,7 @@
 //             assert.equal(mallorySnapshot.totalStakedMvkBalance.toNumber(),   malloryStakeAmount);
 //             assert.equal(mallorySnapshot.totalVotingPower.toNumber(),        malloryStakeAmount);
 
-//             // 3 satellites vote yay to unban alice satellite
+//             // 3 satellites vote yay to restore alice satellite
 //             await signerFactory(bob.sk);
 //             const bobVotesForGovernanceActionOperation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
 //             await bobVotesForGovernanceActionOperation.confirmation();
@@ -1034,7 +1034,7 @@
 //             assert.equal(updatedGovernanceAction.status,                  true);
 //             assert.equal(updatedGovernanceAction.executed,                true);
 
-//             // check that alice is now unbanned - status set to ACTIVE
+//             // check that alice is now restored - status set to ACTIVE
 //             assert.equal(updatedAliceSatelliteRecord.status,              "ACTIVE");
         
 //         } catch(e){
@@ -1042,7 +1042,7 @@
 //         } 
 //     });
 
-//   }); // end %banSatellite, #unbanSatellite tests
+//   }); // end %banSatellite, #restoreSatellite tests
 
 //   describe("%addOracleToAggregator, %removeOracleInAggregator, %removeAllSatelliteOracles", async () => {
 
@@ -1973,12 +1973,12 @@
 //                 await chai.expect(failSuspendSatelliteOperation).to.be.eventually.rejected;
 
 
-//                 // fail to create governance action to unsuspend Satellite
-//                 const failUnsuspendSatelliteOperation = governanceSatelliteInstance.methods.unsuspendSatellite(
+//                 // fail to create governance action to restore Satellite
+//                 const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
 //                     bob.pkh,
 //                     purpose
 //                 ).send();
-//                 await chai.expect(failUnsuspendSatelliteOperation).to.be.eventually.rejected;
+//                 await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
 
 
 //                 // fail to create governance action to ban Satellite
@@ -1989,12 +1989,12 @@
 //                 await chai.expect(failBanSatelliteOperation).to.be.eventually.rejected;
 
 
-//                 // fail to create governance action to unban Satellite
-//                 const failUnbanSatelliteOperation = governanceSatelliteInstance.methods.unbanSatellite(
+//                 // fail to create governance action to restore Satellite
+//                 const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
 //                     bob.pkh,
 //                     purpose
 //                 ).send();
-//                 await chai.expect(failUnbanSatelliteOperation).to.be.eventually.rejected;
+//                 await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
 
 
 //                 // fail to create governance action to add oracle to aggregator

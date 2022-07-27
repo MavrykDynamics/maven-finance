@@ -125,14 +125,7 @@ block{
 function checkSenderIsDelegationContract(var s : doormanStorageType) : unit is
 block{
 
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-    const delegationAddress : address = case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
     if (Tezos.get_sender() = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
@@ -148,14 +141,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -286,14 +272,7 @@ block{
     if userRecord.balance > 0n then {
 
         // Get Delegation Contract address from the General Contracts Map on the Governance Contract
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-        const delegationAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
       
         // -- Satellite rewards -- //
         

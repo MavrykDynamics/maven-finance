@@ -33,50 +33,46 @@
     },
     {
         "index": 8,
-        "name": "lambdaUnsuspendSatellite"
-    },
-    {
-        "index": 9,
         "name": "lambdaBanSatellite"
     },
     {
-        "index": 10,
-        "name": "lambdaUnbanSatellite"
+        "index": 9,
+        "name": "lambdaRestoreSatellite"
     },
     {
-        "index": 11,
+        "index": 10,
         "name": "lambdaRemoveAllSatelliteOracles"
     },
     {
-        "index": 12,
+        "index": 11,
         "name": "lambdaAddOracleToAggregator"
     },
     {
-        "index": 13,
+        "index": 12,
         "name": "lambdaRemoveOracleInAggregator"
     },
     {
-        "index": 14,
+        "index": 13,
         "name": "lambdaSetAggregatorMaintainer"
     },
     {
-        "index": 15,
+        "index": 14,
         "name": "lambdaRegisterAggregator"
     },
     {
-        "index": 16,
+        "index": 15,
         "name": "lambdaUpdateAggregatorStatus"
     },
     {
-        "index": 17,
+        "index": 16,
         "name": "lambdaFixMistakenTransfer"
     },
     {
-        "index": 18,
+        "index": 17,
         "name": "lambdaDropAction"
     },
     {
-        "index": 19,
+        "index": 18,
         "name": "lambdaVoteForAction"
   }
 ]
