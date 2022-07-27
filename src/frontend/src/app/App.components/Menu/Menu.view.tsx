@@ -5,7 +5,15 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import { MenuMobileBurger, MenuFooter, MenuGrid, MenuLogo, MenuStyled, MenuTopSection } from './Menu.style'
+import {
+  MenuMobileBurger,
+  MenuFooter,
+  MenuGrid,
+  MenuLogo,
+  MenuStyled,
+  MenuTopSection,
+  MenuTopStyled,
+} from './Menu.style'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 
@@ -30,55 +38,94 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
   }
 
   return (
-    <MenuStyled
-      className={`navbar-sticky ${isExpandedMenuMob ? 'menu-expanded' : ''}`}
-      onClick={() => {
-        setExpanded(0)
-        setExpandedMenuMob(false)
-      }}
-    >
-      <MenuTopSection onClick={(e) => e.stopPropagation()}>
-        <MenuMobileBurger
-          onClick={(e) => {
-            e.stopPropagation()
-            setExpanded(0)
-            setExpandedMenuMob(!isExpandedMenuMob)
-          }}
-          className={'burger-menu'}
-        >
-          <div></div>
-          <div></div>
-          <div></div>
-        </MenuMobileBurger>
-        <Link to="/">
-          <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
-          <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} />
-        </Link>
-        <ConnectWallet
-          // ref={connectWalletRef}
-          type={'main-menu'}
-        />
-        <MenuGrid>
-          {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
-            const key = `${index}-${navigationLink.path.substring(1)}-${navigationLink.id}`
-            return (
-              <NavigationLink
-                key={key}
-                handleToggle={handleToggle}
-                isExpanded={navigationLink.id === isExpanded}
-                isMobMenuExpanded={isExpandedMenuMob}
-                location={location}
-                walletReady={ready}
-                accountPkh={accountPkh}
-                {...navigationLink}
-              />
-            )
-          })}
-        </MenuGrid>
-        <MenuFooter>
-          MAVRYK App <p>v1.0</p>
-        </MenuFooter>
-      </MenuTopSection>
-    </MenuStyled>
+    <>
+      <MenuTopStyled>
+        <div className="left-side">
+          <MenuMobileBurger
+            onClick={(e) => {
+              e.stopPropagation()
+              setExpanded(0)
+              setExpandedMenuMob(!isExpandedMenuMob)
+            }}
+            className={isExpandedMenuMob ? 'expanded' : ''}
+          >
+            <svg>
+              <use xlinkHref="/icons/sprites.svg#menuOpen" />
+            </svg>
+          </MenuMobileBurger>
+
+          <Link to="/">
+            <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
+            {/* <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} /> */}
+          </Link>
+        </div>
+        <div className="right-side">
+          <div className="social-wrapper">
+            <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#socialDiscord" />
+              </svg>
+            </a>
+            <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#socialGitHub" />
+              </svg>
+            </a>
+            <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#socialMedium" />
+              </svg>
+            </a>
+            <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#socialTelegram" />
+              </svg>
+            </a>
+            <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#socialTwitter" />
+              </svg>
+            </a>
+          </div>
+          <ConnectWallet type={'main-menu'} />
+
+          <div className="settingsIcon">
+            <svg>
+              <use xlinkHref="/icons/sprites.svg#gear" />
+            </svg>
+          </div>
+        </div>
+      </MenuTopStyled>
+      <MenuStyled
+        className={`navbar-sticky ${isExpandedMenuMob ? 'menu-expanded' : ''}`}
+        onClick={() => {
+          setExpanded(0)
+          setExpandedMenuMob(false)
+        }}
+      >
+        <MenuTopSection onClick={(e) => e.stopPropagation()}>
+          <MenuGrid>
+            {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
+              const key = `${index}-${navigationLink.path.substring(1)}-${navigationLink.id}`
+              return (
+                <NavigationLink
+                  key={key}
+                  handleToggle={handleToggle}
+                  isExpanded={navigationLink.id === isExpanded}
+                  isMobMenuExpanded={isExpandedMenuMob}
+                  location={location}
+                  walletReady={ready}
+                  accountPkh={accountPkh}
+                  {...navigationLink}
+                />
+              )
+            })}
+          </MenuGrid>
+          <MenuFooter>
+            MAVRYK App <p>v1.0</p>
+          </MenuFooter>
+        </MenuTopSection>
+      </MenuStyled>
+    </>
   )
 }
