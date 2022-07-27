@@ -15,6 +15,9 @@
 // Transfer Methods
 #include "../partials/shared/transferMethods.ligo"
 
+// Permission Methods
+#include "../partials/shared/permissionMethods.ligo"
+
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
@@ -126,14 +129,7 @@ function checkSenderIsSelf(const _p : unit) : unit is
 function checkSenderIsDoormanContract(var s : delegationStorageType) : unit is
 block{
 
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-    const doormanAddress : address = case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
     if (Tezos.get_sender() = doormanAddress) then skip
     else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -162,14 +158,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -240,14 +229,7 @@ block{
             ];
 
             // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-            const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-            const doormanAddress : address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
+            const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
             // Get user's staked MVK balance from the Doorman Contract
             const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -331,39 +313,6 @@ function checkDistributeRewardIsNotPaused(var s : delegationStorageType) : unit 
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
-// ------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------
-// Satellite Status Helper Functions
-// ------------------------------------------------------------------------------
-
-// helper function to check that a specified satellite is not suspended
-function checkSatelliteIsNotSuspended(const satelliteAddress : address; var s : delegationStorageType) : unit is
-    case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
-            Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else unit
-        |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-    ];
-
-
-
-// helper function to check that a specified satellite is not banned
-function checkSatelliteIsNotBanned(const satelliteAddress : address; var s : delegationStorageType) : unit is
-    case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
-            Some (_satellite) -> if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
-        |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-    ];
-
-
-
-// helper function to check that a specified satellite is not suspended or banned
-function checkSatelliteIsNotSuspendedOrBanned(const satelliteAddress: address; var s : delegationStorageType) : unit is
-    case Big_map.find_opt(satelliteAddress, s.satelliteLedger) of [
-            Some (_satellite) -> if _satellite.status = "SUSPENDED" then failwith(error_SATELLITE_SUSPENDED) else if _satellite.status = "BANNED" then failwith(error_SATELLITE_BANNED) else unit
-        |   None              -> failwith(error_SATELLITE_NOT_FOUND)
-    ];
-
-// ------------------------------------------------------------------------------
-// Satellite Status Helper Functions
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------

@@ -640,7 +640,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
@@ -890,7 +894,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -1008,7 +1016,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -1113,7 +1125,11 @@ block {
                 ];
 
                 // Check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(proposalRecord.proposerAddress, s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(proposalRecord.proposerAddress, delegationAddress, True, True);
 
                 // Check that sender is the creator of the proposal 
                 if proposalRecord.proposerAddress =/= Tezos.get_sender() then failwith(error_ONLY_PROPOSER_ALLOWED)
@@ -1167,7 +1183,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
@@ -1361,7 +1381,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
@@ -1597,7 +1621,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(proposal.proposerAddress, s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(proposal.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
                 // Validation Checks
@@ -1894,7 +1922,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check that satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(_proposal.proposerAddress, s);
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                        Some (_contractAddress) -> _contractAddress
+                    |   None                    -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                checkSatelliteStatus(_proposal.proposerAddress, delegationAddress, True, True);
 
                 // ------------------------------------------------------------------
                 // Validation Checks

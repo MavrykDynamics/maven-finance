@@ -329,11 +329,8 @@ block {
                     |   None           -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
                 ];
 
-                // Check if financial request has already been executed
-                if financialRequest.executed then failwith(error_FINANCIAL_REQUEST_EXECUTED) else skip;
-
-                // Check if financial request has expired
-                if Tezos.get_now() > financialRequest.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
+                // Check if satellite can interact with the request
+                checkRequestInteraction(financialRequest);
 
                 // Drop financial request (set status to false)
                 financialRequest.status := False;
@@ -379,7 +376,8 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite exists and is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // init financial request id
                 const financialRequestId : nat = voteForRequest.requestId;
@@ -390,14 +388,8 @@ block {
                     |   None           -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
                 ];
 
-                // Check if financial request has been dropped
-                if _financialRequest.status    = False then failwith(error_FINANCIAL_REQUEST_DROPPED)  else skip;
-
-                // Check if financial request has already been executed
-                if _financialRequest.executed  = True  then failwith(error_FINANCIAL_REQUEST_EXECUTED) else skip;
-
-                // Check if financial request has expired
-                if Tezos.get_now() > _financialRequest.expiryDateTime then failwith(error_FINANCIAL_REQUEST_EXPIRED) else skip;
+                // Check if satellite can interact with the request
+                checkRequestInteraction(_financialRequest);
 
                 // ------------------------------------------------------------------
                 // Get snapshot of satellite voting power
@@ -463,104 +455,10 @@ block {
 
                         // Execute financial request if total yay votes exceed staked MVK required for approval
                         if newYayVoteStakedMvkTotal > _financialRequest.stakedMvkRequiredForApproval then block {
-
-                            // Get Treasury Contract from params
-                            const treasuryAddress : address = _financialRequest.treasuryAddress;
-
-                            // Get Council Contract address from the General Contracts Map on the Governance Contract
-                            const generalContractsOptViewCouncil : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
-                            const councilAddress : address = case generalContractsOptViewCouncil of [
-                                    Some (_optionContract) -> case _optionContract of [
-                                            Some (_contract)    -> _contract
-                                        |   None                -> failwith (error_COUNCIL_CONTRACT_NOT_FOUND)
-                                    ]
-                                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                            ];
-
-                            // Financial Request Type - "TRANSFER"
-                            if _financialRequest.requestType = "TRANSFER" then block {
-
-                                // ------------ Set Token Type ------------
-                                var _tokenTransferType : tokenType := Tez;
-
-                                if  _financialRequest.tokenType = "FA12" 
-                                then block {
-                                    _tokenTransferType := (Fa12(_financialRequest.tokenContractAddress) : tokenType);
-                                } 
-                                else skip;
-
-                                if  _financialRequest.tokenType = "FA2" 
-                                then block {
-                                    _tokenTransferType := (Fa2(record [
-                                        tokenContractAddress  = _financialRequest.tokenContractAddress;
-                                        tokenId               = _financialRequest.tokenId;
-                                    ]) : tokenType); 
-                                } 
-                                else skip;
-                                // ----------------------------------------
-
-                                // If tokens are to be transferred, check if token contract is whitelisted (security measure to prevent interacting with potentially malicious contracts)
-                                if _financialRequest.tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(_financialRequest.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
-
-                                // Create transfer token params and operation
-                                const transferTokenParams : transferActionType = list [
-                                    record [
-                                        to_        = councilAddress;
-                                        token      = _tokenTransferType;
-                                        amount     = _financialRequest.tokenAmount;
-                                    ]
-                                ];
-
-                                const treasuryTransferOperation : operation = Tezos.transaction(
-                                    transferTokenParams, 
-                                    0tez, 
-                                    sendTransferOperationToTreasury(treasuryAddress)
-                                );
-
-                                operations := treasuryTransferOperation # operations;
-
-                            } else skip;
-
-
-                            // Financial Request Type - "MINT"
-                            if _financialRequest.requestType = "MINT" then block {
-                                
-                                // Create mint operation
-                                const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-                                    to_  = councilAddress;
-                                    amt  = _financialRequest.tokenAmount;
-                                ];
-
-                                const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
-                                    mintMvkAndTransferTokenParams, 
-                                    0tez, 
-                                    sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
-                                );
-
-                                operations := treasuryMintMvkAndTransferOperation # operations;
-
-                            } else skip;
-
-
-                            // Financial Request Type - "SET_CONTRACT_BAKER"
-                            if _financialRequest.requestType = "SET_CONTRACT_BAKER" then block {
-
-                                const keyHash : option(key_hash) = _financialRequest.keyHash;
-                                const setContractBakerOperation : operation = Tezos.transaction(
-                                    keyHash, 
-                                    0tez, 
-                                    setTreasuryBaker(_financialRequest.treasuryAddress)
-                                );
-
-                                operations := setContractBakerOperation # operations;
-
-                            } else skip;
-
-                            // Update financial request - set executed boolean to true
-                            _financialRequest.executed := True;
-                            s.financialRequestLedger[financialRequestId] := _financialRequest;
-
-                        } else skip;
+                            const executeGovernanceFinancialActionReturn : return   = executeGovernanceFinancialRequest(_financialRequest, financialRequestId, operations, s);
+                            s           := executeGovernanceFinancialActionReturn.1;
+                            operations  := executeGovernanceFinancialActionReturn.0;
+                        } else skip
 
                     }
 

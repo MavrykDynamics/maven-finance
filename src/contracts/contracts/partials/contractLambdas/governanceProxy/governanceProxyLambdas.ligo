@@ -678,14 +678,7 @@ block {
         |   UpdateGovernanceFinancialConfig(params) -> {
 
                 // Find and get governanceFinancial contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceFinancial", s.governanceAddress);
-                const governanceFinancialAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of governance financial contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -727,14 +720,7 @@ block {
         |   UpdateGovernanceSatelliteConfig(params) -> {
 
                 // Find and get governanceSatellite contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-                const governanceSatelliteAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of governance satellite contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -777,14 +763,7 @@ block {
         |   UpdateDelegationConfig(params) -> {
 
                 // Find and get delegation contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of delegation contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -827,14 +806,7 @@ block {
         |   UpdateEmergencyConfig(params) -> {
 
                 // Find and get emergency governance contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "emergencyGovernance", s.governanceAddress);
-                const emergencyAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const emergencyAddress : address = getContractAddressFromGovernanceContract("emergencyGovernance", s.governanceAddress, error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of emergency governance contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -877,14 +849,7 @@ block {
         |   UpdateCouncilConfig(params) -> {
 
                 // Find and get council contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
-                const councilAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_COUNCIL_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of council contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -968,14 +933,7 @@ block {
         |   UpdateFarmFactoryConfig(params) -> {
 
                 // Find and get farm factory contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // assign params to constants for better code readability
                 const updateConfigAction    = params.updateConfigAction;
@@ -1059,14 +1017,7 @@ block {
         |   UpdateAggregatorFactoryConfig(params) -> {
 
                 // Find and get aggregator factory contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
-                const aggregatorFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
                 // assign params to constants for better code readability
                 const updateConfigAction    = params.updateConfigAction;
@@ -1109,14 +1060,7 @@ block {
         |   UpdateTreasuryFactoryConfig(params) -> {
 
                 // Find and get treasury factory contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-                const treasuryFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // assign params to constants for better code readability
                 const updateConfigAction    = params.updateConfigAction;
@@ -1159,14 +1103,7 @@ block {
         |   UpdateBreakGlassConfig(params) -> {
 
                 // Find and get break glass contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "breakGlass", s.governanceAddress);
-                const breakGlassAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const breakGlassAddress : address = getContractAddressFromGovernanceContract("breakGlass", s.governanceAddress, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of break glass contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1209,14 +1146,7 @@ block {
         |   UpdateDoormanConfig(params) -> {
 
                 // Find and get doorman contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Find and get updateConfig entrypoint of break glass contract
                 const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1371,14 +1301,7 @@ block {
         |   ToggleAggregatorFacEntrypoint(params) -> {
 
                 // Find and get the aggregator factory contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
-                const aggregatorFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get togglePauseEntrypoint entrypoint
                 const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1417,14 +1340,7 @@ block {
         |   ToggleDelegationEntrypoint(params) -> {
 
             // Find and get the delegation contract address from the generalContracts big map
-            const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-            const delegationAddress : address = case generalContractsOptView of [
-                    Some (_optionContract) -> case _optionContract of [
-                            Some (_contract)    -> _contract
-                        |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                    ]
-                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-            ];
+            const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
             // Find and get togglePauseEntrypoint entrypoint
             const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1463,14 +1379,7 @@ block {
         |   ToggleDoormanEntrypoint(params) -> {
 
                 // Find and get the contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Find and get togglePauseEntrypoint entrypoint
                 const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1549,14 +1458,7 @@ block {
         |   ToggleFarmFacEntrypoint(params) -> {
 
                 // Find and get the contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get togglePauseEntrypoint entrypoint
                 const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1635,14 +1537,7 @@ block {
         |   ToggleTreasuryFacEntrypoint(params) -> {
 
                 // Find and get the contract address from the generalContracts big map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-                const treasuryFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get togglePauseEntrypoint entrypoint
                 const togglePauseEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1753,14 +1648,7 @@ block {
         |   CreateFarm(createFarmParams) -> {
 
                 // Find and get farmFactory contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get createFarm entrypoint of farmFactory contract
                 const createFarmEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1799,14 +1687,7 @@ block {
         |   TrackFarm(trackFarmParams) -> {
 
                 // Find and get farmFactory contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get trackFarm entrypoint of farmFactory contract
                 const trackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -1845,14 +1726,8 @@ block {
         |   UntrackFarm(untrackFarmParams) -> {
 
                 // Find and get farmFactory contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
+
                 // Find and get untrack entrypoint of farmFactory contract
                 const untrackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
                     "%untrackFarm",
@@ -1966,14 +1841,7 @@ block {
         |   CreateTreasury(createTreasuryParams) -> {
 
                 // Find and get treasuryFactory contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-                const treasuryFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get createTreasury entrypoint of treasuryFactory contract
                 const createTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2012,14 +1880,7 @@ block {
         |   TrackTreasury(trackTreasuryParams) -> {
 
                 // Find and get treasuryFactory contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-                const treasuryFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get trackTreasury entrypoint of treasuryFactory contract
                 const trackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2058,14 +1919,7 @@ block {
         |   UntrackTreasury(untrackTreasuryParams) -> {
 
                 // Find and get treasuryFactory contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasuryFactory", s.governanceAddress);
-                const treasuryFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get untrackTreasury entrypoint of treasuryFactory contract
                 const untrackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2308,14 +2162,7 @@ block {
         |   CreateAggregator(createAggregatorParams) -> {
 
                 // Find and get aggregatorFactory contract address
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
-                const aggregatorFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get createAggregator entrypoint of aggregatorFactory contract
                 const createAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2354,14 +2201,7 @@ block {
         |   TrackAggregator(trackAggregatorParams) -> {
 
                 // Find and get aggregatorFactory contract address
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
-                const aggregatorFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
                 const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2400,14 +2240,7 @@ block {
         |   UntrackAggregator(untrackAggregatorParams) -> {
 
                 // Find and get aggregatorFactory contract address
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorFactory", s.governanceAddress);
-                const aggregatorFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
                 const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2558,14 +2391,7 @@ block {
         |   AddVestee(addVesteeParams) -> {
 
                 // Find and get vesting contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
-                const vestingAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
                 // Find and get addVestee entrypoint of Vesting contract
                 const addVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2604,14 +2430,7 @@ block {
         |   RemoveVestee(vesteeAddress) -> {
 
                 // Find and get vesting contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
-                const vestingAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
                 // Find and get removeVestee entrypoint of Vesting contract
                 const removeVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2650,14 +2469,7 @@ block {
         |   UpdateVestee(updateVesteeParams) -> {
 
                 // Find and get vesting contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
-                const vestingAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
                 // Find and get removeVestee entrypoint of Vesting contract
                 const updateVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2696,14 +2508,7 @@ block {
         |   ToggleVesteeLock(vesteeAddress) -> {
 
                 // Find and get vesting contract address from the generalContracts map
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "vesting", s.governanceAddress);
-                const vestingAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const vestingAddress : address = getContractAddressFromGovernanceContract("vesting", s.governanceAddress, error_VESTING_CONTRACT_NOT_FOUND);
 
                 // Find and get removeVestee entrypoint of Vesting contract
                 const toggleVesteeLockEntrypoint = case (Tezos.get_entrypoint_opt(
