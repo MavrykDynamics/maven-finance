@@ -52,7 +52,7 @@ import {
   RightSideSubContent,
   RightSideSubHeader,
 } from './Governance.style'
-import { EmptyContainer } from '../../app/App.style'
+import { EmptyContainer, InfoBlock } from '../../app/App.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 import {
   WAITING_PROPOSALS_LIST_NAME,
@@ -239,6 +239,8 @@ export const GovernanceView = ({
 
   const rightSideContentStatus = statusInfo.statusFlag
 
+  const isInfoBlock = rightSideContentStatus === 'UNLOCKED'
+
   const [firstVisibleProposal, setFirstVisibleProposal] = useState<string>('')
   const someVisible = Object.values(visibleLists).some((item) => item)
 
@@ -370,11 +372,28 @@ export const GovernanceView = ({
             <h1>{rightSideContent.title}</h1>
             <StatusFlag text={rightSideContentStatus} status={rightSideContentStatus} />
           </GovRightContainerTitleArea>
+
           {votingEnding ? (
             <RightSideSubContent id="votingDeadline">
               Voting {isEndedVotingTime ? 'ended' : 'ending'} on <Time value={votingTime} format="F d\t\h" />{' '}
               {timeFormat} CEST
             </RightSideSubContent>
+          ) : null}
+
+          {isInfoBlock ? (
+            <InfoBlock className="info-block">
+              <Icon id="info" />
+              {userIsSatellite ? (
+                <p>
+                  Your proposal isn’t locked yet and can’t be voted on. You can lock it on the proposal submission page.
+                </p>
+              ) : (
+                <p>
+                  This proposal isn’t locked yet and can’t be voted on until then. The proposer is still building it and
+                  will lock it in the coming days
+                </p>
+              )}
+            </InfoBlock>
           ) : null}
 
           <div className="voting-proposal">
