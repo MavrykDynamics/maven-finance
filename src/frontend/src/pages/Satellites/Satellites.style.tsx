@@ -4,3 +4,8 @@ import { MavrykTheme } from '../../styles/interfaces'
 export const SatellitesStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
 `
+export const InfoBlockWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+`

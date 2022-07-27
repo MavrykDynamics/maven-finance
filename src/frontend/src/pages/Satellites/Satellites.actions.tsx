@@ -5,11 +5,10 @@ import { State } from 'reducers'
 import { DELEGATION_STORAGE_QUERY, DELEGATION_STORAGE_QUERY_NAME, DELEGATION_STORAGE_QUERY_VARIABLE } from 'gql/queries'
 import { fetchFromIndexerWithPromise } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
   try {
     const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
       DELEGATION_STORAGE_QUERY,
@@ -139,6 +138,35 @@ export const undelegate = () => async (dispatch: any, getState: any) => {
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
       type: UNDELEGATE_ERROR,
+      error,
+    })
+  }
+}
+
+export const GET_ORACLES_STORAGE = 'GET_ORACLES_STORAGE'
+
+export const REGISTER_FEED = 'REGISTER_FEED'
+export const REGISTER_FEED_ERROR = 'REGISTER_FEED_ERROR'
+export const registerFeedAction = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot register feed', ''))
+    return
+  }
+
+  try {
+    // TODO: Implement this action ORACLES_SI
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: REGISTER_FEED_ERROR,
       error,
     })
   }

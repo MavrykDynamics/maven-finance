@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 import { Card, headerColor, cyanColor } from 'styles'
 
 export const SatellitePaginationStyled = styled(Card)`
-  margin-top: 0;
+  margin-top: 30px;
   margin-bottom: 20px;
   display: flex;
   align-items: center;

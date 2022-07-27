@@ -31,8 +31,8 @@ import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 
 // actions
-import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
+import { getTotalDelegatedMVK } from 'pages/Satellites/helpers/Satellites.consts'
 
 // style
 import { SatelliteGovernanceStyled } from './SatelliteGovernance.style'
