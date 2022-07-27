@@ -15,6 +15,7 @@ import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
 import { AppStyled, LoaderStyled } from './App.style'
 import animationData from './ship-loop.json'
+import { getGovernanceStorage } from '../../src/pages/Governance/Governance.actions'
 
 export const store = configureStore({})
 
@@ -24,6 +25,7 @@ const AppContainer = () => {
   const loading = useSelector((state: State) => state.loading)
   useEffect(() => {
     dispatch(onStart())
+    dispatch(getGovernanceStorage())
     // For using Beacon wallet, replace following lines with dispatch(setWallet())
     return TempleWallet.onAvailabilityChange((available) => {
       if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
