@@ -61,7 +61,6 @@ export const Governance = () => {
 
   useEffect(() => {
     dispatch(getCurrentRoundProposals())
-    dispatch(getGovernanceStorage())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getDelegationStorage())
   }, [dispatch])

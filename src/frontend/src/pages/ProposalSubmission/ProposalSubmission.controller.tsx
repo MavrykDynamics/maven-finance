@@ -20,9 +20,9 @@ export const ProposalSubmission = () => {
 
   const locked = Boolean(findUserCurrentRoundProposal?.locked)
 
-  useEffect(() => {
-    dispatch(getGovernanceStorage())
-  }, [dispatch, accountPkh])
+  // useEffect(() => {
+  //   dispatch(getGovernanceStorage())
+  // }, [accountPkh])
 
   const handleChangeTab = (tabId: number) => {
     setActiveTab(tabId)
