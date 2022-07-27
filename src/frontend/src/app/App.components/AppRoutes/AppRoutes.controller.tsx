@@ -6,7 +6,6 @@ import { State } from 'reducers'
 import ProtectedRoute from './ProtectedRoute'
 import { Doorman } from '../../../pages/Doorman/Doorman.controller'
 import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
-import { Satellites } from '../../../pages/Satellites/Satellites.controller'
 import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.controller'
 import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetails.controller'
 import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
@@ -21,6 +20,12 @@ import { Admin } from '../../../pages/Admin/Admin.controller'
 import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
 import { Council } from '../../../pages/Council/Council.controller'
 import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
+import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
+import Satellites from 'pages/Satellites/Satellites.controller'
+import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
+import DataFeedDetails from 'pages/DataFeeds/details/DataFeedsDetails.controler'
+import Users from 'pages/UsersOracles/Users.controller'
+import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -50,8 +55,11 @@ export const AppRoutes = () => {
       <Route exact path="/become-satellite">
         <BecomeSatellite />
       </Route>
-      <Route exact path="/satellite-details/:satelliteId">
+      <Route exact path="/satellite-details/:satelliteId/">
         <SatelliteDetails />
+      </Route>
+      <Route exact path="/feed-details/:feedId/">
+        <DataFeedDetails />
       </Route>
       <Route exact path="/governance">
         <Governance />
@@ -74,6 +82,12 @@ export const AppRoutes = () => {
       <Route exact path="/mavryk-council">
         <Council />
       </Route>
+      <Route exact path="/users">
+        <Users />
+      </Route>
+      <Route exact path="/user-details/:userId/">
+        <UserDetails />
+      </Route>
       <ProtectedRoute
         path="/submit-proposal"
         component={ProposalSubmission}
@@ -84,6 +98,12 @@ export const AppRoutes = () => {
       />
       <Route exact path="/treasury">
         <Treasury />
+      </Route>
+      <Route exact path="/satellite-nodes">
+        <SatelliteNodes />
+      </Route>
+      <Route exact path="/data-feeds">
+        <DataFeeds />
       </Route>
       <Route exact path="/loans">
         <Loans />

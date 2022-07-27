@@ -10,13 +10,13 @@ import type { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governan
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
 import { getGovernanceStorage, getCurrentRoundProposals, startNextRound, executeProposal } from './Governance.actions'
+import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // view
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
-import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { MoveNextRoundModal } from './MoveNextRoundModal/MoveNextRoundModal.controller'
 
 // utils
