@@ -77,7 +77,10 @@ type vaultType is [@layout:comb] record [
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;   // tez/token balance
     
-    loanOutstanding             : nat;                
+    loanOutstandingTotal        : nat;                           // total amount debt (principal + interest)
+    loanPrincipalTotal          : nat;                           // total amount principal
+    loanInterestTotal           : nat;                           // total amount interest
+
     loanToken                   : string;                        // e.g. USDT, EURL,  
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
 

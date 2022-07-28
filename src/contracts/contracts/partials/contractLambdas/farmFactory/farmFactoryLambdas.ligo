@@ -395,7 +395,7 @@ block{
                     accumulatedRewardsPerShare  = 0n;
                     claimedRewards              = farmClaimedRewards;
                     depositorLedger             = big_map[];
-                    open                        = True ;
+                    open                        = True;
                     init                        = True;
                     initBlock                   = Tezos.get_level();
 
