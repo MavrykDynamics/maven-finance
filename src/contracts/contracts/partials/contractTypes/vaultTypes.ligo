@@ -14,36 +14,6 @@ type vaultHandleType is [@layout:comb] record [
     owner   : address;
 ]
 
-type transferDestination is [@layout:comb] record[
-  to_       : address;
-  token_id  : nat;
-  amount    : tokenAmountType;
-]
-type transfer is [@layout:comb] record[
-  from_     : address;
-  txs       : list(transferDestination);
-]
-type fa2TransferType  is list(transfer)
-type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
-
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress    : address;
-  tokenId                 : nat;
-]
-
-type tokenType is
-| Tez          of unit
-| Fa12         of fa12TokenType   // address
-| Fa2          of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
-
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
-
 // type vaultWithdrawTezType is tez * contract(unit)
 type vaultDelegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address

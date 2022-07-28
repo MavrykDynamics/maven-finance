@@ -276,6 +276,17 @@ function getOnRepayEntrypointInTokenPoolContract(const contractAddress : address
             |   None -> (failwith(error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onRepayActionType))
         ];
 
+
+// helper function to get %updateRewards entrypoint in Token Pool Contract
+function getUpdateRewardsEntrypointInTokenPoolContract(const contractAddress : address) : contract(updateRewardsActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateRewards",
+        contractAddress) : option(contract(updateRewardsActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateRewardsActionType))
+        ];
+
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
