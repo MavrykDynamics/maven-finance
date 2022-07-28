@@ -873,15 +873,11 @@ block {
                 // ------------------------------------------------------------------
 
                 // Get the satellite total voting power and check if it needs to be updated for the current cycle or not
-                const totalVotingPowerAndSatelliteUpdate: (nat * option(operation)) = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), s);
+                const totalVotingPowerAndSatelliteUpdate: (nat * list(operation))   = getTotalVotingPowerAndUpdateSnapshot(Tezos.get_sender(), operations, s);
                 const totalVotingPower : nat                                        = totalVotingPowerAndSatelliteUpdate.0;
 
                 // Update the satellite snapshot on the governance contract if it needs to
-                const updateSnapshotOperationOpt: option(operation) = totalVotingPowerAndSatelliteUpdate.1;
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations                                                          := totalVotingPowerAndSatelliteUpdate.1;
 
                 // ------------------------------------------------------------------
                 // Compute vote

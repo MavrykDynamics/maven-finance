@@ -2,7 +2,7 @@
 #include "../partials/shared/transferTypes.ligo"
 
 // Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+#include "../partials/shared/sharedHelpers.ligo"
 
 // MvkToken types for transfer
 #include "../partials/contractTypes/mvkTokenTypes.ligo"

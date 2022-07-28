@@ -10,13 +10,13 @@
 // ------------------------------------------------------------------------------
 
 // Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+#include "../partials/shared/sharedHelpers.ligo"
 
 // Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+#include "../partials/shared/transferHelpers.ligo"
 
 // Permission Methods
-#include "../partials/shared/permissionMethods.ligo"
+#include "../partials/shared/permissionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -319,11 +319,8 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const s: governanceFinancialStorageType): (nat * option(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; var operationList : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
 block{
-    
-    // Init the return value
-    var updateSnapshotOperation: option(operation)  := (None : option(operation));
 
     // Get the snapshot from the governance contract
     const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
@@ -383,13 +380,12 @@ block{
         ];
 
         // Send the snapshot to the governance contract
-        updateSnapshotOperation := Some (
-            Tezos.transaction(
-                (satelliteSnapshotParams),
-                0tez, 
-                sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
-            )
+        const updateSnapshotOperation : operation   = Tezos.transaction(
+            (satelliteSnapshotParams),
+            0tez, 
+            sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
         );
+        operationList   := updateSnapshotOperation # operationList;
 
         // Pre-calculate the total voting power of the satellite
         var maxTotalVotingPower: nat := _satelliteRecord.stakedMvkBalance * 10000n / delegationRatio;
@@ -405,7 +401,7 @@ block{
     |   None                -> skip
     ];
 
-} with(totalVotingPower, updateSnapshotOperation)
+} with(totalVotingPower, operationList)
 
 
 

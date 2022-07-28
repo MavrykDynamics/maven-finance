@@ -10,13 +10,13 @@
 // ------------------------------------------------------------------------------
 
 // Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+#include "../partials/shared/sharedHelpers.ligo"
 
 // Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+#include "../partials/shared/transferHelpers.ligo"
 
 // Permission Methods
-#include "../partials/shared/permissionMethods.ligo"
+#include "../partials/shared/permissionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types

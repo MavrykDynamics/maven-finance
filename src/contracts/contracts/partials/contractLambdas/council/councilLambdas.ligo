@@ -330,7 +330,7 @@ block {
 
                 // create council action
                 s   := createCouncilAction(
-                    "removeCouncilMember",
+                    "changeCouncilMember",
                     addressMap,
                     stringMap,
                     emptyNatMap,
@@ -911,6 +911,16 @@ block {
                 const emptyStringMap : stringMapType        = map [];
                 const natMap : natMapType                   = map [
                     ("requestId"           : string) -> requestId;
+                ];
+
+                // check if request exists
+                const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
+                case (Tezos.call_view ("getFinancialRequestOpt", requestId, governanceFinancialAddress) : option(option(financialRequestRecordType))) of [
+                        Some (_requestOpt)  -> case _requestOpt of [
+                                Some (_request) -> skip
+                            |   None            -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
+                        ]
+                    |   None                -> failwith(error_GET_FINANCIAL_REQUEST_OPT_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
                 ];
 
                 // create council action

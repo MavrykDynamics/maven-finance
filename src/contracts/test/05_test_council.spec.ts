@@ -172,7 +172,7 @@
 //                 assert.strictEqual(newAdmin, alice.pkh);
 //                 assert.strictEqual(currentAdmin, bob.pkh);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -193,7 +193,7 @@
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     });
@@ -220,7 +220,7 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -242,7 +242,7 @@
 //                 assert.notEqual(newConfigValue, currentConfigValue);
 //                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -263,7 +263,7 @@
 //                 // Assertions
 //                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
     
@@ -277,7 +277,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(councilInstance.methods.updateConfig(newConfigValue,"configThreshold").send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -314,7 +314,7 @@
 //                 assert.notStrictEqual(councilMember.image, oldMemberImage);
 //                 assert.notStrictEqual(councilMember.website, oldMemberWebsite);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -330,7 +330,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     });
@@ -378,7 +378,7 @@
 //                 const signOperation = await councilInstance.methods.signAction(nextActionID).send();
 //                 await signOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -394,7 +394,7 @@
 //                 // Operation                
 //                 await chai.expect(councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -421,7 +421,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -438,7 +438,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionAddVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -458,7 +458,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -482,7 +482,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -496,7 +496,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -531,7 +531,7 @@
 //                 const signOperation = await councilInstance.methods.signAction(nextActionID).send();
 //                 await signOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -595,7 +595,7 @@
 //                 assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
 //                 assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -611,7 +611,7 @@
 //                 // Operation                
 //                 await chai.expect(councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -638,7 +638,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -655,7 +655,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -691,7 +691,7 @@
 //                 assert.equal(action.signersCount, 1);
 //                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -704,7 +704,7 @@
 //                 // Operation                
 //                 await chai.expect(councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -728,7 +728,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -742,7 +742,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -785,7 +785,7 @@
 //                 assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
 //                 assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -801,7 +801,7 @@
 //                 // Operation                
 //                 await chai.expect(councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -818,7 +818,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -854,7 +854,7 @@
 //                 assert.equal(action.signersCount, 1);
 //                 assert.equal(addressMap.get("councilMemberAddress"), newMember);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -879,7 +879,7 @@
 //                 var updateConfigOperation   = await councilInstance.methods.updateConfig(currentThreshold,"configThreshold").send();
 //                 await updateConfigOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -893,7 +893,7 @@
 //                 // Operation                
 //                 await chai.expect(councilInstance.methods.councilActionRemoveMember(newMember).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -907,7 +907,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionRemoveMember(newMember).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -948,7 +948,7 @@
 //                 assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMember);
 //                 assert.equal(addressMap.get("newCouncilMemberAddress"), newMember);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -965,7 +965,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -982,7 +982,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1000,7 +1000,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -1054,7 +1054,7 @@
 //                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
 //                 assert.equal(natMap.get("tokenId"), tokenId);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -1079,7 +1079,7 @@
 //                     purpose).send()
 //                 ).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1105,7 +1105,7 @@
 //                     purpose).send()
 //                 ).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -1162,7 +1162,7 @@
 //                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
 //                 assert.equal(natMap.get("tokenId"), tokenId);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1189,7 +1189,7 @@
 //                     purpose).send()
 //                 ).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1217,7 +1217,7 @@
 //                     purpose).send()
 //                 ).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -1261,8 +1261,13 @@
 //                 assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
 //                 assert.equal(stringMap.get("purpose"), purpose);
 //                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+//                 // Sign action for later drop 
+//                 await signerFactory(bob.sk)
+//                 const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+//                 await signOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1282,7 +1287,7 @@
 //                     purpose).send()
 //                 ).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -1296,7 +1301,8 @@
 //             try{
 //                 // Initial Values
 //                 councilStorage              = await councilInstance.storage();
-//                 const requestID             = councilStorage.actionCounter - 1;
+//                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
+//                 const requestID             = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
 //                 const nextActionID          = councilStorage.actionCounter;
 
 //                 // Operation
@@ -1318,7 +1324,7 @@
 //                 assert.equal(action.signersCount, 1);
 //                 assert.equal(natMap.get("requestId"), requestID);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -1331,7 +1337,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(requestID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -1437,7 +1443,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(mintActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -1505,7 +1511,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1519,7 +1525,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(requestID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -1533,7 +1539,7 @@
 //             try{
 //                 // Initial Values
 //                 councilStorage              = await councilInstance.storage();
-//                 const requestID             = 1;
+//                 const requestID             = 4;
 //                 const nextActionID          = councilStorage.actionCounter;
 
 //                 // Operation
@@ -1555,7 +1561,7 @@
 //                 assert.equal(action.signersCount, 1);
 //                 assert.equal(natMap.get("actionId"), requestID);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1568,7 +1574,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(requestID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1657,7 +1663,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(councilInstance.methods.flushAction(memberActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1715,7 +1721,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(councilInstance.methods.flushAction(memberActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1729,7 +1735,7 @@
 //                 await signerFactory(isaac.sk);
 //                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(requestID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })
@@ -1803,7 +1809,7 @@
 //                 assert.equal(vestee.cliffMonths, cliffInMonths);
 //                 assert.equal(vestee.vestingMonths, vestingInMonths);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1852,7 +1858,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1901,7 +1907,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -1969,7 +1975,7 @@
 //                 assert.equal(vestee.cliffMonths, cliffInMonths);
 //                 assert.equal(vestee.vestingMonths, vestingInMonths);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2011,7 +2017,7 @@
 //                 updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2069,7 +2075,7 @@
 //                 assert.notStrictEqual(vestee, undefined);
 //                 assert.strictEqual(vestee.status, "LOCKED")
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2111,7 +2117,7 @@
 //                 var updateOperation = await governanceInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
 //                 await updateOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2165,7 +2171,7 @@
 //                 assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
 //                 assert.strictEqual(vestee, undefined);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2225,7 +2231,7 @@
 //                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
 //                 assert.equal(memberUpdated, true);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2255,7 +2261,7 @@
 //                 await signerFactory(bob.sk)
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2312,7 +2318,7 @@
 //                 updateConfigOperation = await councilInstance.methods.updateConfig(oldThresold,"configThreshold").send();
 //                 await updateConfigOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2369,7 +2375,7 @@
 //                 assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
 //                 assert.equal(memberUpdated, false);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2399,7 +2405,7 @@
 //                 await signerFactory(bob.sk)
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2470,7 +2476,7 @@
 //                 assert.equal(memberRemoved, false);
 //                 assert.equal(memberAdded, true);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2502,7 +2508,7 @@
 //                 await signerFactory(bob.sk)
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2534,7 +2540,7 @@
 //                 await signerFactory(bob.sk)
 //                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2618,7 +2624,7 @@
 //                 assert.equal(postUserBalance.toNumber(), preUserBalance.toNumber() + tokenAmount);
 //                 assert.equal(postCouncilBalance.toNumber(), preCouncilBalance.toNumber() - tokenAmount);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2702,7 +2708,7 @@
 //                 assert.equal(natMap.get("tokenId"), tokenId);
 //                 assert.notStrictEqual(governanceAction, undefined);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2770,7 +2776,7 @@
 //                 assert.equal(natMap.get("tokenAmount"), tokenAmount);
 //                 assert.notStrictEqual(governanceAction, undefined);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
         
@@ -2824,7 +2830,7 @@
 //                 assert.equal(natMap.get("requestId"), requestID);
 //                 assert.equal(dropAction.status, false);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -2914,7 +2920,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.signAction(flushActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3013,7 +3019,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.signAction(flushActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3102,7 +3108,7 @@
 //                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
 //                 assert.strictEqual(flushedAction.status, "FLUSHED");
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3118,7 +3124,7 @@
 //                 const flushedAction = await councilStorage.councilActionsLedger.get(flushedActionID);
 //                 assert.strictEqual(flushedAction.status, "FLUSHED");
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3134,7 +3140,7 @@
 //                 const executedAction = await councilStorage.councilActionsLedger.get(executedActionID);
 //                 assert.strictEqual(executedAction.status, "EXECUTED");
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3148,7 +3154,7 @@
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.signAction(flushedActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3192,7 +3198,7 @@
 //                 await signerFactory(trudy.sk);
 //                 await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 
@@ -3236,7 +3242,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5});
 //             }
 //         });
 //     })

@@ -10,13 +10,13 @@
 // ------------------------------------------------------------------------------
 
 // Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+#include "../partials/shared/sharedHelpers.ligo"
 
 // Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+#include "../partials/shared/transferHelpers.ligo"
 
 // Permission Methods
-#include "../partials/shared/permissionMethods.ligo"
+#include "../partials/shared/permissionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -397,11 +397,8 @@ block {
 } with satelliteRecord
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddress: address; const ready: bool; const s: delegationStorageType) : option(operation) is
+function updateGovernanceSnapshot (const satelliteAddress : address; const ready : bool; var operationList : list(operation); const s : delegationStorageType) : list(operation) is
 block {
-
-    // Init the return value
-    var updateSnapshotOperation: option(operation)  := (None : option(operation));
 
     // Get the current round and the satellite snapshot opt
     const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
@@ -439,17 +436,17 @@ block {
         ];
 
         // Send the snapshot to the governance contract
-        updateSnapshotOperation := Some (
-            Tezos.transaction(
-                (satelliteSnapshotParams),
-                0tez, 
-                sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
-            )
+        const updateSnapshotOperation : operation   = Tezos.transaction(
+            (satelliteSnapshotParams),
+            0tez, 
+            sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
         );
+
+        operationList   := updateSnapshotOperation # operationList;
 
     } else skip;
 
-} with(updateSnapshotOperation)
+} with(operationList)
 
 // ------------------------------------------------------------------------------
 // Satellite Helper Functions End
