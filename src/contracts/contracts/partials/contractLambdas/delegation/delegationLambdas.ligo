@@ -655,7 +655,7 @@ block {
                 s.satelliteLedger[userAddress] := satelliteRecord;
 
                 // Update or create a satellite rewards record
-                var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+                var satelliteRewardsRecord : satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
                         Some (_rewards) -> _rewards
                     |   None -> record [
                             unpaid                                      = 0n;

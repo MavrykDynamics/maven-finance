@@ -246,6 +246,9 @@ block {
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
     checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
+    // init operations
+    var operations : list(operation) := nil;
+
     case tokenPoolLambdaAction of [
         |   LambdaAddLiquidity(addLiquidityParams) -> {
                 
@@ -253,7 +256,6 @@ block {
                 const tokenName           : nat                 = addLiquidityParams.tokenName;
                 const tokensDeposited     : nat                 = addLiquidityParams.tokensDeposited;
                 const owner               : address             = addLiquidityParams.owner; 
-                var operations            : list(operation)    := nil;
 
                 // check that no tez is sent
                 checkNoAmount(Unit);
@@ -304,6 +306,9 @@ block {
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
     checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
+    // init operations
+    var operations : list(operation) := nil;
+
     case tokenPoolLambdaAction of [
         |   LambdaRemoveLiquidity(removeLiquidityParams) -> {
                 
@@ -311,7 +316,6 @@ block {
                 const tokensName            : nat                 = addLiquidityParams.tokenName;
                 const tokensWithdrawn       : nat                 = removeLiquidityParams.tokensWithdrawn;
                 const recipient             : address             = removeLiquidityParams.to_; 
-                var operations              : list(operation)    := nil;    
 
                 // check that no tez is sent
                 checkNoAmount(Unit);
@@ -346,9 +350,9 @@ block {
                 const withdrawnTokensToSenderOperation : operation = transferFa2Token(
                     Tezos.get_self_address(),     // from_
                     Tezos.get_sender(),           // to_
-                    tokensWithdrawn,        // token amount
-                    tokenId,                // token id
-                    tokenContractAddress    // token contract address
+                    tokensWithdrawn,              // token amount
+                    tokenId,                      // token id
+                    tokenContractAddress          // token contract address
                 );
                 operations := withdrawnTokensToSenderOperation # operations;
 
@@ -382,6 +386,9 @@ block {
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
     checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
+    // init operations
+    var operations : list(operation) := nil;
+
     case tokenPoolLambdaAction of [
         |   LambdaOnBorrow(onBorrowParams) -> {
                 
@@ -393,9 +400,6 @@ block {
                 const borrower         : address  = onBorrowParams.borrower;         // borrower address
                 const finalLoanAmount  : nat      = onBorrowParams.finalLoanAmount;  // final amount borrower will receive sans fees
                 const totalFees        : nat      = onBorrowParams.totalFees;        // total fees for the loan
-
-                // init operations
-                var operations : list(operation) := nil;
 
                 // calculate total token quantity (i.e. loan amount (token quantity) without fees deducted)
                 const totalTokenQuantity : nat = finalLoanAmount + totalFees;
@@ -484,6 +488,9 @@ block {
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
     checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
+    // init operations
+    var operations : list(operation) := nil;
+
     case tokenPoolLambdaAction of [
         |   LambdaOnRepay(onRepayParams) -> {
                 
@@ -518,11 +525,11 @@ block {
 
                 // transfer repayment amount from borrower to token pool
                 const transferRepaymentAmountToTokenPoolOperation : operation = transferFa2Token(
-                    repayer,  
-                    Tezos.get_self_address(),
-                    repayAmount,
-                    tokenRecord.tokenId,
-                    tokenRecord.tokenContractAddress
+                    repayer,                            // from_
+                    Tezos.get_self_address(),           // to_
+                    repayAmount,                        // amount
+                    tokenRecord.tokenId,                // token id
+                    tokenRecord.tokenContractAddress    // token contract
                 );
 
                 // ------------------------------------------------------------------
@@ -544,6 +551,205 @@ block {
 // ------------------------------------------------------------------------------
 // Lending Lambdas End
 // ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Rewards Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(* claimRewards lambda *)
+function lambdaClaimRewards(const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+
+    // init operations
+    var operations : list(operation) := nil;
+
+    case tokenPoolLambdaAction of [
+        |   LambdaClaimRewards(claimRewardsParams) -> {
+                
+                // init params
+                const tokenName        : string   = claimRewardsParams.tokenName;
+                const userAddress      : address  = claimRewardsParams.userAddress;         
+                
+                // Get user's rewards record
+                var userRewardsRecord : rewardsRecordType := case Big_map.find_opt(userAddress, s.rewardsLedger) of [
+                        Some (_record) -> _record
+                    |   None           -> failwith(error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND)
+                ];
+                
+                const unpaidAmount : userRewardsRecord.unpaid;
+
+                // Get token record
+                const tokenRecord : tokenRecordType  = case Big_map.find_opt(tokenName, s.tokenLedger) of [
+                        Some (_tokenRecord) -> _tokenRecord
+                    |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                // ------------------------------------------------------------------
+                // Process Transfers
+                // ------------------------------------------------------------------
+
+                // Get Token Pool Reward Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPoolReward", s.governanceAddress);
+                const tokenPoolRewardAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get reward token type
+                const rewardTokenType : tokenType = Fa2(record [
+                    tokenContractAddress  = tokenRecord.tokenContractAddress;
+                    tokenId               = tokenRecord.tokenId;
+                ]);
+
+                // Create Transfer Rewards Params
+                const transferRewardsParams : transferActionType = list [
+                    record [
+                        to_        = userAddress;
+                        token      = rewardTokenType;
+                        amount     = unpaidAmount;
+                    ]
+                ];
+
+                const transferRewardsOperation : operation = Tezos.transaction(
+                    transferTokenParams, 
+                    0tez, 
+                    getTransferEntrypointInTokenPoolRewardContract(tokenPoolRewardAddress) 
+                );
+
+                operations := transferRewardsOperation # operations;
+
+                // ------------------------------------------------------------------
+                // Update storage
+                // ------------------------------------------------------------------
+
+                userRewardsRecord.unpaid            := 0n;
+                userRewardsRecord.paid              := userRewardsRecord.paid + unpaidAmount;
+                userRewardsRecord.rewardsPerShare   := tokenRecord.accumulatedRewardsPerShare;
+
+                s.rewardsLedger[userAddress] := userRewardsRecord;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* updateRewards lambda *)
+function lambdaUpdateRewards(const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+
+    // init operations
+    var operations : list(operation) := nil;
+
+    case tokenPoolLambdaAction of [
+        |   LambdaUpdateRewards(updateRewardsParams) -> {
+                
+                // init params
+                const tokenName     : string   = updateRewardsParams.tokenName;
+                const amount        : nat      = updateRewardsParams.amount;
+
+                // Get token record
+                var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
+                        Some (_tokenRecord) -> _tokenRecord
+                    |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+                ];
+
+                // Get token pool total
+                const tokenPoolTotal : nat = tokenRecord.tokenPoolTotal;
+
+                // Calculate increment in share
+                const shareIncrement : nat = ((amount * fixedPointAccuracy) / tokenPoolTotal) / fixedPointAccuracy;
+
+                // Update accumulated rewards per share
+                tokenRecord.accumulatedRewardsPerShare := tokenRecord.accumulatedRewardsPerShare + shareIncrement;
+
+                // Update storage
+                s.tokenLedger[tokenName] := tokenRecord;
+                
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+// ------------------------------------------------------------------------------
+// Rewards Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Misc Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(* transfer lambda *)
+function lambdaTransfer(const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+
+    if checkInWhitelistContracts(Tezos.get_sender(), s.whitelistContracts) or Tezos.get_sender() = Tezos.get_self_address() then skip
+    else failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED);
+
+    // init operations
+    var operations : list(operation) := nil;
+
+    case tokenPoolLambdaAction of [
+        |   LambdaTransfer(transferParams) -> {
+
+                // break glass check
+                checkTransferIsNotPaused(s);
+
+                // const txs : list(transferDestinationType)   = transferTokenParams.txs;
+                const txs : list(transferDestinationType)   = transferTokenParams;
+                
+                const whitelistTokenContracts   : whitelistTokenContractsType   = s.whitelistTokenContracts;
+
+                function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
+                block {
+
+                    const token        : tokenType        = destination.token;
+                    const to_          : ownerType        = destination.to_;
+                    const amt          : tokenAmountType  = destination.amount;
+                    const from_        : address          = Tezos.get_self_address(); // token pool
+                    
+                    const transferTokenOperation : operation = case token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt * 1mutez)
+                        | Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
+                        | Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                    ];
+
+                    accumulator := transferTokenOperation # accumulator;
+
+                } with accumulator;
+
+                const emptyOperation : list(operation) = list[];
+                operations := List.fold(transferAccumulator, txs, emptyOperation);
+                
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+// ------------------------------------------------------------------------------
+// Misc Lambdas End
+// ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 //

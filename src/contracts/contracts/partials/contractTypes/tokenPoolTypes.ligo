@@ -14,11 +14,22 @@ type tokenIdType        is nat;
 // Storage Types
 // ------------------------------------------------------------------------------
 
-type tokenPoolConfigType is [@layout:comb] record [
-    
-    default : nat;
 
+type tokenPoolConfigType is [@layout:comb] record [    
+    default : nat;
 ]
+
+
+type rewardsRecordType is [@layout:comb] record[
+    unpaid            : nat;
+    paid              : nat;
+    rewardsPerShare   : nat;    
+]
+type rewardsLedgerType is big_map((address * string), rewardsRecordType)        // key - user address and token name e.g. USDT, EURL
+type accumulatedRewardsLedgerType is big_map(string, nat)                   
+
+
+type depositorLedgerType is big_map((address * string), nat)                    // key - user address and token name e.g. USDT, EURL
 
 
 type tokenPoolBreakGlassConfigType is record [
@@ -49,9 +60,23 @@ type tokenRecordType is [@layout:comb] record [
     tokenPoolTotal              : nat;  // sum of totalBorrowed and totalRemaining
     totalBorrowed               : nat; 
     totalRemaining              : nat; 
+
+    utilisationRate                         : nat;
+    optimalUtilisationRate                  : nat;  // kink point
+    baseInterestRate                        : nat;  // base interest rate
+    maxInterestRate                         : nat;  // max interest rate
+    interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
+    interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+
+    currentInterestrate         : nat;
+
+    lastUpdatedBlockLevel       : nat; 
+
+    accumulatedRewardsPerShare  : nat;
     
 ]
 
+type tokenLedgerType is big_map(string, tokenRecordType)
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -103,6 +128,18 @@ type tokenPoolTogglePauseEntrypointType is [@layout:comb] record [
     empty             : unit
 ];
 
+
+type claimRewardsActionType is [@layout:comb] record [
+    userAddress     : address;
+    tokenName       : string;
+]
+
+
+type updateRewardsActionType is [@layout:comb] record [
+    tokenName       : string;
+    amount          : nat;
+]
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -124,8 +161,12 @@ type tokenPoolLambdaActionType is
     |   LambdaRemoveLiquidity           of removeLiquidityActionType
 
         // Lending Entrypoints
-    |   OnBorrow                        of onBorrowActionType
-    |   OnRepay                         of onRepayActionType
+    |   LambdaOnBorrow                  of onBorrowActionType
+    |   LambdaOnRepay                   of onRepayActionType
+
+        // Rewards Entrypoints
+    |   LambdaClaimRewards              of claimRewardsActionType
+    |   LambdaUpdateRewards             of updateRewardsActionType
     
 
 // ------------------------------------------------------------------------------
@@ -146,7 +187,9 @@ type tokenPoolStorage is [@layout:comb] record [
     generalContracts            : generalContractsType;
     whitelistTokenContracts     : whitelistTokenContractsType;      
     
-    tokenLedger                 : big_map(string, tokenRecordType);
+    tokenLedger                 : tokenLedgerType;
+    rewardsLedger               : rewardsLedgerType;
+    depositorLedger             : depositorLedgerType;
 
     lambdaLedger                : lambdaLedgerType;   
 ]
