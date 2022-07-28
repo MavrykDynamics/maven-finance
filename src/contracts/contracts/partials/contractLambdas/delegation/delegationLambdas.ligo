@@ -329,11 +329,7 @@ block {
                 checkUserIsNotSatellite(userAddress, s);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(satelliteAddress, True, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations  := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 
                 // Update user's unclaimed satellite rewards (in the event user is already delegated to another satellite)
                 s := updateRewards(userAddress, s);
@@ -488,11 +484,7 @@ block {
                 ];
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(_delegateRecord.satelliteAddress, True, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations  := updateGovernanceSnapshot(_delegateRecord.satelliteAddress, True, operations, s);
 
                 // Update unclaimed rewards for user
                 s := updateRewards(userAddress, s);
@@ -653,11 +645,7 @@ block {
                 s.satelliteCounter              := s.satelliteCounter + 1n;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, False, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations  := updateGovernanceSnapshot(userAddress, False, operations, s);
 
                 // Update or create a satellite rewards record
                 var satelliteRewardsRecord: satelliteRewardsType  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
@@ -712,11 +700,7 @@ block {
                 checkSatelliteStatus(userAddress, delegationAddress, True, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
 
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
@@ -760,12 +744,8 @@ block {
                 checkSatelliteStatus(userAddress, delegationAddress, False, True);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
-
+                operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
+                
                 // Update user's unclaimed rewards
                 s := updateRewards(userAddress, s);
                 
@@ -973,11 +953,7 @@ block {
                 const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(userAddress, True, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
 
                 // Check that sender is the Doorman Contract
                 if doormanAddress = Tezos.get_sender() then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -1082,11 +1058,7 @@ block {
                             else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
 
                             // Update the satellite snapshot on the governance contract before updating its record
-                            const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(_delegatorRecord.satelliteAddress, True, s);
-                            case updateSnapshotOperationOpt of [
-                                Some (_updateOperation) -> operations   := _updateOperation # operations
-                            |   None                    -> skip
-                            ];
+                            operations  := updateGovernanceSnapshot(_delegatorRecord.satelliteAddress, True, operations, s);
 
                             // Update storage (user's delegate record and his delegated satellite record)
                             _delegatorRecord.delegatedStakedMvkBalance  := stakedMvkBalance;
@@ -1136,11 +1108,7 @@ block {
                 const newStatus         : string  = updateSatelliteStatusParams.newStatus;
 
                 // Update the satellite snapshot on the governance contract before updating its record
-                const updateSnapshotOperationOpt: option(operation) = updateGovernanceSnapshot(satelliteAddress, True, s);
-                case updateSnapshotOperationOpt of [
-                    Some (_updateOperation) -> operations   := _updateOperation # operations
-                |   None                    -> skip
-                ];
+                operations  := updateGovernanceSnapshot(satelliteAddress, True, operations, s);
 
                 // Get satellite record 
                 var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [

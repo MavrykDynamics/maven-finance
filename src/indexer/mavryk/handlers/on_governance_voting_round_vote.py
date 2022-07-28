@@ -28,6 +28,7 @@ async def on_governance_voting_round_vote(
     quorum_count                = float(storage_proposal.quorumCount)
     quorum_smvk_total           = float(storage_proposal.quorumStakedMvkTotal)
     satellite_snapshots         = voting_round_vote.storage.snapshotLedger
+    timestamp                   = voting_round_vote.data.timestamp
 
     # Get vote
     vote        = models.GovernanceVoteType.YAY
@@ -78,12 +79,13 @@ async def on_governance_voting_round_vote(
     await proposal.save()
     
     # Create a new vote
-    proposal_vote = models.GovernanceProposalRecordVote(
+    proposal_vote = await models.GovernanceProposalRecordVote.get_or_create(
         governance_proposal_record  = proposal,
         voter                       = voter,
-        round                       = current_round,
-        vote                        = vote,
-        voting_power                = governance_snapshot.total_voting_power,
-        current_round_vote          = True
+        round                       = current_round
     )
+    proposal_vote.vote                      = vote
+    proposal_vote.voting_power              = governance_snapshot.total_voting_power
+    proposal_vote.timestamp                 = timestamp
+    proposal_vote.current_round_vote        = True
     await proposal_vote.save()

@@ -721,7 +721,7 @@ block {
                 ];
 
                 // Check that satellite's total number of proposals does not exceed the maximum set in config (spam check)
-                if Set.cardinal(satelliteProposals) < s.config.maxProposalsPerSatellite then skip
+                if s.config.maxProposalsPerSatellite > Set.cardinal(satelliteProposals) then skip
                 else failwith(error_MAX_PROPOSAL_REACHED);
 
                 // Create new proposal record
