@@ -20,11 +20,8 @@ export const ProposalSubmission = () => {
 
   const locked = Boolean(findUserCurrentRoundProposal?.locked)
 
-  // useEffect(() => {
-  //   dispatch(getGovernanceStorage())
-  // }, [accountPkh])
-
   const proposalData = findUserCurrentRoundProposal?.proposalData
+  const proposalPayments = findUserCurrentRoundProposal?.proposalPayments
 
   const handleChangeTab = (tabId: number) => {
     setActiveTab(tabId)
@@ -42,6 +39,7 @@ export const ProposalSubmission = () => {
       proposalId={findUserCurrentRoundProposal?.id}
       proposalTitle={findUserCurrentRoundProposal?.title || ''}
       proposalData={proposalData}
+      proposalPayments={proposalPayments}
     />
   )
 }

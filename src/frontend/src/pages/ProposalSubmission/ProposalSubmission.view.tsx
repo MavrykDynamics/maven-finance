@@ -26,6 +26,7 @@ type ProposalSubmissionViewProps = {
   proposalId: number | undefined
   proposalTitle: string
   proposalData: ProposalDataType[] | undefined
+  proposalPayments: ProposalPaymentType[] | undefined
 }
 export const ProposalSubmissionView = ({
   locked,
@@ -34,6 +35,7 @@ export const ProposalSubmissionView = ({
   proposalId,
   proposalTitle,
   proposalData,
+  proposalPayments,
 }: ProposalSubmissionViewProps) => {
   return (
     <Page>
@@ -49,7 +51,14 @@ export const ProposalSubmissionView = ({
             proposalData={proposalData}
           />
         )}
-        {activeTab === 3 && <StageThreeForm locked={locked} proposalId={proposalId} proposalTitle={proposalTitle} />}
+        {activeTab === 3 && (
+          <StageThreeForm
+            locked={locked}
+            proposalId={proposalId}
+            proposalTitle={proposalTitle}
+            proposalPayments={proposalPayments}
+          />
+        )}
       </ProposalSubmissionForm>
     </Page>
   )
