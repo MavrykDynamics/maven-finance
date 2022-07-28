@@ -733,6 +733,7 @@ class GovernanceProposalRecordVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes', null=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
+    timestamp                               = fields.DatetimeField(null=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     voting_power                            = fields.FloatField()

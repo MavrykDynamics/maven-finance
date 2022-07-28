@@ -852,9 +852,6 @@
 //                     await signerFactory(alice.sk);
 //                     var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                     await signActionOperation.confirmation();
-//                     await signerFactory(eve.sk);
-//                     signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-//                     await signActionOperation.confirmation();
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }

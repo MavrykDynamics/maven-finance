@@ -10,13 +10,13 @@
 // ------------------------------------------------------------------------------
 
 // Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+#include "../partials/shared/sharedHelpers.ligo"
 
 // Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+#include "../partials/shared/transferHelpers.ligo"
 
 // Permission Methods
-#include "../partials/shared/permissionMethods.ligo"
+#include "../partials/shared/permissionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -263,11 +263,8 @@ block{
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; const s: governanceSatelliteStorageType): (nat * option(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operationList : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
 block{
-    
-    // Init the return value
-    var updateSnapshotOperation: option(operation)  := (None : option(operation));
 
     // Get the snapshot from the governance contract
     const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
@@ -323,13 +320,12 @@ block{
         ];
 
         // Send the snapshot to the governance contract
-        updateSnapshotOperation := Some (
-            Tezos.transaction(
-                (satelliteSnapshotParams),
-                0tez, 
-                sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
-            )
+        const updateSnapshotOperation : operation   = Tezos.transaction(
+            (satelliteSnapshotParams),
+            0tez, 
+            sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
         );
+        operationList   := updateSnapshotOperation # operationList;
 
         // Pre-calculate the total voting power of the satellite
         var maxTotalVotingPower: nat := _satelliteRecord.stakedMvkBalance * 10000n / delegationRatio;
@@ -345,7 +341,7 @@ block{
     |   None                -> skip
     ];
 
-} with(totalVotingPower, updateSnapshotOperation)
+} with(totalVotingPower, operationList)
 
 
 
@@ -839,31 +835,31 @@ function executeGovernanceSatelliteAction(var actionRecord : governanceSatellite
 block {
 
     // Governance: Suspend Satellite
-    if actionRecord.governanceType = "SUSPEND" then operationList      := triggerSuspendSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
+    if actionRecord.governanceType = "SUSPEND" then operationList                       := triggerSuspendSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
 
     // Governance: Ban Satellite
-    if actionRecord.governanceType = "BAN" then operationList          := triggerBanSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
+    if actionRecord.governanceType = "BAN" then operationList                           := triggerBanSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
 
     // Governance: Restore Satellite
-    if actionRecord.governanceType = "RESTORE" then operationList      := triggerRestoreSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
+    if actionRecord.governanceType = "RESTORE" then operationList                       := triggerRestoreSatelliteAction(actionRecord, delegationAddress, operationList, s) else skip;
 
     // Governance: Add Oracle To Aggregator
     if actionRecord.governanceType = "ADD_ORACLE_TO_AGGREGATOR" then block {
-        const addOracleToAggregatorActionTrigger : return       = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operationList, s);
+        const addOracleToAggregatorActionTrigger : return                               = triggerAddOracleToAggregatorSatelliteAction(actionRecord, operationList, s);
         s           := addOracleToAggregatorActionTrigger.1;
         operationList  := addOracleToAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove Oracle In Aggregator
     if actionRecord.governanceType = "REMOVE_ORACLE_IN_AGGREGATOR" then block {
-        const removeOracleInAggregatorActionTrigger : return    = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operationList, s);
+        const removeOracleInAggregatorActionTrigger : return                            = triggerRemoveOracleInAggregatorSatelliteAction(actionRecord, operationList, s);
         s           := removeOracleInAggregatorActionTrigger.1;
         operationList  := removeOracleInAggregatorActionTrigger.0;
     } else skip;
 
     // Governance: Remove All Satellite Oracles (in aggregators)
     if actionRecord.governanceType = "REMOVE_ALL_SATELLITE_ORACLES" then block {
-        const removeAllSatelliteOraclesActionTrigger : return    = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operationList, s);
+        const removeAllSatelliteOraclesActionTrigger : return                           = triggerRemoveAllSatelliteOraclesSatelliteAction(actionRecord, operationList, s);
         s           := removeAllSatelliteOraclesActionTrigger.1;
         operationList  := removeAllSatelliteOraclesActionTrigger.0;
     } else skip;
@@ -873,7 +869,7 @@ block {
 
     // Governance: Update Aggregator Status
     if actionRecord.governanceType = "UPDATE_AGGREGATOR_STATUS" then block {
-        const updateAggregatorStatusActionTrigger : return    = triggerUpdateAggregatorStatusSatelliteAction(actionRecord, operationList, s);
+        const updateAggregatorStatusActionTrigger : return                              = triggerUpdateAggregatorStatusSatelliteAction(actionRecord, operationList, s);
         s           := updateAggregatorStatusActionTrigger.1;
         operationList  := updateAggregatorStatusActionTrigger.0;
     } else skip;

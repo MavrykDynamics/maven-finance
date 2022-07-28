@@ -10,10 +10,10 @@
 // ------------------------------------------------------------------------------
 
 // Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+#include "../partials/shared/sharedHelpers.ligo"
 
 // Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -30,6 +30,9 @@
 
 // Council Types
 #include "../partials/contractTypes/councilTypes.ligo"
+
+// Governance financial Types
+#include "../partials/contractTypes/governanceFinancialTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -787,6 +790,15 @@ block {
 
     const governanceFinancialAddress : address = getContractAddressFromGovernanceContract("governanceFinancial", s.governanceAddress, error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND);
 
+    // check if request exists
+    case (Tezos.call_view ("getFinancialRequestOpt", requestId, governanceFinancialAddress) : option(option(financialRequestRecordType))) of [
+            Some (_requestOpt)  -> case _requestOpt of [
+                    Some (_request) -> skip
+                |   None            -> failwith(error_FINANCIAL_REQUEST_NOT_FOUND)
+            ]
+        |   None                -> failwith(error_GET_FINANCIAL_REQUEST_OPT_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+    ];
+
     const dropFinancialRequestOperation : operation = Tezos.transaction(
         requestId,
         0tez, 
@@ -910,7 +922,7 @@ block {
 
     // flush action type
     if actionType = "flushAction" then block {
-        const triggerFlushActionActionTrigger : return      = triggerFlushActionAction(actionRecord, operationList, s);
+        const triggerFlushActionActionTrigger : return          = triggerFlushActionAction(actionRecord, operationList, s);
         s               := triggerFlushActionActionTrigger.1;
         operationList   := triggerFlushActionActionTrigger.0;
     } else skip;
