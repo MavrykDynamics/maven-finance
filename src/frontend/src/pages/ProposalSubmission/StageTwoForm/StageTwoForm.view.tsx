@@ -40,6 +40,7 @@ type StageTwoFormViewProps = {
   formInputStatus: ProposalUpdateFormInputStatus
   handleOnBlur: any
   handleUpdateProposal: () => void
+  handleAddProposal: () => void
   proposalData: ProposalDataType[] | undefined
 }
 export const StageTwoFormView = ({
@@ -51,6 +52,7 @@ export const StageTwoFormView = ({
   formInputStatus,
   handleOnBlur,
   handleUpdateProposal,
+  handleAddProposal,
   proposalId,
   proposalData,
 }: StageTwoFormViewProps) => {
@@ -58,6 +60,9 @@ export const StageTwoFormView = ({
   const { governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   const disabled = !isProposalRound || !form.title
+
+  const isAllTitleBytesExist = form.proposalBytes.every((item) => Boolean(item.title))
+  const isAllBytesExist = form.proposalBytes.every((item) => Boolean(item.title) && Boolean(item.bytes))
 
   const isEdit = proposalData?.length
 
@@ -161,10 +166,9 @@ export const StageTwoFormView = ({
         {isEdit ? (
           <Button
             icon="pencil-stroke"
-            // className="bytes"
             text="Edit Proposal"
             kind="actionPrimary"
-            disabled={disabled}
+            disabled={disabled || !isAllTitleBytesExist}
             onClick={handleUpdateProposal}
           />
         ) : (
@@ -173,8 +177,8 @@ export const StageTwoFormView = ({
             className="bytes"
             text="Submit Bytes"
             kind="actionPrimary"
-            disabled={disabled}
-            onClick={handleUpdateProposal}
+            disabled={disabled || !isAllBytesExist}
+            onClick={handleAddProposal}
           />
         )}
       </FormButtonContainer>
