@@ -68,13 +68,13 @@ export const StageThreeFormView = ({
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   const disabled = !isProposalRound || !form.title
   const dispatch = useDispatch()
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const handleLockProposal = () => {
     if (proposalId) dispatch(lockProposal(proposalId, accountPkh as any))
   }
 
-  const enebleSubmit = tableData[1].every((item) => Boolean(item))
+  const enebleSubmit = tableData.flat().every((item) => Boolean(item))
 
   return (
     <SubmissionStyled>

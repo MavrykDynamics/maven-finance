@@ -2,8 +2,17 @@ import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
-import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+// types
+import type { ProposalDataType, ProposalPaymentType } from '../../../utils/TypesAndInterfaces/Governance'
+import { calcWithoutPrecision, calcWithoutMu } from '../../../utils/calcFunctions'
+
+// helpers
+import {
+  normalizeProposalStatus,
+  normalizeTokenStandart,
+  getShortByte,
+  getProposalStatusInfo,
+} from '../../Governance/Governance.helpers'
 
 import {
   ProposalFinancialRequestForm,
@@ -23,21 +32,21 @@ type StageThreeFormProps = {
   locked: boolean
   proposalId: number | undefined
   proposalTitle: string
+  proposalPayments: ProposalPaymentType[] | undefined
 }
 
 export const PAYMENTS_TYPES = ['XTZ', 'MVK']
 
-const INIT_TABLE_DATA = [
-  ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)'],
-  ['', '', '', PAYMENTS_TYPES[0]],
-]
+const INIT_TABLE_HEADERS = ['Address', 'Purpose', 'Amount', 'Payment Type (XTZ/MVK)']
 
-export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThreeFormProps) => {
+const INIT_TABLE_DATA = [INIT_TABLE_HEADERS, ['', '', '', PAYMENTS_TYPES[0]]]
+
+export const StageThreeForm = ({ locked, proposalTitle, proposalId, proposalPayments }: StageThreeFormProps) => {
   const dispatch = useDispatch()
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
   const isProposalRound = governancePhase === 'PROPOSAL'
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { fee, address } = governanceStorage
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { fee } = governanceStorage
   const successReward = governanceStorage.config.successReward
   const [tableData, setTableData] = useState(INIT_TABLE_DATA)
   const [tableJson, setTableJson] = useState('')
@@ -51,6 +60,8 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThree
   const [formInputStatus, setFormInputStatus] = useState<ProposalFinancialRequestInputStatus>({
     financialData: '',
   })
+
+  console.log('%c ||||| proposalPayments', 'color:red', proposalPayments)
 
   const handleOnBlur = () => {
     const validityCheckResult = isJsonString(form.financialData?.jsonString ?? '')
@@ -76,32 +87,22 @@ export const StageThreeForm = ({ locked, proposalTitle, proposalId }: StageThree
     if (!isProposalRound) clearState()
   }, [isProposalRound])
 
-  const handleSubmitFinancialRequestData = () => {
-    // const jsonStringTable = JSON.stringify(tableData)
-    // const flatTable = tableData.flat()
-    // const isEmptyFlatTable = flatTable.every((elem) => !elem)
-    // const isStringcontainsCode = containsCode(JSON.stringify(tableData))
-    // const isValidJsonString = !isStringcontainsCode && !isEmptyFlatTable
-    // const formIsValid = validateFormAndThrowErrors(dispatch, {
-    //   financialData: isValidJsonString,
-    // })
-    const dataName = tableData[1][1]
-    const receiverAddress = tableData[1][0]
+  useEffect(() => {
+    if (proposalPayments?.length) {
+      const prepareTablePayments = proposalPayments.map((item) => {
+        const paymentType = normalizeTokenStandart(item.token_standard, item.token_address, item.token_id)
+        const amount =
+          paymentType === 'MVK' ? calcWithoutPrecision(item.token_amount) : calcWithoutMu(item.token_amount)
+        return [item.to__id, item.title, `${amount}`, paymentType]
+      })
+      setTableData([INIT_TABLE_HEADERS, ...prepareTablePayments])
+    }
+  }, [proposalPayments])
 
-    const amount = +tableData[1][2]
-    const tokenType = tableData[1][3]
+  const handleSubmitFinancialRequestData = () => {
+    const submitData = tableData.filter((_, i) => i !== 0)
     if (proposalId) {
-      dispatch(
-        submitFinancialRequestData(
-          proposalId,
-          dataName,
-          receiverAddress,
-          amount,
-          tokenType,
-          accountPkh as any,
-          clearState,
-        ),
-      )
+      dispatch(submitFinancialRequestData(proposalId, submitData, accountPkh as any))
     }
   }
 
