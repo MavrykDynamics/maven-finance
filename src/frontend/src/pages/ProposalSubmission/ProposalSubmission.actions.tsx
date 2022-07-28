@@ -274,3 +274,50 @@ export const submitFinancialRequestData =
       })
     }
   }
+
+export const DROP_PROPOSAL_REQUEST = 'DROP_PROPOSAL_REQUEST'
+export const DROP_PROPOSAL_RESULT = 'DROP_PROPOSAL_RESULT'
+export const DROP_PROPOSAL_ERROR = 'DROP_PROPOSAL_ERROR'
+export const dropProposal = (proposalId: number) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  await dispatch({
+    type: DROP_PROPOSAL_REQUEST,
+  })
+  if (!state.wallet.ready) {
+    await dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    await dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
+
+    const transaction = await contract?.methods.dropProposal(proposalId).send()
+    console.log('transaction', transaction)
+
+    await dispatch(showToaster(INFO, 'Drop proposal...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    await dispatch(showToaster(SUCCESS, 'Proposal Droped.', 'All good :)'))
+
+    await dispatch({
+      type: DROP_PROPOSAL_RESULT,
+    })
+    await dispatch(getGovernanceStorage())
+    await dispatch(getDelegationStorage())
+    await dispatch(getCurrentRoundProposals())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: DROP_PROPOSAL_ERROR,
+      error,
+    })
+  }
+}
