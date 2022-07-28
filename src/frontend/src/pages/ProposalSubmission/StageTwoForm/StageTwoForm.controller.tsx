@@ -14,7 +14,7 @@ import {
 import { getFormErrors, isHexadecimalByteString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
-import { lockProposal, updateProposal } from '../ProposalSubmission.actions'
+import { dropProposal, updateProposal } from '../ProposalSubmission.actions'
 
 type StageTwoFormProps = {
   locked: boolean
@@ -108,9 +108,13 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
     await dispatch(updateProposal(form, proposalId, clearState))
   }
 
-  // useEffect(() => {
-  //   if (!isProposalRound) clearState()
-  // }, [isProposalRound])
+  const handleDeleteProposal = async () => {
+    if (proposalId) await dispatch(dropProposal(proposalId))
+  }
+
+  useEffect(() => {
+    if (!isProposalRound) clearState()
+  }, [isProposalRound])
 
   return (
     <StageTwoFormView
@@ -124,6 +128,7 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
       handleOnBlur={handleOnBlur}
       handleUpdateProposal={handleUpdateProposal}
       handleAddProposal={handleAddProposal}
+      handleDeleteProposal={handleDeleteProposal}
       proposalData={proposalData}
     />
   )

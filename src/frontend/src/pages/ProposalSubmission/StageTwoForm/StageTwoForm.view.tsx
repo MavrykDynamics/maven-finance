@@ -40,6 +40,7 @@ type StageTwoFormViewProps = {
   formInputStatus: ProposalUpdateFormInputStatus
   handleOnBlur: any
   handleUpdateProposal: () => void
+  handleDeleteProposal: () => void
   handleAddProposal: () => void
   proposalData: ProposalDataType[] | undefined
 }
@@ -52,6 +53,7 @@ export const StageTwoFormView = ({
   formInputStatus,
   handleOnBlur,
   handleUpdateProposal,
+  handleDeleteProposal,
   handleAddProposal,
   proposalId,
   proposalData,
@@ -164,13 +166,22 @@ export const StageTwoFormView = ({
 
       <FormButtonContainer>
         {isEdit ? (
-          <Button
-            icon="pencil-stroke"
-            text="Edit Proposal"
-            kind="actionPrimary"
-            disabled={disabled || !isAllTitleBytesExist}
-            onClick={handleUpdateProposal}
-          />
+          <>
+            <Button
+              icon="lock"
+              className="lock"
+              text="Delete Proposal"
+              kind="actionSecondary"
+              onClick={handleDeleteProposal}
+            />
+            <Button
+              icon="pencil-stroke"
+              text="Edit Proposal"
+              kind="actionPrimary"
+              disabled={disabled || !isAllTitleBytesExist}
+              onClick={handleUpdateProposal}
+            />
+          </>
         ) : (
           <Button
             icon="bytes"
