@@ -10,6 +10,7 @@ type satelliteRewardsType is [@layout:comb] record [
     satelliteAccumulatedRewardsPerShare     : nat; // 0n if delegate
     satelliteReferenceAddress               : address;
 ];
+type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
 
 // record for users delegating to satellites 
 type delegateRecordType is [@layout:comb] record [
@@ -40,7 +41,7 @@ type satelliteSnapshotRecordType is [@layout:comb] record [
     totalVotingPower          : nat;      // log calculated total voting power 
 ]
 
-type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
+
 
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;

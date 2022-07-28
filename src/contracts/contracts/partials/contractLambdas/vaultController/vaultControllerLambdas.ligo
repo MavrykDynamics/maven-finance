@@ -1172,7 +1172,7 @@ block {
                 finalRepaymentAmount := if totalFees > finalRepaymentAmount then 0n else abs(finalRepaymentAmount - totalFees);
 
                 // ------------------------------------------------------------------
-                // Process Transfers
+                // Process Fee Transfers
                 // ------------------------------------------------------------------
                 
                 // Get Treasury Contract Address from the General Contracts Map on the Governance Contract
@@ -1195,15 +1195,57 @@ block {
                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
 
+                // Get Token Pool Reward Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPoolReward", s.governanceAddress);
+                const tokenPoolRewardAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // todo: formula to split fees as rewards to token pool liquidity providers, and to protocol
+                const tempSplitFee : nat = ((totalFees * fixedPointAccuracy) / 2n) / fixedPointAccuracy;
+
                 const sendFeesToTreasuryOperation : operation = transferFa2Token(
-                    initiator,  
-                    treasuryAddress,
-                    totalFees,
-                    loanTokenId,
-                    loanTokenAddress
+                    initiator,              // from_
+                    treasuryAddress,        // to_
+                    tempSplitFee,           // amount
+                    loanTokenId,            // token id
+                    loanTokenAddress        // token contract
                 );
 
-                operations := sendFeesToTreasuryOperation # operations;
+                operations := sendFeesToTreasuryOperation # operations; 
+
+                // Send rewards to Token Pool Rewards Contract
+                const sendFeesToTokenPoolRewardContractOperation : operation = transferFa2Token(
+                    initiator,                  // from_
+                    tokenPoolRewardAddress,     // to_
+                    tempSplitFee,               // amount
+                    loanTokenId,                // token id
+                    loanTokenAddress            // token contract
+                );
+
+                operations := sendFeesToTokenPoolRewardContractOperation # operations; 
+
+                // Update rewards in Token Pool Contract
+                const updateRewardsParams : updateRewardsActionType = record [
+                    tokenName = vaultLoanToken;
+                    amount    = tempSplitFee;
+                ];
+
+                const updateRewardsInTokenPoolContractOperation : operation = Tezos.transaction(
+                    updateRewardsParams,
+                    0mutez,
+                    getUpdateRewardsEntrypointInTokenPoolContract(tokenPoolAddress)
+                );
+
+                operations := updateRewardsInTokenPoolContractOperation # operations; 
+
+                // ------------------------------------------------------------------
+                // Process Repayment
+                // ------------------------------------------------------------------            
 
                 // process repayment of principal if final repayment quantity is greater than 0
                 if finalRepaymentAmount > 0n then {

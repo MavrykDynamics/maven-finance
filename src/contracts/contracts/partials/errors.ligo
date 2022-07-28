@@ -1148,7 +1148,7 @@
 
 // ------------------------------------------------------------------------------
 //
-// Token Pool Controller Errors
+// Token Pool Errors
 //
 // ------------------------------------------------------------------------------
 
@@ -1160,7 +1160,19 @@
 [@inline] const error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 829n;
 [@inline] const error_TOKEN_POOL_RESERVES_RATIO_NOT_MET                                                                 = 829n;
 [@inline] const error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT                                                             = 829n;
+[@inline] const error_DEPOSITOR_RECORD_NOT_FOUND                                                                        = 829n;
+[@inline] const error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 829n;
 
+
+
+// ------------------------------------------------------------------------------
+//
+// Token Pool Reward Errors
+//
+// ------------------------------------------------------------------------------
+
+
+[@inline] const error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                                              = 829n;
 
 // ------------------------------------------------------------------------------
 //
