@@ -100,6 +100,8 @@ export const updateProposal =
         }
       })
 
+      console.log('%c ||||| listTransactions', 'color:pink', listTransactions)
+
       const batch =
         // @ts-ignore
         contract && listTransactions.length ? await state.wallet.tezos?.wallet.batch(listTransactions) : null

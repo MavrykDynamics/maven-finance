@@ -43,21 +43,6 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
     proposalBytes: [PROPOSAL_BYTE],
   })
 
-  useEffect(() => {
-    if (proposalData?.length) {
-      console.log('%c ||||| proposalData', 'color:yellowgreen', proposalData)
-      const prepareObj = {
-        title: proposalTitle,
-        proposalBytes: proposalData,
-      }
-
-      console.log('%c ||||| prepareObj', 'color:green', prepareObj)
-      setForm(prepareObj)
-    }
-  }, [proposalData, proposalTitle])
-
-  console.log('%c ||||| form', 'color:red', form)
-
   const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
     title: false,
     proposalBytes: false,
@@ -66,6 +51,19 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
     title: '',
     proposalBytes: '',
   })
+
+  useEffect(() => {
+    if (proposalData?.length) {
+      const prepareObj = {
+        title: proposalTitle,
+        proposalBytes: proposalData,
+      }
+
+      setForm(prepareObj)
+    }
+  }, [proposalData, proposalTitle])
+
+  console.log('%c ||||| form', 'color:red', form)
 
   const handleOnBlur = (index: number, text: string, type: string) => {
     const validityCheckResultData = Boolean(text)
@@ -99,12 +97,14 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
     })
   }
 
-  const handleUpdateProposal = async () => {
-    //const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
-    // if (formIsValid) {
-    //   await dispatch(updateProposal(form, proposalId, clearState))
-    // }
+  const handleAddProposal = async () => {
+    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
+    if (formIsValid) {
+      await dispatch(updateProposal(form, proposalId, clearState))
+    }
+  }
 
+  const handleUpdateProposal = async () => {
     await dispatch(updateProposal(form, proposalId, clearState))
   }
 
@@ -123,6 +123,7 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
       handleUpdateProposal={handleUpdateProposal}
+      handleAddProposal={handleAddProposal}
       proposalData={proposalData}
     />
   )
