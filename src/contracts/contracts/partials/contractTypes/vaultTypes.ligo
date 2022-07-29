@@ -5,9 +5,15 @@ type editDepositorType is
   | AllowAny of bool
   | AllowAccount of bool * address
 
-type depositorsType is
-  | Any
-  | Whitelist of set(address)
+// type depositorsType is
+//   | Any
+//   | Whitelist of set(address)
+
+type whitelistUsersType is
+    |   Any
+    |   Depositors of set(address)
+    |   Borrowers of set(address)
+    |   Repayers of set(address)
 
 type vaultHandleType is [@layout:comb] record [
     id      : nat ;
@@ -47,8 +53,9 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
 ]
 
 type vaultStorage is record [
-    admin                            : address;            // vault admin contract - usdm token controller address
-    handle                           : vaultHandleType;    // owner of the vault
-    depositors                       : depositorsType;     // users who can deposit into the vault    
+    admin                : address;            // vault admin contract - usdm token controller address
+    handle               : vaultHandleType;    // owner of the vault
+    depositors           : depositorsType;     // users who can deposit into the vault    
+    whitelistUsers       : whitelistUsersType;    // users who can borrow / repay       
 ]
 

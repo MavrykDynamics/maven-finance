@@ -379,12 +379,67 @@ block {
 // Lending Lambdas Begin
 // ------------------------------------------------------------------------------
 
+(* updateTokenPoolCallback lambda *)
+function lambdaUpdateTokenPoolCallback(const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolStorageType) : return is
+block {
+
+    checkNoAmount(Unit);                        // entrypoint should not receive any tez amount  
+    checkSenderIsVaultControllerContract(s);    // check that sender is vault controller
+
+    // init operations
+    var operations : list(operation) := nil;
+
+    case tokenPoolLambdaAction of [
+        |   LambdaUpdateTokenPoolCalback(updateTokenPoolCallbackParams) -> {
+                
+                // init params
+                const tokenName  : string            = updateTokenPoolCallbackParams.tokenName;
+                const callback   : contract(address) = updateTokenPoolCallbackParams.callback;
+
+                // Update interest rate
+                s := updateInterestRate(tokenName, s);
+
+                // Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(tokenName, s);
+
+                // Get Token Record and info
+                const tokenRecord : tokenRecordType = case s.tokenLedger[tokenName] of [
+                        Some(_record) -> _record 
+                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                ];
+
+                // Get updated token borrow index
+                const tokenBorrowIndex : nat = tokenRecord.borrowIndex;
+
+                // Create callback parameters
+                const callbackParams : vaultCallbackActionType = record [
+                    vaultId             = updateTokenPoolCallbackParams.vaultId;
+                    quantity            = updateTokenPoolCallbackParams.quantity;
+                    initiator           = updateTokenPoolCallbackParams.initiator;
+                    tokenBorrowIndex    = tokenBorrowIndex;
+                ]
+
+                // Pass callback to vault controller contract
+                const callbackOperation : operation = Tezos.transaction(
+                    callbackParams,
+                    0mutez,
+                    callback
+                );
+
+                operations := callbackOperation # operations;
+                
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
 (* onBorrow lambda *)
 function lambdaOnBorrow(const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    checkNoAmount(Unit);                        // entrypoint should not receive any tez amount  
+    checkSenderIsVaultControllerContract(s);    // check that sender is vault controller
 
     // init operations
     var operations : list(operation) := nil;
@@ -472,6 +527,12 @@ block {
                 tokenRecord.totalRemaining  := newTotalRemaining;
                 s.tokenLedger[tokenName]    := tokenRecord;
 
+                // Update interest rate
+                s := updateInterestRate(tokenName, s);
+
+                // Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(tokenName, s);
+
                 
             }
         |   _ -> skip
@@ -485,8 +546,8 @@ block {
 function lambdaOnRepay(const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolStorageType) : return is
 block {
     
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+    checkNoAmount(Unit);                        // entrypoint should not receive any tez amount  
+    checkSenderIsVaultControllerContract(s);    // check that sender is vault controller
 
     // init operations
     var operations : list(operation) := nil;
@@ -512,6 +573,9 @@ block {
                 const tokenPoolTotal  : nat  = tokenRecord.tokenPoolTotal;
                 const totalBorrowed   : nat  = tokenRecord.totalBorrowed;
                 const totalRemaining  : nat  = tokenRecord.totalRemaining;
+
+                // update interest rate
+                s := updateInterestRate(tokenName);
 
                 // calculate new totalBorrowed and totalRemaining
                 if repayAmount > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
@@ -541,6 +605,11 @@ block {
                 tokenRecord.totalRemaining  := newTotalRemaining;
                 s.tokenLedger[tokenName]    := tokenRecord;
 
+                // Update interest rate
+                s := updateInterestRate(tokenName, s);
+
+                // Calculate compounded interest and update token state (borrow index)
+                s := updateTokenState(tokenName, s);
                 
             }
         |   _ -> skip
