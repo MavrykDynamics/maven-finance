@@ -19,6 +19,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// Vault Controller Types
+#include "../partials/contractTypes/vaultControllerTypes.ligo"
+
 // Token Pool Types
 #include "../partials/contractTypes/tokenPoolTypes.ligo"
 
@@ -325,28 +328,27 @@ block{
     ];
 
     // init variables
-    var accumulatedRewardsPerShare : nat := tokenRecord.accumulatedRewardsPerShare;
+    var borrowIndex : nat := tokenRecord.borrowIndex;
 
     if Tezos.get_levels() == lastUpdatedBlockLevel then skip else {
 
-        const lastUpdatedBlockLevel : nat = tokenRecord.lastUpdatedBlockLevel;
-        const currentInterestRate : nat = tokenRecord.currentInterestRate;
+        const lastUpdatedBlockLevel  : nat = tokenRecord.lastUpdatedBlockLevel;
+        const currentInterestRate    : nat = tokenRecord.currentInterestRate;
 
         const compoundedInterest : nat = calculateCompoundedInterest(currentInterestRate, lastUpdatedBlockLevel);
-        accumulatedRewardsPerShare := (accumulatedRewardsPerShare * compoundedInterest) / fixedPointAccuracy;
+        borrowIndex := (borrowIndex * compoundedInterest) / fixedPointAccuracy;
 
     };
 
-    tokenRecord.accumulatedRewardsPerShare := accumulatedRewardsPerShare;
+    tokenRecord.borrowIndex := borrowIndex;
     s.tokenLedger[tokenName] := tokenRecord;
 
-
-} with (accumulatedRewardsPerShare)
-
+} with (s)
 
 
-// helper function to calculateInterestRate
-function calculateInterestRate(const tokenName : string; var s : tokenPoolStorageType) : tokenPoolStorageType is
+
+// helper function to updateInterestRate
+function updateInterestRate(const tokenName : string; var s : tokenPoolStorageType) : tokenPoolStorageType is
 block {
 
     // get token record

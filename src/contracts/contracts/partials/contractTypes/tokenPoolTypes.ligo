@@ -28,7 +28,7 @@ type rewardsRecordType is [@layout:comb] record[
 type rewardsLedgerType is big_map((address * string), rewardsRecordType)        // key - user address and token name e.g. USDT, EURL
 type accumulatedRewardsLedgerType is big_map(string, nat)                   
 
-
+// liquidity provider
 type depositorLedgerType is big_map((address * string), nat)                    // key - user address and token name e.g. USDT, EURL
 
 
@@ -74,6 +74,7 @@ type tokenRecordType is [@layout:comb] record [
 
     accumulatedRewardsPerShare  : nat;
     
+    borrowIndex                 : nat;
 ]
 
 type tokenLedgerType is big_map(string, tokenRecordType)
@@ -140,6 +141,20 @@ type updateRewardsActionType is [@layout:comb] record [
     amount          : nat;
 ]
 
+
+type updateTokenPoolCallbackActionType is [@layout:comb] record [
+    
+    tokenName       : string;
+    callback        : contract(vaultCallbackActionType);
+
+    // pass on to callback
+    vaultId         : nat;  
+    quantity        : nat;
+    initiator       : address;
+
+]
+
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -157,6 +172,7 @@ type tokenPoolLambdaActionType is
     |   LambdaUpdateWhitelistTokens     of updateWhitelistTokenContractsParams
 
         // Token Pool Entrypoints
+    |   LambdaUpdateTokenPoolCallback   of updateTokenPoolCallbackActionType
     |   LambdaAddLiquidity              of addLiquidityActionType
     |   LambdaRemoveLiquidity           of removeLiquidityActionType
 

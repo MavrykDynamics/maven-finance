@@ -76,13 +76,16 @@ type vaultType is [@layout:comb] record [
 
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;   // tez/token balance
-    
+    loanToken                   : string;                        // e.g. USDT, EURL,  
+
+    // loan variables
     loanOutstandingTotal        : nat;                           // total amount debt (principal + interest)
     loanPrincipalTotal          : nat;                           // total amount principal
     loanInterestTotal           : nat;                           // total amount interest
-
-    loanToken                   : string;                        // e.g. USDT, EURL,  
+    borrowIndex                 : nat;
+    
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
+    
 
 ]
 
@@ -172,6 +175,26 @@ type borrowActionType is [@layout:comb] record [
 type repayActionType is [@layout:comb] record [ 
     vaultId     : nat; 
     quantity    : nat;
+]
+
+
+type vaultCallbackActionType is [@layout:comb] record [ 
+    vaultId             : nat;
+    quantity            : nat;
+    initiator           : address;
+    tokenBorrowIndex    : nat;
+]
+
+type updateTokenPoolCallbackActionType is [@layout:comb] record [
+    
+    tokenName       : string;
+    callback        : contract(vaultCallbackActionType);
+
+    // pass on to callback
+    vaultId         : nat;  
+    quantity        : nat;
+    initiator       : address;
+
 ]
 
 type vaultControllerPausableEntrypointType is
