@@ -12,6 +12,8 @@ import {
 // hooks
 import useGovernence from '../../Governance/UseGovernance'
 
+// components
+import MoveToNextRound from '../../Governance/MoveNextRound/MoveNextRound.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
@@ -83,14 +85,7 @@ export const PropSubmissionTopBarView = ({
                 )}
               </TimeLeftAreaWrap>
             ) : (
-              <Button
-                icon="man-running"
-                text={'Move to next round'}
-                kind="actionSecondary"
-                className="move-to-next"
-                disabled={!accountPkh}
-                onClick={handleMoveNextRound}
-              />
+              <MoveToNextRound />
             )}
           </PropSubTopBarTimeContainer>
         </>

@@ -1,6 +1,9 @@
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+
+// components
+import MoveToNextRound from '../MoveNextRound/MoveNextRound.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GovernancePhase } from '../../../reducers/governance'
 
@@ -21,14 +24,12 @@ export type GovernanceTopBarViewProps = {
   timeLeftInPhase: number | Date
   isInEmergencyGovernance: boolean
   isExecutionRound?: boolean
-  handleMoveToNextRound: () => void
 }
 export const GovernanceTopBarView = ({
   loading,
   governancePhase,
   timeLeftInPhase,
   isInEmergencyGovernance,
-  handleMoveToNextRound,
   isExecutionRound,
 }: GovernanceTopBarViewProps) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
@@ -68,14 +69,7 @@ export const GovernanceTopBarView = ({
               )}
             </div>
           ) : (
-            <Button
-              icon="man-running"
-              text={'Move to next round'}
-              kind="actionSecondary"
-              className="move-to-next"
-              disabled={!accountPkh}
-              onClick={handleMoveToNextRound}
-            />
+            <MoveToNextRound />
           )}
         </>
       )}
