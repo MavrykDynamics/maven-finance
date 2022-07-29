@@ -6,7 +6,7 @@ import { State } from '../../reducers'
 
 // helpers, actions
 import { calcTimeToBlock } from '../../utils/calcFunctions'
-import { getGovernanceStorage, startNextRound } from '../Governance/Governance.actions'
+import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 // consts
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -36,19 +36,6 @@ export const FinancialRequests = () => {
     dispatch(getGovernanceStorage())
   }, [dispatch])
 
-  // NEXT ROUND MODALS STAFF
-  // const [visibleModal, setVisibleModal] = useState(false)
-  const handleMoveNextRound = () => {
-    dispatch(startNextRound(false))
-  }
-  // const handleExecuteProposal = (id: number) => {
-  //   dispatch(executeProposal(id))
-  // }
-  // const handleOpenModalMoveNextRound = (id: number) => {
-  //   setVisibleModal(true)
-  //   setProposalId(id)
-  // }
-
   return (
     <Page>
       <PageHeader page={'financial requests'} kind={PRIMARY} loading={loading} />
@@ -57,7 +44,6 @@ export const FinancialRequests = () => {
         timeLeftInPhase={daysLeftOfPeriod}
         isInEmergencyGovernance={false}
         loading={loading}
-        handleMoveNextRound={handleMoveNextRound}
       />
       <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
     </Page>

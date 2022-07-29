@@ -75,7 +75,6 @@ type GovernanceViewProps = {
   waitingForPaymentToBeProcessed: CurrentRoundProposalsStorageType
   governancePhase: GovernancePhase
   userIsSatellite: boolean
-  handleOpenModalMoveNextRound: any
   handleExecuteProposal: any
   timeLeftInPhase: Date | number
 }
@@ -90,7 +89,6 @@ export const GovernanceView = ({
   governancePhase,
   userIsSatellite,
   watingProposals,
-  handleOpenModalMoveNextRound,
   timeLeftInPhase,
   handleExecuteProposal,
   waitingForPaymentToBeProcessed,
@@ -271,7 +269,7 @@ export const GovernanceView = ({
   }
   const handleClickExecuteProposal = () => {
     if (rightSideContent?.id) {
-      handleOpenModalMoveNextRound(rightSideContent.id)
+      handleExecuteProposal(rightSideContent.id)
     }
   }
 
