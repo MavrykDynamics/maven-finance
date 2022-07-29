@@ -2724,7 +2724,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets other contract admin', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setContractAdmin(bob.pkh, doormanAddress.address).send();
+                const operation = await governanceInstance.methods.setContractAdmin(doormanAddress.address, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3616,7 +3616,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets single contract admin', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+                const operation = await breakGlassInstance.methods.setSingleContractAdmin(governanceAddress.address, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

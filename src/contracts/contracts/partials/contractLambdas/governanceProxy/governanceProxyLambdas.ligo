@@ -2162,7 +2162,7 @@ block {
         |   CreateAggregator(createAggregatorParams) -> {
 
                 // Find and get aggregatorFactory contract address
-                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get createAggregator entrypoint of aggregatorFactory contract
                 const createAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2201,7 +2201,7 @@ block {
         |   TrackAggregator(trackAggregatorParams) -> {
 
                 // Find and get aggregatorFactory contract address
-                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
                 const trackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -2240,7 +2240,7 @@ block {
         |   UntrackAggregator(untrackAggregatorParams) -> {
 
                 // Find and get aggregatorFactory contract address
-                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("treasuryFactory", s.governanceAddress, error_TREASURY_FACTORY_CONTRACT_NOT_FOUND);
+                const aggregatorFactoryAddress : address = getContractAddressFromGovernanceContract("aggregatorFactory", s.governanceAddress, error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Find and get trackAggregator entrypoint of aggregatorFactory contract
                 const untrackAggregatorEntrypoint = case (Tezos.get_entrypoint_opt(

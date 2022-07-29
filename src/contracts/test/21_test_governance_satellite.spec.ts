@@ -812,7 +812,7 @@
 //             assert.equal(actionsIdsEnd.length == 1, true);
 
 //             // Reset config
-//             updateConfigOperation      = await governanceSatelliteInstance.methods.updateConfig(10, "configMaxActionsPerSatellite").send()
+//             updateConfigOperation      = await governanceSatelliteInstance.methods.updateConfig(20, "configMaxActionsPerSatellite").send()
 //             await updateConfigOperation.confirmation()
 
 //         } catch(e){
@@ -1987,14 +1987,6 @@
 //                     purpose
 //                 ).send();
 //                 await chai.expect(failBanSatelliteOperation).to.be.eventually.rejected;
-
-
-//                 // fail to create governance action to restore Satellite
-//                 const failRestoreSatelliteOperation = governanceSatelliteInstance.methods.restoreSatellite(
-//                     bob.pkh,
-//                     purpose
-//                 ).send();
-//                 await chai.expect(failRestoreSatelliteOperation).to.be.eventually.rejected;
 
 
 //                 // fail to create governance action to add oracle to aggregator
