@@ -71,29 +71,3 @@ export const EmptyContainer = styled.figure<{ theme: MavrykTheme }>`
     display: none;
   }
 `
-
-export const InfoBlock = styled.blockquote`
-  display: flex;
-  align-items: center;
-  background-color: ${darkPurpleColor};
-  border: 1px solid ${royalPurpleColor};
-  border-radius: 10px;
-  margin: 0;
-  padding: 8px 20px;
-
-  svg {
-    stroke: ${headerColor};
-    height: 16px;
-    width: 16px;
-    margin-right: 19px;
-    flex-shrink: 0;
-  }
-
-  p {
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 18px;
-    margin: 0;
-    color: ${headerColor};
-  }
-`

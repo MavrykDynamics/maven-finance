@@ -100,7 +100,7 @@ export const StageTwoFormView = ({
   return (
     <>
       <FormHeaderGroup>
-        <h1>Stage 2 {!isProposalRound ? <span className="label">Not accessible in the current round</span> : null}</h1>
+        <h1>Stage 2</h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}

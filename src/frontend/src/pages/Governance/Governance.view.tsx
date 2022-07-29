@@ -52,7 +52,8 @@ import {
   RightSideSubContent,
   RightSideSubHeader,
 } from './Governance.style'
-import { EmptyContainer, InfoBlock } from '../../app/App.style'
+import { EmptyContainer } from '../../app/App.style'
+import { InfoBlock } from '../../app/App.components/Info/info.style'
 import { TableGridWrap } from '../../app/App.components/TableGrid/TableGrid.style'
 import {
   WAITING_PROPOSALS_LIST_NAME,

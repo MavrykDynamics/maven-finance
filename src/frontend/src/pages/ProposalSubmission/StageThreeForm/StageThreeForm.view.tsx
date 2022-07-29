@@ -79,7 +79,7 @@ export const StageThreeFormView = ({
   return (
     <SubmissionStyled>
       <FormHeaderGroup>
-        <h1>Stage 3 {!isProposalRound ? <span className="label">Not accessible in the current round</span> : null}</h1>
+        <h1>Stage 3</h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
