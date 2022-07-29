@@ -87,9 +87,10 @@
 //         console.log('Eve address: ' + eve.pkh);
 
 //         // Init multiple satellites with multiple delegates
-//         delegationStorage = await delegationInstance.storage();
-//         const satelliteMap = await delegationStorage.satelliteLedger;
-//         if(satelliteMap.get(eve.pkh) === undefined){
+//         delegationStorage       = await delegationInstance.storage();
+//         const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
+
+//         if(eveSatellite === undefined){
 
 //             /**
 //              * Init First Satellite:
@@ -331,7 +332,7 @@
 //             try{
 //                 // Initial Values
 //                 governanceStorage = await governanceInstance.storage();
-//                 const newConfigValue = MVK(2);
+//                 const newConfigValue = 2;
 
 //                 // Operation
 //                 const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinYayVotePercentage").send();
@@ -469,15 +470,12 @@
 //                 // Check storage
 //                 delegationStorage       = await delegationInstance.storage()
 //                 governanceStorage       = await governanceInstance.storage()
-//                 const snapshotLedger    = governanceStorage.snapshotLedger
-//                 console.log("SATELLITES SNAPSHOT")
-//                 console.dir(snapshotLedger, {depth: 5})
 
-//                 const firstSatellite    = delegationStorage.satelliteLedger.get(alice.pkh);
+//                 const firstSatellite    = await delegationStorage.satelliteLedger.get(alice.pkh);
 //                 console.log("FIRST SATELLITE (ALICE)")
 //                 console.dir(firstSatellite, {depth: 5})
 
-//                 const secondSatellite   = delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const secondSatellite   = await delegationStorage.satelliteLedger.get(eve.pkh);
 //                 console.log("SECOND SATELLITE (EVE)")
 //                 console.dir(secondSatellite, {depth: 5})
 //             } catch(e){
@@ -549,7 +547,7 @@
 //                 const finalNextProposalId = governanceStorage.nextProposalId;
 //                 const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
 //                 const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
-//                 const newCurrentRoundProposal = governanceStorage..cycleProposals.get(nextProposalId);
+//                 const newCurrentRoundProposal = governanceStorage.cycleProposals.get(nextProposalId);
 
 //                 console.log("PROPOSAL: ", newProposal)
 
@@ -648,16 +646,12 @@
 //                 // Final values
 //                 governanceStorage       = await governanceInstance.storage();
 //                 const proposal          = await governanceStorage.proposalLedger.get(previousProposalId);
-//                 const snapshotLedger    = governanceStorage.snapshotLedger
-//                 const firstVotingPower  = snapshotLedger.get(alice.pkh);
-//                 const secondVotingPower = snapshotLedger.get(eve.pkh);
+//                 const firstVotingPower  = await governanceStorage.snapshotLedger.get(alice.pkh);
+//                 const secondVotingPower = await governanceStorage.snapshotLedger.get(eve.pkh);
 //                 const totalVotingPower  = firstVotingPower.totalVotingPower.toNumber() + secondVotingPower.totalVotingPower.toNumber()
 
 //                 console.log("PROPOSAL AFTER VOTES")
 //                 console.dir(proposal, {depth: 5});
-                
-//                 console.log("SATELLITES SNAPSHOT")
-//                 console.dir(snapshotLedger, {depth: 5})
 
 //                 // Assertion
 //                 assert.equal(totalVotingPower, proposal.quorumStakedMvkTotal.toNumber())

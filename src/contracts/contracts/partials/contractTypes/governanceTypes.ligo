@@ -200,13 +200,13 @@ type updatePaymentDataType is [@layout:comb] record [
 ]
 
 type setContractAdminType is [@layout:comb] record [
-    newContractAdmin        : address;
     targetContractAddress   : address;
+    newContractAdmin        : address;
 ]
 
 type setContractGovernanceType is [@layout:comb] record [
-    newContractGovernance   : address;
     targetContractAddress   : address;
+    newContractGovernance   : address;
 ]
 
 type whitelistDevelopersType is set(address)
