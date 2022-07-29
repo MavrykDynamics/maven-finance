@@ -964,6 +964,327 @@ block {
 
 
 (* borrow lambda *)
+// function lambdaBorrow(const vaultControllerLambdaAction : vaultControllerLambdaActionType; var s : vaultControllerStorageType) : return is
+// block {
+    
+//     var operations          : list(operation)        := nil;
+
+//     case vaultControllerLambdaAction of [
+//         |   LambdaBorrow(borrowParams) -> {
+                
+//                 // Init variables for convenience
+//                 const vaultId            : nat                     = borrowParams.vaultId; 
+//                 const quantity           : nat                     = borrowParams.quantity;
+//                 const initiator          : initiatorAddressType    = Tezos.get_sender();
+//                 var finalLoanAmount      : nat                     = quantity;
+                
+//                 // Init loan fees
+//                 const minimumLoanFee   : nat = s.config.minimumLoanFee;
+//                 const decimals         : nat = s.config.decimals;
+
+//                 // Make vault handle
+//                 const vaultHandle : vaultHandleType = record [
+//                     id     = vaultId;
+//                     owner  = initiator;
+//                 ];
+
+//                 // Get vault if exists
+//                 var vault : vaultType := getVault(vaultHandle, s);
+
+//                 // Get loan token type
+//                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
+//                 const loanTokenType : tokenType = case s.loanTokenLedger[vaultLoanTokenName] of [
+//                         Some(_loanToken) -> _loanToken.tokenType
+//                     |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+//                 ];
+
+//                 // check if vault is undercollaterized; if it is not, then allow user to borrow
+//                 if isUnderCollaterized(vault, s) 
+//                 then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
+//                 else skip;
+
+//                 // ------------------------------------------------------------------
+//                 // Calculate Service Loan Fees
+//                 // ------------------------------------------------------------------
+                
+//                 // Charge a minimum loan fee if user is borrowing
+//                 const loanFee : nat = finalLoanAmount * minimumLoanFee / decimals;
+
+//                 // Init total fee 
+//                 var totalFees : nat = loanFee;
+
+//                 // ------------------------------------------------------------------
+//                 // Calculate fees on past loan outstanding
+//                 // ------------------------------------------------------------------
+
+//                 // calculate outstanding service fee amount
+//                 if vault.loanOutstanding > 0n then block {
+                    
+//                     const lastUpdatedBlockLevel     : nat   = vault.lastUpdatedBlockLevel;
+//                     const today                     : nat   = Tezos.get_level();
+//                     const dailyServiceLoanFee       : nat   = s.config.dailyServiceLoanFee;                      // daily service loan fee
+                    
+//                     const minBlockTime              : nat   = Tezos.min_block_time();
+//                     const blocksPerMinute           : nat   = 60n / minBlockTime;
+//                     const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
+                    
+//                     const daysPassed                : nat   = abs(today - lastUpdatedBlockLevel) / blocksPerDay; // only include whole days since remainder is not factored in division here
+//                     const totalServiceLoanFee       : nat   = daysPassed * dailyServiceLoanFee; 
+
+//                     // update finalLoanAmount
+//                     if totalServiceLoanFee > finalLoanAmount then failwith(error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
+//                     finalLoanAmount := abs(finalLoanAmount - totalServiceLoanFee)
+
+//                     // update vault last updated block level
+//                     vault.lastUpdatedBlockLevel = Tezos.get_level();
+
+//                     // increment total fees
+//                     totalFees := totalFees + totalServiceLoanFee;
+
+//                 } else skip;
+
+//                 // ------------------------------------------------------------------
+//                 // Calculate Final Borrow Amount
+//                 // ------------------------------------------------------------------
+
+//                 // reduce finalLoanAmount by loan fee
+//                 if loanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
+//                 finalLoanAmount := abs(finalLoanAmount - loanFee);
+
+//                 // ------------------------------------------------------------------
+//                 // Process Loan
+//                 // ------------------------------------------------------------------
+
+//                 // Get Token Pool Contract Address from the General Contracts Map on the Governance Contract
+//                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPool", s.governanceAddress);
+//                 const tokenPoolAddress : address = case generalContractsOptView of [
+//                         Some (_optionContract) -> case _optionContract of [
+//                                 Some (_contract)    -> _contract
+//                             |   None                -> failwith (error_TOKEN_POOL_CONTRACT_NOT_FOUND)
+//                         ]
+//                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+//                 ];
+
+//                 // Create onBorrow operation to Token Pool
+//                 const onBorrowParams : onBorrowActionType = record [
+//                     tokenName       = vaultLoanTokenName;
+//                     borrower        = initiator;
+//                     finalLoanAmount = finalLoanAmount;
+//                     totalFees       = totalFees;
+//                 ];
+                
+//                 const onBorrowOperation : operation = Tezos.transaction(
+//                     onBorrowParams,
+//                     0mutez,
+//                     getOnBorrowEntrypointInTokenPoolContract(tokenPoolAddress)
+//                 );
+
+//                 operations := onBorrowOperation # operations;
+
+//                 // ------------------------------------------------------------------
+//                 // Update Storage
+//                 // ------------------------------------------------------------------
+
+//                 // Increment vault's loanOutstanding by original quantity borrowed
+//                 vault.loanOutstanding := vault.loanOutstanding + quantity;    
+
+//                 // update vault
+//                 s.vaults[vaultHandle] := vault;
+                
+//             }
+//         |   _ -> skip
+//     ];
+
+// } with (operations, s)
+
+
+
+(* repay lambda *)
+// function lambdaRepay(const vaultControllerLambdaAction : vaultControllerLambdaActionType; var s : vaultControllerStorageType) : return is
+// block {
+    
+//     var operations          : list(operation)        := nil;
+
+//     case vaultControllerLambdaAction of [
+//         |   LambdaRepay(repayParams) -> {
+                
+//                 // Init variables for convenience
+//                 const vaultId              : nat                     = borrowParams.vaultId; 
+//                 const quantity             : nat                     = borrowParams.quantity;
+//                 const initiator            : initiatorAddressType    = Tezos.get_sender();
+//                 var finalRepaymentAmount   : nat                     = quantity;
+                
+//                 // Init loan fees
+//                 const decimals         : nat = s.config.decimals;
+
+//                 // Make vault handle
+//                 const vaultHandle : vaultHandleType = record [
+//                     id     = vaultId;
+//                     owner  = initiator;
+//                 ];
+
+//                 // Get vault if exists
+//                 var vault : vaultType := getVault(vaultHandle, s);
+                
+//                 // Get loan token type
+//                 const vaultLoanToken   : string = vault.loanToken; // USDT, EURL, some other crypto coin
+//                 const loanTokenType    : tokenType = case s.loanTokenLedger[vaultLoanToken] of [
+//                         Some(_loanToken) -> _loanToken.tokenType
+//                     |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+//                 ];
+//                 const loanTokenAddress  : address = loanTokenType.tokenContractAddress;
+//                 const loanTokenId       : nat     = loanTokenType.tokenId;
+
+//                 // Init total fee 
+//                 var totalFees : nat = 0n;
+
+//                 // ------------------------------------------------------------------
+//                 // Calculate fees on past loan outstanding
+//                 // ------------------------------------------------------------------
+
+//                 // calculate outstanding service fee amount
+//                 if vault.loanOutstanding > 0n then block {
+                    
+//                     const lastUpdatedBlockLevel     : nat   = vault.lastUpdatedBlockLevel;
+//                     const today                     : nat   = Tezos.get_level();
+//                     const dailyServiceLoanFee       : nat   = s.config.dailyServiceLoanFee;                      // daily service loan fee
+
+//                     const minBlockTime              : nat   = Tezos.min_block_time();
+//                     const blocksPerMinute           : nat   = 60n / minBlockTime;
+//                     const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
+                    
+//                     const daysPassed                : nat   = abs(today - lastUpdatedBlockLevel) / blocksPerDay; // only include whole days since remainder is not factored in division here
+//                     const totalServiceLoanFee       : nat   = daysPassed * dailyServiceLoanFee; 
+
+//                     // update vault last updated block level
+//                     vault.lastUpdatedBlockLevel = Tezos.get_level();
+
+//                     // increment total fees
+//                     totalFees := totalFees + totalServiceLoanFee;
+
+//                 } else skip;
+
+//                 // ------------------------------------------------------------------
+//                 // Calculate Final Repay Amount
+//                 // ------------------------------------------------------------------
+
+//                 // repaid amount first goes to cover the accrued fees (interest), before repaying the principal amount
+//                 finalRepaymentAmount := if totalFees > finalRepaymentAmount then 0n else abs(finalRepaymentAmount - totalFees);
+
+//                 // ------------------------------------------------------------------
+//                 // Process Fee Transfers
+//                 // ------------------------------------------------------------------
+                
+//                 // Get Treasury Contract Address from the General Contracts Map on the Governance Contract
+//                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasury", s.governanceAddress);
+//                 const treasuryAddress : address = case generalContractsOptView of [
+//                         Some (_optionContract) -> case _optionContract of [
+//                                 Some (_contract)    -> _contract
+//                             |   None                -> failwith (error_TREASURY_CONTRACT_NOT_FOUND)
+//                         ]
+//                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+//                 ];
+
+//                 // Get Token Pool Contract Address from the General Contracts Map on the Governance Contract
+//                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPool", s.governanceAddress);
+//                 const tokenPoolAddress : address = case generalContractsOptView of [
+//                         Some (_optionContract) -> case _optionContract of [
+//                                 Some (_contract)    -> _contract
+//                             |   None                -> failwith (error_TOKEN_POOL_CONTRACT_NOT_FOUND)
+//                         ]
+//                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+//                 ];
+
+//                 // Get Token Pool Reward Contract Address from the General Contracts Map on the Governance Contract
+//                 const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPoolReward", s.governanceAddress);
+//                 const tokenPoolRewardAddress : address = case generalContractsOptView of [
+//                         Some (_optionContract) -> case _optionContract of [
+//                                 Some (_contract)    -> _contract
+//                             |   None                -> failwith (error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND)
+//                         ]
+//                     |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+//                 ];
+
+//                 // todo: formula to split fees as rewards to token pool liquidity providers, and to protocol
+//                 const tempSplitFee : nat = ((totalFees * fixedPointAccuracy) / 2n) / fixedPointAccuracy;
+
+//                 const sendFeesToTreasuryOperation : operation = transferFa2Token(
+//                     initiator,              // from_
+//                     treasuryAddress,        // to_
+//                     tempSplitFee,           // amount
+//                     loanTokenId,            // token id
+//                     loanTokenAddress        // token contract
+//                 );
+
+//                 operations := sendFeesToTreasuryOperation # operations; 
+
+//                 // Send rewards to Token Pool Rewards Contract
+//                 const sendFeesToTokenPoolRewardContractOperation : operation = transferFa2Token(
+//                     initiator,                  // from_
+//                     tokenPoolRewardAddress,     // to_
+//                     tempSplitFee,               // amount
+//                     loanTokenId,                // token id
+//                     loanTokenAddress            // token contract
+//                 );
+
+//                 operations := sendFeesToTokenPoolRewardContractOperation # operations; 
+
+//                 // Update rewards in Token Pool Contract
+//                 const updateRewardsParams : updateRewardsActionType = record [
+//                     tokenName = vaultLoanToken;
+//                     amount    = tempSplitFee;
+//                 ];
+
+//                 const updateRewardsInTokenPoolContractOperation : operation = Tezos.transaction(
+//                     updateRewardsParams,
+//                     0mutez,
+//                     getUpdateRewardsEntrypointInTokenPoolContract(tokenPoolAddress)
+//                 );
+
+//                 operations := updateRewardsInTokenPoolContractOperation # operations; 
+
+//                 // ------------------------------------------------------------------
+//                 // Process Repayment
+//                 // ------------------------------------------------------------------            
+
+//                 // process repayment of principal if final repayment quantity is greater than 0
+//                 if finalRepaymentAmount > 0n then {
+
+//                     // Create onRepay operation to Token Pool
+//                     const onRepayParams : onRepayActionType = record [
+//                         tokenName       = vaultLoanTokenName;
+//                         repayer         = initiator;
+//                         repayAmount     = finalRepaymentAmount;
+//                     ];
+                    
+//                     const onRepayOperation : operation = Tezos.transaction(
+//                         onRepayParams,
+//                         0mutez,
+//                         getOnRepayEntrypointInTokenPoolContract(tokenPoolAddress)
+//                     );
+
+//                     operations := onRepayOperation # operations;
+
+//                 } else skip;
+
+//                 // ------------------------------------------------------------------
+//                 // Update Storage
+//                 // ------------------------------------------------------------------
+
+//                 // Decrement vault's loanOutstanding by original quantity borrowed
+//                 vault.loanOutstanding := abs(vault.loanOutstanding - quantity);    
+
+//                 // update vault
+//                 s.vaults[vaultHandle] := vault;
+                
+//             }
+//         |   _ -> skip
+//     ];
+
+// } with (operations, s)
+
+
+
 function lambdaBorrow(const vaultControllerLambdaAction : vaultControllerLambdaActionType; var s : vaultControllerStorageType) : return is
 block {
     
@@ -977,10 +1298,6 @@ block {
                 const quantity           : nat                     = borrowParams.quantity;
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
                 var finalLoanAmount      : nat                     = quantity;
-                
-                // Init loan fees
-                const minimumLoanFee   : nat = s.config.minimumLoanFee;
-                const decimals         : nat = s.config.decimals;
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -1004,42 +1321,120 @@ block {
                 else skip;
 
                 // ------------------------------------------------------------------
+                // Update borrow index from Token Pool Contract
+                // ------------------------------------------------------------------
+
+                // Get Token Pool Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPool", s.governanceAddress);
+                const tokenPoolAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TOKEN_POOL_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Create update token pool params
+                const updateTokenPoolParams : updateTokenPoolCallbackActionType = record [
+                    tokenName       = vaultLoanTokenName;
+                    callback        = getBorrowCallbackEntrypointInVaultControllerContract(Tezos.get_self_address());
+
+                    // pass on to callback entrypoint
+                    vaultId         = vaultId;
+                    quantity        = quantity;
+                    initiator       = initiator;
+                    
+                ];
+                
+                // Create updateTokenPoolCallback operation to Token Pool
+                const updateTokenPoolOperation : operation = Tezos.transaction(
+                    updateTokenPoolParams,
+                    0mutez,
+                    getUpdateTokenPoolCallbackEntrypoint(tokenPoolAddress)
+                );
+
+                operations := updateTokenPoolOperation # operations;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+function lambdaBorrowCallback(const vaultControllerLambdaAction : vaultControllerLambdaActionType; var s : vaultControllerStorageType) : return is
+block {
+    
+    var operations          : list(operation)        := nil;
+
+    case vaultControllerLambdaAction of [
+        |   LambdaBorrowCallback(vaultCallbackParams) -> {
+                
+                // Init variables for convenience
+                const vaultId            : nat                     = vaultCallbackParams.vaultId; 
+                const quantity           : nat                     = vaultCallbackParams.quantity;
+                const initiator          : initiatorAddressType    = vaultCallbackParams.initiator;
+                const tokenBorrowIndex   : nat                     = vaultCallbackParams.tokenBorrowIndex;
+                var finalLoanAmount      : nat                     = quantity;
+                
+                // Init loan fees
+                // const minimumLoanFee   : nat = s.config.minimumLoanFee;
+                // const decimals         : nat = s.config.decimals;
+
+                // Make vault handle
+                const vaultHandle : vaultHandleType = record [
+                    id     = vaultId;
+                    owner  = initiator;
+                ];
+
+                // Get vault if exists
+                var vault : vaultType := getVault(vaultHandle, s);
+
+                // Get loan token type
+                const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
+                const loanTokenType : tokenType = case s.loanTokenLedger[vaultLoanTokenName] of [
+                        Some(_loanToken) -> _loanToken.tokenType
+                    |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                ];
+
+                // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
                 // ------------------------------------------------------------------
                 
                 // Charge a minimum loan fee if user is borrowing
-                const loanFee : nat = finalLoanAmount * minimumLoanFee / decimals;
+                // const loanFee : nat = finalLoanAmount * minimumLoanFee / decimals;
+                
 
                 // Init total fee 
-                var totalFees : nat = loanFee;
+                // var totalFees : nat = loanFee;
+
+                // ------------------------------------------------------------------
+                // Get current user borrow index
+                // ------------------------------------------------------------------
+
+                // Get user borrow index
+                var userBorrowIndex : nat := vault.borrowIndex;
+
+                // Get current user loan outstanding
+                const currentLoanOutstanding : nat = vault.loanOutstanding;
 
                 // ------------------------------------------------------------------
                 // Calculate fees on past loan outstanding
                 // ------------------------------------------------------------------
 
                 // calculate outstanding service fee amount
-                if vault.loanOutstanding > 0n then block {
+                if currentLoanOutstanding > 0n then block {
                     
-                    const lastUpdatedBlockLevel     : nat   = vault.lastUpdatedBlockLevel;
-                    const today                     : nat   = Tezos.get_level();
-                    const dailyServiceLoanFee       : nat   = s.config.dailyServiceLoanFee;                      // daily service loan fee
-                    
-                    const minBlockTime              : nat   = Tezos.min_block_time();
-                    const blocksPerMinute           : nat   = 60n / minBlockTime;
-                    const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
-                    
-                    const daysPassed                : nat   = abs(today - lastUpdatedBlockLevel) / blocksPerDay; // only include whole days since remainder is not factored in division here
-                    const totalServiceLoanFee       : nat   = daysPassed * dailyServiceLoanFee; 
+                    // get difference in borrow index
+                    if userBorrowIndex > tokenBorrowIndex then failwith(error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX) else skip;
+                    const borrowIndexDifference : nat = abs(tokenBorrowIndex - userBorrowIndex);
 
-                    // update finalLoanAmount
-                    if totalServiceLoanFee > finalLoanAmount then failwith(error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
-                    finalLoanAmount := abs(finalLoanAmount - totalServiceLoanFee)
+                    // calculate new increment
+                    const interestIncrement : nat = (currentLoanOutstanding * borrowIndexDifference) / fpa10e9; // borrow index currently at 1e9
 
-                    // update vault last updated block level
-                    vault.lastUpdatedBlockLevel = Tezos.get_level();
-
-                    // increment total fees
-                    totalFees := totalFees + totalServiceLoanFee;
+                    // calculate new loan outstanding
+                    const newLoanOutstanding : nat = currentLoanOutstanding + interestIncrement;
 
                 } else skip;
 
@@ -1048,8 +1443,15 @@ block {
                 // ------------------------------------------------------------------
 
                 // reduce finalLoanAmount by loan fee
-                if loanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
-                finalLoanAmount := abs(finalLoanAmount - loanFee);
+                // if loanFee > finalLoanAmount then failwith(error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT) else skip;
+                // finalLoanAmount := abs(finalLoanAmount - loanFee);
+
+                vault.loanOutstanding := newLoanOutstanding;
+
+                // check if vault is undercollaterized again after loan; if it is not, then allow user to borrow
+                if isUnderCollaterized(vault, s) 
+                then failwith(error_VAULT_IS_UNDERCOLLATERIZED)
+                else skip;
 
                 // ------------------------------------------------------------------
                 // Process Loan
@@ -1113,6 +1515,76 @@ block {
                 const quantity             : nat                     = borrowParams.quantity;
                 const initiator            : initiatorAddressType    = Tezos.get_sender();
                 var finalRepaymentAmount   : nat                     = quantity;
+
+                // Make vault handle
+                const vaultHandle : vaultHandleType = record [
+                    id     = vaultId;
+                    owner  = initiator;
+                ];
+
+                // Get vault if exists
+                var vault : vaultType := getVault(vaultHandle, s);
+                
+                // Get loan token type
+                const vaultLoanToken   : string = vault.loanToken; // USDT, EURL, some other crypto coin
+
+                // ------------------------------------------------------------------
+                // Fetch token pool borrow index and update user's vault borrow index in callback
+                // ------------------------------------------------------------------
+                
+                // Get Token Pool Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPool", s.governanceAddress);
+                const tokenPoolAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_TOKEN_POOL_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
+
+                // Create update token pool params
+                const updateTokenPoolParams : updateTokenPoolCallbackActionType = record [
+                    tokenName       = vaultLoanTokenName;
+                    callback        = getBorrowCallbackEntrypointInVaultControllerContract(Tezos.get_self_address());
+
+                    // pass on to callback entrypoint
+                    vaultId         = vaultId;
+                    quantity        = quantity;
+                    initiator       = initiator;
+                    
+                ];
+                
+                // Create updateTokenPoolCallback operation to Token Pool
+                const updateTokenPoolOperation : operation = Tezos.transaction(
+                    updateTokenPoolParams,
+                    0mutez,
+                    getUpdateTokenPoolCallbackEntrypoint(tokenPoolAddress)
+                );
+
+                operations := updateTokenPoolOperation # operations;
+                
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* repay lambda *)
+function lambdaRepayCallback(const vaultControllerLambdaAction : vaultControllerLambdaActionType; var s : vaultControllerStorageType) : return is
+block {
+    
+    var operations          : list(operation)        := nil;
+
+    case vaultControllerLambdaAction of [
+        |   LambdaRepayCallback(vaultCallbackParams) -> {
+                
+                // Init variables for convenience
+                const vaultId              : nat                     = vaultCallbackParams.vaultId; 
+                const quantity             : nat                     = vaultCallbackParams.quantity;
+                const initiator            : initiatorAddressType    = vaultCallbackParams.initiator;
+                var finalRepaymentAmount   : nat                     = quantity;
                 
                 // Init loan fees
                 const decimals         : nat = s.config.decimals;
@@ -1135,8 +1607,18 @@ block {
                 const loanTokenAddress  : address = loanTokenType.tokenContractAddress;
                 const loanTokenId       : nat     = loanTokenType.tokenId;
 
-                // Init total fee 
-                var totalFees : nat = 0n;
+                // ------------------------------------------------------------------
+                // Get current user borrow index
+                // ------------------------------------------------------------------
+
+                // Get user borrow index
+                var userBorrowIndex : nat := vault.borrowIndex;
+
+                // Get current user loan outstanding
+                const currentLoanOutstanding : nat = vault.loanOutstanding;
+                
+                // init final loan outstanding
+                var finalLoanOutstanding : nat := currentLoanOutstanding;
 
                 // ------------------------------------------------------------------
                 // Calculate fees on past loan outstanding
@@ -1145,31 +1627,58 @@ block {
                 // calculate outstanding service fee amount
                 if vault.loanOutstanding > 0n then block {
                     
-                    const lastUpdatedBlockLevel     : nat   = vault.lastUpdatedBlockLevel;
-                    const today                     : nat   = Tezos.get_level();
-                    const dailyServiceLoanFee       : nat   = s.config.dailyServiceLoanFee;                      // daily service loan fee
+                    // get difference in borrow index
+                    if userBorrowIndex > tokenBorrowIndex then failwith(error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX) else skip;
+                    const borrowIndexDifference : nat = abs(tokenBorrowIndex - userBorrowIndex);
 
-                    const minBlockTime              : nat   = Tezos.min_block_time();
-                    const blocksPerMinute           : nat   = 60n / minBlockTime;
-                    const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
-                    
-                    const daysPassed                : nat   = abs(today - lastUpdatedBlockLevel) / blocksPerDay; // only include whole days since remainder is not factored in division here
-                    const totalServiceLoanFee       : nat   = daysPassed * dailyServiceLoanFee; 
+                    // calculate new increment
+                    const interestIncrement : nat = (currentLoanOutstanding * borrowIndexDifference) / fpa10e9; // borrow index currently at 1e9
 
-                    // update vault last updated block level
-                    vault.lastUpdatedBlockLevel = Tezos.get_level();
-
-                    // increment total fees
-                    totalFees := totalFees + totalServiceLoanFee;
+                    // calculate new loan outstanding
+                    finalLoanOutstanding := currentLoanOutstanding + interestIncrement;
 
                 } else skip;
 
                 // ------------------------------------------------------------------
-                // Calculate Final Repay Amount
+                // Calculate Principal / Interest Repayments
                 // ------------------------------------------------------------------
 
-                // repaid amount first goes to cover the accrued fees (interest), before repaying the principal amount
-                finalRepaymentAmount := if totalFees > finalRepaymentAmount then 0n else abs(finalRepaymentAmount - totalFees);
+                // get user initial loan principal total
+                const initialLoanPrincipalTotal : nat = vault.loanPrincipalTotal;
+                var finalLoanInterestTotal : nat := initialLoanPrincipalTotal; // for use in calculations below
+
+                if initialLoanPrincipalTotal > finalLoanOutstanding then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
+                var finalLoanInterestTotal : nat := abs(finalLoanOutstanding - initialLoanPrincipalTotal);
+
+                var totalInterestPaid : nat := 0n;
+
+                if finalRepaymentAmount > finalLoanInterestTotal then {
+                    
+                    // final repayment amount covers interest and principal
+
+                    // calculate remainder amount
+                    const principalReductionAmount : nat = abs(finalRepaymentAmount - finalLoanInterestTotal);
+
+                    // set total interest paid
+                    totalInterestPaid := finalLoanInterestTotal;
+
+                    // reset loan interest to zero
+                    finalLoanInterestTotal := 0n;
+
+                    // calculate final loan principal
+                    finalLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
+
+                } else {
+
+                    // final repayment amount covers interest only
+
+                    // set total interest paid
+                    totalInterestPaid := finalRepaymentAmount;
+
+                    // calculate final loan interest
+                    finalLoanInterestTotal := abs(finalLoanInterestTotal - finalRepaymentAmount);
+
+                }
 
                 // ------------------------------------------------------------------
                 // Process Fee Transfers

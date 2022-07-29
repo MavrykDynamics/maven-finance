@@ -256,6 +256,40 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
         ];
 
 
+
+// helper function to get %borrowCallback entrypoint in Vault Controller Contract
+function getBorrowCallbackEntrypointInVaultControllerContract(const contractAddress : address) : contract(vaultCallbackActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%borrowCallback",
+        contractAddress) : option(contract(vaultCallbackActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(vaultCallbackActionType))
+        ];
+
+
+
+
+// helper function to get %repayCallback entrypoint in Vault Controller Contract
+function getRepayCallbackEntrypointInVaultControllerContract(const contractAddress : address) : contract(vaultCallbackActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%repayCallback",
+        contractAddress) : option(contract(vaultCallbackActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(vaultCallbackActionType))
+        ];
+
+
+
+// helper function to get %updateTokenPoolCallback entrypoint in Token Pool Contract
+function getUpdateTokenPoolCallbackEntrypoint(const contractAddress : address) : contract(updateTokenPoolCallbackActionType) is
+    case (Tezos.get_entrypoint_opt(
+        "%updateTokenPoolCallback",
+        contractAddress) : option(contract(updateTokenPoolCallbackActionType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateTokenPoolCallbackActionType))
+        ];
+
+
 // helper function to get %onBorrow entrypoint in Token Pool Contract
 function getOnBorrowEntrypointInTokenPoolContract(const contractAddress : address) : contract(onBorrowActionType) is
     case (Tezos.get_entrypoint_opt(
