@@ -9,6 +9,7 @@ import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploa
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+import { Info } from '../../../app/App.components/Info/Info.view'
 
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -56,7 +57,7 @@ export const StageOneFormView = ({
   return (
     <>
       <FormHeaderGroup>
-        <h1>Stage 1 {!isProposalRound ? <span className="label">Not accessible in the current round</span> : null}</h1>
+        <h1>Stage 1 </h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}

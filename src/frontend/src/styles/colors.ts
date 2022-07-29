@@ -23,6 +23,7 @@ export const placeholderColor = '#F7F9FD';
 export const secondaryColor = '#73d7c3';
 export const upColor = '#27AE60';
 export const downColor = '#FF4343';
+export const dangerColor = '#FF8486';
 export const warningColor = '#FF7A00';
 export const selectedColor = '#aea3ff3d';
 export const backdropColor = '#08062880';
