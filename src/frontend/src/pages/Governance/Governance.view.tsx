@@ -273,12 +273,6 @@ export const GovernanceView = ({
     }
   }
 
-  console.log(
-    '%c ||||| rightSideContent?.currentCycleEndLevel',
-    'color:yellowgreen',
-    rightSideContent?.currentCycleEndLevel,
-  )
-
   useEffect(() => {
     handleGetTimestampByLevel(rightSideContent?.currentCycleEndLevel ?? 0)
   }, [rightSideContent?.currentCycleEndLevel])

@@ -120,12 +120,11 @@ export const StageTwoFormView = ({
         </div>
         <div>
           <label>3 - Fee</label>
-          <FormTitleEntry>{fee}XTZ</FormTitleEntry>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       <div className="step-bytes">
         {form.proposalBytes.map((item: ProposalDataType, i) => {
-          console.log('%c ||||| item', 'color:yellowgreen', item)
           return (
             <article key={item.id}>
               <div className="step-bytes-title">
