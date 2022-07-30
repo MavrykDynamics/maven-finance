@@ -18,6 +18,8 @@ export default function TimeRemaining() {
   const endLevel = governanceStorage?.currentRoundEndLevel
   const [votingEnding, setVotingEnding] = useState<string>('')
 
+  console.log('%c ||||| votingEnding', 'color:yellowgreen', votingEnding)
+
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
   console.log('%c ||||| timeNow', 'color:yellowgreen', timeNow)
@@ -43,7 +45,7 @@ export default function TimeRemaining() {
 
   return (
     <>
-      {isEndedVotingTime || !deltaMinutes ? (
+      {isEndedVotingTime || !votingEnding ? (
         <MoveToNextRound />
       ) : (
         <TimeLeftAreaWrap>
