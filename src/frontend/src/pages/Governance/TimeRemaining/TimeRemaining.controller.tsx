@@ -20,6 +20,9 @@ export default function TimeRemaining() {
 
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
+  console.log('%c ||||| timeNow', 'color:yellowgreen', timeNow)
+
+  console.log('%c ||||| votingTime', 'color:yellowgreen', votingTime)
   const deltaTime = votingTime - timeNow
   const deltaHours = deltaTime / 1000 / 60 / 60
   const deltaMinutes = deltaHours * 60
@@ -40,7 +43,7 @@ export default function TimeRemaining() {
 
   return (
     <>
-      {isEndedVotingTime ? (
+      {isEndedVotingTime || !deltaMinutes ? (
         <MoveToNextRound />
       ) : (
         <TimeLeftAreaWrap>
