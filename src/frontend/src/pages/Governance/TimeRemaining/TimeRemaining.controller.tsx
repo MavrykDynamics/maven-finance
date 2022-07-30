@@ -45,7 +45,7 @@ export default function TimeRemaining() {
 
   return (
     <>
-      {isEndedVotingTime || !votingEnding ? (
+      {!votingEnding || isEndedVotingTime ? (
         <MoveToNextRound />
       ) : (
         <TimeLeftAreaWrap>
