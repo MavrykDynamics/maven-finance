@@ -84,7 +84,7 @@ export const StageOneFormView = ({
         </div>
         <div>
           <label>3 - Fee</label>
-          <FormTitleEntry>{fee}XTZ</FormTitleEntry>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       <label>4 - Enter a description</label>

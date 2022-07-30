@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from 'reducers'
+/* @ts-ignore */
+import Pluralize from 'react-pluralize'
 
 // components
 import MoveToNextRound from '../MoveNextRound/MoveNextRound.controller'
@@ -23,12 +25,13 @@ export default function TimeRemaining() {
   const deltaMinutes = deltaHours * 60
   const deltaDays = deltaHours / 24
   const isEndedVotingTime = votingTime < timeNow
-  const outputMinutes = deltaMinutes - Math.floor(deltaHours) * 60
+  const floorDeltaHours = Math.floor(deltaHours)
+  const outputMinutes = Math.floor(deltaMinutes - floorDeltaHours * 60)
 
   const handleGetTimestampByLevel = async (level: number) => {
     const res = await getTimestampByLevel(level)
     setVotingEnding(res)
-    // setVotingEnding('2022-07-30T15:11:25Z')
+    // setVotingEnding('2022-07-31T18:44Z')
   }
 
   useEffect(() => {
@@ -42,11 +45,13 @@ export default function TimeRemaining() {
       ) : (
         <TimeLeftAreaWrap>
           {deltaDays >= 1 ? (
-            <TimeLeftArea>{Math.ceil(deltaDays)} days remaining</TimeLeftArea>
+            <TimeLeftArea>
+              <Pluralize singular={'day'} count={Math.round(deltaDays)} /> remaining
+            </TimeLeftArea>
           ) : (
             <TimeLeftArea>
-              {Math.floor(deltaHours) > 0 ? `${Math.floor(deltaHours)} hours` : ''}{' '}
-              {outputMinutes >= 0 ? `${Math.floor(outputMinutes)} minutes` : ''} remaining
+              <Pluralize singular={'hour'} count={floorDeltaHours} />{' '}
+              <Pluralize singular={'minute'} count={outputMinutes} /> remaining
             </TimeLeftArea>
           )}
         </TimeLeftAreaWrap>

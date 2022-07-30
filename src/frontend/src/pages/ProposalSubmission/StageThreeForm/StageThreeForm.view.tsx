@@ -99,7 +99,7 @@ export const StageThreeFormView = ({
         </div>
         <div>
           <label>3 - Fee</label>
-          <FormTitleEntry>{fee}XTZ</FormTitleEntry>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       <label>4 - Enter Proposal Data</label>
