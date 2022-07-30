@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 // types
 import { State } from '../../reducers'
 
-// helpers, actions
-import { calcTimeToBlock } from '../../utils/calcFunctions'
+//  actions
 import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 // consts
@@ -25,12 +24,9 @@ export const FinancialRequests = () => {
 
   const { ready } = useSelector((state: State) => state.wallet)
   const {
-    governanceStorage: { financialRequestLedger, currentRoundEndLevel },
+    governanceStorage: { financialRequestLedger },
     governancePhase,
   } = useSelector((state: State) => state.governance)
-  const { headData } = useSelector((state: State) => state.preferences)
-  console.log(financialRequestLedger)
-  const daysLeftOfPeriod = calcTimeToBlock(headData?.knownLevel, currentRoundEndLevel)
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
@@ -39,12 +35,7 @@ export const FinancialRequests = () => {
   return (
     <Page>
       <PageHeader page={'financial requests'} kind={PRIMARY} loading={loading} />
-      <GovernanceTopBar
-        governancePhase={governancePhase}
-        timeLeftInPhase={daysLeftOfPeriod}
-        isInEmergencyGovernance={false}
-        loading={loading}
-      />
+      <GovernanceTopBar governancePhase={governancePhase} />
       <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
     </Page>
   )

@@ -75,13 +75,7 @@ export const Governance = () => {
   return (
     <Page>
       <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
-      <GovernanceTopBar
-        governancePhase={governancePhase}
-        timeLeftInPhase={daysLeftOfPeriod}
-        isInEmergencyGovernance={false}
-        loading={loading}
-        isExecutionRound={Boolean(watingProposals.length)}
-      />
+      <GovernanceTopBar governancePhase={governancePhase} />
       <GovernanceView
         handleExecuteProposal={handleExecuteProposal}
         ready={ready}

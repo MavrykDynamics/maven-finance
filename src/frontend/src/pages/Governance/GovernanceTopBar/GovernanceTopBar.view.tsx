@@ -1,78 +1,37 @@
-import * as React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
-
 // components
-import MoveToNextRound from '../MoveNextRound/MoveNextRound.controller'
-import { Button } from '../../../app/App.components/Button/Button.controller'
+import TimeRemaining from '../TimeRemaining/TimeRemaining.controller'
 import { GovernancePhase } from '../../../reducers/governance'
 
 // hooks
 import useGovernence from '../UseGovernance'
 
-import {
-  GovernanceTopBarStyled,
-  GovTopBarEmergencyGovText,
-  GovTopBarPhaseText,
-  GovTopBarSidewaysArrowIcon,
-  TimeLeftArea,
-} from './GovernanceTopBar.style'
+import { GovernanceTopBarStyled, GovTopBarPhaseText, GovTopBarSidewaysArrowIcon } from './GovernanceTopBar.style'
 
 export type GovernanceTopBarViewProps = {
-  loading: boolean
   governancePhase: GovernancePhase
-  timeLeftInPhase: number | Date
-  isInEmergencyGovernance: boolean
-  isExecutionRound?: boolean
 }
-export const GovernanceTopBarView = ({
-  loading,
-  governancePhase,
-  timeLeftInPhase,
-  isInEmergencyGovernance,
-  isExecutionRound,
-}: GovernanceTopBarViewProps) => {
-  const { accountPkh } = useSelector((state: State) => state.wallet)
+export const GovernanceTopBarView = ({ governancePhase }: GovernanceTopBarViewProps) => {
   const { watingProposals } = useGovernence()
   const isInExecution = governancePhase === 'PROPOSAL' && Boolean(watingProposals?.length)
 
   return (
     <GovernanceTopBarStyled id="governanceTopBar">
-      {isInEmergencyGovernance ? (
-        <GovTopBarEmergencyGovText>EMERGENCY GOVERNANCE PROTOCOL ACTIVE</GovTopBarEmergencyGovText>
-      ) : (
-        <>
-          <GovTopBarPhaseText className="first" isCorrectPhase={!isInExecution && governancePhase === 'PROPOSAL'}>
-            Proposal
-          </GovTopBarPhaseText>
-          <GovTopBarSidewaysArrowIcon>
-            <use xlinkHref="/icons/sprites.svg#greater-than" />
-          </GovTopBarSidewaysArrowIcon>
-          <GovTopBarPhaseText isCorrectPhase={governancePhase === 'VOTING'}>Voting</GovTopBarPhaseText>
-          <GovTopBarSidewaysArrowIcon>
-            <use xlinkHref="/icons/sprites.svg#greater-than" />
-          </GovTopBarSidewaysArrowIcon>
-          <GovTopBarPhaseText isCorrectPhase={governancePhase === 'TIME_LOCK'}>Time Lock</GovTopBarPhaseText>
-          <GovTopBarSidewaysArrowIcon>
-            <use xlinkHref="/icons/sprites.svg#greater-than" />
-          </GovTopBarSidewaysArrowIcon>
-          <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText>
-
-          {timeLeftInPhase > 0 ? (
-            <div className="right-block">
-              {typeof timeLeftInPhase === 'number' ? (
-                <TimeLeftArea>{Math.ceil(timeLeftInPhase)} days remaining</TimeLeftArea>
-              ) : (
-                <TimeLeftArea>
-                  Ends {timeLeftInPhase.toLocaleDateString('en-GB')} at {timeLeftInPhase.toLocaleTimeString('en-GB')}
-                </TimeLeftArea>
-              )}
-            </div>
-          ) : (
-            <MoveToNextRound />
-          )}
-        </>
-      )}
+      <GovTopBarPhaseText className="first" isCorrectPhase={!isInExecution && governancePhase === 'PROPOSAL'}>
+        Proposal
+      </GovTopBarPhaseText>
+      <GovTopBarSidewaysArrowIcon>
+        <use xlinkHref="/icons/sprites.svg#greater-than" />
+      </GovTopBarSidewaysArrowIcon>
+      <GovTopBarPhaseText isCorrectPhase={governancePhase === 'VOTING'}>Voting</GovTopBarPhaseText>
+      <GovTopBarSidewaysArrowIcon>
+        <use xlinkHref="/icons/sprites.svg#greater-than" />
+      </GovTopBarSidewaysArrowIcon>
+      <GovTopBarPhaseText isCorrectPhase={governancePhase === 'TIME_LOCK'}>Time Lock</GovTopBarPhaseText>
+      <GovTopBarSidewaysArrowIcon>
+        <use xlinkHref="/icons/sprites.svg#greater-than" />
+      </GovTopBarSidewaysArrowIcon>
+      <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText>
+      <TimeRemaining />
     </GovernanceTopBarStyled>
   )
 }
