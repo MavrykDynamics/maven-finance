@@ -26,6 +26,8 @@ export type EmergencyGovernanceLedgerType = {
   description: string
   dropped: boolean
   executed: boolean
+  totalsMvkVotes: number
+  sMvkPercentageRequired: number
 }
 
 export const EmergencyGovernance = () => {

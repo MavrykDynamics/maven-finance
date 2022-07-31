@@ -1,13 +1,16 @@
-import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 
 // types
 import { EmergencyGovernanceLedgerType } from '../EmergencyGovernance.controller'
 
+// view
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { EGovVoting } from './EGovVoting.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 import {
@@ -22,7 +25,7 @@ type EGovHistoryCardProps = {
   emergencyGovernance: EmergencyGovernanceLedgerType
 }
 export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) => {
-  console.log(emergencyGovernance)
+  const { totalStakedMvk } = useSelector((state: State) => state.doorman)
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
   const ref = useRef(null)
@@ -40,8 +43,6 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
   const currentData = emergencyGovernance.executed
     ? emergencyGovernance.executedTimestamp
     : emergencyGovernance.startTimestamp
-
-  console.log('%c ||||| emergencyGovernance', 'color:yellowgreen', emergencyGovernance)
 
   return (
     <EGovHistoryCardStyled key={String(emergencyGovernance.title + emergencyGovernance.id)} onClick={open}>
@@ -80,8 +81,17 @@ export const EGovHistoryCard = ({ emergencyGovernance }: EGovHistoryCardProps) =
 
       <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <div className={'accordion ' + `${expanded}`} ref={ref}>
-          <h3>Description</h3>
-          <p>{emergencyGovernance.description}</p>
+          <div>
+            <h3>Description</h3>
+            <p>{emergencyGovernance.description}</p>
+          </div>
+          <div>
+            <EGovVoting
+              totalStakedMvk={totalStakedMvk ?? 0}
+              totalsMvkVotes={emergencyGovernance.totalsMvkVotes}
+              sMvkPercentageRequired={emergencyGovernance?.sMvkPercentageRequired ?? 0}
+            />
+          </div>
         </div>
       </EGovHistoryCardDropDown>
     </EGovHistoryCardStyled>
