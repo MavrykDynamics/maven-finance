@@ -18,13 +18,9 @@ export default function TimeRemaining() {
   const endLevel = governanceStorage?.currentRoundEndLevel
   const [votingEnding, setVotingEnding] = useState<string>('')
 
-  console.log('%c ||||| votingEnding', 'color:yellowgreen', votingEnding)
-
   const timeNow = Date.now()
   const votingTime = new Date(votingEnding).getTime()
-  console.log('%c ||||| timeNow', 'color:yellowgreen', timeNow)
 
-  console.log('%c ||||| votingTime', 'color:yellowgreen', votingTime)
   const deltaTime = votingTime - timeNow
   const deltaHours = deltaTime / 1000 / 60 / 60
   const deltaMinutes = deltaHours * 60
