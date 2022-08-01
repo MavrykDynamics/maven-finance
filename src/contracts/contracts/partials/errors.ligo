@@ -1191,3 +1191,11 @@
 [@inline] const error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 829n;
 [@inline] const error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 829n;
 [@inline] const error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 829n;
+[@inline] const error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 829n;
+[@inline] const error_LOAN_INTEREST_MISCALCULATION                                                                      = 829n;
+
+[@inline] const error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 829n;
+[@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 829n;
+[@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 829n;
+
+

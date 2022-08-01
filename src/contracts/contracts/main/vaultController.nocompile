@@ -26,7 +26,7 @@
 #include "../partials/contractTypes/doormanTypes.ligo"
 
 // Vault Types
-#include "../partials/contractTypes/vaultNewTypes.ligo"
+#include "../partials/contractTypes/vaultTypes.ligo"
 
 // Token Pool Types
 #include "../partials/contractTypes/tokenPoolTypes.ligo"

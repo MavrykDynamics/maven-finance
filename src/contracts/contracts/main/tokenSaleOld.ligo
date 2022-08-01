@@ -96,7 +96,7 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
@@ -263,7 +263,7 @@ block {
       checkTokenSaleHasStarted(s);
 
       // check if tez sent is equal to amount specified
-      if Tezos.amount =/= naturalToMutez(amountInTez)
+      if Tezos.get_amount() =/= naturalToMutez(amountInTez)
       then failwith(error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ) 
       else skip;
 
@@ -271,13 +271,13 @@ block {
       var operations : list(operation) := nil;
 
       // check if whitelist sale has started
-      if Tezos.now < s.config.whitelistStartTimestamp then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) else skip;
+      if Tezos.get_now() < s.config.whitelistStartTimestamp then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) else skip;
 
       // check if whitelist sale has ended -> proceed to public sale
-      if Tezos.now > s.config.whitelistEndTimestamp then skip 
+      if Tezos.get_now() > s.config.whitelistEndTimestamp then skip 
       
       // whitelist sale has started
-      else if Tezos.now > s.config.whitelistStartTimestamp then block {
+      else if Tezos.get_now() > s.config.whitelistStartTimestamp then block {
 
           // check if user is whitelisted
           if checkInWhitelistAddresses(Tezos.get_sender(), s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
@@ -288,8 +288,8 @@ block {
             | None           -> record [
                 amountBoughtInTez   = 0n;
                 totalClaimed        = 0n;
-                lastBought          = Tezos.now;
-                lastClaimed         = Tezos.now;
+                lastBought          = Tezos.get_now();
+                lastClaimed         = Tezos.get_now();
               ]
           ];
 
@@ -310,8 +310,8 @@ block {
         | None           -> record [
             amountBoughtInTez   = 0n;
             totalClaimed        = 0n;
-            lastBought          = Tezos.now;
-            lastClaimed         = Tezos.now;
+            lastBought          = Tezos.get_now();
+            lastClaimed         = Tezos.get_now();
           ]
       ];
 
@@ -324,12 +324,12 @@ block {
 
       // send amount to treasury
       const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Treasury Contract not found.");
-      const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+      const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
       operations := transferAmountToTreasuryOperation # operations;
 
       // update token sale ledger
       userTokenSaleRecord.amount      := userTokenSaleRecord.amountBoughtInTez + amountInTez;
-      userTokenSaleRecord.lastBought  := Tezos.now;
+      userTokenSaleRecord.lastBought  := Tezos.get_now();
       s.tokenSaleLedger[Tezos.get_sender()] := userTokenSaleRecord;
 
 } with (operations, s)
@@ -355,7 +355,7 @@ block {
       const tokenSaleEndTimestamp  : timestamp  = s.tokenSaleEndTimestamp;
       const endVestingTimestamp    : timestamp  = s.endVestingTimestamp;
       
-      const today                  : timestamp  = Tezos.now;
+      const today                  : timestamp  = Tezos.get_now();
       const todayBlocks            : nat        = Tezos.get_level();
 
       // date at which any user can make the first claim
