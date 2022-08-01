@@ -264,8 +264,8 @@ block {
     if Tezos.get_sender() =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
 
     // check that last drift update is before current time
-    if s.lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
-    const delta   : nat   = abs(Tezos.now - s.lastDriftUpdate);
+    if s.lastDriftUpdate > Tezos.get_now() then failwith("Error. Delta cannot be negative.") else skip;
+    const delta   : nat   = abs(Tezos.get_now() - s.lastDriftUpdate);
 
     var target    : nat  := s.target;
     var d_target  : nat  := (target * abs(s.drift) * delta) / fixedPointAccuracy;
@@ -283,7 +283,7 @@ block {
 
     s.drift              := drift;
     s.target             := target;
-    s.lastDriftUpdate    := Tezos.now;
+    s.lastDriftUpdate    := Tezos.get_now();
 
     // math probably not correct with the divisions - double check with checker formula
 
@@ -293,7 +293,7 @@ block {
 //   if Tezos.get_sender() <> storage.cfmm_address then
 //     (failwith error_CALLER_MUST_BE_CFMM : result)
 //   else
-//     let delta = abs (Tezos.now - storage.last_drift_update) in
+//     let delta = abs (Tezos.get_now() - storage.last_drift_update) in
 //     let target = storage.target in
 //     let d_target = Bitwise.shift_right (target * (abs storage.drift) * delta) 48n in
 //     (* We assume that `target - d_target < 0` never happens for economic reasons.
@@ -320,7 +320,7 @@ block {
 //     else
 //       storage.drift - d_drift in
 
-//     (([] : operation list), {storage with drift = drift ; last_drift_update = Tezos.now ; target = target})
+//     (([] : operation list), {storage with drift = drift ; last_drift_update = Tezos.get_now() ; target = target})
 
 
 } with (noOperations, s)
@@ -359,7 +359,7 @@ block {
             // originate vault with tez func
             const vaultWithTezOrigination : (operation * address) = createVaultWithTezFunc(
                 (None : option(key_hash)), 
-                Tezos.amount,
+                Tezos.get_amount(),
                 originateVaultWithTezStorage
             );
 
@@ -368,7 +368,7 @@ block {
 
             // create new vault params
             const vault : vaultType = record [
-                collateralBalance       = mutezToNatural(Tezos.amount); 
+                collateralBalance       = mutezToNatural(Tezos.get_amount()); 
                 usdmOutstanding         = 0n;
                 address                 = vaultWithTezOrigination.1; // vault address
                 collateralTokenAddress  = zeroAddress;

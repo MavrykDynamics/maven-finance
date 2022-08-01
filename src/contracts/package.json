@@ -41,11 +41,14 @@
     "compile-treasury-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json -c contracts/main/treasury.ligo -n treasuryLambdas",
     "compile-treasuryFactory-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/treasuryFactory/treasuryFactoryLambdaIndex.json -c contracts/main/treasuryFactory.ligo -n treasuryFactoryLambdas",
     "compile-emergencyGovernance-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/emergencyGovernance/emergencyGovernanceLambdaIndex.json -c contracts/main/emergencyGovernance.ligo -n emergencyGovernanceLambdas",
+    
     "compile-all-lambdas-1": "yarn compile-governanceProxy-lambdas && yarn compile-governance-lambdas && yarn compile-governanceFinancial-lambdas && yarn compile-doorman-lambdas && yarn compile-delegation-lambdas && yarn compile-breakGlass-lambdas && yarn compile-council-lambdas && yarn compile-emergencyGovernance-lambdas",
-    "compile-all-lambdas-2": "yarn compile-farm-lambdas && yarn compile-farmFactory-lambdas && yarn compile-vesting-lambdas && yarn compile-treasury-lambdas && yarn compile-treasuryFactory-lambdas && yarn compile-aggregator-lambdas",
-    "compile-all-lambdas-3": "yarn compile-aggregatorFactory-lambdas && yarn compile-governanceSatellite-lambdas",
+    "compile-all-lambdas-2": "yarn compile-farm-lambdas && yarn compile-farmFactory-lambdas && yarn compile-vesting-lambdas && yarn compile-treasury-lambdas && yarn compile-treasuryFactory-lambdas && yarn compile-aggregator-lambdas && yarn compile-lendingVault-contract",
+    "compile-all-lambdas-3": "yarn compile-aggregatorFactory-lambdas && yarn compile-governanceSatellite-lambdas && yarn compile-lendingController-contract",
+    
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-1 && yarn compile-all-lambdas-2 && yarn compile-all-lambdas-3",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
+    
     "compile-aggregator-contract": "yarn pre-compile aggregator && ts-node scripts/cli.ts compile -f json -o build -c aggregator && yarn compile-aggregator-lambdas",
     "compile-aggregatorFactory-contract": "yarn pre-compile aggregatorFactory && ts-node scripts/cli.ts compile -f json -o build -c aggregatorFactory && yarn compile-aggregatorFactory-lambdas",
     "compile-governanceProxy-contract": "yarn pre-compile governanceProxy && ts-node scripts/cli.ts compile -f json -o build -c governanceProxy && yarn compile-governanceProxy-lambdas",
@@ -66,6 +69,8 @@
     "compile-cfmm-contract": "yarn pre-compile cfmm && ts-node scripts/cli.ts compile -f json -o build -c cfmm",
     "compile-tokenController-contract": "yarn pre-compile tokenController && ts-node scripts/cli.ts compile -f json -o build -c tokenController",
     "compile-vault-contract": "yarn pre-compile u_vault && ts-node scripts/cli.ts compile -f json -o build -c u_vault",
+    "compile-lendingVault-contract": "yarn pre-compile lend_vault && ts-node scripts/cli.ts compile -f json -o build -c lend_vault",
+    "compile-lendingController-contract": "yarn pre-compile lendingController && ts-node scripts/cli.ts compile -f json -o build -c lendingController",
 
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 600000",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=jakartanet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 9000000",
