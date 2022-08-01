@@ -1,89 +1,158 @@
-#include "../partials/vault/vaultType.ligo"
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
 
-type collateralTokenRecordType is [@layout:comb] record [
-    tokenName               : string;
-    tokenContractAddress    : address;
-    tokenType               : tokenType; // from vaultType.ligo partial - Tez, FA12, FA2
-    decimals                : nat;
-    oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
-    oracleAddress           : address;   // zeroAddress if no oracle
-]
+// Error Codes
+#include "../partials/errors.ligo"
+
+// ------------------------------------------------------------------------------
+// Shared Methods and Types
+// ------------------------------------------------------------------------------
+
+// Shared Methods
+#include "../partials/shared/sharedMethods.ligo"
+
+// Transfer Methods
+#include "../partials/shared/transferMethods.ligo"
+
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
+// Vault Types
+#include "../partials/contractTypes/vaultTypes.ligo"
+
+// Vault Controller Types
+#include "../partials/contractTypes/vaultControllerTypes.ligo"
+
+// ------------------------------------------------------------------------------
+
+type vaultActionType is 
+
+    |   VaultDelegateTezToBaker            of vaultDelegateTezToBakerType
+    |   VaultDelegateMvkToSatellite        of satelliteAddressType
+    |   VaultWithdraw                      of vaultWithdrawType
+    |   VaultDeposit                       of vaultDepositType 
+    |   VaultEditDepositor                 of editDepositorType
+  
+
+const noOperations : list (operation) = nil;
+type vaultReturn is list (operation) * vaultStorageType
+
+// vault contract methods lambdas
+type vaultUnpackLambdaFunctionType is (vaultLambdaActionType * vaultStorageTypeType) -> return
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// Allowed Senders: Admin
+function checkSenderIsAdmin(const s : vaultStorageType) : unit is
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    else unit
+
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p : unit) : unit is
+    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    else unit
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Misc Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 // helper functions - conversions
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
 function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 function ceildiv(const numerator : nat; const denominator : nat) is abs( (- numerator) / (int (denominator)) );
 
-function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
+// ------------------------------------------------------------------------------
+// Misc Helper Functions End
+// ------------------------------------------------------------------------------
 
-// helper function to transfer FA12 tokens
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenContractAddress: address): operation is
-    block{
-        const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
-        const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
-                Some (c) -> c
-            |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            ];
-    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-// helper function to transfer FA2 tokens
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: fa2TransferType = list[
-            record[
-                from_ = from_;
-                txs = list[
-                    record[
-                        to_      = to_;
-                        token_id = tokenId;
-                        amount   = tokenAmount;
-                    ]
-                ]
-            ]
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to %registerDeposit entrypoint in the vault controller
+function registerDepositInVaultController(const contractAddress : address) : contract(vaultControllerDepositType) is
+    case (Tezos.get_entrypoint_opt(
+        "%registerDeposit",
+        contractAddress) : option(contract(vaultControllerDepositType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(vaultControllerDepositType))
         ];
 
-    const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
-            Some (c) -> c
-        |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        ];
-
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 
-
-function checkSenderIsAdmin(var s : vaultStorage) : unit is
-  if (Tezos.get_sender() = s.admin) then unit
-  else failwith("Error. Only the administrator can call this entrypoint.");
-
-function checkNoAmount(const _p : unit) : unit is
-  if (Tezos.get_amount() = 0tez) then unit
-  else failwith("Error. There should be no tez sent.");
-
-
-// helper function to get registerDeposit entrypoint
-function registerDepositInTokenController(const contractAddress : address) : contract(tokenControllerDepositType) is
-  case (Tezos.get_entrypoint_opt(
-      "%registerDeposit",
-      contractAddress) : option(contract(tokenControllerDepositType))) of [
-    Some(contr) -> contr
-  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(tokenControllerDepositType))
-  ];
-
-// helper function to get delegateToSatellite entrypoint
+// helper function to %delegateToSatellite entrypoint in the delegation contract
 function getDelegateToSatelliteEntrypoint(const contractAddress : address) : contract(address) is
-  case (Tezos.get_entrypoint_opt(
-      "%delegateToSatellite",
-      contractAddress) : option(contract(address))) of [
-    Some(contr) -> contr
-  | None -> (failwith("Error. delegateToSatellite entrypoint in contract not found") : contract(address))
-  ]
+    case (Tezos.get_entrypoint_opt(
+        "%delegateToSatellite",
+        contractAddress) : option(contract(address))) of [
+                Some(contr) -> contr
+            |   None -> (failwith("Error. delegateToSatellite entrypoint in contract not found") : contract(address))
+        ]
 
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
 
 (* vaultWithdraw entrypoint *)
-function vaultWithdraw(const vaultWithdrawParams : vaultWithdrawType; var s : vaultStorage) : vaultReturn is 
+function vaultWithdraw(const vaultWithdrawParams : vaultWithdrawType; var s : vaultStorageType) : vaultReturn is 
 block {
     
     // check that sender is admin (token controller)
@@ -144,7 +213,7 @@ block {
 
 
 (* vaultDelegateTezToBaker entrypoint *)
-function vaultDelegateTezToBaker(const vaultDelegateParams : vaultDelegateTezToBakerType; var s : vaultStorage) : vaultReturn is 
+function vaultDelegateTezToBaker(const vaultDelegateParams : vaultDelegateTezToBakerType; var s : vaultStorageType) : vaultReturn is 
 block {
     
     // set new delegate only if sender is the vault owner
@@ -164,7 +233,7 @@ block {
 
 
 (* vaultDelegateMvkToSatellite entrypoint *)
-function vaultDelegateMvkToSatellite(const satelliteAddress : address; var s : vaultStorage) : vaultReturn is 
+function vaultDelegateMvkToSatellite(const satelliteAddress : address; var s : vaultStorageType) : vaultReturn is 
 block {
     
     // set new delegate only if sender is the vault owner
@@ -199,7 +268,7 @@ block {
 
 
 (* vaultDeposit entrypoint *)
-function vaultDeposit(const vaultDepositParams : vaultDepositType; var s : vaultStorage) : vaultReturn is 
+function vaultDeposit(const vaultDepositParams : vaultDepositType; var s : vaultStorageType) : vaultReturn is 
 block {
 
     // init operations
@@ -338,7 +407,7 @@ block {
 
 
 (* vaultEditDepositor entrypoint *)
-function vaultEditDepositor(const editDepositorParams : editDepositorType; var s : vaultStorage) : vaultReturn is
+function vaultEditDepositor(const editDepositorParams : editDepositorType; var s : vaultStorageType) : vaultReturn is
 block {
 
     // set new depositor only if sender is the vault owner
@@ -365,11 +434,27 @@ block {
 
 } with (noOperations, s)
 
-function main (const vaultAction : vaultActionType; const s : vaultStorage) : vaultReturn is 
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
+
+
+
+(* main entrypoint *)
+function main (const vaultAction : vaultActionType; const s : vaultStorageType) : vaultReturn is 
+
     case vaultAction of [
-        | VaultDelegateTezToBaker(parameters)       -> vaultDelegateTezToBaker(parameters, s)
-        | VaultDelegateMvkToSatellite(parameters)   -> vaultDelegateMvkToSatellite(parameters, s)
-        | VaultWithdraw(parameters)                 -> vaultWithdraw(parameters, s)
-        | VaultDeposit(parameters)                  -> vaultDeposit(parameters, s)
-        | VaultEditDepositor(parameters)            -> vaultEditDepositor(parameters, s)
-    ]
+
+        |   VaultDelegateTezToBaker(parameters)       -> vaultDelegateTezToBaker(parameters, s)
+        |   VaultDelegateMvkToSatellite(parameters)   -> vaultDelegateMvkToSatellite(parameters, s)
+        |   VaultWithdraw(parameters)                 -> vaultWithdraw(parameters, s)
+        |   VaultDeposit(parameters)                  -> vaultDeposit(parameters, s)
+        |   VaultEditDepositor(parameters)            -> vaultEditDepositor(parameters, s)
+
+    ]dele

@@ -70,7 +70,7 @@ block {
 
         // create deposit params
         const depositParams : registerTezDepositType = record [
-            amount = Tezos.amount; 
+            amount = Tezos.get_amount(); 
             handle = s.handle;
         ];
         

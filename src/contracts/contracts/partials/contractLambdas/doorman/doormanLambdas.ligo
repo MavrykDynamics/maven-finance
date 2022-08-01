@@ -983,7 +983,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
 
 (*  vaultDepositStakedMvk lambda *)
-function lambdaVaultDepositStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaVaultDepositStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block{
     
     checkCompoundIsNotPaused(s);
@@ -1070,23 +1070,23 @@ block{
                 ];
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const ownerOnStakeChangeOperation: operation = Tezos.transaction((vaultOwner), 0tez, updateSatelliteBalance(delegationAddress));
-                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
+                const ownerOnStakeChangeOperation: operation = Tezos.transaction((vaultOwner), 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
-                const ownerUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (vaultOwner),
-                  0tez,
-                  updateSatelliteBalance(delegationAddress)
-                );
+                // const ownerUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
+                //   (vaultOwner),
+                //   0tez,
+                //   updateSatelliteBalance(delegationAddress)
+                // );
 
-                const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (vaultAddress),
-                  0tez,
-                  updateSatelliteBalance(delegationAddress)
-                );
+                // const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
+                //   (vaultAddress),
+                //   0tez,
+                //   updateSatelliteBalance(delegationAddress)
+                // );
 
-                operations  := list [ownerUpdateSatelliteBalanceOperation; vaultUpdateSatelliteBalanceOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -1096,7 +1096,7 @@ block{
 
 
 (*  vaultWithdrawStakedMvk lambda *)
-function lambdaVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block{
     
     checkCompoundIsNotPaused(s);
@@ -1177,23 +1177,23 @@ block{
                 ];
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const ownerOnStakeChangeOperation: operation = Tezos.transaction((vaultOwner), 0tez, updateSatelliteBalance(delegationAddress));
-                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
+                const ownerOnStakeChangeOperation: operation = Tezos.transaction((vaultOwner), 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
-                const ownerUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (vaultOwner),
-                  0tez,
-                  updateSatelliteBalance(delegationAddress)
-                );
+                // const ownerUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
+                //   (vaultOwner),
+                //   0tez,
+                //   updateSatelliteBalance(delegationAddress)
+                // );
 
-                const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (vaultAddress),
-                  0tez,
-                  updateSatelliteBalance(delegationAddress)
-                );
+                // const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
+                //   (vaultAddress),
+                //   0tez,
+                //   updateSatelliteBalance(delegationAddress)
+                // );
 
-                operations  := list [ownerUpdateSatelliteBalanceOperation; vaultUpdateSatelliteBalanceOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -1203,7 +1203,7 @@ block{
 
 
 (*  vaultLiquidateStakedMvk lambda *)
-function lambdaVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+function lambdaVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorageType): return is
 block{
     
     checkCompoundIsNotPaused(s);
@@ -1297,23 +1297,23 @@ block{
                 ];
 
                 // update satellite balance if user/vault is delegated to a satellite
-                const liquidatorOnStakeChangeOperation: operation = Tezos.transaction((liquidator), 0tez, updateSatelliteBalance(delegationAddress));
-                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
+                const liquidatorOnStakeChangeOperation: operation = Tezos.transaction((liquidator), 0tez, delegationOnStakeChange(delegationAddress));
+                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, delegationOnStakeChange(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
-                const liquidatorUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (liquidator),
-                  0tez,
-                  updateSatelliteBalance(delegationAddress)
-                );
+                // const liquidatorUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
+                //   (liquidator),
+                //   0tez,
+                //   updateSatelliteBalance(delegationAddress)
+                // );
 
-                const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (vaultAddress),
-                  0tez,
-                  updateSatelliteBalance(delegationAddress)
-                );
+                // const vaultUpdateSatelliteBalanceOperation : operation = Tezos.transaction(
+                //   (vaultAddress),
+                //   0tez,
+                //   updateSatelliteBalance(delegationAddress)
+                // );
 
-                operations  := list [liquidatorUpdateSatelliteBalanceOperation; vaultUpdateSatelliteBalanceOperation; liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
+                operations  := list [liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];

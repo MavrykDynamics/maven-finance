@@ -749,7 +749,7 @@ block {
     // originate vault func
     const vaultOrigination : (operation * address) = createVaultFunc(
         (None : option(key_hash)), 
-        Tezos.amount,
+        Tezos.get_amount(),
         originateVaultStorage
     );
 
@@ -757,11 +757,11 @@ block {
     operations := vaultOrigination.0 # operations; 
 
     // create new vault params
-    if mutezToNatural(Tezos.amount) > 0n then block {
+    if mutezToNatural(Tezos.get_amount()) > 0n then block {
         
         // tez is sent
         const collateralBalanceLedgerMap : collateralBalanceLedgerType = map[
-            ("tez" : string) -> mutezToNatural(Tezos.amount)
+            ("tez" : string) -> mutezToNatural(Tezos.get_amount())
         ];
         const vault : vaultType = record [
             address                    = vaultOrigination.1; // vault address
@@ -954,7 +954,7 @@ block {
 
     // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
     if tokenName = "tez" then block {
-        if mutezToNatural(Tezos.amount) =/= withdrawTokenAmount then failwith("Error. Tezos amount and withdraw token amount do not match.") else skip;
+        if mutezToNatural(Tezos.get_amount()) =/= withdrawTokenAmount then failwith("Error. Tezos amount and withdraw token amount do not match.") else skip;
     } else skip;
 
     // get token collateral balance in vault, fail if none found
@@ -1598,12 +1598,12 @@ block {
 
     var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of [
           Some(_timestamp) -> _timestamp
-        | None -> Tezos.now - 300           // if no drift update is found for token, set to 5 minutes ago
+        | None -> Tezos.get_now() - 300           // if no drift update is found for token, set to 5 minutes ago
     ];
 
     // check that last drift update is before current time
-    if lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
-    const delta   : nat   = abs(Tezos.now - lastDriftUpdate); 
+    if lastDriftUpdate > Tezos.get_now() then failwith("Error. Delta cannot be negative.") else skip;
+    const delta   : nat   = abs(Tezos.get_now() - lastDriftUpdate); 
 
     var target : nat  := case s.targetLedger[tokenName] of [
           Some(_nat) -> _nat
@@ -1630,7 +1630,7 @@ block {
 
     s.targetLedger[tokenName]            := target;
     s.driftLedger[tokenName]             := drift;
-    s.lastDriftUpdateLedger[tokenName]   := Tezos.now;
+    s.lastDriftUpdateLedger[tokenName]   := Tezos.get_now();
     s.priceLedger[tokenName]             := price;           
 
     // math may not be completely correct with the divisions - double check with ctez/checker formula
