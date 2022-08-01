@@ -1062,16 +1062,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin drops financial request', async () => {
-            try{
-                // Operation
-                const operation = await councilInstance.methods.councilActionDropFinancialReq(1).send()
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin flushes an action', async () => {
             try{
                 // Operation
@@ -1100,6 +1090,18 @@ describe("Testnet interactions helper", async () => {
 
                 await signerFactory(alice.sk)
                 operation = await councilInstance.methods.signAction(actionId).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops financial request', async () => {
+            try{
+                // Operation
+                councilStorage  = await councilInstance.storage();
+                const actionId  = councilStorage.actionCounter.toNumber() - 1;
+                const operation = await councilInstance.methods.councilActionDropFinancialReq(actionId).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

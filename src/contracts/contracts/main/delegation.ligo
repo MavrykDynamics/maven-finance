@@ -6,16 +6,16 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
-// Permission Methods
+// Permission Helpers
 #include "../partials/shared/permissionHelpers.ligo"
 
 // ------------------------------------------------------------------------------
@@ -397,7 +397,7 @@ block {
 } with satelliteRecord
 
 // helper function to refresh a satellite governance snapshot
-function updateGovernanceSnapshot (const satelliteAddress : address; const ready : bool; var operationList : list(operation); const s : delegationStorageType) : list(operation) is
+function updateGovernanceSnapshot (const satelliteAddress : address; const ready : bool; var operations : list(operation); const s : delegationStorageType) : list(operation) is
 block {
 
     // Get the current round and the satellite snapshot opt
@@ -414,7 +414,7 @@ block {
 
     // Check if a snapshot needs to be created
     const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> if _snapshot.cycle = currentCycle then False else True
+        Some (_snapshot)    -> _snapshot.cycle =/= currentCycle
     |   None                -> True
     ];
 
@@ -442,11 +442,11 @@ block {
             sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
         );
 
-        operationList   := updateSnapshotOperation # operationList;
+        operations   := updateSnapshotOperation # operations;
 
     } else skip;
 
-} with(operationList)
+} with(operations)
 
 // ------------------------------------------------------------------------------
 // Satellite Helper Functions End
@@ -484,7 +484,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -493,7 +493,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

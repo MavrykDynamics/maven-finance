@@ -952,7 +952,7 @@ block {
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
                 const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
-                // Update the satellite snapshot on the governance contract before updating its record
+                // Update the satellite snapshot before rewards are updated
                 operations  := updateGovernanceSnapshot(userAddress, True, operations, s);
 
                 // Check that sender is the Doorman Contract

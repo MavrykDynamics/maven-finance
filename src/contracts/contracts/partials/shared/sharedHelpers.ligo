@@ -6,7 +6,7 @@
 #include "../errors.ligo"
 
 // ------------------------------------------------------------------------------
-// General Contract Methods
+// General Contract Helpers
 // ------------------------------------------------------------------------------
 
 function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
@@ -55,7 +55,7 @@ case (Tezos.call_view ("getGeneralContractOpt", contractName, governanceAddress)
 ];
 
 // ------------------------------------------------------------------------------
-// Whitelist Contract Methods
+// Whitelist Contract Helpers
 // ------------------------------------------------------------------------------
 
 function checkInWhitelistContracts(const contractAddress : address; var whitelistContracts : whitelistContractsType) : bool is 
@@ -91,7 +91,7 @@ block{
 } with (updatedWhitelistContracts)
 
 // ------------------------------------------------------------------------------
-// Whitelist Token Contract Methods
+// Whitelist Token Contract Helpers
 // ------------------------------------------------------------------------------
 
 function checkInWhitelistTokenContracts(const contractAddress : address; var whitelistTokenContracts : whitelistTokenContractsType) : bool is 

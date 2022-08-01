@@ -25,6 +25,12 @@ module.exports = {
       secretKey: bob.sk,
       port: 8732,
     },
+    ghostnet: {
+      rpc: "https://ghostnet.smartpy.io",
+      port: 443,
+      network_id: "*",
+      secretKey: bob.sk,
+    },
     jakartanet: {
       rpc: "https://jakartanet.ecadinfra.com",
       port: 443,

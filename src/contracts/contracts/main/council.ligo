@@ -6,14 +6,17 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -231,7 +234,7 @@ function sendSetContractBakerParams(const contractAddress : address) : contract(
 // ------------------------------------------------------------------------------
 
 // helper function to check if a satellite can interact with an action
-function checkActionInteraction(const actionRecord : councilActionRecordType) : unit is
+function validateAction(const actionRecord : councilActionRecordType) : unit is
 block {
 
     // Check if governance satellite action has been flushed
@@ -410,20 +413,20 @@ block {
 
 
 // helper function to trigger the set baker action during the sign
-function triggerSetBakerAction(const actionRecord : councilActionRecordType; var operationList : list(operation)) : list(operation) is
+function triggerSetBakerAction(const actionRecord : councilActionRecordType; var operations : list(operation)) : list(operation) is
 block {
 
     const keyHash            : option(key_hash) = actionRecord.keyHash;
     const setBakerOperation  : operation        = Tezos.set_delegate(keyHash);
 
-    operationList := setBakerOperation # operationList;
+    operations := setBakerOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the add vestee action during the sign
-function triggerAddVesteeAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerAddVesteeAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
 
     // fetch params begin ---
@@ -463,14 +466,14 @@ block {
         sendAddVesteeParams(vestingAddress)
     );
     
-    operationList := addVesteeOperation # operationList;
+    operations := addVesteeOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the remove vestee action during the sign
-function triggerRemoveVesteeAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerRemoveVesteeAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
     
     // fetch params begin ---
@@ -488,14 +491,14 @@ block {
         sendRemoveVesteeParams(vestingAddress)
     );
     
-    operationList := removeVesteeOperation # operationList;
+    operations := removeVesteeOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the update vestee action during the sign
-function triggerUpdateVesteeAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerUpdateVesteeAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
     
     // fetch params begin ---
@@ -535,14 +538,14 @@ block {
         sendUpdateVesteeParams(vestingAddress)
     );
 
-    operationList := updateVesteeOperation # operationList;
+    operations := updateVesteeOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the toggle vestee lock action during the sign
-function triggerToggleVesteeLockAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerToggleVesteeLockAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
 
     // fetch params begin ---
@@ -560,14 +563,14 @@ block {
         sendToggleVesteeLockParams(vestingAddress)
     );
 
-    operationList := toggleVesteeLockOperation # operationList;
+    operations := toggleVesteeLockOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the transfer action during the sign
-function triggerTransferAction(const actionRecord : councilActionRecordType; var operationList : list(operation)) : list(operation) is
+function triggerTransferAction(const actionRecord : councilActionRecordType; var operations : list(operation)) : list(operation) is
 block {
 
     // fetch params begin ---
@@ -628,14 +631,14 @@ block {
         |   Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
     ];
 
-    operationList := transferTokenOperation # operationList;
+    operations := transferTokenOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the request token action during the sign
-function triggerRequestTokenAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerRequestTokenAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
 
     // fetch params begin ---
@@ -697,14 +700,14 @@ block {
         sendRequestTokensParams(governanceFinancialAddress)
     );
 
-    operationList := requestTokensOperation # operationList;
+    operations := requestTokensOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the request mint action during the sign
-function triggerRequestMintAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerRequestMintAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
 
     // fetch params begin ---
@@ -741,14 +744,14 @@ block {
         sendRequestMintParams(governanceFinancialAddress)
     );
 
-    operationList := requestMintOperation # operationList;
+    operations := requestMintOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the set contract baker action during the sign
-function triggerSetContractBakerAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerSetContractBakerAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
     
     // fetch params begin ---
@@ -771,14 +774,14 @@ block {
         sendSetContractBakerParams(governanceFinancialAddress)
     );
 
-    operationList := setContractBakerOperation # operationList;
+    operations := setContractBakerOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the drop financial request action during the sign
-function triggerDropFinancialRequestAction(const actionRecord : councilActionRecordType; var operationList : list(operation); const s : councilStorageType) : list(operation) is
+function triggerDropFinancialRequestAction(const actionRecord : councilActionRecordType; var operations : list(operation); const s : councilStorageType) : list(operation) is
 block {
                         
     // fetch params begin ---
@@ -805,14 +808,14 @@ block {
         sendDropFinancialRequestParams(governanceFinancialAddress)
     );
 
-    operationList := dropFinancialRequestOperation # operationList;
+    operations := dropFinancialRequestOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the flush action action during the sign
-function triggerFlushActionAction(const actionRecord : councilActionRecordType; var operationList : list(operation); var s : councilStorageType) : return is
+function triggerFlushActionAction(const actionRecord : councilActionRecordType; var operations : list(operation); var s : councilStorageType) : return is
 block {
 
     // fetch params begin ---
@@ -828,17 +831,17 @@ block {
     ];
 
     // check if council can sign the action
-    checkActionInteraction(flushedCouncilActionRecord);
+    validateAction(flushedCouncilActionRecord);
 
     flushedCouncilActionRecord.status := "FLUSHED";
     s.councilActionsLedger[flushedCouncilActionId] := flushedCouncilActionRecord;
 
-} with (operationList, s)
+} with (operations, s)
 
 
 
 // helper function to a council action during the sign
-function executeCouncilAction(var actionRecord : councilActionRecordType; const actionId : actionIdType; var operationList : list(operation); var s : councilStorageType) : return is
+function executeCouncilAction(var actionRecord : councilActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : councilStorageType) : return is
 block {
 
     // --------------------------------------
@@ -861,7 +864,7 @@ block {
     if actionType = "changeCouncilMember" then s                := triggerChangeCouncilMemberAction(actionRecord, s);
 
     // setBaker action type
-    if actionType = "setBaker" then operationList               := triggerSetBakerAction(actionRecord, operationList);
+    if actionType = "setBaker" then operations               := triggerSetBakerAction(actionRecord, operations);
 
     // ------------------------------------------------------------------------------
     // Council Actions for Internal Control End
@@ -874,16 +877,16 @@ block {
     // ------------------------------------------------------------------------------
 
     // addVestee action type
-    if actionType = "addVestee" then operationList              := triggerAddVesteeAction(actionRecord, operationList, s);
+    if actionType = "addVestee" then operations              := triggerAddVesteeAction(actionRecord, operations, s);
 
     // addVestee action type
-    if actionType = "removeVestee" then operationList           := triggerRemoveVesteeAction(actionRecord, operationList, s);
+    if actionType = "removeVestee" then operations           := triggerRemoveVesteeAction(actionRecord, operations, s);
 
     // updateVestee action type
-    if actionType = "updateVestee" then operationList           := triggerUpdateVesteeAction(actionRecord, operationList, s);
+    if actionType = "updateVestee" then operations           := triggerUpdateVesteeAction(actionRecord, operations, s);
 
     // updateVestee action type
-    if actionType = "toggleVesteeLock" then operationList       := triggerToggleVesteeLockAction(actionRecord, operationList, s);
+    if actionType = "toggleVesteeLock" then operations       := triggerToggleVesteeLockAction(actionRecord, operations, s);
 
     // ------------------------------------------------------------------------------
     // Council Actions for Vesting End
@@ -896,19 +899,19 @@ block {
     // ------------------------------------------------------------------------------
 
     // transfer action type
-    if actionType = "transfer" then operationList               := triggerTransferAction(actionRecord, operationList);
+    if actionType = "transfer" then operations               := triggerTransferAction(actionRecord, operations);
 
     // requestTokens action type
-    if actionType = "requestTokens" then operationList          := triggerRequestTokenAction(actionRecord, operationList, s);
+    if actionType = "requestTokens" then operations          := triggerRequestTokenAction(actionRecord, operations, s);
 
     // requestMint action type
-    if actionType = "requestMint" then operationList            := triggerRequestMintAction(actionRecord, operationList, s);
+    if actionType = "requestMint" then operations            := triggerRequestMintAction(actionRecord, operations, s);
 
     // setContractBaker action type
-    if actionType = "setContractBaker" then operationList       := triggerSetContractBakerAction(actionRecord, operationList, s);
+    if actionType = "setContractBaker" then operations       := triggerSetContractBakerAction(actionRecord, operations, s);
 
     // dropFinancialRequest action type
-    if actionType = "dropFinancialRequest" then operationList   := triggerDropFinancialRequestAction(actionRecord, operationList, s);
+    if actionType = "dropFinancialRequest" then operations   := triggerDropFinancialRequestAction(actionRecord, operations, s);
 
     // ------------------------------------------------------------------------------
     // Financial Governance Actions End
@@ -922,9 +925,9 @@ block {
 
     // flush action type
     if actionType = "flushAction" then block {
-        const triggerFlushActionActionTrigger : return          = triggerFlushActionAction(actionRecord, operationList, s);
+        const triggerFlushActionActionTrigger : return          = triggerFlushActionAction(actionRecord, operations, s);
         s               := triggerFlushActionActionTrigger.1;
-        operationList   := triggerFlushActionActionTrigger.0;
+        operations   := triggerFlushActionActionTrigger.0;
     } else skip;
 
     // ------------------------------------------------------------------------------
@@ -940,7 +943,7 @@ block {
     // save council action record
     s.councilActionsLedger[actionId]         := actionRecord;
 
-} with (operationList, s)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Sign Helper Functions Begin
@@ -983,7 +986,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -992,7 +995,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

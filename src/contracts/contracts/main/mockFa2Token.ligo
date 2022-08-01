@@ -1,7 +1,7 @@
 // Transfer Types: transferDestinationType
 #include "../partials/shared/transferTypes.ligo"
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
 // MvkToken types for transfer

@@ -6,17 +6,20 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
-// Permission Methods
+// Permission Helpers
 #include "../partials/shared/permissionHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -319,7 +322,7 @@ block {
 
 
 // helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; var operationList : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; var operations : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
 block{
 
     // Get the snapshot from the governance contract
@@ -385,14 +388,10 @@ block{
             0tez, 
             sendUpdateSatelliteSnapshotOperationToGovernance(s.governanceAddress)
         );
-        operationList   := updateSnapshotOperation # operationList;
+        operations   := updateSnapshotOperation # operations;
 
         // Pre-calculate the total voting power of the satellite
-        var maxTotalVotingPower: nat := _satelliteRecord.stakedMvkBalance * 10000n / delegationRatio;
-        if delegationRatio = 0n then maxTotalVotingPower := _satelliteRecord.stakedMvkBalance * 10000n else skip;
-        const mvkBalanceAndTotalDelegatedAmount = _satelliteRecord.stakedMvkBalance + _satelliteRecord.totalDelegatedAmount; 
-        if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-        else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+        totalVotingPower    := calculateVotingPower(delegationRatio, _satelliteRecord.stakedMvkBalance, _satelliteRecord.totalDelegatedAmount);
 
     } 
     // Check if satellite is ready to vote
@@ -401,7 +400,7 @@ block{
     |   None                -> skip
     ];
 
-} with(totalVotingPower, operationList)
+} with(totalVotingPower, operations)
 
 
 
@@ -502,7 +501,7 @@ block{
 // ------------------------------------------------------------------------------
 
 // helper function to trigger the transfer request during the vote
-function triggerTransferRequest(const requestRecord : financialRequestRecordType; var operationList : list(operation); const s : governanceFinancialStorageType) : list(operation) is 
+function triggerTransferRequest(const requestRecord : financialRequestRecordType; var operations : list(operation); const s : governanceFinancialStorageType) : list(operation) is 
 block {
 
     // Get Treasury Contract from params
@@ -549,14 +548,14 @@ block {
         sendTransferOperationToTreasury(treasuryAddress)
     );
 
-    operationList := treasuryTransferOperation # operationList;
+    operations := treasuryTransferOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the mint request during the vote
-function triggerMintRequest(const requestRecord : financialRequestRecordType; var operationList : list(operation); const s : governanceFinancialStorageType) : list(operation) is 
+function triggerMintRequest(const requestRecord : financialRequestRecordType; var operations : list(operation); const s : governanceFinancialStorageType) : list(operation) is 
 block {
 
     // Get Treasury Contract from params
@@ -577,14 +576,14 @@ block {
         sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
     );
 
-    operationList := treasuryMintMvkAndTransferOperation # operationList;
+    operations := treasuryMintMvkAndTransferOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the set contract baker request during the vote
-function triggerSetContractBakerRequest(const requestRecord : financialRequestRecordType; var operationList : list(operation)) : list(operation) is 
+function triggerSetContractBakerRequest(const requestRecord : financialRequestRecordType; var operations : list(operation)) : list(operation) is 
 block {
 
     const keyHash : option(key_hash) = requestRecord.keyHash;
@@ -594,30 +593,30 @@ block {
         setTreasuryBaker(requestRecord.treasuryAddress)
     );
 
-    operationList := setContractBakerOperation # operationList;
+    operations := setContractBakerOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to execute a governance request during the vote
-function executeGovernanceFinancialRequest(var requestRecord : financialRequestRecordType; const requestId : actionIdType; var operationList : list(operation); var s : governanceFinancialStorageType) : return is
+function executeGovernanceFinancialRequest(var requestRecord : financialRequestRecordType; const requestId : actionIdType; var operations : list(operation); var s : governanceFinancialStorageType) : return is
 block {
 
     // Financial Request Type - "TRANSFER"
-    if requestRecord.requestType = "TRANSFER" then operationList            := triggerTransferRequest(requestRecord, operationList, s);
+    if requestRecord.requestType = "TRANSFER" then operations            := triggerTransferRequest(requestRecord, operations, s);
 
     // Financial Request Type - "MINT"
-    if requestRecord.requestType = "MINT" then operationList                := triggerMintRequest(requestRecord, operationList, s);
+    if requestRecord.requestType = "MINT" then operations                := triggerMintRequest(requestRecord, operations, s);
 
     // Financial Request Type - "SET_CONTRACT_BAKER"
-    if requestRecord.requestType = "SET_CONTRACT_BAKER" then operationList  := triggerSetContractBakerRequest(requestRecord, operationList);
+    if requestRecord.requestType = "SET_CONTRACT_BAKER" then operations  := triggerSetContractBakerRequest(requestRecord, operations);
 
     // Update financial request - set executed boolean to true
     requestRecord.executed := True;
     s.financialRequestLedger[requestId] := requestRecord;
 
-} with (operationList, s)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Vote Helper Functions End
@@ -732,7 +731,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -741,7 +740,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 
