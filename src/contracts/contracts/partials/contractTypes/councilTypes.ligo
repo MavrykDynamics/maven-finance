@@ -123,7 +123,7 @@ type updateVesteeType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
-// Council Methods to Lambda Action Type
+// Council Helpers to Lambda Action Type
 type councilLambdaActionType is 
 
         // Housekeeping Lambdas

@@ -79,7 +79,7 @@ async def on_governance_voting_round_vote(
     await proposal.save()
     
     # Create a new vote
-    proposal_vote = await models.GovernanceProposalRecordVote.get_or_create(
+    proposal_vote, _    = await models.GovernanceProposalRecordVote.get_or_create(
         governance_proposal_record  = proposal,
         voter                       = voter,
         round                       = current_round

@@ -736,7 +736,7 @@ class GovernanceProposalRecordVote(Model):
     timestamp                               = fields.DatetimeField(null=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
-    voting_power                            = fields.FloatField()
+    voting_power                            = fields.FloatField(default=0.0)
     current_round_vote                      = fields.BooleanField(default=True)
 
     class Meta:

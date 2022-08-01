@@ -6,17 +6,20 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
-// Permission Methods
+// Permission Helpers
 #include "../partials/shared/permissionHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -328,12 +331,7 @@ block {
     const delegationRatio: nat                      = updateSatelliteSnapshotParams.delegationRatio;
 
     // calculate total voting power
-    var maxTotalVotingPower: nat := satelliteRecord.stakedMvkBalance * 10000n / delegationRatio;
-    if delegationRatio = 0n then maxTotalVotingPower := satelliteRecord.stakedMvkBalance * 10000n else skip;
-    const mvkBalanceAndTotalDelegatedAmount = satelliteRecord.stakedMvkBalance + satelliteRecord.totalDelegatedAmount; 
-    var totalVotingPower : nat := 0n;
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+    const totalVotingPower : nat                    = calculateVotingPower(delegationRatio, satelliteRecord.stakedMvkBalance, satelliteRecord.totalDelegatedAmount);
 
     const satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType = record [
         totalStakedMvkBalance   = satelliteRecord.stakedMvkBalance;
@@ -369,7 +367,7 @@ block {
 
         // Get the satellite record
         const satelliteOptView : option (option(satelliteRecordType))   = Tezos.call_view ("getSatelliteOpt", satelliteAddress, delegationAddress);
-        const _satelliteRecord: satelliteRecordType                     = case satelliteOptView of [
+        const _satelliteRecord : satelliteRecordType                    = case satelliteOptView of [
                 Some (value) -> case value of [
                         Some (_satellite) -> _satellite
                     |   None              -> failwith(error_SATELLITE_NOT_FOUND)
@@ -379,7 +377,7 @@ block {
 
         // Get the delegation ratio
         const configView : option (delegationConfigType)    = Tezos.call_view ("getConfig", unit, delegationAddress);
-        const delegationRatio: nat                          = case configView of [
+        const delegationRatio : nat                         = case configView of [
                 Some (_config) -> _config.delegationRatio
             |   None -> failwith (error_GET_CONFIG_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
         ];
@@ -797,7 +795,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -806,7 +804,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

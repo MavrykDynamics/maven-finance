@@ -271,7 +271,6 @@ block {
                     ("councilMemberImage"    : string) -> newCouncilMember.memberImage;
                     ("councilMemberWebsite"  : string) -> newCouncilMember.memberWebsite
                 ];
-                const emptyNatMap : natMapType       = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -318,8 +317,6 @@ block {
                 const addressMap : addressMapType     = map [
                     ("councilMemberAddress"         : string) -> councilMemberAddress;
                 ];
-                const emptyStringMap : stringMapType  = map [];
-                const emptyNatMap : natMapType        = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -378,7 +375,6 @@ block {
                     ("newCouncilMemberWebsite"  : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
                     ("newCouncilMemberImage"    : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
-                const emptyNatMap : natMapType        = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -421,10 +417,6 @@ block {
 
     case breakGlassLambdaAction of [
         |   LambdaPauseAllEntrypoints(_parameters) -> {
-                
-                const emptyAddressMap  : addressMapType      = map [];
-                const emptyStringMap   : stringMapType       = map [];
-                const emptyNatMap      : natMapType          = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -459,10 +451,6 @@ block {
 
     case breakGlassLambdaAction of [
         |   LambdaUnpauseAllEntrypoints(_parameters) -> {
-                
-                const emptyAddressMap  : addressMapType      = map [];
-                const emptyStringMap   : stringMapType       = map [];
-                const emptyNatMap      : natMapType          = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -497,10 +485,6 @@ block {
 
     case breakGlassLambdaAction of [
         |   LambdaPropagateBreakGlass(_parameters) -> {
-
-                const emptyAddressMap  : addressMapType  = map [];
-                const emptyStringMap   : stringMapType   = map [];
-                const emptyNatMap      : natMapType      = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -569,8 +553,6 @@ block {
                     ("newAdminAddress"       : string) -> newAdminAddress;
                     ("targetContractAddress" : string) -> targetContractAddress;
                 ];
-                const emptyStringMap   : stringMapType   = map [];
-                const emptyNatMap      : natMapType      = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -631,8 +613,6 @@ block {
                 const addressMap   : addressMapType      = map [
                     ("newAdminAddress" : string) -> newAdminAddress;
                 ];
-                const emptyStringMap   : stringMapType   = map [];
-                const emptyNatMap  : natMapType          = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -667,10 +647,6 @@ block {
 
     case breakGlassLambdaAction of [
         |   LambdaRemoveBreakGlassControl(_parameters) -> {
-                
-                const emptyAddressMap  : addressMapType      = map [];
-                const emptyStringMap   : stringMapType       = map [];
-                const emptyNatMap      : natMapType          = map [];
 
                 // create break glass action
                 s   := createBreakGlassAction(
@@ -721,10 +697,8 @@ block {
                 ];
 
                 // Check if action has already been flushed or executed
-                checkActionInteraction(actionToFlush);
+                validateAction(actionToFlush);
 
-                const emptyAddressMap  : addressMapType      = map [];
-                const emptyStringMap   : stringMapType       = map [];
                 const natMap           : natMapType          = map [
                     ("actionId" : string) -> actionId;
                 ];
@@ -773,7 +747,7 @@ block {
                 ];
 
                 // check if council can sign the action
-                checkActionInteraction(_actionRecord);
+                validateAction(_actionRecord);
 
                 // check if council member has already signed for this action
                 if Set.mem(Tezos.get_sender(), _actionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;

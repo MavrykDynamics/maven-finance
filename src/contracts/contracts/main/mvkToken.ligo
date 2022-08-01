@@ -6,13 +6,13 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
@@ -557,10 +557,14 @@ block {
     checkSenderIsAdmin(store);
 
     // Check inflation rate
-    const inflation : tokenBalanceType = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
+    const inflation : tokenBalanceType  = store.maximumSupply * store.inflationRate / 100_00n; // Apply the rate
+
+    // Calculate the percentage of minted MVK
+    const mintedMvkPercentage : nat     = store.totalSupply * 100_00n / store.maximumSupply;
     
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
-    if store.nextInflationTimestamp < Tezos.get_now() then {
+    // And at least 90% of the maximum supply has been minted
+    if store.nextInflationTimestamp < Tezos.get_now() and mintedMvkPercentage > 90_00n then {
       
       // Set the new maximumSupply
       store.maximumSupply           := store.maximumSupply + inflation;

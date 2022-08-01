@@ -543,7 +543,7 @@ block {
 
                                 // Enable the claim for the satellite who voted
                                 var highestVotedProposal                        := proposal;
-                                highestVotedProposal.rewardClaimReady                 := True;
+                                highestVotedProposal.rewardClaimReady           := True;
                                 s.proposalLedger[s.cycleHighestVotedProposalId] := highestVotedProposal;
 
                                 // Calculate YAY votes required for proposal to be successful and move on to the Timelock round

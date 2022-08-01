@@ -5,7 +5,7 @@
 #include "../contractTypes/delegationTypes.ligo"
 
 // ------------------------------------------------------------------------------
-// Satellite check Methods
+// Satellite check Helpers
 // ------------------------------------------------------------------------------
 
 // helper function to check that satellite is not suspended or banned
