@@ -172,7 +172,7 @@ block{
 
 
 // Allowed Senders: USDM Token Controller Contract
-function checkSenderIsUsdmTokenControllerContract(var s : doormanStorage) : unit is
+function checkSenderIsUsdmTokenControllerContract(var s : doormanStorageType) : unit is
 block{
 
     const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
@@ -836,7 +836,7 @@ block{
 
 
 (* vaultDepositStakedMvk entrypoint *)
-function vaultDepositStakedMvk(const vaultDepositStakedMvkParams: vaultDepositStakedMvkType; var s: doormanStorage): return is
+function vaultDepositStakedMvk(const vaultDepositStakedMvkParams: vaultDepositStakedMvkType; var s: doormanStorageType): return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDepositStakedMvk"] of [
@@ -855,7 +855,7 @@ block{
 
 
 (* vaultWithdrawStakedMvk entrypoint *)
-function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams: vaultWithdrawStakedMvkType; var s: doormanStorage): return is
+function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams: vaultWithdrawStakedMvkType; var s: doormanStorageType): return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultWithdrawStakedMvk"] of [
@@ -874,7 +874,7 @@ block{
 
 
 (* vaultLiquidateStakedMvk entrypoint *)
-function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams: vaultLiquidateStakedMvkType; var s: doormanStorage): return is
+function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams: vaultLiquidateStakedMvkType; var s: doormanStorageType): return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultLiquidateStakedMvk"] of [

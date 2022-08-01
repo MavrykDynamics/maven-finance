@@ -22,8 +22,8 @@
 // Vault Types
 #include "../partials/contractTypes/vaultTypes.ligo"
 
-// Vault Controller Types
-#include "../partials/contractTypes/vaultControllerTypes.ligo"
+// Lending Controller Types
+#include "../partials/contractTypes/lendingControllerTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ block {
     var operations : list(operation) := nil;
 
     // withdraw operation
-    const from_  : address    = vaultWithdrawParams.from_;
+    const from_  : address    = Tezos.get_self_address();
     const to_    : address    = vaultWithdrawParams.to_;
     const amt    : nat        = vaultWithdrawParams.amt;
     const token  : tokenType  = vaultWithdrawParams.token;
@@ -300,7 +300,7 @@ block {
             | Tez(_tez) -> block{
 
                 // check if tezos amount sent is equal to amount specified
-                if mutezToNatural(Tezos.amount) =/= amt then failwith("Error. Tezos amount is not equal to amount specified.") else skip;
+                if mutezToNatural(Tezos.get_amount()) =/= amt then failwith("Error. Tezos amount is not equal to amount specified.") else skip;
 
                 // transfer tez to vault
                 const depositTezOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amt );
@@ -309,7 +309,7 @@ block {
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
                     handle          = s.handle;
-                    amount          = mutezToNatural(Tezos.amount); 
+                    amount          = mutezToNatural(Tezos.get_amount()); 
                     tokenName       = "tez";
                 ];
                 

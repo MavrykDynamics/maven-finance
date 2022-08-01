@@ -421,7 +421,7 @@ block {
       const vestingOptionTwoInMonths    : nat               = s.config.vestingOptionTwoInMonths;
       const vestingOptionThreeInMonths  : nat               = s.config.vestingOptionThreeInMonths;
       
-      const today                       : timestamp         = Tezos.now;
+      const today                       : timestamp         = Tezos.get_now();
       const todayBlocks                 : nat               = Tezos.get_level();
       const tokenSaleEndTimestamp       : timestamp         = s.tokenSaleEndTimestamp;
       const tokenSaleEndBlockLevel      : nat               = s.tokenSaleEndBlockLevel;
@@ -541,7 +541,7 @@ block {
           // update user token sale record
           userTokenSaleRecord.optionOneMonthsClaimed          := userTokenSaleRecord.optionOneMonthsClaimed + monthsToClaim;
           userTokenSaleRecord.optionOneClaimedAmount          := userTokenSaleRecord.optionOneClaimedAmount + optionOneTokenAmount;
-          userTokenSaleRecord.optionOneLastClaimed            := Tezos.now;
+          userTokenSaleRecord.optionOneLastClaimed            := Tezos.get_now();
           userTokenSaleRecord.optionOneLastClaimedBlockLevel  := Tezos.get_level();
 
         };
@@ -604,7 +604,7 @@ block {
           // update user token sale record
           userTokenSaleRecord.optionTwoMonthsClaimed          := userTokenSaleRecord.optionTwoMonthsClaimed + monthsToClaim;
           userTokenSaleRecord.optionTwoClaimedAmount          := userTokenSaleRecord.optionTwoClaimedAmount + optionTwoTokenAmount;
-          userTokenSaleRecord.optionTwoLastClaimed            := Tezos.now;
+          userTokenSaleRecord.optionTwoLastClaimed            := Tezos.get_now();
           userTokenSaleRecord.optionTwoLastClaimedBlockLevel  := Tezos.get_level();
 
         };
@@ -668,7 +668,7 @@ block {
           // update user token sale record
           userTokenSaleRecord.optionThreeMonthsClaimed          := userTokenSaleRecord.optionThreeMonthsClaimed + monthsToClaim;
           userTokenSaleRecord.optionThreeClaimedAmount          := userTokenSaleRecord.optionThreeClaimedAmount + optionThreeTokenAmount;
-          userTokenSaleRecord.optionThreeLastClaimed            := Tezos.now;
+          userTokenSaleRecord.optionThreeLastClaimed            := Tezos.get_now();
           userTokenSaleRecord.optionThreeLastClaimedBlockLevel  := Tezos.get_level();
 
         };

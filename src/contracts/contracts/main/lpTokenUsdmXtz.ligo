@@ -151,7 +151,7 @@ function checkSenderIsAdmin(const store: storage): unit is
   else unit
 
 function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
+  if Tezos.get_amount() =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts

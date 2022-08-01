@@ -1,3 +1,17 @@
+// ------------------------------------------------------------------------------
+// Required Types
+// ------------------------------------------------------------------------------
+
+
+// Treasury Transfer Types
+#include "../../partials/shared/transferTypes.ligo"
+
+
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
+
 type tokenBalanceType   is nat;
 type tokenAmountType    is nat;
 
@@ -5,9 +19,9 @@ type editDepositorType is
   | AllowAny of bool
   | AllowAccount of bool * address
 
-// type depositorsType is
-//   | Any
-//   | Whitelist of set(address)
+type depositorsType is
+  | Any
+  | Whitelist of set(address)
 
 type whitelistUsersType is
     |   Any
@@ -20,11 +34,17 @@ type vaultHandleType is [@layout:comb] record [
     owner   : address;
 ]
 
+
+// ------------------------------------------------------------------------------
+// Action Types
+// ------------------------------------------------------------------------------
+
+
 // type vaultWithdrawTezType is tez * contract(unit)
 type vaultDelegateTezToBakerType is option(key_hash)
 type satelliteAddressType is address
 
-type vaultWithdrawType is transferTokenType
+type vaultWithdrawType is transferDestinationType
 
 // type vaultDepositType is transferTokenType
 type vaultDepositType  is [@layout:comb] record [
@@ -51,6 +71,12 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
     tokenContractAddress  : address;
     tokenName             : string;
 ]
+
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 
 type vaultStorage is record [
     admin                : address;            // vault admin contract - usdm token controller address

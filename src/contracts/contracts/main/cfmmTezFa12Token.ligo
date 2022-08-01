@@ -183,17 +183,17 @@ function checkNoPendingPoolUpdates(var s : cfmmStorage) : unit is
 
 // helper function - check that deadline has not passed
 function checkDeadlineHasNotPassed(const deadline : timestamp) : unit is
-    if (Tezos.now >= deadline) then failwith("Error. The current time must be less than the deadline.")
+    if (Tezos.get_now() >= deadline) then failwith("Error. The current time must be less than the deadline.")
     else unit;
 
 // helper function - check that no tez is sent
 function checkNoAmount(const _p : unit) : unit is
-  if (Tezos.amount = 0tez) then unit
+  if (Tezos.get_amount() = 0tez) then unit
   else failwith("This entrypoint should not receive any tez.");
 
 // helper function - check if call is from an implicit account
 function checkFromImplicitAccount(const _p : unit) : unit is
-    if (Tezos.get_sender() = Tezos.source) then unit
+    if (Tezos.get_sender() = Tezos.get_source()) then unit
     else failwith("Error. Call must be from an implicit account.");
 
 
@@ -325,7 +325,7 @@ block {
     // check no pending pool updates
     checkNoPendingPoolUpdates(s);
 
-    const newCashPoolAmount : nat = s.cashPool + mutezToNatural(Tezos.amount);
+    const newCashPoolAmount : nat = s.cashPool + mutezToNatural(Tezos.get_amount());
     s.cashPool := newCashPoolAmount;
 
 } with (noOperations, s)
@@ -380,7 +380,7 @@ block {
     const minLpTokensMinted   : nat                 = addLiquidityParams.minLpTokensMinted;
     const owner               : address             = addLiquidityParams.owner; 
 
-    const cashDeposited       : nat                 = mutezToNatural(Tezos.amount);
+    const cashDeposited       : nat                 = mutezToNatural(Tezos.get_amount());
     var operations            : list(operation)    := nil;
 
     // check no pending pool updates
@@ -530,7 +530,7 @@ block {
     
     const minTokensBought       : nat                 = cashToTokenParams.minTokensBought;
     const recipient             : address             = cashToTokenParams.to_; 
-    const cashSold              : nat                 = mutezToNatural(Tezos.amount);
+    const cashSold              : nat                 = mutezToNatural(Tezos.get_amount());
 
     var operations              : list(operation)    := nil;
 
@@ -569,7 +569,7 @@ block {
         cashAmount  = newCashPool;
         tokenAmount = newTokenPool;
     ];
-    if s.lastOracleUpdate = Tezos.now then skip else block {
+    if s.lastOracleUpdate = Tezos.get_now() then skip else block {
         const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
         operations := onPriceActionUpdateUsdmOperation # operations;
     }
@@ -632,7 +632,7 @@ block {
         cashAmount  = newCashPool;
         tokenAmount = newTokenPool;
     ];
-    if s.lastOracleUpdate = Tezos.now then skip else block {
+    if s.lastOracleUpdate = Tezos.get_now() then skip else block {
         const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
         operations := onPriceActionUpdateUsdmOperation # operations;
     }
@@ -704,7 +704,7 @@ block {
         cashAmount  = newCashPool;
         tokenAmount = newTokenPool;
     ];
-    if s.lastOracleUpdate = Tezos.now then skip else block {
+    if s.lastOracleUpdate = Tezos.get_now() then skip else block {
         const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
         operations := onPriceActionUpdateUsdmOperation # operations;
     }
