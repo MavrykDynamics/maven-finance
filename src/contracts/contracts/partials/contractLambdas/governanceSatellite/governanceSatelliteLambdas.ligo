@@ -198,9 +198,6 @@ block {
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeSuspended" : string) -> satelliteToBeSuspended
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -252,9 +249,6 @@ block {
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeBanned" : string) -> satelliteToBeBanned
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -306,9 +300,6 @@ block {
                 const addressMap        : addressMapType     = map [
                     ("satelliteToBeRestored" : string) -> satelliteToBeRestored
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -368,9 +359,6 @@ block {
                 const addressMap        : addressMapType     = map [
                     ("satelliteAddress" : string) -> satelliteAddress
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -424,9 +412,6 @@ block {
                     ("oracleAddress"     : string)   -> oracleAddress;
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -480,9 +465,6 @@ block {
                     ("oracleAddress"     : string)   -> oracleAddress;
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -544,9 +526,6 @@ block {
                     ("aggregatorAddress" : string)   -> aggregatorAddress;
                     ("maintainerAddress" : string)   -> maintainerAddress;
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -655,8 +634,6 @@ block {
                 const stringMap    : stringMapType      = map [
                     ("status" : string)              -> status
                 ];
-                const emptyNatMap       : natMapType         = map [];
-                const emptyTransferList : transferActionType = list [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -716,8 +693,6 @@ block {
                 const addressMap      : addressMapType     = map [
                     ("targetContractAddress" : string)   -> targetContractAddress;
                 ];
-                const emptyStringMap  : stringMapType                       = map [];
-                const emptyNatMap     : natMapType                          = map [];
 
                 // create action
                 s   := createGovernanceSatelliteAction(
@@ -800,7 +775,7 @@ block {
                 if Tezos.get_sender() =/= governanceSatelliteActionRecord.initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
 
                 // Check if the action can still be interacted with
-                checkActionInteraction(governanceSatelliteActionRecord);
+                validateAction(governanceSatelliteActionRecord);
 
                 // Drop governance satellite action record  - update status to false
                 governanceSatelliteActionRecord.status := False;
@@ -866,7 +841,7 @@ block {
                 // ------------------------------------------------------------------
 
                 // Check if satellite can interact with the action
-                checkActionInteraction(_governanceSatelliteActionRecord);
+                validateAction(_governanceSatelliteActionRecord);
 
                 // ------------------------------------------------------------------
                 // Get snapshot of satellite voting power

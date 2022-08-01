@@ -6,13 +6,13 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------

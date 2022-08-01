@@ -6,14 +6,17 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -168,7 +171,7 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 // helper function to check if a satellite can interact with an action
-function checkActionInteraction(const actionRecord : breakGlassActionRecordType) : unit is
+function validateAction(const actionRecord : breakGlassActionRecordType) : unit is
 block {
 
     // Check if governance satellite action has been flushed
@@ -382,7 +385,7 @@ block {
 
 
 // helper function to trigger the pause all entrypoint action during the sign
-function triggerPauseAllEntrypointsAction(var operationList : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerPauseAllEntrypointsAction(var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
 
     // check that glass is broken
@@ -399,17 +402,17 @@ block {
     //  - iterate over contracts map with operation to pause all entrypoints
     for _contractName -> contractAddress in map generalContracts block {
         case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-                Some(contr) -> operationList := Tezos.transaction(unit, 0tez, contr) # operationList
+                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
             |   None        -> skip
         ];
     };    
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the unpause all entrypoint action during the sign
-function triggerUnpauseAllEntrypointsAction(var operationList : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerUnpauseAllEntrypointsAction(var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
 
     // check that glass is broken
@@ -426,17 +429,17 @@ block {
     //  - iterate over contracts map with operation to unpause all entrypoints
     for _contractName -> contractAddress in map generalContracts block {
         case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                Some(contr) -> operationList := Tezos.transaction(unit, 0tez, contr) # operationList
+                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
             |   None        -> skip
         ];
     };    
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the propagate break glass action during the sign
-function triggerPropagateBreakGlassAction(var operationList : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerPropagateBreakGlassAction(var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
     
     // check that glass is broken
@@ -455,14 +458,14 @@ block {
         propagateBreakGlassEntrypoint
     );
 
-    operationList := propagateBreakGlassOperation # operationList;
+    operations := propagateBreakGlassOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the set single contract admin action during the sign
-function triggerSetSingleContractAdminAction(const actionRecord : breakGlassActionRecordType; var operationList : list(operation); const s : breakGlassStorageType) : list(operation) is 
+function triggerSetSingleContractAdminAction(const actionRecord : breakGlassActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
 block {
     
     // check that glass is broken
@@ -505,14 +508,14 @@ block {
         setAdminInContract(targetContractAddress)
     );
 
-    operationList := setSingleContractAdminOperation # operationList;
+    operations := setSingleContractAdminOperation # operations;
 
-} with (operationList)
+} with (operations)
 
 
 
 // helper function to trigger the all contracts admin action during the sign
-function triggerSetAllContractsAdminAction(const actionRecord : breakGlassActionRecordType; var operationList : list(operation); var s : breakGlassStorageType) : return is 
+function triggerSetAllContractsAdminAction(const actionRecord : breakGlassActionRecordType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // check that glass is broken
@@ -568,20 +571,20 @@ block {
 
     // Reset all contracts admin to the new admin address
     //  - iterate over unique contracts set with setAdmin operation
-    function setAdminFold(const operations: list(operation); const singleContractAddress : address) : list(operation) is
+    function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
         case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
-                Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operations
-            |   None                -> operations
+                Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
+            |   None                -> operationList
         ];
 
-    operationList := Set.fold(setAdminFold, uniqueContracts, operationList);
+    operations := Set.fold(setAdminFold, uniqueContracts, operations);
 
-} with (operationList, s)
+} with (operations, s)
 
 
 
 // helper function to trigger the remove break glass control action during the sign
-function triggerRemoveBreakGlassControlAction(var operationList : list(operation); var s : breakGlassStorageType) : return is 
+function triggerRemoveBreakGlassControlAction(var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // remove access to protected Break Glass entrypoints                        
@@ -618,22 +621,22 @@ block {
 
     // Reset all contracts admin to Governance Proxy contract
     //  - iterate over unique contracts set with operation to set admin as the Governance Proxy Contract
-    function setAdminFold(const operations: list(operation); const singleContractAddress : address) : list(operation) is
+    function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
         case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
-                Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operations
-            |   None                -> operations
+                Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
+            |   None                -> operationList
         ];
-    operationList := Set.fold(setAdminFold, uniqueContracts, operationList);
+    operations := Set.fold(setAdminFold, uniqueContracts, operations);
 
     // Set glassBroken boolean to False (removes access to protected Break Glass entrypoints)
     s.glassBroken := False;
 
-} with (operationList, s)
+} with (operations, s)
 
 
 
 // helper function to execute a break glass action during the sign
-function executeBreakGlassAction(var actionRecord : breakGlassActionRecordType; const actionId : actionIdType; var operationList : list(operation); var s : breakGlassStorageType) : return is 
+function executeBreakGlassAction(var actionRecord : breakGlassActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : breakGlassStorageType) : return is 
 block {
 
     // --------------------------------------
@@ -655,29 +658,29 @@ block {
     if actionType = "changeCouncilMember" then s                        := triggerChangeCouncilMemberAction(actionRecord, s);
 
     // pauseAllEntrypoints action type
-    if actionType = "pauseAllEntrypoints" then operationList            := triggerPauseAllEntrypointsAction(operationList, s);
+    if actionType = "pauseAllEntrypoints" then operations            := triggerPauseAllEntrypointsAction(operations, s);
 
     // unpauseAllEntrypoints action type
-    if actionType = "unpauseAllEntrypoints" then operationList          := triggerUnpauseAllEntrypointsAction(operationList, s);
+    if actionType = "unpauseAllEntrypoints" then operations          := triggerUnpauseAllEntrypointsAction(operations, s);
 
     // propagateBreakGlass action type
-    if actionType = "propagateBreakGlass" then operationList            := triggerPropagateBreakGlassAction(operationList, s);
+    if actionType = "propagateBreakGlass" then operations            := triggerPropagateBreakGlassAction(operations, s);
 
     // setSingleContractAdmin action type
-    if actionType = "setSingleContractAdmin" then operationList         := triggerSetSingleContractAdminAction(actionRecord, operationList, s);
+    if actionType = "setSingleContractAdmin" then operations         := triggerSetSingleContractAdminAction(actionRecord, operations, s);
 
     // setAllContractsAdmin action type
     if actionType = "setAllContractsAdmin" then block {
-        const triggerSetAllContractsAdminActionTrigger : return         = triggerSetAllContractsAdminAction(actionRecord, operationList, s);
+        const triggerSetAllContractsAdminActionTrigger : return         = triggerSetAllContractsAdminAction(actionRecord, operations, s);
         s               := triggerSetAllContractsAdminActionTrigger.1;
-        operationList   := triggerSetAllContractsAdminActionTrigger.0;
+        operations   := triggerSetAllContractsAdminActionTrigger.0;
     } else skip;
 
     // removeBreakGlassControl action type
     if actionType = "removeBreakGlassControl" then block {
-        const triggerRemoveBreakGlassControlActionTrigger : return      = triggerRemoveBreakGlassControlAction(operationList, s);
+        const triggerRemoveBreakGlassControlActionTrigger : return      = triggerRemoveBreakGlassControlAction(operations, s);
         s               := triggerRemoveBreakGlassControlActionTrigger.1;
-        operationList   := triggerRemoveBreakGlassControlActionTrigger.0;
+        operations   := triggerRemoveBreakGlassControlActionTrigger.0;
     } else skip;
         
     // update break glass action record status
@@ -689,7 +692,7 @@ block {
     // save break glass action record
     s.actionsLedger[actionId]         := actionRecord;
 
-} with (operationList, s)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Sign Helper Functions End
@@ -726,7 +729,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -737,7 +740,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

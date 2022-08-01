@@ -213,7 +213,6 @@ block {
                     ("councilMemberImage"   : string) -> newCouncilMember.memberImage;
                     ("councilMemberWebsite" : string) -> newCouncilMember.memberWebsite
                 ];
-                const emptyNatMap         : natMapType         = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -263,8 +262,6 @@ block {
                 const addressMap          : addressMapType     = map [
                     ("councilMemberAddress" : string) -> councilMemberAddress
                 ];
-                const emptyStringMap      : stringMapType      = map [];
-                const emptyNatMap         : natMapType         = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -326,7 +323,6 @@ block {
                     ("newCouncilMemberWebsite"  : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
                     ("newCouncilMemberImage"    : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
-                const emptyNatMap         : natMapType         = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -359,10 +355,6 @@ block {
 
     case councilLambdaAction of [
         |   LambdaCouncilActionSetBaker(setBakerParams) -> {
-                
-                const emptyAddressMap     : addressMapType     = map [];
-                const emptyStringMap      : stringMapType      = map [];
-                const emptyNatMap         : natMapType         = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -434,7 +426,6 @@ block {
                 const addressMap : addressMapType     = map [
                     ("vesteeAddress"         : string) -> vesteeAddress;
                 ];
-                const emptyStringMap : stringMapType = map [];
                 const natMap : natMapType            = map [
                     ("totalAllocatedAmount"  : string) -> totalAllocatedAmount;
                     ("cliffInMonths"         : string) -> cliffInMonths;
@@ -498,8 +489,6 @@ block {
                 const addressMap : addressMapType     = map [
                     ("vesteeAddress"         : string) -> vesteeAddress;
                 ];
-                const emptyStringMap : stringMapType  = map [];
-                const emptyNatMap : natMapType        = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -564,7 +553,6 @@ block {
                 const addressMap : addressMapType     = map [
                     ("vesteeAddress"         : string)    -> vesteeAddress;
                 ];
-                const emptyStringMap : stringMapType = map [];
                 const natMap : natMapType            = map [
                     ("newTotalAllocatedAmount"  : string) -> newTotalAllocatedAmount;
                     ("newCliffInMonths"         : string) -> newCliffInMonths;
@@ -628,8 +616,6 @@ block {
                 const addressMap : addressMapType     = map [
                     ("vesteeAddress"         : string) -> vesteeAddress;
                 ];
-                const emptyStringMap : stringMapType  = map [];
-                const emptyNatMap : natMapType        = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -869,8 +855,6 @@ block {
                 const addressMap        : addressMapType     = map [
                     ("targetContractAddress" : string) -> councilActionSetContractBakerParams.targetContractAddress
                 ];
-                const emptyStringMap    : stringMapType      = map [];
-                const emptyNatMap       : natMapType         = map [];
 
                 // create council action
                 s   := createCouncilAction(
@@ -906,9 +890,6 @@ block {
         |   LambdaCouncilDropFinancialReq(requestId) -> {
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const emptyAddressMap : addressMapType      = map [];
-                const emptyStringMap : stringMapType        = map [];
                 const natMap : natMapType                   = map [
                     ("requestId"           : string) -> requestId;
                 ];
@@ -971,12 +952,9 @@ block {
                 ];
 
                 // check if council can sign the action
-                checkActionInteraction(_request);
+                validateAction(_request);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
-
-                const emptyAddressMap  : addressMapType     = map [];
-                const emptyStringMap   : stringMapType      = map [];
                 const natMap           : natMapType         = map [
                     ("actionId" : string) -> actionId;
                 ];
@@ -1026,7 +1004,7 @@ block {
                 ];
 
                 // check if council can sign the action
-                checkActionInteraction(_councilActionRecord);
+                validateAction(_councilActionRecord);
 
                 // check if council member has already signed for this action
                 if Set.mem(Tezos.get_sender(), _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;

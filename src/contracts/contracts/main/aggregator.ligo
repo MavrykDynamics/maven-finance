@@ -6,17 +6,20 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
+// Shared Helpers
 #include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
+// Transfer Helpers
 #include "../partials/shared/transferHelpers.ligo"
 
-// Permission Methods
+// Permission Helpers
 #include "../partials/shared/permissionHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -556,12 +559,7 @@ function updateRewardsStakedMvk (const senderAddress : address; var s : aggregat
     if (satelliteOpt.status = "ACTIVE") then {
 
         // totalVotingPower calculation
-        const maxTotalVotingPower = abs(satelliteOpt.stakedMvkBalance * 10000 / votingPowerRatio);
-        const mvkBalanceAndTotalDelegatedAmount = satelliteOpt.stakedMvkBalance + satelliteOpt.totalDelegatedAmount; 
-        
-        var totalVotingPower : nat := 0n;
-        if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-        else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+        const totalVotingPower : nat    = calculateVotingPower(votingPowerRatio, satelliteOpt.stakedMvkBalance, satelliteOpt.totalDelegatedAmount);
 
         // totalVotingPower storage + total updated
         tempSatellitesMap := Map.update(oracleAddress, Some (totalVotingPower), tempSatellitesMap);
@@ -628,7 +626,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -637,7 +635,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 
