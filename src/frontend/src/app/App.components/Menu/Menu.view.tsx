@@ -1,13 +1,22 @@
-import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
-import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import { MenuFooter, MenuGrid, MenuLogo, MenuMobileBurger, MenuStyled, MenuTopSection, MenuTopStyled } from './Menu.style'
-import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
-import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 import * as React from 'react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
+
+import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
+import {
+  MenuFooter,
+  MenuGrid,
+  MenuLogo,
+  MenuMobileBurger,
+  MenuStyled,
+  MenuTopSection,
+  MenuTopStyled,
+} from './Menu.style'
+import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
+import { NavigationLink } from './NavigationLink/NavigationLink.controller'
+import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 
 type MenuViewProps = {
   loading: boolean
@@ -18,7 +27,7 @@ type MenuViewProps = {
 export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
-  const [isExpandedMenuMob, setExpandedMenuMob] = useState<boolean>(false)
+  const [isExpandedMenuMob, setExpandedMenuMob] = useState<boolean>(true)
   const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
@@ -114,7 +123,7 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
         </div>
       </MenuTopStyled>
       <MenuStyled
-        className={`navbar-sticky ${isExpandedMenuMob ? 'menu-expanded' : ''}`}
+        className={`navbar-sticky ${isExpandedMenuMob ? 'menu-expanded' : 'menu-collapsed'}`}
         onClick={() => {
           setExpanded(0)
           setExpandedMenuMob(false)

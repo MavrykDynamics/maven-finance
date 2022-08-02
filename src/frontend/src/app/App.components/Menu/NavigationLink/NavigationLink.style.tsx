@@ -15,22 +15,20 @@ export const NavigationLinkContainer = styled.div<{
     }
   }
 
-  @media screen and (max-width: 1460px) {
-    ${({ isMobMenuExpanded }) =>
-      !isMobMenuExpanded
-        ? css`
-            display: flex;
-            justify-content: center;
-            align-items: center;
+  ${({ isMobMenuExpanded }) =>
+    !isMobMenuExpanded
+      ? css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
-            .navLinkIcon,
-            a {
-              width: fit-content;
-              margin: 0;
-            }
-          `
-        : ''}
-  }
+          .navLinkIcon,
+          a {
+            width: fit-content;
+            margin: 0;
+          }
+        `
+      : ''}
 
   ${(props) =>
     props.selected &&
@@ -77,22 +75,20 @@ export const NavigationLinkItem = styled.div<{
       `}
   }
 
-  @media screen and (max-width: 1460px) {
-    ${({ isMobMenuExpanded }) =>
-      !isMobMenuExpanded
-        ? css`
-            display: flex;
-            justify-content: center;
-            align-items: center;
+  ${({ isMobMenuExpanded }) =>
+    !isMobMenuExpanded
+      ? css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
-            .navLinkIcon,
-            > a {
-              width: fit-content;
-              margin: 0;
-            }
-          `
-        : ''}
-  }
+          .navLinkIcon,
+          > a {
+            width: fit-content;
+            margin: 0;
+          }
+        `
+      : ''}
 `
 export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   width: 50px;
