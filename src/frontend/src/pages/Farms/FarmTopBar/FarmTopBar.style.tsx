@@ -5,6 +5,7 @@ import { Card, headerColor, cyanColor } from 'styles'
 export const FarmTopBarStyled = styled(Card)`
   margin-bottom: 20px;
   display: flex;
+  padding: 17px 23px;
 
   .change-view {
     display: flex;
@@ -27,29 +28,17 @@ export const FarmTopBarStyled = styled(Card)`
   &.horizontal .change-view .btn-horizontal svg {
     fill: ${cyanColor};
   }
-`
 
-export const StakedToggleContainer = styled.div<{ theme: MavrykTheme }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  > label {
+  .order-by {
+    margin-left: 30px;
+  }
+
+  .tab-bar {
     margin-right: 15px;
-    > {
-      .farm-toggle.react-toggle--checked .react-toggle-track {
-        background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-      }
-      .farm-toggle.react-toggle:not(.react-toggle--checked) .react-toggle-thumb {
-        background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-        border-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-      }
-      .farm-toggle.react-toggle:not(.react-toggle--checked) .react-toggle-track {
-        background-color: ${({ theme }) => theme.primaryColor};
-      }
-      .farm-toggle.react-toggle--checked .react-toggle-thumb {
-        background-color: ${({ theme }) => theme.primaryColor};
-        border-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-      }
-    }
+  }
+
+  .farm-toggle {
+    flex-shrink: 0;
+    margin-right: 15px;
   }
 `
