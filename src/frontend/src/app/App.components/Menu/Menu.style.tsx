@@ -40,10 +40,18 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
     .settingsIcon {
       margin-left: 25px;
       cursor: pointer;
+      transition: 0.35s all;
 
       svg {
         width: 28px;
         height: 28px;
+        transition: 0.35s all;
+      }
+
+      &:hover {
+        svg {
+          stroke: ${cyanColor};
+        }
       }
     }
 
