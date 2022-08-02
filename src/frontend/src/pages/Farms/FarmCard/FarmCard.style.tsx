@@ -108,6 +108,7 @@ export const FarmCardStyled = styled(Card)`
       padding-top: 40px;
       margin-bottom: 30px;
     }
+
     .expand-header {
       grid-template-columns: 1fr;
       border-top: 1px solid ${royalPurpleColor};
@@ -131,7 +132,80 @@ export const FarmCardStyled = styled(Card)`
         display: none;
       }
     }
+
+    .vertical-harvest {
+      padding: 20px;
+      padding-top: 0;
+
+      > div {
+        padding: 20px;
+      }
+    }
+
+    .vertical-farming {
+      .start-farming {
+        padding: 0;
+        flex-direction: column;
+        align-items: baseline;
+        padding-left: 40px;
+        padding-right: 40px;
+        margin-bottom: 30px;
+
+        h3 {
+          margin-bottom: 8px;
+        }
+
+        div {
+          margin: 0;
+          width: 100%;
+          max-width: 100%;
+        }
+
+        button {
+          margin: 0;
+          width: 100%;
+        }
+      }
+    }
   } //vertical
+
+  .horizontal-expand {
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto 387px auto;
+    padding: 20px 40px;
+    margin: 0;
+  }
+
+  .start-farming {
+    display: flex;
+    align-items: center;
+    padding-left: 64px;
+
+    div {
+      margin: 0;
+    }
+
+    h3 {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      color: ${skyColor};
+      margin-right: 40px;
+    }
+  }
+` // CARD
+
+export const FarmHarvestStyled = styled(Card)`
+  display: flex;
+  align-items: center;
+  padding: 18px 30px;
+  margin: 0;
+
+  .farm-info {
+    flex-shrink: 0;
+    margin-right: 40px;
+  }
 `
 
 export const FarmCardTopSection = styled.div<{ theme: MavrykTheme }>`
@@ -251,44 +325,6 @@ export const FarmCardStakedBalanceSection = styled.div<{ theme: MavrykTheme }>`
   }
   #connectWalletButton {
     width: 100%;
-  }
-`
-
-export const FarmCardDropDownContainer = styled.div<{ height: number; theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  height: 35px; /* changed */
-  display: flex;
-  flex-direction: column;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  cursor: pointer;
-  padding: 0 10px;
-  transition: all 0.3s ease-in-out; /* added */
-  overflow: hidden;
-
-  span {
-    padding: 12px 0;
-    > svg {
-      height: 8px;
-      width: 13px;
-      stroke: ${({ theme }) => theme.primaryColor};
-      stroke-width: 5px;
-      fill: none;
-    }
-  }
-
-  .accordion {
-    padding: 10px 15px 15px; /* changed */
-  }
-
-  &.show {
-    height: ${({ height }) => height}px;
-  }
-  &.hide {
-    height: 35px; /* changed */
   }
 `
 

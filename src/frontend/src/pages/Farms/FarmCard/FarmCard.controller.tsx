@@ -22,7 +22,6 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 // styles
 import {
   FarmCardContentSection,
-  FarmCardDropDownContainer,
   FarmCardFirstTokenIcon,
   FarmCardRewardsSection,
   FarmCardSecondTokenIcon,
@@ -32,6 +31,7 @@ import {
   FarmCardTopSection,
   StakedBalanceAddSubtractButton,
   StakedBalanceAddSubtractIcon,
+  FarmHarvestStyled,
 } from './FarmCard.style'
 
 type FarmCardProps = {
@@ -160,6 +160,45 @@ export const FarmCard = ({
     </div>
   )
 
+  const harvestBlock = (
+    <FarmHarvestStyled>
+      <div className="farm-info">
+        <h3>sMVK Earned</h3>
+        <var>0.00</var>
+      </div>
+      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
+    </FarmHarvestStyled>
+  )
+
+  const farmingBlock = (
+    <>
+      {!wallet || !ready ? (
+        <div className="start-farming">
+          <h3>Start Farming</h3>
+          <ConnectWallet />
+        </div>
+      ) : (
+        <>
+          <CommaNumber
+            value={Number(myFarmStakedBalance)}
+            loading={loading}
+            endingText={firstToken + '-' + secondToken}
+          />
+          <StakedBalanceAddSubtractButton onClick={triggerDepositModal}>
+            <StakedBalanceAddSubtractIcon>
+              <use xlinkHref={`/icons/sprites.svg#add`} />
+            </StakedBalanceAddSubtractIcon>
+          </StakedBalanceAddSubtractButton>
+          <StakedBalanceAddSubtractButton onClick={triggerWithdrawModal}>
+            <StakedBalanceAddSubtractIcon>
+              <use xlinkHref={`/icons/sprites.svg#subtract`} />
+            </StakedBalanceAddSubtractIcon>
+          </StakedBalanceAddSubtractButton>
+        </>
+      )}
+    </>
+  )
+
   if (variant === 'vertical') {
     return (
       <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion} ${variant}`}>
@@ -171,6 +210,9 @@ export const FarmCard = ({
           {aprBlock}
           {earnBlock}
         </div>
+        <div className="vertical-harvest">{harvestBlock}</div>
+        <div className="vertical-farming">{farmingBlock}</div>
+
         <Expand className="vertical-expand" showText header={<></>}>
           <>
             <div className="farm-info-vertical">{totalLiquidityBlock}</div>
@@ -197,80 +239,63 @@ export const FarmCard = ({
           </>
         }
       >
-        <>
-          <FarmCardTopSection>
-            <FarmCardContentSection>
-              <div>
-                <p>APR:</p>
-                <p>Earn:</p>
-              </div>
-              <div>
-                <p>23.98%</p>
-                <p>sMVK + Fees</p>
-              </div>
-            </FarmCardContentSection>
-
-            <FarmCardRewardsSection>
-              <h4>sMVK Earned:</h4>
-              <div>
-                <p>123.0q3</p>
-                <Button text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
-              </div>
-            </FarmCardRewardsSection>
-            <FarmCardStakedBalanceSection>
-              <h4>
-                {firstToken}-{secondToken} staked:
-              </h4>
-              <div>
-                {!wallet || !ready ? (
-                  <ConnectWallet type={'simpleButton'} />
-                ) : (
-                  <>
-                    <CommaNumber
-                      value={Number(myFarmStakedBalance)}
-                      loading={loading}
-                      endingText={firstToken + '-' + secondToken}
-                    />
-                    <StakedBalanceAddSubtractButton onClick={triggerDepositModal}>
-                      <StakedBalanceAddSubtractIcon>
-                        <use xlinkHref={`/icons/sprites.svg#add`} />
-                      </StakedBalanceAddSubtractIcon>
-                    </StakedBalanceAddSubtractButton>
-                    <StakedBalanceAddSubtractButton onClick={triggerWithdrawModal}>
-                      <StakedBalanceAddSubtractIcon>
-                        <use xlinkHref={`/icons/sprites.svg#subtract`} />
-                      </StakedBalanceAddSubtractIcon>
-                    </StakedBalanceAddSubtractButton>
-                  </>
-                )}
-              </div>
-            </FarmCardStakedBalanceSection>
-          </FarmCardTopSection>
-
-          <FarmCardDropDownContainer
-            onClick={open}
-            className={expanded ? 'show' : 'hide'}
-            height={accordionHeight}
-            ref={ref}
-          >
-            <span>
-              {expanded ? 'Hide ' : 'Details '}
-              {expanded ? (
-                <svg>
-                  <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-                </svg>
-              ) : (
-                <svg>
-                  <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
-                </svg>
-              )}
-            </span>
-            <div className={'accordion ' + `${expanded}`} ref={ref}>
-              Hello fuckers
-            </div>
-          </FarmCardDropDownContainer>
-        </>
+        <div className="horizontal-expand">
+          {linksBlock}
+          {harvestBlock}
+          {farmingBlock}
+        </div>
       </Expand>
     </FarmCardStyled>
   )
 }
+
+//  ;<>
+//    <FarmCardTopSection>
+//      <FarmCardContentSection>
+//        <div>
+//          <p>APR:</p>
+//          <p>Earn:</p>
+//        </div>
+//        <div>
+//          <p>23.98%</p>
+//          <p>sMVK + Fees</p>
+//        </div>
+//      </FarmCardContentSection>
+
+//      <FarmCardRewardsSection>
+//        <h4>sMVK Earned:</h4>
+//        <div>
+//          <p>123.0q3</p>
+//          <Button text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
+//        </div>
+//      </FarmCardRewardsSection>
+//      <FarmCardStakedBalanceSection>
+//        <h4>
+//          {firstToken}-{secondToken} staked:
+//        </h4>
+//        <div>
+//          {!wallet || !ready ? (
+//            <ConnectWallet type={'simpleButton'} />
+//          ) : (
+//            <>
+//              <CommaNumber
+//                value={Number(myFarmStakedBalance)}
+//                loading={loading}
+//                endingText={firstToken + '-' + secondToken}
+//              />
+//              <StakedBalanceAddSubtractButton onClick={triggerDepositModal}>
+//                <StakedBalanceAddSubtractIcon>
+//                  <use xlinkHref={`/icons/sprites.svg#add`} />
+//                </StakedBalanceAddSubtractIcon>
+//              </StakedBalanceAddSubtractButton>
+//              <StakedBalanceAddSubtractButton onClick={triggerWithdrawModal}>
+//                <StakedBalanceAddSubtractIcon>
+//                  <use xlinkHref={`/icons/sprites.svg#subtract`} />
+//                </StakedBalanceAddSubtractIcon>
+//              </StakedBalanceAddSubtractButton>
+//            </>
+//          )}
+//        </div>
+//      </FarmCardStakedBalanceSection>
+//    </FarmCardTopSection>
+//  </>
