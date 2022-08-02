@@ -1,27 +1,31 @@
 import { MavrykTheme } from '../../../styles/interfaces'
 import styled from 'styled-components/macro'
+import { Card, headerColor, cyanColor } from 'styles'
 
-export const FarmTopBarStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  margin: 15px auto;
+export const FarmTopBarStyled = styled(Card)`
+  margin-bottom: 20px;
   display: flex;
-  width: 100%;
-  flex-direction: row;
-  border-radius: 10px;
-  padding: 10px;
-  align-items: center;
-  justify-content: space-evenly;
 
-  > div {
-    max-width: 35%;
-  }
-  #inputStyled {
-    height: 50px;
-    margin: 0;
-    #inputComponent {
-      height: 50px;
-      margin: 0;
+  .change-view {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-left: 20px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: ${headerColor};
     }
+
+    .btn-vertical {
+      transform: rotate(90deg);
+    }
+  }
+
+  &.vertical .change-view .btn-vertical svg,
+  &.horizontal .change-view .btn-horizontal svg {
+    fill: ${cyanColor};
   }
 `
 

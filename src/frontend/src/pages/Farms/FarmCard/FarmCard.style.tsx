@@ -1,15 +1,9 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
+import { Card } from 'styles'
 
-export const FarmCardStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  border-radius: 10px;
-  margin: 10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 28%;
+export const FarmCardStyled = styled(Card)`
+  margin: 0;
 `
 
 export const FarmCardTopSection = styled.div<{ theme: MavrykTheme }>`
