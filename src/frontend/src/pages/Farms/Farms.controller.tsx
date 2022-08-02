@@ -92,7 +92,7 @@ export const Farms = () => {
           {farmsList.map((farm: any, index: number) => {
             return (
               <FarmCard
-                className={farmsViewVariant}
+                variant={farmsViewVariant}
                 farmAddress={farm.address}
                 firstToken={'MVK'}
                 secondToken={'USDM'}

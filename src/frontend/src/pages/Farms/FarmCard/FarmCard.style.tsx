@@ -1,9 +1,64 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { Card } from 'styles'
+import { Card, skyColor, cyanColor, headerColor } from 'styles'
 
-export const FarmCardStyled = styled(Card)`
+export const FarmCardStyled = styled.section`
   margin: 0;
+  padding: 0;
+
+  .expand-header {
+    grid-template-columns: 210px 1fr 1fr 1fr 1fr 120px;
+    padding-left: 40px;
+  }
+
+  .farm-info {
+    h3 {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      color: ${skyColor};
+    }
+
+    var {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 14px;
+      color: ${cyanColor};
+      font-style: normal;
+    }
+  }
+
+  .farm-card-section {
+    margin-left: 16px;
+
+    h3 {
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 18px;
+      color: ${cyanColor};
+    }
+
+    p {
+      font-weight: 400;
+      font-size: 11px;
+      line-height: 11px;
+      color: ${headerColor};
+    }
+  }
+
+  .farm-card-header {
+    display: flex;
+    align-items: center;
+    margin-right: 32px;
+  }
+
+  &.horizontal {
+    .farm-card-section {
+      p {
+        display: none;
+      }
+    }
+  }
 `
 
 export const FarmCardTopSection = styled.div<{ theme: MavrykTheme }>`
@@ -68,8 +123,10 @@ export const FarmTitleSection = styled.div<{ theme: MavrykTheme }>`
   text-align: right;
 
   > h3 {
-    font-size: 18px;
     font-weight: 600;
+    font-size: 18px;
+    line-height: 18px;
+    color: ${cyanColor};
   }
   > p {
     font-size: 14px;
