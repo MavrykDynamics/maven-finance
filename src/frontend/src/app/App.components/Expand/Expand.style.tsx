@@ -15,8 +15,17 @@ export const ExpandStyled = styled(CardHover)`
   }
 
   .arrow-wrap {
-    display: grid;
-    place-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    span {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      color: ${headerColor};
+      margin-right: 8px;
+    }
 
     svg {
       fill: none;

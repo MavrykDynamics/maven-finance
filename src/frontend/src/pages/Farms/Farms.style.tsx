@@ -8,6 +8,7 @@ export const FarmsStyled = styled.div<{ theme: MavrykTheme }>`
 
     &.vertical {
       grid-template-columns: 1fr 1fr 1fr;
+      align-items: baseline;
     }
 
     &.horizontal {
