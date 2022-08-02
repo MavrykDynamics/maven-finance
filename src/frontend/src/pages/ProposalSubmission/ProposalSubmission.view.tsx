@@ -32,6 +32,8 @@ type ProposalSubmissionViewProps = {
   locked: boolean
   proposalId: number | undefined
   proposalTitle: string
+  proposalDescription: string
+  proposalSourceCode: string
   proposalData: ProposalDataType[] | undefined
   proposalPayments: ProposalPaymentType[] | undefined
 }
@@ -43,6 +45,8 @@ export const ProposalSubmissionView = ({
   proposalTitle,
   proposalData,
   proposalPayments,
+  proposalDescription,
+  proposalSourceCode,
 }: ProposalSubmissionViewProps) => {
   const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
@@ -60,7 +64,15 @@ export const ProposalSubmissionView = ({
       ) : null}
 
       <ProposalSubmissionForm>
-        {activeTab === 1 && <StageOneForm locked={locked} proposalId={proposalId} />}
+        {activeTab === 1 && (
+          <StageOneForm
+            locked={locked}
+            proposalId={proposalId}
+            proposalTitle={proposalTitle}
+            proposalDescription={proposalDescription}
+            proposalSourceCode={proposalSourceCode}
+          />
+        )}
         {activeTab === 2 && (
           <StageTwoForm
             locked={locked}

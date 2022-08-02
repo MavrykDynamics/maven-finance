@@ -83,6 +83,10 @@ export const ProposalSubmissionForm = styled(Card)`
       opacity: 0.6;
     }
   }
+
+  .desr-block {
+    margin-bottom: 30px;
+  }
 `
 
 export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`

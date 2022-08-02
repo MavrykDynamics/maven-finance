@@ -36,6 +36,9 @@ type StageOneFormViewProps = {
   handleOnBlur: (e: any, formField: string) => void
   handleSubmitProposal: () => void
   proposalId: number | undefined
+  proposalTitle: string
+  proposalDescription: string
+  proposalSourceCode: string
 }
 export const StageOneFormView = ({
   locked,
@@ -47,6 +50,9 @@ export const StageOneFormView = ({
   handleOnBlur,
   handleSubmitProposal,
   proposalId,
+  proposalDescription,
+  proposalSourceCode,
+  proposalTitle,
 }: StageOneFormViewProps) => {
   const { watingProposals } = useGovernence()
   const { governancePhase } = useSelector((state: State) => state.governance)
@@ -68,15 +74,24 @@ export const StageOneFormView = ({
       </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <label>1 - Enter Proposal Title</label>
-          <Input
-            type="text"
-            value={form.title}
-            onChange={(e: any) => setForm({ ...form, title: e.target.value })}
-            onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
-            inputStatus={formInputStatus.title}
-            disabled={disabled}
-          />
+          {proposalTitle ? (
+            <div>
+              <label>1 - Proposal Title</label>
+              <FormTitleEntry>{proposalTitle}</FormTitleEntry>
+            </div>
+          ) : (
+            <>
+              <label>1 - Enter Proposal Title</label>
+              <Input
+                type="text"
+                value={form.title}
+                onChange={(e: any) => setForm({ ...form, title: e.target.value })}
+                onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
+                inputStatus={formInputStatus.title}
+                disabled={disabled}
+              />
+            </>
+          )}
         </FormTitleContainer>
         <div>
           <label>2 - Proposal Success Reward</label>
@@ -87,27 +102,44 @@ export const StageOneFormView = ({
           <FormTitleEntry>{fee} XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
-      <label>4 - Enter a description</label>
-      <TextArea
-        type="text"
-        className="description-textarea"
-        value={form.description}
-        onChange={(e: any) => setForm({ ...form, description: e.target.value })}
-        onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
-        inputStatus={formInputStatus.description}
-        disabled={disabled}
-      />
-      <div className="source-code-input-wrap">
-        <label>5 - Please add a link to the source code changes (if you have)</label>
-        <Input
-          type="text"
-          value={form.sourceCodeLink}
-          onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
-          onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
-          inputStatus={formInputStatus.sourceCodeLink}
-          disabled={disabled}
-        />
-      </div>
+      {proposalDescription ? (
+        <div className="desr-block">
+          <label>4 - Proposal Description</label>
+          <FormTitleEntry>{proposalDescription}</FormTitleEntry>
+        </div>
+      ) : (
+        <>
+          <label>4 - Enter a description</label>
+          <TextArea
+            type="text"
+            className="description-textarea"
+            value={form.description}
+            onChange={(e: any) => setForm({ ...form, description: e.target.value })}
+            onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
+            inputStatus={formInputStatus.description}
+            disabled={disabled}
+          />
+        </>
+      )}
+      {proposalSourceCode ? (
+        <div className="desr-block">
+          <label>5 - Proposal source code</label>
+          <FormTitleEntry>{proposalSourceCode}</FormTitleEntry>
+        </div>
+      ) : (
+        <div className="source-code-input-wrap">
+          <label>5 - Please add a link to the source code changes (if you have)</label>
+          <Input
+            type="text"
+            value={form.sourceCodeLink}
+            onChange={(e: any) => setForm({ ...form, sourceCodeLink: e.target.value })}
+            onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
+            inputStatus={formInputStatus.sourceCodeLink}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
       <FormButtonContainer>
         <Button
           icon="auction"

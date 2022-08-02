@@ -32,7 +32,7 @@ export default function TimeRemaining() {
   const handleGetTimestampByLevel = async (level: number) => {
     const res = await getTimestampByLevel(level)
     setVotingEnding(res)
-    // setVotingEnding('2022-07-31T18:44Z')
+    // setVotingEnding('2022-08-03T18:44Z')
   }
 
   useEffect(() => {
