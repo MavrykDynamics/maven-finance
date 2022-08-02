@@ -1,18 +1,18 @@
 import { useState } from 'react'
-import Toggle from 'react-toggle'
 
 // types
 import type { FarmsViewVariantType } from '../Farms.controller'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
+import Toggle from '../../../app/App.components/Toggle/Toggle.view'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 
 // style
 import { DropdownContainer } from '../../../app/App.components/DropDown/DropDown.style'
-import { FarmTopBarStyled, StakedToggleContainer } from './FarmTopBar.style'
+import { FarmTopBarStyled } from './FarmTopBar.style'
 
 export type FarmTopBarViewProps = {
   loading: boolean
@@ -54,13 +54,13 @@ export const FarmTopBar = ({
 
   return (
     <FarmTopBarStyled className={className}>
-      <StakedToggleContainer>
-        <label>
-          <Toggle defaultChecked={false} icons={false} onChange={handleToggleStakedOnly} className="farm-toggle" />
-        </label>
-        <span>Staked Only</span>
-      </StakedToggleContainer>
-      <SlidingTabButtons onClick={handleLiveFinishedToggleButtons} type={'Farms'} loading={loading} />
+      <Toggle onChange={handleToggleStakedOnly} className="farm-toggle" sufix="Staked Only" />
+      <SlidingTabButtons
+        className="tab-bar"
+        onClick={handleLiveFinishedToggleButtons}
+        type={'Farms'}
+        loading={loading}
+      />
       <Input
         type="text"
         placeholder="Search..."
@@ -68,7 +68,7 @@ export const FarmTopBar = ({
         onChange={(e: any) => onSearch(e.target.value)}
         onBlur={() => {}}
       />
-      <DropdownContainer>
+      <DropdownContainer className="order-by">
         <h4>Order By:</h4>
         <DropDown
           clickOnDropDown={handleClickDropdown}
