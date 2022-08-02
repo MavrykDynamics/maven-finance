@@ -109,10 +109,6 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
       a .navLinkTitle {
         display: none !important;
       }
-
-      #connectWalletButton {
-        display: none;
-      }
     }
 
     &.menu-expanded {
@@ -133,20 +129,25 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
     width: 100%;
     max-width: 270px;
   }
+
+  &.menu-collapsed {
+    width: 72px;
+
+    a .navLinkSubTitle,
+    a .navLinkTitle {
+      display: none !important;
+    }
+  }
 `
 
 export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
-  display: none;
+  display: block;
   width: fit-content;
   margin: 0 auto;
   transition: all 1s cubic-bezier(0.42, 0, 0.58, 1);
   align-items: center;
   cursor: pointer;
   margin-right: 24px;
-
-  @media screen and (max-width: 1460px) {
-    display: block;
-  }
 
   &.expanded {
     transform: rotate(-540deg);

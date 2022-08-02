@@ -24,6 +24,7 @@ export const TopBarLinksStyled = styled.div`
       transform: rotate(-90deg);
       transition: 0.35s all;
       display: block;
+      stroke: ${silverColor};
     }
 
     &:hover {
