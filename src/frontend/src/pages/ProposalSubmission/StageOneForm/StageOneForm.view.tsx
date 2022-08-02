@@ -121,6 +121,7 @@ export const StageOneFormView = ({
           />
         </>
       )}
+
       {proposalSourceCode ? (
         <div className="desr-block">
           <label>5 - Proposal source code</label>

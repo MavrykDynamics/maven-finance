@@ -34,6 +34,7 @@ type FarmCardProps = {
   lpTokenAddress: string
   firstTokenAddress: string
   secondTokenAddress: string
+  className: string
   totalLiquidity: number
 }
 export const FarmCard = ({
@@ -45,6 +46,7 @@ export const FarmCard = ({
   lpToken,
   lpTokenAddress,
   totalLiquidity,
+  className,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
@@ -79,7 +81,7 @@ export const FarmCard = ({
     dispatch(showModal(FARM_WITHDRAW))
   }
   return (
-    <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion${expanded ? 'Show' : 'Hide'}`}>
+    <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion${expanded ? 'Show' : 'Hide'} ${className}`}>
       <Modal />
       <FarmCardTopSection>
         <FarmCardContentSection>
