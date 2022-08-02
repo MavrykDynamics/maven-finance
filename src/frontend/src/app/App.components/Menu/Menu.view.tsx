@@ -1,21 +1,13 @@
+import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
+import { MenuFooter, MenuGrid, MenuLogo, MenuMobileBurger, MenuStyled, MenuTopSection, MenuTopStyled } from './Menu.style'
+import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
+import { NavigationLink } from './NavigationLink/NavigationLink.controller'
+import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
 import * as React from 'react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
-
-import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
-import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import {
-  MenuMobileBurger,
-  MenuFooter,
-  MenuGrid,
-  MenuLogo,
-  MenuStyled,
-  MenuTopSection,
-  MenuTopStyled,
-} from './Menu.style'
-import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
-import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 
 type MenuViewProps = {
   loading: boolean
@@ -58,6 +50,31 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
             <MenuLogo alt="logo" className={'desctop-logo'} src={logoImg} />
             {/* <MenuLogo alt="logo" className={'mobile-logo'} src={logoMobile} /> */}
           </Link>
+        </div>
+        <div className="grouped-links">
+          <TopBarLinks
+            groupName={'Products'}
+            groupLinks={[
+              { name: 'link 9', href: 'gdfgd' },
+              { name: 'link 6', href: 'gdfgd' },
+            ]}
+          />
+          <TopBarLinks
+            groupName={'About'}
+            groupLinks={[
+              { name: 'link 1', href: 'gdfgd' },
+              { name: 'link 7', href: 'gdfgd' },
+            ]}
+          />
+          <TopBarLinks groupName={'Blog 🔥'} groupLinks={[]} />
+          <TopBarLinks
+            groupName={'Docs'}
+            groupLinks={[
+              { name: 'link 1', href: 'gdfgd' },
+              { name: 'link 2', href: 'gdfgd' },
+              { name: 'link 4', href: 'gdfgd' },
+            ]}
+          />
         </div>
         <div className="right-side">
           <div className="social-wrapper">

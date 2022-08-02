@@ -26,6 +26,7 @@ export const downColor = '#FF4343';
 export const warningColor = '#FF7A00';
 export const selectedColor = '#aea3ff3d';
 export const backdropColor = '#08062880';
+export const silverColor = '#C0DBFF';
 
 export const darkMode = {
   backgroundColor: darkColor,

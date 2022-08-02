@@ -1,8 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
+import { backdropColor, cyanColor, royalPurpleColor } from 'styles/colors'
 
 import { MavrykTheme } from '../../../styles/interfaces'
-
-import { backdropColor, cyanColor, royalPurpleColor } from 'styles/colors'
 
 export const moveDown = keyframes`
   from {
@@ -22,7 +21,8 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   z-index: 35;
   background: #160e3f;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  /* justify-content: space-between; */
   padding: 0 22px 0 34px;
 
   #connectWalletButton {
@@ -36,6 +36,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   .right-side {
+    margin-left: auto;
     .settingsIcon {
       margin-left: 25px;
       cursor: pointer;
@@ -56,6 +57,13 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
         height: 30px;
       }
     }
+  }
+
+  .grouped-links {
+    margin-left: 30px;
+    height: 100%;
+    display: flex;
+    align-items: center;
   }
 
   // in case we need a mobile logo
