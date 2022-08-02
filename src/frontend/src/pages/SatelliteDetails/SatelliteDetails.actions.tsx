@@ -14,8 +14,6 @@ import {
 
 export const GET_SATELLITE_BY_ADDRESS = 'GET_SATELLITE_BY_ADDRESS'
 export const getSatelliteByAddress = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
   try {
     const satelliteRecordFromIndexer = await fetchFromIndexerWithPromise(
       SATELLITE_RECORDS_QUERY,
@@ -33,6 +31,7 @@ export const getSatelliteByAddress = (satelliteAddress: string) => async (dispat
       satelliteRecordFromIndexer: satelliteRecordFromIndexer?.satellite_record?.[0],
       userVotingHistoryIndexer: userVotingHistoryIndexer?.mavryk_user?.[0],
     })
+
     dispatch({
       type: GET_SATELLITE_BY_ADDRESS,
       currentSatellite: satelliteRecord,

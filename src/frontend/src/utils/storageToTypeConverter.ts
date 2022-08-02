@@ -1,4 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
+import { Feed, InitialOracleStorageType } from 'pages/Satellites/helpers/Satellites.types'
 
 import { ContractAddressesState } from '../reducers/contractAddresses'
 import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
@@ -91,6 +92,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
       res = convertToTreasuryAddressType(storage)
       setItemInStorage('TreasuryAddresses', res)
       break
+    case 'oracle':
+      res = convertToOracleStorageType(storage)
+      setItemInStorage('OracleStorage', res)
+      break
   }
 
   return res
@@ -103,6 +108,14 @@ function convertToTreasuryAddressType(storage: any): {
   return {
     treasuryAddresses: storage?.treasury,
     treasuryFactoryAddress: storage?.treasury_factory[0].address,
+  }
+}
+
+function convertToOracleStorageType(storage: any): InitialOracleStorageType {
+  return {
+    feeds: storage?.aggregator.map((feed: Feed) => ({...feed, category: 'Cryptocurrency (USD pairs)', network: 'Tezos'})),
+    feedsFactory: storage?.aggregator_factory,
+    totalOracleNetworks: storage?.aggregator ? storage.aggregator.reduce((acc: number, cur: any) => acc + cur.oracle_records.length, 0) : 0,
   }
 }
 
@@ -294,6 +307,7 @@ function convertToSatelliteRecordInterface({
   }
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
+    oracleRecords: satelliteRecord?.user?.aggregator_oracle_records || [],
     description: satelliteRecord?.description || '',
     website: satelliteRecord?.website || '',
     participation: satelliteRecord?.participation || 0,
@@ -316,6 +330,7 @@ function convertToSatelliteRecordInterface({
 
 function convertToFarmStorageType(storage: any): FarmStorage[] {
   const farms: FarmStorage[] = []
+  console.log('%c ||||| FarmStorage', 'color:yellowgreen', storage)
   storage?.forEach((farmItem: any) => {
     const newFarm: FarmStorage = {
       address: farmItem.address,

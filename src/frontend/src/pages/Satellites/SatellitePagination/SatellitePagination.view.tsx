@@ -23,7 +23,7 @@ const SatellitePagination = () => {
 
   return (
     <SatellitePaginationStyled>
-      <Link className="pagination-link back" to="/satellites">
+      <Link className="pagination-link back" to="/satellite-nodes">
         <Icon id="arrow-left-stroke" />
         Back to satellites
       </Link>

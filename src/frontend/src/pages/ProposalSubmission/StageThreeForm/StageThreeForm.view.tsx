@@ -68,18 +68,18 @@ export const StageThreeFormView = ({
   const isProposalRound = governancePhase === 'PROPOSAL' && !watingProposals.length
   const disabled = !isProposalRound || !form.title
   const dispatch = useDispatch()
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
 
   const handleLockProposal = () => {
     if (proposalId) dispatch(lockProposal(proposalId, accountPkh as any))
   }
 
-  const enebleSubmit = tableData[1].every((item) => Boolean(item))
+  const enebleSubmit = tableData.flat().every((item) => Boolean(item))
 
   return (
     <SubmissionStyled>
       <FormHeaderGroup>
-        <h1>Stage 3 {!isProposalRound ? <span className="label">Not accessible in the current round</span> : null}</h1>
+        <h1>Stage 3</h1>
         <StatusFlag
           text={locked ? 'LOCKED' : 'UNLOCKED'}
           status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
@@ -99,7 +99,7 @@ export const StageThreeFormView = ({
         </div>
         <div>
           <label>3 - Fee</label>
-          <FormTitleEntry>{fee}XTZ</FormTitleEntry>
+          <FormTitleEntry>{fee} XTZ</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
       <label>4 - Enter Proposal Data</label>

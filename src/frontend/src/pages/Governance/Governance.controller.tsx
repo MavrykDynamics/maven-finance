@@ -3,21 +3,17 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Page, ModalStyled } from 'styles'
 import { State } from 'reducers'
 
-// types
-import type { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
-
 // actions
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getGovernanceStorage, getCurrentRoundProposals, startNextRound, executeProposal } from './Governance.actions'
+import { getCurrentRoundProposals, executeProposal } from './Governance.actions'
+import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // view
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
-import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
-import { MoveNextRoundModal } from './MoveNextRoundModal/MoveNextRoundModal.controller'
 
 // utils
 import { calcTimeToBlock } from '../../utils/calcFunctions'
@@ -38,15 +34,12 @@ export const Governance = () => {
 
   const { watingProposals, waitingForPaymentToBeProcessed } = useGovernence()
 
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { ready, accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, governancePhase, currentRoundProposals, pastProposals } = useSelector(
     (state: State) => state.governance,
   )
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const userIsSatellite = checkIfUserIsSatellite(accountPkh, delegationStorage?.satelliteLedger)
-  const [visibleModal, setVisibleModal] = useState(false)
-  const [proposalId, setProposalId] = useState<number | null>(null)
-  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   // Period end time calculation
   const { headData } = useSelector((state: State) => state.preferences)
 
@@ -55,8 +48,6 @@ export const Governance = () => {
       ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
       : 0
 
-  const currentDate = new Date()
-  const [periodEndsOn, _] = useState<Date>(new Date(currentDate.getTime() + timeToEndOfPeriod * (1000 * 60 * 60 * 24)))
   const daysLeftOfPeriod = timeToEndOfPeriod
 
   useEffect(() => {
@@ -65,10 +56,8 @@ export const Governance = () => {
     dispatch(getDelegationStorage())
   }, [dispatch])
 
-  const proposalLedger = governanceStorage.proposalLedger
-
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
-  const isProposalRound = governancePhase === 'PROPOSAL'
+
   const isVotingRound = governancePhase === 'VOTING'
   const isTimeLockRound = governancePhase === 'TIME_LOCK'
 
@@ -79,41 +68,15 @@ export const Governance = () => {
       Boolean(item.id === governanceStorage.cycleHighestVotedProposalId),
   )
 
-  const handleMoveNextRound = () => {
-    dispatch(startNextRound(false))
-  }
   const handleExecuteProposal = (id: number) => {
     dispatch(executeProposal(id))
-  }
-  const handleCloseModal = () => {
-    setVisibleModal(false)
-  }
-  const handleOpenModalMoveNextRound = (id: number) => {
-    setVisibleModal(true)
-    setProposalId(id)
   }
 
   return (
     <Page>
-      {visibleModal ? (
-        <MoveNextRoundModal
-          proposalId={proposalId}
-          handleCloseModal={handleCloseModal}
-          handleExecuteProposal={handleExecuteProposal}
-          handleMoveNextRound={handleMoveNextRound}
-        />
-      ) : null}
       <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
-      <GovernanceTopBar
-        governancePhase={governancePhase}
-        timeLeftInPhase={daysLeftOfPeriod}
-        isInEmergencyGovernance={false}
-        loading={loading}
-        isExecutionRound={Boolean(watingProposals.length)}
-        handleMoveNextRound={handleMoveNextRound}
-      />
+      <GovernanceTopBar governancePhase={governancePhase} />
       <GovernanceView
-        handleOpenModalMoveNextRound={handleOpenModalMoveNextRound}
         handleExecuteProposal={handleExecuteProposal}
         ready={ready}
         loading={loading}

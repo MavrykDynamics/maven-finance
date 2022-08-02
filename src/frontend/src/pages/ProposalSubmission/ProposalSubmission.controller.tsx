@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -6,23 +6,19 @@ import { ProposalSubmissionView } from './ProposalSubmission.view'
 import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 export const ProposalSubmission = () => {
-  const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { pastProposals, governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
+  const { accountPkh } = useSelector((state: State) => state.wallet)
+  const { governancePhase, currentRoundProposals } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
 
   const currentRoundProposalsList = currentRoundProposals?.values ? Array.from(currentRoundProposals.values()) : []
 
-  const findUserCurrentRoundProposal = accountPkh
-    ? currentRoundProposalsList.find((item) => item.proposerId === accountPkh)
-    : null
+  const findUserCurrentRoundProposal = useMemo(
+    () => (accountPkh ? currentRoundProposalsList.find((item) => item.proposerId === accountPkh) : null),
+    [accountPkh, currentRoundProposalsList],
+  )
 
-  const locked = Boolean(findUserCurrentRoundProposal?.locked)
-
-  // useEffect(() => {
-  //   dispatch(getGovernanceStorage())
-  // }, [accountPkh])
+  console.log('%c ||||| findUserCurrentRoundProposal', 'color:yellowgreen', findUserCurrentRoundProposal)
 
   const handleChangeTab = (tabId: number) => {
     setActiveTab(tabId)
@@ -36,9 +32,13 @@ export const ProposalSubmission = () => {
       accountPkh={accountPkh}
       governancePhase={governancePhase}
       isInEmergencyGovernance={false}
-      locked={locked}
+      locked={Boolean(findUserCurrentRoundProposal?.locked)}
       proposalId={findUserCurrentRoundProposal?.id}
       proposalTitle={findUserCurrentRoundProposal?.title || ''}
+      proposalDescription={findUserCurrentRoundProposal?.description || ''}
+      proposalSourceCode={findUserCurrentRoundProposal?.sourceCode || ''}
+      proposalData={findUserCurrentRoundProposal?.proposalData}
+      proposalPayments={findUserCurrentRoundProposal?.proposalPayments}
     />
   )
 }

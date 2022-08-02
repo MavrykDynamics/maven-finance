@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-export const TimerStyled = styled.div`
+export const TimerStyled = styled.div<{ negativeColor: string; defaultColor: string }>`
   margin: 0;
 
   ul {
@@ -11,7 +11,13 @@ export const TimerStyled = styled.div`
   li {
     display: inline-block;
     list-style-type: none;
-    padding-right: 10px;
+    padding-right: 5px;
+
+    color: ${({ defaultColor }) => defaultColor};
+
+    &.negative {
+      color: ${({ negativeColor }) => negativeColor};
+    }
   }
 
   li span {

@@ -5,6 +5,7 @@ import { Card, CardHeader } from 'styles'
 export const SatelliteSideBarStyled = styled(Card)`
   padding: 24px 0;
   margin-top: 0;
+  max-width: 310px;
 
   h2 {
     font-weight: 700;
@@ -16,8 +17,12 @@ export const SatelliteSideBarStyled = styled(Card)`
 
 export const SideBarSection = styled.aside<{ theme: MavrykTheme }>`
   padding: 0 20px;
-  padding-bottom: 31px;
+  padding: 31px 20px;
   position: relative;
+
+  &:first-child {
+    padding-top: 0;
+  }
 
   &::after {
     content: '';

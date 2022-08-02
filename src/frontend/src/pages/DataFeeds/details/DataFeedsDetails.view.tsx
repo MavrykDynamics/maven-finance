@@ -1,0 +1,287 @@
+import React, { useMemo, useState, useCallback } from 'react'
+import moment from 'moment'
+
+// consts, helpers
+import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
+import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { QUESTION_MARK_SVG_ENCODED, INFO_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
+
+// types
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+
+// view
+import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
+import Chart from 'app/App.components/Chart/Chart.view'
+import { Button } from 'app/App.components/Button/Button.controller'
+import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
+
+// styles
+import {
+  DataFeedInfoBlock,
+  DataFeedsStyled,
+  DataFeedsTitle,
+  DataFeedSubTitleText,
+  DataFeedValueText,
+  UsersListCardsWrapper,
+  UsersListWrapper,
+  UserSmallCard,
+} from './DataFeedsDetails.style'
+import { cyanColor, downColor, Page } from 'styles'
+import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
+import { EmptyContainer } from 'app/App.style'
+import { usersData } from 'pages/UsersOracles/users.const'
+import { useHistory } from 'react-router'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { InputErrorMessage } from 'app/App.components/Input/Input.style'
+import { Timer } from 'app/App.components/Timer/Timer.controller'
+
+type FeedDetailsProps = {
+  feed: Feed | null
+  isLoading: boolean
+  oracles: Array<SatelliteRecord>
+  registerFeedHandler: () => void
+}
+
+const emptyContainer = (
+  <EmptyContainer>
+    <img src="/images/not-found.svg" alt=" No proposals to show" />
+    <figcaption> No oracles to show</figcaption>
+  </EmptyContainer>
+)
+
+const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: FeedDetailsProps) => {
+  const [isClickedRegister, setClickedRegister] = useState(false)
+  const arrOfOracleRecords = useCallback(
+    () => feed?.oracle_records.map(({ oracle_id }: { oracle_id: string }) => oracle_id) || [],
+    [feed?.oracle_records],
+  )
+  const oraclesForFeed = useMemo(
+    () => oracles.filter((satellite) => arrOfOracleRecords().includes(satellite.address)),
+    [oracles, arrOfOracleRecords],
+  )
+
+  const history = useHistory()
+
+  const isTrustedAnswer = feed && feed.last_completed_round_pct_oracle_response >= feed.percent_oracle_threshold
+  const heartbeatUpdateInfo =
+    moment(Date.now()).diff(moment(feed?.last_completed_round_price_timestamp), 'minutes') >= 30
+      ? `
+  Price feed is outdated, missed the schedule price update at ${getDate_MDHMS_Format({
+    timestamp: new Date(feed?.last_completed_round_price_timestamp || '').getTime() + 1000 * 60 * 30,
+  })}
+  `
+      : `
+  Price feed updated every 30 mins, starting from latest time it was updated
+  `
+
+  return feed ? (
+    <Page>
+      <PageHeader page={'data-feeds'} kind={PRIMARY} loading={false} />
+      <DataFeedsPagination />
+
+      <DataFeedsStyled>
+        <div className="top-section-wrapper">
+          <div className="left-part">
+            <div className="top">
+              <div className="name-part">
+                <DataFeedsTitle fontSize={25} fontWeidth={700}>
+                  {feed.token_1_symbol}/{feed.token_0_symbol}
+                </DataFeedsTitle>
+
+                <DataFeedsTitle
+                  svgContent={QUESTION_MARK_SVG_ENCODED}
+                  onClick={() => {
+                    // TODO: add link for question mark icon click ORACLE_SI
+                    // history.push('/somewhere')
+                  }}
+                >
+                  Learn how to use {feed.token_1_symbol}/{feed.token_0_symbol} in your smart contracts here
+                </DataFeedsTitle>
+              </div>
+              <div className="price-part">
+                <DataFeedValueText fontSize={22} fontWeidth={600}>
+                  {isTrustedAnswer ? (
+                    <>
+                      <svg>
+                        <use xlinkHref="/icons/sprites.svg#trustShield" />
+                      </svg>
+                      <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                    </>
+                  ) : (
+                    <>
+                      <CommaNumber beginningText="$" value={feed.last_completed_round_price} />
+                      &nbsp;
+                      <InputErrorMessage>(Not Trusted)</InputErrorMessage>
+                    </>
+                  )}
+                </DataFeedValueText>
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} className="margin-r">
+                  Trusted answer
+                  <div className="on-svg-hover-info">trusted answer info on hover</div>
+                </DataFeedsTitle>
+              </div>
+            </div>
+            <div className="bottom">
+              <DataFeedInfoBlock>
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                  Trigger parameters
+                  <div className="on-svg-hover-info">trigger parameters info on hover</div>
+                </DataFeedsTitle>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  Deviation threshold
+                </DataFeedSubTitleText>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  <CommaNumber value={feed.per_thousand_deviation_trigger / 1000} endingText="%" />
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+              <DataFeedInfoBlock>
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                  Oracle responses
+                  <div className="on-svg-hover-info">oracle responses info on hover</div>
+                </DataFeedsTitle>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  Minimum of {feed.percent_oracle_threshold}
+                </DataFeedSubTitleText>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  {feed.last_completed_round_pct_oracle_response}/{feed.percent_oracle_threshold}
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+              <DataFeedInfoBlock>
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                  Last update
+                  <div className="on-svg-hover-info">last update info on hover</div>
+                </DataFeedsTitle>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  {getDate_MDY_Format(feed.last_completed_round_price_timestamp)}
+                </DataFeedSubTitleText>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  {moment(new Date(feed.last_completed_round_price_timestamp)).fromNow()}
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+              <DataFeedInfoBlock>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600} svgContent={INFO_SVG_ENCODED}>
+                  Heartbeat
+                  <div className="on-svg-hover-info">{heartbeatUpdateInfo}</div>
+                </DataFeedSubTitleText>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  <Timer
+                    options={{
+                      showZeros: false,
+                      negativeColor: downColor,
+                      defaultColor: cyanColor,
+                    }}
+                    timestamp={new Date(feed.last_completed_round_price_timestamp).getTime() + 1000 * 60 * 30}
+                  />
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+              <DataFeedInfoBlock>
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={18} fontWeidth={600}>
+                  Decimals
+                  <div className="on-svg-hover-info">decimals info on hover</div>
+                </DataFeedsTitle>
+                <DataFeedSubTitleText fontSize={14} fontWeidth={600}>
+                  {moment(new Date(feed.last_completed_round_price_timestamp)).fromNow()}
+                </DataFeedSubTitleText>
+                <DataFeedValueText fontSize={16} fontWeidth={600}>
+                  {''.padEnd(feed.decimals, '0')}
+                </DataFeedValueText>
+              </DataFeedInfoBlock>
+            </div>
+          </div>
+
+          <div className="right-part">
+            {!isClickedRegister ? (
+              <div className="register-pair-wrapper">
+                <DataFeedSubTitleText fontSize={16} fontWeidth={600} className="title">
+                  Register this price pair
+                </DataFeedSubTitleText>
+
+                <Button
+                  text="Register"
+                  kind={ACTION_PRIMARY}
+                  loading={isLoading}
+                  onClick={() => {
+                    setClickedRegister(true)
+                    registerFeedHandler()
+                  }}
+                />
+              </div>
+            ) : null}
+
+            <div className={`adresses-info ${isClickedRegister ? 'registered' : ''}`}>
+              {isClickedRegister ? (
+                <DataFeedsTitle fontSize={16} fontWeidth={600} className="title">
+                  Oracle contract details
+                </DataFeedsTitle>
+              ) : null}
+              <div className="info-wrapper">
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={14} fontWeidth={600}>
+                  Contract address
+                </DataFeedsTitle>
+                <DataFeedValueText fontSize={14} fontWeidth={600}>
+                  <TzAddress tzAddress={feed.address} hasIcon={false} />
+                </DataFeedValueText>
+              </div>
+              <div className="info-wrapper">
+                <DataFeedsTitle svgContent={INFO_SVG_ENCODED} fontSize={14} fontWeidth={600}>
+                  ENS address
+                </DataFeedsTitle>
+                <DataFeedValueText fontSize={14} fontWeidth={600}>
+                  eth-usd.data.eth
+                </DataFeedValueText>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="chart-wrapper">
+          <GovRightContainerTitleArea>
+            <h1>Answer history</h1>
+          </GovRightContainerTitleArea>
+          <Chart list={[]} header={''} />
+        </div>
+      </DataFeedsStyled>
+
+      {oraclesForFeed.length ? (
+        <SatelliteList
+          listTitle={'Oracles data'}
+          loading={isLoading}
+          items={oraclesForFeed}
+          listType={'oracles'}
+          name={ORACLES_DATA_IN_FEED_LIST_NAME}
+        />
+      ) : (
+        emptyContainer
+      )}
+
+      <UsersListWrapper className="oracle-list-wrapper">
+        <GovRightContainerTitleArea>
+          <h1>Users</h1>
+        </GovRightContainerTitleArea>
+
+        <div className="see-all-link" onClick={() => history.push('/users')}>
+          See all users
+          <svg>
+            <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
+          </svg>
+        </div>
+
+        <UsersListCardsWrapper>
+          {usersData.map((user) => (
+            <UserSmallCard>
+              <div className="img-wrapper">logo</div>
+              {user.name}
+            </UserSmallCard>
+          ))}
+        </UsersListCardsWrapper>
+      </UsersListWrapper>
+    </Page>
+  ) : null
+}
+
+export default DataFeedDetailsView

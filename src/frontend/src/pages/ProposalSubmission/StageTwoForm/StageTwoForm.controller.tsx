@@ -1,7 +1,10 @@
+import { useState, useEffect } from 'react'
 import { StageTwoFormView } from './StageTwoForm.view'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { useState, useEffect } from 'react'
+
+// types
+import type { ProposalDataType } from '../../../utils/TypesAndInterfaces/Governance'
 
 import {
   ProposalUpdateForm,
@@ -11,24 +14,27 @@ import {
 import { getFormErrors, isHexadecimalByteString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
-import { lockProposal, updateProposal } from '../ProposalSubmission.actions'
+import { dropProposal, updateProposal } from '../ProposalSubmission.actions'
 
 type StageTwoFormProps = {
   locked: boolean
   accountPkh?: string
   proposalId: number | undefined
   proposalTitle: string
+  proposalData: ProposalDataType[] | undefined
 }
 
 export const PROPOSAL_BYTE = {
+  bytes: '',
+  governance_proposal_record_id: 0,
   id: 0,
+  record_internal_id: 0,
   title: '',
-  data: '',
 }
 
-export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: StageTwoFormProps) => {
+export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, proposalData }: StageTwoFormProps) => {
   const dispatch = useDispatch()
-  const { governanceStorage } = useSelector((state: State) => state.governance)
+  const { governanceStorage, currentRoundProposals } = useSelector((state: State) => state.governance)
   const { fee, governancePhase } = governanceStorage
   const isProposalRound = governancePhase === 'PROPOSAL'
   const successReward = governanceStorage.config.successReward
@@ -45,6 +51,19 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
     title: '',
     proposalBytes: '',
   })
+
+  useEffect(() => {
+    if (proposalData?.length) {
+      const prepareObj = {
+        title: proposalTitle,
+        proposalBytes: proposalData,
+      }
+
+      setForm(prepareObj)
+    }
+  }, [proposalData, proposalTitle])
+
+  console.log('%c ||||| form', 'color:red', form)
 
   const handleOnBlur = (index: number, text: string, type: string) => {
     const validityCheckResultData = Boolean(text)
@@ -78,11 +97,19 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
     })
   }
 
-  const handleUpdateProposal = async () => {
+  const handleAddProposal = async () => {
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
       await dispatch(updateProposal(form, proposalId, clearState))
     }
+  }
+
+  const handleUpdateProposal = async () => {
+    await dispatch(updateProposal(form, proposalId, clearState))
+  }
+
+  const handleDeleteProposal = async () => {
+    if (proposalId) await dispatch(dropProposal(proposalId))
   }
 
   useEffect(() => {
@@ -100,6 +127,9 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId }: 
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
       handleUpdateProposal={handleUpdateProposal}
+      handleAddProposal={handleAddProposal}
+      handleDeleteProposal={handleDeleteProposal}
+      proposalData={proposalData}
     />
   )
 }

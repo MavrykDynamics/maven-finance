@@ -77,6 +77,15 @@ export const ProposalSubmissionForm = styled(Card)`
     font-size: 24px;
     right: 0;
     bottom: -26px;
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+  }
+
+  .desr-block {
+    margin-bottom: 30px;
   }
 `
 

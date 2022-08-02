@@ -19,6 +19,12 @@ export const SATELLITE_RECORDS_QUERY = `
         smvk_balance
         mvk_balance
         address
+        aggregator_oracle_records {
+          active
+          aggregator_id
+          id
+          oracle_id
+        }
         emergency_governance_votes {
           emergency_governance_record_id
           id

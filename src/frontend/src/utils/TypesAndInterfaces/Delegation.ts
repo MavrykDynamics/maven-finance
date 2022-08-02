@@ -1,4 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
 
 import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
 
@@ -89,6 +90,7 @@ export interface SatelliteRecord {
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
   emergencyGovernanceVotes?: SatelliteFinancialRequestVotingHistory[]
+  oracleRecords: Array<any>
 }
 
 export type DelegationConfig = {

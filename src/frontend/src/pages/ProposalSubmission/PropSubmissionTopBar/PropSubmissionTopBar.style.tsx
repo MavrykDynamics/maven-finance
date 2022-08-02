@@ -68,20 +68,3 @@ export const PropSubTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
   font-weight: 800;
   font-size: 25px;
 `
-export const TimeLeftAreaWrap = styled.div<{ theme: MavrykTheme }>`
-  border-left: 2px solid ${darkPurpleColor};
-  display: flex;
-  height: 38px;
-  flex-shrink: 0;
-  align-items: center;
-  width: 189px;
-  text-align: right;
-  justify-content: flex-end;
-`
-
-export const TimeLeftArea = styled.div<{ theme: MavrykTheme }>`
-  color: ${skyColor};
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 16px;
-`

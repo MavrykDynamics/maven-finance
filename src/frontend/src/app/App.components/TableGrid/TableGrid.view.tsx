@@ -28,7 +28,6 @@ type Props = {
 }
 
 const MAX_ROWS = 10
-const MAX_COLS = 6
 
 export default function TableGrid({ tableData, setTableData }: Props) {
   const [openDrop, setOpenDrop] = useState('')
@@ -127,13 +126,13 @@ export default function TableGrid({ tableData, setTableData }: Props) {
           ))}
         </table>
       </div>
-      {/* {!isMaxRows ? (
+      {!isMaxRows ? (
         <StyledTooltip placement="top" title="Insert 1 row bottom">
           <button className="btn-add-row" onClick={handleAddRow}>
             +
           </button>
         </StyledTooltip>
-      ) : null} */}
+      ) : null}
     </TableGridWrap>
   )
 }

@@ -28,11 +28,11 @@ import { SatelliteGovernanceCard } from './SatelliteGovernanceCard/SatelliteGove
 import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
-import { checkIfUserIsSatellite } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
+import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
 
 // actions
-import { getTotalDelegatedMVK } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
+import { getTotalDelegatedMVK } from 'pages/Satellites/helpers/Satellites.consts'
 
 // style
 import { SatelliteGovernanceStyled } from './SatelliteGovernance.style'
