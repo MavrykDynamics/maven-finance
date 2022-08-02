@@ -34,6 +34,15 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
     transform: translateX(-50%);
   }
 
+  .info-block {
+    margin-top: 40px;
+    margin-bottom: 40px;
+
+    & + .voting-proposal {
+      display: none;
+    }
+  }
+
   .byte,
   .hide {
     display: none;

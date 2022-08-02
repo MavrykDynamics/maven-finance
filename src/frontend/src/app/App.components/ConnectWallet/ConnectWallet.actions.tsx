@@ -6,7 +6,7 @@ import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 
 // const network = process.env.REACT_APP_API_NETWORK
-const network = 'jakartanet'
+const network = 'ghostnet'
 
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {

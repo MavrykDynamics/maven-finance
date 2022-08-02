@@ -3,12 +3,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect, useState } from 'react'
 import { getFarmFactoryStorage, getFarmStorage } from './Farms.actions'
-import { FarmsStyled } from './Farms.style'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Page } from 'styles'
 import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { FarmCard } from './FarmCard/FarmCard.controller'
+
+// styles
+import { FarmsStyled } from './Farms.style'
+
+export type FarmsViewVariantType = 'vertical' | 'horizontal'
 
 export const Farms = () => {
   const dispatch = useDispatch()
@@ -21,6 +25,10 @@ export const Farms = () => {
   const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false)
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
+  const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>('vertical')
+
+  console.log('%c ||||| farmsList', 'color:yellowgreen', farmsList)
+
   useEffect(() => {
     dispatch(getFarmStorage())
     // dispatch(getFarmFactoryStorage())
@@ -29,6 +37,10 @@ export const Farms = () => {
   const handleToggleStakedFarmsOnly = () => {
     setStakeFarmsOnly(!stakedFarmsOnly)
     console.log('Here in handleToggleStakedFarmsOnly')
+  }
+
+  const handleSetFarmsViewVariant = (variant: FarmsViewVariantType) => {
+    setFarmsViewVariant(variant)
   }
 
   const handleLiveFinishedToggleButtons = () => {
@@ -72,21 +84,27 @@ export const Farms = () => {
           onSort={handleOnSort}
           handleToggleStakedOnly={handleToggleStakedFarmsOnly}
           handleLiveFinishedToggleButtons={handleLiveFinishedToggleButtons}
+          handleSetFarmsViewVariant={handleSetFarmsViewVariant}
+          className={farmsViewVariant}
         />
-        {farmsList.map((farm: any, index: number) => {
-          return (
-            <FarmCard
-              farmAddress={farm.address}
-              firstToken={'MVK'}
-              secondToken={'USDM'}
-              lpToken={'Plenty LP'}
-              lpTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-              firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
-              secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-              totalLiquidity={1231243}
-            />
-          )
-        })}
+
+        <section className={`farm-list ${farmsViewVariant}`}>
+          {farmsList.map((farm: any, index: number) => {
+            return (
+              <FarmCard
+                className={farmsViewVariant}
+                farmAddress={farm.address}
+                firstToken={'MVK'}
+                secondToken={'USDM'}
+                lpToken={'Plenty LP'}
+                lpTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
+                firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
+                secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
+                totalLiquidity={1231243}
+              />
+            )
+          })}
+        </section>
       </FarmsStyled>
     </Page>
   )

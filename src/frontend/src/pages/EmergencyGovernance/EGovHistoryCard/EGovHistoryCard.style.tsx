@@ -121,6 +121,15 @@ export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: Mavry
     padding: 20px 40px;
     text-align: left;
     width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+
+    aside {
+      margin-top: 20px;
+      margin-bottom: 32px;
+    }
   }
 
   &.show {

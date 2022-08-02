@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 // types
 import { State } from '../../reducers'
 
-// helpers, actions
-import { calcTimeToBlock } from '../../utils/calcFunctions'
-import { getGovernanceStorage, startNextRound } from '../Governance/Governance.actions'
+//  actions
+import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 // consts
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -25,40 +24,18 @@ export const FinancialRequests = () => {
 
   const { ready } = useSelector((state: State) => state.wallet)
   const {
-    governanceStorage: { financialRequestLedger, currentRoundEndLevel },
+    governanceStorage: { financialRequestLedger },
     governancePhase,
   } = useSelector((state: State) => state.governance)
-  const { headData } = useSelector((state: State) => state.preferences)
-  console.log(financialRequestLedger)
-  const daysLeftOfPeriod = calcTimeToBlock(headData?.knownLevel, currentRoundEndLevel)
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
   }, [dispatch])
 
-  // NEXT ROUND MODALS STAFF
-  // const [visibleModal, setVisibleModal] = useState(false)
-  const handleMoveNextRound = () => {
-    dispatch(startNextRound(false))
-  }
-  // const handleExecuteProposal = (id: number) => {
-  //   dispatch(executeProposal(id))
-  // }
-  // const handleOpenModalMoveNextRound = (id: number) => {
-  //   setVisibleModal(true)
-  //   setProposalId(id)
-  // }
-
   return (
     <Page>
       <PageHeader page={'financial requests'} kind={PRIMARY} loading={loading} />
-      <GovernanceTopBar
-        governancePhase={governancePhase}
-        timeLeftInPhase={daysLeftOfPeriod}
-        isInEmergencyGovernance={false}
-        loading={loading}
-        handleMoveNextRound={handleMoveNextRound}
-      />
+      <GovernanceTopBar governancePhase={governancePhase} />
       <FinancialRequestsView financialRequestsList={financialRequestLedger} ready={ready} loading={loading} />
     </Page>
   )

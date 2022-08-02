@@ -1,7 +1,7 @@
 const axios = require('axios').default
 
 // const network = process.env.REACT_APP_API_NETWORK
-const network = 'jakartanet'
+const network = 'ghostnet'
 
 
 export async function getContractBigmapKeys(contractAddress: string, name: string): Promise<any> {

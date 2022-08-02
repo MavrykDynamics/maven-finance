@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-
+import { headerColor, darkPurpleColor, royalPurpleColor } from 'styles'
 import { MavrykTheme } from '../styles/interfaces'
 
 export const AppStyled = styled.div<{ theme: MavrykTheme }>`

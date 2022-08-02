@@ -21,10 +21,18 @@ import { submitProposal } from '../ProposalSubmission.actions'
 type StageOneFormProps = {
   locked: boolean
   proposalId: number | undefined
+  proposalTitle: string
+  proposalDescription: string
+  proposalSourceCode: string
 }
-export const StageOneForm = ({ locked, proposalId }: StageOneFormProps) => {
+export const StageOneForm = ({
+  locked,
+  proposalId,
+  proposalDescription,
+  proposalSourceCode,
+  proposalTitle,
+}: StageOneFormProps) => {
   const dispatch = useDispatch()
-  const { accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage } = useSelector((state: State) => state.governance)
   const { fee, governancePhase } = governanceStorage
   const isProposalRound = governancePhase === 'PROPOSAL'
@@ -136,6 +144,9 @@ export const StageOneForm = ({ locked, proposalId }: StageOneFormProps) => {
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
       handleSubmitProposal={handleSubmitProposal}
+      proposalTitle={proposalTitle}
+      proposalDescription={proposalDescription}
+      proposalSourceCode={proposalSourceCode}
     />
   )
 }
