@@ -1,15 +1,10 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { Card, skyColor, cyanColor, headerColor } from 'styles'
+import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
 
-export const FarmCardStyled = styled.section`
+export const FarmCardStyled = styled(Card)`
   margin: 0;
   padding: 0;
-
-  .expand-header {
-    grid-template-columns: 210px 1fr 1fr 1fr 1fr 120px;
-    padding-left: 40px;
-  }
 
   .farm-info {
     h3 {
@@ -43,6 +38,7 @@ export const FarmCardStyled = styled.section`
       font-size: 11px;
       line-height: 11px;
       color: ${headerColor};
+      margin: 4px 0;
     }
   }
 
@@ -52,13 +48,90 @@ export const FarmCardStyled = styled.section`
     margin-right: 32px;
   }
 
+  .links-block {
+    a {
+      display: flex;
+      align-items: center;
+      color: ${headerColor};
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 14px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+
+      svg {
+        fill: none;
+        stroke: ${headerColor};
+        width: 16px;
+        height: 16px;
+        margin-left: 8px;
+      }
+    }
+  }
+
   &.horizontal {
+    position: relative;
+    border: none;
+    align-items: baseline;
+
+    .expand-header {
+      grid-template-columns: 210px 1fr 1fr 1fr 1fr 120px;
+      padding-left: 40px;
+    }
+
     .farm-card-section {
       p {
         display: none;
       }
     }
-  }
+  } //horizontal
+
+  &.vertical {
+    position: relative;
+    .farm-info-vertical {
+      padding-left: 40px;
+      padding-right: 40px;
+      margin-bottom: 34px;
+
+      .farm-info {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+    .farm-card-header {
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      text-align: right;
+      padding-left: 20px;
+      padding-right: 40px;
+      padding-top: 40px;
+      margin-bottom: 30px;
+    }
+    .expand-header {
+      grid-template-columns: 1fr;
+      border-top: 1px solid ${royalPurpleColor};
+      min-height: 47px;
+    }
+
+    .vertical-expand {
+      border: none;
+
+      .farm-info-vertical {
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+
+      .links-block {
+        padding-left: 40px;
+        margin-bottom: 40px;
+      }
+
+      article::before {
+        display: none;
+      }
+    }
+  } //vertical
 `
 
 export const FarmCardTopSection = styled.div<{ theme: MavrykTheme }>`

@@ -17,6 +17,7 @@ import { ButtonIcon } from '../../../app/App.components/Button/Button.style'
 import { showModal } from '../../../app/App.components/Modal/Modal.actions'
 import { Modal } from '../../../app/App.components/Modal/Modal.controller'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
+import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // styles
 import {
@@ -124,6 +125,13 @@ export const FarmCard = ({
     </div>
   )
 
+  const totalLiquidityBlock = (
+    <div className="farm-info">
+      <h3>Total Liquidity</h3>
+      <var>$209,544,892</var>
+    </div>
+  )
+
   const multiplierBlock = (
     <div className="farm-info">
       <h3>Multiplier</h3>
@@ -131,88 +139,53 @@ export const FarmCard = ({
     </div>
   )
 
+  const earnBlock = (
+    <div className="farm-info">
+      <h3>Earn</h3>
+      <var>sMVK+Fees</var>
+    </div>
+  )
+
+  const linksBlock = (
+    <div className="links-block">
+      <a href="">
+        Get MVK-tzBTC <Icon id="send" />
+      </a>
+      <a href="">
+        View Contract <Icon id="send" />
+      </a>
+      <a href="">
+        See Pair Info <Icon id="send" />
+      </a>
+    </div>
+  )
+
   if (variant === 'vertical') {
     return (
-      <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion${expanded ? 'Show' : 'Hide'} ${variant}`}>
+      <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion} ${variant}`}>
+        <a className="info-link" href={''} target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
         {logoHeaderContent}
-        <Modal />
-        <FarmCardTopSection>
-          <FarmCardContentSection>
-            <div>
-              <p>APR:</p>
-              <p>Earn:</p>
-            </div>
-            <div>
-              <p>23.98%</p>
-              <p>sMVK + Fees</p>
-            </div>
-          </FarmCardContentSection>
-          <FarmCardRewardsSection>
-            <h4>sMVK Earned:</h4>
-            <div>
-              <p>123.0q3</p>
-              <Button text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
-            </div>
-          </FarmCardRewardsSection>
-          <FarmCardStakedBalanceSection>
-            <h4>
-              {firstToken}-{secondToken} staked:
-            </h4>
-            <div>
-              {!wallet || !ready ? (
-                <ConnectWallet type={'simpleButton'} />
-              ) : (
-                <>
-                  <CommaNumber
-                    value={Number(myFarmStakedBalance)}
-                    loading={loading}
-                    endingText={firstToken + '-' + secondToken}
-                  />
-                  <StakedBalanceAddSubtractButton onClick={triggerDepositModal}>
-                    <StakedBalanceAddSubtractIcon>
-                      <use xlinkHref={`/icons/sprites.svg#add`} />
-                    </StakedBalanceAddSubtractIcon>
-                  </StakedBalanceAddSubtractButton>
-                  <StakedBalanceAddSubtractButton onClick={triggerWithdrawModal}>
-                    <StakedBalanceAddSubtractIcon>
-                      <use xlinkHref={`/icons/sprites.svg#subtract`} />
-                    </StakedBalanceAddSubtractIcon>
-                  </StakedBalanceAddSubtractButton>
-                </>
-              )}
-            </div>
-          </FarmCardStakedBalanceSection>
-        </FarmCardTopSection>
-
-        <FarmCardDropDownContainer
-          onClick={open}
-          className={expanded ? 'show' : 'hide'}
-          height={accordionHeight}
-          ref={ref}
-        >
-          <span>
-            {expanded ? 'Hide ' : 'Details '}
-            {expanded ? (
-              <svg>
-                <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-              </svg>
-            ) : (
-              <svg>
-                <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
-              </svg>
-            )}
-          </span>
-          <div className={'accordion ' + `${expanded}`} ref={ref}>
-            Hello fuckers
-          </div>
-        </FarmCardDropDownContainer>
+        <div className="farm-info-vertical">
+          {aprBlock}
+          {earnBlock}
+        </div>
+        <Expand className="vertical-expand" showText header={<></>}>
+          <>
+            <div className="farm-info-vertical">{totalLiquidityBlock}</div>
+            {linksBlock}
+          </>
+        </Expand>
       </FarmCardStyled>
     )
   }
 
   return (
     <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion${expanded ? 'Show' : 'Hide'} ${variant}`}>
-      <Modal />
+      <a className="info-link" href={''} target="_blank" rel="noreferrer">
+        <Icon id="question" />
+      </a>
       <Expand
         header={
           <>
