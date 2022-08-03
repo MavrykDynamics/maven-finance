@@ -22,19 +22,21 @@ type MenuViewProps = {
   loading: boolean
   accountPkh?: string
   ready: boolean
+  isExpandedMenu: boolean
+  setisExpandedMenu: (value: boolean) => void
 }
 
-export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
+export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
-  const [isExpandedMenuMob, setExpandedMenuMob] = useState<boolean>(true)
+
   const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
   const logoMobile = '/logo-mobile.svg'
 
   const handleToggle = (id: number) => {
-    setExpandedMenuMob(true)
+    setisExpandedMenu(true)
     setExpanded(id === isExpanded ? 0 : id)
   }
 
@@ -46,9 +48,9 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
             onClick={(e) => {
               e.stopPropagation()
               setExpanded(0)
-              setExpandedMenuMob(!isExpandedMenuMob)
+              setisExpandedMenu(!isExpandedMenu)
             }}
-            className={isExpandedMenuMob ? 'expanded' : ''}
+            className={isExpandedMenu ? 'expanded' : ''}
           >
             <svg>
               <use xlinkHref="/icons/sprites.svg#menuOpen" />
@@ -123,10 +125,10 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
         </div>
       </MenuTopStyled>
       <MenuStyled
-        className={`navbar-sticky ${isExpandedMenuMob ? 'menu-expanded' : 'menu-collapsed'}`}
+        className={`navbar-sticky ${isExpandedMenu ? 'menu-expanded' : 'menu-collapsed'}`}
         onClick={() => {
           setExpanded(0)
-          setExpandedMenuMob(false)
+          setisExpandedMenu(false)
         }}
       >
         <MenuTopSection onClick={(e) => e.stopPropagation()}>
@@ -138,7 +140,7 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
                   key={key}
                   handleToggle={handleToggle}
                   isExpanded={navigationLink.id === isExpanded}
-                  isMobMenuExpanded={isExpandedMenuMob}
+                  isMobMenuExpanded={isExpandedMenu}
                   location={location}
                   walletReady={ready}
                   accountPkh={accountPkh}

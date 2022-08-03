@@ -2,11 +2,15 @@ import styled from 'styled-components'
 import { cyanColor, silverColor } from 'styles'
 
 export const TopBarLinksStyled = styled.div`
-  margin: 0 30px;
+  margin: 0 25px;
   height: 100%;
   position: relative;
   display: flex;
   align-items: center;
+
+  @media screen and (max-width: 1360px) {
+    margin: 0 15px;
+  }
 
   .group-name {
     font-size: 20px;
@@ -33,6 +37,10 @@ export const TopBarLinksStyled = styled.div`
       svg {
         stroke: ${cyanColor};
       }
+    }
+
+    @media screen and (max-width: 1360px) {
+      font-size: 18px;
     }
   }
 

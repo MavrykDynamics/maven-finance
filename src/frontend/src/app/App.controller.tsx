@@ -1,5 +1,5 @@
 import { TempleWallet } from '@temple-wallet/dapp'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Lottie from 'react-lottie'
 import { useDispatch, useSelector } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
@@ -32,6 +32,8 @@ const AppContainer = () => {
     })
   }, [dispatch])
 
+  const [isExpandedMenuMob, setExpandedMenuMob] = useState<boolean>(true)
+
   const animation = JSON.parse(JSON.stringify(animationData))
   const shipLoopOptions = {
     loop: true,
@@ -46,7 +48,7 @@ const AppContainer = () => {
     <Router>
       {/* <ThemeToggle /> */}
       <ProgressBar />
-      <AppStyled>
+      <AppStyled isExpandedMenu={isExpandedMenuMob}>
         {loading ? (
           <LoaderStyled>
             <figure>
@@ -57,7 +59,7 @@ const AppContainer = () => {
             </figure>
           </LoaderStyled>
         ) : null}
-        <Menu />
+        <Menu isExpandedMenu={isExpandedMenuMob} setisExpandedMenu={setExpandedMenuMob} />
         <AppRoutes />
       </AppStyled>
       <Toaster />

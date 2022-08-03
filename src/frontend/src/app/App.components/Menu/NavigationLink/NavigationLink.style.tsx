@@ -54,7 +54,7 @@ export const NavigationLinkItem = styled.div<{
 
   > a {
     display: flex;
-    margin-left: 42px;
+    margin-left: 30px;
 
     .navLinkTitle {
       font-size: 16px;
