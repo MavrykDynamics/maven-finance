@@ -59,12 +59,21 @@ type lendingControllerBreakGlassConfigType is record [
 
 ]
 
+type rewardsRecordType is [@layout:comb] record[
+    unpaid            : nat;
+    paid              : nat;
+    rewardsPerShare   : nat;    
+]
+type rewardsLedgerType is big_map((address * string), rewardsRecordType)        // key - user address and token name e.g. USDT, EURL
+
+type depositorLedgerType is big_map((address * string), nat)   // key - user address and token name e.g. USDT, EURL, value - amount
+
 
 type collateralTokenRecordType is [@layout:comb] record [
 
     tokenName               : string;
     tokenContractAddress    : address;
-    tokenType               : tokenType; // from vaultType.ligo partial - Tez, FA12, FA2
+    tokenType               : tokenType; 
     decimals                : nat; 
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
@@ -75,9 +84,9 @@ type collateralTokenLedgerType is map(string, collateralTokenRecordType)
 
 type loanTokenRecordType is [@layout:comb] record [
     
-    tokenName                   : nat;
+    tokenName                   : string;
     tokenContractAddress        : address;
-    tokenType                   : tokenType; // from vaultType.ligo partial - Tez, FA12, FA2
+    tokenType                   : tokenType; 
     tokenId                     : nat;
 
     lpTokensTotal               : nat;
@@ -96,7 +105,7 @@ type loanTokenRecordType is [@layout:comb] record [
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
 
-    currentInterestrate         : nat;
+    currentInterestRate         : nat;
 
     lastUpdatedBlockLevel       : nat; 
 
@@ -110,7 +119,7 @@ type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 // type loanTokenRecordType is [@layout:comb] record [
 //     tokenContractAddress    : address;
-//     tokenType               : tokenType; // from vaultType.ligo partial - Tez, FA12, FA2
+//     tokenType               : tokenType; 
 //     decimals                : nat; 
 // ]
 // type loanTokenLedgerType is big_map(string, loanTokenRecordType)
@@ -118,7 +127,7 @@ type loanTokenLedgerType is big_map(string, loanTokenRecordType)
 
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
-type vaultType is [@layout:comb] record [
+type vaultRecordType is [@layout:comb] record [
 
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;   // tez/token balance
@@ -144,6 +153,12 @@ type vaultLedgerType                is big_map(vaultIdType, bool);
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
+
+type mintOrBurnParamsType is [@layout:comb] record [
+    quantity  : int;
+    target    : address;
+];
+
 
 type addLiquidityActionType is [@layout:comb] record [
     tokenName               : string;
@@ -307,7 +322,6 @@ type lendingControllerLambdaActionType is
     |   LambdaAddLiquidity                    of addLiquidityActionType
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
-
         // Vault Entrypoints
     |   LambdaCreateVault                     of createVaultActionType
     |   LambdaCloseVault                      of closeVaultActionType
@@ -347,7 +361,7 @@ type lendingControllerStorageType is [@layout:comb] record [
     depositorLedger             : depositorLedgerType;
 
     // vaults and owners
-    vaults                      : big_map(vaultHandleType, vaultType);
+    vaults                      : big_map(vaultHandleType, vaultRecordType);
     vaultCounter                : vaultIdType;      // nat
     vaultLedger                 : vaultLedgerType;  // used to check if vault id is in use already
     ownerLedger                 : ownerLedgerType;  // for some convenience in checking vaults owned by user
