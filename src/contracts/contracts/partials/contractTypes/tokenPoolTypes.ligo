@@ -141,6 +141,12 @@ type updateRewardsActionType is [@layout:comb] record [
     amount          : nat;
 ]
 
+type vaultCallbackActionType is [@layout:comb] record [ 
+    vaultId             : nat;
+    quantity            : nat;
+    initiator           : address;
+    tokenBorrowIndex    : nat;
+]
 
 type updateTokenPoolCallbackActionType is [@layout:comb] record [
     
@@ -166,10 +172,10 @@ type tokenPoolLambdaActionType is
     |   LambdaSetAdmin                  of (address)
     |   LambdaSetGovernance             of (address)
     |   LambdaUpdateMetadata            of updateMetadataType
-    |   LambdaUpdateConfig              of vaultControllerUpdateConfigParamsType
+    // |   LambdaUpdateConfig              of vaultControllerUpdateConfigParamsType
     |   LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
-    |   LambdaUpdateGeneralContracts    of updateGeneralContractsParams
-    |   LambdaUpdateWhitelistTokens     of updateWhitelistTokenContractsParams
+    |   LambdaUpdateGeneralContracts    of updateGeneralContractsType
+    |   LambdaUpdateWhitelistTokens     of updateWhitelistTokenContractsType
 
         // Token Pool Entrypoints
     |   LambdaUpdateTokenPoolCallback   of updateTokenPoolCallbackActionType

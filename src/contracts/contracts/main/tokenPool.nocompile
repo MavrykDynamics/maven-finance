@@ -209,7 +209,7 @@ block{
             // Get token record
             const tokenRecord : tokenRecordType  = case Big_map.find_opt(tokenName, s.tokenLedger) of [
                     Some (_tokenRecord) -> _tokenRecord
-                |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+                |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
             ];
 
             const tokenAccumulatedRewardsPerShare : nat = tokenRecord.accumulatedRewardsPerShare;            
@@ -257,7 +257,7 @@ block{
     * error per different time periods
     *)
 
-    const exp : nat = abs(Tezos.get_levels() - lastUpdatedBlockLevel);
+    const exp : nat = abs(Tezos.get_level() - lastUpdatedBlockLevel);
 
     if exp =/= 0n then {
 
@@ -294,13 +294,13 @@ block{
     // Get token record
     var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
             Some (_tokenRecord) -> _tokenRecord
-        |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+        |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
 
     // init variables
     var accumulatedRewardsPerShare : nat := tokenRecord.accumulatedRewardsPerShare;
 
-    if Tezos.get_levels() == lastUpdatedBlockLevel then skip else {
+    if Tezos.get_level() == lastUpdatedBlockLevel then skip else {
 
         const lastUpdatedBlockLevel : nat = tokenRecord.lastUpdatedBlockLevel;
         const currentInterestRate : nat = tokenRecord.currentInterestRate;
@@ -324,13 +324,13 @@ block{
     // get token record
     var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
             Some (_tokenRecord) -> _tokenRecord
-        |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+        |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
 
     // init variables
     var borrowIndex : nat := tokenRecord.borrowIndex;
 
-    if Tezos.get_levels() == lastUpdatedBlockLevel then skip else {
+    if Tezos.get_level() == lastUpdatedBlockLevel then skip else {
 
         const lastUpdatedBlockLevel  : nat = tokenRecord.lastUpdatedBlockLevel;
         const currentInterestRate    : nat = tokenRecord.currentInterestRate;
@@ -354,7 +354,7 @@ block {
     // get token record
     var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
             Some (_tokenRecord) -> _tokenRecord
-        |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+        |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
 
     // init params
