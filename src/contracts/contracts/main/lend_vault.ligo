@@ -12,6 +12,9 @@
 // Shared Methods
 #include "../partials/shared/sharedMethods.ligo"
 
+// Transfer Types
+#include "../partials/shared/transferTypes.ligo"
+
 // Transfer Methods
 #include "../partials/shared/transferMethods.ligo"
 
@@ -40,7 +43,7 @@ const noOperations : list (operation) = nil;
 type vaultReturn is list (operation) * vaultStorageType
 
 // vault contract methods lambdas
-type vaultUnpackLambdaFunctionType is (vaultLambdaActionType * vaultStorageTypeType) -> return
+// type vaultUnpackLambdaFunctionType is (vaultLambdaActionType * vaultStorageTypeType) -> return
 
 
 
@@ -92,7 +95,7 @@ function ceildiv(const numerator : nat; const denominator : nat) is abs( (- nume
 // ------------------------------------------------------------------------------
 
 // helper function to %registerDeposit entrypoint in the vault controller
-function registerDepositInVaultController(const contractAddress : address) : contract(vaultControllerDepositType) is
+function registerDepositInLendingController(const contractAddress : address) : contract(vaultControllerDepositType) is
     case (Tezos.get_entrypoint_opt(
         "%registerDeposit",
         contractAddress) : option(contract(vaultControllerDepositType))) of [
@@ -164,47 +167,51 @@ block {
     // withdraw operation
     const from_  : address    = Tezos.get_self_address();
     const to_    : address    = vaultWithdrawParams.to_;
-    const amt    : nat        = vaultWithdrawParams.amt;
+    const amt    : nat        = vaultWithdrawParams.amount;
     const token  : tokenType  = vaultWithdrawParams.token;
 
     const withdrawOperation : operation = case token of [
-        | Tez(_tez) -> block {
-            const transferOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amt );
-        } with transferOperation
-        | Fa12(token) -> block {
+
+        |   Tez(_tez) -> block {
             
-            // check collateral token contract address exists in USDM Token controller collateral token ledger
-            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token, s.admin);
-            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
-                  Some (_opt)    -> _opt
-                | None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
-            ];
-            const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
-                  Some(_record)  -> _record
-                | None           -> failwith ("Error. Collateral Token Record not found.")
-            ];
+                const transferOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amt * 1mutez );
 
-            const transferOperation : operation = transferFa12Token(from_, to_, amt, token)
+            } with transferOperation
 
-        } with transferOperation
-
-        | Fa2(token)  -> block{
+        |   Fa12(token) -> block {
             
-            // check collateral token contract address exists in USDM Token controller collateral token ledger
-            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
-            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
-                  Some (_opt)    -> _opt
-                | None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
-            ];
-            const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
-                  Some(_record)  -> _record
-                | None           -> failwith ("Error. Collateral Token Record not found.")
-            ];
+                // check collateral token contract address exists in USDM Token controller collateral token ledger
+                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token, s.admin);
+                const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
+                        Some (_opt)    -> _opt
+                    |   None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
+                ];
+                const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
+                        Some(_record)  -> _record
+                    |   None           -> failwith ("Error. Collateral Token Record not found.")
+                ];
 
-            const transferOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                const transferOperation : operation = transferFa12Token(from_, to_, amt, token)
 
-        } with transferOperation
-    ];
+            } with transferOperation
+
+        |   Fa2(token)  -> block{
+            
+                // check collateral token contract address exists in USDM Token controller collateral token ledger
+                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
+                const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
+                        Some (_opt)    -> _opt
+                    |   None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
+                ];
+                const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
+                        Some(_record)  -> _record
+                    |   None           -> failwith ("Error. Collateral Token Record not found.")
+                ];
+
+                const transferOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+
+            } with transferOperation
+        ];
 
     operations := withdrawOperation # operations;
 
@@ -290,7 +297,7 @@ block {
         // deposit operation
         const from_      : address    = Tezos.get_sender();
         const to_        : address    = Tezos.get_self_address();
-        const amt        : nat        = vaultDepositParams.amt;
+        const amt        : nat        = vaultDepositParams.amount;
         const token      : tokenType  = vaultDepositParams.token;
 
         if to_ =/= s.admin then failwith("Error. Deposit address should be admin.") else skip;
@@ -303,7 +310,7 @@ block {
                 if mutezToNatural(Tezos.get_amount()) =/= amt then failwith("Error. Tezos amount is not equal to amount specified.") else skip;
 
                 // transfer tez to vault
-                const depositTezOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amt );
+                const depositTezOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amt * 1mutez);
                 operations := depositTezOperation # operations;
 
                 // create register deposit params
@@ -317,7 +324,7 @@ block {
                 const registerTezDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
-                    registerDepositInTokenController(s.admin)
+                    registerDepositInLendingController(s.admin)
                 );
 
                 // register tez deposit in USDM Token Controller
@@ -354,7 +361,7 @@ block {
                 const registerTokenDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
-                    registerDepositInTokenController(s.admin)
+                    registerDepositInLendingController(s.admin)
                 );
 
                 // register token deposit in USDM Token Controller
@@ -392,7 +399,7 @@ block {
                 const registerTokenDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
-                    registerDepositInTokenController(s.admin)
+                    registerDepositInLendingController(s.admin)
                 );
 
                 // register token deposit in USDM Token Controller

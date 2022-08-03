@@ -343,7 +343,7 @@ block {
         |   LambdaAddLiquidity(addLiquidityParams) -> {
                 
                 // init variables for convenience
-                const tokenName           : nat                 = addLiquidityParams.tokenName;
+                const tokenName           : string              = addLiquidityParams.tokenName;
                 const tokensDeposited     : nat                 = addLiquidityParams.tokensDeposited;
                 const owner               : address             = addLiquidityParams.owner; 
 
@@ -351,9 +351,9 @@ block {
                 checkNoAmount(Unit);
 
                 // Get Token Record
-                var tokenRecord : tokenRecordType := case s.tokenLedger[tokenName] of [
+                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
 
                 // update pool totals
@@ -365,7 +365,7 @@ block {
                 const lpTokenContractAddress    : address   = tokenRecord.lpTokenContractAddress;
 
                 // Update Token Ledger
-                s.tokenLedger[tokenName] := tokenRecord;
+                s.loanTokenLedger[tokenName] := tokenRecord;
 
                 // send token from sender to token pool
                 const sendTokenToPoolOperation : operation = transferFa2Token(
@@ -378,7 +378,7 @@ block {
                 operations := sendTokenToPoolOperation # operations;
 
                 // mint LP Tokens and send to sender
-                const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(owner, int(lpTokensMinted), lpTokenContractAddress, s);
+                const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(owner, int(tokensDeposited), lpTokenContractAddress);
                 operations := mintLpTokensTokensOperation # operations;
 
             }
@@ -403,22 +403,22 @@ block {
         |   LambdaRemoveLiquidity(removeLiquidityParams) -> {
                 
                 // init variables for convenience
-                const tokensName            : nat                 = addLiquidityParams.tokenName;
-                const tokensWithdrawn       : nat                 = removeLiquidityParams.tokensWithdrawn;
-                const recipient             : address             = removeLiquidityParams.to_; 
+                const tokenName             : string    = removeLiquidityParams.tokenName;
+                const tokensWithdrawn       : nat       = removeLiquidityParams.tokensWithdrawn;
+                // const recipient             : address   = removeLiquidityParams.to_; 
 
                 // check that no tez is sent
                 checkNoAmount(Unit);
 
                 // Get Token Record
-                var tokenRecord : tokenRecordType := case s.tokenLedger[tokenName] of [
+                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
                 
                 const tokenId                   : nat       = tokenRecord.tokenId;
                 const tokenContractAddress      : address   = tokenRecord.tokenContractAddress;
-                const lendingController                 : nat       = tokenRecord.lendingControllerTotal;
+                const tokenPoolTotal            : nat       = tokenRecord.tokenPoolTotal;
                 
                 const lpTokenContractAddress    : address   = tokenRecord.lpTokenContractAddress;
                 const lpTokensTotal             : nat       = tokenRecord.lpTokensTotal;
@@ -429,11 +429,11 @@ block {
                 const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
 
                 // calculate new token pool amount
-                if tokensWithdrawn > lendingController then failwith("Error. Token pool minus tokens withdrawn is negative.") else skip;
-                const newTokenPoolTotal : nat = abs(lendingController - tokensWithdrawn);
+                if tokensWithdrawn > tokenPoolTotal then failwith("Error. Token pool minus tokens withdrawn is negative.") else skip;
+                const newTokenPoolTotal : nat = abs(tokenPoolTotal - tokensWithdrawn);
 
                 // burn LP Token operation
-                const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.get_sender(), (0 - lpTokensBurned), lpTokenContractAddress, s);
+                const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.get_sender(), (0 - lpTokensBurned), lpTokenContractAddress);
                 operations := burnLpTokenOperation # operations;
 
                 // send withdrawn tokens to sender 
@@ -451,7 +451,7 @@ block {
                 tokenRecord.lpTokensTotal   := newLpTokensTotal;
 
                 // Update Token Ledger
-                s.tokenLedger[tokenName] := tokenRecord;
+                s.loanTokenLedger[tokenName] := tokenRecord;
                 
             }
         |   _ -> skip
@@ -505,11 +505,14 @@ block {
                 // check if vault already exists
                 if Big_map.mem(handle, s.vaults) then failwith("Error. Vault already exists.") else skip;
 
+                const defaultWhitelistUsers : whitelistUsersType = NoWhitelistUsers(unit);
+
                 // params for vault with tez storage origination
-                const originateVaultStorage : vaultStorage = record [
+                const originateVaultStorage : vaultStorageType = record [
                     admin                       = Tezos.get_self_address();
                     handle                      = handle;
-                    depositors                  = createParams.depositors;
+                    depositors                  = createVaultParams.depositors;
+                    whitelistUsers              = defaultWhitelistUsers;
                 ];
 
                 // originate vault func
@@ -529,11 +532,11 @@ block {
                     const collateralBalanceLedgerMap : collateralBalanceLedgerType = map[
                         ("tez" : string) -> mutezToNatural(Tezos.get_amount())
                     ];
-                    const vault : vaultType = record [
+                    const vault : vaultRecordType = record [
                         
                         address                     = vaultOrigination.1; // vault address
                         collateralBalanceLedger     = collateralBalanceLedgerMap;
-                        loanToken                   = loanToken;
+                        loanToken                   = loanTokenRecord.tokenName;
 
                         loanOutstandingTotal        = 0n;
                         loanPrincipalTotal          = 0n;
@@ -551,11 +554,11 @@ block {
                 } else block {
                     // no tez is sent
                     const emptyCollateralBalanceLedgerMap : collateralBalanceLedgerType = map[];
-                    const vault : vaultType = record [
+                    const vault : vaultRecordType = record [
 
                         address                     = vaultOrigination.1; // vault address
                         collateralBalanceLedger     = emptyCollateralBalanceLedgerMap;
-                        loanToken                   = loanToken;
+                        loanToken                   = loanTokenRecord.tokenName;
                         
                         loanOutstandingTotal        = 0n;
                         loanPrincipalTotal          = 0n;
@@ -606,21 +609,21 @@ block {
                 ];
 
                 // get vault
-                var _vault : vaultType := getVault(vaultHandle, s);
-                const vaultAddress : address = _vault.address;
+                var vault : vaultRecordType := getVault(vaultHandle, s);
+                const vaultAddress : address = vault.address;
 
                 // check that vault has zero loan oustanding
-                checkZeroLoanOutstanding(_vault);
+                checkZeroLoanOutstanding(vault);
 
                 // get tokens and token balances and initiate transfer back to the vault owner
-                for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
+                for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
                     
                     if tokenName = "tez" then block {
 
-                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), tokenBalance );
+                        const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), tokenBalance * 1mutez );
                         operations := transferTezOperation # operations;
 
-                        _vault.collateralBalanceLedger[tokenName]  := 0n;
+                        vault.collateralBalanceLedger[tokenName]  := 0n;
                         
                     } else block {
 
@@ -633,16 +636,28 @@ block {
 
                             // for special case of sMVK
 
+                            // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+                            const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                            const doormanAddress : address = case generalContractsOptView of [
+                                    Some (_optionContract) -> case _optionContract of [
+                                            Some (_contract)    -> _contract
+                                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                                    ]
+                                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                            ];
+
                             // create operation to doorman to withdraw all staked MVK from vault to user
                             const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType = record [
                                 vaultId         = vaultId;
-                                withdrawAmount  = collateralTokenRecord.balance;
+                                withdrawAmount  = tokenBalance;
                             ];
+
                             const vaultWithdrawAllStakedMvkOperation : operation = Tezos.transaction(
                                 vaultWithdrawStakedMvkParams,
                                 0tez,
                                 getVaultWithdrawStakedMvkEntrypoint(doormanAddress)
                             );
+
                             operations := vaultWithdrawAllStakedMvkOperation # operations;
 
                         } else block {
@@ -650,58 +665,60 @@ block {
                             // for other collateral token types besides sMVK
 
                             const withdrawTokenOperation : operation = case collateralTokenRecord.tokenType of [
-                                Tez(_tez) -> block {
-                                    
-                                    const withdrawTezOperationParams : vaultWithdrawType = record [
-                                        from_ = vaultAddress;
-                                        to_   = vaultOwner; 
-                                        amt   = tokenBalance;
-                                        token = Tez(_tez);
-                                    ];
-                                    const withdrawTezOperation : operation = Tezos.transaction(
-                                        withdrawTezOperationParams,
-                                        0mutez,
-                                        getVaultWithdrawEntrypoint(vaultAddress)
-                                    );
+                                    Tez(_tez) -> block {
+                                        
+                                        const withdrawTezOperationParams : vaultWithdrawType = record [
+                                            to_      = vaultOwner; 
+                                            amount   = tokenBalance;
+                                            token    = Tez(_tez);
+                                        ];
 
-                                } with withdrawTezOperation
-                                | Fa12(_token) -> block {
+                                        const withdrawTezOperation : operation = Tezos.transaction(
+                                            withdrawTezOperationParams,
+                                            0mutez,
+                                            getVaultWithdrawEntrypoint(vaultAddress)
+                                        );
 
-                                    const withdrawFa12OperationParams : vaultWithdrawType = record [
-                                        from_ = vaultAddress;
-                                        to_   = vaultOwner; 
-                                        amt   = tokenBalance;
-                                        token = Fa12(_token);
-                                    ];
-                                    const withdrawFa12Operation : operation = Tezos.transaction(
-                                        withdrawFa12OperationParams,
-                                        0mutez,
-                                        getVaultWithdrawEntrypoint(vaultAddress)
-                                    );
+                                    } with withdrawTezOperation
 
-                                } with withdrawFa12Operation
-                                | Fa2(_token) -> block {
+                                |   Fa12(_token) -> block {
 
-                                    const withdrawFa2OperationParams : vaultWithdrawType = record [
-                                        from_ = vaultAddress;
-                                        to_   = vaultOwner; 
-                                        amt   = tokenBalance;
-                                        token = Fa2(_token);
-                                    ];
-                                    const withdrawFa2Operation : operation = Tezos.transaction(
-                                        withdrawFa2OperationParams,
-                                        0mutez,
-                                        getVaultWithdrawEntrypoint(vaultAddress)
-                                    );
+                                        const withdrawFa12OperationParams : vaultWithdrawType = record [
+                                            to_      = vaultOwner; 
+                                            amount   = tokenBalance;
+                                            token    = Fa12(_token);
+                                        ];
 
-                                } with withdrawFa2Operation
-                            ];
+                                        const withdrawFa12Operation : operation = Tezos.transaction(
+                                            withdrawFa12OperationParams,
+                                            0mutez,
+                                            getVaultWithdrawEntrypoint(vaultAddress)
+                                        );
+
+                                    } with withdrawFa12Operation
+
+                                |   Fa2(_token) -> block {
+
+                                        const withdrawFa2OperationParams : vaultWithdrawType = record [
+                                            to_      = vaultOwner; 
+                                            amount   = tokenBalance;
+                                            token    = Fa2(_token);
+                                        ];
+
+                                        const withdrawFa2Operation : operation = Tezos.transaction(
+                                            withdrawFa2OperationParams,
+                                            0mutez,
+                                            getVaultWithdrawEntrypoint(vaultAddress)
+                                        );
+
+                                    } with withdrawFa2Operation
+                                ];
 
                             operations := withdrawTokenOperation # operations;
                         };
 
                         // save and update balance for collateral token to zero
-                        _vault.collateralBalanceLedger[tokenName]  := 0n;
+                        vault.collateralBalanceLedger[tokenName]  := 0n;
 
                     }; // end if/else check for tez/token
 
@@ -713,6 +730,7 @@ block {
                         Some (_set) -> _set
                     |   None        -> failwith("Error. Owner vault set not found.")
                 ];
+
                 s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
                 remove vaultHandle from map s.vaults;
                 remove vaultId from map s.vaultLedger;
@@ -735,10 +753,10 @@ block {
         |   LambdaWithdrawFromVault(withdrawFromVaultParams) -> {
                 
                 // init variables for convenience
-                const vaultId                : vaultIdType       = withdrawParams.id; 
-                const withdrawTokenAmount    : nat               = withdrawParams.tokenAmount;
-                const tokenName              : string            = withdrawParams.tokenName;
-                // const recipient              : contract(unit)    = withdrawParams.to_;
+                const vaultId                : vaultIdType       = withdrawFromVaultParams.id; 
+                const withdrawTokenAmount    : nat               = withdrawFromVaultParams.tokenAmount;
+                const tokenName              : string            = withdrawFromVaultParams.tokenName;
+                // const recipient              : contract(unit)    = withdrawFromVaultParams.to_;
                 const recipient              : address           = Tezos.get_sender();
                 const initiator              : vaultOwnerType    = Tezos.get_sender();
 
@@ -749,7 +767,7 @@ block {
                 ];
 
                 // get vault
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
 
                 // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
                 if tokenName = "tez" then block {
@@ -780,55 +798,55 @@ block {
                 // pattern match withdraw operation based on token type
                 const withdrawOperation : operation = case collateralTokenRecord.tokenType of [
                     
-                    Tez(_tez) -> block {
-                        
-                        const withdrawTezOperationParams : vaultWithdrawType = record [
-                            from_ = vault.address;
-                            to_   = recipient; 
-                            amt   = withdrawTokenAmount;
-                            token = Tez(_tez);
-                        ];
-                        const withdrawTezOperation : operation = Tezos.transaction(
-                            withdrawTezOperationParams,
-                            0mutez,
-                            getVaultWithdrawEntrypoint(vault.address)
-                        );
+                        Tez(_tez) -> block {
+                            
+                            const withdrawTezOperationParams : vaultWithdrawType = record [
+                                to_      = recipient; 
+                                amount   = withdrawTokenAmount;
+                                token    = Tez(_tez);
+                            ];
 
-                    } with withdrawTezOperation
+                            const withdrawTezOperation : operation = Tezos.transaction(
+                                withdrawTezOperationParams,
+                                0mutez,
+                                getVaultWithdrawEntrypoint(vault.address)
+                            );
 
-                    | Fa12(_token) -> block {
+                        } with withdrawTezOperation
 
-                        const withdrawFa12OperationParams : vaultWithdrawType = record [
-                            from_ = vault.address;
-                            to_   = recipient; 
-                            amt   = withdrawTokenAmount;
-                            token = Fa12(_token);
-                        ];
-                        const withdrawFa12Operation : operation = Tezos.transaction(
-                            withdrawFa12OperationParams,
-                            0mutez,
-                            getVaultWithdrawEntrypoint(vault.address)
-                        );
+                    |   Fa12(_token) -> block {
 
-                    } with withdrawFa12Operation
+                            const withdrawFa12OperationParams : vaultWithdrawType = record [
+                                to_      = recipient; 
+                                amount   = withdrawTokenAmount;
+                                token    = Fa12(_token);
+                            ];
 
-                    | Fa2(_token) -> block {
+                            const withdrawFa12Operation : operation = Tezos.transaction(
+                                withdrawFa12OperationParams,
+                                0mutez,
+                                getVaultWithdrawEntrypoint(vault.address)
+                            );
 
-                        const withdrawFa2OperationParams : vaultWithdrawType = record [
-                            from_ = vault.address;
-                            to_   = recipient; 
-                            amt   = withdrawTokenAmount;
-                            token = Fa2(_token);
-                        ];
-                        const withdrawFa2Operation : operation = Tezos.transaction(
-                            withdrawFa2OperationParams,
-                            0mutez,
-                            getVaultWithdrawEntrypoint(vault.address)
-                        );
+                        } with withdrawFa12Operation
 
-                    } with withdrawFa2Operation
+                    |   Fa2(_token) -> block {
 
-                ];
+                            const withdrawFa2OperationParams : vaultWithdrawType = record [
+                                to_      = recipient; 
+                                amount   = withdrawTokenAmount;
+                                token    = Fa2(_token);
+                            ];
+
+                            const withdrawFa2Operation : operation = Tezos.transaction(
+                                withdrawFa2OperationParams,
+                                0mutez,
+                                getVaultWithdrawEntrypoint(vault.address)
+                            );
+
+                        } with withdrawFa2Operation
+
+                    ];
 
                 operations := withdrawOperation # operations;
 
@@ -866,7 +884,7 @@ block {
                 ];
 
                 // get vault
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
 
                 // check if sender matches vault owner; if match, then update and save vault with new collateral balance
                 if vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
@@ -899,218 +917,219 @@ block {
     var operations          : list(operation)        := nil;
 
     case lendingControllerLambdaAction of [
-        |   LambdaLiquidateVault(liquidateVaultParams) -> {
+        |   LambdaLiquidateVault(_liquidateVaultParams) -> {
                 
                 // init variables for convenience
-                const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
-                const loanQuantity      : nat                     = liquidateParams.loanQuantity;
-                const loanToken         : string                  = liquidateParams.loanToken;
+                // const vaultHandle       : vaultHandleType         = liquidateVaultParams.handle; 
+                // const loanQuantity      : nat                     = liquidateVaultParams.loanQuantity;
+                // const loanToken         : string                  = liquidateVaultParams.loanToken;
 
-                const recipient         : address                 = Tezos.get_sender();
-                const initiator         : initiatorAddressType    = Tezos.get_sender();
+                // const recipient         : address                 = Tezos.get_sender();
+                // const initiator         : initiatorAddressType    = Tezos.get_sender();
 
-                const liquidationFee        : nat  = s.config.liquidationFee;       // liquidation fee - penalty fee paid by vault owner to liquidator
-                const adminLiquidationFee   : nat  = s.config.adminLiquidationFee;  // admin liquidation fee - penalty fee paid by vault owner to treasury
+                // const liquidationFee        : nat  = s.config.liquidationFee;       // liquidation fee - penalty fee paid by vault owner to liquidator
+                // const adminLiquidationFee   : nat  = s.config.adminLiquidationFee;  // admin liquidation fee - penalty fee paid by vault owner to treasury
 
-                // get vault
-                var _vault : vaultType := getVault(vaultHandle, s);
+                // // get vault
+                // var _vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // check if vault is under collaterized
-                if isUnderCollaterized(_vault, s) 
-                then skip 
-                else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
+                // // check if vault is under collaterized
+                // if isUnderCollaterized(_vault, s) 
+                // then skip 
+                // else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
 
-                // check if there is sufficient loanOutstanding, and calculate remaining loan after liquidation
-                if loanQuantity > _vault.loanOutstanding then failwith("Error. Cannot burn more than outstanding amount in vault.") else skip;
-                const remainingLoan : nat = abs(_vault.loanOutstanding - loanQuantity);
+                // // check if there is sufficient loanOutstanding, and calculate remaining loan after liquidation
+                // if loanQuantity > _vault.loanOutstandingTotal then failwith("Error. Cannot burn more than outstanding amount in vault.") else skip;
+                // const remainingLoan : nat = abs(_vault.loanOutstandingTotal - loanQuantity);
 
-                // get USDM target
-                // var usdmTarget : nat  := case s.targetLedger["usdm"] of [
-                //       Some(_nat) -> _nat
-                //     | None -> failwith("Error. Target not found for USDM.")
-                // ];
+                // // get USDM target
+                // // var usdmTarget : nat  := case s.targetLedger["usdm"] of [
+                // //       Some(_nat) -> _nat
+                // //     | None -> failwith("Error. Target not found for USDM.")
+                // // ];
                 
-                // todo: fix extracted balance amount
-                (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
-                // const totalExtractedBalance : nat = (usdmQuantity * usdmTarget * fixedPointAccuracy) / (31n * fixedPointAccuracy); 
+                // // todo: fix extracted balance amount
+                // (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
+                // // const totalExtractedBalance : nat = (usdmQuantity * usdmTarget * fixedPointAccuracy) / (31n * fixedPointAccuracy); 
 
-                // usdmQuantity - 1e9 | usdmTarget - 1e24 | fixedPointAccuracy - 1e24
-                // var totalValueToBeLiquidated           : nat := loanQuantity * usdmTarget / fixedPointAccuracy;
+                // // usdmQuantity - 1e9 | usdmTarget - 1e24 | fixedPointAccuracy - 1e24
+                // // var totalValueToBeLiquidated           : nat := loanQuantity * usdmTarget / fixedPointAccuracy;
 
-                // 1e9 * 1e24 * (1e3?) / 1e24
-                // const liquidationFeeToLiquidator       : nat  = loanQuantity * usdmTarget * liquidationFee / fixedPointAccuracy; 
+                // // 1e9 * 1e24 * (1e3?) / 1e24
+                // // const liquidationFeeToLiquidator       : nat  = loanQuantity * usdmTarget * liquidationFee / fixedPointAccuracy; 
 
-                // amount to be sent to treasury
-                // 1e9 * 1e24 * (1e3?) / 1e24
-                // const adminLiquidationFeeToLiquidator  : nat  = loanQuantity * usdmTarget * adminLiquidationFee / fixedPointAccuracy; 
+                // // amount to be sent to treasury
+                // // 1e9 * 1e24 * (1e3?) / 1e24
+                // // const adminLiquidationFeeToLiquidator  : nat  = loanQuantity * usdmTarget * adminLiquidationFee / fixedPointAccuracy; 
                 
-                // total value to be liquidated and sent to liquidator
-                totalValueToBeLiquidated := totalValueToBeLiquidated + liquidationFeeToLiquidator;
+                // // total value to be liquidated and sent to liquidator
+                // // totalValueToBeLiquidated := totalValueToBeLiquidated + liquidationFeeToLiquidator;
+                // var totalValueToBeLiquidated : nat := 0n;
                     
-                // get total vault collateral value
-                var vaultCollateralValue      : nat := 0n;
-                for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
+                // // get total vault collateral value
+                // var vaultCollateralValue      : nat := 0n;
+                // for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
                     
-                    if tokenName = "tez" then block {
+                //     if tokenName = "tez" then block {
 
-                        // calculate value of tez balance with same fixed point accuracy as price
-                        const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
+                //         // calculate value of tez balance with same fixed point accuracy as price
+                //         const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
 
-                        // increment vault collateral value
-                        vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
+                //         // increment vault collateral value
+                //         vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
                         
-                    } else block {
+                //     } else block {
 
-                        // get price of token in xtz
-                        const tokenPrice : nat = case s.priceLedger[tokenName] of [
-                            Some(_price) -> _price
-                            | None         -> failwith("Error. Price not found for token.")
-                        ];
+                //         // get price of token in xtz
+                //         const tokenPrice : nat = case s.priceLedger[tokenName] of [
+                //             Some(_price) -> _price
+                //             | None         -> failwith("Error. Price not found for token.")
+                //         ];
 
-                        // calculate value of collateral balance
-                        const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
+                //         // calculate value of collateral balance
+                //         const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
 
-                        // increment vault collateral value
-                        vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
+                //         // increment vault collateral value
+                //         vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
 
-                    };
-                };
+                //     };
+                // };
 
                 
-                // loop tokens in vault collateral balance ledger to be liquidated
-                var _extractedBalanceTracker   : nat := 0n;
-                for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
+                // // loop tokens in vault collateral balance ledger to be liquidated
+                // var _extractedBalanceTracker   : nat := 0n;
+                // for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
 
-                    // skip if token balance is 0n
-                    if tokenBalance = 0n then skip else block {
+                //     // skip if token balance is 0n
+                //     if tokenBalance = 0n then skip else block {
 
-                        // get collateral token record - with token contract address and token type
-                        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                            Some(_collateralTokenRecord) -> _collateralTokenRecord
-                            | None  -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
-                        ];
+                //         // get collateral token record - with token contract address and token type
+                //         const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                //             Some(_collateralTokenRecord) -> _collateralTokenRecord
+                //             | None  -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+                //         ];
 
-                        // get price of token in xtz
-                        const tokenPrice : nat = case s.priceLedger[tokenName] of [
-                            Some(_price) -> _price
-                            | None -> failwith("Error. Price not found for token.")
-                        ];
+                //         // get price of token in xtz
+                //         const tokenPrice : nat = case s.priceLedger[tokenName] of [
+                //             Some(_price) -> _price
+                //             | None -> failwith("Error. Price not found for token.")
+                //         ];
 
-                        // calculate value of collateral balance
-                        const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
+                //         // calculate value of collateral balance
+                //         const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
 
-                        // increment extracted balance
-                        _extractedBalanceTracker := _extractedBalanceTracker + tokenValueInXtz;
+                //         // increment extracted balance
+                //         _extractedBalanceTracker := _extractedBalanceTracker + tokenValueInXtz;
 
-                        // get proportion of collateral balance against total collateral value
-                        const tokenProportion : nat = tokenValueInXtz * fixedPointAccuracy / vaultCollateralValue;
+                //         // get proportion of collateral balance against total collateral value
+                //         const tokenProportion : nat = tokenValueInXtz * fixedPointAccuracy / vaultCollateralValue;
 
-                        // get balance to be extracted from token
-                        const tokenProportionalLiquidationValue : nat = tokenProportion * totalValueToBeLiquidated;
+                //         // get balance to be extracted from token
+                //         const tokenProportionalLiquidationValue : nat = tokenProportion * totalValueToBeLiquidated;
 
-                        // get quantity of tokens to be liquidated
-                        const tokenQuantityToBeLiquidated : nat = (tokenProportionalLiquidationValue / tokenPrice) / fixedPointAccuracy;
+                //         // get quantity of tokens to be liquidated
+                //         const tokenQuantityToBeLiquidated : nat = (tokenProportionalLiquidationValue / tokenPrice) / fixedPointAccuracy;
 
-                        // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-                        var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of [
-                            Some(_balance) -> _balance
-                            | None -> 0n
-                        ];
+                //         // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
+                //         var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of [
+                //                 Some(_balance) -> _balance
+                //             |   None -> 0n
+                //         ];
 
-                        // calculate new collateral balance
-                        if tokenQuantityToBeLiquidated > vaultTokenCollateralBalance then failwith("Error. Token quantity to be liquidated cannot be more than balance of token collateral in vault.") else skip;
-                        const newTokenCollateralBalance : nat = abs(vaultTokenCollateralBalance - tokenQuantityToBeLiquidated);
+                //         // calculate new collateral balance
+                //         if tokenQuantityToBeLiquidated > vaultTokenCollateralBalance then failwith("Error. Token quantity to be liquidated cannot be more than balance of token collateral in vault.") else skip;
+                //         const newTokenCollateralBalance : nat = abs(vaultTokenCollateralBalance - tokenQuantityToBeLiquidated);
 
-                        // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
-                        const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of [
-                            Tez(_tez) -> block {
+                //         // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
+                //         const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of [
+                //                 Tez(_tez) -> block {
                                 
-                                const withdrawTezOperationParams : vaultWithdrawType = record [
-                                    from_ = _vault.address;
-                                    to_   = recipient; 
-                                    amt   = tokenQuantityToBeLiquidated;
-                                    token = Tez(_tez);
-                                ];
-                                const withdrawTezOperation : operation = Tezos.transaction(
-                                    withdrawTezOperationParams,
-                                    0mutez,
-                                    getVaultWithdrawEntrypoint(_vault.address)
-                                );
+                //                     const withdrawTezOperationParams : vaultWithdrawType = record [
+                //                         to_      = recipient; 
+                //                         amount   = tokenQuantityToBeLiquidated;
+                //                         token    = Tez(_tez);
+                //                     ];
+                //                     const withdrawTezOperation : operation = Tezos.transaction(
+                //                         withdrawTezOperationParams,
+                //                         0mutez,
+                //                         getVaultWithdrawEntrypoint(_vault.address)
+                //                     );
 
-                            } with withdrawTezOperation
-                            | Fa12(_token) -> block {
+                //                 } with withdrawTezOperation
 
-                                const withdrawFa12OperationParams : vaultWithdrawType = record [
-                                    from_ = _vault.address;
-                                    to_   = recipient; 
-                                    amt   = tokenQuantityToBeLiquidated;
-                                    token = Fa12(_token);
-                                ];
-                                const withdrawFa12Operation : operation = Tezos.transaction(
-                                    withdrawFa12OperationParams,
-                                    0mutez,
-                                    getVaultWithdrawEntrypoint(_vault.address)
-                                );
+                //             |   Fa12(_token) -> block {
 
-                            } with withdrawFa12Operation
-                            | Fa2(_token) -> block {
+                //                     const withdrawFa12OperationParams : vaultWithdrawType = record [
+                //                         to_      = recipient; 
+                //                         amount   = tokenQuantityToBeLiquidated;
+                //                         token    = Fa12(_token);
+                //                     ];
+                //                     const withdrawFa12Operation : operation = Tezos.transaction(
+                //                         withdrawFa12OperationParams,
+                //                         0mutez,
+                //                         getVaultWithdrawEntrypoint(_vault.address)
+                //                     );
 
-                                const withdrawFa2OperationParams : vaultWithdrawType = record [
-                                    from_ = _vault.address;
-                                    to_   = recipient; 
-                                    amt   = tokenQuantityToBeLiquidated;
-                                    token = Fa2(_token);
-                                ];
-                                const withdrawFa2Operation : operation = Tezos.transaction(
-                                    withdrawFa2OperationParams,
-                                    0mutez,
-                                    getVaultWithdrawEntrypoint(_vault.address)
-                                );
+                //                 } with withdrawFa12Operation
 
-                            } with withdrawFa2Operation
-                        ];
+                //             |   Fa2(_token) -> block {
 
-                        operations := initiatorTakeCollateralOperation # operations;
+                //                     const withdrawFa2OperationParams : vaultWithdrawType = record [
+                //                         to_      = recipient; 
+                //                         amount   = tokenQuantityToBeLiquidated;
+                //                         token    = Fa2(_token);
+                //                     ];
+                //                     const withdrawFa2Operation : operation = Tezos.transaction(
+                //                         withdrawFa2OperationParams,
+                //                         0mutez,
+                //                         getVaultWithdrawEntrypoint(_vault.address)
+                //                     );
 
-                        // save and update new balance for collateral token
-                        _vault.collateralBalanceLedger[tokenName]  := newTokenCollateralBalance;
+                //                 } with withdrawFa2Operation
+                //             ];
 
-                    };
+                //         operations := initiatorTakeCollateralOperation # operations;
 
-                };
+                //         // save and update new balance for collateral token
+                //         _vault.collateralBalanceLedger[tokenName]  := newTokenCollateralBalance;
 
-                // operation to transfer loan token back to the Token Pool
-                // const burnUsdmOperationParams : mintOrBurnParamsType = record [
-                //     quantity = -usdmQuantity;
-                //     target   = initiator;
+                //     };
+
+                // };
+
+                // // operation to transfer loan token back to the Token Pool
+                // // const burnUsdmOperationParams : mintOrBurnParamsType = record [
+                // //     quantity = -usdmQuantity;
+                // //     target   = initiator;
+                // // ];
+                // // const burnUsdmOperation : operation = Tezos.transaction(
+                // //     burnUsdmOperationParams,
+                // //     0mutez,
+                // //     getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
+                // // );
+                // // operations := burnUsdmOperation # operations;
+
+                // // Create transfer token params and operation
+                // const transferLoanTokenParams : transferActionType = list [
+                //     record [
+                //         to_        = lendingControllerContractAddress;
+                //         token      = _tokenTransferType; // todo: get loan token type 
+                //         amount     = loanQuantity;
+                //     ]
                 // ];
-                // const burnUsdmOperation : operation = Tezos.transaction(
-                //     burnUsdmOperationParams,
-                //     0mutez,
-                //     getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
+
+                // const lendingControllerTransferOperation : operation = Tezos.transaction(
+                //     transferLoanTokenParams, 
+                //     0tez, 
+                //     sendTransferOperationToTreasury(lendingControllerContractAddress)
                 // );
-                // operations := burnUsdmOperation # operations;
 
-                // Create transfer token params and operation
-                const transferLoanTokenParams : transferActionType = list [
-                    record [
-                        to_        = lendingControllerContractAddress;
-                        token      = _tokenTransferType; // todo: get loan token type 
-                        amount     = loanQuantity;
-                    ]
-                ];
+                // operations := treasuryTransferOperation # operations;
 
-                const lendingControllerTransferOperation : operation = Tezos.transaction(
-                    transferLoanTokenParams, 
-                    0tez, 
-                    sendTransferOperationToTreasury(lendingControllerContractAddress)
-                );
-
-                operations := treasuryTransferOperation # operations;
-
-                // save and update new loanOutstanding and balance for collateral token
-                _vault.loanOutstanding                    := remainingLoan;
-                s.vaults[vaultHandle]                     := _vault;
+                // // save and update new loanOutstanding and balance for collateral token
+                // _vault.loanOutstanding                    := remainingLoan;
+                // s.vaults[vaultHandle]                     := _vault;
+                skip
                 
             }
         |   _ -> skip
@@ -1133,7 +1152,8 @@ block {
                 const vaultId            : nat                     = borrowParams.vaultId; 
                 const initialLoanAmount  : nat                     = borrowParams.quantity;
                 const initiator          : initiatorAddressType    = Tezos.get_sender();
-                var finalLoanAmount      : nat                     = initialLoanAmount;
+                
+                var finalLoanAmount      : nat                    := initialLoanAmount;
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -1142,7 +1162,7 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
 
                 // Get vault loan token name
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
@@ -1154,7 +1174,7 @@ block {
                 s := updateTokenState(vaultLoanTokenName, s);
 
                 // Get loan token type
-                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_NOT_FOUND)
                 ];
@@ -1164,8 +1184,10 @@ block {
                 const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
                 const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-                const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
+                // const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
                 const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+                const loanTokenId       : nat         = loanTokenRecord.tokenId;
+                const loanTokenAddress  : address     = loanTokenRecord.tokenContractAddress;
 
                 // ------------------------------------------------------------------
                 // Calculate Service Loan Fees
@@ -1180,9 +1202,6 @@ block {
                 // Calculate share of fees that goes to the Reward Pool 
                 if minimumLoanFeeTreasuryShare > minimumLoanFee then failwith(error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE) else skip;
                 const minimumLoanFeeRewardPool : nat = abs(minimumLoanFee - minimumLoanFeeTreasuryShare);
-
-                // Init total fee 
-                var totalFees : nat = minimumLoanFee;
 
                 // ------------------------------------------------------------------
                 // Get current user borrow index
@@ -1212,15 +1231,6 @@ block {
 
                     // calculate interest accrued (to add to current loan outstanding)
                     const interestAccrued : nat = (currentLoanOutstandingTotal * borrowIndexDifference) / fpa10e9; // borrow index currently at 1e9
-
-                    // To check: Pay back interest accrued when new loan is taken?
-
-                    // Calculate share of interest that goes to the Treasury 
-                    // const interestTreasuryShare : nat = ((interestAccrued * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
-
-                    // Calculate share of interest that goes to the Reward Pool 
-                    // if interestTreasuryShare > interestAccrued then failwith(error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED) else skip;
-                    // const interestRewardPool : nat = abs(interestAccrued - interestTreasuryShare);
 
                     // calculate new loan outstanding
                     newLoanOutstandingTotal := currentLoanOutstandingTotal + interestAccrued;
@@ -1252,11 +1262,11 @@ block {
                 const requiredTokenPoolReserves = (tokenPoolTotal * fixedPointAccuracy * reserveRatio) / (10000n * fixedPointAccuracy);
 
                 // calculate new totalBorrowed 
-                const newTotalBorrowed   : nat = totalBorrowed + totalTokenQuantity;
+                const newTotalBorrowed   : nat = totalBorrowed + initialLoanAmount;
                 
                 // calculate new total remaining
-                if totalTokenQuantity > totalRemaining then failwith(error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED) else skip;
-                const newTotalRemaining  : nat = abs(totalRemaining - totalTokenQuantity);
+                if initialLoanAmount > totalRemaining then failwith(error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED) else skip;
+                const newTotalRemaining  : nat = abs(totalRemaining - initialLoanAmount);
 
                 // check that new total remaining is greater than required token pool reserves
                 if newTotalRemaining > requiredTokenPoolReserves then skip else failwith(error_TOKEN_POOL_RESERVES_RATIO_NOT_MET);
@@ -1267,11 +1277,11 @@ block {
 
                 // transfer loan amount from token pool to borrower
                 const transferLoanToBorrowerOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),               // Lending Controller Contract
-                    borrower,                               // borrower
-                    finalLoanAmount,                        // final loan amount (after fees and interest)
-                    loanTokenRecord.tokenId,                // loan token id    
-                    loanTokenRecord.tokenContractAddress    // loan token address
+                    Tezos.get_self_address(),   // Lending Controller Contract
+                    initiator,                  // initiator
+                    finalLoanAmount,            // final loan amount (after fees and interest)
+                    loanTokenId,                // loan token id    
+                    loanTokenAddress            // loan token address
                 );
 
                 operations := transferLoanToBorrowerOperation # operations;
@@ -1291,8 +1301,8 @@ block {
                     Tezos.get_self_address(),  // Token Pool Contract
                     treasuryAddress,
                     minimumLoanFeeTreasuryShare,
-                    tokenRecord.tokenId,
-                    tokenRecord.tokenContractAddress
+                    loanTokenId,
+                    loanTokenAddress
                 );
 
                 operations := transferFeesToTreasuryOperation # operations;
@@ -1312,8 +1322,8 @@ block {
                     Tezos.get_self_address(),  // Token Pool Contract
                     tokenPoolRewardAddress,
                     minimumLoanFeeRewardPool,
-                    tokenRecord.tokenId,
-                    tokenRecord.tokenContractAddress
+                    loanTokenId,
+                    loanTokenAddress
                 );
 
                 operations := transferFeesToTokenPoolRewardContractOperation # operations;
@@ -1323,10 +1333,10 @@ block {
                 // ------------------------------------------------------------------
                 
                 // update token storage
-                loanTokenRecord.tokenPoolTotal  := newTotalBorrowed + newTotalRemaining;
-                tokenRecord.totalBorrowed       := newTotalBorrowed;
-                tokenRecord.totalRemaining      := newTotalRemaining;
-                s.tokenLedger[tokenName]        := tokenRecord;
+                loanTokenRecord.tokenPoolTotal      := newTotalBorrowed + newTotalRemaining;
+                loanTokenRecord.totalBorrowed       := newTotalBorrowed;
+                loanTokenRecord.totalRemaining      := newTotalRemaining;
+                s.loanTokenLedger[vaultLoanTokenName]        := loanTokenRecord;
 
                 // update vault storage
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;
@@ -1367,7 +1377,7 @@ block {
                 const vaultId                   : nat                     = repayParams.vaultId; 
                 const initialRepaymentAmount    : nat                     = repayParams.quantity;
                 const initiator                 : initiatorAddressType    = Tezos.get_sender();
-                var finalRepaymentAmount        : nat                     = initialRepaymentAmount;
+                var finalRepaymentAmount        : nat                    := initialRepaymentAmount;
 
                 // Make vault handle
                 const vaultHandle : vaultHandleType = record [
@@ -1376,7 +1386,7 @@ block {
                 ];
 
                 // Get vault if exists
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
                 
                 // Get vault loan token name
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
@@ -1388,18 +1398,18 @@ block {
                 s := updateTokenState(vaultLoanTokenName, s);
 
                 // Get loan token type
-                const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
                     |   None          -> failwith(error_LOAN_TOKEN_NOT_FOUND)
                 ];
 
                 // Get loan token parameters
-                const reserveRatio      : nat         = loanTokenRecord.reserveRatio;
-                const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
+                // const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
                 const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-                const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
                 const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
+                const loanTokenId       : nat         = loanTokenRecord.tokenId;
+                const loanTokenAddress  : address     = loanTokenRecord.tokenContractAddress;
 
                 // ------------------------------------------------------------------
                 // Get current user borrow index
@@ -1410,6 +1420,7 @@ block {
 
                 // Get current user loan outstanding
                 const currentLoanOutstandingTotal   : nat = vault.loanOutstandingTotal;
+                const initialLoanPrincipalTotal     : nat = vault.loanPrincipalTotal;
                 
                 // Init new total amounts
                 var newLoanOutstandingTotal     : nat := currentLoanOutstandingTotal;
@@ -1442,8 +1453,8 @@ block {
                 // Calculate Principal / Interest Repayments
                 // ------------------------------------------------------------------
 
-                var totalInterestPaid : nat := 0n;
-                var totalPrincipalRepaid : nat := 0n;
+                var totalInterestPaid       : nat := 0n;
+                var totalPrincipalRepaid    : nat := 0n;
 
                 if finalRepaymentAmount > newLoanInterestTotal then {
                     
@@ -1460,7 +1471,7 @@ block {
 
                     // calculate final loan principal
                     if principalReductionAmount > initialLoanPrincipalTotal then failwith(error_PRINCIPAL_REDUCTION_MISCALCULATION) else skip;
-                    finalLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
+                    newLoanPrincipalTotal := abs(initialLoanPrincipalTotal - principalReductionAmount);
 
                     // set total principal repaid amount
                     totalPrincipalRepaid := principalReductionAmount;
@@ -1484,7 +1495,7 @@ block {
                     if finalRepaymentAmount > newLoanOutstandingTotal then failwith(error_LOAN_OUTSTANDING_MISCALCULATION) else skip;
                     newLoanOutstandingTotal := abs(newLoanOutstandingTotal - finalRepaymentAmount);
 
-                }
+                };
 
                 // Calculate share of interest that goes to the Treasury 
                 const interestTreasuryShare : nat = ((totalInterestPaid * s.config.interestTreasuryShare * fixedPointAccuracy) / 10000n) / fixedPointAccuracy;
@@ -1557,24 +1568,29 @@ block {
                 // Process Repayment
                 // ------------------------------------------------------------------            
 
+                var newTokenPoolTotal   : nat  := 0n;
+                var newTotalBorrowed    : nat  := 0n;
+                var newTotalRemaining   : nat  := 0n;
+
                 // process repayment of principal if total principal repaid quantity is greater than 0
                 if totalPrincipalRepaid > 0n then {
 
                     // calculate new totalBorrowed and totalRemaining
                     if totalPrincipalRepaid > totalBorrowed then failwith(error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT) else skip;
-                    const newTotalBorrowed   : nat = abs(totalBorrowed - totalPrincipalRepaid);
-                    const newTotalRemaining  : nat = totalRemaining + totalPrincipalRepaid;
-                    const newTokenPoolTotal  : nat = newTotalRemaining + newTotalBorrowed;
+                    newTotalBorrowed   := abs(totalBorrowed - totalPrincipalRepaid);
+                    newTotalRemaining  := totalRemaining + totalPrincipalRepaid;
+                    newTokenPoolTotal  := newTotalRemaining + newTotalBorrowed;
 
                     // transfer prinicpal repayment amount from repayer to token pool
                     const transferRepaymentAmountToTokenPoolOperation : operation = transferFa2Token(
-                        repayer,                            // from_
-                        Tezos.get_self_address(),           // to_
-                        totalPrincipalRepaid,               // amount
-                        tokenRecord.tokenId,                // token id
-                        tokenRecord.tokenContractAddress    // token contract
+                        initiator,                   // from_
+                        Tezos.get_self_address(),    // to_
+                        totalPrincipalRepaid,        // amount
+                        loanTokenId,                 // token id
+                        loanTokenAddress             // token contract
                     );
 
+                    operations := transferRepaymentAmountToTokenPoolOperation # operations;
 
                 } else skip;
 
@@ -1583,10 +1599,10 @@ block {
                 // ------------------------------------------------------------------
 
                 // update token storage
-                loanTokenRecord.tokenPoolTotal  := newTokenPoolTotal;
-                loanTokenRecord.totalBorrowed   := newTotalBorrowed;
-                loanTokenRecord.totalRemaining  := newTotalRemaining;
-                s.loanTokenLedger[tokenName]    := loanTokenRecord;
+                loanTokenRecord.tokenPoolTotal          := newTokenPoolTotal;
+                loanTokenRecord.totalBorrowed           := newTotalBorrowed;
+                loanTokenRecord.totalRemaining          := newTotalRemaining;
+                s.loanTokenLedger[vaultLoanTokenName]   := loanTokenRecord;
 
                 // update vault storage
                 vault.loanOutstandingTotal      := newLoanOutstandingTotal;    
@@ -1616,13 +1632,13 @@ block {
 // ------------------------------------------------------------------------------
 
 (* depositStakedMvk lambda *)
-function lambdaDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+function lambdaVaultDepositStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
     var operations        : list(operation)  := nil;
 
     case lendingControllerLambdaAction of [
-        |   LambdaDepositStakedMvk(depositStakedMvkParams) -> {
+        |   LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
                 
                 // init variables for convenience
                 const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
@@ -1643,13 +1659,18 @@ block {
                 ];
 
                 // get vault
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // Find doorman Token Controller address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                    | None           -> failwith("Error. Doorman contract not found.")
+                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
 
                 // create operation to doorman to update balance of staked MVK from user to vault
                 const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
@@ -1682,13 +1703,13 @@ block {
 
 
 (* withdrawStakedMvk lambda *)
-function lambdaWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+function lambdaVaultWithdrawStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
     var operations        : list(operation)  := nil;
 
     case lendingControllerLambdaAction of [
-        |   LambdaWithdrawStakedMvk(withdrawStakedMvkParams) -> {
+        |   LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
                 
                 // init variables for convenience
                 const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
@@ -1698,8 +1719,8 @@ block {
 
                 // check if token (sMVK) exists in collateral token ledger
                 const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                    Some(_record) -> _record
-                    | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+                        Some(_record) -> _record
+                    |   None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
                 ];
 
                 // make vault handle
@@ -1709,13 +1730,18 @@ block {
                 ];
 
                 // get vault
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // Find doorman Token Controller address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                    | None           -> failwith("Error. Doorman contract not found.")
+                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
 
                 // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
@@ -1749,7 +1775,7 @@ block {
 
 
 (* liquidateStakedMvk lambda *)
-function lambdaLiquidateStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+function lambdaVaultLiquidateStakedMvk(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
     // only callable from self (i.e. from LiquidateVault entrypoint, if owner of vault being liquidated has staked mvk as collateral)
@@ -1758,7 +1784,7 @@ block {
     var operations        : list(operation)  := nil;
 
     case lendingControllerLambdaAction of [
-        |   LambdaLiquidateStakedMvk(liquidateStakedMvkParams) -> {
+        |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
                 
                 
                 // init variables for convenience
@@ -1782,13 +1808,18 @@ block {
                 ];
 
                 // get vault
-                var vault : vaultType := getVault(vaultHandle, s);
+                var vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // Find doorman Token Controller address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                    | None           -> failwith("Error. Doorman contract not found.")
+                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
+                const doormanAddress : address = case generalContractsOptView of [
+                        Some (_optionContract) -> case _optionContract of [
+                                Some (_contract)    -> _contract
+                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
+                        ]
+                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
+
 
                 // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
