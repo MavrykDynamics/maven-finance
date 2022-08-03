@@ -25,10 +25,10 @@ type fa2TokenType        is [@layout:comb] record [
     tokenId                 : nat;
 ]
 
-type tokenType       is
-    |   Tez                     of tezType         // unit
-    |   Fa12                    of fa12TokenType   // address
-    |   Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
+type tokenType is
+    |   Tez    of tezType         // unit
+    |   Fa12   of fa12TokenType   // address
+    |   Fa2    of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
 
 type transferDestinationType is [@layout:comb] record[
     to_       : address;

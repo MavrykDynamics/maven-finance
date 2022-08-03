@@ -263,7 +263,7 @@ block {
                 // Get Token Record
                 var tokenRecord : tokenRecordType := case s.tokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
 
                 // update pool totals
@@ -323,7 +323,7 @@ block {
                 // Get Token Record
                 var tokenRecord : tokenRecordType := case s.tokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
                 
                 const tokenId                   : nat       = tokenRecord.tokenId;
@@ -405,7 +405,7 @@ block {
                 // Get Token Record and info
                 const tokenRecord : tokenRecordType = case s.tokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
 
                 // Get updated token borrow index
@@ -462,7 +462,7 @@ block {
                 // Get Token Record and info
                 var tokenRecord : tokenRecordType := case s.tokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
 
                 const reserveRatio    : nat  = tokenRecord.reserveRatio;
@@ -566,7 +566,7 @@ block {
                 // Get Token Record
                 var tokenRecord : tokenRecordType := case s.tokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
                 ];
 
                 const reserveRatio    : nat  = tokenRecord.reserveRatio;
@@ -655,7 +655,7 @@ block {
                 // Get token record
                 const tokenRecord : tokenRecordType  = case Big_map.find_opt(tokenName, s.tokenLedger) of [
                         Some (_tokenRecord) -> _tokenRecord
-                    |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+                    |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // ------------------------------------------------------------------
@@ -733,7 +733,7 @@ block {
                 // Get token record
                 var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
                         Some (_tokenRecord) -> _tokenRecord
-                    |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+                    |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // Get token pool total

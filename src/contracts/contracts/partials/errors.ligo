@@ -1173,6 +1173,7 @@
 
 
 [@inline] const error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                                              = 829n;
+[@inline] const error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND                                                               = 829n;
 
 // ------------------------------------------------------------------------------
 //
@@ -1197,5 +1198,7 @@
 [@inline] const error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 829n;
 [@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 829n;
 [@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 829n;
+[@inline] const error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 829n;
+
 
 

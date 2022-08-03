@@ -37,14 +37,14 @@
 // ------------------------------------------------------------------------------
 
 // helper function to create vault 
-// type createVaultFuncType is (option(key_hash) * tez * vaultStorage) -> (operation * address)
-// const createVaultFunc : createVaultFuncType =
-// [%Michelson ( {| { UNPPAIIR ;
-//                   CREATE_CONTRACT
-// #include "../compiled/lend_vault.tz"
-//         ;
-//           PAIR } |}
-// : createVaultFuncType)];
+type createVaultFuncType is (option(key_hash) * tez * vaultStorageType) -> (operation * address)
+const createVaultFunc : createVaultFuncType =
+[%Michelson ( {| { UNPPAIIR ;
+                  CREATE_CONTRACT
+#include "../compiled/lend_vault.tz"
+        ;
+          PAIR } |}
+: createVaultFuncType)];
 
 type lendingControllerAction is 
 
@@ -125,6 +125,11 @@ const fpa10e5 : nat = 1_000_00n;                         // 10^5
 const fpa10e4 : nat = 1_000_0n;                          // 10^4
 const fpa10e3 : nat = 1_000n;                            // 10^3
 
+const minBlockTime              : nat   = Tezos.get_min_block_time();
+const blocksPerMinute           : nat   = 60n / minBlockTime;
+const blocksPerDay              : nat   = blocksPerMinute * 60n * 24n;                       // 2880 blocks per day -> if 2 blocks per minute 
+const blocksPerYear             : nat   = blocksPerDay * 365n;
+
 // ------------------------------------------------------------------------------
 //
 // Constants End
@@ -144,6 +149,13 @@ const fpa10e3 : nat = 1_000n;                            // 10^3
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+// Allowed Senders: Admin, Governance Contract
+function checkSenderIsAllowed(var s : lendingControllerStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
 // Allowed Senders: Admin
 function checkSenderIsAdmin(const s : lendingControllerStorageType) : unit is
     if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -156,6 +168,12 @@ function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.get_sender() = Tezos.get_self_address()) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
 
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.get_amount() = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
@@ -171,8 +189,8 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 
 // helper function to check no loan outstanding on vault
-function checkZeroLoanOutstanding(const vault : vaultType) : unit is
-  if vault.loanOutstanding = 0n then unit
+function checkZeroLoanOutstanding(const vault : vaultRecordType) : unit is
+  if vault.loanOutstandingTotal = 0n then unit
   else failwith("Error. Loan Outstanding is not zero.")
 
 // ------------------------------------------------------------------------------
@@ -315,8 +333,9 @@ function getOnRepayEntrypointInTokenPoolContract(const contractAddress : address
         ];
 
 
+
 // helper function to get %updateRewards entrypoint in Token Pool Contract
-function getUpdateRewardsEntrypointInTokenPoolContract(const contractAddress : address) : contract(updateRewardsActionType) is
+function getUpdateRewardsEntrypointInTokenPoolRewardContract(const contractAddress : address) : contract(updateRewardsActionType) is
     case (Tezos.get_entrypoint_opt(
         "%updateRewards",
         contractAddress) : option(contract(updateRewardsActionType))) of [
@@ -324,6 +343,16 @@ function getUpdateRewardsEntrypointInTokenPoolContract(const contractAddress : a
             |   None -> (failwith(error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateRewardsActionType))
         ];
 
+
+
+// helper function to get mintOrBurn entrypoint from LQT contract
+function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mintOrBurn",
+        tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith("Error. MintOrBurn entrypoint in LP Token contract not found") : contract(mintOrBurnParamsType))
+        ]
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -334,6 +363,19 @@ function getUpdateRewardsEntrypointInTokenPoolContract(const contractAddress : a
 // ------------------------------------------------------------------------------
 // Contract Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function mintOrBurnLpToken(const target : address; const quantity : int; const lpTokenAddress : address) : operation is 
+block {
+
+    const mintOrBurnParams : mintOrBurnParamsType = record [
+        quantity = quantity;
+        target   = target;
+    ];
+
+} with (Tezos.transaction(mintOrBurnParams, 0mutez, getLpTokenMintOrBurnEntrypoint(lpTokenAddress) ) )
+
+
+
 
 function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; var s : lendingControllerStorageType) : bool is 
 block {
@@ -349,9 +391,9 @@ block {
 
 
 // helper function to get vault
-function getVault(const handle : vaultHandleType; var s : lendingControllerStorageType) : vaultType is 
+function getVault(const handle : vaultHandleType; var s : lendingControllerStorageType) : vaultRecordType is 
 block {
-    var vault : vaultType := case s.vaults[handle] of [
+    var vault : vaultRecordType := case s.vaults[handle] of [
             Some(_vault) -> _vault
         |   None -> failwith("Error. Vault not found.")
     ];
@@ -360,12 +402,12 @@ block {
 
 
 // helper function to check if vault is under collaterized
-function isUnderCollaterized(const vault : vaultType; var s : lendingControllerStorageType) : bool is 
+function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
     var vaultCollateralValueInUsd   : nat  := 0n;
-    const loanOutstanding           : nat  = vault.loanOutstanding;    
+    const loanOutstandingTotal      : nat  = vault.loanOutstandingTotal;    
     const liquidationRatio          : nat  = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
@@ -441,7 +483,7 @@ block {
     };
 
     // loanOutstanding will be 1e9 (token decimals), so multiply by 1e15 to have a base of 1e24
-    const loanOutstandingRebased : nat = loanOutstanding * fpa10e15; 
+    const loanOutstandingRebased : nat = loanOutstandingTotal * fpa10e15; 
 
     // check is vault is under collaterized based on liquidation ratio
     const isUnderCollaterized : bool = vaultCollateralValueInUsd < (liquidationRatio * loanOutstandingRebased) / 1000n;
@@ -467,26 +509,26 @@ block{
         // Steps Overview:
 
         // Check if user is recorded in the Rewards Ledger
-        if Big_map.mem(userAddress, s.rewardsLedger) then {
+        if Big_map.mem((userAddress, tokenName), s.rewardsLedger) then {
 
             // Get user's rewards record
-            var userRewardsRecord : rewardsRecordType := case Big_map.find_opt(userAddress, s.rewardsLedger) of [
+            var userRewardsRecord : rewardsRecordType := case Big_map.find_opt((userAddress, tokenName), s.rewardsLedger) of [
                     Some (_record) -> _record
                 |   None           -> failwith(error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND)
             ];
             var userRewardsPerShare : nat := userRewardsRecord.rewardsPerShare;            
 
             // Get user depositor record for token (i.e. liquidity provided for token)
-            const depositorKey : (address * string) = (userAddress * tokenName);
+            const depositorKey : (address * string) = (userAddress, tokenName);
             var depositorAmount : nat := case Big_map.find_opt(depositorKey, s.depositorLedger) of [
                     Some(_record) -> _record
                 |   None          -> failwith(error_DEPOSITOR_RECORD_NOT_FOUND)
             ];
 
             // Get token record
-            const tokenRecord : tokenRecordType  = case Big_map.find_opt(tokenName, s.tokenLedger) of [
+            const tokenRecord : loanTokenRecordType  = case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
                     Some (_tokenRecord) -> _tokenRecord
-                |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+                |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
             ];
 
             const tokenAccumulatedRewardsPerShare : nat = tokenRecord.accumulatedRewardsPerShare;            
@@ -504,7 +546,7 @@ block{
 
             userRewardsRecord.rewardsPerShare       := tokenAccumulatedRewardsPerShare;
             userRewardsRecord.unpaid                := userRewardsRecord.unpaid + newRewards;
-            s.rewardsLedger[userAddress]            := userRewardsRecord;
+            s.rewardsLedger[(userAddress, tokenName)]            := userRewardsRecord;
 
         } else skip;
 
@@ -521,7 +563,7 @@ block{
 // ------------------------------------------------------------------------------
 
 // helper function to calculate compounded interest
-function calculateCompoundedInterest(const interestRate : nat; const lastUpdatedBlockLevel : nat; var s : lendingControllerStorageType) : lendingControllerStorageType is
+function calculateCompoundedInterest(const interestRate : nat; const lastUpdatedBlockLevel : nat) : nat is
 block{
 
     (* From AAVE:
@@ -535,7 +577,9 @@ block{
     * error per different time periods
     *)
 
-    const exp : nat = abs(Tezos.get_levels() - lastUpdatedBlockLevel);
+    const exp : nat = abs(Tezos.get_level() - lastUpdatedBlockLevel);
+
+    var compoundedInterest : nat := 0n;
 
     if exp =/= 0n then {
 
@@ -543,21 +587,21 @@ block{
         const expMinusTwo : nat = if exp > 2n then abs(exp - 2n) else 0n;
 
         const basePowerTwo : nat = (interestRate * fixedPointAccuracy) / (blocksPerYear * blocksPerYear);
-        const basePowerThree : nat = (basePowerTwo * interestRate) / blocksPerYear
+        const basePowerThree : nat = (basePowerTwo * interestRate) / blocksPerYear;
+
+        const secondTerm : nat = (exp * expMinusOne * basePowerTwo) / 2n;
+        const thirdTerm : nat = (exp * expMinusOne * expMinusTwo * basePowerThree) / 6n;
+
+        compoundedInterest := (((interestRate * exp * fixedPointAccuracy) / blocksPerYear) + secondTerm + thirdTerm) / fixedPointAccuracy;
 
     } else skip;
    
-   const secondTerm : nat = (exp * expMinusOne * basePowerTwo) / 2n;
-   const thirdTerm : nat = (exp * expMinusOne * expMinusTwo * basePowerThree) / 6n;
-
-   const compoundedInterest : nat = (((interestRate * exp * fixedPointAccuracy) / blocksPerYear) + secondTerm + thirdTerm) / fixedPointAccuracy;
-
 } with (compoundedInterest)
 
 
 
 // helper function to get normalized debt
-function getNormalizedDebt(const tokenName : string; var s : lendingControllerStorageType) : lendingControllerStorageType is
+function getNormalizedDebt(const tokenName : string; var s : lendingControllerStorageType) : nat is
 block{
 
     (** From AAVE: 
@@ -570,15 +614,17 @@ block{
     **)
 
     // Get token record
-    var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
+    var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
             Some (_tokenRecord) -> _tokenRecord
-        |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+        |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
+
+    const lastUpdatedBlockLevel : nat = tokenRecord.lastUpdatedBlockLevel; 
 
     // init variables
     var accumulatedRewardsPerShare : nat := tokenRecord.accumulatedRewardsPerShare;
 
-    if Tezos.get_levels() = lastUpdatedBlockLevel then skip else {
+    if Tezos.get_level() = lastUpdatedBlockLevel then skip else {
 
         const lastUpdatedBlockLevel : nat = tokenRecord.lastUpdatedBlockLevel;
         const currentInterestRate : nat = tokenRecord.currentInterestRate;
@@ -589,7 +635,7 @@ block{
     };
 
     tokenRecord.accumulatedRewardsPerShare := accumulatedRewardsPerShare;
-    s.tokenLedger[tokenName] := tokenRecord;
+    s.loanTokenLedger[tokenName] := tokenRecord;
 
 } with (accumulatedRewardsPerShare)
 
@@ -600,15 +646,17 @@ function updateTokenState(const tokenName : string; var s : lendingControllerSto
 block{
 
     // get token record
-    var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
+    var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
             Some (_tokenRecord) -> _tokenRecord
-        |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+        |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
+
+    const lastUpdatedBlockLevel : nat = tokenRecord.lastUpdatedBlockLevel;
 
     // init variables
     var borrowIndex : nat := tokenRecord.borrowIndex;
 
-    if Tezos.get_levels() = lastUpdatedBlockLevel then skip else {
+    if Tezos.get_level() = lastUpdatedBlockLevel then skip else {
 
         const lastUpdatedBlockLevel  : nat = tokenRecord.lastUpdatedBlockLevel;
         const currentInterestRate    : nat = tokenRecord.currentInterestRate;
@@ -619,7 +667,7 @@ block{
     };
 
     tokenRecord.borrowIndex := borrowIndex;
-    s.tokenLedger[tokenName] := tokenRecord;
+    s.loanTokenLedger[tokenName] := tokenRecord;
 
 } with (s)
 
@@ -630,15 +678,15 @@ function updateInterestRate(const tokenName : string; var s : lendingControllerS
 block {
 
     // get token record
-    var tokenRecord : tokenRecordType := case Big_map.find_opt(tokenName, s.tokenLedger) of [
+    var tokenRecord : loanTokenRecordType := case Big_map.find_opt(tokenName, s.loanTokenLedger) of [
             Some (_tokenRecord) -> _tokenRecord
-        |   None                -> failwith(error_TOKEN_RECORD_NOT_FOUND)
+        |   None                -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
     ];
 
     // init params
     const tokenPoolTotal            : nat = tokenRecord.tokenPoolTotal;
     const totalBorrowed             : nat = tokenRecord.totalBorrowed;
-    const totalRemaining            : nat = tokenRecord.totalRemaining;
+    // const totalRemaining            : nat = tokenRecord.totalRemaining;
     const optimalUtilisationRate    : nat = tokenRecord.optimalUtilisationRate;
 
     const baseInterestRate                      : nat = tokenRecord.baseInterestRate;                    // r0
@@ -681,7 +729,7 @@ block {
 
         // update storage
         tokenRecord.currentInterestRate := currentInterestRate;
-        s.tokenLedger[tokenName] := tokenRecord;
+        s.loanTokenLedger[tokenName] := tokenRecord;
 
     } else skip;
     
@@ -775,7 +823,7 @@ block {
 
 
 (* View: get vault by handle *)
-[@view] function getVaultOpt(const vaultHandle : vaultHandleType; var s : lendingControllerStorageType) : option(vaultType) is
+[@view] function getVaultOpt(const vaultHandle : vaultHandleType; var s : lendingControllerStorageType) : option(vaultRecordType) is
     Big_map.find_opt(vaultHandle, s.vaults)
 
 
@@ -861,7 +909,7 @@ block {
 
 
 (* updateConfig entrypoint *)
-function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : lendingControllerStorageType) : return is 
+function updateConfig(const updateConfigParams : lendingControllerUpdateConfigParamsType; var s : lendingControllerStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -1030,7 +1078,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (* addLiquidity entrypoint *)
-function addLiquidity(const addLiquidityParams : addLiqudityActionType ; var s : lendingControllerStorageType) : return is 
+function addLiquidity(const addLiquidityParams : addLiquidityActionType; var s : lendingControllerStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddLiquidity"] of [
@@ -1049,7 +1097,7 @@ block {
 
 
 (* removeLiquidity entrypoint *)
-function removeLiquidity(const removeLiquidityParams : removeLiqudityActionType ; var s : lendingControllerStorageType) : return is 
+function removeLiquidity(const removeLiquidityParams : removeLiquidityActionType ; var s : lendingControllerStorageType) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveLiquidity"] of [
@@ -1124,7 +1172,7 @@ block {
     ];
 
     // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaWithdrawVault(withdrawFromVaultParams);
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaWithdrawFromVault(withdrawFromVaultParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
@@ -1229,7 +1277,7 @@ block {
     ];
 
     // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaDepositStakedMvk(vaultDepositStakedMvkParams);
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
@@ -1248,7 +1296,7 @@ block {
     ];
 
     // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
@@ -1268,7 +1316,7 @@ block {
     ];
 
     // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  

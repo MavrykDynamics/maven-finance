@@ -12,9 +12,6 @@
 // ------------------------------------------------------------------------------
 
 
-type tokenBalanceType   is nat;
-type tokenAmountType    is nat;
-
 type editDepositorType is
   | AllowAny of bool
   | AllowAccount of bool * address
@@ -24,7 +21,7 @@ type depositorsType is
   | Whitelist of set(address)
 
 type whitelistUsersType is
-    |   Any
+    |   NoWhitelistUsers of unit 
     |   Depositors of set(address)
     |   Borrowers of set(address)
     |   Repayers of set(address)
@@ -50,7 +47,7 @@ type vaultWithdrawType is transferDestinationType
 type vaultDepositType  is [@layout:comb] record [
 //     from_           : address;
 //     to_             : address;
-    amt             : nat;
+    amount          : nat;
     token           : tokenType;
 //     // tokenName       : string;
 ]
@@ -78,7 +75,7 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
 // ------------------------------------------------------------------------------
 
 
-type vaultStorage is record [
+type vaultStorageType is record [
     admin                : address;            // vault admin contract - usdm token controller address
     handle               : vaultHandleType;    // owner of the vault
     depositors           : depositorsType;     // users who can deposit into the vault    

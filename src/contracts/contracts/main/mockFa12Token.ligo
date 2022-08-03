@@ -62,7 +62,7 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
-  | UpdateWhitelistContracts  of updateWhitelistContractsParams
+  | UpdateWhitelistContracts  of updateWhitelistContractsType
   | MintOrBurn                of mintOrBurnParams
   | Mint of mintParams
   | Burn of burnParams
@@ -196,15 +196,8 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
   } with (list [Tezos.transaction(s.totalSupply, 0tz, contr)], s)
 
 
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
 (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var store: storage): return is
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var store: storage): return is
 block {
 
     checkSenderIsAdmin(store);
