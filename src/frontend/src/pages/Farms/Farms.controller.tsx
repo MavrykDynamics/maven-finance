@@ -11,8 +11,16 @@ import { FarmCard } from './FarmCard/FarmCard.controller'
 
 // styles
 import { FarmsStyled } from './Farms.style'
+import { EmptyContainer as EmptyList } from 'app/App.style'
 
 export type FarmsViewVariantType = 'vertical' | 'horizontal'
+
+const EmptyContainer = () => (
+  <EmptyList>
+    <img src="/images/not-found.svg" alt=" No results to show" />
+    <figcaption> No results to show</figcaption>
+  </EmptyList>
+)
 
 export const Farms = () => {
   const dispatch = useDispatch()
@@ -77,34 +85,39 @@ export const Farms = () => {
     <Page>
       <PageHeader page={'farms'} kind={'primary'} loading={loading} />
       <FarmsStyled>
-        <FarmTopBar
-          loading={loading}
-          searchValue={searchValue}
-          onSearch={handleOnSearch}
-          onSort={handleOnSort}
-          handleToggleStakedOnly={handleToggleStakedFarmsOnly}
-          handleLiveFinishedToggleButtons={handleLiveFinishedToggleButtons}
-          handleSetFarmsViewVariant={handleSetFarmsViewVariant}
-          className={farmsViewVariant}
-        />
-
-        <section className={`farm-list ${farmsViewVariant}`}>
-          {farmsList.map((farm: any, index: number) => {
-            return (
-              <FarmCard
-                variant={farmsViewVariant}
-                farmAddress={farm.address}
-                firstToken={'MVK'}
-                secondToken={'USDM'}
-                lpToken={'Plenty LP'}
-                lpTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-                firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
-                secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-                totalLiquidity={1231243}
-              />
-            )
-          })}
-        </section>
+        {farmsList?.length ? (
+          <>
+            <FarmTopBar
+              loading={loading}
+              searchValue={searchValue}
+              onSearch={handleOnSearch}
+              onSort={handleOnSort}
+              handleToggleStakedOnly={handleToggleStakedFarmsOnly}
+              handleLiveFinishedToggleButtons={handleLiveFinishedToggleButtons}
+              handleSetFarmsViewVariant={handleSetFarmsViewVariant}
+              className={farmsViewVariant}
+            />
+            <section className={`farm-list ${farmsViewVariant}`}>
+              {farmsList.map((farm: any, index: number) => {
+                return (
+                  <FarmCard
+                    variant={farmsViewVariant}
+                    farmAddress={farm.address}
+                    firstToken={'MVK'}
+                    secondToken={'USDM'}
+                    lpToken={'Plenty LP'}
+                    lpTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
+                    firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
+                    secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
+                    totalLiquidity={1231243}
+                  />
+                )
+              })}
+            </section>
+          </>
+        ) : (
+          <EmptyContainer />
+        )}
       </FarmsStyled>
     </Page>
   )

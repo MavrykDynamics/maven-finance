@@ -175,6 +175,7 @@ export const FarmCardStyled = styled(Card)`
     grid-template-columns: auto 387px auto;
     padding: 20px 40px;
     margin: 0;
+    gap: 36px;
   }
 
   .start-farming {
@@ -201,10 +202,17 @@ export const FarmHarvestStyled = styled(Card)`
   align-items: center;
   padding: 18px 30px;
   margin: 0;
+  justify-content: space-between;
 
   .farm-info {
     flex-shrink: 0;
-    margin-right: 40px;
+    margin-right: 20px;
+  }
+
+  .circle-buttons {
+    display: flex;
+    flex-shrink: 0;
+    gap: 10px;
   }
 `
 

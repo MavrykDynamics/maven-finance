@@ -299,25 +299,11 @@
               d="M0.558924 23.6065C0.223935 23.3629 0.149872 22.8938 0.393501 22.5588L8.07268 11.9999L0.393501 1.44107C0.149872 1.10608 0.223935 0.637022 0.558924 0.393394C0.893914 0.149765 1.36298 0.223827 1.6066 0.558817L9.6066 11.5588C9.79787 11.8218 9.79787 12.1781 9.6066 12.4411L1.6066 23.4411C1.36298 23.7761 0.893914 23.8501 0.558924 23.6065Z"/>
     </symbol>
     <symbol id="add" viewBox="0 0 24 24">
-        <g clip-path="url(#clip0_1510_12508)">
-            <path d="M0.75 12H23.25" stroke="#7068AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 0.75V23.25" stroke="#7068AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <defs>
-            <clipPath id="clip0_1510_12508">
-                <rect width="24" height="24" fill="none"/>
-            </clipPath>
-        </defs>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 1C12.6904 1 13.25 1.55964 13.25 2.25L13.25 21.75C13.25 22.4404 12.6904 23 12 23C11.3096 23 10.75 22.4404 10.75 21.75L10.75 2.25C10.75 1.55964 11.3096 1 12 1Z" />
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M1.75 12C1.75 11.3096 2.30964 10.75 3 10.75H21.75C22.4404 10.75 23 11.3096 23 12C23 12.6904 22.4404 13.25 21.75 13.25H3C2.30964 13.25 1.75 12.6904 1.75 12Z" />
     </symbol>
-    <symbol id="subtract" viewBox="0 0 24 24">
-        <g clip-path="url(#clip0_1510_12512)">
-            <path d="M0.75 12H23.25" stroke="#7068AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <defs>
-            <clipPath id="clip0_1510_12512">
-                <rect width="24" height="24" fill="none"/>
-            </clipPath>
-        </defs>
+    <symbol id="subtract" viewBox="0 0 22 4" >
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M0.75 2C0.75 1.30964 1.30964 0.75 2 0.75H20.75C21.4404 0.75 22 1.30964 22 2C22 2.69036 21.4404 3.25 20.75 3.25H2C1.30964 3.25 0.75 2.69036 0.75 2Z"/>
     </symbol>
     <symbol id="-stroke" viewBox="0 0 24 24">
         <g clip-path="url(#clip0_1510_12545)">
