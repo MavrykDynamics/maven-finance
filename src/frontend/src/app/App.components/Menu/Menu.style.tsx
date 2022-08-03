@@ -97,19 +97,14 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
-  width: 270px;
-  transition: all 0.3s;
+  width: 232px;
   min-height: 100vh;
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 30;
 
   .mobile-logo {
     display: none;
   }
 
-  @media screen and (max-width: 1460px) {
+  @media screen and (max-width: 1360px) {
     &:not(.menu-expanded) {
       width: 72px;
 
@@ -118,6 +113,21 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
         display: none !important;
       }
     }
+
+    &.menu-expanded {
+      width: 100vw;
+      display: flex;
+      display: flex;
+      align-items: flex-start;
+    }
+  }
+
+  @media screen and (max-width: 1260px) {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    transition: all 0.3s;
 
     &.menu-expanded {
       width: 100vw;
@@ -135,7 +145,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
 
   > div {
     width: 100%;
-    max-width: 270px;
+    max-width: 232px;
   }
 
   &.menu-collapsed {
@@ -170,22 +180,22 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
 export const MenuTopSection = styled.div`
   display: flex;
   flex-direction: column;
-  top: 0;
-  left: 0;
-  z-index: 10;
   text-align: center;
   width: 100%;
-  max-width: 270px;
+  max-width: 232px;
   min-height: 100vh;
   height: 100%;
   background-color: ${({ theme }) => theme.containerColor};
-  position: relative;
   padding-top: 110px;
 `
 export const MenuLogo = styled.img`
   z-index: 1;
   width: 218px;
   height: 43px;
+
+  @media screen and (max-width: 1360px) {
+    width: 160px;
+  }
 `
 
 export const MenuGrid = styled.div`
