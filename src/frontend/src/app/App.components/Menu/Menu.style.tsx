@@ -96,7 +96,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   */
 `
 
-export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
+export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   width: 232px;
   min-height: 100vh;
 
@@ -177,7 +177,7 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const MenuTopSection = styled.div`
+export const MenuSidebarContent = styled.div`
   display: flex;
   flex-direction: column;
   text-align: center;
