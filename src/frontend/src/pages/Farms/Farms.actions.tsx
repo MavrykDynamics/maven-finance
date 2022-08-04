@@ -7,7 +7,9 @@ import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/Doorman.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
+import { hideModal } from '../../app/App.components/Modal/Modal.actions'
 
+export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
@@ -184,29 +186,26 @@ export const withdraw = (farmAddress: string, amount: number) => async (dispatch
   }
 
   try {
+    await dispatch({
+      type: WITHDRAW_REQUEST,
+    })
+
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods.withdraw(amount * PRECISION_NUMBER).send()
     console.log('transaction', transaction)
-
-    dispatch({
-      type: WITHDRAW_REQUEST,
-    })
-    dispatch(showToaster(INFO, 'Withdrawing...', 'Please wait 30s'))
-
+    await dispatch(showToaster(INFO, 'Withdrawing...', 'Please wait 30s'))
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Withdrawing done', 'All good :)'))
-
-    dispatch({
+    await dispatch(showToaster(SUCCESS, 'Withdrawing done', 'All good :)'))
+    await dispatch({
       type: WITHDRAW_RESULT,
     })
-
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getFarmStorage())
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
+    await dispatch(hideModal())
+    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
+    await dispatch(getFarmStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))

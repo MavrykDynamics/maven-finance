@@ -61,7 +61,7 @@ type TabButtonProps = {
 const TabButton = ({
   buttonRef,
   text,
-  loading,
+
   kind,
   generalClasses,
   buttonActiveStatus,
@@ -75,9 +75,6 @@ const TabButton = ({
       setButtonClasses((buttonClasses) => buttonClasses + ' clicked')
     }
   }, [buttonActiveStatus, text])
-  if (loading) {
-    setButtonClasses((buttonClasses) => buttonClasses + ' loading')
-  }
 
   if (!buttonActiveStatus && buttonClasses.includes(' clicked')) {
     let newClasses = buttonClasses.replace(' clicked', '')
@@ -97,18 +94,7 @@ const TabButton = ({
       onClick={_onClick}
     >
       <ButtonText>
-        {loading ? (
-          <>
-            <ButtonLoadingIcon className={kind}>
-              <use xlinkHref="/icons/sprites.svg#loading" />
-            </ButtonLoadingIcon>
-            <div>Loading...</div>
-          </>
-        ) : (
-          <>
-            <div>{text}</div>
-          </>
-        )}
+        <div>{text}</div>
       </ButtonText>
     </ButtonStyled>
   )

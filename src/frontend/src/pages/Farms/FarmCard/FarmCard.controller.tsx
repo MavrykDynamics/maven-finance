@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -9,16 +10,16 @@ import Expand from '../../../app/App.components/Expand/Expand.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { ButtonCircle } from '../../../app/App.components/Button/ButtonCircle.view'
 import { ConnectWallet } from '../../../app/App.components/ConnectWallet/ConnectWallet.controller'
-import { useEffect, useRef, useState } from 'react'
-import * as React from 'react'
 import { ColoredLine } from '../../../app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { deposit, harvest, withdraw } from '../Farms.actions'
 import { ButtonIcon } from '../../../app/App.components/Button/Button.style'
 import { showModal } from '../../../app/App.components/Modal/Modal.actions'
-
-import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 import Icon from '../../../app/App.components/Icon/Icon.view'
+
+// const
+import { SELECT_FARM_ADDRESS } from '../Farms.actions'
+import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
 // styles
 import {
@@ -75,13 +76,14 @@ export const FarmCard = ({
     dispatch(withdraw(farmAddress, amount))
   }
 
-  const triggerDepositModal = () => {
-    console.log('Here in Deposit Modal')
-    dispatch(showModal(FARM_DEPOSIT))
+  const triggerDepositModal = async () => {
+    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
+    await dispatch(showModal(FARM_DEPOSIT))
   }
-  const triggerWithdrawModal = () => {
-    console.log('Here in Withdraw Modal')
-    dispatch(showModal(FARM_WITHDRAW))
+
+  const triggerWithdrawModal = async () => {
+    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
+    await dispatch(showModal(FARM_WITHDRAW))
   }
 
   const logoHeaderContent = (
