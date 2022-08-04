@@ -1,7 +1,14 @@
 import { useState } from 'react'
-import { ModalCard, ModalCardContent } from '../../../../styles'
+
+// view
 import { Button } from '../../Button/Button.controller'
 import { Input, InputStatusType } from '../../Input/Input.controller'
+
+// helpers
+import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../../utils/validatorFunctions'
+
+// styles
+import { ModalCard, ModalCardContent } from '../../../../styles'
 import {
   FarmCardContentSection,
   FarmCardFirstTokenIcon,
@@ -13,15 +20,31 @@ import {
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
 
 export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: any }) => {
-  const [amount, setAmount] = useState(0)
+  const [amount, setAmount] = useState<number | ''>('')
   const [status, setStatus] = useState<InputStatusType>('')
 
-  const handleBlur = () => {}
+  const checkInputIsOk = (value: number | '') => {
+    setStatus(value ? 'success' : 'error')
+  }
 
-  const handleFocus = () => {}
+  const handleBlur = (e: any) => {
+    const value = mathRoundTwoDigit(e.target.value)
+    checkInputIsOk(value)
+  }
 
-  const handleChange = () => {}
+  const handleFocus = (e: any) => {
+    const value = e.target.value
 
+    if (+value === 0) {
+      setAmount('')
+    }
+  }
+
+  const handleChange = (e: any) => {
+    const value = mathRoundTwoDigit(e.target.value)
+    setAmount(+value)
+    checkInputIsOk(value)
+  }
   return (
     <ModalCard>
       <ModalCardContent className="farm-modal">
