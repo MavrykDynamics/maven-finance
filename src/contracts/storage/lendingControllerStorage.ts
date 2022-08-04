@@ -2,7 +2,7 @@ import { MichelsonMap } from "@taquito/michelson-encoder"
 
 import { BigNumber } from "bignumber.js"
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { alice, bob } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils"
 
@@ -16,8 +16,12 @@ const config = {
     adminLiquidationFee         : 10,
 
     minimumLoanFee              : 10,
-    annualServiceLoanFee        : 100,
-    dailyServiceLoanFee         : 30,
+    // annualServiceLoanFee        : 100,
+    // dailyServiceLoanFee         : 30,
+
+    minimumLoanFeeTreasuryShare : 100,
+    interestTreasuryShare : 100,
+
 
     decimals                    : 3,       // decimals 
 }
@@ -58,7 +62,7 @@ const metadata = MichelsonMap.fromLiteral({
 
 export const lendingControllerStorage : lendingControllerStorageType = {
   
-    admin                           : alice.pkh,
+    admin                           : bob.pkh,
     metadata                        : metadata,
     config                          : config,
     breakGlassConfig                : breakGlassConfig,
