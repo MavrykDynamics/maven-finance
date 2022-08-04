@@ -28,13 +28,13 @@ const DataFeedsPagination = () => {
         Back to feeds
       </Link>
       {prevFeed ? (
-        <Link className="pagination-link prev" to={`/feed-details/${prevFeed.address}`}>
+        <Link className="pagination-link prev" to={`/satellites/feed-details/${prevFeed.address}`}>
           <Icon id="arrow-obtuse-angle" />
           Previous feed
         </Link>
       ) : null}
       {nextFeed ? (
-        <Link className="pagination-link next" to={`/feed-details/${nextFeed.address}`}>
+        <Link className="pagination-link next" to={`/satellites/feed-details/${nextFeed.address}`}>
           Next feed
           <Icon id="arrow-obtuse-angle" />
         </Link>

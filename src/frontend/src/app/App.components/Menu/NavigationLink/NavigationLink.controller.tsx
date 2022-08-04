@@ -1,19 +1,13 @@
 import * as React from 'react'
-import { NavigationLinkStyle } from './NavigationLink.constants'
-import { Link } from 'react-router-dom'
-import {
-  NavigationLinkContainer,
-  NavigationLinkIcon,
-  NavigationLinkItem,
-  NavigationSubLinks,
-  SubLinkText,
-  SubNavLink,
-} from './NavigationLink.style'
 import useCollapse from 'react-collapsed'
 import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+
 import { State } from '../../../../reducers'
-import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
 import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
+import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
+import { NavigationLinkStyle } from './NavigationLink.constants'
+import { NavigationLinkContainer, NavigationLinkIcon, NavigationLinkItem, NavigationSubLinks, SubLinkText, SubNavLink } from './NavigationLink.style'
 
 type NavigationLinkProps = {
   title: string
@@ -45,14 +39,18 @@ export const NavigationLink = ({
   accountPkh,
 }: NavigationLinkProps) => {
   const key = `${path.substring(1)}-${id}`
+  const iconHref = `/icons/sprites.svg#${icon}`
+
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const satelliteLedger = delegationStorage?.satelliteLedger
-  let navigationLinkClasses = `collapsible .${kind}`
-  const iconHref = `/icons/sprites.svg#${icon}`
-  const subPagesPaths = [path]
-  subPages?.forEach((subPage: SubNavigationRoute, index) => subPagesPaths.push(subPage.subPath))
-  let mainLinkSelected = location.pathname === path
-  if (subPages) mainLinkSelected = subPagesPaths.includes(location.pathname)
+
+  const subPagesPaths = [path].concat(subPages ? subPages.map(({ subPath }) => subPath) : [])
+  const splittedPathname = location.pathname.split(/(?=[/:-?{-~!"^_`\[\]])/gi).filter((path: string) => path !== '/')
+  const mainLinkSelected = subPages
+    ? Boolean(subPagesPaths.find((subPagePath) => splittedPathname.includes(subPagePath)))
+    : splittedPathname.includes(path)
+
+  console.log(path, splittedPathname, mainLinkSelected, subPages)
 
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
 

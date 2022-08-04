@@ -14,7 +14,7 @@ type Props = {
 
 export const CouncilMemberView = (props: Props) => {
   const { image, name, user_id, website } = props
-  const href = website?.length ? website : `/satellite-details/${user_id}`
+  const href = website?.length ? website : `/satellites/satellite-details/${user_id}`
   const content = (
     <CouncilMemberStyled>
       <AvatarStyle>
