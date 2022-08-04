@@ -294,10 +294,15 @@ export const FarmInputSection = styled.div`
   align-items: center;
 
   input {
-    padding-right: 164px;
+    padding-right: 174px;
     height: 50px;
     font-size: 18px;
     margin-bottom: 6px;
+  }
+
+  .with-text {
+    right: 150px;
+    top: 18px;
   }
 
   .input-info {
