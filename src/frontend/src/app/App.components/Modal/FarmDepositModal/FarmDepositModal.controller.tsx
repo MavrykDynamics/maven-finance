@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 // view
 import { Button } from '../../Button/Button.controller'
@@ -6,6 +8,9 @@ import { Input, InputStatusType } from '../../Input/Input.controller'
 
 // helpers
 import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../../utils/validatorFunctions'
+
+// actions
+import { deposit } from '../../../../pages/Farms/Farms.actions'
 
 // styles
 import { ModalCard, ModalCardContent } from '../../../../styles'
@@ -20,8 +25,11 @@ import {
 } from '../../../../pages/Farms/FarmCard/FarmCard.style'
 
 export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean; cancelCallback: any }) => {
+  const dispatch = useDispatch()
+  const { selectedFarmAddress } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
   const [status, setStatus] = useState<InputStatusType>('')
+  const disabled = !amount || !selectedFarmAddress
 
   const checkInputIsOk = (value: number | '') => {
     setStatus(value ? 'success' : 'error')
@@ -46,6 +54,14 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
     checkInputIsOk(value)
   }
 
+  const handleSubmit = (e: any) => {
+    e.preventDefault()
+
+    if (!disabled) {
+      dispatch(deposit(selectedFarmAddress, amount))
+    }
+  }
+
   return (
     <ModalCard>
       <ModalCardContent className="farm-modal">
@@ -61,7 +77,7 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
           </FarmCardContentSection>
         </FarmCardTopSection>
 
-        <FarmInputSection>
+        <FarmInputSection onSubmit={handleSubmit}>
           <div className="input-info">
             <p>Min 1 MVK-tzBTC LP token</p>
             <button>Use Max</button>
@@ -86,8 +102,8 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
             text="Stake LP"
             kind="actionPrimary"
             icon="in"
-            loading={loading}
-            onClick={cancelCallback}
+            type="submit"
+            disabled={disabled}
           />
         </FarmInputSection>
       </ModalCardContent>
