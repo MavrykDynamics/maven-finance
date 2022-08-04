@@ -83,6 +83,9 @@ type lendingControllerAction is
     |   VaultWithdrawStakedMvk          of vaultWithdrawStakedMvkType   
     |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
+        // Lambda Entrypoints
+    |   SetLambda                         of setLambdaType
+
 const noOperations : list (operation) = nil;
 type return is list (operation) * lendingControllerStorageType
 
@@ -1327,6 +1330,30 @@ block {
 // Vault Staked MVK Entrypoints End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : lendingControllerStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Entrypoints End
@@ -1339,7 +1366,7 @@ block {
 function main (const action : lendingControllerAction; const s : lendingControllerStorageType) : return is 
     case action of [
 
-        |   Default(_params) -> ((nil : list(operation)), s)
+        |   Default(_params)                              -> ((nil : list(operation)), s)
         
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                          -> setAdmin(parameters, s) 
@@ -1373,5 +1400,8 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
         |   VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
         |   VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
+
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                         -> setLambda(parameters, s)    
 
     ]

@@ -174,6 +174,17 @@ type removeLiquidityActionType is [@layout:comb] record [
     [@annot:to] to_         : address;
 ]
 
+// collateralRatio           : nat;    // collateral ratio
+//     liquidationRatio          : nat;    // liquidation ratio
+    
+//     liquidationFee            : nat;    // liquidation fee - penalty fee paid by vault owner to liquidator
+//     adminLiquidationFee       : nat;    // admin liquidation fee - penalty fee paid by vault owner to treasury
+
+//     minimumLoanFee            : nat;    // minimum loan fee - taken at first minting
+
+//     minimumLoanFeeTreasuryShare  : nat;  // percentage of minimum loan fee that goes to the treasury
+//     interestTreasuryShare        : nat;  // percentage of interest that goes to the treasury
+
 
 type lendingControllerUpdateConfigNewValueType is nat
 type lendingControllerUpdateConfigActionType is 
@@ -183,12 +194,13 @@ type lendingControllerUpdateConfigActionType is
     |   ConfigLiquidationFee            of unit
     |   ConfigAdminLiquidationFee       of unit
     |   ConfigMinimumLoanFee            of unit
-    |   ConfigAnnualServiceLoanFee      of unit
-    |   ConfigDailyServiceLoanFee       of unit
-    |   ConfigDecimals                  of unit
+    // |   ConfigAnnualServiceLoanFee      of unit
+    // |   ConfigDailyServiceLoanFee       of unit
+    |   ConfigMinLoanFeeTreasuryShare   of unit
+    |   ConfiginterestTreasuryShare     of unit
 
 type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
-    updateConfigNewValue    : lendingControllerUpdateConfigNewValueType; 
+    updateConfigNewValue    : lendingControllerUpdateConfigNewValueType;  
     updateConfigAction      : lendingControllerUpdateConfigActionType;
 ]
 
