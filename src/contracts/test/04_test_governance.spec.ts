@@ -1901,6 +1901,7 @@
 //                     governanceStorage                   = await governanceInstance.storage();
 //                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round
 //                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0]
+//                     var currentCycle                    = governanceStorage.cycleCounter;
 
 //                     // Operation
 //                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
@@ -1916,7 +1917,7 @@
 //                     const firstProposalSourceCode   = "Proposal Source Code";
 
 //                     // Register as satellite
-//                     const preregisteringSnapshot    = await governanceStorage.snapshotLedger.get(trudy.pkh)
+//                     const preregisteringSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: trudy.pkh})
 //                     const updateOperatorsOperation  = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
@@ -1942,7 +1943,8 @@
 
 //                     // Post registering values
 //                     governanceStorage               = await governanceInstance.storage();
-//                     const postregisteringSnapshot   = await governanceStorage.snapshotLedger.get(trudy.pkh)
+//                     currentCycle                    = governanceStorage.cycleCounter;
+//                     const postregisteringSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: trudy.pkh})
 
 //                     // Operation
 //                     await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1})).to.be.rejected; 
@@ -2257,7 +2259,8 @@
 //                     governanceStorage                   = await governanceInstance.storage();
 //                     doormanStorage                      = await doormanInstance.storage();
 //                     delegationStorage                   = await delegationInstance.storage();
-//                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get(eve.pkh);
+//                     var currentCycle                    = governanceStorage.cycleCounter;
+//                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
 //                     const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
 //                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(eve.pkh);
 
@@ -2286,9 +2289,7 @@
 //                     // Post staking values
 //                     governanceStorage                   = await governanceInstance.storage();
 //                     doormanStorage                      = await doormanInstance.storage();
-//                     const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get(eve.pkh);
-//                     const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
-//                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                     var currentCycle                    = governanceStorage.cycleCounter;
 
 //                     // Operation
 //                     await signerFactory(eve.sk)
@@ -2304,6 +2305,9 @@
 //                     // Final values
 //                     governanceStorage                   = await governanceInstance.storage();
 //                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+//                     const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
+//                     const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+//                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
 
 //                     // Assertions
 //                     assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);

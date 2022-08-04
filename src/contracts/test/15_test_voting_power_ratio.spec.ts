@@ -632,6 +632,7 @@
 //             try{
 //                 // Initial Values
 //                 governanceStorage           = await governanceInstance.storage();
+//                 var currentCycle            = governanceStorage.cycleCounter;
 //                 const previousProposalId    = governanceStorage.nextProposalId.toNumber() - 1;
 
 //                 // Operation
@@ -646,8 +647,8 @@
 //                 // Final values
 //                 governanceStorage       = await governanceInstance.storage();
 //                 const proposal          = await governanceStorage.proposalLedger.get(previousProposalId);
-//                 const firstVotingPower  = await governanceStorage.snapshotLedger.get(alice.pkh);
-//                 const secondVotingPower = await governanceStorage.snapshotLedger.get(eve.pkh);
+//                 const firstVotingPower  = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 const secondVotingPower = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                 const totalVotingPower  = firstVotingPower.totalVotingPower.toNumber() + secondVotingPower.totalVotingPower.toNumber()
 
 //                 console.log("PROPOSAL AFTER VOTES")

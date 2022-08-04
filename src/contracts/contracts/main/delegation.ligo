@@ -406,7 +406,7 @@ block {
             Some (_cycle)   -> _cycle
         |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle,satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
@@ -414,7 +414,7 @@ block {
 
     // Check if a snapshot needs to be created
     const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> _snapshot.cycle =/= currentCycle
+        Some (_snapshot)    -> False
     |   None                -> True
     ];
 

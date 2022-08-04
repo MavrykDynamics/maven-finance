@@ -338,10 +338,9 @@ block {
         totalDelegatedAmount    = satelliteRecord.totalDelegatedAmount;
         totalVotingPower        = totalVotingPower;
         ready                   = ready;
-        cycle                   = s.cycleCounter;
     ];
 
-    s.snapshotLedger[satelliteAddress]  := satelliteSnapshotRecord;
+    s.snapshotLedger[(s.cycleCounter,satelliteAddress)]  := satelliteSnapshotRecord;
 
 } with s
 
@@ -352,8 +351,8 @@ function checkSatelliteSnapshot (const satelliteAddress : address; var s : gover
 block {
 
     // Initialize a variable to create a snapshot or not
-    var createSatelliteSnapshot: bool   := case Big_map.find_opt(satelliteAddress, s.snapshotLedger) of [
-        Some (_snapshot)    -> if _snapshot.cycle =/= s.cycleCounter then True else if _snapshot.ready then False else (failwith(error_SNAPSHOT_NOT_READY): bool)
+    var createSatelliteSnapshot: bool   := case Big_map.find_opt((s.cycleCounter,satelliteAddress), s.snapshotLedger) of [
+        Some (_snapshot)    -> if _snapshot.ready then False else (failwith(error_SNAPSHOT_NOT_READY): bool)
     |   None                -> True
     ];
 
@@ -608,7 +607,8 @@ block {
     s.currentCycleInfo.roundStartLevel     := s.currentCycleInfo.roundEndLevel + 1n;
     s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.roundEndLevel + s.currentCycleInfo.blocksPerVotingRound;
 
-    s.timelockProposalId := 0n;                  // flush proposal id in timelock - reset to 0
+    // flush proposal id in timelock - reset to 0
+    s.timelockProposalId := 0n;
 
 } with (s)
 
@@ -722,8 +722,8 @@ block {
 
 
 (* View: get a satellite snapshot *)
-[@view] function getSnapshotOpt(const satelliteAddress : address; var s : governanceStorageType) : option(governanceSatelliteSnapshotRecordType) is
-    Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+[@view] function getSnapshotOpt(const cycleAndsatelliteAddress : (nat*address); var s : governanceStorageType) : option(governanceSatelliteSnapshotRecordType) is
+    Big_map.find_opt(cycleAndsatelliteAddress, s.snapshotLedger)
 
 
 

@@ -656,9 +656,10 @@
 //                     governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
 //                     governanceStorage               = await governanceInstance.storage();
 //                     delegationStorage               = await delegationInstance.storage();
-//                     const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get(alice.pkh);
-//                     const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get(eve.pkh);
-//                     const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get(bob.pkh);
+//                     var currentCycle                = governanceStorage.cycleCounter;
+//                     const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                     const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
+//                     const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                     const firstSatelliteRecord      = await delegationStorage.satelliteLedger.get(alice.pkh);
 //                     const secondSatelliteRecord     = await delegationStorage.satelliteLedger.get(eve.pkh);
 //                     const thirdSatelliteRecord      = await delegationStorage.satelliteLedger.get(bob.pkh);

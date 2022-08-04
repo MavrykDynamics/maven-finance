@@ -314,7 +314,7 @@ block {
 
             if Set.mem(developer, s.whitelistDevelopers) then 
                 
-                if Set.size(s.whitelistDevelopers) > 1n then 
+                if Set.cardinal(s.whitelistDevelopers) > 1n then 
                     s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
                 else failwith(error_NOT_ENOUGH_WHITELISTED_DEVELOPERS)
 
@@ -648,7 +648,7 @@ block {
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleCounter,Tezos.get_sender())] of [
                         None           -> failwith(error_SNAPSHOT_NOT_FOUND)
                     |   Some(snapshot) -> snapshot
                 ];
@@ -1191,7 +1191,7 @@ block {
 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleCounter,Tezos.get_sender())] of [
                         None           -> failwith(error_SNAPSHOT_NOT_FOUND)
                     |   Some(snapshot) -> snapshot
                 ];
@@ -1261,15 +1261,15 @@ block {
                     // Satellite has voted for other proposals
                     // -------------------------------------------
 
-                    // Check if satellite already voted for this proposal (double-counting check)
-                    case s.roundVotes[(s.cycleCounter, Tezos.get_sender())] of [
+                    // Check if satellite already voted for this proposal (double-counting check) and get the previous proposal ID
+                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleCounter, Tezos.get_sender())] of [
                             Some (_voteRound)   -> case _voteRound of [
-                                    Proposal (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else skip
+                                    Proposal (_proposalId)  -> if _proposalId = proposalId then failwith(error_VOTE_ALREADY_RECORDED) else _proposalId
                                 |   Voting (_voteType)      -> failwith(error_VOTE_NOT_FOUND)
                             ]
-                        |   None                -> failwith(error_VOTE_NOT_FOUND)
+                        |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
-                    
+
                     // Calculate proposal's new vote
                     const newProposalVoteStakedMvkTotal : nat = _proposal.proposalVoteStakedMvkTotal + satelliteSnapshot.totalVotingPower;
 
@@ -1280,15 +1280,6 @@ block {
                     // -------------------------------------------
                     // Recalculate votes for previous proposal voted on 
                     // -------------------------------------------
-
-                    // Get id of proposal that was previously voted on
-                    const previousVotedProposalId : nat = case s.roundVotes[(s.cycleCounter, Tezos.get_sender())] of [
-                            Some (_voteRound)   -> case _voteRound of [
-                                    Proposal (_proposalId)  -> _proposalId
-                                |   Voting (_voteType)      -> failwith(error_VOTE_NOT_FOUND)
-                            ]
-                        |   None                -> failwith(error_PROPOSAL_NOT_FOUND)
-                    ];
 
                     // Get previous proposal record
                     var _previousProposal : proposalRecordType := case s.proposalLedger[previousVotedProposalId] of [
@@ -1389,7 +1380,7 @@ block {
                 
                 // Check that satellite snapshot exists (taken when proposal round was started)
                 s   := checkSatelliteSnapshot(Tezos.get_sender(), s);
-                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[Tezos.get_sender()] of [
+                const satelliteSnapshot : governanceSatelliteSnapshotRecordType = case s.snapshotLedger[(s.cycleCounter,Tezos.get_sender())] of [
                         None           -> failwith(error_SNAPSHOT_NOT_FOUND)
                     |   Some(snapshot) -> snapshot
                 ];
@@ -1451,7 +1442,7 @@ block {
                             // Update proposal with new vote changes
                             s.proposalLedger[s.cycleHighestVotedProposalId] := _proposal;
                         }
-                    |   None            -> block {
+                    |   None                    -> block {
                             // -------------------------------------------
                             // Satellite has not voted - add new vote
                             // -------------------------------------------
