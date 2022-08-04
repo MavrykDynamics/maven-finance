@@ -80,33 +80,33 @@ export const harvest = (farmAddress: string) => async (dispatch: any, getState: 
   }
 
   try {
+    await dispatch({
+      type: HARVEST_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods.claim().send()
     console.log('transaction', transaction)
 
-    dispatch({
-      type: HARVEST_REQUEST,
-    })
-    dispatch(showToaster(INFO, 'Harvesting...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Harvesting...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: HARVEST_RESULT,
     })
 
     if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
 
-    dispatch(getFarmStorage())
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
+    await dispatch(getFarmStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
+    await dispatch(showToaster(ERROR, 'Error', error.message))
+    await dispatch({
       type: HARVEST_ERROR,
       error,
     })
@@ -133,33 +133,33 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
   }
 
   try {
+    await dispatch({
+      type: DEPOSIT_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods.deposit(amount * PRECISION_NUMBER).send()
     console.log('transaction', transaction)
 
-    dispatch({
-      type: DEPOSIT_REQUEST,
-    })
-    dispatch(showToaster(INFO, 'Depositing...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Depositing...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: DEPOSIT_RESULT,
     })
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
 
-    dispatch(getFarmStorage())
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
+    await dispatch(getFarmStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
+    await dispatch(showToaster(ERROR, 'Error', error.message))
+    await dispatch({
       type: DEPOSIT_ERROR,
       error,
     })

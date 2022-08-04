@@ -43,7 +43,6 @@ export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolea
 
   const handleFocus = (e: any) => {
     const value = e.target.value
-
     if (+value === 0) {
       setAmount('')
     }
@@ -107,7 +106,6 @@ export const FarmWithdrawModal = ({ loading, cancelCallback }: { loading: boolea
             text="Withdrawal"
             kind="actionSecondary"
             icon="out"
-            loading={loading}
             type="submit"
             disabled={disabled}
           />
