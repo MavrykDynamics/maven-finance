@@ -1,6 +1,8 @@
 export interface FarmStorage {
   accumulatedMvkPerShare: number
   address: string
+  lpTokenAddress: string
+  name: string
   blocksPerMinute: number
   claimPaused: boolean
   depositPaused: boolean

@@ -104,10 +104,11 @@ export const Farms = () => {
                   <FarmCard
                     variant={farmsViewVariant}
                     farmAddress={farm.address}
+                    name={farm.name}
+                    lpTokenAddress={farm.lpTokenAddress}
                     firstToken={'MVK'}
                     secondToken={'USDM'}
                     lpToken={'Plenty LP'}
-                    lpTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
                     firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
                     secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
                     totalLiquidity={1231243}

@@ -31,6 +31,7 @@ import {
 } from './FarmCard.style'
 
 type FarmCardProps = {
+  name: string
   farmAddress: string
   firstToken: string
   secondToken: string
@@ -51,29 +52,14 @@ export const FarmCard = ({
   lpTokenAddress,
   totalLiquidity,
   variant,
+  name,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const myFarmStakedBalance = 45645.8987
-  const [expanded, setExpanded] = useState(false)
-  const [accordionHeight, setAccordionHeight] = useState(0)
-  const ref = useRef(null)
-  const open = () => setExpanded(!expanded)
-  useEffect(() => {
-    // @ts-ignore
-    const getHeight = ref.current?.scrollHeight
-    setAccordionHeight(getHeight)
-  }, [expanded])
 
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
-  }
-  const depositLpTokens = (amount: number) => {
-    dispatch(deposit(farmAddress, amount))
-  }
-  const withdrawLpTokens = (amount: number) => {
-    dispatch(withdraw(farmAddress, amount))
   }
 
   const triggerDepositModal = async () => {
@@ -94,7 +80,8 @@ export const FarmCard = ({
       </FarmCardTokenLogoContainer>
       <div className="farm-card-section">
         <h3>
-          {firstToken}-{secondToken}
+          {/* {firstToken}-{secondToken} */}
+          {name}
         </h3>
         <p>{lpToken}</p>
       </div>
@@ -154,13 +141,13 @@ export const FarmCard = ({
 
   const linksBlock = (
     <div className="links-block">
-      <a href="">
+      <a target="_blank" rel="noreferrer" href="https://mavryk.finance/">
         Get MVK-tzBTC <Icon id="send" />
       </a>
-      <a href="">
+      <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${farmAddress}`}>
         View Contract <Icon id="send" />
       </a>
-      <a href="">
+      <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${lpTokenAddress}`}>
         See Pair Info <Icon id="send" />
       </a>
     </div>
@@ -195,12 +182,16 @@ export const FarmCard = ({
     </>
   )
 
+  const questionLinkBlock = (
+    <a className="info-link" href="https://mavryk.finance/litepaper#yield-farming" target="_blank" rel="noreferrer">
+      <Icon id="question" />
+    </a>
+  )
+
   if (variant === 'vertical') {
     return (
       <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion} ${variant}`}>
-        <a className="info-link" href={''} target="_blank" rel="noreferrer">
-          <Icon id="question" />
-        </a>
+        {questionLinkBlock}
         {logoHeaderContent}
         <div className="farm-info-vertical">
           {aprBlock}
@@ -220,10 +211,8 @@ export const FarmCard = ({
   }
 
   return (
-    <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion${expanded ? 'Show' : 'Hide'} ${variant}`}>
-      <a className="info-link" href={''} target="_blank" rel="noreferrer">
-        <Icon id="question" />
-      </a>
+    <FarmCardStyled key={lpTokenAddress} className={`contractCard  ${variant}`}>
+      {questionLinkBlock}
       <Expand
         header={
           <>
