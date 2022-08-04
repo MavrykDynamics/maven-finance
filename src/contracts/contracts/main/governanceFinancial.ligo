@@ -325,23 +325,23 @@ block {
 function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress : address; var operations : list(operation); const s : governanceFinancialStorageType): (nat * list(operation)) is 
 block{
 
-    // Get the snapshot from the governance contract
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
-    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
-            Some (_snapshotOpt) -> _snapshotOpt
-        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
-
     // Get the current cycle from the governance contract to check if the snapshot is up to date
     const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
     const currentCycle: nat = case cycleCounterView of [
             Some (_cycle)   -> _cycle
         |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];    
+    ];
+
+    // Get the snapshot from the governance contract
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle,satelliteAddress), s.governanceAddress);
+    const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
+            Some (_snapshotOpt) -> _snapshotOpt
+        |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
 
     // Check if a snapshot needs to be created
     const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> if _snapshot.cycle = currentCycle then False else True
+        Some (_snapshot)    -> False
     |   None                -> True
     ];
 
