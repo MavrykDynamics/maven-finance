@@ -1,31 +1,31 @@
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
+import DataFeedDetails from 'pages/DataFeeds/details/DataFeedsDetails.controler'
+import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
+import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
+import Satellites from 'pages/Satellites/Satellites.controller'
+import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
+import Users from 'pages/UsersOracles/Users.controller'
 import { useSelector } from 'react-redux'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { State } from 'reducers'
 
-// pages
-import ProtectedRoute from './ProtectedRoute'
-import { Doorman } from '../../../pages/Doorman/Doorman.controller'
-import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
+import { Admin } from '../../../pages/Admin/Admin.controller'
 import { BecomeSatellite } from '../../../pages/BecomeSatellite/BecomeSatellite.controller'
+import { BreakGlass } from '../../../pages/BreakGlass/BreakGlass.controller'
+import { Council } from '../../../pages/Council/Council.controller'
+import { Dashboard } from '../../../pages/Dashboard/Dashboard.controller'
+import { Doorman } from '../../../pages/Doorman/Doorman.controller'
+import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
+import { Farms } from '../../../pages/Farms/Farms.controller'
+import { Governance } from '../../../pages/Governance/Governance.controller'
+import { Loans } from '../../../pages/Loans/Loans.controller'
+import { ProposalSubmission } from '../../../pages/ProposalSubmission/ProposalSubmission.controller'
 import { SatelliteDetails } from '../../../pages/SatelliteDetails/SatelliteDetails.controller'
 import { SatelliteGovernance } from '../../../pages/SatelliteGovernance/SatelliteGovernance.controller'
-import { Governance } from '../../../pages/Governance/Governance.controller'
-import { BreakGlass } from '../../../pages/BreakGlass/BreakGlass.controller'
-import { ProposalSubmission } from '../../../pages/ProposalSubmission/ProposalSubmission.controller'
 import { Treasury } from '../../../pages/Treasury/Treasury.controller'
-import { Loans } from '../../../pages/Loans/Loans.controller'
-import { Farms } from '../../../pages/Farms/Farms.controller'
 import { Vaults } from '../../../pages/Vaults/Vaults.controller'
-import { Admin } from '../../../pages/Admin/Admin.controller'
-import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
-import { Council } from '../../../pages/Council/Council.controller'
-import { FinancialRequests } from 'pages/FinacialRequests/FinancialRequests.controller'
-import { DataFeeds } from 'pages/DataFeeds/DataFeeds.controller'
-import Satellites from 'pages/Satellites/Satellites.controller'
-import SatelliteNodes from 'pages/SatelliteNodes/SatelliteNodes.controller'
-import DataFeedDetails from 'pages/DataFeeds/details/DataFeedsDetails.controler'
-import Users from 'pages/UsersOracles/Users.controller'
-import UserDetails from 'pages/UsersOracles/details/UsersDetails.controler'
+// pages
+import ProtectedRoute from './ProtectedRoute'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -55,10 +55,10 @@ export const AppRoutes = () => {
       <Route exact path="/become-satellite">
         <BecomeSatellite />
       </Route>
-      <Route exact path="/satellite-details/:satelliteId/">
+      <Route exact path="/satellites/satellite-details/:satelliteId/">
         <SatelliteDetails />
       </Route>
-      <Route exact path="/feed-details/:feedId/">
+      <Route exact path="/satellites/feed-details/:feedId/">
         <DataFeedDetails />
       </Route>
       <Route exact path="/governance">
@@ -85,7 +85,7 @@ export const AppRoutes = () => {
       <Route exact path="/users">
         <Users />
       </Route>
-      <Route exact path="/user-details/:userId/">
+      <Route exact path="/satellites/user-details/:userId/">
         <UserDetails />
       </Route>
       <ProtectedRoute

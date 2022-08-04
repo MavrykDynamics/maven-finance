@@ -126,7 +126,7 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
     margin-left: 42px;
 
     > div {
-      width: 50px;
+      width: 15px;
       height: 50px;
       margin-right: 4px;
       flex-shrink: 0;

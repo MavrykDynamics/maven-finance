@@ -29,13 +29,13 @@ const UsersPagination = () => {
         Back to users
       </Link>
       {prevFeed ? (
-        <Link className="pagination-link prev" to={`/user-details/${prevFeed.id}`}>
+        <Link className="pagination-link prev" to={`/satellites/user-details/${prevFeed.id}`}>
           <Icon id="arrow-obtuse-angle" />
           Previous user
         </Link>
       ) : null}
       {nextFeed ? (
-        <Link className="pagination-link next" to={`/user-details/${nextFeed.id}`}>
+        <Link className="pagination-link next" to={`/satellites/user-details/${nextFeed.id}`}>
           Next user
           <Icon id="arrow-obtuse-angle" />
         </Link>

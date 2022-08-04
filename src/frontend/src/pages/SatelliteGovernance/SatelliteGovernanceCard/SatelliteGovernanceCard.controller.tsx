@@ -1,22 +1,20 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 
+import { Button } from '../../../app/App.components/Button/Button.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
-import { Button } from '../../../app/App.components/Button/Button.controller'
-
 import { getSeparateSnakeCase } from '../../../utils/parse'
-
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
+import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
 // action
 import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
-
 import {
   SatelliteGovernanceArrowButton,
   SatelliteGovernanceCardDropDown,
@@ -24,7 +22,6 @@ import {
   SatelliteGovernanceCardTitleTextGroup,
   SatelliteGovernanceCardTopSection,
 } from './SatelliteGovernanceCard.style'
-import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 
 type Props = {
   satelliteId: string
@@ -142,7 +139,7 @@ export const SatelliteGovernanceCard = ({
             <h3>Purpose</h3>
             <p className="purpose">{purpose}</p>
             {linkAddress ? (
-              <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
+              <Link className={'view-satellite'} to={`/satellite/satellite-details/${linkAddress}`}>
                 View Satellite
               </Link>
             ) : null}
