@@ -9,7 +9,9 @@ import {
   WITHDRAW_ERROR,
   WITHDRAW_REQUEST,
   WITHDRAW_RESULT,
+  SELECT_FARM_ADDRESS,
 } from '../pages/Farms/Farms.actions'
+import { HIDE_MODAL } from '../app/App.components/Modal/Modal.actions'
 import { FarmStorage } from '../utils/TypesAndInterfaces/Farm'
 import { getItemFromStorage } from '../utils/storage'
 import { UNSTAKE } from './doorman'
@@ -19,6 +21,7 @@ export interface FarmState {
   farmStorage: FarmStorage[] | any
   amount?: number
   error?: undefined
+  selectedFarmAddress?: string
 }
 export const HARVEST = 'HARVEST',
   DEPOSIT = 'DEPOSIT',
@@ -27,6 +30,7 @@ const defaultFarmStorage: FarmStorage[] = []
 const farmDefaultState: FarmState = {
   farmStorage: getItemFromStorage('FarmStorage') || defaultFarmStorage,
   amount: 0,
+  selectedFarmAddress: '',
 }
 
 export function farm(state = farmDefaultState, action: any): FarmState {
@@ -88,6 +92,16 @@ export function farm(state = farmDefaultState, action: any): FarmState {
         type: WITHDRAW,
         amount: 0,
         error: action.error,
+      }
+    case SELECT_FARM_ADDRESS:
+      return {
+        ...state,
+        selectedFarmAddress: action.selectedFarmAddress,
+      }
+    case HIDE_MODAL:
+      return {
+        ...state,
+        selectedFarmAddress: farmDefaultState.selectedFarmAddress,
       }
     default:
       return state

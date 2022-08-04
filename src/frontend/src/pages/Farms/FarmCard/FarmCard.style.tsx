@@ -286,7 +286,7 @@ export const FarmTitleSection = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.primaryColor};
   }
 `
-export const FarmInputSection = styled.div`
+export const FarmInputSection = styled.form`
   width: 300px;
   flex: 1;
   display: flex;
