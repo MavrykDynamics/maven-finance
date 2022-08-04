@@ -14,6 +14,7 @@ module.exports = {
   // confirmTimeout: 1800000,
 
   buildDir: "build",
+  michelsonBuildDir : "contracts/compiled",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",
   ligoVersion: "0.46.1",
