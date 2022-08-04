@@ -21,6 +21,9 @@ import Icon from '../../../app/App.components/Icon/Icon.view'
 import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
+// helpers
+import { calculateAPR } from '../Frams.helpers'
+
 // styles
 import {
   FarmCardFirstTokenIcon,
@@ -37,6 +40,8 @@ type FarmCardProps = {
   secondToken: string
   lpToken: string
   lpTokenAddress: string
+  lpTokenBalance: number
+  currentRewardPerBlock: number
   firstTokenAddress: string
   secondTokenAddress: string
   variant: FarmsViewVariantType
@@ -53,10 +58,15 @@ export const FarmCard = ({
   totalLiquidity,
   variant,
   name,
+  lpTokenBalance,
+  currentRewardPerBlock,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const myFarmStakedBalance = 45645.8987
+  const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
+
+  console.log('%c ||||| valueAPR', 'color:yellowgreen', valueAPR)
 
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
@@ -98,7 +108,7 @@ export const FarmCard = ({
   const aprBlock = (
     <div className="farm-info">
       <h3>APR</h3>
-      <var>15.4%</var>
+      <var>{valueAPR}</var>
     </div>
   )
 

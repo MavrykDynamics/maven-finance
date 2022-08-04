@@ -4,6 +4,8 @@ export interface FarmStorage {
   lpTokenAddress: string
   name: string
   blocksPerMinute: number
+  lpTokenBalance: number
+  currentRewardPerBlock: number
   claimPaused: boolean
   depositPaused: boolean
   farmFactoryId: null

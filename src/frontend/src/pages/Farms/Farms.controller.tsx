@@ -106,6 +106,8 @@ export const Farms = () => {
                     farmAddress={farm.address}
                     name={farm.name}
                     lpTokenAddress={farm.lpTokenAddress}
+                    lpTokenBalance={farm.lpTokenBalance}
+                    currentRewardPerBlock={farm.currentRewardPerBlock}
                     firstToken={'MVK'}
                     secondToken={'USDM'}
                     lpToken={'Plenty LP'}

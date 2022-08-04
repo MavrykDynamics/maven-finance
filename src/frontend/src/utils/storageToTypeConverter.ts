@@ -341,6 +341,8 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
       claimPaused: farmItem.claim_paused,
       depositPaused: farmItem.deposit_paused,
       blocksPerMinute: farmItem.blocks_per_minute,
+      lpTokenBalance: farmItem.lp_token_balance,
+      currentRewardPerBlock: farmItem.current_reward_per_block,
       farmFactoryId: farmItem.farm_factory_id,
       infinite: farmItem.infinite,
       initBlock: farmItem.init_block,
