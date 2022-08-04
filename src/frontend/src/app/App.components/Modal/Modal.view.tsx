@@ -13,6 +13,7 @@ type ModalViewProps = {
 }
 
 export const ModalView = ({ kind, loading, showing, cancelCallback }: ModalViewProps) => {
+  console.log('%c ||||| showing', 'color:yellowgreen', showing)
   return (
     <ModalStyled showing={showing}>
       {showing && (

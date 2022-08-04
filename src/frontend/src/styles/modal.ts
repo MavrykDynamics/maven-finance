@@ -53,6 +53,14 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
     margin: 0;
     margin-bottom: 21px;
   }
+
+  &.farm-modal {
+    width: 420px;
+    height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 `
 
 export const ModalClose = styled.div<{ theme: MavrykTheme }>`

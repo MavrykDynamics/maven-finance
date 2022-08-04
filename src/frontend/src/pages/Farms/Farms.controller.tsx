@@ -8,6 +8,7 @@ import { Page } from 'styles'
 import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { FarmCard } from './FarmCard/FarmCard.controller'
+import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
 // styles
 import { FarmsStyled } from './Farms.style'
@@ -119,6 +120,7 @@ export const Farms = () => {
           <EmptyContainer />
         )}
       </FarmsStyled>
+      <Modal />
     </Page>
   )
 }

@@ -16,7 +16,7 @@ import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber
 import { deposit, harvest, withdraw } from '../Farms.actions'
 import { ButtonIcon } from '../../../app/App.components/Button/Button.style'
 import { showModal } from '../../../app/App.components/Modal/Modal.actions'
-import { Modal } from '../../../app/App.components/Modal/Modal.controller'
+
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 
