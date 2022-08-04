@@ -334,6 +334,8 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
   storage?.forEach((farmItem: any) => {
     const newFarm: FarmStorage = {
       address: farmItem.address,
+      name: farmItem.name,
+      lpTokenAddress: farmItem.lp_token_address,
       open: farmItem.open,
       withdrawPaused: farmItem.withdraw_paused,
       claimPaused: farmItem.claim_paused,
