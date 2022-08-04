@@ -244,44 +244,27 @@ block {
 
 
 
-// helper function to reset the number of actions created by satellites bases on the current governance cycle
-function updateGovernanceCycleLimitation(var s: governanceSatelliteStorageType): governanceSatelliteStorageType is
+// helper function to get a satellite total voting power from its snapshot on the governance contract
+function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
 block{
 
-    // Get the current cycle from the governance contract to check if the snapshot is up to date
+    // Get the governance cycle counter
     const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
     const currentCycle: nat = case cycleCounterView of [
             Some (_cycle)   -> _cycle
         |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
-    // Check if the cycle is different and empty the storage map if it is
-    if s.governanceCycleSnapshot =/= currentCycle then {
-        s.governanceCycleSnapshot        := currentCycle;
-        s.cycleActionsInitiators := (big_map []: actionsInitiatorsType);
-    } else skip;
-    
-} with(s)
-
-
-
-// helper function to get a satellite total voting power from its snapshot on the governance contract
-function getTotalVotingPowerAndUpdateSnapshot(const satelliteAddress: address; var operations : list(operation); const s: governanceSatelliteStorageType): (nat * list(operation)) is 
-block{
-
     // Get the snapshot from the governance contract
-    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", satelliteAddress, s.governanceAddress);
+    const snapshotOptView : option (option(governanceSatelliteSnapshotRecordType)) = Tezos.call_view ("getSnapshotOpt", (currentCycle,satelliteAddress), s.governanceAddress);
     const satelliteSnapshotOpt: option(governanceSatelliteSnapshotRecordType) = case snapshotOptView of [
             Some (_snapshotOpt) -> _snapshotOpt
         |   None                -> failwith (error_GET_SNAPSHOT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];
 
-    // Check if the snapshot is up to date with the saved cycle
-    const currentCycle: nat = s.governanceCycleSnapshot;
-
     // Check if a snapshot needs to be created
     const createSatelliteSnapshot: bool = case satelliteSnapshotOpt of [
-        Some (_snapshot)    -> if _snapshot.cycle = currentCycle then False else True
+        Some (_snapshot)    -> False
     |   None                -> True
     ];
 
@@ -365,15 +348,13 @@ block {
     // Get / Check Satellite Records
     // ------------------------------------------------------------------
 
-    // Refresh the governance cycle 
-    s   := updateGovernanceCycleLimitation(s);
-
     // Check if the satellite created too much actions this cycle
-    const createdActionsAmount: nat =   case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-            Some (_actionsIds)   -> Set.size(_actionsIds)
-        |   None                -> 0n
+    var initiatorActions : set(actionIdType)    := case Big_map.find_opt(Tezos.get_sender(), s.actionsInitiators) of [
+            Some (_actionsIds)  -> _actionsIds
+        |   None                -> set []
     ];
-    if createdActionsAmount > s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
+    const createdActionsAmount: nat =   Set.cardinal(initiatorActions);
+    if createdActionsAmount >= s.config.maxActionsPerSatellite then failwith(error_MAX_GOVERNANCE_SATELLITE_ACTION_REACHED) else skip;
 
     // Get satellite record for initiator
     const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.get_sender(), delegationAddress);
@@ -440,16 +421,12 @@ block {
     // Get current action counter
     const actionId : nat = s.governanceSatelliteCounter;
 
-    // Save the action id for this satellite
-    var createdActions: set(actionIdType)   := case Big_map.find_opt(Tezos.get_sender(), s.cycleActionsInitiators) of [
-            Some (_actionsIds)  -> _actionsIds
-        |   None                -> set []
-    ];
-    createdActions                  := Set.add(actionId, createdActions);
-    s.cycleActionsInitiators := Big_map.update(Tezos.get_sender(), Some (createdActions), s.cycleActionsInitiators);
-
     // Save action to governance satellite action ledger
     s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
+
+    // Add the new action to the satellite's set
+    initiatorActions                            := Set.add(actionId, initiatorActions);
+    s.actionsInitiators[Tezos.get_sender()]     := initiatorActions;
 
     // Increment governance satellite action counter
     s.governanceSatelliteCounter := actionId + 1n;
@@ -879,6 +856,15 @@ block {
     actionRecord.executed                       := True;
     s.governanceSatelliteActionLedger[actionId] := actionRecord;
 
+    // Remove the executed action from the satellite's set
+    const initiator : address                   = actionRecord.initiator;
+    var initiatorActions : set(actionIdType)    := case Big_map.find_opt(initiator, s.actionsInitiators) of [
+            Some (_actionsIds)  -> _actionsIds
+        |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
+    ];
+    initiatorActions                := Set.remove(actionId, initiatorActions);
+    s.actionsInitiators[initiator]  := initiatorActions;
+
 } with (operations, s)
 
 // ------------------------------------------------------------------------------
@@ -968,15 +954,9 @@ block {
 
 
 
-(* View: get cycle action initiator *)
-[@view] function getCycleActionsInitiatorOpt(const initiator : address; var s : governanceSatelliteStorageType) : option(set(actionIdType)) is
-    Big_map.find_opt(initiator, s.cycleActionsInitiators)
-
-
-
-(* View: get governance cycle snapshot *)
-[@view] function getGovernanceCycleSnapshot(const _ : unit; var s : governanceSatelliteStorageType) : nat is
-    s.governanceCycleSnapshot
+(* View: get action action initiator *)
+[@view] function getActionsInitiatorOpt(const initiator : address; var s : governanceSatelliteStorageType) : option(set(actionIdType)) is
+    Big_map.find_opt(initiator, s.actionsInitiators)
 
 
 

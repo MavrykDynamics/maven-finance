@@ -329,6 +329,12 @@
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
+//                 // mid values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+
 //                 // Restart the cycle
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -338,8 +344,6 @@
 
 //                 // Final values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get(bob.pkh);
-//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get(alice.pkh);
 //                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
@@ -444,6 +448,12 @@
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
+//                 // mid values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+
 //                 // Restart the cycle
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -453,8 +463,6 @@
 
 //                 // Final values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get(bob.pkh);
-//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get(alice.pkh);
 //                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
@@ -555,6 +563,12 @@
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
+//                 // mid values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+
 //                 // Restart the cycle
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -564,8 +578,6 @@
 
 //                 // Final values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get(bob.pkh);
-//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get(alice.pkh);
 //                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
@@ -668,6 +680,12 @@
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
+//                 // mid values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+
 //                 // Restart the cycle
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -677,8 +695,6 @@
 
 //                 // Final values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get(bob.pkh);
-//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get(alice.pkh);
 //                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
@@ -783,6 +799,12 @@
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
+//                 // mid values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+
 //                 // Restart the cycle
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -792,8 +814,6 @@
 
 //                 // Final values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get(bob.pkh);
-//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get(alice.pkh);
 //                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;
@@ -898,6 +918,12 @@
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
+//                 // mid values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+
 //                 // Restart the cycle
 //                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
@@ -907,8 +933,6 @@
 
 //                 // Final values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get(bob.pkh);
-//                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get(alice.pkh);
 //                 const firstSatelliteVotingPower     = firstSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const secondSatelliteVotingPower    = secondSatelliteSnapshot.totalVotingPower.toNumber();
 //                 const totalSatelliteVotingPower     = firstSatelliteVotingPower + secondSatelliteVotingPower;

@@ -120,9 +120,8 @@ type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
     totalVotingPower          : nat;      // log calculated total voting power
     ready                     : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
-    cycle                     : nat;      // log of the cycle where the snapshot was taken
 ]
-type snapshotLedgerType is big_map (address, governanceSatelliteSnapshotRecordType);
+type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleCounter*satelliteAddress    -> snapshot)
 
 
 // --------------------------------------------------
@@ -288,7 +287,7 @@ type governanceStorageType is [@layout:comb] record [
 
     cycleProposals                    : map(actionIdType, nat);                 // proposal ids in the current cycle, proposal vote smvk total
     cycleProposers                    : big_map((nat*address), set(nat));       // cycleCounter*proposer --> set of actionIds
-    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (cycleCounter*satelliteAddress, proposal id) | voting round: (cycleCounter*satelliteAddress, voteType)
+    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (proposal id*satelliteAddress) | voting round: (cycleCounter*satelliteAddress, voteType)
 
     nextProposalId                    : nat;                        // counter of next proposal id
     cycleCounter                      : nat;                        // counter of current cycle 

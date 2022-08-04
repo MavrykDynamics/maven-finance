@@ -570,9 +570,6 @@ block {
                 const aggregatorAddress    : address          = registerAggregatorParams.aggregatorAddress;
                 const aggregatorPair       : string * string  = registerAggregatorParams.aggregatorPair;
 
-                // update the stored governance cycle
-                s   := updateGovernanceCycleLimitation(s);
-
                 // Check if Aggregator record already exists in storage ledger
                 case s.aggregatorLedger[aggregatorAddress] of [
                         Some(_v) -> failwith(error_AGGREGATOR_CONTRACT_EXISTS)
@@ -749,9 +746,6 @@ block {
                 // init params
                 const dropActionId     : nat     = dropActionParams.dropActionId;
 
-                // update the stored governance cycle
-                s   := updateGovernanceCycleLimitation(s);
-
                 // Get Delegation Contract address from the General Contracts Map on the Governance Contract
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
@@ -772,7 +766,8 @@ block {
                 ];
 
                 // Check that sender is the initiator of the governance satellite action
-                if Tezos.get_sender() =/= governanceSatelliteActionRecord.initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
+                const initiator : address   = governanceSatelliteActionRecord.initiator;
+                if Tezos.get_sender() =/= initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
 
                 // Check if the action can still be interacted with
                 validateAction(governanceSatelliteActionRecord);
@@ -782,6 +777,14 @@ block {
 
                 // Update storage - action ledger
                 s.governanceSatelliteActionLedger[dropActionId] := governanceSatelliteActionRecord;
+
+                // Remove the dropped action from the satellite's set
+                var initiatorActions : set(actionIdType)    := case Big_map.find_opt(initiator, s.actionsInitiators) of [
+                        Some (_actionsIds)  -> _actionsIds
+                    |   None                -> failwith(error_INITIATOR_ACTIONS_NOT_FOUND)
+                ];
+                initiatorActions                := Set.remove(dropActionId, initiatorActions);
+                s.actionsInitiators[initiator]  := initiatorActions;
 
             }
         |   _ -> skip
@@ -820,9 +823,6 @@ block {
 
                 // init params
                 const actionId : nat = voteForAction.actionId;
-
-                // update the stored governance cycle
-                s   := updateGovernanceCycleLimitation(s);
                 
                 // Get Delegation Contract address from the General Contracts Map on the Governance Contract
                 const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);

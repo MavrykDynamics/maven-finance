@@ -222,8 +222,7 @@ type governanceSatelliteStorageType is record [
     governanceSatelliteVoters               : big_map((actionIdType*address), voteType);
 
     // spam check
-    cycleActionsInitiators                  : actionsInitiatorsType;
-    governanceCycleSnapshot                 : nat;
+    actionsInitiators                       : actionsInitiatorsType;
 
     // satellite oracles and aggregators
     satelliteOracleLedger                   : satelliteOracleLedgerType;
