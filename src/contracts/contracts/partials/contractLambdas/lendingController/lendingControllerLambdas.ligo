@@ -66,6 +66,35 @@ block {
 
 
 
+(* updateConfig lambda *)
+function lambdaUpdateConfig(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin 
+
+    case lendingControllerLambdaAction of [
+        |   LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : lendingControllerUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : lendingControllerUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+                case updateConfigAction of [
+                        ConfigCollateralRatio (_v)          -> s.config.collateralRatio                 := updateConfigNewValue
+                    |   ConfigLiquidationRatio (_v)         -> s.config.liquidationRatio                := updateConfigNewValue
+                    |   ConfigLiquidationFee (_v)           -> s.config.liquidationFee                  := updateConfigNewValue
+                    |   ConfigAdminLiquidationFee (_v)      -> s.config.adminLiquidationFee             := updateConfigNewValue
+                    |   ConfigMinimumLoanFee (_v)           -> s.config.minimumLoanFee                  := updateConfigNewValue
+                    |   ConfigMinLoanFeeTreasuryShare (_v)  -> s.config.minimumLoanFeeTreasuryShare     := updateConfigNewValue
+                    |   ConfiginterestTreasuryShare (_v)    -> s.config.interestTreasuryShare           := updateConfigNewValue
+                ];
+            }
+        |   _ -> skip
+    ];
+  
+} with (noOperations, s)
+
+
+
 (* updateWhitelistContracts lambda *)
 function lambdaUpdateWhitelistContracts(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
@@ -118,7 +147,7 @@ block {
 
 
 (* updateCollateralTokenLedger lambda *)
-function lambdaUpdateCollateralTokenLedger(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
+function lambdaUpdateCollateralTokens(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin 
@@ -743,173 +772,6 @@ block {
 
 
 
-(* withdrawFromVault lambda *)
-function lambdaWithdrawFromVault(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-    
-    var operations               : list(operation)  := nil;
-
-    case lendingControllerLambdaAction of [
-        |   LambdaWithdrawFromVault(withdrawFromVaultParams) -> {
-                
-                // init variables for convenience
-                const vaultId                : vaultIdType       = withdrawFromVaultParams.id; 
-                const withdrawTokenAmount    : nat               = withdrawFromVaultParams.tokenAmount;
-                const tokenName              : string            = withdrawFromVaultParams.tokenName;
-                // const recipient              : contract(unit)    = withdrawFromVaultParams.to_;
-                const recipient              : address           = Tezos.get_sender();
-                const initiator              : vaultOwnerType    = Tezos.get_sender();
-
-                // make vault handle
-                const vaultHandle : vaultHandleType = record [
-                    id     = vaultId;
-                    owner  = initiator;
-                ];
-
-                // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
-
-                // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
-                if tokenName = "tez" then block {
-                    if mutezToNatural(Tezos.get_amount()) =/= withdrawTokenAmount then failwith("Error. Tezos amount and withdraw token amount do not match.") else skip;
-                } else skip;
-
-                // get token collateral balance in vault, fail if none found
-                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
-                        Some(_balance) -> _balance
-                    |   None -> failwith("Error. You do not have any tokens to withdraw.")
-                ];
-
-                // calculate new vault balance
-                if withdrawTokenAmount > vaultTokenCollateralBalance then failwith("Error. Token withdrawal amount cannot be greater than your collateral balance.") else skip;
-                const newCollateralBalance : nat  = abs(vaultTokenCollateralBalance - withdrawTokenAmount);
-
-                // check if vault is undercollaterized, if not then send withdraw operation
-                if isUnderCollaterized(vault, s) 
-                then failwith("Error. Withdrawal is not allowed as vault is undercollaterized.") 
-                else skip;
-                
-                // get collateral token record - with token contract address and token type
-                const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                        Some(_collateralTokenRecord) -> _collateralTokenRecord
-                    |   None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
-                ];
-
-                // pattern match withdraw operation based on token type
-                const withdrawOperation : operation = case collateralTokenRecord.tokenType of [
-                    
-                        Tez(_tez) -> block {
-                            
-                            const withdrawTezOperationParams : vaultWithdrawType = record [
-                                to_      = recipient; 
-                                amount   = withdrawTokenAmount;
-                                token    = Tez(_tez);
-                            ];
-
-                            const withdrawTezOperation : operation = Tezos.transaction(
-                                withdrawTezOperationParams,
-                                0mutez,
-                                getVaultWithdrawEntrypoint(vault.address)
-                            );
-
-                        } with withdrawTezOperation
-
-                    |   Fa12(_token) -> block {
-
-                            const withdrawFa12OperationParams : vaultWithdrawType = record [
-                                to_      = recipient; 
-                                amount   = withdrawTokenAmount;
-                                token    = Fa12(_token);
-                            ];
-
-                            const withdrawFa12Operation : operation = Tezos.transaction(
-                                withdrawFa12OperationParams,
-                                0mutez,
-                                getVaultWithdrawEntrypoint(vault.address)
-                            );
-
-                        } with withdrawFa12Operation
-
-                    |   Fa2(_token) -> block {
-
-                            const withdrawFa2OperationParams : vaultWithdrawType = record [
-                                to_      = recipient; 
-                                amount   = withdrawTokenAmount;
-                                token    = Fa2(_token);
-                            ];
-
-                            const withdrawFa2Operation : operation = Tezos.transaction(
-                                withdrawFa2OperationParams,
-                                0mutez,
-                                getVaultWithdrawEntrypoint(vault.address)
-                            );
-
-                        } with withdrawFa2Operation
-
-                    ];
-
-                operations := withdrawOperation # operations;
-
-                // save and update new balance for collateral token
-                vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-                
-            }
-        |   _ -> skip
-    ];
-
-} with (operations, s)
-
-
-
-(* registerDeposit lambda *)
-function lambdaRegisterDeposit(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
-block {
-    
-
-    case lendingControllerLambdaAction of [
-        |   LambdaRegisterDeposit(registerDepositParams) -> {
-                
-                // init variables for convenience
-                const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
-                const depositAmount   : nat               = registerDepositParams.amount;
-                const tokenName       : string            = registerDepositParams.tokenName;
-
-                const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
-
-                // check if token exists in collateral token ledger
-                const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                        Some(_record) -> _record
-                    |   None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
-                ];
-
-                // get vault
-                var vault : vaultRecordType := getVault(vaultHandle, s);
-
-                // check if sender matches vault owner; if match, then update and save vault with new collateral balance
-                if vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
-                
-                // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
-                        Some(_balance) -> _balance
-                    |   None -> 0n
-                ];
-
-                // calculate new collateral balance
-                const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
-
-                // save and update new balance for collateral token
-                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
-                s.vaults[vaultHandle]                     := vault;
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
-
-
 (* liquidateVault lambda *)
 function lambdaLiquidateVault(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
@@ -1139,11 +1001,178 @@ block {
 
 
 
+(* withdrawFromVault lambda *)
+function lambdaWithdrawFromVault(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+    var operations               : list(operation)  := nil;
+
+    case lendingControllerLambdaAction of [
+        |   LambdaWithdrawFromVault(withdrawFromVaultParams) -> {
+                
+                // init variables for convenience
+                const vaultId                : vaultIdType       = withdrawFromVaultParams.id; 
+                const withdrawTokenAmount    : nat               = withdrawFromVaultParams.tokenAmount;
+                const tokenName              : string            = withdrawFromVaultParams.tokenName;
+                // const recipient              : contract(unit)    = withdrawFromVaultParams.to_;
+                const recipient              : address           = Tezos.get_sender();
+                const initiator              : vaultOwnerType    = Tezos.get_sender();
+
+                // make vault handle
+                const vaultHandle : vaultHandleType = record [
+                    id     = vaultId;
+                    owner  = initiator;
+                ];
+
+                // get vault
+                var vault : vaultRecordType := getVault(vaultHandle, s);
+
+                // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
+                if tokenName = "tez" then block {
+                    if mutezToNatural(Tezos.get_amount()) =/= withdrawTokenAmount then failwith("Error. Tezos amount and withdraw token amount do not match.") else skip;
+                } else skip;
+
+                // get token collateral balance in vault, fail if none found
+                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
+                        Some(_balance) -> _balance
+                    |   None -> failwith("Error. You do not have any tokens to withdraw.")
+                ];
+
+                // calculate new vault balance
+                if withdrawTokenAmount > vaultTokenCollateralBalance then failwith("Error. Token withdrawal amount cannot be greater than your collateral balance.") else skip;
+                const newCollateralBalance : nat  = abs(vaultTokenCollateralBalance - withdrawTokenAmount);
+
+                // check if vault is undercollaterized, if not then send withdraw operation
+                if isUnderCollaterized(vault, s) 
+                then failwith("Error. Withdrawal is not allowed as vault is undercollaterized.") 
+                else skip;
+                
+                // get collateral token record - with token contract address and token type
+                const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                        Some(_collateralTokenRecord) -> _collateralTokenRecord
+                    |   None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+                ];
+
+                // pattern match withdraw operation based on token type
+                const withdrawOperation : operation = case collateralTokenRecord.tokenType of [
+                    
+                        Tez(_tez) -> block {
+                            
+                            const withdrawTezOperationParams : vaultWithdrawType = record [
+                                to_      = recipient; 
+                                amount   = withdrawTokenAmount;
+                                token    = Tez(_tez);
+                            ];
+
+                            const withdrawTezOperation : operation = Tezos.transaction(
+                                withdrawTezOperationParams,
+                                0mutez,
+                                getVaultWithdrawEntrypoint(vault.address)
+                            );
+
+                        } with withdrawTezOperation
+
+                    |   Fa12(_token) -> block {
+
+                            const withdrawFa12OperationParams : vaultWithdrawType = record [
+                                to_      = recipient; 
+                                amount   = withdrawTokenAmount;
+                                token    = Fa12(_token);
+                            ];
+
+                            const withdrawFa12Operation : operation = Tezos.transaction(
+                                withdrawFa12OperationParams,
+                                0mutez,
+                                getVaultWithdrawEntrypoint(vault.address)
+                            );
+
+                        } with withdrawFa12Operation
+
+                    |   Fa2(_token) -> block {
+
+                            const withdrawFa2OperationParams : vaultWithdrawType = record [
+                                to_      = recipient; 
+                                amount   = withdrawTokenAmount;
+                                token    = Fa2(_token);
+                            ];
+
+                            const withdrawFa2Operation : operation = Tezos.transaction(
+                                withdrawFa2OperationParams,
+                                0mutez,
+                                getVaultWithdrawEntrypoint(vault.address)
+                            );
+
+                        } with withdrawFa2Operation
+
+                    ];
+
+                operations := withdrawOperation # operations;
+
+                // save and update new balance for collateral token
+                vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
+                s.vaults[vaultHandle]                     := vault;
+                
+            }
+        |   _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* registerDeposit lambda *)
+function lambdaRegisterDeposit(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+
+    case lendingControllerLambdaAction of [
+        |   LambdaRegisterDeposit(registerDepositParams) -> {
+                
+                // init variables for convenience
+                const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
+                const depositAmount   : nat               = registerDepositParams.amount;
+                const tokenName       : string            = registerDepositParams.tokenName;
+
+                const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
+
+                // check if token exists in collateral token ledger
+                const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                        Some(_record) -> _record
+                    |   None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+                ];
+
+                // get vault
+                var vault : vaultRecordType := getVault(vaultHandle, s);
+
+                // check if sender matches vault owner; if match, then update and save vault with new collateral balance
+                if vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
+                
+                // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
+                var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
+                        Some(_balance) -> _balance
+                    |   None -> 0n
+                ];
+
+                // calculate new collateral balance
+                const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
+
+                // save and update new balance for collateral token
+                vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+                s.vaults[vaultHandle]                     := vault;
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (* borrow lambda *)
 function lambdaBorrow(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    var operations          : list(operation)        := nil;
+    var operations : list(operation)        := nil;
 
     case lendingControllerLambdaAction of [
         |   LambdaBorrow(borrowParams) -> {
@@ -1362,13 +1391,11 @@ block {
 
 
 
-
-
 (* repay lambda *)
 function lambdaRepay(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
     
-    var operations          : list(operation)        := nil;
+    var operations : list(operation)        := nil;
 
     case lendingControllerLambdaAction of [
         |   LambdaRepay(repayParams) -> {

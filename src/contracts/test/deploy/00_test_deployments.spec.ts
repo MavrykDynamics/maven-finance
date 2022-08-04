@@ -404,6 +404,10 @@ describe('Contracts Deployment for Tests', async () => {
       lendingControllerStorage.governanceAddress   = governance.contract.address
       lendingController = await LendingController.originate(utils.tezos,lendingControllerStorage);
 
+      await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
+      console.log('Lending Controller Contract deployed at:', lendingController.contract.address)
+
+
       // usdmToken = await UsdmToken.originate(
       //   utils.tezos,
       //   usdmTokenStorage

@@ -1135,3 +1135,70 @@ error_GET_TOKEN_SALE_RECORD_OPT_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOU
 error_GET_TOKEN_SALE_HAS_STARTED_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 814
 error_GET_WHITELIST_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                     = 815
 error_GET_OVERALL_AMOUNT_TOTAL_VIEW_ADDRESS_VIEW_IN_TOKEN_SALE_CONTRACT_NOT_FOUND                       = 816
+
+
+
+
+
+
+
+error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                                                          = 817
+error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                                                       = 818
+
+
+
+
+
+
+
+
+error_TOKEN_POOL_CONTRACT_NOT_FOUND                                                                     = 819
+error_TRANSFER_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 820
+error_INSUFFICIENT_TOKENS_IN_TOKEN_POOL_TO_BE_BORROWED                                                  = 821
+
+error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                             = 822
+error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                              = 823
+error_TOKEN_POOL_RESERVES_RATIO_NOT_MET                                                                 = 824
+error_INCORRECT_FINAL_TOTAL_BORROWED_AMOUNT                                                             = 825
+error_DEPOSITOR_RECORD_NOT_FOUND                                                                        = 826
+error_UPDATE_REWARDS_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 827
+
+
+
+
+
+
+
+
+
+
+error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND                                                              = 828
+error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND                                                               = 829
+
+
+
+
+
+
+
+error_VAULT_CONTROLLER_CONTRACT_NOT_FOUND                                                               = 830
+
+error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 831
+error_LOAN_TOKEN_NOT_FOUND                                                                              = 832
+error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 833
+error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 834
+error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 835
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 836
+error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 837
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 838
+error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 839
+error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 840
+error_LOAN_INTEREST_MISCALCULATION                                                                      = 841
+
+error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 842
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 843
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 844
+error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 845
+
+
+
