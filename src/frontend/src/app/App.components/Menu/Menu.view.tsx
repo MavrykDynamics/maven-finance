@@ -1,19 +1,10 @@
-import * as React from 'react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import {
-  MenuFooter,
-  MenuGrid,
-  MenuLogo,
-  MenuMobileBurger,
-  MenuStyled,
-  MenuTopSection,
-  MenuTopStyled,
-} from './Menu.style'
+import { MenuFooter, MenuGrid, MenuLogo, MenuMobileBurger, MenuSidebarContent, MenuSidebarStyled, MenuTopStyled } from './Menu.style'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
@@ -26,6 +17,36 @@ type MenuViewProps = {
   setisExpandedMenu: (value: boolean) => void
 }
 
+const SocialIcons = () => (
+  <div className="social-wrapper">
+    <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#socialDiscord" />
+      </svg>
+    </a>
+    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#socialGitHub" />
+      </svg>
+    </a>
+    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#socialMedium" />
+      </svg>
+    </a>
+    <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#socialTelegram" />
+      </svg>
+    </a>
+    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#socialTwitter" />
+      </svg>
+    </a>
+  </div>
+)
+
 export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
@@ -33,7 +54,7 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
   const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
 
   const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
-  const logoMobile = '/logo-mobile.svg'
+  // const logoMobile = '/logo-mobile.svg'
 
   const handleToggle = (id: number) => {
     setisExpandedMenu(true)
@@ -88,35 +109,8 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
           />
         </div>
         <div className="right-side">
-          <div className="social-wrapper">
-            <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#socialDiscord" />
-              </svg>
-            </a>
-            <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#socialGitHub" />
-              </svg>
-            </a>
-            <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#socialMedium" />
-              </svg>
-            </a>
-            <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#socialTelegram" />
-              </svg>
-            </a>
-            <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#socialTwitter" />
-              </svg>
-            </a>
-          </div>
+          <SocialIcons />
           <ConnectWallet type={'main-menu'} />
-
           <div className="settingsIcon">
             <svg>
               <use xlinkHref="/icons/sprites.svg#gear" />
@@ -124,14 +118,15 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
           </div>
         </div>
       </MenuTopStyled>
-      <MenuStyled
+
+      <MenuSidebarStyled
         className={`navbar-sticky ${isExpandedMenu ? 'menu-expanded' : 'menu-collapsed'}`}
         onClick={() => {
           setExpanded(0)
           setisExpandedMenu(false)
         }}
       >
-        <MenuTopSection onClick={(e) => e.stopPropagation()}>
+        <MenuSidebarContent onClick={(e) => e.stopPropagation()}>
           <MenuGrid>
             {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
               const key = `${index}-${navigationLink.path.substring(1)}-${navigationLink.id}`
@@ -152,8 +147,8 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
           <MenuFooter>
             MAVRYK App <p>v1.0</p>
           </MenuFooter>
-        </MenuTopSection>
-      </MenuStyled>
+        </MenuSidebarContent>
+      </MenuSidebarStyled>
     </>
   )
 }

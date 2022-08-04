@@ -16,10 +16,7 @@ export const WalletConnectedButton = styled.div<{ theme: MavrykTheme }>`
   font-weight: 600;
   margin: 10px auto;
   display: flex;
-
-  /* flex-direction: column; */
   column-gap: 10px;
-
   align-items: center;
   margin-top: -6px;
   margin-bottom: -6px;
