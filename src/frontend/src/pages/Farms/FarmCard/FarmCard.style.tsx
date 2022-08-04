@@ -217,17 +217,14 @@ export const FarmHarvestStyled = styled(Card)`
 `
 
 export const FarmCardTopSection = styled.div<{ theme: MavrykTheme }>`
-  padding: 10px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
   min-height: max-content;
-  > div {
-    margin: 5px 0;
-    padding: 5px 0;
-  }
+  margin-bottom: 20px;
+  padding: 0 10px;
 `
 export const FarmCardTokenLogoContainer = styled.div<{ theme: MavrykTheme }>`
   height: 50px;
@@ -257,18 +254,18 @@ export const FarmCardSecondTokenIcon = styled.img<{ theme: MavrykTheme }>`
   align-self: flex-end;
 `
 
-export const FarmCardContentSection = styled.div<{ theme: MavrykTheme }>`\
+export const FarmCardContentSection = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  
+
   > div > p {
     font-size: 14px;
     font-weight: 600;
   }
-  
+
   div:nth-child(2) {
     text-align: right;
   }
@@ -289,69 +286,40 @@ export const FarmTitleSection = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.primaryColor};
   }
 `
-
-export const FarmCardRewardsSection = styled.div<{ theme: MavrykTheme }>`\
+export const FarmInputSection = styled.div`
+  width: 300px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-  font-size: 14px;
-  color: ${({ theme }) => theme.subTextColor};
-  
-  > h4 {
-    font-weight: 600;
-  }
-  > div {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    
-    > p {
-      
-    }
-    button {
-      width: 50%;
-      max-height: 40px;
-    }
-  }
-`
-export const FarmCardStakedBalanceSection = styled.div<{ theme: MavrykTheme }>`
-  margin: 5px 0;
-  width: 100%;
-  color: ${({ theme }) => theme.subTextColor};
-  > h4 {
-    font-weight: 600;
-    padding-bottom: 10px;
-  }
-
-  > div {
-    display: flex;
-    flex-direction: row;
-  }
-  #connectWalletButton {
-    width: 100%;
-  }
-`
-
-export const StakedBalanceAddSubtractButton = styled.button<{ theme: MavrykTheme }>`
-  width: 40px;
-  height: 40px;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 8px;
-  margin: 5px;
-  background-color: ${({ theme }) => theme.containerColor};
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.primaryColor};
-`
 
-export const StakedBalanceAddSubtractIcon = styled.svg<{ theme: MavrykTheme }>`
-  width: 24px;
-  height: 24px;
-  display: inline-block;
-  vertical-align: sub;
+  input {
+    padding-right: 164px;
+    height: 50px;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  .input-info {
+    font-size: 12px;
+    line-height: 12px;
+    color: ${skyColor};
+    font-weight: 400;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    padding: 0 8px;
+    width: 100%;
+
+    p {
+      margin: 0;
+      font-weight: 600;
+    }
+  }
+
+  .farm-button {
+    width: 262px;
+    margin-top: auto;
+    margin-bottom: 10px;
+  }
 `

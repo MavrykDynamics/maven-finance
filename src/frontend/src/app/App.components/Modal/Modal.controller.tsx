@@ -12,6 +12,8 @@ export const Modal = () => {
   const { kind } = useSelector((state: State) => state.modal)
   const { showing } = useSelector((state: State) => state.modal)
 
+  console.log('%c ||||| showing', 'color:red', showing)
+
   const cancelCallback = () => {
     dispatch(hideModal())
   }

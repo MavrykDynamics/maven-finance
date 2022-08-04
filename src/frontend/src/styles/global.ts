@@ -61,6 +61,7 @@ button {
   padding: 0;
   margin: 0;
   cursor: pointer;
+  color: inherit;
 }
 
 h2 {
