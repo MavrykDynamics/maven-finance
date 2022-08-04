@@ -140,15 +140,12 @@ export const FarmCardStyled = styled(Card)`
       > div {
         padding: 20px;
       }
-    }
-
-    .vertical-farming {
       .start-farming {
         padding: 0;
         flex-direction: column;
         align-items: baseline;
-        padding-left: 40px;
-        padding-right: 40px;
+        padding-left: 20px;
+        padding-right: 20px;
         margin-bottom: 30px;
 
         h3 {
@@ -181,7 +178,7 @@ export const FarmCardStyled = styled(Card)`
   .start-farming {
     display: flex;
     align-items: center;
-    padding-left: 64px;
+    padding-left: 40px;
 
     div {
       margin: 0;
