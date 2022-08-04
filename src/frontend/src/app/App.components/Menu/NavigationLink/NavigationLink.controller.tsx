@@ -50,8 +50,6 @@ export const NavigationLink = ({
     ? Boolean(subPagesPaths.find((subPagePath) => splittedPathname.includes(subPagePath)))
     : splittedPathname.includes(path)
 
-  console.log(path, splittedPathname, mainLinkSelected, subPages)
-
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
 
   const handleClick = () => {
