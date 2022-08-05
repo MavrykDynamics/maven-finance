@@ -117,7 +117,7 @@ const storages = {
 
         startLevel                  = 0n;
         nextProposalId              = 0n;
-        cycleCounter                = 0n;
+        cycleId                = 0n;
 
         currentCycleInfo.round                = Proposal;
         currentCycleInfo.blocksPerProposalRound      = 0n;

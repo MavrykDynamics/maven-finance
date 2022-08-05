@@ -63,7 +63,7 @@ export const governanceStorage: governanceStorageType = {
 
     // startLevel              : new BigNumber(1),
     nextProposalId          : new BigNumber(1),
-    cycleCounter            : new BigNumber(1),
+    cycleId            : new BigNumber(1),
 
     currentCycleInfo         : {
         round                     : { proposal: null },

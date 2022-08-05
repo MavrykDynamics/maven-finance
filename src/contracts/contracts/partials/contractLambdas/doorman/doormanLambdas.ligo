@@ -503,12 +503,14 @@ block {
                 const mvkLoyaltyIndex : nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
                 
                 // Calculate Exit Fee
-                const exitFee : nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
+                //const exitFee : nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
+                const exitFeeWithoutFloatingPoint : nat = abs(300_000n * fixedPointAccuracy - 5_250n * mvkLoyaltyIndex)*fixedPointAccuracy + (25n * mvkLoyaltyIndex * mvkLoyaltyIndex);
+                const exitFee                     : nat = exitFeeWithoutFloatingPoint / (10_000n * fixedPointAccuracy);
 
                 // Calculate final unstake amount and increment unclaimed rewards
-                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
-                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
-                s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
+                const paidFee             : nat     = unstakeAmount * (exitFee / 100n);
+                const finalUnstakeAmount  : nat     = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
+                s.unclaimedRewards                  := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                 // Check that unstakeAmount is not greater than staked MVK total supply
                 if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 

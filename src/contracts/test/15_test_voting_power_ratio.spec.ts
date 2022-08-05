@@ -543,7 +543,7 @@
 //                 const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
 //                 const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                 const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
-//                 const cycleCounter = governanceStorage.cycleCounter
+//                 const cycleId = governanceStorage.cycleId
 //                 const finalNextProposalId = governanceStorage.nextProposalId;
 //                 const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
 //                 const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
@@ -580,7 +580,7 @@
 //                 assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
 //                 assert.equal(newProposal.quorumCount.toNumber(), 0);
 //                 assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
-//                 assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
+//                 assert.equal(newProposal.cycle.toNumber(), cycleId.toNumber());
 //                 assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -632,7 +632,7 @@
 //             try{
 //                 // Initial Values
 //                 governanceStorage           = await governanceInstance.storage();
-//                 var currentCycle            = governanceStorage.cycleCounter;
+//                 var currentCycle            = governanceStorage.cycleId;
 //                 const previousProposalId    = governanceStorage.nextProposalId.toNumber() - 1;
 
 //                 // Operation

@@ -19,7 +19,7 @@ export type governanceStorageType = {
 
     // startLevel              : BigNumber;
     nextProposalId          : BigNumber;
-    cycleCounter            : BigNumber;
+    cycleId            : BigNumber;
 
     currentCycleInfo        : {
         round                      : any;

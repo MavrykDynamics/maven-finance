@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft/2019-09/schema#",
+  "type": "object",
+  "properties": {
+    "to": {
+      "type": "string",
+      "$comment": "address"
+    },
+    "tokensSold": {
+      "type": "string",
+      "$comment": "nat"
+    },
+    "minXtzBought": {
+      "type": "string",
+      "$comment": "mutez"
+    },
+    "deadline": {
+      "type": "string",
+      "$comment": "timestamp"
+    }
+  },
+  "required": [
+    "to",
+    "tokensSold",
+    "minXtzBought",
+    "deadline"
+  ],
+  "additionalProperties": false,
+  "$comment": "pair"
+}
