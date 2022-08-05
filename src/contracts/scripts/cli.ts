@@ -8,7 +8,7 @@ yargs
     'compiles the contract',
     {
       format: {
-        description: 'fromat of output file',
+        description: 'format of output file',
         alias: 'f',
         type: 'string',
       },

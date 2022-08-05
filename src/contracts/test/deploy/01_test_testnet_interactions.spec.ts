@@ -193,6 +193,11 @@ describe("Testnet interactions helper", async () => {
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteAddress.address);
             console.log('Aggregator Contract deployed at:', aggregatorAddress.address);
             console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
+
+            // Admin sends 2000XTZ to treasury contract
+            // const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            // await transferOperation.confirmation();
+
         } catch(e){
             console.log(e)
         }
@@ -691,6 +696,10 @@ describe("Testnet interactions helper", async () => {
                     1000
                 ).send();
                 await operation.confirmation();
+
+                // Start governance cycle to validate satellite
+                const nextRoundOperation    = await governanceInstance.methods.startNextRound(false).send();
+                await nextRoundOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -1099,9 +1108,9 @@ describe("Testnet interactions helper", async () => {
         it('Admin drops financial request', async () => {
             try{
                 // Operation
-                councilStorage  = await councilInstance.storage();
-                const actionId  = councilStorage.actionCounter.toNumber() - 1;
-                const operation = await councilInstance.methods.councilActionDropFinancialReq(actionId).send()
+                governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                const actionId              = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
+                const operation             = await councilInstance.methods.councilActionDropFinancialReq(actionId).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2736,7 +2745,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets other contract governance', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setContractGovernance(governanceAddress.address, doormanAddress.address).send();
+                const operation = await governanceInstance.methods.setContractGovernance(doormanAddress.address, governanceAddress.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

@@ -331,7 +331,7 @@
 
 //                 // mid values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 var currentCycle                    = governanceStorage.cycleId;
 //                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
@@ -450,7 +450,7 @@
 
 //                 // mid values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 var currentCycle                    = governanceStorage.cycleId;
 //                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
@@ -565,7 +565,7 @@
 
 //                 // mid values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 var currentCycle                    = governanceStorage.cycleId;
 //                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
@@ -682,7 +682,7 @@
 
 //                 // mid values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 var currentCycle                    = governanceStorage.cycleId;
 //                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
@@ -801,7 +801,7 @@
 
 //                 // mid values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 var currentCycle                    = governanceStorage.cycleId;
 //                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 
@@ -920,7 +920,7 @@
 
 //                 // mid values
 //                 governanceStorage                   = await governanceInstance.storage();
-//                 var currentCycle                    = governanceStorage.cycleCounter;
+//                 var currentCycle                    = governanceStorage.cycleId;
 //                 const firstSatelliteSnapshot        = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //                 const secondSatelliteSnapshot       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 

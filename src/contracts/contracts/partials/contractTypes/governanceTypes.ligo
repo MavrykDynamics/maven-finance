@@ -121,7 +121,7 @@ type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalVotingPower          : nat;      // log calculated total voting power
     ready                     : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
 ]
-type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleCounter*satelliteAddress    -> snapshot)
+type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleId*satelliteAddress    -> snapshot)
 
 
 // --------------------------------------------------
@@ -286,11 +286,11 @@ type governanceStorageType is [@layout:comb] record [
     currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
 
     cycleProposals                    : map(actionIdType, nat);                 // proposal ids in the current cycle, proposal vote smvk total
-    cycleProposers                    : big_map((nat*address), set(nat));       // cycleCounter*proposer --> set of actionIds
-    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (proposal id*satelliteAddress) | voting round: (cycleCounter*satelliteAddress, voteType)
+    cycleProposers                    : big_map((nat*address), set(nat));       // cycleId*proposer --> set of actionIds
+    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (proposal id*satelliteAddress) | voting round: (cycleId*satelliteAddress, voteType)
 
     nextProposalId                    : nat;                        // counter of next proposal id
-    cycleCounter                      : nat;                        // counter of current cycle 
+    cycleId                           : nat;                        // counter of current cycle 
     cycleHighestVotedProposalId       : nat;                        // set to 0 if there is no proposal currently, if not set to proposal id
     timelockProposalId                : nat;                        // set to 0 if there is proposal in timelock, if not set to proposal id
 
