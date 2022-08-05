@@ -7,11 +7,12 @@ type Props = {
   onChange: () => void
   className: string
   sufix: string
+  disabled?: boolean
 }
 
-export default function Toggle({ onChange, className, sufix }: Props) {
+export default function Toggle({ onChange, className, sufix, disabled = false }: Props) {
   return (
-    <ToggleStyle className={className}>
+    <ToggleStyle className={`${className} ${disabled ? 'disabled' : ''}`}>
       <ReactToggle defaultChecked={false} icons={false} onChange={onChange} className="toggle" />
       {sufix ? <span className="sufix">{sufix}</span> : null}
     </ToggleStyle>

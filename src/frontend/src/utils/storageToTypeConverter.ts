@@ -353,6 +353,7 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
       rewardPerBlock: calcWithoutPrecision(farmItem.reward_per_block),
       rewardsFromTreasury: farmItem.rewards_from_treasury,
       totalBlocks: farmItem.total_blocks,
+      farmAccounts: farmItem.farm_accounts,
     }
     farms.push(newFarm)
   })

@@ -89,7 +89,7 @@ export const Farms = () => {
         {farmsList?.length ? (
           <>
             <FarmTopBar
-              loading={loading}
+              ready={ready}
               searchValue={searchValue}
               onSearch={handleOnSearch}
               onSort={handleOnSort}

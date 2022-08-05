@@ -66,8 +66,6 @@ export const FarmCard = ({
   const myFarmStakedBalance = 45645.8987
   const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
 
-  console.log('%c ||||| valueAPR', 'color:yellowgreen', valueAPR)
-
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
   }
@@ -107,8 +105,13 @@ export const FarmCard = ({
 
   const aprBlock = (
     <div className="farm-info">
-      <h3>APR</h3>
-      <var>{valueAPR}</var>
+      <h3>APY</h3>
+      <div className="btn-info">
+        <var>{valueAPR}</var>
+        <button className="calc-button">
+          <Icon id="calculator" />
+        </button>
+      </div>
     </div>
   )
 

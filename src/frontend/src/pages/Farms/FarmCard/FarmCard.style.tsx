@@ -96,6 +96,7 @@ export const FarmCardStyled = styled(Card)`
       .farm-info {
         display: flex;
         justify-content: space-between;
+        align-items: center;
       }
     }
     .farm-card-header {
@@ -166,6 +167,15 @@ export const FarmCardStyled = styled(Card)`
     }
   } //vertical
 
+  .btn-info {
+    display: flex;
+    align-items: center;
+
+    button {
+      margin-left: 8px;
+    }
+  }
+
   .horizontal-expand {
     display: grid;
     align-items: center;
@@ -190,6 +200,14 @@ export const FarmCardStyled = styled(Card)`
       line-height: 21px;
       color: ${skyColor};
       margin-right: 40px;
+    }
+  }
+
+  .calc-button {
+    svg {
+      width: 19px;
+      height: 19px;
+      fill: ${headerColor};
     }
   }
 ` // CARD

@@ -12,7 +12,6 @@ type SlidingTabButtonViewProps = {
   clickCallback: (tabId: number) => void
   clicked: boolean
   tabValues: TabItem[]
-  loading: boolean
   className?: string
 }
 
@@ -21,7 +20,6 @@ export const SlidingTabButtonsView = ({
   onClick,
   clickCallback,
   tabValues,
-  loading,
   className = '',
 }: SlidingTabButtonViewProps) => {
   let generalClasses = kind ?? ''
@@ -41,7 +39,6 @@ export const SlidingTabButtonsView = ({
           onClick={handleButtonClick}
           generalClasses={generalClasses}
           buttonActiveStatus={tabItem.active}
-          loading={loading}
         />
       ))}
     </SlidingTabButtonsStyled>
@@ -56,12 +53,10 @@ type TabButtonProps = {
   generalClasses: string
   buttonActiveStatus: boolean
   buttonId: number
-  loading: boolean
 }
 const TabButton = ({
   buttonRef,
   text,
-
   kind,
   generalClasses,
   buttonActiveStatus,
@@ -98,16 +93,4 @@ const TabButton = ({
       </ButtonText>
     </ButtonStyled>
   )
-}
-SlidingTabButtonsView.propTypes = {
-  kind: PropTypes.string,
-  onClick: PropTypes.func,
-  clicked: PropTypes.bool.isRequired,
-  type: PropTypes.string,
-  loading: PropTypes.bool,
-}
-
-SlidingTabButtonsView.defaultProps = {
-  kind: PRIMARY,
-  loading: false,
 }
