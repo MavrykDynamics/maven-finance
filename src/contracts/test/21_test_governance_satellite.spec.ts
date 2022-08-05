@@ -632,7 +632,7 @@
 //                 const updatedAliceSatelliteRecord                      = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
                 
 //                 governanceStorage                                      = await governanceInstance.storage();
-//                 const currentCycle                                     = governanceStorage.cycleCounter;
+//                 const currentCycle                                     = governanceStorage.cycleId;
 //                 const aliceSnapshot                                    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //                 const eveSnapshot                                      = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                 const bobSnapshot                                      = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -757,7 +757,7 @@
 //               const updatedDelegationStorage                        = await delegationInstance.storage();        
 //               const updatedAliceSatelliteRecord                     = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 //               governanceStorage                                     = await governanceInstance.storage();
-//               const currentCycle                                    = governanceStorage.cycleCounter;
+//               const currentCycle                                    = governanceStorage.cycleId;
 //               const aliceSnapshot                                   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //               const eveSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //               const bobSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -944,7 +944,7 @@
 //               const updatedDelegationStorage                        = await delegationInstance.storage();        
 //               const updatedAliceSatelliteRecord                     = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 //               governanceStorage                                     = await governanceInstance.storage();
-//               const currentCycle                                    = governanceStorage.cycleCounter;
+//               const currentCycle                                    = governanceStorage.cycleId;
 //               const aliceSnapshot                                   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //               const eveSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //               const bobSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1069,7 +1069,7 @@
 //             const updatedDelegationStorage                 = await delegationInstance.storage();        
 //             const updatedAliceSatelliteRecord              = await updatedDelegationStorage.satelliteLedger.get(alice.pkh);
 //             governanceStorage                              = await governanceInstance.storage();
-//             const currentCycle                             = governanceStorage.cycleCounter;
+//             const currentCycle                             = governanceStorage.cycleId;
 //             const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //             const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //             const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1222,7 +1222,7 @@
 //             const updatedAggregatorStorage : aggregatorStorageType  = await aggregatorInstance.storage();
 //             const updatedAggregatorOracles                          = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
 //             governanceStorage                                       = await governanceInstance.storage();
-//             const currentCycle                                      = governanceStorage.cycleCounter;
+//             const currentCycle                                      = governanceStorage.cycleId;
 //             const aliceSnapshot                                     = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //             const eveSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //             const bobSnapshot                                       = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1376,7 +1376,7 @@
 //             const updatedAggregatorStorage : aggregatorStorageType = await aggregatorInstance.storage();
 //             const updatedAggregatorOracles                         = await updatedAggregatorStorage.oracleAddresses.get(bob.pkh);
 //             governanceStorage                              = await governanceInstance.storage();
-//             const currentCycle                             = governanceStorage.cycleCounter;
+//             const currentCycle                             = governanceStorage.cycleId;
 //             const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //             const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
 //             const mallorySnapshot                          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: mallory.pkh});
@@ -1881,7 +1881,7 @@
 
 //                 const updatedAggregatorRecord                      = await updatedGovernanceSatelliteStorage.aggregatorLedger.get(usdBtcAggregatorAddress);
 //                 governanceStorage                              = await governanceInstance.storage();
-//                 const currentCycle                             = governanceStorage.cycleCounter;
+//                 const currentCycle                             = governanceStorage.cycleId;
 //                 const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //                 const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                 const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2049,7 +2049,7 @@
 //                 const endAccountBalance                     = contractAccount ? contractAccount.toNumber() : 0;
 //                 const endUserBalance                        = userAccount ? userAccount.toNumber() : 0;
 //                 governanceStorage                              = await governanceInstance.storage();
-//                 const currentCycle                             = governanceStorage.cycleCounter;
+//                 const currentCycle                             = governanceStorage.cycleId;
 //                 const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //                 const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                 const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2167,7 +2167,7 @@
 //             const updatedGovernanceAction                          = await updatedGovernanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
 //             const updatedInitiatorsActions                         = await governanceSatelliteStorage.actionsInitiators.get(bob.pkh);
 //             governanceStorage                              = await governanceInstance.storage();
-//             const currentCycle                             = governanceStorage.cycleCounter;
+//             const currentCycle                             = governanceStorage.cycleId;
 //             const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //             const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //             const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2237,7 +2237,7 @@
 
 //                 governanceSatelliteStorage                     = await governanceSatelliteInstance.storage();
 //                 governanceStorage                              = await governanceInstance.storage();
-//                 const currentCycle                             = governanceStorage.cycleCounter;
+//                 const currentCycle                             = governanceStorage.cycleId;
 //                 const aliceSnapshot                            = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //                 const eveSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                 const bobSnapshot                              = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});

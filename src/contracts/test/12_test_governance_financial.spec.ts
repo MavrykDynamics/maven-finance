@@ -519,7 +519,7 @@
 //                 mvkTokenStorage                                         = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                  = await mvkTokenStorage.ledger.get(councilContractAddress);
 //                 governanceStorage                                       = await governanceInstance.storage();
-//                 var currentCycle                                        = governanceStorage.cycleCounter;
+//                 var currentCycle                                        = governanceStorage.cycleId;
 
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -719,7 +719,7 @@
 //                 mvkTokenStorage                                         = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1165,7 +1165,7 @@
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1318,7 +1318,7 @@
 
 //                 // final values
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1593,7 +1593,7 @@
 //                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1743,7 +1743,7 @@
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, bobStakeAmount)
 
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -1858,7 +1858,7 @@
 
 
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2059,7 +2059,7 @@
 
 
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2200,7 +2200,7 @@
 
 
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2339,7 +2339,7 @@
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);             
 //                 const councilTezBalance                                = await utils.tezos.tz.getBalance(councilContractAddress);
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
@@ -2471,7 +2471,7 @@
 //                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 //                 governanceStorage                     = await governanceInstance.storage();
-//                 var currentCycle                      = governanceStorage.cycleCounter;
+//                 var currentCycle                      = governanceStorage.cycleId;
     
 //                 // check details of financial request snapshot ledger
 //                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});

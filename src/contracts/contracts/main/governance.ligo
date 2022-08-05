@@ -340,7 +340,7 @@ block {
         ready                   = ready;
     ];
 
-    s.snapshotLedger[(s.cycleCounter,satelliteAddress)]  := satelliteSnapshotRecord;
+    s.snapshotLedger[(s.cycleId,satelliteAddress)]  := satelliteSnapshotRecord;
 
 } with s
 
@@ -351,7 +351,7 @@ function checkSatelliteSnapshot (const satelliteAddress : address; var s : gover
 block {
 
     // Initialize a variable to create a snapshot or not
-    var createSatelliteSnapshot: bool   := case Big_map.find_opt((s.cycleCounter,satelliteAddress), s.snapshotLedger) of [
+    var createSatelliteSnapshot: bool   := case Big_map.find_opt((s.cycleId,satelliteAddress), s.snapshotLedger) of [
         Some (_snapshot)    -> if _snapshot.ready then False else (failwith(error_SNAPSHOT_NOT_READY): bool)
     |   None                -> True
     ];
@@ -592,7 +592,7 @@ block {
     s.cycleHighestVotedProposalId                    := 0n;                  // flush proposal id voted through - reset to 0 
 
     // Increase the cycle counter
-    s.cycleCounter      := s.cycleCounter + 1n;
+    s.cycleId      := s.cycleId + 1n;
 
 } with (s)
 
@@ -759,7 +759,7 @@ block {
 
 (* View: get cycle counter *)
 [@view] function getCycleCounter(const _ : unit; var s : governanceStorageType) : nat is
-    s.cycleCounter
+    s.cycleId
 
 
 

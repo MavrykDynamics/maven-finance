@@ -401,8 +401,8 @@ function updateGovernanceSnapshot (const satelliteAddress : address; const ready
 block {
 
     // Get the current round and the satellite snapshot opt
-    const cycleCounterView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
-    const currentCycle: nat = case cycleCounterView of [
+    const cycleIdView : option (nat) = Tezos.call_view ("getCycleCounter", unit, s.governanceAddress);
+    const currentCycle: nat = case cycleIdView of [
             Some (_cycle)   -> _cycle
         |   None            -> failwith (error_GET_CYCLE_COUNTER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
     ];

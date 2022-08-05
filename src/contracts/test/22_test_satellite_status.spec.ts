@@ -656,7 +656,7 @@
 //                     governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
 //                     governanceStorage               = await governanceInstance.storage();
 //                     delegationStorage               = await delegationInstance.storage();
-//                     var currentCycle                = governanceStorage.cycleCounter;
+//                     var currentCycle                = governanceStorage.cycleId;
 //                     const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
 //                     const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
 //                     const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});

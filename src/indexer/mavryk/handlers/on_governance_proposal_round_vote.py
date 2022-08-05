@@ -33,9 +33,7 @@ async def on_governance_proposal_round_vote(
         user        = voter,
         cycle       = governance.cycle_counter
     )
-    breakpoint()
     if voter_address in satellite_snapshots:
-        breakpoint()
         satellite_snapshot      = satellite_snapshots[voter_address]
         governance_snapshot, _  = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
             governance              = governance,
