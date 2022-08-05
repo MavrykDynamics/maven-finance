@@ -12,12 +12,12 @@
 // ------------------------------------------------------------------------------
 
 
-type editDepositorType is
+type vaultEditDepositorType is
   | AllowAny of bool
   | AllowAccount of bool * address
 
 type depositorsType is
-  | Any
+  | Any       of unit 
   | Whitelist of set(address)
 
 type whitelistUsersType is
@@ -30,6 +30,30 @@ type vaultHandleType is [@layout:comb] record [
     id      : nat ;
     owner   : address;
 ]
+
+type vaultBreakGlassConfigType is record [
+    // Vault Entrypoints
+    vaultDelegateTezToBakerIsPaused         : bool; 
+    vaultDelegateMvkToSatelliteIsPaused     : bool;
+    vaultWithdrawIsPaused                   : bool;
+    vaultDepositIsPaused                    : bool;
+    vaultEditDepositorIsPaused              : bool;
+]
+
+
+type vaultPausableEntrypointType is
+
+        // Vault Entrypoints
+        VaultDelegateTezToBaker         of bool
+    |   VaultDelegateMvkToSatellite     of bool
+    |   VaultWithdraw                   of bool
+    |   VaultDeposit                    of bool
+    |   VaultEditDepositor              of bool
+
+type vaultTogglePauseEntrypointType is [@layout:comb] record [
+    targetEntrypoint  : vaultPausableEntrypointType;
+    empty             : unit
+];
 
 
 // ------------------------------------------------------------------------------
@@ -69,6 +93,32 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
     tokenName             : string;
 ]
 
+// ------------------------------------------------------------------------------
+// Lambda Action Types
+// ------------------------------------------------------------------------------
+
+
+type vaultLambdaActionType is 
+        
+        // Housekeeping Entrypoints
+    |   LambdaSetAdmin                        of (address)
+    |   LambdaSetGovernance                   of (address)
+    |   LambdaUpdateMetadata                  of updateMetadataType
+    |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
+    |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
+
+        // Pause / Break Glass Lambdas
+    |   LambdaPauseAll                        of (unit)
+    |   LambdaUnpauseAll                      of (unit)
+    |   LambdaTogglePauseEntrypoint           of vaultTogglePauseEntrypointType
+
+        // Vault Entrypoints
+    |   LambdaVaultDelegateTezToBaker         of vaultDelegateTezToBakerType
+    |   LambdaVaultDelegateMvkToSat           of satelliteAddressType
+    |   LambdaVaultWithdraw                   of vaultWithdrawType
+    |   LambdaVaultDeposit                    of vaultDepositType 
+    |   LambdaVaultEditDepositor              of vaultEditDepositorType
+
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -76,9 +126,20 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
 
 
 type vaultStorageType is record [
-    admin                : address;            // vault admin contract - usdm token controller address
-    handle               : vaultHandleType;    // owner of the vault
-    depositors           : depositorsType;     // users who can deposit into the vault    
-    whitelistUsers       : whitelistUsersType;    // users who can borrow / repay       
+    
+    admin                   : address;                  // vault admin contract - usdm token controller address
+    metadata                : metadataType;
+
+    governanceAddress       : address; 
+    breakGlassConfig        : vaultBreakGlassConfigType; 
+    
+    whitelistContracts      : whitelistContractsType;
+    generalContracts        : generalContractsType;
+
+    handle                  : vaultHandleType;          // owner of the vault
+    depositors              : depositorsType;           // users who can deposit into the vault    
+    whitelistUsers          : whitelistUsersType;       // users who can borrow / repay       
+
+    lambdaLedger            : lambdaLedgerType;
 ]
 

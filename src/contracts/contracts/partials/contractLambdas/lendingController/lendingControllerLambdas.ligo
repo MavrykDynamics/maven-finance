@@ -358,6 +358,76 @@ block {
 // Token Pool Lambdas Begin
 // ------------------------------------------------------------------------------
 
+(* setLoanToken lambda *)
+function lambdaSetLoanToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
+
+    case lendingControllerLambdaAction of [
+        |   LambdaSetLoanToken(setLoanTokenParams) -> {
+                
+                // init variables for convenience
+                const tokenName                             : string        = setLoanTokenParams.tokenName;
+                const tokenContractAddress                  : address       = setLoanTokenParams.tokenContractAddress;
+                const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
+                const tokenId                               : nat           = setLoanTokenParams.tokenId;
+
+                const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
+                const lpTokenId                             : nat           = setLoanTokenParams.lpTokenId;
+
+                const reserveRatio                          : nat           = setLoanTokenParams.reserveRatio;
+
+                const optimalUtilisationRate                : nat           = setLoanTokenParams.optimalUtilisationRate;
+                const baseInterestRate                      : nat           = setLoanTokenParams.baseInterestRate;
+                const maxInterestRate                       : nat           = setLoanTokenParams.maxInterestRate;
+                const interestRateBelowOptimalUtilisation   : nat           = setLoanTokenParams.interestRateBelowOptimalUtilisation;
+                const interestRateAboveOptimalUtilisation   : nat           = setLoanTokenParams.interestRateAboveOptimalUtilisation;
+
+                const newLoanTokenRecord : loanTokenRecordType = record [
+                    
+                    tokenName                           = tokenName;
+                    tokenContractAddress                = tokenContractAddress;
+                    tokenType                           = tokenType;
+                    tokenId                             = tokenId;
+
+                    lpTokensTotal                       = 0n;
+                    lpTokenContractAddress              = lpTokenContractAddress;
+                    lpTokenId                           = lpTokenId;
+
+                    reserveRatio                        = reserveRatio;
+                    tokenPoolTotal                      = 0n;
+                    totalBorrowed                       = 0n;
+                    totalRemaining                      = 0n;
+
+                    utilisationRate                     = 0n;
+                    optimalUtilisationRate              = optimalUtilisationRate;
+                    baseInterestRate                    = baseInterestRate;
+                    maxInterestRate                     = maxInterestRate;
+                    interestRateBelowOptimalUtilisation = interestRateBelowOptimalUtilisation;
+                    interestRateAboveOptimalUtilisation = interestRateAboveOptimalUtilisation;
+
+                    currentInterestRate                 = 0n;
+                    lastUpdatedBlockLevel               = Tezos.get_level();
+                    accumulatedRewardsPerShare          = 0n;
+                    borrowIndex                         = 0n;
+
+                ];
+                
+                s.loanTokenLedger[tokenName] := case s.loanTokenLedger[tokenName] of [
+                        Some(_record) -> failwith(error_LOAN_TOKEN_RECORD_ALREADY_EXISTS)
+                    |   None          -> newLoanTokenRecord
+                ];
+
+            }
+        |   _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (* addLiquidity lambda *)
 function lambdaAddLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
@@ -375,9 +445,6 @@ block {
                 const tokenName           : string              = addLiquidityParams.tokenName;
                 const tokensDeposited     : nat                 = addLiquidityParams.tokensDeposited;
                 const owner               : address             = addLiquidityParams.owner; 
-
-                // check that no tez is sent
-                checkNoAmount(Unit);
 
                 // Get Token Record
                 var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
@@ -435,9 +502,6 @@ block {
                 const tokenName             : string    = removeLiquidityParams.tokenName;
                 const tokensWithdrawn       : nat       = removeLiquidityParams.tokensWithdrawn;
                 // const recipient             : address   = removeLiquidityParams.to_; 
-
-                // check that no tez is sent
-                checkNoAmount(Unit);
 
                 // Get Token Record
                 var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
@@ -536,12 +600,47 @@ block {
 
                 const defaultWhitelistUsers : whitelistUsersType = NoWhitelistUsers(unit);
 
+                // Prepare Vault Metadata
+                const vaultMetadata: metadataType = Big_map.literal (list [
+                    ("", Bytes.pack("tezos-storage:data"));
+                    ("data", createVaultParams.metadata);
+                ]); 
+
+                // Add LendingController Address to whitelistContracts map of created Vault
+                const vaultWhitelistContracts : whitelistContractsType = map[
+                    ("lendingController")  -> (Tezos.get_self_address() : address);
+                ];
+                
+                // Init empty General Contracts map (local contract scope, to be used if necessary)
+                const vaultGeneralContracts : generalContractsType = map[];
+
+                // Init break glass config
+                const vaultBreakGlassConfig : vaultBreakGlassConfigType = record[
+                    vaultDelegateTezToBakerIsPaused         = False;
+                    vaultDelegateMvkToSatelliteIsPaused     = False;
+                    vaultWithdrawIsPaused                   = False;
+                    vaultDepositIsPaused                  = False;
+                    vaultEditDepositorIsPaused              = False;
+                ];
+
+                const vaultLambdaLedger : lambdaLedgerType = s.vaultLambdaLedger;
+
                 // params for vault with tez storage origination
                 const originateVaultStorage : vaultStorageType = record [
                     admin                       = Tezos.get_self_address();
+                    metadata                    = vaultMetadata;
+
+                    governanceAddress           = s.governanceAddress;
+                    breakGlassConfig            = vaultBreakGlassConfig;
+
+                    whitelistContracts          = vaultWhitelistContracts;
+                    generalContracts            = vaultGeneralContracts;
+
                     handle                      = handle;
                     depositors                  = createVaultParams.depositors;
                     whitelistUsers              = defaultWhitelistUsers;
+
+                    lambdaLedger                = vaultLambdaLedger;
                 ];
 
                 // originate vault func
@@ -606,7 +705,6 @@ block {
                 // increment vault counter and add vault id to vaultLedger
                 s.vaultLedger[newVaultId] := True;
                 s.vaultCounter            := s.vaultCounter + 1n;
-
 
             }
         |   _ -> skip

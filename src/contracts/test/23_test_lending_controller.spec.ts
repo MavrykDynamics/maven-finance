@@ -22,6 +22,8 @@ import mockFa2TokenAddress from '../deployments/mockFa2TokenAddress.json';
 
 import lendingControllerAddress from '../deployments/lendingControllerAddress.json';
 
+import { vaultStorageType } from "../test/types/vaultStorageType"
+
 describe("Lending Controller tests", async () => {
     
     var utils: Utils
@@ -64,9 +66,6 @@ describe("Lending Controller tests", async () => {
 
         lendingControllerInstance   = await utils.tezos.contract.at(lendingControllerAddress.address);
 
-        console.log('lending controller address');
-        console.log(lendingControllerAddress);
-
         doormanStorage              = await doormanInstance.storage();
         delegationStorage           = await delegationInstance.storage();
         mvkTokenStorage             = await mvkTokenInstance.storage();
@@ -105,25 +104,48 @@ describe("Lending Controller tests", async () => {
                 const vaultId       = 1;
                 const vaultOwner    = eve.pkh;
                 const depositors    = "any";
-                const loanTokenName = "USDT";
+                const loanTokenName = "usdt";
+
+                const vaultMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: 'EVE VAULT',
+                        description: 'MAVRYK Vault Contract',
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+
+                const lendingControllerParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
+                console.log(JSON.stringify(lendingControllerParameterSchema,null,2));
 
                 // user (eve) creates a new vault with no tez
-                const userCreatesANewVaultOperation = await lendingControllerInstance.methods.createVault(
-                    // vaultId, 
-                    eve.pkh,  
-                    depositors,
-                    loanTokenName
-                    ).send();
-                await userCreatesANewVaultOperation.confirmation();
+                const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
+                    eve.pkh,                // delegate to
+                    vaultMetadataBase,      // metadata
+                    loanTokenName,          // loan token type
+                    depositors,             // depositors type
+                ).send();
+                await userCreatesNewVaultOperation.confirmation();
 
                 const updatedTokenControllerStorage = await lendingControllerInstance.storage();
                 const vaultHandle = {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 };
-                const vault = await updatedTokenControllerStorage.vaults.get(vaultHandle);
+                const vaultRecord = await updatedTokenControllerStorage.vaults.get(vaultHandle);
 
-                assert.equal(vault.usdmOutstanding, 0);
+                assert.equal(vaultRecord.loanToken              , loanTokenName);
+                assert.equal(vaultRecord.loanOutstandingTotal   , 0);
+                assert.equal(vaultRecord.loanPrincipalTotal     , 0);
+                assert.equal(vaultRecord.loanInterestTotal      , 0);
+
+                const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
+                const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
+
+                console.log(vaultOriginatedContractStorage);
+                console.log(vaultOriginatedContractStorage.depositors);
+
 
             } catch(e){
                 console.log(e);
@@ -145,9 +167,10 @@ describe("Lending Controller tests", async () => {
         //         const userCreatesANewVaultOperation = await lendingControllerInstance.methods.createVault(
         //             // vaultId, 
         //             mallory.pkh,  
+        //             loanTokenName
         //             depositors,
         //             [mallory.pkh],
-        //             loanTokenName
+        
         //             ).send();
         //         await userCreatesANewVaultOperation.confirmation();
 
@@ -889,7 +912,7 @@ describe("Lending Controller tests", async () => {
     //         // eve deposits mock FA2 tokens into vault
     //         const eveDepositTokenOperation  = await vaultInstance.methods.vaultDeposit(
     //             eve.pkh,                               // from_
-    //             lendingControllerAddress.address,     // to_
+    //             lendingControllerAddress.address,      // to_
     //             depositAmount,                         // amt
     //             "fa2",                                 // token
     //             mockFa2TokenAddress.address,           // mock FA12 Token address 
