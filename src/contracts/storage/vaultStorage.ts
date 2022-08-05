@@ -13,10 +13,37 @@ const vaultHandle = {
     owner  : alice.pkh,  
 }
 
+const metadata = MichelsonMap.fromLiteral({
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+        name: 'Alice\'s MAVRYK Vault',
+        version: 'v1.0.0',
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        source: {
+            tools: ['Ligo', 'Flextesa'],
+            location: 'https://ligolang.org/',
+        },
+        }),
+        'ascii',
+    ).toString('hex'),
+})
+
 export const vaultStorage: vaultStorageType = {
-  admin                     : alice.pkh,
-  handle                    : vaultHandle,
-  depositors                : MichelsonMap.fromLiteral({}),
-  collateralTokenAddresses  : MichelsonMap.fromLiteral({}),
+    
+    admin                       : alice.pkh,
+    metadata                    : metadata,
+
+    governanceAddress           : zeroAddress,
+    breakGlassConfig            : {},
+
+    whitelistContracts          : MichelsonMap.fromLiteral({}),
+    generalContracts            : MichelsonMap.fromLiteral({}),
+
+    handle                      : vaultHandle,
+    depositors                  : MichelsonMap.fromLiteral({}),
+    collateralTokenAddresses    : MichelsonMap.fromLiteral({}),
+
+    lambdaLedger                : MichelsonMap.fromLiteral({}),
 
 };

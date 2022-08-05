@@ -47,17 +47,58 @@ const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
     data: Buffer.from(
         JSON.stringify({
-        name: 'MAVRYK Vault Controller Contract',
-        version: 'v1.0.0',
-        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-        source: {
-            tools: ['Ligo', 'Flextesa'],
-            location: 'https://ligolang.org/',
-        },
-        }),
-        'ascii',
-    ).toString('hex'),
-  })
+            name: 'MAVRYK Vault Controller Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            source: {
+                tools: ['Ligo', 'Flextesa'],
+                location: 'https://ligolang.org/',
+            },
+            }),
+            'ascii',
+        ).toString('hex'),
+    })
+
+const usdtTokenType = {
+    fa2 : {
+        tokenContractAddress : zeroAddress,
+        tokenId : 0
+    }
+}
+const usdtRecord = {
+    tokenName                   : "usdt",
+    tokenContractAddress        : zeroAddress,
+    tokenType                   : usdtTokenType, 
+    tokenId                     : 0,
+
+    lpTokensTotal               : 0,
+    lpTokenContractAddress      : zeroAddress,
+    lpTokenId                   : 0,
+
+    reserveRatio                : 30,  // percentage of token pool that should be kept as reserves for liquidity 
+    tokenPoolTotal              : 0,  // sum of totalBorrowed and totalRemaining
+    totalBorrowed               : 0,
+    totalRemaining              : 0,
+
+    utilisationRate                         : 0,
+    optimalUtilisationRate                  : 30,  // kink point
+    baseInterestRate                        : 10,  // base interest rate
+    maxInterestRate                         : 20,  // max interest rate
+    interestRateBelowOptimalUtilisation     : 10,  // interest rate below kink
+    interestRateAboveOptimalUtilisation     : 20,  // interest rate above kink
+
+    currentInterestRate         : 1,
+
+    lastUpdatedBlockLevel       : 0,
+
+    accumulatedRewardsPerShare  : 1,
+    
+    borrowIndex                 : 1
+}
+
+const loanTokenLedger = MichelsonMap.fromLiteral({
+    "usdt" : usdtRecord
+})
 
 
 export const lendingControllerStorage : lendingControllerStorageType = {
@@ -83,7 +124,7 @@ export const lendingControllerStorage : lendingControllerStorageType = {
     ownerLedger                     : MichelsonMap.fromLiteral({}),
 
     collateralTokenLedger           : MichelsonMap.fromLiteral({}),
-    loanTokenLedger                 : MichelsonMap.fromLiteral({}),
+    loanTokenLedger                 : loanTokenLedger,
 
     lambdaLedger                    : MichelsonMap.fromLiteral({}),
     vaultLambdaLedger               : MichelsonMap.fromLiteral({}),

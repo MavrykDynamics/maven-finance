@@ -318,7 +318,7 @@ block{
                 const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
                 
                 // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
-                const farmWhitelistContract : whitelistContractsType = map[
+                const farmWhitelistContracts : whitelistContractsType = map[
                     ("farmFactory")  -> (Tezos.get_self_address() : address);
                     ("council")      -> (councilAddress : address)
                 ];
@@ -386,7 +386,7 @@ block{
                     name                        = createFarmParams.name;
                     config                      = farmConfig;
                     
-                    whitelistContracts          = farmWhitelistContract;      
+                    whitelistContracts          = farmWhitelistContracts;      
                     generalContracts            = farmGeneralContracts;
 
                     breakGlassConfig            = farmBreakGlassConfig;

@@ -1,10 +1,12 @@
 // Doorman Types
 #include "../contractTypes/doormanTypes.ligo"
 
+// Vault Types
+#include "../contractTypes/vaultTypes.ligo"
+
 // ------------------------------------------------------------------------------
 // Basic Types
 // ------------------------------------------------------------------------------
-
 
 type vaultIdType                 is nat;
 type usdmAmountType              is nat;
@@ -84,19 +86,19 @@ type collateralTokenLedgerType is map(string, collateralTokenRecordType)
 
 type loanTokenRecordType is [@layout:comb] record [
     
-    tokenName                   : string;
-    tokenContractAddress        : address;
-    tokenType                   : tokenType; 
-    tokenId                     : nat;
+    tokenName                               : string;
+    tokenContractAddress                    : address;
+    tokenType                               : tokenType; 
+    tokenId                                 : nat;
 
-    lpTokensTotal               : nat;
-    lpTokenContractAddress      : address;
-    lpTokenId                   : nat;
+    lpTokensTotal                           : nat;
+    lpTokenContractAddress                  : address;
+    lpTokenId                               : nat;
 
-    reserveRatio                : nat;  // percentage of token pool that should be kept as reserves for liquidity 
-    tokenPoolTotal              : nat;  // sum of totalBorrowed and totalRemaining
-    totalBorrowed               : nat; 
-    totalRemaining              : nat; 
+    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
+    tokenPoolTotal                          : nat;  // sum of totalBorrowed and totalRemaining
+    totalBorrowed                           : nat; 
+    totalRemaining                          : nat; 
 
     utilisationRate                         : nat;
     optimalUtilisationRate                  : nat;  // kink point
@@ -105,13 +107,13 @@ type loanTokenRecordType is [@layout:comb] record [
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
 
-    currentInterestRate         : nat;
+    currentInterestRate                     : nat;
 
-    lastUpdatedBlockLevel       : nat; 
+    lastUpdatedBlockLevel                   : nat; 
 
-    accumulatedRewardsPerShare  : nat;
+    accumulatedRewardsPerShare              : nat;
     
-    borrowIndex                 : nat;
+    borrowIndex                             : nat;
 ]
 
 type loanTokenLedgerType is big_map(string, loanTokenRecordType)
@@ -219,11 +221,15 @@ type updateVaultTokenAddressesActionType is [@layout:comb] record [
     handle                      : vaultHandleType; 
 ]
 
+type depositorsType is
+  | Whitelist of set(address)
+  | Any       
 
 type createVaultActionType is [@layout:comb] record [
     delegate                    : option(key_hash); 
-    depositors                  : depositorsType;
+    metadata                    : bytes;
     loanTokenName               : string;            // use string, not variant, to account for future loan types using the same controller contract
+    depositors                  : depositorsType;
 ]
 
 
@@ -231,6 +237,24 @@ type closeVaultActionType is [@layout:comb] record [
     vaultId                     : vaultIdType; 
 ]
 
+
+type setLoanTokenActionType is [@layout:comb] record [
+    tokenName                               : string;
+    tokenContractAddress                    : address;
+    tokenType                               : tokenType; 
+    tokenId                                 : nat;
+
+    lpTokenContractAddress                  : address;
+    lpTokenId                               : nat;
+
+    reserveRatio                            : nat;  // percentage of token pool that should be kept as reserves for liquidity 
+    
+    optimalUtilisationRate                  : nat;  // kink point
+    baseInterestRate                        : nat;  // base interest rate
+    maxInterestRate                         : nat;  // max interest rate
+    interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
+    interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+]
 
 type withdrawFromVaultActionType is [@layout:comb] record [
     id                          : vaultIdType; 
@@ -286,6 +310,12 @@ type updateTokenPoolCallbackActionType is [@layout:comb] record [
 
 ]
 
+type updateRewardsActionType is [@layout:comb] record [
+    tokenName       : string;
+    amount          : nat;
+]
+
+
 type lendingControllerPausableEntrypointType is
 
         // Vault Entrypoints
@@ -331,6 +361,7 @@ type lendingControllerLambdaActionType is
     |   LambdaTogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
 
         // Token Pool Entrypoints
+    |   LambdaSetLoanToken                    of setLoanTokenActionType  
     |   LambdaAddLiquidity                    of addLiquidityActionType
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
