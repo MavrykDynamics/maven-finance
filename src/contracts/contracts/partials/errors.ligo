@@ -1199,6 +1199,6 @@
 [@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 843n;
 [@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 844n;
 [@inline] const error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 845n;
-
+[@inline] const error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 846n;
 
 
