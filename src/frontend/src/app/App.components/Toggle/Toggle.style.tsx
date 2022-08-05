@@ -5,6 +5,11 @@ export const ToggleStyle = styled.div`
   display: flex;
   align-items: center;
 
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
   .sufix {
     margin-left: 14px;
     font-weight: 700;

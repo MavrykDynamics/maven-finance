@@ -26,10 +26,9 @@ type SlidingTabButtonsProps = {
   className?: string
   kind?: SlidingTabButtonStyle
   onClick?: () => void
-  loading: boolean
 }
 
-export const SlidingTabButtons = ({ type, kind, onClick, loading, className = '' }: SlidingTabButtonsProps) => {
+export const SlidingTabButtons = ({ type, kind, onClick, className = '' }: SlidingTabButtonsProps) => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [tabValues, setTabValues] = useState<TabItem[]>([])
   const firstButtonRef = useRef(),
@@ -71,20 +70,6 @@ export const SlidingTabButtons = ({ type, kind, onClick, loading, className = ''
       clicked={clicked}
       clickCallback={clickCallback}
       tabValues={tabValues}
-      loading={loading}
     />
   )
-}
-
-SlidingTabButtons.propTypes = {
-  kind: PropTypes.string,
-  onClick: PropTypes.func,
-  type: PropTypes.string,
-  loading: PropTypes.bool,
-}
-
-SlidingTabButtons.defaultProps = {
-  kind: PRIMARY,
-  type: GOV_PROPOSAL_SUBMISSION_FORM,
-  loading: false,
 }

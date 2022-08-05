@@ -15,7 +15,7 @@ import { DropdownContainer } from '../../../app/App.components/DropDown/DropDown
 import { FarmTopBarStyled } from './FarmTopBar.style'
 
 export type FarmTopBarViewProps = {
-  loading: boolean
+  ready: boolean
   handleToggleStakedOnly: () => void
   handleLiveFinishedToggleButtons: () => void
   handleSetFarmsViewVariant: (arg0: FarmsViewVariantType) => void
@@ -25,7 +25,7 @@ export type FarmTopBarViewProps = {
   onSort: (val: string) => void
 }
 export const FarmTopBar = ({
-  loading,
+  ready,
   handleToggleStakedOnly,
   handleLiveFinishedToggleButtons,
   searchValue,
@@ -54,13 +54,8 @@ export const FarmTopBar = ({
 
   return (
     <FarmTopBarStyled className={className}>
-      <Toggle onChange={handleToggleStakedOnly} className="farm-toggle" sufix="Staked Only" />
-      <SlidingTabButtons
-        className="tab-bar"
-        onClick={handleLiveFinishedToggleButtons}
-        type={'Farms'}
-        loading={loading}
-      />
+      <Toggle disabled={!ready} onChange={handleToggleStakedOnly} className="farm-toggle" sufix="Staked Only" />
+      <SlidingTabButtons className="tab-bar" onClick={handleLiveFinishedToggleButtons} type={'Farms'} />
       <Input
         type="text"
         placeholder="Search..."
