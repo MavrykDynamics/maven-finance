@@ -23,13 +23,13 @@
 #include "../partials/contractTypes/aggregatorTypes.ligo"
 
 // Doorman Types
-#include "../partials/contractTypes/doormanTypes.ligo"
+// #include "../partials/contractTypes/doormanTypes.ligo"
 
 // Vault Types
-#include "../partials/contractTypes/vaultTypes.ligo"
+// #include "../partials/contractTypes/vaultTypes.ligo"
 
 // Token Pool Types
-#include "../partials/contractTypes/tokenPoolTypes.ligo"
+// #include "../partials/contractTypes/tokenPoolTypes.ligo"
 
 // Lending Controller Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
@@ -41,7 +41,7 @@ type createVaultFuncType is (option(key_hash) * tez * vaultStorageType) -> (oper
 const createVaultFunc : createVaultFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/lend_vault.tz"
+#include "../compiled/vault.tz"
         ;
           PAIR } |}
 : createVaultFuncType)];
@@ -66,6 +66,7 @@ type lendingControllerAction is
     |   TogglePauseEntrypoint           of lendingControllerTogglePauseEntrypointType
 
         // Token Pool Entrypoints
+    |   SetLoanToken                    of setLoanTokenActionType
     |   AddLiquidity                    of addLiquidityActionType
     |   RemoveLiquidity                 of removeLiquidityActionType 
 
@@ -306,34 +307,34 @@ function getRepayCallbackEntrypointInlendingControllerContract(const contractAdd
 
 
 // helper function to get %updateTokenPoolCallback entrypoint in Token Pool Contract
-function getUpdateTokenPoolCallbackEntrypoint(const contractAddress : address) : contract(updateTokenPoolCallbackActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%updateTokenPoolCallback",
-        contractAddress) : option(contract(updateTokenPoolCallbackActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateTokenPoolCallbackActionType))
-        ];
+// function getUpdateTokenPoolCallbackEntrypoint(const contractAddress : address) : contract(updateTokenPoolCallbackActionType) is
+//     case (Tezos.get_entrypoint_opt(
+//         "%updateTokenPoolCallback",
+//         contractAddress) : option(contract(updateTokenPoolCallbackActionType))) of [
+//                 Some(contr) -> contr
+//             |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(updateTokenPoolCallbackActionType))
+//         ];
 
 
 // helper function to get %onBorrow entrypoint in Token Pool Contract
-function getOnBorrowEntrypointInTokenPoolContract(const contractAddress : address) : contract(onBorrowActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%onBorrow",
-        contractAddress) : option(contract(onBorrowActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onBorrowActionType))
-        ];
+// function getOnBorrowEntrypointInTokenPoolContract(const contractAddress : address) : contract(onBorrowActionType) is
+//     case (Tezos.get_entrypoint_opt(
+//         "%onBorrow",
+//         contractAddress) : option(contract(onBorrowActionType))) of [
+//                 Some(contr) -> contr
+//             |   None -> (failwith(error_ON_BORROW_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onBorrowActionType))
+//         ];
 
 
 
 // helper function to get %onRepay entrypoint in Token Pool Contract
-function getOnRepayEntrypointInTokenPoolContract(const contractAddress : address) : contract(onRepayActionType) is
-    case (Tezos.get_entrypoint_opt(
-        "%onRepay",
-        contractAddress) : option(contract(onRepayActionType))) of [
-                Some(contr) -> contr
-            |   None -> (failwith(error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onRepayActionType))
-        ];
+// function getOnRepayEntrypointInTokenPoolContract(const contractAddress : address) : contract(onRepayActionType) is
+//     case (Tezos.get_entrypoint_opt(
+//         "%onRepay",
+//         contractAddress) : option(contract(onRepayActionType))) of [
+//                 Some(contr) -> contr
+//             |   None -> (failwith(error_ON_REPAY_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND) : contract(onRepayActionType))
+//         ];
 
 
 
@@ -1012,7 +1013,7 @@ block{
 
 
 // ------------------------------------------------------------------------------
-// Break Glass Entrypoints Begin
+// Pause / Break Glass Entrypoints Begin
 // ------------------------------------------------------------------------------
 
 (* pauseAll entrypoint *)
@@ -1079,6 +1080,25 @@ block{
 // ------------------------------------------------------------------------------
 // Token Pool Entrypoints Begin
 // ------------------------------------------------------------------------------
+
+(* setLoanToken entrypoint *)
+function setLoanToken(const setLoanTokenParams : setLoanTokenActionType; var s : lendingControllerStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetLoanToken"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaSetLoanToken(setLoanTokenParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
 
 (* addLiquidity entrypoint *)
 function addLiquidity(const addLiquidityParams : addLiquidityActionType; var s : lendingControllerStorageType) : return is 
@@ -1384,8 +1404,9 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
 
             // Token Pool Entrypoints
-        |   AddLiquidity(parameters)                    -> addLiquidity(parameters, s)
-        |   RemoveLiquidity(parameters)                 -> removeLiquidity(parameters, s)
+        |   SetLoanToken(parameters)                      -> setLoanToken(parameters, s)
+        |   AddLiquidity(parameters)                      -> addLiquidity(parameters, s)
+        |   RemoveLiquidity(parameters)                   -> removeLiquidity(parameters, s)
         
             // Vault Entrypoints
         |   CreateVault(parameters)                       -> createVault(parameters, s)
