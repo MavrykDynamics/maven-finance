@@ -85,7 +85,8 @@ type lendingControllerAction is
     |   VaultLiquidateStakedMvk         of vaultLiquidateStakedMvkType   
 
         // Lambda Entrypoints
-    |   SetLambda                         of setLambdaType
+    |   SetLambda                       of setLambdaType
+    |   SetProductLambda                of setLambdaType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * lendingControllerStorageType
@@ -803,7 +804,7 @@ block {
 
 
 (* View: get token by token contract address in collateral token ledger *)
-[@view] function viewGetTokenRecordByAddress(const tokenContractAddress : address; var s : lendingControllerStorageType) : option(collateralTokenRecordType) is
+[@view] function getColTokenRecordByAddressOpt(const tokenContractAddress : address; var s : lendingControllerStorageType) : option(collateralTokenRecordType) is
 block {
 
   var tokenName : string := "empty";
@@ -1370,6 +1371,22 @@ block{
 
 } with (noOperations, s)
 
+
+
+(* setProductLambda entrypoint *)
+function setProductLambda(const setLambdaParams : setLambdaType; var s : lendingControllerStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.vaultLambdaLedger[lambdaName] := lambdaBytes;
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1424,5 +1441,6 @@ function main (const action : lendingControllerAction; const s : lendingControll
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                         -> setLambda(parameters, s)    
+        |   SetProductLambda(parameters)                  -> setProductLambda(parameters, s)    
 
     ]

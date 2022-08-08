@@ -13,18 +13,12 @@
 
 
 type vaultEditDepositorType is
-  | AllowAny of bool
-  | AllowAccount of bool * address
+    |   AllowAny        of bool
+    |   AllowAccount    of bool * address
 
 type depositorsType is
   | Any       of unit 
   | Whitelist of set(address)
-
-type whitelistUsersType is
-    |   NoWhitelistUsers of unit 
-    |   Depositors of set(address)
-    |   Borrowers of set(address)
-    |   Repayers of set(address)
 
 type vaultHandleType is [@layout:comb] record [
     id      : nat ;
@@ -69,11 +63,8 @@ type vaultWithdrawType is transferDestinationType
 
 // type vaultDepositType is transferTokenType
 type vaultDepositType  is [@layout:comb] record [
-//     from_           : address;
-//     to_             : address;
     amount          : nat;
     token           : tokenType;
-//     // tokenName       : string;
 ]
 
 type vaultControllerDepositType is [@layout:comb] record [
@@ -138,8 +129,7 @@ type vaultStorageType is record [
 
     handle                  : vaultHandleType;          // owner of the vault
     depositors              : depositorsType;           // users who can deposit into the vault    
-    whitelistUsers          : whitelistUsersType;       // users who can borrow / repay       
-
+    
     lambdaLedger            : lambdaLedgerType;
 ]
 
