@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
+import { showToaster } from '../Toaster/Toaster.actions'
 import { getHeadData } from './Menu.actions'
 import { MenuView } from './Menu.view'
 
@@ -23,6 +24,7 @@ export const Menu = ({
       await dispatch(getMvkTokenStorage(accountPkh))
     }
     await dispatch(getHeadData())
+    await dispatch(showToaster('', 'sfs', ''))
   }
 
   useEffect(() => {

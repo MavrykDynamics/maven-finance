@@ -18,7 +18,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   left: 0;
   width: 100%;
   height: 80px;
-  z-index: 35;
+  z-index: 11;
   background: #160e3f;
   display: flex;
   align-items: center;
