@@ -573,6 +573,7 @@ block {
                 
                 // init loan token name
                 const vaultLoanTokenName : string = createVaultParams.loanTokenName; // USDT, EURL 
+                const vaultOwner : address = Tezos.get_sender();
 
                 // Get loan token type
                 const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
@@ -592,13 +593,11 @@ block {
                 // make vault handle
                 const handle : vaultHandleType = record [
                     id     = newVaultId;
-                    owner  = Tezos.get_sender();
+                    owner  = vaultOwner;
                 ];
 
                 // check if vault already exists
                 if Big_map.mem(handle, s.vaults) then failwith("Error. Vault already exists.") else skip;
-
-                const defaultWhitelistUsers : whitelistUsersType = NoWhitelistUsers(unit);
 
                 // Prepare Vault Metadata
                 const vaultMetadata: metadataType = Big_map.literal (list [
@@ -638,7 +637,6 @@ block {
 
                     handle                      = handle;
                     depositors                  = createVaultParams.depositors;
-                    whitelistUsers              = defaultWhitelistUsers;
 
                     lambdaLedger                = vaultLambdaLedger;
                 ];
@@ -673,7 +671,6 @@ block {
 
                         lastUpdatedBlockLevel       = Tezos.get_level();
                         lastUpdatedTimestamp        = Tezos.get_now();
-
                     ];
                     
                     // update controller storage with new vault
@@ -701,6 +698,13 @@ block {
                     s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
                 };
+
+                // add new vault to owner's vault set
+                var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
+                        Some (_set) -> _set
+                    |   None        -> set []
+                ];
+                s.ownerLedger[vaultOwner] := Set.add(newVaultId, ownerVaultSet);
 
                 // increment vault counter and add vault id to vaultLedger
                 s.vaultLedger[newVaultId] := True;
@@ -1233,22 +1237,24 @@ block {
 
                 const initiator       : address           = Tezos.get_sender(); // vault address that initiated deposit
 
-                // check if token exists in collateral token ledger
-                const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                        Some(_record) -> _record
-                    |   None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
-                ];
+                // check if token is tez or exists in collateral token ledger
+                if tokenName = "tez" then skip else {
+                    const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                            Some(_record) -> _record
+                        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+                    ];
+                };
 
                 // get vault
                 var vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // check if sender matches vault owner; if match, then update and save vault with new collateral balance
-                if vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
+                // check if sender matches vault; if match, then update and save vault with new collateral balance
+                if vault.address =/= initiator then failwith(error_SENDER_MUST_BE_VAULT_ADDRESS) else skip;
                 
                 // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
                         Some(_balance) -> _balance
-                    |   None -> 0n
+                    |   None           -> 0n
                 ];
 
                 // calculate new collateral balance
@@ -1773,8 +1779,8 @@ block {
 
                 // check if token (sMVK) exists in collateral token ledger
                 const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                    Some(_record) -> _record
-                    | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // make vault handle
@@ -1845,7 +1851,7 @@ block {
                 // check if token (sMVK) exists in collateral token ledger
                 const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
                         Some(_record) -> _record
-                    |   None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+                    |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // make vault handle
@@ -1916,14 +1922,14 @@ block {
                 const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
                 const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
                 const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
-                const _liquidator        : address          = vaultLiquidateStakedMvkParams.liquidator;
+                const _liquidator       : address          = vaultLiquidateStakedMvkParams.liquidator;
                 
                 const tokenName       : string            = "sMVK";
 
                 // check if token (sMVK) exists in collateral token ledger
                 const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                    Some(_record) -> _record
-                    | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+                        Some(_record) -> _record
+                    |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // make vault handle
