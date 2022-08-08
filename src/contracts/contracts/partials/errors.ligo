@@ -1177,7 +1177,7 @@
 
 // ------------------------------------------------------------------------------
 //
-// Vault Controller Errors
+// LENDING Controller Errors
 //
 // ------------------------------------------------------------------------------
 
@@ -1200,5 +1200,12 @@
 [@inline] const error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 844n;
 [@inline] const error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 845n;
 [@inline] const error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 846n;
+[@inline] const error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 846n;
+[@inline] const error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 846n;
+
+[@inline] const error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 846n;
+
+
+
 
 

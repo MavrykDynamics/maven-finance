@@ -61,7 +61,7 @@ import { LPToken } from "../helpers/testLPHelper"
 // import { CfmmTezFa12Token } from "../helpers/cfmmTezFa12TokenHelper"
 import { Vault } from "../helpers/vaultHelper"
 
-import { LendingController, setLendingControllerLambdas } from "../helpers/lendingControllerHelper"
+import { LendingController, setLendingControllerLambdas, setLendingControllerProductLambdas } from "../helpers/lendingControllerHelper"
 
 
 // ------------------------------------------------------------------------------
@@ -654,6 +654,10 @@ describe('Contracts Deployment for Tests', async () => {
       // Lending Controller Lambdas
       await setLendingControllerLambdas(tezos, lendingController.contract);
       console.log("Lending Controller Lambdas Setup")
+
+      // Lending Controller Setup Vault Lambdas
+      await setLendingControllerProductLambdas(tezos, lendingController.contract)
+      console.log("Lending Controller Vault Lambdas Setup")
   
     
       // Set Lambdas End
