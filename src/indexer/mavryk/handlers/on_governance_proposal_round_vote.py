@@ -31,7 +31,7 @@ async def on_governance_proposal_round_vote(
     governance_snapshot = await models.GovernanceSatelliteSnapshotRecord.get_or_none(
         governance  = governance,
         user        = voter,
-        cycle       = governance.cycle_counter
+        cycle       = governance.cycle_id
     )
     if voter_address in satellite_snapshots:
         satellite_snapshot      = satellite_snapshots[voter_address]
@@ -39,7 +39,7 @@ async def on_governance_proposal_round_vote(
             governance              = governance,
             user                    = voter
         )
-        governance_snapshot.cycle                   = governance.cycle_counter
+        governance_snapshot.cycle                   = governance.cycle_id
         governance_snapshot.ready                   = satellite_snapshot.ready
         governance_snapshot.total_smvk_balance      = float(satellite_snapshot.totalStakedMvkBalance)
         governance_snapshot.total_delegated_amount  = float(satellite_snapshot.totalDelegatedAmount)

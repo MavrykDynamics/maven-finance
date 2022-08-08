@@ -298,7 +298,7 @@ class Governance(Model):
     current_cycle_end_level                 = fields.BigIntField(default=0)
     current_cycle_total_voters_reward       = fields.FloatField(default=0)
     next_proposal_id                        = fields.BigIntField(default=0)
-    cycle_counter                           = fields.BigIntField(default=0)
+    cycle_id                                = fields.BigIntField(default=0)
     cycle_highest_voted_proposal_id         = fields.BigIntField(default=0)
     timelock_proposal_id                    = fields.BigIntField(default=0)
 
