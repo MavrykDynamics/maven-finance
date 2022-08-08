@@ -4,12 +4,7 @@ import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 // components
 import Icon from '../Icon/Icon.view'
-import {
-  ConnectWalletStyled,
-  SimpleConnectedButton,
-  WalletConnectedButton,
-  WalletNotConnectedButton,
-} from './ConnectWallet.style'
+import { ConnectWalletStyled, SignOutButton, SimpleConnectedButton, WalletConnectedButton, WalletNotConnectedButton } from './ConnectWallet.style'
 
 type ConnectWalletViewProps = {
   type?: string | null
@@ -40,15 +35,19 @@ export const ConnectWalletView = ({
       {wallet ? (
         <>
           {ready && type !== 'simpleButton' && accountPkh ? (
-            <WalletConnectedButton>
-              <var>
-                <TzAddress tzAddress={accountPkh} hasIcon />
-              </var>
-              <button onClick={handleNewConnect}>
-                <Icon id="switch" />
-              </button>
-              <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
-            </WalletConnectedButton>
+            <>
+              <WalletConnectedButton>
+                <var>
+                  <TzAddress tzAddress={accountPkh} hasIcon />
+                </var>
+                <button onClick={handleNewConnect}>
+                  <Icon id="switch" />
+                </button>
+                <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
+              </WalletConnectedButton>
+              {/* TODO: Implement disconnect from the wallet fucntional */}
+              <SignOutButton onClick={() => null}>Sign out</SignOutButton>
+            </>
           ) : null}
           {type === 'simpleButton' && <SimpleConnectButtonNoAddress handleConnect={handleConnect} />}
           {!ready && type !== 'simpleButton' && <NoWalletConnectedButton handleConnect={handleConnect} />}

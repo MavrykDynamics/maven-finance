@@ -1,14 +1,20 @@
+import { State } from '../../../../reducers'
+import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
+import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
+import { NavigationLinkStyle } from './NavigationLink.constants'
+import {
+  NavigationLinkContainer,
+  NavigationLinkIcon,
+  NavigationLinkItem,
+  NavigationSubLinks,
+  SubLinkText,
+  SubNavLink,
+} from './NavigationLink.style'
 import Icon from 'app/App.components/Icon/Icon.view'
 import * as React from 'react'
 import useCollapse from 'react-collapsed'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-
-import { State } from '../../../../reducers'
-import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
-import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
-import { NavigationLinkStyle } from './NavigationLink.constants'
-import { NavigationLinkContainer, NavigationLinkIcon, NavigationLinkItem, NavigationSubLinks, SubLinkText, SubNavLink } from './NavigationLink.style'
 
 type NavigationLinkProps = {
   title: string

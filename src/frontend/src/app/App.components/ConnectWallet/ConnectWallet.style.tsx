@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-
 import { skyColor } from 'styles'
 import { BUTTON_RADIUS } from 'styles/constants'
 import { MavrykTheme } from 'styles/interfaces'
@@ -9,7 +8,8 @@ export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   border-radius: ${BUTTON_RADIUS};
   margin: 10px auto 34px;
   width: 100%;
-  max-width: 216px;
+  display: flex;
+  column-gap: 20px;
 `
 
 export const WalletConnectedButton = styled.div<{ theme: MavrykTheme }>`
@@ -56,6 +56,7 @@ export const WalletConnectedButton = styled.div<{ theme: MavrykTheme }>`
     }
   }
 `
+
 export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   margin: 0 auto;
   height: 50px;
@@ -88,6 +89,10 @@ export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   span {
     padding-right: 16px;
   }
+`
+
+export const SignOutButton = styled(WalletNotConnectedButton)`
+  width: 110px;
 `
 
 export const SimpleConnectedButton = styled.div<{ theme: MavrykTheme }>`

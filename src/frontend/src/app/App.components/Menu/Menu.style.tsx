@@ -110,7 +110,7 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     display: none;
   }
 
-  @media screen and (max-width: 1360px) {
+  @media screen and (max-width: 1535px) {
     &:not(.menu-expanded) {
       width: 72px;
 
@@ -200,7 +200,7 @@ export const MenuLogo = styled.img`
   width: 218px;
   height: 43px;
 
-  @media screen and (max-width: 1360px) {
+  @media screen and (max-width: 1535px) {
     width: 160px;
   }
 `

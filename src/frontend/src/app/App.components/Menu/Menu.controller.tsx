@@ -24,7 +24,6 @@ export const Menu = ({
       await dispatch(getMvkTokenStorage(accountPkh))
     }
     await dispatch(getHeadData())
-    await dispatch(showToaster('', 'sfs', ''))
   }
 
   useEffect(() => {
