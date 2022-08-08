@@ -1,0 +1,40 @@
+
+from mavryk.types.mvk.storage import MvkStorage
+from dipdup.context import HandlerContext
+from mavryk.types.mvk.parameter.mint import MintParameter
+from dipdup.models import Transaction
+import mavryk.models as models
+
+async def on_mvk_mint(
+    ctx: HandlerContext,
+    mint: Transaction[MintParameter, MvkStorage],
+) -> None:
+
+    # Get operation values
+    mintAddress         = mint.parameter.address
+    mvk_token_address   = mint.data.target_address
+    timestamp           = mint.data.timestamp
+    new_user_balance    = mint.storage.ledger[mintAddress]
+    minted_amount       = float(mint.parameter.nat)
+    total_supply        = float(mint.storage.totalSupply)
+
+    # Get mint account
+    user, _ = await models.MavrykUser.get_or_create(
+        address = mintAddress
+    )
+    user.mvk_balance = new_user_balance
+    await user.save()
+
+    # Create record
+    mvk_token               = await models.MVKToken.get(address = mvk_token_address)
+    mvk_token.total_supply  = total_supply
+    await mvk_token.save()
+    
+    mint_history_data       = models.MintHistoryData(
+        mvk_token           = mvk_token,
+        timestamp           = timestamp,
+        user                = user,
+        minted_amount       = minted_amount,
+        mvk_total_supply    = total_supply
+    )
+    await mint_history_data.save()

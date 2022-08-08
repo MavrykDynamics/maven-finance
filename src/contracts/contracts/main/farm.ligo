@@ -1,711 +1,991 @@
-////
-// TYPES INCLUDED
-////
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-////
-// COMMON TYPES
-////
-type delegator is address
-type tokenBalance is nat
+// ------------------------------------------------------------------------------
+// Shared Helpers and Types
+// ------------------------------------------------------------------------------
 
-////
-// STORAGE
-////
-type delegatorRecord is [@layout:comb] record[
-    balance: tokenBalance;
-    participationMVKPerShare: tokenBalance;
-    unclaimedRewards: tokenBalance;
-]
-type claimedRewards is [@layout:comb] record[
-    unpaid: tokenBalance;
-    paid: tokenBalance;
-]
-type plannedRewards is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
-    totalRewards: tokenBalance;
-]
-type lpStandard is
-    Fa12 of unit
-|   Fa2 of unit
-type lpToken is [@layout:comb] record[
-    tokenAddress: address;
-    tokenId: nat;
-    tokenStandard: lpStandard;
-    tokenBalance: tokenBalance;
-]
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-type breakGlassConfigType is [@layout:comb] record [
-    depositIsPaused         : bool;
-    withdrawIsPaused        : bool;
-    claimIsPaused           : bool;
-]
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
-type storage is record[
-    admin                   : address;
-    mvkTokenAddress         : address;
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
 
-    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts        : generalContractsType;
+// Doorman types
+#include "../partials/contractTypes/doormanTypes.ligo"
 
-    breakGlassConfig        : breakGlassConfigType;
+// Farm types
+#include "../partials/contractTypes/farmTypes.ligo"
 
-    lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
-    claimedRewards          : claimedRewards;
-    plannedRewards          : plannedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
-    lpToken                 : lpToken;
-    open                    : bool;
-    init                    : bool;
-    infinite                : bool;
-    forceRewardFromTransfer : bool; // If True, the claimed rewards will be transfered from the farmTreasury account
-    initBlock               : nat;
-    blocksPerMinute         : nat; // Needs to match the current Tezos block per minute
-]
+// FarmFactory Types
+#include "../partials/contractTypes/farmFactoryTypes.ligo"
 
-////
-// RETURN TYPES
-////
-(* define return for readability *)
-type return is list (operation) * storage
-(* define noop for readability *)
+// ------------------------------------------------------------------------------
+
+type farmAction is
+
+        // Housekeeping Entrypoints
+        SetAdmin                    of (address)
+    |   SetGovernance               of (address)
+    |   SetName                     of (string)
+    |   UpdateMetadata              of updateMetadataType
+    |   UpdateConfig                of farmUpdateConfigParamsType
+    |   UpdateWhitelistContracts    of updateWhitelistContractsType
+    |   UpdateGeneralContracts      of updateGeneralContractsType
+    |   MistakenTransfer            of transferActionType
+
+        // Farm Admin Entrypoints
+    |   InitFarm                    of initFarmParamsType
+    |   CloseFarm                   of (unit)
+
+        // Pause / Break Glass Entrypoints
+    |   PauseAll                    of (unit)
+    |   UnpauseAll                  of (unit)
+    |   TogglePauseEntrypoint       of farmTogglePauseEntrypointType
+
+        // Farm Entrypoints
+    |   Deposit                     of nat
+    |   Withdraw                    of nat
+    |   Claim                       of address
+
+        // Lambda Entrypoints
+    |   SetLambda                   of setLambdaType
+
+
+type return is list (operation) * farmStorageType
 const noOperations : list (operation) = nil;
 
-////
-// INPUTS
-////
-(* Transfer entrypoint inputs for FA12 and FA2 *)
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: tokenBalance;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type newTransferType is list(transfer)
-type oldTransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
+// farm contract methods lambdas
+type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmStorageType) -> return
 
-(* initFarm entrypoint inputs *)
-type initFarmParamsType is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
-    blocksPerMinute: nat;
-    forceRewardFromTransfer: bool;
-    infinite: bool;
-]
 
-(* doorman's farmClaim entrypoint inputs *)
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
-////
-// ENTRYPOINTS
-////
-type entryAction is
-    SetAdmin of (address)
-|   UpdateWhitelistContracts of updateWhitelistContractsParams
-|   UpdateGeneralContracts of updateGeneralContractsParams
+// ------------------------------------------------------------------------------
+//
+// Constants Begin
+//
+// ------------------------------------------------------------------------------
 
-|   UpdateBlocksPerMinute of (nat)
-|   IncreaseRewardPerBlock of (nat)
-|   ToggleForceRewardFromTransfer of (bool)
-|   CloseFarm of (unit)
+const fixedPointAccuracy : nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
-|   PauseAll of (unit)
-|   UnpauseAll of (unit)
-|   TogglePauseDeposit of (unit)
-|   TogglePauseWithdraw of (unit)
-|   TogglePauseClaim of (unit)
+// ------------------------------------------------------------------------------
+//
+// Constants End
+//
+// ------------------------------------------------------------------------------
 
-|   Deposit of nat
-|   Withdraw of nat
-|   Claim of unit
 
-|   InitFarm of initFarmParamsType
 
-////
-// EXTRA VARIABLES
-////
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
 
-////
-// HELPER FUNCTIONS
-///
-(* Getters and Setters *)
-function getDelegatorDeposit(const delegator: delegator; const s: storage): option(delegatorRecord) is
-    Big_map.find_opt(delegator, s.delegators)
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
 
-(* Checks functions *)
-function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
-  else unit
+// Allowed Senders: Admin, Governance Contract
+function checkSenderIsAllowed(const s : farmStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
-function checkSenderIsAdmin(const s: storage): unit is
-  if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
-  else unit
 
-function checkSenderOrSourceIsCouncil(const s: storage): unit is
-    block {
-        const councilAddress: address = case s.whitelistContracts["council"] of
+
+// Allowed Senders: Admin
+function checkSenderIsAdmin(const s : farmStorageType) : unit is
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    else unit
+
+
+
+// Allowed Senders: Council, Farm Factory Contract
+function checkSenderIsCouncilOrFarmFactory(const s : farmStorageType) : unit is
+block {
+
+    const councilAddress : address = case s.whitelistContracts["council"] of [
             Some (_address) -> _address
-        |   None -> (failwith("Council contract not found in whitelist contracts"): address)
-        end;
+        |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
+    ];
 
-        if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
-        else failwith("Only Council contract allowed");
-    } with(unit)
-
-function checkSenderOrSourceIsAllowed(const s: storage): unit is
-    block {
-        // First check because a farm without a factory should still be accessible
-        if Tezos.source = s.admin or Tezos.sender = s.admin then skip
-        else{
-            // Final check for factory
-            const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of
-                Some (_address) -> _address
-            |   None -> (failwith("Only Admin or Farm Factory contract allowed and Farm factory contract not found in whitelist contracts"): address)
-            end;
-
-            if farmFactoryAddress = Tezos.sender then skip 
-            else failwith("Only Admin or Factory contract allowed");
-        }
-    } with(unit)
-
-function checkFarmIsInit(const s: storage): unit is 
-  if not s.init then failwith("This farm has not yet been initiated")
-  else unit
-
-function checkFarmIsOpen(const s: storage): unit is 
-  if not s.open then failwith("This farm is closed")
-  else unit
-
-////
-// BREAK GLASS CHECKS
-////
-
-// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkDepositIsNotPaused(var s : storage) : unit is
-    if s.breakGlassConfig.depositIsPaused then failwith("Deposit entrypoint is paused.")
-    else unit;
-
-function checkWithdrawIsNotPaused(var s : storage) : unit is
-    if s.breakGlassConfig.withdrawIsPaused then failwith("Withdraw entrypoint is paused.")
-    else unit;
-
-function checkClaimIsNotPaused(var s : storage) : unit is
-    if s.breakGlassConfig.claimIsPaused then failwith("Claim entrypoint is paused.")
-    else unit;
-
-////
-// FUNCTIONS INCLUDED
-////
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-////
-// TRANSFER FUNCTIONS
-///
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
-    block{
-        const transferParams: oldTransferType = (from_,(to_,tokenAmount));
-
-        const tokenContract: contract(oldTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of
-                Some (c) -> c
-            |   None -> (failwith("Transfer entrypoint not found in LP Token contract"): contract(oldTransferType))
-            end;
-    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: newTransferType = list[
-            record[
-                from_=from_;
-                txs=list[
-                    record[
-                        to_=to_;
-                        token_id=tokenId;
-                        amount=tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(newTransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of
-            Some (c) -> c
-        |   None -> (failwith("Transfer entrypoint not found in LP Token contract"): contract(newTransferType))
-        end;
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
-function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
-    case tokenStandard of
-        Fa12 -> transferFa12Token(from_,to_,tokenAmount,tokenContractAddress)
-    |   Fa2 -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
-    end
-
-function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
-    block{
-        // Call farmClaim from the doorman contract
-        const doormanContractAddress: address = case Big_map.find_opt("doorman", s.generalContracts) of
-            Some (a) -> a
-        |   None -> (failwith("Doorman contract not found in generalContracts map"): address)
-        end;
-        
-        const doormanContract: contract(farmClaimType) =
-        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of
-            Some (c) -> c
-        |   None -> (failwith("FarmClaim entrypoint not found in Doorman contract"): contract(farmClaimType))
-        end;
-
-        const farmClaimParams: farmClaimType = (delegator, tokenAmount, s.forceRewardFromTransfer);
-    } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
-
-////
-// UPDATE FARM FUNCTIONS
-///
-function updateBlock(var s: storage): storage is
-    block{
-        // Close farm is totalBlocks duration has been exceeded
-        const lastBlock: nat = s.plannedRewards.totalBlocks + s.initBlock;
-        s.open := Tezos.level <= lastBlock or s.infinite;
-
-        // Update lastBlockUpdate in storage
-        s.lastBlockUpdate := Tezos.level;
-    }
-    with(s)
-
-function updateFarmParameters(var s: storage): storage is
-    block{
-        // Compute the potential reward of this block
-        const multiplier: nat = abs(Tezos.level - s.lastBlockUpdate);
-        const suspectedReward: tokenBalance = multiplier * s.plannedRewards.currentRewardPerBlock;
-
-        // This check is necessary in case the farm unpaid reward was not updated for a long time
-        // and the outstandingReward grew to such a big number that it exceeds the planned rewards.
-        // In that case only the difference between planned and claimed rewards is paid out to empty
-        // the account.
-        const totalClaimedRewards: tokenBalance = s.claimedRewards.paid + s.claimedRewards.unpaid;
-        const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
-        const totalPlannedRewards: tokenBalance = s.plannedRewards.totalRewards;
-        const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.infinite of
-            True -> abs(totalPlannedRewards - totalClaimedRewards)
-        |   False -> suspectedReward
-        end;
-            
-        // Updates the storage
-        s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
-        s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.lpToken.tokenBalance);
-        s := updateBlock(s);
-    } with(s)
-
-function updateFarm(var s: storage): storage is
-    block{
-        s := case s.lpToken.tokenBalance = 0n of
-            True -> updateBlock(s)
-        |   False -> case s.lastBlockUpdate = Tezos.level or not s.open of
-                True -> s
-            |   False -> updateFarmParameters(s)
-            end
-        end;
-    } with(s)
-
-function updateUnclaimedRewards(var s: storage): storage is
-    block{
-        // Get delegator
-        const delegator: delegator = Tezos.sender;
-
-        // Check if sender as already a record
-        var delegatorRecord: delegatorRecord :=
-            case getDelegatorDeposit(delegator, s) of
-                Some (r) -> r
-            |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
-            end;
-
-        // Compute delegator reward
-        const accumulatedMVKPerShareStart: tokenBalance = delegatorRecord.participationMVKPerShare;
-        const accumulatedMVKPerShareEnd: tokenBalance = s.accumulatedMVKPerShare;
-        if accumulatedMVKPerShareStart > accumulatedMVKPerShareEnd then failwith("The delegator reward debt is higher than the accumulated MVK per share") else skip;
-        const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
-        const delegatorReward = (currentMVKPerShare * delegatorRecord.balance) / fixedPointAccuracy;
-
-        // Update paid and unpaid rewards in storage
-        if delegatorReward > s.claimedRewards.unpaid then failwith("The delegator reward is higher than the total unpaid reward") else skip;
-        s.claimedRewards := record[
-            unpaid=abs(s.claimedRewards.unpaid - delegatorReward);
-            paid=s.claimedRewards.paid + delegatorReward;
-        ];
-
-        // Update user's unclaimed rewards and participationMVKPerShare
-        delegatorRecord.unclaimedRewards := delegatorRecord.unclaimedRewards + delegatorReward;
-        delegatorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
-        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-    } with(s)
-
-////
-// BREAK GLASS FUNCTIONS
-///
-function pauseAll(var s: storage) : return is
-    block {
-        // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
-
-        // set all pause configs to True
-        if s.breakGlassConfig.depositIsPaused then skip
-        else s.breakGlassConfig.depositIsPaused := True;
-
-        if s.breakGlassConfig.withdrawIsPaused then skip
-        else s.breakGlassConfig.withdrawIsPaused := True;
-
-        if s.breakGlassConfig.claimIsPaused then skip
-        else s.breakGlassConfig.claimIsPaused := True;
-
-    } with (noOperations, s)
-
-function unpauseAll(var s : storage) : return is
-    block {
-        // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
-
-        // set all pause configs to False
-        if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
-        else skip;
-
-        if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
-        else skip;
-
-        if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
-        else skip;
-
-    } with (noOperations, s)
-
-function togglePauseDeposit(var s : storage) : return is
-    block {
-        // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
-
-        if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
-        else s.breakGlassConfig.depositIsPaused := True;
-
-    } with (noOperations, s)
-
-function togglePauseWithdraw(var s : storage) : return is
-    block {
-        // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
-
-        if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
-        else s.breakGlassConfig.withdrawIsPaused := True;
-
-    } with (noOperations, s)
-
-function togglePauseClaim(var s : storage) : return is
-    block {
-        // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
-
-        if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
-        else s.breakGlassConfig.claimIsPaused := True;
-
-    } with (noOperations, s)
-
-////
-// ENTRYPOINTS FUNCTIONS
-///
-(*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
-block {
-    checkSenderIsAdmin(s); // check that sender is admin
-    s.admin := newAdminAddress;
-} with (noOperations, s)
-
-(*  IncreaseRewards entrypoint *)
-function increaseRewardPerBlock(const newRewardPerBlock: nat; var s: storage) : return is
-block {
-    // check that source is admin
-    checkSenderOrSourceIsAllowed(s);
-
-    // check if farm has been initiated
-    checkFarmIsInit(s);
-
-    // update storage
-    s := updateFarm(s);
-
-    // Check new reward per block
-    const currentRewardPerBlock: nat = s.plannedRewards.currentRewardPerBlock;
-    if currentRewardPerBlock > newRewardPerBlock then failwith("The new reward per block must be higher than the previous one.") else skip;
-
-    // Calculate new total rewards
-    const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
-    const remainingBlocks: nat = abs((s.initBlock + s.plannedRewards.totalBlocks) - s.lastBlockUpdate);
-    const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * newRewardPerBlock;
-
-    // Update storage
-    s.plannedRewards.currentRewardPerBlock := newRewardPerBlock;
-    s.plannedRewards.totalRewards := newTotalRewards;
-
-} with (noOperations, s)
-
-(*  UpdateBlocksPerMinute entrypoint *)
-function updateBlocksPerMinute(const blocksPerMinute: nat; var s: storage) : return is
-block {
-    // check that source is admin or factory
-    checkSenderOrSourceIsCouncil(s);
-
-    // check if farm has been initiated
-    checkFarmIsInit(s);
-
-    // update storage
-    s := updateFarm(s);
-
-    // Check new blocksPerMinute
-    if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
-
-    var newcurrentRewardPerBlock: nat := 0n;
-    if s.infinite then {
-        newcurrentRewardPerBlock := s.blocksPerMinute * s.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
-    }
+    if Tezos.get_sender() = councilAddress then skip
     else {
-        // Unclaimed rewards
-        const totalUnclaimedRewards: nat = abs(s.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
 
-        // Updates rewards and total blocks accordingly
-        const blocksPerMinuteRatio: nat = s.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
-        const newTotalBlocks: nat = (s.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
-        const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
-        newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
-        
-        // Update storage
-        s.plannedRewards.totalBlocks := newTotalBlocks;
+        const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
+                Some (_address) -> _address
+            |   None            -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND) : address)
+        ];
+
+        if Tezos.get_sender() = farmFactoryAddress then skip
+        else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
+
+    }
+
+} with(unit)
+
+
+
+// Allowed Senders: Admin, Governance Contract, Farm Factory Contract
+function checkSenderIsGovernanceOrFactory(const s : farmStorageType) : unit is
+block {
+
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress then skip
+    else{
+
+        const farmFactoryAddress : address = case s.whitelistContracts["farmFactory"] of [
+                Some (_address) -> _address
+            |   None            -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED) : address)
+        ];
+
+        if Tezos.get_sender() = farmFactoryAddress then skip 
+        else failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED);
+
     };
 
-    // Update storage
-    s.blocksPerMinute := blocksPerMinute;
-    s.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
+} with(unit)
+
+
+
+// Allowed Senders: Admin, Governance Satellite Contract
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmStorageType) : unit is
+block{
+    if Tezos.get_sender() = s.admin then skip
+    else {
+
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+
+    }
+} with unit
+
+
+
+// Check that farm is open
+function checkFarmIsOpen(const s : farmStorageType) : unit is 
+    if not s.open then failwith(error_FARM_CLOSED)
+    else unit
+
+
+
+// Check that farm is initiated
+function checkFarmIsInit(const s : farmStorageType) : unit is 
+    if not s.init then failwith(error_FARM_NOT_INITIATED)
+    else unit
+
+
+
+// Get the Deposit of a user
+function getDepositorDeposit(const depositor : depositorType; const s : farmStorageType) : option(depositorRecordType) is
+    Big_map.find_opt(depositor, s.depositorLedger)
+
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p : unit) : unit is
+    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    else unit
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check that the %deposit entrypoint is not paused
+function checkDepositIsNotPaused(var s : farmStorageType) : unit is
+    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %withdraw entrypoint is not paused
+function checkWithdrawIsNotPaused(var s : farmStorageType) : unit is
+    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %claim entrypoint is not paused
+function checkClaimIsNotPaused(var s : farmStorageType) : unit is
+    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Transfer Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to transfer LP Token
+function transferLP(const from_ : address; const to_ : address; const tokenAmount : tokenBalanceType; const tokenId : nat; const tokenStandard : lpStandardType; const tokenContractAddress : address) : operation is
+    case tokenStandard of [
+            Fa12 -> transferFa12Token(from_,to_,tokenAmount,tokenContractAddress)
+        |   Fa2  -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
+    ]
+
+    
+
+// helper function to transfer reward to depositor through the %farmClaim entrypoint on the Doorman Contract
+function transferReward(const depositor : depositorType; const tokenAmount : tokenBalanceType; const s : farmStorageType) : operation is
+block{
+
+    // --------------------------------------------------------------------------------------
+    // Transfer reward to depositor through the %farmClaim entrypoint on the Doorman Contract
+    // --------------------------------------------------------------------------------------
+
+    // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
+    const doormanContractAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
+    
+    // Get %farmClaim entrypoint on the Doorman Contract
+    const doormanContract : contract(farmClaimType) =
+        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress) : option(contract(farmClaimType))) of [
+                Some (c) -> c
+            |   None     -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(farmClaimType))
+        ];
+
+    // Init farmClaim entrypoint parameters 
+    const farmClaimParams : farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
+
+} with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
+
+// ------------------------------------------------------------------------------
+// Transfer Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Farm Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to update the farm duration and rewards based on the current protocol block time
+function updateDurationAndRewards(var s: farmStorageType) : farmStorageType is
+block {
+    
+    // Get last block time
+    const lastBlockTime : nat       = s.minBlockTimeSnapshot;
+    const currentBlockTime : nat    = Tezos.get_min_block_time();
+
+    if lastBlockTime =/= currentBlockTime then {
+        
+        // Calculate new rewards per block
+        var newCurrentRewardPerBlock : nat := 0n;
+        if s.config.infinite then {
+
+            newCurrentRewardPerBlock := currentBlockTime * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / lastBlockTime;
+
+        }
+        else {
+
+            // Unclaimed rewards
+            const totalUnclaimedRewards : nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid + s.claimedRewards.paid));
+
+            // Updates rewards and total blocks accordingly
+            const newTotalBlocks        : nat = (lastBlockTime * s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / currentBlockTime;
+            const remainingBlocks       : nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
+            
+            newCurrentRewardPerBlock    := (totalUnclaimedRewards * fixedPointAccuracy * fixedPointAccuracy) / remainingBlocks;
+            
+            // Update new total blocks
+            s.config.plannedRewards.totalBlocks := newTotalBlocks / fixedPointAccuracy;
+        };
+
+        // Update farm storage with new config values (minBlockTimeSnapshot and currentRewardPerBlock)
+        s.minBlockTimeSnapshot                          := currentBlockTime;
+        s.config.plannedRewards.currentRewardPerBlock   := (newCurrentRewardPerBlock/fixedPointAccuracy);
+        s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
+
+
+    } else skip;
+
+} with (s)
+
+
+
+// helper function to update farm blocks 
+function updateBlock(var s: farmStorageType) : farmStorageType is
+block{
+    
+    // Calculate farm's last block level at which it will close
+    const lastBlock : nat = s.config.plannedRewards.totalBlocks + s.initBlock;
+
+    // Close farm if totalBlocks duration has been exceeded
+    // Farm remains open if totalBlocks duration has not been exceeded, or if it's an infinite farm
+    s.open := Tezos.get_level() <= lastBlock or s.config.infinite;
+
+    // Update lastBlockUpdate in farmStorageType
+    s.lastBlockUpdate := Tezos.get_level();
+
+} with (s)
+
+
+
+// helper function to update farm parameters
+function updateFarmParameters(var s: farmStorageType) : farmStorageType is
+block{
+
+    // Compute the potential reward of this block
+    const multiplier : nat = abs(Tezos.get_level() - s.lastBlockUpdate);
+    const suspectedReward : tokenBalanceType = multiplier * s.config.plannedRewards.currentRewardPerBlock;
+
+    // This check is necessary in case the farm unpaid reward was not updated for a long time
+    // and the outstandingReward grew to such a big number that it exceeds the planned rewards.
+    // In that case only the difference between planned and claimed rewards is paid out to empty
+    // the account.
+    const totalClaimedRewards : tokenBalanceType = s.claimedRewards.paid + s.claimedRewards.unpaid;
+    const totalFarmRewards : tokenBalanceType = suspectedReward + totalClaimedRewards;
+    const totalPlannedRewards : tokenBalanceType = s.config.plannedRewards.totalRewards;
+    const reward : tokenBalanceType = case totalFarmRewards > totalPlannedRewards and not s.config.infinite of [
+            True  -> abs(totalPlannedRewards - totalClaimedRewards)
+        |   False -> suspectedReward
+    ];
+        
+    // Update farm storage - unpaid amount and accumulatedRewardsPerShare
+    s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
+    s.accumulatedRewardsPerShare := s.accumulatedRewardsPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
+
+    // Update farm block levels
+    s := updateBlock(s);
+
+} with (s)
+
+
+
+// helper function to update farm
+function updateFarm(var s : farmStorageType) : farmStorageType is
+block{
+    s   := case s.config.lpToken.tokenBalance = 0n of [
+            True -> updateBlock(s)
+        |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
+                    True -> s
+                |   False -> updateFarmParameters(s)
+            ]
+    ];
+    s   := updateDurationAndRewards(s);
+} with (s)
+
+
+
+// helper function to update depositor's unclaimed rewards
+function updateUnclaimedRewards(const depositor : depositorType; var s : farmStorageType) : farmStorageType is
+block{
+
+    // Check if sender as already a record
+    var depositorRecord : depositorRecordType := case getDepositorDeposit(depositor, s) of [
+            Some (r) -> r
+        |   None -> (failwith(error_DEPOSITOR_NOT_FOUND) : depositorRecordType)
+    ];
+
+    // Compute depositor reward
+    //  -   calculate user's currentMvkPerShare based on difference between his participationRewardsPerShare and farm's accumulatedRewardsPerShare
+    //  -   check that user's participationRewardsPerShare does not exceed farm's accumulatedRewardsPerShare
+    //  -   calculate total user's reward based on currentMvkPerShare multiplied by his balance
+
+    const accumulatedRewardsPerShareStart : tokenBalanceType = depositorRecord.participationRewardsPerShare;
+    const accumulatedRewardsPerShareEnd : tokenBalanceType = s.accumulatedRewardsPerShare;
+    if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
+    const currentMvkPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
+    const depositorReward = (currentMvkPerShare * depositorRecord.balance) / fixedPointAccuracy;
+
+    // Update paid and unpaid rewards in farm storage 
+    //  -   check that user's reward does not exceed total unpaid claimed rewards on the farm
+    if depositorReward > s.claimedRewards.unpaid then failwith(error_CALCULATION_ERROR) else skip;
+    s.claimedRewards := record [
+        unpaid = abs(s.claimedRewards.unpaid - depositorReward);
+        paid   = s.claimedRewards.paid + depositorReward;
+    ];
+
+    // Update user's unclaimed rewards and participationRewardsPerShare
+    depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
+    depositorRecord.participationRewardsPerShare := accumulatedRewardsPerShareEnd;
+    s.depositorLedger := Big_map.update(depositor, Some (depositorRecord), s.depositorLedger);
+
+} with(s)
+
+// ------------------------------------------------------------------------------
+// Farm Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(farmUnpackLambdaFunctionType)) of [
+            Some(f) -> f(farmLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers Begin
+//
+// ------------------------------------------------------------------------------
+
+// Farm Lambdas:
+#include "../partials/contractLambdas/farm/farmLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers End
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _ : unit; var s : farmStorageType) : address is
+    s.admin
+
+
+
+(* View: get name variable *)
+[@view] function getName(const _ : unit; var s : farmStorageType) : string is
+    s.name
+
+
+
+(*  View: get config *)
+[@view] function getConfig(const _ : unit; const s: farmStorageType) : farmConfigType is
+    s.config
+
+
+
+(*  View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _ : unit; const s: farmStorageType) : whitelistContractsType is
+    s.whitelistContracts
+
+
+
+(*  View: get general contracts *)
+[@view] function getGeneralContracts(const _ : unit; const s: farmStorageType) : generalContractsType is
+    s.generalContracts
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; const s: farmStorageType) : farmBreakGlassConfigType is
+    s.breakGlassConfig
+
+
+
+(*  View: get last block update *)
+[@view] function getLastBlockUpdate(const _ : unit; const s: farmStorageType) : nat is
+    s.lastBlockUpdate
+
+
+
+(*  View: get last block update *)
+[@view] function getAccumulatedRewardsPerShare(const _ : unit; const s: farmStorageType) : nat is
+    s.accumulatedRewardsPerShare
+
+
+
+(*  View: get claimed rewards *)
+[@view] function getClaimedRewards(const _ : unit; const s: farmStorageType) : claimedRewardsType is
+    s.claimedRewards
+
+
+
+(*  View: get depositor *)
+[@view] function getDepositorOpt(const depositorAddress: depositorType; const s: farmStorageType) : option(depositorRecordType) is
+    Big_map.find_opt(depositorAddress, s.depositorLedger)
+
+
+
+(*  View: get open *)
+[@view] function getOpen(const _ : unit; const s: farmStorageType) : bool is
+    s.open
+
+
+
+(*  View: get init *)
+[@view] function getInit(const _ : unit; const s: farmStorageType) : bool is
+    s.init
+
+
+
+(*  View: get init block *)
+[@view] function getInitBlock(const _ : unit; const s: farmStorageType) : nat is
+    s.initBlock
+
+
+
+(*  View: get min block time snapshot *)
+[@view] function getMinBlockTimeSnapshot(const _ : unit; const s: farmStorageType) : nat is
+    s.minBlockTimeSnapshot
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : farmStorageType) : lambdaLedgerType is
+    s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : farmStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : farmStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
+
+} with response
+
+
+
+(* setName entrypoint - update the metadata at a given key *)
+function setName(const updatedName : string; var s : farmStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetName(updatedName);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateMetadata Entrypoint - update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : farmStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsType; var s: farmStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsType; var s: farmStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams: transferActionType; var s: farmStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Farm Admin Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+(* initFarm Entrypoint *)
+function initFarm (const initFarmParams: initFarmParamsType; var s: farmStorageType) : return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaInitFarm"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaInitFarm(initFarmParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(* closeFarm Entrypoint *)
+function closeFarm (var s: farmStorageType) : return is
+block{
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCloseFarm"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaCloseFarm(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Farm Admin Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  pauseAll entrypoint *)
+function pauseAll(var s: farmStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaPauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  unpauseAll entrypoint *)
+function unpauseAll(var s : farmStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUnpauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: farmTogglePauseEntrypointType; const s: farmStorageType) : return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
+
+} with response
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Farm Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* deposit Entrypoint *)
+function deposit(const tokenAmount: tokenBalanceType; var s: farmStorageType) : return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDeposit"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaDeposit(tokenAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(* withdraw Entrypoint *)
+function withdraw(const tokenAmount: tokenBalanceType; var s: farmStorageType) : return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdraw"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaWithdraw(tokenAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(* Claim Entrypoint *)
+function claim(const depositor: depositorType; var s: farmStorageType) : return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaClaim(depositor);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Farm Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams: setLambdaType; var s: farmStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
 
 } with (noOperations, s)
 
-(* ToggleForceRewardFromTransfer Entrypoint *)
-function toggleForceRewardFromTransfer(var s: storage): return is
-    block {
-        // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
 
-        if s.forceRewardFromTransfer then s.forceRewardFromTransfer := False
-        else s.forceRewardFromTransfer := True;
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
 
-    } with (noOperations, s)
 
-(* Claim Entrypoint *)
-function claim(var s: storage): return is
-    block{
-        // break glass check
-        checkClaimIsNotPaused(s);
 
-        // Check if farm has started
-        checkFarmIsInit(s);
+(* main entrypoint *)
+function main (const action : farmAction; var s: farmStorageType) : return is
+block{
 
-        // Update pool storage
-        s := updateFarm(s);
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-        // Update user's unclaimed rewards
-        s := updateUnclaimedRewards(s);
+} with (
 
-        const delegator: delegator = Tezos.sender;
+    case action of [
 
-        // Check if sender as already a record
-        var delegatorRecord: delegatorRecord :=
-            case getDelegatorDeposit(delegator, s) of
-                Some (r) -> r
-            |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
-            end;
+            // Housekeeping Entrypoints
+            SetAdmin (parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)               -> setGovernance(parameters, s)
+        |   SetName (parameters)                     -> setName(parameters, s)
+        |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
-        const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
+            // Farm Admin Entrypoints
+        |   InitFarm (parameters)                    -> initFarm(parameters, s)
+        |   CloseFarm (_parameters)                  -> closeFarm(s)
 
-        if claimedRewards = 0n then failwith("The delegator has no rewards to claim") else skip;
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                   -> pauseAll(s)
+        |   UnpauseAll (_parameters)                 -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)       -> togglePauseEntrypoint(parameters, s)
 
-        // Store new unclaimedRewards value in delegator
-        delegatorRecord.unclaimedRewards := 0n;
-        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+            // Farm Entrypoints
+        |   Deposit (parameters)                     -> deposit(parameters, s)
+        |   Withdraw (parameters)                    -> withdraw(parameters, s)
+        |   Claim (parameters)                       -> claim(parameters, s)
 
-        // Transfer sMVK rewards
-        const operation: operation = transferReward(delegator, claimedRewards, s);
-    } with(list[operation], s)
-
-(* Deposit Entrypoint *)
-function deposit(const tokenAmount: tokenBalance; var s: storage): return is
-    block{
-        // break glass check
-        checkDepositIsNotPaused(s);
-
-        // Check if farm has started
-        checkFarmIsInit(s);
-
-        // Update pool storage
-        s := updateFarm(s);
-
-        // Check if farm is closed or not
-        checkFarmIsOpen(s);
-
-        // Delegator address
-        const delegator: delegator = Tezos.sender;
-
-        // Check if sender as already a record
-        const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
-
-        // Prepare new delegator record
-        var delegatorRecord: delegatorRecord := record[
-            balance=0n;
-            participationMVKPerShare=s.accumulatedMVKPerShare;
-            unclaimedRewards=0n
-        ];
-
-        // Get delegator deposit and perform a claim
-        if existingDelegator then {
-            // Update user's unclaimed rewards
-            s := updateUnclaimedRewards(s);
-
-            // Refresh delegator deposit with updated unclaimed rewards
-            delegatorRecord :=  case getDelegatorDeposit(delegator, s) of
-                Some (_delegator) -> _delegator
-            |   None -> failwith("Delegator not found")
-            end;
-            
-        }
-        else skip;
-
-        // Update delegator token balance
-        delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
-
-        // Update delegators Big_map and farmTokenBalance
-        s.lpToken.tokenBalance := s.lpToken.tokenBalance + tokenAmount;
-        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-
-        // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-        const operation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.lpToken.tokenId, s.lpToken.tokenStandard, s.lpToken.tokenAddress);
-    } with(list[operation], s)
-
-(* Withdraw Entrypoint *)
-function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
-    block{
-        // break glass check
-        checkWithdrawIsNotPaused(s);
-
-        // Check if farm has started
-        checkFarmIsInit(s);
-
-        // Update pool storage
-        s := updateFarm(s);
-
-        const delegator: delegator = Tezos.sender;
-
-        // Prepare to update user's unclaimedRewards if user already deposited tokens
-        s := updateUnclaimedRewards(s);
-
-        var delegatorRecord: delegatorRecord := 
-            case getDelegatorDeposit(delegator, s) of
-                Some (d) -> d
-            |   None -> failwith("DELEGATOR_NOT_FOUND")
-            end;
-
-        // Check if the delegator has enough token to withdraw
-        if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator deposit") else skip;
-        delegatorRecord.balance := abs(delegatorRecord.balance - tokenAmount);
-        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-
-        // Check if the farm has enough token
-        if tokenAmount > s.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
-        s.lpToken.tokenBalance := abs(s.lpToken.tokenBalance - tokenAmount);
-        
-        // Transfer LP tokens to the user from the farm balance in the LP Contract
-        const operation: operation = transferLP(
-            Tezos.self_address,
-            delegator,
-            tokenAmount,
-            s.lpToken.tokenId, 
-            s.lpToken.tokenStandard,
-            s.lpToken.tokenAddress
-        );
-    } with(list[operation], s)
-
-(* CloseFarm Entrypoint *)
-function closeFarm (var s: storage): return is
-    block{
-        // Check sender is admin
-        checkSenderIsAdmin(s);
-
-        // Check if farm is open
-        checkFarmIsOpen(s);
-        
-        s := updateFarm(s);
-    
-        s.open := False ;
-
-    } with (noOperations, s)
-
-(* InitFarm Entrypoint *)
-function initFarm (const initFarmParams: initFarmParamsType; var s: storage): return is
-    block{
-        // Check if sender is admin
-        checkSenderIsAdmin(s);
-
-        // Check if farm is already open
-        if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
-
-        // Check if the blocks per minute is greater than 0
-        if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
-
-        // Check wether the farm is infinite or its total blocks has been set
-        if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
-        
-        // Update storage
-        s := updateFarm(s);
-        s.initBlock := Tezos.level;
-        s.infinite := initFarmParams.infinite;
-        s.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
-        s.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
-        s.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
-        s.plannedRewards.totalRewards := s.plannedRewards.currentRewardPerBlock * s.plannedRewards.totalBlocks;
-        s.blocksPerMinute := initFarmParams.blocksPerMinute;
-        s.open := True ;
-        s.init := True ;
-    } with (noOperations, s)
-
-(* Main entrypoint *)
-function main (const action: entryAction; var s: storage): return is
-  block{
-    // Check that sender didn't send Tezos while calling an entrypoint
-    checkNoAmount(Unit);
-  } with(
-    case action of
-        SetAdmin (parameters) -> setAdmin(parameters, s)
-    |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
-    |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
-
-    |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)
-    |   IncreaseRewardPerBlock (parameters) -> increaseRewardPerBlock(parameters, s)
-    |   ToggleForceRewardFromTransfer (_parameters) -> toggleForceRewardFromTransfer(s)
-    |   CloseFarm (_parameters) -> closeFarm(s)
-
-    |   PauseAll (_parameters) -> pauseAll(s)
-    |   UnpauseAll (_parameters) -> unpauseAll(s)
-    |   TogglePauseDeposit (_parameters) -> togglePauseDeposit(s)
-    |   TogglePauseWithdraw (_parameters) -> togglePauseWithdraw(s)
-    |   TogglePauseClaim (_parameters) -> togglePauseClaim(s)
-
-    |   Deposit (parameters) -> deposit(parameters, s)
-    |   Withdraw (parameters) -> withdraw(parameters, s)
-    |   Claim (_parameters) -> claim(s)
-    |   InitFarm (parameters) -> initFarm(parameters, s)
-    end
-  )
+            // Lambda Entrypoints
+        |   SetLambda (parameters)                   -> setLambda(parameters, s)
+    ]
+)

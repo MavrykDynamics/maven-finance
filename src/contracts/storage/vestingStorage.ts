@@ -2,34 +2,38 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { bob } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from '../test/helpers/Utils'
 
 import { vestingStorageType } from '../test/types/vestingStorageType'
 
-const config = {
-  defaultCliffPeriod: 6,
-  defaultCooldownPeriod: 1,
-  newBlockTimeLevel: 0,
-  newBlocksPerMinute: 0,
-  blocksPerMinute: 2,
-  blocksPerMonth: 86400,
-}
+const metadata = MichelsonMap.fromLiteral({
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Vesting Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex'),
+})
 
 export const vestingStorage: vestingStorageType = {
-  admin: alice.pkh,
-  mvkTokenAddress: "",
+    
+    admin               : bob.pkh,
+    mvkTokenAddress     : "",
+    governanceAddress   : "",
+    metadata            : metadata,
 
-  config: config,
+    whitelistContracts  : MichelsonMap.fromLiteral({}),
+    generalContracts    : MichelsonMap.fromLiteral({}),
 
-  whitelistContracts: MichelsonMap.fromLiteral({}),
-  generalContracts: MichelsonMap.fromLiteral({}),
+    vesteeLedger        : MichelsonMap.fromLiteral({}),
 
-  claimLedger: MichelsonMap.fromLiteral({}),
-  vesteeLedger: MichelsonMap.fromLiteral({}),
+    totalVestedAmount   : new BigNumber(0),
 
-  totalVestedAmount: new BigNumber(0),
+    lambdaLedger        : MichelsonMap.fromLiteral({}),
 
-  tempBlockLevel: new BigNumber(0)
 }

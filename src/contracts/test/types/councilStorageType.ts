@@ -3,19 +3,22 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type councilStorageType = {
-  admin: string;
-  mvkTokenAddress: string;
+    
+    admin                   : string;
+    mvkTokenAddress         : string;
+    governanceAddress       : string;
+    metadata                : MichelsonMap<MichelsonMapKey, unknown>;
 
-  config: {};
-  councilMembers: Array<string>;
+    config                  : {};
+    councilMembers          : MichelsonMap<MichelsonMapKey, unknown>;
 
-  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
+    generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
-  councilActionsLedger: MichelsonMap<MichelsonMapKey, unknown>;
+    councilActionsLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  thresholdSigners: BigNumber;
-  actionCounter: BigNumber;
+    actionCounter           : BigNumber;
 
-  tempString: string;
+    lambdaLedger            : MichelsonMap<MichelsonMapKey, unknown>;
+
 };

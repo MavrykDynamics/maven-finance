@@ -4,7 +4,7 @@ import { MichelsonMap } from '@taquito/taquito'
 interface GovernanceConfig {
   successReward: number
   minQuorumPercentage: number
-  minQuorumMvkTotal: number
+  minQuorumStakedMvkTotal: number
   votingPowerRatio: number
   proposalSubmissionFee: number // 10 tez
   minimumStakeReqPercentage: number // 0.01% for testing: change to 10,000 later -> 10%
@@ -39,7 +39,6 @@ export interface GovernanceStorage {
   governanceLambdaLedger: MichelsonMap<string, unknown>
   financialRequestLedger: MichelsonMap<string, unknown>
   financialRequestCounter: number
-  tempFlag: number
 }
 export interface GovernanceState {
   governanceStorage: GovernanceStorage | any

@@ -76,7 +76,7 @@ export const compile = async (
     const michelson: string = execSync(
       `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
         format === 'json' ? '--michelson-format json' : ''
-      } --protocol hangzhou`,
+      } --protocol jakarta`,
       { maxBuffer: 1024 * 500 * 1024 },
     ).toString()
 
@@ -111,16 +111,21 @@ export const compile = async (
   })
 }
 
-export const compileLambdas = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
+export const compileLambdas = async (
+  json: string, 
+  contract: string, 
+  name: string, 
+  ligoVersion: string = env.ligoVersion
+  ) => {
   const ligo: string = getLigo(true, ligoVersion)
   const pwd: string = execSync('echo $PWD').toString()
   const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
   let res: any[] = []
-
+console.log(name);
   try {
     for (const lambda of lambdas) {
       const michelson = execSync(
-        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol hangzhou`,
+        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol jakarta`,
         { maxBuffer: 1024 * 500 },
       ).toString()
 
@@ -133,85 +138,10 @@ export const compileLambdas = async (json: string, contract: string, ligoVersion
       fs.mkdirSync(`${env.buildDir}/lambdas`)
     }
 
-    fs.writeFileSync(`${env.buildDir}/lambdas/governanceLambdas.json`, JSON.stringify(res))
+    fs.writeFileSync(`${env.buildDir}/lambdas/${name}.json`, JSON.stringify(res))
+
   } catch (e) {
     console.log('error in compiling lambdas')
-    console.error(e)
-  }
-}
-
-export const compileParameters = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
-  const ligo: string = getLigo(true, ligoVersion)
-  const pwd: string = execSync('echo $PWD').toString()
-  const lambdaParams: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
-  let res: any[] = []
-
-  try {
-    for (const lambdaParam of lambdaParams) {
-      const michelson = execSync(
-        `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
-        { maxBuffer: 1024 * 500 },
-      ).toString()
-
-      res.push(JSON.parse(michelson))
-
-      console.log(lambdaParam.index + 1 + '. ' + lambdaParam.name + ' lambda successfully compiled.')
-    }
-
-    if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
-      fs.mkdirSync(`${env.buildDir}/lambdas`)
-    }
-
-    fs.writeFileSync(`${env.buildDir}/lambdas/governanceLambdaParameters.json`, JSON.stringify(res))
-  } catch (e) {
-    console.log('error in compiling lambda parameters')
-    console.error(e)
-  }
-}
-
-export const packParameters = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
-  const ligo: string = getLigo(true, ligoVersion)
-  const pwd: string = execSync('echo $PWD').toString()
-  const lambdaParams: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
-
-  let res_michelson: any[] = []
-  let res_bytes: any[] = []
-
-  try {
-    for (const lambdaParam of lambdaParams) {
-      const michelson = execSync(
-        `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
-        { maxBuffer: 1024 * 500 },
-      ).toString()
-
-      // const bytes = execSync(
-      //   `${ligo} interpret -s pascaligo 'Bytes.pack(${michelson})'`,
-      //   { maxBuffer: 1024 * 500 }
-      // ).toString();
-
-      res_michelson.push(JSON.parse(michelson))
-
-      // console.log("michelson:")
-      // console.log(michelson);
-
-      const bytes = char2Bytes(michelson)
-      // console.log("bytes:")
-      // console.log(bytes);
-
-      res_bytes.push(bytes)
-
-      console.log(lambdaParam.index + 1 + '. ' + lambdaParam.name + ' successfully compiled and packed to bytes.')
-    }
-
-    if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
-      fs.mkdirSync(`${env.buildDir}/lambdas`)
-    }
-
-    fs.writeFileSync(`${env.buildDir}/lambdas/governanceLambdaParametersBytes.json`, JSON.stringify(res_bytes))
-
-    fs.writeFileSync(`${env.buildDir}/lambdas/governanceLambdaParameters.json`, JSON.stringify(res_michelson))
-  } catch (e) {
-    console.log('error in compiling lambda parameters')
     console.error(e)
   }
 }
