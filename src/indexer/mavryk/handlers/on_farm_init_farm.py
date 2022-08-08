@@ -14,7 +14,6 @@ async def on_farm_init_farm(
     farm_address                    = init_farm.data.target_address
     admin                           = init_farm.storage.admin
     governance_address              = init_farm.storage.governanceAddress
-    blocks_per_minute               = int(init_farm.storage.config.blocksPerMinute)
     force_rewards_from_transfer     = init_farm.storage.config.forceRewardFromTransfer
     infinite                        = init_farm.storage.config.infinite
     total_blocks                    = int(init_farm.storage.config.plannedRewards.totalBlocks)
@@ -30,6 +29,7 @@ async def on_farm_init_farm(
     accumulated_rewards_per_share   = float(init_farm.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(init_farm.storage.claimedRewards.unpaid)
     paid_rewards                    = float(init_farm.storage.claimedRewards.paid)
+    min_block_time_snapshot         = int(init_farm.storage.minBlockTimeSnapshot)
 
     # Create record
     governance      = await models.Governance.get(
@@ -40,7 +40,6 @@ async def on_farm_init_farm(
         admin       = admin,
         governance  = governance
     )
-    farm.blocks_per_minute               = blocks_per_minute
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
     farm.total_blocks                    = total_blocks
@@ -56,4 +55,5 @@ async def on_farm_init_farm(
     farm.accumulated_rewards_per_share   = accumulated_rewards_per_share
     farm.unpaid_rewards                  = unpaid_rewards
     farm.paid_rewards                    = paid_rewards
+    farm.min_block_time_snapshot        = min_block_time_snapshot
     await farm.save()

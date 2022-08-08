@@ -32,7 +32,7 @@ type satelliteRecordType is [@layout:comb] record [
     
     registeredDateTime          : timestamp;  
 ]
-type satelliteLedgerType is map (address, satelliteRecordType)
+type satelliteLedgerType is big_map (address, satelliteRecordType)
 
 type satelliteSnapshotRecordType is [@layout:comb] record [
     totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
@@ -41,13 +41,6 @@ type satelliteSnapshotRecordType is [@layout:comb] record [
 ]
 
 type satelliteRewardsLedgerType is big_map (address, satelliteRewardsType)
-
-type requestSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    requestId             : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
 
 type delegationConfigType is [@layout:comb] record [
     minimumStakedMvkBalance             : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
@@ -196,6 +189,7 @@ type delegationStorageType is [@layout:comb] record [
     breakGlassConfig        : delegationBreakGlassConfigType;
     delegateLedger          : delegateLedgerType;
     satelliteLedger         : satelliteLedgerType;
+    satelliteCounter        : nat;
     satelliteRewardsLedger  : satelliteRewardsLedgerType;
 
     lambdaLedger            : lambdaLedgerType;   

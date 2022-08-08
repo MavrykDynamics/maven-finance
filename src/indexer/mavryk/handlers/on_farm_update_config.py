@@ -18,7 +18,9 @@ async def on_farm_update_config(
     accumulated_rewards_per_share   = float(update_config.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(update_config.storage.claimedRewards.unpaid)
     current_reward_per_block        = float(update_config.storage.config.plannedRewards.currentRewardPerBlock)
-    totalRewards                    = float(update_config.storage.config.plannedRewards.totalRewards)
+    total_rewards                   = float(update_config.storage.config.plannedRewards.totalRewards)
+    total_blocks                    = int(update_config.storage.config.plannedRewards.totalBlocks)
+    min_block_time_snapshot         = int(update_config.storage.minBlockTimeSnapshot)
 
     # Update contract
     farm = await models.Farm.get(
@@ -30,5 +32,7 @@ async def on_farm_update_config(
     farm.accumulated_rewards_per_share  = accumulated_rewards_per_share
     farm.unpaid_rewards                 = unpaid_rewards
     farm.current_reward_per_block       = current_reward_per_block
-    farm.totalRewards                   = totalRewards
+    farm.total_rewards                  = total_rewards
+    farm.min_block_time_snapshot        = min_block_time_snapshot
+    farm.total_blocks                   = total_blocks
     await farm.save()

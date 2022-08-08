@@ -1,8 +1,8 @@
 
+from dipdup.models import Transaction
 from dipdup.context import HandlerContext
 from mavryk.types.delegation.parameter.delegate_to_satellite import DelegateToSatelliteParameter
 from mavryk.types.delegation.storage import DelegationStorage
-from dipdup.models import Transaction
 import mavryk.models as models
 
 async def on_delegation_delegate_to_satellite(

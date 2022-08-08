@@ -571,7 +571,7 @@
 //                     const glassBroken       = breakGlassStorage.glassBroken;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -728,7 +728,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -852,9 +852,6 @@
 //                     await signerFactory(alice.sk);
 //                     var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                     await signActionOperation.confirmation();
-//                     await signerFactory(eve.sk);
-//                     signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-//                     await signActionOperation.confirmation();
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -880,7 +877,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
@@ -912,7 +909,7 @@
 //                     const targetContract    = trudy.pkh;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -926,7 +923,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -1307,7 +1304,7 @@
 //                     breakGlassStorage               = await breakGlassInstance.storage();
 //                     const nextActionID              = breakGlassStorage.actionCounter;
 
-//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(breakGlassAddress.address, bob.pkh).send();
 //                     await setContractAdminOperation.confirmation();
 
 //                     await signerFactory(eve.sk);
@@ -1888,7 +1885,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
@@ -2033,7 +2030,7 @@
 
 //                     // Reset contract config
 //                     await signerFactory(alice.sk)
-//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(breakGlassAddress.address, bob.pkh).send();
 //                     await setContractAdminOperation.confirmation();
 
 //                     await signerFactory(eve.sk);

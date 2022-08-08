@@ -25,7 +25,7 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const governanceFinancialStorage: governanceFinancialStorageType = {
-    
+  
     admin                               : bob.pkh,
     mvkTokenAddress                     : "",
     governanceAddress                   : zeroAddress,
@@ -37,9 +37,8 @@ export const governanceFinancialStorage: governanceFinancialStorageType = {
     generalContracts                    : MichelsonMap.fromLiteral({}),
 
     financialRequestLedger              : MichelsonMap.fromLiteral({}),
-    financialRequestSnapshotLedger      : MichelsonMap.fromLiteral({}),
+    financialRequestVoters              : MichelsonMap.fromLiteral({}),
     financialRequestCounter             : new BigNumber(1),
-
+        
     lambdaLedger                        : MichelsonMap.fromLiteral({}),
-
 };

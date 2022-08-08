@@ -15,7 +15,7 @@ export type governanceFinancialStorageType = {
     generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
 
     financialRequestLedger              : MichelsonMap<MichelsonMapKey, unknown>;
-    financialRequestSnapshotLedger      : MichelsonMap<MichelsonMapKey, unknown>;
+    financialRequestVoters              : MichelsonMap<MichelsonMapKey, unknown>;
     financialRequestCounter             : BigNumber;
 
     lambdaLedger                        : MichelsonMap<MichelsonMapKey, unknown>;

@@ -6,14 +6,14 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -97,17 +97,7 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 function checkSenderIsDoormanContract(const store : mvkTokenStorageType) : unit is
-block{
-
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", store.governanceAddress);
-
-} with (case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> if _contract =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
-                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-])
+if getContractAddressFromGovernanceContract("doorman", store.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND) =/= Tezos.get_sender() then failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED) else unit
 
 
 
@@ -116,14 +106,7 @@ block{
 
   if Tezos.get_sender() = store.admin then skip
   else {
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", store.governanceAddress);
-    const governanceSatelliteAddress : address = case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", store.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
     
     if Tezos.get_sender() = governanceSatelliteAddress then skip
     else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -574,10 +557,14 @@ block {
     checkSenderIsAdmin(store);
 
     // Check inflation rate
-    const inflation : tokenBalanceType = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
+    const inflation : tokenBalanceType  = store.maximumSupply * store.inflationRate / 100_00n; // Apply the rate
+
+    // Calculate the percentage of minted MVK
+    const mintedMvkPercentage : nat     = store.totalSupply * 100_00n / store.maximumSupply;
     
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
-    if store.nextInflationTimestamp < Tezos.get_now() then {
+    // And at least 90% of the maximum supply has been minted
+    if store.nextInflationTimestamp < Tezos.get_now() and mintedMvkPercentage > 90_00n then {
       
       // Set the new maximumSupply
       store.maximumSupply           := store.maximumSupply + inflation;

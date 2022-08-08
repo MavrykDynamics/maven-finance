@@ -12,6 +12,5 @@ class InitFarmParameter(BaseModel):
 
     totalBlocks: str
     currentRewardPerBlock: str
-    blocksPerMinute: str
     forceRewardFromTransfer: bool
     infinite: bool
