@@ -71,6 +71,10 @@ h2 {
   margin: 0;
 }
 
+var {
+  font-style: normal;
+}
+
 h3 {
   font-size: 30px;
   font-weight: normal;

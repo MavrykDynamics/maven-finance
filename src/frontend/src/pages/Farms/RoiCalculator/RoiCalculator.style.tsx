@@ -6,6 +6,7 @@ export const RoiCalculatorStyled = styled.section`
   header {
     display: flex;
     align-items: center;
+    margin-bottom: 24px;
 
     h2 {
       color: ${cyanColor};
@@ -13,6 +14,72 @@ export const RoiCalculatorStyled = styled.section`
       font-size: 18px;
       line-height: 18px;
       padding-left: 18px;
+    }
+  }
+
+  #input-roi {
+    height: 60px;
+    padding-bottom: 30px;
+  }
+
+  .fieldset-roi {
+    .pinned-text {
+      top: 13px;
+    }
+  }
+
+  .label-roi {
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 18px;
+    color: ${skyColor};
+    padding-left: 8px;
+    padding-bottom: 2px;
+  }
+
+  .exchange-roi {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 18px;
+    color: ${skyColor};
+    padding: 0 20px;
+    margin-top: -24px;
+    position: relative;
+  }
+
+  .current-rates {
+    background: linear-gradient(180deg, #503eaa 0%, rgba(80, 62, 170, 0) 100%);
+    border-radius: 10px;
+    margin-top: 12px;
+    padding: 20px 30px;
+    color: ${cyanColor};
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 0;
+      font-weight: 400;
+      margin-top: 10px;
+    }
+
+    button {
+      svg {
+        width: 24px;
+        height: 24px;
+        stroke: ${headerColor};
+      }
     }
   }
 `
