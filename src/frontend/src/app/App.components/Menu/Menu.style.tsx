@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { backdropColor, cyanColor, royalPurpleColor } from 'styles/colors'
+import { backdropColor, cyanColor } from 'styles/colors'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -22,7 +22,6 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   background: #160e3f;
   display: flex;
   align-items: center;
-  /* justify-content: space-between; */
   padding: 0 22px 0 34px;
 
   #connectWalletButton {
@@ -98,7 +97,14 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
 
 export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   width: 232px;
-  min-height: 100vh;
+  min-height: 650px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
 
   .mobile-logo {
     display: none;
@@ -123,7 +129,6 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   @media screen and (max-width: 1260px) {
-    position: sticky;
     top: 0;
     left: 0;
     z-index: 30;
@@ -180,6 +185,8 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
 export const MenuSidebarContent = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   text-align: center;
   width: 100%;
   max-width: 232px;
@@ -211,10 +218,6 @@ export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   font-size: 11px;
   color: ${({ theme }) => theme.footerColor};
   font-weight: 600;
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
 
   @media screen and (max-width: 1460px) {
     padding: 0 10px;

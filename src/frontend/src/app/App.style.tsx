@@ -8,15 +8,17 @@ export const AppStyled = styled.div<{ theme: MavrykTheme; isExpandedMenu?: boole
   --carousel-button-bg: rgb(22 14 63 / 70%);
   --carousel-button-indent: -15px;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')} auto;
+  /* display: grid; */
+  padding-left: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')};
+  /* grid-template-columns: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')} auto; */
 
   @media screen and (max-width: 1360px) {
-    grid-template-columns: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')} auto;
+    /* grid-template-columns: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')} auto; */
   }
 
   @media screen and (max-width: 1260px) {
-    grid-template-columns: 72px auto;
+    padding-left: 72px;
+    /* grid-template-columns: 72px auto; */
   }
 `
 
