@@ -28,7 +28,6 @@ async def on_farm_origination(
     total_rewards                   = float(farm_origination.storage.config.plannedRewards.totalRewards)
     unpaid_rewards                  = float(farm_origination.storage.claimedRewards.unpaid)
     paid_rewards                    = float(farm_origination.storage.claimedRewards.paid)
-    blocks_per_minute               = int(farm_origination.storage.config.blocksPerMinute)
     infinite                        = farm_origination.storage.config.infinite
     deposit_paused                  = farm_origination.storage.breakGlassConfig.depositIsPaused
     withdraw_paused                 = farm_origination.storage.breakGlassConfig.withdrawIsPaused
@@ -53,7 +52,6 @@ async def on_farm_origination(
     )
     farm.creation_timestamp              = creation_timestamp
     farm.name                            = name 
-    farm.blocks_per_minute               = blocks_per_minute
     farm.force_rewards_from_transfer     = force_rewards_from_transfer
     farm.infinite                        = infinite
     farm.lp_token_address                = lp_token_address

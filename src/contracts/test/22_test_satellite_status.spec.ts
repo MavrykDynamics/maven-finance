@@ -111,10 +111,10 @@
 //             console.log('Eve address: '     + eve.pkh);
 //             console.log('Mallory address: ' + mallory.pkh);
     
-//             delegationStorage = await delegationInstance.storage();
-//             const satelliteMap = await delegationStorage.satelliteLedger;
+//             delegationStorage       = await delegationInstance.storage();
+//             const BobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
     
-//             if(satelliteMap.get(bob.pkh) === undefined){
+//             if(BobSatellite === undefined){
 
 //                 // ------------------------------------------------------------------
 //                 // Creation of 3 satellites
@@ -357,9 +357,9 @@
 
 //         });
 
-//         describe("%unsuspendSatellite", async () => {
+//         describe("%restoreSatellite", async () => {
 
-//             it('Suspended satellite should not be able to unsuspend a satellite', async () => {
+//             it('Suspended satellite should not be able to restore a satellite', async () => {
 //                 try{
     
 //                     // Initial Values
@@ -368,7 +368,7 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
@@ -377,7 +377,7 @@
 //                 }
 //             });
     
-//             it('Banned satellite should not be able to unsuspend a satellite', async () => {
+//             it('Banned satellite should not be able to restore a satellite', async () => {
 //                 try{
     
 //                     // Initial Values
@@ -386,7 +386,7 @@
 //                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
     
 //                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
+//                     await chai.expect(governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "Test purpose").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -427,46 +427,6 @@
     
 //                     // Operation
 //                     await chai.expect(governanceSatelliteInstance.methods.banSatellite(bob.pkh, "Test purpose").send()).to.be.rejected;
-    
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "BANNED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-
-//         })
-
-//         describe("%unbanSatellite", async () => {
-
-//             it('Suspended satellite should not be able to unban a satellite', async () => {
-//                 try{
-    
-//                     // Initial Values
-//                     await signerFactory(alice.sk);
-//                     delegationStorage       = await delegationInstance.storage()
-//                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(alice.pkh)
-    
-//                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unbanSatellite(eve.pkh, "Test purpose").send()).to.be.rejected;
-    
-//                     // Assertions
-//                     assert.strictEqual(satelliteRecord.status, "SUSPENDED");
-//                 } catch(e){
-//                     console.log(e);
-//                 }
-//             });
-    
-//             it('Banned satellite should not be able to unban a satellite', async () => {
-//                 try{
-    
-//                     // Initial Values
-//                     await signerFactory(eve.sk);
-//                     delegationStorage       = await delegationInstance.storage()
-//                     const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh)
-    
-//                     // Operation
-//                     await chai.expect(governanceSatelliteInstance.methods.unbanSatellite(eve.pkh, "Test purpose").send()).to.be.rejected;
     
 //                     // Assertions
 //                     assert.strictEqual(satelliteRecord.status, "BANNED");
@@ -693,15 +653,26 @@
 //                     await operation.confirmation()
     
 //                     // Final values
-//                     governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
-//                     const action                = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
-//                     const satelliteSnapshot     = await governanceSatelliteStorage.governanceSatelliteSnapshotLedger.get(actionId);
+//                     governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+//                     governanceStorage               = await governanceInstance.storage();
+//                     delegationStorage               = await delegationInstance.storage();
+//                     var currentCycle                = governanceStorage.cycleId;
+//                     const firstSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                     const secondSatelliteSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh});
+//                     const thirdSatelliteSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                     const firstSatelliteRecord      = await delegationStorage.satelliteLedger.get(alice.pkh);
+//                     const secondSatelliteRecord     = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                     const thirdSatelliteRecord      = await delegationStorage.satelliteLedger.get(bob.pkh);
+//                     const action                    = await governanceSatelliteStorage.governanceSatelliteActionLedger.get(actionId);
         
 //                     // Assertions
 //                     assert.notStrictEqual(action, undefined);
-//                     assert.strictEqual(satelliteSnapshot.get(alice.pkh), undefined);
-//                     assert.strictEqual(satelliteSnapshot.get(eve.pkh), undefined);
-//                     assert.notStrictEqual(satelliteSnapshot.get(bob.pkh), undefined);
+//                     assert.notStrictEqual(firstSatelliteSnapshot, undefined);
+//                     assert.notStrictEqual(secondSatelliteSnapshot, undefined);
+//                     assert.notStrictEqual(thirdSatelliteSnapshot, undefined);
+//                     assert.notStrictEqual(firstSatelliteRecord.status, "ACTIVE");
+//                     assert.notStrictEqual(secondSatelliteRecord.status, "ACTIVE");
+//                     assert.strictEqual(thirdSatelliteRecord.status, "ACTIVE");
 
 //                 } catch (e) {
 //                     console.dir(e, {depth: 5})
@@ -1341,7 +1312,7 @@
 
 //         describe("%updateProposalData", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1471,7 +1442,7 @@
 
 //         describe("%updatePaymentData", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1601,7 +1572,7 @@
 
 //         describe("%lockProposal", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1731,7 +1702,7 @@
 
 //         describe("%proposalRoundVote", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -1881,7 +1852,7 @@
 
 //         describe("%votingRoundVote", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -2053,7 +2024,7 @@
 
 //         describe("%processProposalPayment", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose and set council admin to governance proxy", async () => {
+//             before("Admin restores and restores satellites so they can propose and set council admin to governance proxy", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)
@@ -2311,7 +2282,7 @@
 
 //         describe("%dropProposal", async () => {
 
-//             before("Admin unbans and unsuspends satellites so they can propose", async () => {
+//             before("Admin restores and restores satellites so they can propose", async () => {
 //                 try{
 //                     // Initial values
 //                     await signerFactory(bob.sk)

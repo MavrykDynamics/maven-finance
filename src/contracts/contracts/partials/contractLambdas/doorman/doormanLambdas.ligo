@@ -396,14 +396,7 @@ block {
                 // -------------------------------------------
 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
                 const delegationOnStakeChangeOperation : operation = Tezos.transaction(
@@ -510,12 +503,13 @@ block {
                 const mvkLoyaltyIndex : nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
                 
                 // Calculate Exit Fee
-                const exitFee : nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
+                const exitFeeWithoutFloatingPoint : nat = abs(300_000n * fixedPointAccuracy - 5_250n * mvkLoyaltyIndex)*fixedPointAccuracy + (25n * mvkLoyaltyIndex * mvkLoyaltyIndex);
+                const exitFee                     : nat = exitFeeWithoutFloatingPoint / (10_000n * fixedPointAccuracy);
 
                 // Calculate final unstake amount and increment unclaimed rewards
-                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
-                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
-                s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
+                const paidFee             : nat     = unstakeAmount * (exitFee / 100n);
+                const finalUnstakeAmount  : nat     = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
+                s.unclaimedRewards                  := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                 // Check that unstakeAmount is not greater than staked MVK total supply
                 if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
@@ -606,14 +600,7 @@ block {
                 // -------------------------------------------
 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
                 const delegationOnStakeChangeOperation : operation = Tezos.transaction(
@@ -707,14 +694,7 @@ block {
 
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
                 const transferParameters : fa2TransferType = list[
@@ -797,14 +777,7 @@ block{
                 s := compoundUserRewards(userAddress, s);
                 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Trigger on stake change for user on the Delegation Contract (e.g. if the user is a satellite or delegated to one)
                 const onStakeChangeOperation : operation = Tezos.transaction((userAddress), 0tez, delegationOnStakeChange(delegationAddress));
@@ -865,34 +838,13 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDelegation : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case generalContractsOptViewDelegation of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Get Farm Factory Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewFarmFactory : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptViewFarmFactory of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Get Farm Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewFarmTreasury : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmTreasury", s.governanceAddress);
-                const treasuryAddress : address = case generalContractsOptViewFarmTreasury of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_TREASURY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryAddress : address = getContractAddressFromGovernanceContract("farmTreasury", s.governanceAddress, error_FARM_TREASURY_CONTRACT_NOT_FOUND);
 
                 // ------------------------------------------------------------------
                 // Validation Checks

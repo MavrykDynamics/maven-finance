@@ -33,36 +33,45 @@ class Config(BaseModel):
     governanceSatelliteApprovalPercentage: str
     governanceSatelliteDurationInDays: str
     governancePurposeMaxLength: str
+    maxActionsPerSatellite: str
 
 
-class VoteItem(BaseModel):
+class TokenItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    nay: Dict[str, Any]
+    fa12: str
 
 
-class VoteItem1(BaseModel):
+class Fa2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    pass_: Dict[str, Any] = Field(..., alias='pass')
+    tokenContractAddress: str
+    tokenId: str
 
 
-class VoteItem2(BaseModel):
+class TokenItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    yay: Dict[str, Any]
+    fa2: Fa2
 
 
-class Voters(BaseModel):
+class TokenItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    vote: Union[VoteItem, VoteItem1, VoteItem2]
-    totalVotingPower: str
-    timeVoted: str
+    tez: Dict[str, Any]
+
+
+class TransferListItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    to_: str
+    amount: str
+    token: Union[TokenItem, TokenItem1, TokenItem2]
 
 
 class GovernanceSatelliteActionLedger(BaseModel):
@@ -74,10 +83,11 @@ class GovernanceSatelliteActionLedger(BaseModel):
     executed: bool
     governanceType: str
     governancePurpose: str
-    voters: Dict[str, Voters]
+    voters: List[str]
     addressMap: Dict[str, str]
     stringMap: Dict[str, str]
     natMap: Dict[str, str]
+    transferList: List[TransferListItem]
     yayVoteStakedMvkTotal: str
     nayVoteStakedMvkTotal: str
     passVoteStakedMvkTotal: str
@@ -88,13 +98,41 @@ class GovernanceSatelliteActionLedger(BaseModel):
     expiryDateTime: str
 
 
-class GovernanceSatelliteSnapshotLedger(BaseModel):
+class Key(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    totalStakedMvkBalance: str
-    totalDelegatedAmount: str
-    totalVotingPower: str
+    nat: str
+    address: str
+
+
+class ValueItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nay: Dict[str, Any]
+
+
+class ValueItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    pass_: Dict[str, Any] = Field(..., alias='pass')
+
+
+class ValueItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    yay: Dict[str, Any]
+
+
+class GovernanceSatelliteVoter(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    key: Key
+    value: Union[ValueItem, ValueItem1, ValueItem2]
 
 
 class AggregatorPair1(BaseModel):
@@ -126,6 +164,7 @@ class GovernanceSatelliteStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    actionsInitiators: Dict[str, List[str]]
     admin: str
     aggregatorLedger: Dict[str, AggregatorLedger]
     config: Config
@@ -133,9 +172,7 @@ class GovernanceSatelliteStorage(BaseModel):
     governanceAddress: str
     governanceSatelliteActionLedger: Dict[str, GovernanceSatelliteActionLedger]
     governanceSatelliteCounter: str
-    governanceSatelliteSnapshotLedger: Dict[
-        str, Dict[str, GovernanceSatelliteSnapshotLedger]
-    ]
+    governanceSatelliteVoters: List[GovernanceSatelliteVoter]
     lambdaLedger: Dict[str, str]
     metadata: Dict[str, str]
     mvkTokenAddress: str

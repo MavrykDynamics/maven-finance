@@ -6,14 +6,14 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types

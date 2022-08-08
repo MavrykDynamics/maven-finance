@@ -234,7 +234,7 @@
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
-//                         var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+//                         var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(governanceAddress.address, bob.pkh).send();
 //                         await setAdminActionOperation.confirmation()
 
 //                         // Sign set admin action
@@ -246,7 +246,7 @@
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
-//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, delegationAddress.address).send();
+//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(delegationAddress.address, bob.pkh).send();
 //                         await setAdminActionOperation.confirmation()
 
 //                         // Sign set admin action
@@ -263,7 +263,7 @@
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
-//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, treasuryAddress.address).send();
+//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(treasuryAddress.address, bob.pkh).send();
 //                         await setAdminActionOperation.confirmation()
 
 //                         // Sign set admin action
@@ -296,7 +296,7 @@
 //                         console.log("WHITELISTED: ", whitelistedDevelopers);
 
 //                         // Operation
-//                         await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                         await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 
 //                         // Assertions
 //                         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
@@ -326,7 +326,7 @@
 //                         const proposalSourceCode    = "Proposal Source Code";
 
 //                         // Preparation
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Remove User from whitelisted dev
@@ -419,7 +419,7 @@
 //                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
 //                         // Operation
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Sign action
@@ -453,7 +453,7 @@
 //                         // Operation
 //                         councilStorage   = await councilInstance.storage();
 //                         console.log(councilStorage.admin)
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Sign action
@@ -482,7 +482,7 @@
 //                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
 //                         // Operation
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Sign action

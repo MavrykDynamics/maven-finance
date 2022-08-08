@@ -3,9 +3,10 @@
 // ------------------------------------------------------------------------------
 
 #include "./sharedTypes.ligo"
+#include "../errors.ligo"
 
 // ------------------------------------------------------------------------------
-// General Contract Methods
+// General Contract Helpers
 // ------------------------------------------------------------------------------
 
 function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
@@ -24,7 +25,7 @@ block {
 
 (* UpdateGeneralContracts Entrypoint *)
 function updateGeneralContractsMap(const updateGeneralContractsParams : updateGeneralContractsType; const generalContracts : generalContractsType) : generalContractsType is 
-  block{
+block{
 
     const contractName     : string  = updateGeneralContractsParams.generalContractName;
     const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
@@ -33,7 +34,7 @@ function updateGeneralContractsMap(const updateGeneralContractsParams : updateGe
             Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress) : option(address))
         |   None            -> (Some (contractAddress) : option(address))
     ];
-    
+
     const updatedGeneralContracts : generalContractsType = 
         Map.update(
             contractName, 
@@ -41,10 +42,20 @@ function updateGeneralContractsMap(const updateGeneralContractsParams : updateGe
             generalContracts
         );
 
-  } with (updatedGeneralContracts)
+} with (updatedGeneralContracts)
+
+(* Get an address from the governance contract general contracts map *)
+function getContractAddressFromGovernanceContract(const contractName : string; const governanceAddress : address; const errorCode : nat) : address is 
+case (Tezos.call_view ("getGeneralContractOpt", contractName, governanceAddress) : option (option(address))) of [
+        Some (_optionContract) -> case _optionContract of [
+                Some (_contract)    -> _contract
+            |   None                -> failwith (errorCode)
+        ]
+    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+];
 
 // ------------------------------------------------------------------------------
-// Whitelist Contract Methods
+// Whitelist Contract Helpers
 // ------------------------------------------------------------------------------
 
 function checkInWhitelistContracts(const contractAddress : address; var whitelistContracts : whitelistContractsType) : bool is 
@@ -80,7 +91,7 @@ block{
 } with (updatedWhitelistContracts)
 
 // ------------------------------------------------------------------------------
-// Whitelist Token Contract Methods
+// Whitelist Token Contract Helpers
 // ------------------------------------------------------------------------------
 
 function checkInWhitelistTokenContracts(const contractAddress : address; var whitelistTokenContracts : whitelistTokenContractsType) : bool is 

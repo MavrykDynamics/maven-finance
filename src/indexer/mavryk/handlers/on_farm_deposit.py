@@ -24,11 +24,19 @@ async def on_farm_deposit(
     accumulated_rewards_per_share   = float(deposit.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(deposit.storage.claimedRewards.unpaid)
     paid_rewards                    = float(deposit.storage.claimedRewards.paid)
+    total_rewards                   = float(deposit.storage.config.plannedRewards.totalRewards)
+    current_reward_per_block        = float(deposit.storage.config.plannedRewards.currentRewardPerBlock)
+    total_blocks                    = int(deposit.storage.config.plannedRewards.totalBlocks)
+    min_block_time_snapshot         = int(deposit.storage.minBlockTimeSnapshot)
 
     # Create and update records
     farm                            = await models.Farm.get(
         address = farm_address
     )
+    farm.total_rewards              = total_rewards
+    farm.current_reward_per_block   = current_reward_per_block
+    farm.total_blocks               = total_blocks
+    farm.min_block_time_snapshot    = min_block_time_snapshot
     farm.lp_token_balance           = lp_token_balance
     farm.accumulated_mvk_per_share  = accumulated_rewards_per_share
     farm.last_block_update          = last_block_update

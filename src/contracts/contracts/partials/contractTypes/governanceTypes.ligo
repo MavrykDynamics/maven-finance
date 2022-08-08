@@ -3,6 +3,9 @@
 // ------------------------------------------------------------------------------
 
 
+// Delegation Types
+#include "./delegationTypes.ligo"
+
 // Vote Types
 #include "../shared/voteTypes.ligo"
 
@@ -18,18 +21,15 @@ type roundType       is
     |   Timelock                  of unit
 
 type currentCycleInfoType is [@layout:comb] record[
-    round                       : roundType;               // proposal, voting, timelock
-    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
-    blocksPerVotingRound        : nat;                     // to determine duration of voting round
-    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    roundStartLevel             : nat;                     // current round starting block level
-    roundEndLevel               : nat;                     // current round ending block level
-    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
-    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
-    roundProposers              : map(address, set(nat));  // proposer, 
-    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    cycleTotalVotersReward      : nat;                     // reward given to all voters (will be split by the number of voters this cycle)
-    minQuorumStakedMvkTotal     : nat;                     // quorum to reach in order to reach the timelock round
+    round                       : roundType;                    // proposal, voting, timelock
+    blocksPerProposalRound      : nat;                          // to determine duration of proposal round
+    blocksPerVotingRound        : nat;                          // to determine duration of voting round
+    blocksPerTimelockRound      : nat;                          // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    roundStartLevel             : nat;                          // current round starting block level
+    roundEndLevel               : nat;                          // current round ending block level
+    cycleEndLevel               : nat;                          // current cycle (proposal + voting) ending block level 
+    cycleTotalVotersReward      : nat;                          // reward given to all voters (will be split by the number of voters this cycle)
+    minQuorumStakedMvkTotal     : nat;                          // quorum to reach in order to reach the timelock round
 ];
 
 
@@ -41,6 +41,7 @@ type proposalMetadataType is [@layout:comb] record[
     title               : string;
     data                : bytes;
 ]
+
 type paymentMetadataType is [@layout:comb] record[
     title               : string;
     transaction         : transferDestinationType;
@@ -55,17 +56,16 @@ type newProposalType is [@layout:comb] record [
     paymentMetadata     : option(list(paymentMetadataType));
 ]
 
-// Stores all voter data during proposal round
-type proposalRoundVoteType is (nat * timestamp)                             // total voting power (staked MVK) * timestamp
-type proposalVotersMapType is map (address, proposalRoundVoteType)
+// Stores all voter data during proposal and voting rounds
+type roundVoteType is 
+    Proposal    of actionIdType
+|   Voting      of voteType
 
 // Stores all voter data during voting round
 type votingRoundVoteType is [@layout:comb] record [
     vote  : voteType;
     empty : unit;   // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %pass become entrypoints.
 ]
-type votingRoundRecordType is (nat * timestamp * voteType)   // total voting power (staked MVK) * timestamp * voteType
-type votersMapType is map (address, votingRoundRecordType)
 
 type proposalRecordType is [@layout:comb] record [
     
@@ -81,13 +81,14 @@ type proposalRecordType is [@layout:comb] record [
     sourceCode                        : string;                  // link to github / repo
   
     successReward                     : nat;                     // log of successful proposal reward for voters - may change over time
+    totalVotersReward                 : nat;                     // log of the cycle total rewards for voters
     executed                          : bool;                    // true / false
     paymentProcessed                  : bool;                    // true / false
     locked                            : bool;                    // true / false
+    rewardClaimReady                  : bool;
   
     proposalVoteCount                 : nat;                     // proposal round: pass votes count - number of satellites
     proposalVoteStakedMvkTotal        : nat;                     // proposal round pass vote total mvk from satellites who voted pass
-    proposalVotersMap                 : proposalVotersMapType;   // proposal round ledger
   
     minProposalRoundVotePercentage    : nat;                     // min vote percentage of total MVK supply required to pass proposal round
     minProposalRoundVotesRequired     : nat;                     // min staked MVK votes required for proposal round to pass
@@ -98,7 +99,7 @@ type proposalRecordType is [@layout:comb] record [
     nayVoteStakedMvkTotal             : nat;                     // voting round: nay MVK total
     passVoteCount                     : nat;                     // voting round: pass count - number of satellites
     passVoteStakedMvkTotal            : nat;                     // voting round: pass MVK total
-    voters                            : votersMapType;           // voting round ledger
+    voters                            : set(address);            // voting round ledger
   
     minQuorumPercentage               : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
     minQuorumStakedMvkTotal           : nat;                     // log of min quorum in MVK - capture state at this point
@@ -117,10 +118,10 @@ type proposalLedgerType is big_map (nat, proposalRecordType);
 type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
     totalStakedMvkBalance     : nat;      // log of satellite's total mvk balance for this cycle
     totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-    cycle                     : nat;      // log of the cycle where the snapshot was taken
+    totalVotingPower          : nat;      // log calculated total voting power
+    ready                     : bool;     // log to tell if the satellite can partipate in the governance with its snapshot (cf. if it just registered) 
 ]
-type snapshotLedgerType is map (address, governanceSatelliteSnapshotRecordType);
+type snapshotLedgerType is big_map ((nat*address), governanceSatelliteSnapshotRecordType); // (cycleId*satelliteAddress    -> snapshot)
 
 
 // --------------------------------------------------
@@ -198,16 +199,28 @@ type updatePaymentDataType is [@layout:comb] record [
 ]
 
 type setContractAdminType is [@layout:comb] record [
-    newContractAdmin        : address;
     targetContractAddress   : address;
+    newContractAdmin        : address;
 ]
 
 type setContractGovernanceType is [@layout:comb] record [
-    newContractGovernance   : address;
     targetContractAddress   : address;
+    newContractGovernance   : address;
 ]
 
 type whitelistDevelopersType is set(address)
+
+type updateSatelliteSnapshotType is [@layout:comb] record [
+    satelliteAddress        : address;
+    satelliteRecord         : satelliteRecordType;
+    ready                   : bool;
+    delegationRatio         : nat;
+]
+
+type distributeProposalRewardsType is [@layout:comb] record [
+    satelliteAddress        : address;
+    proposalIds             : set(actionIdType);
+]
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -233,16 +246,18 @@ type governanceLambdaActionType is
     |   LambdaSetContractGovernance                 of setContractGovernanceType
 
         // Governance Cycle Lambdas
+    |   LambdaUpdateSatelliteSnapshot               of updateSatelliteSnapshotType
     |   LambdaStartNextRound                        of (bool)
     |   LambdaPropose                               of newProposalType
     |   LambdaProposalRoundVote                     of actionIdType
-    |   LambdaUpdateProposalData                 of updateProposalDataType
-    |   LambdaUpdatePaymentData                  of updatePaymentDataType
+    |   LambdaUpdateProposalData                    of updateProposalDataType
+    |   LambdaUpdatePaymentData                     of updatePaymentDataType
     |   LambdaLockProposal                          of actionIdType
     |   LambdaVotingRoundVote                       of votingRoundVoteType
     |   LambdaExecuteProposal                       of (unit)
     |   LambdaProcessProposalPayment                of actionIdType
     |   LambdaProcessProposalSingleData             of (unit)
+    |   LambdaDistributeProposalRewards             of distributeProposalRewardsType
     |   LambdaDropProposal                          of actionIdType
 
 
@@ -265,12 +280,17 @@ type governanceStorageType is [@layout:comb] record [
     whitelistDevelopers               : whitelistDevelopersType;  
 
     proposalLedger                    : proposalLedgerType;
+    proposalRewards                   : big_map((actionIdType*address), unit);  // proposalId*Satellite address
     snapshotLedger                    : snapshotLedgerType;
     
-    currentCycleInfo                  : currentCycleInfoType;       // current round state variables - will be flushed periodically
+    currentCycleInfo                  : currentCycleInfoType;      // current round state variables - will be flushed periodically
+
+    cycleProposals                    : map(actionIdType, nat);                 // proposal ids in the current cycle, proposal vote smvk total
+    cycleProposers                    : big_map((nat*address), set(nat));       // cycleId*proposer --> set of actionIds
+    roundVotes                        : big_map((nat*address), roundVoteType);  // proposal round: (proposal id*satelliteAddress) | voting round: (cycleId*satelliteAddress, voteType)
 
     nextProposalId                    : nat;                        // counter of next proposal id
-    cycleCounter                      : nat;                        // counter of current cycle 
+    cycleId                           : nat;                        // counter of current cycle 
     cycleHighestVotedProposalId       : nat;                        // set to 0 if there is no proposal currently, if not set to proposal id
     timelockProposalId                : nat;                        // set to 0 if there is proposal in timelock, if not set to proposal id
 

@@ -120,7 +120,7 @@ class MVKToken(Model):
     maximum_supply                          = fields.FloatField(default=0)
     total_supply                            = fields.FloatField(default=0)
     inflation_rate                          = fields.SmallIntField(default=0)
-    next_inflation_timestamp                = fields.DatetimeField()
+    next_inflation_timestamp                = fields.DatetimeField(null=True)
 
     class Meta:
         table = 'mvk_token'
@@ -154,7 +154,6 @@ class Farm(Model):
     farm_factory                            = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True)
     name                                    = fields.TextField(default='')
-    blocks_per_minute                       = fields.SmallIntField(default=0)
     force_rewards_from_transfer             = fields.BooleanField(default=False)
     infinite                                = fields.BooleanField(default=False)
     lp_token_address                        = fields.CharField(max_length=36, default='')
@@ -174,6 +173,7 @@ class Farm(Model):
     accumulated_rewards_per_share           = fields.FloatField(default=0)
     unpaid_rewards                          = fields.FloatField(default=0)
     paid_rewards                            = fields.FloatField(default=0)
+    min_block_time_snapshot                 = fields.SmallIntField(default=0)
 
     class Meta:
         table = 'farm'
@@ -182,7 +182,6 @@ class FarmFactory(Model):
     address                                 = fields.CharField(pk=True, max_length=36)
     admin                                   = fields.CharField(max_length=36)
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farm_factories')
-    blocks_per_minute                       = fields.SmallIntField(default=0)
     farm_name_max_length                    = fields.SmallIntField(default=0)
     create_farm_paused                      = fields.BooleanField(default=False)
     track_farm_paused                       = fields.BooleanField(default=False)
@@ -282,7 +281,6 @@ class Governance(Model):
     min_yay_vote_percentage                 = fields.SmallIntField(default=0)
     proposal_submission_fee_mutez           = fields.BigIntField(default=0)
     max_proposal_per_satellite              = fields.SmallIntField(default=0)
-    blocks_per_minute                       = fields.SmallIntField(default=0)
     blocks_per_proposal_round               = fields.BigIntField(default=0)
     blocks_per_voting_round                 = fields.BigIntField(default=0)
     blocks_per_timelock_round               = fields.BigIntField(default=0)
@@ -300,7 +298,7 @@ class Governance(Model):
     current_cycle_end_level                 = fields.BigIntField(default=0)
     current_cycle_total_voters_reward       = fields.FloatField(default=0)
     next_proposal_id                        = fields.BigIntField(default=0)
-    cycle_counter                           = fields.BigIntField(default=0)
+    cycle_id                                = fields.BigIntField(default=0)
     cycle_highest_voted_proposal_id         = fields.BigIntField(default=0)
     timelock_proposal_id                    = fields.BigIntField(default=0)
 
@@ -324,6 +322,7 @@ class GovernanceSatellite(Model):
     gov_sat_approval_percentage             = fields.SmallIntField(default=0)
     gov_sat_duration_in_days                = fields.SmallIntField(default=0)
     gov_purpose_max_length                  = fields.SmallIntField(default=0)
+    max_actions_per_satellite               = fields.SmallIntField(default=0)
     governance_satellite_counter            = fields.BigIntField(default=0)
 
     class Meta:
@@ -400,7 +399,6 @@ class USDMTokenController(Model):
     minimum_loan_fee                        = fields.FloatField(default=0.0)
     annual_service_loan_fee                 = fields.FloatField(default=0.0)
     daily_service_loan_fee                  = fields.FloatField(default=0.0)
-    blocks_per_minute                       = fields.SmallIntField(default=0)
     decimals                                = fields.SmallIntField(default=0)
     vault_counter                           = fields.BigIntField(default=0)
 
@@ -681,7 +679,9 @@ class GovernanceProposalRecord(Model):
     executed                                = fields.BooleanField(default=False)
     locked                                  = fields.BooleanField(default=False)
     payment_processed                       = fields.BooleanField(default=False)
+    reward_claim_ready                      = fields.BooleanField(default=False)
     success_reward                          = fields.FloatField(default=0)
+    total_voters_reward                     = fields.FloatField(default=0)
     proposal_vote_count                     = fields.BigIntField(default=0)
     proposal_vote_smvk_total                = fields.FloatField(default=0)
     min_proposal_round_vote_pct             = fields.BigIntField(default=0)
@@ -733,9 +733,10 @@ class GovernanceProposalRecordVote(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes', null=True)
     voter                                   = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
+    timestamp                               = fields.DatetimeField(null=True)
     round                                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                                    = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
-    voting_power                            = fields.FloatField()
+    voting_power                            = fields.FloatField(default=0.0)
     current_round_vote                      = fields.BooleanField(default=True)
 
     class Meta:
@@ -745,6 +746,7 @@ class GovernanceSatelliteSnapshotRecord(Model):
     id                                      = fields.BigIntField(pk=True)
     governance                              = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
     user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_snapshot_records_votes')
+    ready                                   = fields.BooleanField(default=True)
     total_smvk_balance                      = fields.FloatField(default=0.0)
     total_delegated_amount                  = fields.FloatField(default=0.0)
     total_voting_power                      = fields.FloatField(default=0.0)
@@ -791,17 +793,6 @@ class GovernanceFinancialRequestRecordVote(Model):
     class Meta:
         table = 'governance_financial_request_vote'
 
-class GovernanceFinancialRequestSatelliteSnapshotRecord(Model):
-    id                                      = fields.BigIntField(pk=True)
-    governance_financial_request            = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='snapshot_records')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_satellite_snapshot_records')
-    total_smvk_balance                      = fields.FloatField(default=0.0)
-    total_delegated_amount                  = fields.FloatField(default=0.0)
-    total_voting_power                      = fields.FloatField(default=0.0)
-
-    class Meta:
-        table = 'governance_financial_request_satellite_snapshot_record'
-
 class GovernanceSatelliteActionRecord(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite                    = fields.ForeignKeyField('models.GovernanceSatellite', related_name='governance_satellite_action_records')
@@ -842,16 +833,17 @@ class GovernanceSatelliteActionRecordParameter(Model):
     class Meta:
         table = 'governance_satellite_action_record_parameter'
 
-class GovernanceSatelliteActionSatelliteSnapshotRecord(Model):
+class GovernanceSatelliteActionRecordTransfer(Model):
     id                                      = fields.BigIntField(pk=True)
-    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='snapshot_records')
-    user                                    = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_satellite_snapshot_records')
-    total_smvk_balance                      = fields.FloatField(default=0.0)
-    total_delegated_amount                  = fields.FloatField(default=0.0)
-    total_voting_power                      = fields.FloatField(default=0.0)
+    governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='governance_satellite_action_transfers')
+    token_contract_address                  = fields.CharField(max_length=36)
+    token_type                              = fields.IntEnumField(enum_type=TokenType)
+    token_id                                = fields.SmallIntField(default=0)
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_record_transfer_receiver')
+    amount                                  = fields.BigIntField(default=0)
 
     class Meta:
-        table = 'governance_satellite_action_satellite_snapshot_record'
+        table = 'governance_satellite_action_record_transfer'
 
 class GovernanceSatelliteAggregatorRecord(Model):
     id                                      = fields.BigIntField(pk=True)

@@ -11,13 +11,6 @@
 // Storage Types
 // ------------------------------------------------------------------------------
 
-
-type financialRequestVoteType is [@layout:comb] record [
-    vote              : voteType;
-    totalVotingPower  : nat; 
-    timeVoted         : timestamp;
-] 
-type financialRequestVotersMapType is map (address, financialRequestVoteType)
 type financialRequestRecordType is [@layout:comb] record [
 
     requesterAddress                    : address;
@@ -32,7 +25,7 @@ type financialRequestRecordType is [@layout:comb] record [
     tokenType                           : string;
     tokenId                             : nat;
     requestPurpose                      : string;
-    voters                              : financialRequestVotersMapType; 
+    voters                              : set(address);
     keyHash                             : option(key_hash);
 
     yayVoteStakedMvkTotal               : nat;
@@ -48,15 +41,9 @@ type financialRequestRecordType is [@layout:comb] record [
 ]
 type financialRequestLedgerType is big_map (actionIdType, financialRequestRecordType);
 
-type financialRequestSnapshotMapType is map (address, satelliteSnapshotRecordType)
-type financialRequestSnapshotLedgerType is big_map (actionIdType, financialRequestSnapshotMapType);
-type requestSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    requestId             : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
-
+// ------------------------------------------------------------------------------
+// Governance Financial Config Types
+// ------------------------------------------------------------------------------
 
 type governanceFinancialConfigType is [@layout:comb] record [
     financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
@@ -132,8 +119,8 @@ type governanceFinancialStorageType is [@layout:comb] record [
     
     // financial governance storage 
     financialRequestLedger              : financialRequestLedgerType;
-    financialRequestSnapshotLedger      : financialRequestSnapshotLedgerType;
     financialRequestCounter             : nat;
+    financialRequestVoters              : big_map((actionIdType*address), voteType);
 
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;

@@ -17,15 +17,34 @@ async def on_governance_proposal_round_vote(
     voter_address           = proposal_round_vote.data.sender_address
     current_round           = models.GovernanceRoundType.PROPOSAL
     vote                    = models.GovernanceVoteType.YAY
-    storage_voter           = storage_proposal.proposalVotersMap[voter_address]
-    voting_power            = float(storage_voter.nat)
     vote_count              = int(storage_proposal.proposalVoteCount)
     vote_smvk_total         = float(storage_proposal.proposalVoteStakedMvkTotal)
+    satellite_snapshots     = proposal_round_vote.storage.snapshotLedger
+    timestamp               = proposal_round_vote.data.timestamp
 
     # Create and update records
     governance  = await models.Governance.get(address   = governance_address)
     voter, _    = await models.MavrykUser.get_or_create(address = voter_address)
     await voter.save()
+
+    # Update or a satellite snapshot record
+    governance_snapshot = await models.GovernanceSatelliteSnapshotRecord.get_or_none(
+        governance  = governance,
+        user        = voter,
+        cycle       = governance.cycle_id
+    )
+    if voter_address in satellite_snapshots:
+        satellite_snapshot      = satellite_snapshots[voter_address]
+        governance_snapshot, _  = await models.GovernanceSatelliteSnapshotRecord.get_or_create(
+            governance              = governance,
+            user                    = voter
+        )
+        governance_snapshot.cycle                   = governance.cycle_id
+        governance_snapshot.ready                   = satellite_snapshot.ready
+        governance_snapshot.total_smvk_balance      = float(satellite_snapshot.totalStakedMvkBalance)
+        governance_snapshot.total_delegated_amount  = float(satellite_snapshot.totalDelegatedAmount)
+        governance_snapshot.total_voting_power      = float(satellite_snapshot.totalVotingPower)
+        await governance_snapshot.save()
 
     # Update proposal with vote
     proposal    = await models.GovernanceProposalRecord.get(
@@ -57,12 +76,13 @@ async def on_governance_proposal_round_vote(
         await proposal_vote.delete()
     
     # Create a new vote
-    proposal_vote = models.GovernanceProposalRecordVote(
+    proposal_vote, _    = await models.GovernanceProposalRecordVote.get_or_create(
         governance_proposal_record  = proposal,
         voter                       = voter,
-        round                       = current_round,
-        vote                        = vote,
-        voting_power                = voting_power,
-        current_round_vote          = True
+        round                       = current_round
     )
+    proposal_vote.vote                  = vote
+    proposal_vote.voting_power          = governance_snapshot.total_voting_power
+    proposal_vote.current_round_vote    = True
+    proposal_vote.timestamp             = timestamp
     await proposal_vote.save()

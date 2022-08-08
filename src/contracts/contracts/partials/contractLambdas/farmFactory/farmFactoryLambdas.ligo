@@ -315,14 +315,7 @@ block{
                 if String.length(createFarmParams.name) > s.config.farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Get Council Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
-                const councilAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
                 
                 // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
                 const farmWhitelistContract : whitelistContractsType = map[
