@@ -78,11 +78,11 @@ export const CouncilFormAddVestee = () => {
             required
             value={vesteeAddress}
             name="vesteeAddress"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.vesteeAddress}
           />
         </div>
@@ -94,11 +94,11 @@ export const CouncilFormAddVestee = () => {
             required
             value={totalAllocated}
             name="totalAllocated"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.totalAllocated}
           />
         </div>
@@ -112,11 +112,11 @@ export const CouncilFormAddVestee = () => {
             required
             value={cliffInMonths}
             name="cliffInMonths"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.cliffInMonths}
           />
         </div>
@@ -130,11 +130,11 @@ export const CouncilFormAddVestee = () => {
             required
             value={vestingInMonths}
             name="vestingInMonths"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.vestingInMonths}
           />
         </div>

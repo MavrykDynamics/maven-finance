@@ -1,6 +1,3 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
-
 import { InputKind, InputStatusType } from './Input.controller'
 import {
   InputComponent,
@@ -13,8 +10,9 @@ import {
 } from './Input.style'
 
 type InputViewProps = {
+  id?: string
   icon?: string
-  placeholder: string
+  placeholder?: string
   name?: string
   value?: string | number
   onChange: any
@@ -22,7 +20,7 @@ type InputViewProps = {
   onKeyDown: any
   onFocus: any
   inputStatus?: InputStatusType
-  type: string
+  type?: string
   errorMessage?: string
   disabled?: boolean
   pinnedText?: string
@@ -31,6 +29,7 @@ type InputViewProps = {
 }
 
 export const InputView = ({
+  id = '',
   icon,
   placeholder,
   name,
@@ -59,7 +58,7 @@ export const InputView = ({
       )}
       <InputComponentContainer>
         <InputComponent
-          id={'inputComponent'}
+          id={id}
           type={type}
           name={name}
           required={required}
@@ -79,26 +78,4 @@ export const InputView = ({
       {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}
     </InputStyled>
   )
-}
-
-InputView.propTypes = {
-  icon: PropTypes.string,
-  placeholder: PropTypes.string,
-  name: PropTypes.string,
-  value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func.isRequired,
-  inputStatus: PropTypes.string,
-  type: PropTypes.string,
-  errorMessage: PropTypes.string,
-  disabled: PropTypes.bool,
-}
-
-InputView.defaultProps = {
-  icon: undefined,
-  placeholder: undefined,
-  name: undefined,
-  value: undefined,
-  inputStatus: undefined,
-  type: 'text',
 }

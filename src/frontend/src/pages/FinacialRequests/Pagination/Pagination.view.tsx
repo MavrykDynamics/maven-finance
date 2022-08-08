@@ -32,7 +32,7 @@ const Pagination = ({ itemsCount, side = PAGINATION_SIDE_RIGHT, listName }: Pagi
       Page
       <div className="input_wrapper">
         <Input
-          onChange={(e) => {
+          onChange={(e: any) => {
             if (e.target.value <= pagesCount) {
               setInputValue(e.target.value)
             }
