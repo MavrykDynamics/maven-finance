@@ -4,7 +4,16 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import { MenuFooter, MenuGrid, MenuLogo, MenuMobileBurger, MenuSidebarContent, MenuSidebarStyled, MenuTopStyled } from './Menu.style'
+import Icon from '../Icon/Icon.view'
+import {
+  MenuFooter,
+  MenuGrid,
+  MenuLogo,
+  MenuMobileBurger,
+  MenuSidebarContent,
+  MenuSidebarStyled,
+  MenuTopStyled,
+} from './Menu.style'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 import { TopBarLinks } from './TopBarLinks/TopBarLinks.controller'
@@ -20,29 +29,19 @@ type MenuViewProps = {
 const SocialIcons = () => (
   <div className="social-wrapper">
     <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#socialDiscord" />
-      </svg>
+      <Icon id="socialDiscord" />
     </a>
     <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#socialGitHub" />
-      </svg>
+      <Icon id="socialGitHub" />
     </a>
     <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#socialMedium" />
-      </svg>
+      <Icon id="socialMedium" />
     </a>
     <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#socialTelegram" />
-      </svg>
+      <Icon id="socialTelegram" />
     </a>
     <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#socialTwitter" />
-      </svg>
+      <Icon id="socialTwitter" />
     </a>
   </div>
 )
@@ -73,9 +72,7 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
             }}
             className={isExpandedMenu ? 'expanded' : ''}
           >
-            <svg>
-              <use xlinkHref="/icons/sprites.svg#menuOpen" />
-            </svg>
+            <Icon id="menuOpen" />
           </MenuMobileBurger>
 
           <Link to="/">
@@ -112,9 +109,7 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
           <SocialIcons />
           <ConnectWallet type={'main-menu'} />
           <div className="settingsIcon">
-            <svg>
-              <use xlinkHref="/icons/sprites.svg#gear" />
-            </svg>
+            <Icon id="gear" />
           </div>
         </div>
       </MenuTopStyled>
