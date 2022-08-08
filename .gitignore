@@ -30,3 +30,6 @@ venv/
 # Webstorm IDE
 ./.idea
 **/.idea/**
+
+# VS CODE
+.VSCodeCounter

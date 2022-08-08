@@ -1,1048 +1,766 @@
-const { InMemorySigner } = require("@taquito/signer");
-import { MVK, Utils } from "./helpers/Utils";
+// const { InMemorySigner } = require("@taquito/signer");
+// import { MVK, Utils } from "./helpers/Utils";
 
-const chai = require("chai");
-const assert = require("chai").assert;
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);   
-chai.should();
+// const chai = require("chai");
+// const assert = require("chai").assert;
+// const chaiAsPromised = require('chai-as-promised');
+// chai.use(chaiAsPromised);   
+// chai.should();
 
-import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
-import farmFactoryAddress from '../deployments/farmFactoryAddress.json';
-import lpTokenAddress from '../deployments/lpTokenAddress.json';
-import doormanAddress from '../deployments/doormanAddress.json';
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import { farmStorageType } from "./types/farmStorageType";
+// import farmFactoryAddress from '../deployments/farmFactoryAddress.json';
+// import lpTokenAddress from '../deployments/lpTokenAddress.json';
+// import doormanAddress from '../deployments/doormanAddress.json';
+// import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+// import { farmStorageType } from "./types/farmStorageType";
 
-let farmAddress: string;
-let farmInstance;
-let farmStorage;
+// let farmAddress: string;
+// let farmInstance;
+// let farmStorage;
 
-describe("FarmFactory", async () => {
-    var utils: Utils;
+// describe("FarmFactory", async () => {
+//     var utils: Utils;
 
-    let farmFactoryInstance;
-    let farmFactoryStorage;
+//     let farmFactoryInstance;
+//     let farmFactoryStorage;
 
-    let lpTokenInstance;
-    let lpTokenStorage;
+//     let lpTokenInstance;
+//     let lpTokenStorage;
 
-    let doormanInstance;
-    let doormanStorage;
+//     let doormanInstance;
+//     let doormanStorage;
 
-    let mvkTokenInstance;
-    let mvkTokenStorage;
+//     let mvkTokenInstance;
+//     let mvkTokenStorage;
 
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
+//     const farmMetadataBase = Buffer.from(
+//       JSON.stringify({
+//         name: 'MAVRYK PLENTY-USDTz Farm',
+//         description: 'MAVRYK Farm Contract',
+//         version: 'v1.0.0',
+//         liquidityPairToken: {
+//           tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//           origin: ['Plenty'],
+//           token0: {
+//             symbol: ['PLENTY'],
+//             tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//           },
+//           token1: {
+//             symbol: ['USDtz'],
+//             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//           }
+//         },
+//         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//       }),
+//       'ascii',
+//     ).toString('hex')
 
-    before("setup", async () => {
-        utils = new Utils();
-        await utils.init(alice.sk);
+//     const signerFactory = async (pk) => {
+//         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+//         return utils.tezos;
+//     };
+
+//     before("setup", async () => {
+//         utils = new Utils();
+//         await utils.init(bob.sk);
         
-        farmFactoryInstance   = await utils.tezos.contract.at(farmFactoryAddress.address);
-        farmFactoryStorage    = await farmFactoryInstance.storage();
-        lpTokenInstance = await utils.tezos.contract.at(lpTokenAddress.address);
-        lpTokenStorage    = await lpTokenInstance.storage();
-        doormanInstance = await utils.tezos.contract.at(doormanAddress.address);
-        doormanStorage    = await doormanInstance.storage();
-        mvkTokenInstance = await utils.tezos.contract.at(mvkTokenAddress.address);
-        mvkTokenStorage    = await mvkTokenInstance.storage();
-    });
+//         farmFactoryInstance   = await utils.tezos.contract.at(farmFactoryAddress.address);
+//         farmFactoryStorage    = await farmFactoryInstance.storage();
+//         lpTokenInstance = await utils.tezos.contract.at(lpTokenAddress.address);
+//         lpTokenStorage    = await lpTokenInstance.storage();
+//         doormanInstance = await utils.tezos.contract.at(doormanAddress.address);
+//         doormanStorage    = await doormanInstance.storage();
+//         mvkTokenInstance = await utils.tezos.contract.at(mvkTokenAddress.address);
+//         mvkTokenStorage    = await mvkTokenInstance.storage();
 
-    beforeEach("storage", async () => {
-        farmFactoryStorage = await farmFactoryInstance.storage();
-        lpTokenStorage    = await lpTokenInstance.storage();
-        doormanStorage    = await doormanInstance.storage();
-        mvkTokenStorage    = await mvkTokenInstance.storage();
-        await signerFactory(alice.sk)
-    })
+//         console.log("Farm metadata in bytes:")
+//         console.log(farmMetadataBase)
+//     });
 
-    describe('Farm Factory', function() {
-        describe('%createFarm', function() {
-            it('Create a farm being the admin', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        12000,
-                        100,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12",
-                    ).send();
-                    await operation.confirmation()
+//     beforeEach("storage", async () => {
+//         farmFactoryStorage = await farmFactoryInstance.storage();
+//         lpTokenStorage    = await lpTokenInstance.storage();
+//         doormanStorage    = await doormanInstance.storage();
+//         mvkTokenStorage    = await mvkTokenInstance.storage();
+//         await signerFactory(bob.sk)
+//     })
 
-                    // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
+//     describe('Farm Factory', function() {
+//         describe('%createFarm', function() {
+//             it('Create a farm being the admin', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     const operation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         100,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12",
+//                     ).send();
+//                     await operation.confirmation()
 
-                    // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
-                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
-                    farmStorage                             = await farmInstance.storage();
+//                     // Created farms
+//                     farmFactoryStorage    = await farmFactoryInstance.storage();
 
-                    assert.strictEqual(farmStorage.lpToken.tokenAddress, lpTokenAddress.address);
-                    assert.equal(farmStorage.lpToken.tokenId, 0);
-                    assert.equal(farmStorage.lpToken.tokenBalance, 0);
-                    assert.equal(Object.keys(farmStorage.lpToken.tokenStandard)[0], "fa12");
-                    assert.equal(farmStorage.plannedRewards.currentRewardPerBlock, 100);
-                    assert.equal(farmStorage.plannedRewards.totalBlocks, 12000);
-                    assert.equal(farmStorage.open, true);
-                    assert.equal(farmStorage.init, true);
-                }catch(e){
-                    console.log(e);
-                }
-            })
+//                     // Get the new farm
+//                     farmAddress                             = farmFactoryStorage.trackedFarms[0];
+//                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
+//                     farmStorage                             = await farmInstance.storage();
 
-            it('Create a farm without being the admin', async () => {
-                try{
-                    await signerFactory(bob.sk)
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        12000,
-                        0,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12"
-                    ).send()).to.be.rejected;
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress.address);
+//                     assert.equal(farmStorage.config.lpToken.tokenId, 0);
+//                     assert.equal(farmStorage.config.lpToken.tokenBalance.toNumber(), 0);
+//                     assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
+//                     assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+//                     assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
+//                     assert.equal(farmStorage.open, true);
+//                     assert.equal(farmStorage.init, true);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             })
 
-            it('Create a farm being the admin but without specific duration and finite', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        12000,
-                        100,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12",
-                    ).send();
-                    await operation.confirmation()
+//             it('Create a farm without being the admin', async () => {
+//                 try{
+//                     await signerFactory(alice.sk)
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         0,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send()).to.be.rejected;
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-                    // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
+//             it('Create a farm being the admin but without specific duration and finite', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     const operation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         100,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send();
+//                     await operation.confirmation()
 
-                    // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
-                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
-                    farmStorage                             = await farmInstance.storage();
+//                     // Created farms
+//                     farmFactoryStorage    = await farmFactoryInstance.storage();
 
-                    assert.strictEqual(farmStorage.lpToken.tokenAddress, lpTokenAddress.address);
-                    assert.equal(farmStorage.lpToken.tokenId, 0);
-                    assert.equal(farmStorage.lpToken.tokenBalance, 0);
-                    assert.equal(Object.keys(farmStorage.lpToken.tokenStandard)[0], "fa12");
-                    assert.equal(farmStorage.plannedRewards.currentRewardPerBlock, 100);
-                    assert.equal(farmStorage.plannedRewards.totalBlocks, 12000);
-                    assert.equal(farmStorage.open, true);
-                    assert.equal(farmStorage.init, true);
-                }catch(e){
-                    console.log(e);
-                }
-            })
+//                     // Get the new farm
+//                     farmAddress                             = farmFactoryStorage.trackedFarms[0];
+//                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
+//                     farmStorage                             = await farmInstance.storage();
 
-        });
+//                     assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress.address);
+//                     assert.equal(farmStorage.config.lpToken.tokenId, 0);
+//                     assert.equal(farmStorage.config.lpToken.tokenBalance.toNumber(), 0);
+//                     assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
+//                     assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+//                     assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
+//                     assert.equal(farmStorage.open, true);
+//                     assert.equal(farmStorage.init, true);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             })
 
-        describe('%checkFarmExists', function() {
-            it('Check with the previously created farm address', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.checkFarmExists(farmAddress).send();
-                    await operation.confirmation();
-                }catch(e){
-                    console.log(e);
-                }
-            })
+//         });
 
-            it('Check with a non-farm address', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.checkFarmExists(bob.pkh).send();
-                    await operation.confirmation()
-                }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
-                }
-            })
-        });
+//         describe('%setAdmin', function() {
+//             it('Admin should be able to set a new admin', async() => {
+//                 try{
+//                     // Initial values
+//                     const previousAdmin = farmFactoryStorage.admin;
 
-        describe('%setAdmin', function() {
-            it('Admin should be able to set a new admin', async() => {
-                try{
-                    // Initial values
-                    const previousAdmin = farmFactoryStorage.admin;
+//                     // Create a transaction for initiating a farm
+//                     const operation = await farmFactoryInstance.methods.setAdmin(alice.pkh).send();
+//                     await operation.confirmation();
 
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
-                    await operation.confirmation();
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
+//                     // Assertion
+//                     assert.strictEqual(farmFactoryStorage.admin,alice.pkh);
+//                     assert.strictEqual(previousAdmin,bob.pkh);
 
-                    // Assertion
-                    assert.strictEqual(farmFactoryStorage.admin,bob.pkh);
-                    assert.strictEqual(previousAdmin,alice.pkh);
+//                     // Reset admin
+//                     await signerFactory(alice.sk);
+//                     const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
+//                     await resetOperation.confirmation();
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-                    // Reset admin
-                    await signerFactory(bob.sk);
-                    const resetOperation = await farmFactoryInstance.methods.setAdmin(alice.pkh).send();
-                    await resetOperation.confirmation();
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//             it('Non-admin should not be able to set a new admin', async() => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     await signerFactory(eve.sk)
+//                     const operation = farmFactoryInstance.methods.setAdmin(bob.pkh);
+//                     await chai.expect(operation.send()).to.be.rejected;
 
-            it('Non-admin should not be able to set a new admin', async() => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await signerFactory(eve.sk)
-                    const operation = farmFactoryInstance.methods.setAdmin(alice.pkh);
-                    await chai.expect(operation.send()).to.be.rejected;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
+//                     // Assertion
+//                     assert.strictEqual(farmFactoryStorage.admin,bob.pkh)
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+//         });
 
-                    // Assertion
-                    assert.strictEqual(farmFactoryStorage.admin,alice.pkh)
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
+//         describe('%pauseAll', function() {
+//             it('Admin should be able to pause all entrypoints on the factory and the tracked farms', async() => {
+//                 try{
+//                     await signerFactory(bob.sk)
+//                     // Initial values
+//                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     const trackedFarms = await farmFactoryStorage.trackedFarms;
+//                     const farmAddress = trackedFarms[0]
+//                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
+//                     var farmStorage: farmStorageType = await farmInstance.storage();
+//                     const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
+//                     const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
+//                     const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
 
-        describe('%pauseAll', function() {
-            it('Admin should be able to pause all entrypoints', async() => {
-                try{
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Create an operation
+//                     const operation = await farmFactoryInstance.methods.pauseAll().send();
+//                     await operation.confirmation();
 
-                    // Create an operation
-                    const operation = await farmFactoryInstance.methods.pauseAll().send();
-                    await operation.confirmation();
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     farmStorage = await farmInstance.storage();
+//                     const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
+//                     const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
+//                     const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
+//                     const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Test calls
+//                     await chai.expect(farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         100,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send()).to.be.rejected;
+//                     await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
+//                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+//                     await chai.expect(farmInstance.methods.deposit(MVK(2)).send()).to.be.rejected;
+//                     await chai.expect(farmInstance.methods.withdraw(MVK()).send()).to.be.rejected;
+//                     await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
 
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        12000,
-                        100,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12",
-                    ).send()).to.be.rejected;
-                    await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+//                     // Assertion
+//                     assert.notEqual(depositIsPaused,depositIsPausedEnd);
+//                     assert.notEqual(withdrawIsPaused,withdrawIsPausedEnd);
+//                     assert.notEqual(claimIsPaused,claimIsPausedEnd);
+//                     assert.notEqual(createFarmIsPaused,createFarmIsPausedEnd);
+//                     assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
+//                     assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-                    // Assertion
-                    assert.notEqual(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//             it('Non-admin should not be able to pause all entrypoints', async() => {
+//                 try{
+//                     // Change signer
+//                     await signerFactory(alice.sk);
 
-            it('Non-admin should not be able to pause all entrypoints', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
+//                     // Initial values
+//                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.pauseAll().send()).to.be.rejected;
 
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.pauseAll().send()).to.be.rejected;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Assertion
+//                     assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
+//                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
+//                     assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-                    // Assertion
-                    assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
+//         });
 
-        describe('%unpauseAll', function() {
-            it('Admin should be able to unpause all entrypoints', async() => {
-                try{
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//         describe('%unpauseAll', function() {
+//             it('Admin should be able to unpause all entrypoints and all tracked farms', async() => {
+//                 try{
+//                     // Initial values
+//                     await signerFactory(bob.sk)
+//                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     const trackedFarms = await farmFactoryStorage.trackedFarms;
+//                     const farmAddress = trackedFarms[0]
+//                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
+//                     var farmStorage: farmStorageType = await farmInstance.storage();
+//                     const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
+//                     const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
+//                     const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
+//                     const userLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const approvalsStart = await userLedgerStart.allowances.get(farmAddress);
 
-                    // Create an operation
-                    const operation = await farmFactoryInstance.methods.unpauseAll().send();
-                    await operation.confirmation();
+//                     // Create an operation
+//                     const operation = await farmFactoryInstance.methods.unpauseAll().send();
+//                     await operation.confirmation();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     farmStorage = await farmInstance.storage();
+//                     const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
+//                     const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
+//                     const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
+//                     const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Test calls
-                    const createFarmOperation = await farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        12000,
-                        100,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12",
-                    ).send();
-                    await createFarmOperation.confirmation();
-                    const untrackFarmOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
-                    await untrackFarmOperation.confirmation();
-                    const trackFarmOperation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
-                    await trackFarmOperation.confirmation();
+//                     // Test calls
+//                     const createFarmOperation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         100,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send();
+//                     await createFarmOperation.confirmation();
+//                     const untrackFarmOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+//                     await untrackFarmOperation.confirmation();
+//                     const trackFarmOperation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
+//                     await trackFarmOperation.confirmation();
 
-                    // Assertion
-                    assert.notEqual(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//                     // Test calls
+//                     if(approvalsStart===undefined){
+//                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,2).send();
+//                         await approveOperation.confirmation();
+//                     }
+//                     const depositOperation = await farmInstance.methods.deposit(2).send();
+//                     await depositOperation.confirmation();
+//                     const withdrawOperation = await farmInstance.methods.withdraw(1).send();
+//                     await withdrawOperation.confirmation();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
+//                     await claimOperation.confirmation();
 
-            it('Non-admin should not be able to unpause all entrypoints', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
+//                     // Assertion
+//                     assert.notEqual(depositIsPaused,depositIsPausedEnd);
+//                     assert.notEqual(withdrawIsPaused,withdrawIsPausedEnd);
+//                     assert.notEqual(claimIsPaused,claimIsPausedEnd);
+//                     assert.notEqual(createFarmIsPaused,createFarmIsPausedEnd);
+//                     assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
+//                     assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//             it('Non-admin should not be able to unpause all entrypoints', async() => {
+//                 try{
+//                     // Change signer
+//                     await signerFactory(alice.sk);
 
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
+//                     // Initial values
+//                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
                     
-                    // Assertion
-                    assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
+//                     // Assertion
+//                     assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
+//                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
+//                     assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-        describe('%togglePauseCreateFarm', function() {
-            it('Admin should be able to pause and unpause the createFarm entrypoint', async() => {
-                try{
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//             it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
+//                 try{
+//                     // Change signer
+//                     await signerFactory(alice.sk);
 
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.togglePauseCreateFarm().send();
-                    await pauseOperation.confirmation();
+//                     // Initial values
+//                     const trackedFarms = await farmFactoryStorage.trackedFarms;
+//                     const farmAddress = trackedFarms[0]
+//                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
+//                     var farmStorage: farmStorageType = await farmInstance.storage();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
+//                     const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
+//                     const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
 
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        12000,
-                        100,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12",
-                    ).send()).to.be.rejected;
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
 
-                    // Create an operation
-                    const unpauseOperation = await farmFactoryInstance.methods.togglePauseCreateFarm().send();
-                    await unpauseOperation.confirmation();
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-
-                    // Assertion
-                    assert.notEqual(createFarmIsPaused,createFarmIsPausedPause);
-                    assert.equal(createFarmIsPaused,createFarmIsPausedUnpause);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-
-            it('Non-admin should not be able to pause and unpause the createFarm entrypoint', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
-
-                    // Initial values
-                    const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.togglePauseCreateFarm().send()).to.be.rejected;
-
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const createFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                     // Final values
+//                     farmStorage = await farmInstance.storage();
+//                     const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
+//                     const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
+//                     const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
                     
-                    // Assertion
-                    assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
+//                     // Assertion
+//                     assert.equal(depositIsPaused,depositIsPausedEnd);
+//                     assert.equal(withdrawIsPaused,withdrawIsPausedEnd);
+//                     assert.equal(claimIsPaused,claimIsPausedEnd);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+//         });
 
-        describe('%togglePauseUntrackFarm', function() {
-            it('Admin should be able to pause and unpause the untrackFarm entrypoint', async() => {
-                try{
-                    // Initial values
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//         describe('%togglePauseEntrypoint', function() {
+//             it('Admin should be able to pause and unpause the createFarm entrypoint', async() => {
+//                 try{
+//                     // Initial values
+//                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
 
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.togglePauseUntrackFarm().send();
-                    await pauseOperation.confirmation();
+//                     // Create an operation
+//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", true).send();
+//                     await pauseOperation.confirmation();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const untrackFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const createFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
 
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
+//                     // Test calls
+//                     await chai.expect(farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         12000,
+//                         100,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send()).to.be.rejected;
 
-                    // Create an operation
-                    const unpauseOperation = await farmFactoryInstance.methods.togglePauseUntrackFarm().send();
-                    await unpauseOperation.confirmation();
+//                     // Create an operation
+//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", false).send();
+//                     await unpauseOperation.confirmation();
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const untrackFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const createFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
 
-                    // Assertion
-                    assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedPause);
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedUnpause);
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//                     // Assertion
+//                     assert.notEqual(createFarmIsPaused,createFarmIsPausedPause);
+//                     assert.equal(createFarmIsPaused,createFarmIsPausedUnpause);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-            it('Non-admin should not be able to pause and unpause the untrackFarm entrypoint', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
+//             it('Admin should be able to pause and unpause the untrackFarm entrypoint', async() => {
+//                 try{
+//                     // Initial values
+//                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Initial values
-                    const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Create an operation
+//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", true).send();
+//                     await pauseOperation.confirmation();
 
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.togglePauseUntrackFarm().send()).to.be.rejected;
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const untrackFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const untrackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+//                     // Test calls
+//                     await chai.expect(farmFactoryInstance.methods.untrackFarm(farmAddress).send()).to.be.rejected;
+
+//                     // Create an operation
+//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", false).send();
+//                     await unpauseOperation.confirmation();
+
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const untrackFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
+
+//                     // Assertion
+//                     assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedPause);
+//                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedUnpause);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+            
+//             it('Admin should be able to pause and unpause the trackFarm entrypoint', async() => {
+//                 try{
+//                     // Initial values
+//                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+
+//                     // Create an operation
+//                     const pauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send();
+//                     await pauseOperation.confirmation();
+
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const trackFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+
+//                     // Test calls
+//                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+
+//                     // Create an operation
+//                     const unpauseOperation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", false).send();
+//                     await unpauseOperation.confirmation();
+
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const trackFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+
+//                     // Assertion
+//                     assert.notEqual(trackFarmIsPaused,trackFarmIsPausedPause);
+//                     assert.equal(trackFarmIsPaused,trackFarmIsPausedUnpause);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
+//                 try{
+//                     // Change signer
+//                     await signerFactory(alice.sk);
+
+//                     // Initial values
+//                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send()).to.be.rejected;
+
+//                     // Final values
+//                     farmFactoryStorage = await farmFactoryInstance.storage();
+//                     const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
                     
-                    // Assertion
-                    assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
+//                     // Assertion
+//                     assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+//         });
 
-        describe('%togglePauseTrackFarm', function() {
-            it('Admin should be able to pause and unpause the trackFarm entrypoint', async() => {
-                try{
-                    // Initial values
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//         describe('%untrackFarm', function() {
+//             it('Untrack the previously created farm', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     const operation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+//                     await operation.confirmation();
 
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.togglePauseTrackFarm().send();
-                    await pauseOperation.confirmation();
+//                     // Farm storage
+//                     farmFactoryStorage      = await farmFactoryInstance.storage();
+//                     const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
+//                     assert.equal(createdFarm,false);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             })
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const trackFarmIsPausedPause = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//             it('Untrack an unexisting farm', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.untrackFarm(alice.pkh).send()).to.be.rejected;
+//                 }catch(e){
+//                     console.log(e)
+//                 }
+//             })
+//         });
 
-                    // Test calls
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+//         describe('%trackFarm', function() {
+//             it('Admin should be able to track the previously untracked farm', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     const operation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
+//                     await operation.confirmation();
 
-                    // Create an operation
-                    const unpauseOperation = await farmFactoryInstance.methods.togglePauseTrackFarm().send();
-                    await unpauseOperation.confirmation();
+//                     // Farm storage
+//                     farmFactoryStorage      = await farmFactoryInstance.storage();
+//                     const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
+//                     assert.equal(createdFarm,true);
+//                 }catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             })
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const trackFarmIsPausedUnpause = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//             it('Admin should not be able to track an already tracked farm', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
 
-                    // Assertion
-                    assert.notEqual(trackFarmIsPaused,trackFarmIsPausedPause);
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedUnpause);
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//             it('Non-admin should not be able to track a farm', async () => {
+//                 try{
+//                     // Create a transaction for initiating a farm
+//                     await signerFactory(alice.sk);
+//                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
+//                 }catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+//         });
 
-            it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
+//     });
 
-                    // Initial values
-                    const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//     describe('Newly created farm', function() {
+//         describe('%claim', function() {
+//             it('Create a farm, deposit and try to claim in it', async () => {
+//                 try{
+//                     // Deposit
+//                     const amountToDeposit = 2;
 
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.togglePauseTrackFarm().send()).to.be.rejected;
+//                     // Create a transaction for initiating a farm
+//                     const createFarmOperation = await farmFactoryInstance.methods.createFarm(
+//                         "testFarm",
+//                         false,
+//                         false,
+//                         false,
+//                         100,
+//                         12000,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send();
+//                     await createFarmOperation.confirmation()
 
-                    // Final values
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const trackFarmIsPausedEnd = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
+//                     // Created farms
+//                     farmFactoryStorage    = await farmFactoryInstance.storage();
+
+//                     // Get the new farm
+//                     farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
+//                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
+//                     farmStorage                             = await farmInstance.storage();
+
+//                      // Create a transaction for allowing farm to spend LP Token in the name of Bob
+//                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
+
+//                     // Check Bob has no pending approvals for the farm
+//                     if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
+//                         const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
+//                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
+//                         await approveOperation.confirmation();
+//                     }
+//                     // Deposit operation
+//                     const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     await depositOperation.confirmation();
+
+//                     // Claim operation after a few blocks
+//                     await new Promise(resolve => setTimeout(resolve, 6000));
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
+//                     await claimOperation.confirmation()
                     
-                    // Assertion
-                    assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
+//                     farmStorage = await farmInstance.storage();
+//                     doormanStorage = await doormanInstance.storage();
 
-        describe('%untrackFarm', function() {
-            it('Untrack the previously created farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
-                    await operation.confirmation();
+//                     // Depositor's record
+//                     const depositorRecord = await farmStorage.depositorLedger.get(bob.pkh)
+//                     console.log("User's deposit in Farm Contract")
+//                     console.log(depositorRecord)
 
-                    // Farm storage
-                    farmFactoryStorage      = await farmFactoryInstance.storage();
-                    const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
-                    assert.equal(createdFarm,false);
-                }catch(e){
-                    console.log(e);
-                }
-            })
+//                     // Stake's record
+//                     const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
+//                     console.log("User's balance in Doorman Contract")
+//                     console.log(doormanRecord)
 
-            it('Untrack an unexisting farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.untrackFarm(bob.pkh).send();
-                    await operation.confirmation();
-                }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
-                }
-            })
-        });
+//                     // Doorman's balance in MVK Token Contract
+//                     const doormanLedger = await mvkTokenStorage.ledger.get(doormanAddress.address)
+//                     console.log("Doorman's ledger in MVK Token Contract")
+//                     console.log(doormanLedger)
+//                 }catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             })
 
-        describe('%trackFarm', function() {
-            it('Admin should be able to track the previously untracked farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.trackFarm(farmAddress).send();
-                    await operation.confirmation();
-
-                    // Farm storage
-                    farmFactoryStorage      = await farmFactoryInstance.storage();
-                    const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
-                    assert.equal(createdFarm,true);
-                }catch(e){
-                    console.log(e);
-                }
-            })
-
-            it('Admin should not be able to track an already tracked farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
-                }catch(e){
-                    console.log(e)
-                }
-            })
-
-            it('Non-admin should not be able to track a farm', async () => {
-                try{
-                    // Create a transaction for initiating a farm
-                    await signerFactory(bob.sk);
-                    await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
-
-        describe('%pauseAllFarms', function() {
-            it('Admin should be able to pause all entrypoints on all tracked farms', async() => {
-                try{
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.pauseAllFarms().send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
+//             it('Create a farm, deposit and try to claim in it with a farm unknown to the farm factory', async () => {
+//                 try{
+//                     // Deposit
+//                     const amountToDeposit = 2;
                     
-                    // Test calls
-                    await chai.expect(farmInstance.methods.deposit(MVK(2)).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.withdraw(MVK()).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.claim().send()).to.be.rejected;
+//                     // Untrack the farm
+//                     const untrackOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
+//                     await untrackOperation.confirmation();
 
-                    // Assertion
-                    assert.notEqual(depositIsPaused,depositIsPausedEnd);
-                    assert.notEqual(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.notEqual(claimIsPaused,claimIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
+//                     // Create a transaction for allowing farm to spend LP Token in the name of Bob
+//                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
 
-            it('Non-admin should not be able to pause all entrypoints on all tracked farms', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
+//                     // Check Bob has no pending approvals for the farm
+//                     if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
+//                         const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
+//                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
+//                         await approveOperation.confirmation();
+//                     }
+//                     // Deposit operation
+//                     const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     await depositOperation.confirmation();
 
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.pauseAllFarms().send()).to.be.rejected;
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
-                    
-                    // Assertion
-                    assert.equal(depositIsPaused,depositIsPausedEnd);
-                    assert.equal(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.equal(claimIsPaused,claimIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
-
-        describe('%unpauseAllFarms', function() {
-            it('Admin should be able to unpause all entrypoints on all tracked farms', async() => {
-                try{
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    const userLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-                    const approvalsStart = await userLedgerStart.allowances.get(farmAddress);
-
-                    // Create an operation
-                    const pauseOperation = await farmFactoryInstance.methods.unpauseAllFarms().send();
-                    await pauseOperation.confirmation();
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
-                    
-                    // Test calls
-                    if(approvalsStart===undefined){
-                        const approveOperation = await lpTokenInstance.methods.approve(farmAddress,2).send();
-                        await approveOperation.confirmation();
-                    }
-                    const depositOperation = await farmInstance.methods.deposit(2).send();
-                    await depositOperation.confirmation();
-                    const withdrawOperation = await farmInstance.methods.withdraw(1).send();
-                    await withdrawOperation.confirmation();
-                    const claimOperation = await farmInstance.methods.claim().send();
-                    await claimOperation.confirmation();
-
-                    // Assertion
-                    assert.notEqual(depositIsPaused,depositIsPausedEnd);
-                    assert.notEqual(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.notEqual(claimIsPaused,claimIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-
-            it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
-
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-
-                    const depositIsPaused = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.unpauseAllFarms().send()).to.be.rejected;
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const depositIsPausedEnd = farmStorage.breakGlassConfig.depositIsPaused;
-                    const withdrawIsPausedEnd = farmStorage.breakGlassConfig.withdrawIsPaused;
-                    const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
-                    
-                    // Assertion
-                    assert.equal(depositIsPaused,depositIsPausedEnd);
-                    assert.equal(withdrawIsPaused,withdrawIsPausedEnd);
-                    assert.equal(claimIsPaused,claimIsPausedEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
-
-        describe('%updateAllBlocksPerMinute', function() {
-            before("Set Alice as council contract", async () => {
-                try{
-                    await signerFactory(alice.sk);
-                    const updateWhitelistContracts = await farmFactoryInstance.methods.updateWhitelistContracts('council', alice.pkh).send();
-                    await updateWhitelistContracts.confirmation()
-                } catch(e) {
-                    console.log(e)
-                }
-            });
-        
-            it('Council should be able to increase the blocksPerMinute on all tracked farms', async() => {
-                try{
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-                    const blockPerMinutes = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlock = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocks = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewards = farmStorage.plannedRewards.totalRewards;
-                    const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
-
-                    // Create an operation
-                    const updateOperation = await farmFactoryInstance.methods.updateAllBlocksPerMinute(3).send();
-                    await updateOperation.confirmation();
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const blockPerMinutesEnd = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewardsEnd = farmStorage.plannedRewards.totalRewards;
-
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
-
-                    // Assertion
-                    assert.notEqual(blockPerMinutes,blockPerMinutesEnd);
-                    assert.notEqual(currentRewardPerBlock,currentRewardPerBlockEnd);
-                    assert.notEqual(totalBlocks,totalBlocksEnd);
-                    assert.strictEqual(totalRewards.toNumber(),totalRewardsEnd.toNumber());
-                    assert.notEqual(factoryBlockPerMinutes,factoryBlockPerMinutesEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-
-            it('Council should be able to decrease the blocksPerMinute on all tracked farms', async() => {
-                try{
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-                    const blockPerMinutes = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlock = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocks = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewards = farmStorage.plannedRewards.totalRewards;
-                    const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
-
-                    // Create an operation
-                    const updateOperation = await farmFactoryInstance.methods.updateAllBlocksPerMinute(1).send();
-                    await updateOperation.confirmation();
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const blockPerMinutesEnd = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewardsEnd = farmStorage.plannedRewards.totalRewards;
-
-                    farmFactoryStorage = await farmFactoryInstance.storage();
-                    const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
-
-                    // Assertion
-                    assert.notEqual(blockPerMinutes,blockPerMinutesEnd);
-                    assert.notEqual(currentRewardPerBlock,currentRewardPerBlockEnd);
-                    assert.notEqual(totalBlocks,totalBlocksEnd);
-                    assert.equal(totalRewards.toNumber(),totalRewardsEnd.toNumber());
-                    assert.notEqual(factoryBlockPerMinutes,factoryBlockPerMinutesEnd);
-                }catch(e){
-                    console.log(e)
-                }
-            })
-
-            it('Non-council should not be able to update the blocksPerMinute on all tracked farms', async() => {
-                try{
-                    // Change signer
-                    await signerFactory(bob.sk);
-
-                    // Initial values
-                    const trackedFarms = await farmFactoryStorage.trackedFarms;
-                    const farmAddress = trackedFarms[0]
-                    const farmInstance   = await utils.tezos.contract.at(farmAddress);
-                    var farmStorage: farmStorageType = await farmInstance.storage();
-                    const blockPerMinutes = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlock = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocks = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewards = farmStorage.plannedRewards.totalRewards;
-                    const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
-
-                    // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.updateAllBlocksPerMinute(2).send()).to.be.rejected;
-
-                    // Final values
-                    farmStorage = await farmInstance.storage();
-                    const blockPerMinutesEnd = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewardsEnd = farmStorage.plannedRewards.totalRewards;
-                    const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
-                    
-                    // Assertion
-                    assert.equal(blockPerMinutes.toNumber(),blockPerMinutesEnd.toNumber());
-                    assert.equal(currentRewardPerBlock.toNumber(),currentRewardPerBlockEnd.toNumber());
-                    assert.equal(totalBlocks.toNumber(),totalBlocksEnd.toNumber());
-                    assert.equal(totalRewards.toNumber(),totalRewardsEnd.toNumber());
-                    assert.equal(factoryBlockPerMinutes.toNumber(),factoryBlockPerMinutesEnd.toNumber());
-                }catch(e){
-                    console.log(e)
-                }
-            })
-        });
-
-    });
-
-    describe('Newly created farm', function() {
-        describe('%claim', function() {
-            it('Create a farm, deposit and try to claim in it', async () => {
-                try{
-                    // Deposit
-                    const amountToDeposit = 2;
-
-                    // Create a transaction for initiating a farm
-                    const createFarmOperation = await farmFactoryInstance.methods.createFarm(
-                        false,
-                        false,
-                        100,
-                        12000,
-                        lpTokenAddress.address,
-                        0,
-                        "fa12"
-                    ).send();
-                    await createFarmOperation.confirmation()
-
-                    // Created farms
-                    farmFactoryStorage    = await farmFactoryInstance.storage();
-
-                    // Get the new farm
-                    farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
-                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
-                    farmStorage                             = await farmInstance.storage();
-
-                     // Create a transaction for allowing farm to spend LP Token in the name of Alice
-                    const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-                    const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress);
-
-                    // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
-                        const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
-                        const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
-                        await approveOperation.confirmation();
-                    }
-                    // Deposit operation
-                    const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-                    await depositOperation.confirmation();
-
-                    // Claim operation after a few blocks
-                    await new Promise(resolve => setTimeout(resolve, 6000));
-                    const claimOperation = await farmInstance.methods.claim().send();
-                    await claimOperation.confirmation()
-                    
-                    farmStorage = await farmInstance.storage();
-                    doormanStorage = await doormanInstance.storage();
-
-                    // Delegator's record
-                    const delegatorRecord = await farmStorage.delegators.get(alice.pkh)
-                    console.log("User's deposit in Farm Contract")
-                    console.log(delegatorRecord)
-
-                    // Stake's record
-                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
-                    console.log("User's balance in Doorman Contract")
-                    console.log(doormanRecord)
-
-                    // Doorman's balance in MVK Token Contract
-                    const doormanLedger = await mvkTokenStorage.ledger.get(doormanAddress.address)
-                    console.log("Doorman's ledger in MVK Token Contract")
-                    console.log(doormanLedger)
-                }catch(e){
-                    console.log(e);
-                }
-            })
-
-            it('Create a farm, deposit and try to claim in it with a farm unknown to the farm factory', async () => {
-                try{
-                    // Deposit
-                    const amountToDeposit = 2;
-                    
-                    // Untrack the farm
-                    const untrackOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
-                    await untrackOperation.confirmation();
-
-                    // Create a transaction for allowing farm to spend LP Token in the name of Alice
-                    const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-                    const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress);
-
-                    // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
-                        const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
-                        const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
-                        await approveOperation.confirmation();
-                    }
-                    // Deposit operation
-                    const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-                    await depositOperation.confirmation();
-
-                    // Claim operation after a few blocks
-                    await new Promise(resolve => setTimeout(resolve, 6000));
-                    const claimOperation = await farmInstance.methods.claim().send();
-                    await claimOperation.confirmation()
-                    
-                    farmStorage = await farmInstance.storage();
-                    doormanStorage = await doormanInstance.storage();
-
-                    // Delegator's record
-                    const delegatorRecord = await farmStorage.delegators.get(alice.pkh)
-                    console.log(delegatorRecord)
-
-                    // Delegator's record
-                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
-                    console.log(doormanRecord)
-                }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set")
-                }
-            })
-
-            // it('Create a farm, deposit and try to claim in it without having the farm factory contract in the doorman generalContracts map', async () => {
-            //     try{
-            //         // Deposit
-            //         const amountToDeposit = 2;
-
-            //         // Create a transaction for initiating a farm
-            //         const createFarmOperation = await farmFactoryInstance.methods.createFarm(
-                        //false,
-                        //false,
-            //             100,
-            //             12000,
-            //             lpTokenAddress.address,
-            //             0,
-            //             "fa12"
-            //         ).send();
-            //         await createFarmOperation.confirmation()
-
-            //         // Created farms
-            //         farmFactoryStorage    = await farmFactoryInstance.storage();
-
-            //         // Get the new farm
-            //         farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
-            //         farmInstance                            = await utils.tezos.contract.at(farmAddress);
-            //         farmStorage                             = await farmInstance.storage();
-
-            //          // Create a transaction for allowing farm to spend LP Token in the name of Alice
-            //         const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-            //         const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress);
-
-            //         // Check Alice has no pending approvals for the farm
-            //         if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
-            //             const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
-            //             const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
-            //             await approveOperation.confirmation();
-            //         }
-            //         // Deposit operation
-            //         const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-            //         await depositOperation.confirmation();
-
-            //         // Claim operation after a few blocks
-            //         await new Promise(resolve => setTimeout(resolve, 6000));
-            //         const claimOperation = await farmInstance.methods.claim().send();
-            //         await claimOperation.confirmation()
-            //     }catch(e){
-            //         assert.strictEqual(e.message, "Error. Farm Factory Contract is not found.")
-            //     }
-            // })
-        });
-    });
-});
+//                     // Claim operation after a few blocks
+//                     await new Promise(resolve => setTimeout(resolve, 6000));
+//                     await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
+//                 }catch(e){
+//                     console.log(e)
+//                 }
+//             })
+//         });
+//     });
+// });

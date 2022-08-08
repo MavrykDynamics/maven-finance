@@ -1,0 +1,8 @@
+name: kube-prometheus-stack-mavryk
+version: 0.0.1
+apiVersion: v2
+appVersion: 0.54.1
+dependencies:
+  - name: kube-prometheus-stack
+    version: 33.2.0
+    repository: https://prometheus-community.github.io/helm-charts

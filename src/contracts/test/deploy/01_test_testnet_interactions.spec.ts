@@ -1,0 +1,3713 @@
+const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
+const { InMemorySigner, importKey } = require("@taquito/signer");
+import assert, { ok, rejects, strictEqual } from "assert";
+import { MVK, Utils, zeroAddress } from "../helpers/Utils";
+import { createHash } from "crypto";
+import fs from "fs";
+import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
+import { confirmOperation } from "../../scripts/confirmation";
+import { BigNumber } from "bignumber.js";
+
+const chai = require("chai");
+const salt          = 'azerty';
+const chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);   
+chai.should();
+
+import env from "../../env";
+import { bob, alice, eve, mallory, trudy, oracle0, oracle1, oracle2, oracleMaintainer } from "../../scripts/sandbox/accounts";
+
+import doormanAddress from '../../deployments/doormanAddress.json';
+import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
+import delegationAddress from '../../deployments/delegationAddress.json';
+import councilAddress from '../../deployments/councilAddress.json'
+import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
+import governanceAddress from '../../deployments/governanceAddress.json';
+import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
+import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
+import breakGlassAddress from '../../deployments/breakGlassAddress.json';
+import lpTokenAddress from '../../deployments/lpTokenAddress.json';
+import treasuryAddress from '../../deployments/treasuryAddress.json';
+import vestingAddress from '../../deployments/vestingAddress.json';
+import governanceFinancialAddress from '../../deployments/governanceFinancialAddress.json';
+import treasuryFactoryAddress from '../../deployments/treasuryFactoryAddress.json';
+import farmAddress from '../../deployments/farmAddress.json';
+import governanceSatelliteAddress from '../../deployments/governanceSatelliteAddress.json';
+import aggregatorAddress from '../../deployments/aggregatorAddress.json';
+import aggregatorFactoryAddress from '../../deployments/aggregatorFactoryAddress.json';
+
+// import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
+import { config } from "yargs";
+import { MichelsonMap } from "@taquito/taquito";
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+describe("Testnet interactions helper", async () => {
+    var utils: Utils;
+
+    let doormanInstance;
+    let delegationInstance;
+    let mvkTokenInstance;
+    let governanceInstance;
+    let governanceProxyInstance;
+    let emergencyGovernanceInstance;
+    let breakGlassInstance;
+    let councilInstance;
+    let farmFactoryInstance;
+    let vestingInstance;
+    let governanceFinancialInstance;
+    let treasuryFactoryInstance;
+    let treasuryInstance;
+    let farmInstance;
+    let lpTokenInstance;
+    let governanceSatelliteInstance;
+    let aggregatorInstance;
+    let aggregatorFactoryInstance;
+
+    let doormanStorage;
+    let delegationStorage;
+    let mvkTokenStorage;
+    let governanceStorage;
+    let governanceProxyStorage;
+    let emergencyGovernanceStorage;
+    let breakGlassStorage;
+    let councilStorage;
+    let farmFactoryStorage;
+    let vestingStorage;
+    let governanceFinancialStorage;
+    let treasuryFactoryStorage;
+    let treasuryStorage;
+    let farmStorage;
+    let lpTokenStorage;
+    let governanceSatelliteStorage;
+    let aggregatorStorage;
+    let aggregatorFactoryStorage;
+
+    let createdTreasuryAddress;
+    const treasuryMetadataBase = Buffer.from(
+        JSON.stringify({
+          name: 'MAVRYK Farm Treasury',
+          description: 'MAVRYK Treasury Contract',
+          version: 'v1.0.0',
+          authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+      ).toString('hex')
+
+    let createdFarmAddress;
+    const farmMetadataBase = Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK PLENTY-USDTz Farm',
+            description: 'MAVRYK Farm Contract',
+            version: 'v1.0.0',
+            liquidityPairToken: {
+                tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                origin: ['Plenty'],
+                token0: {
+                symbol: ['PLENTY'],
+                tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                },
+                token1: {
+                symbol: ['USDtz'],
+                tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                }
+            },
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+            }),
+            'ascii',
+        ).toString('hex')
+
+    let createdAggregatorAddress;
+    const aggregatorMetadataBase = Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Aggregator Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex')
+
+    
+    const signerFactory = async (pk) => {
+        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+        return utils.tezos;
+    };
+
+    before("setup", async () => {
+        try{
+            utils = new Utils();
+            await utils.init(bob.sk);
+            
+            doormanInstance                 = await utils.tezos.contract.at(doormanAddress.address);
+            delegationInstance              = await utils.tezos.contract.at(delegationAddress.address);
+            mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress.address);
+            governanceInstance              = await utils.tezos.contract.at(governanceAddress.address);
+            governanceProxyInstance         = await utils.tezos.contract.at(governanceProxyAddress.address);
+            emergencyGovernanceInstance     = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
+            breakGlassInstance              = await utils.tezos.contract.at(breakGlassAddress.address);
+            councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
+            farmFactoryInstance             = await utils.tezos.contract.at(farmFactoryAddress.address);
+            vestingInstance                 = await utils.tezos.contract.at(vestingAddress.address);
+            governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
+            treasuryFactoryInstance         = await utils.tezos.contract.at(treasuryFactoryAddress.address);
+            treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
+            farmInstance                    = await utils.tezos.contract.at(farmAddress.address);
+            lpTokenInstance                 = await utils.tezos.contract.at(lpTokenAddress.address);
+            governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
+            aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
+            aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+    
+            doormanStorage                  = await doormanInstance.storage();
+            delegationStorage               = await delegationInstance.storage();
+            mvkTokenStorage                 = await mvkTokenInstance.storage();
+            governanceStorage               = await governanceInstance.storage();
+            governanceProxyStorage          = await governanceProxyInstance.storage();
+            emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
+            breakGlassStorage               = await breakGlassInstance.storage();
+            councilStorage                  = await councilInstance.storage();
+            farmFactoryStorage              = await farmFactoryInstance.storage();
+            vestingStorage                  = await vestingInstance.storage();
+            governanceFinancialStorage      = await governanceFinancialInstance.storage();
+            treasuryFactoryStorage          = await treasuryFactoryInstance.storage();
+            treasuryStorage                 = await treasuryInstance.storage();
+            farmStorage                     = await farmInstance.storage();
+            lpTokenStorage                  = await lpTokenInstance.storage();
+            governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
+            aggregatorStorage               = await aggregatorInstance.storage();
+            aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+    
+            console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
+            console.log('Doorman Contract deployed at:', doormanInstance.address);
+            console.log('Delegation Contract deployed at:', delegationInstance.address);
+            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+            console.log('Governance Contract deployed at:', governanceInstance.address);
+            console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
+            console.log('Vesting Contract deployed at:', vestingAddress.address);
+            console.log('Governance Financial Contract deployed at:', governanceFinancialAddress.address);
+            console.log('Treasury Factory Contract deployed at:', treasuryFactoryAddress.address);
+            console.log('Treasury Contract deployed at:', treasuryAddress.address);
+            console.log('Farm Contract deployed at:', farmAddress.address);
+            console.log('LP Token Contract deployed at:', lpTokenAddress.address);
+            console.log('Governance Satellite Contract deployed at:', governanceSatelliteAddress.address);
+            console.log('Aggregator Contract deployed at:', aggregatorAddress.address);
+            console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
+
+            // Admin sends 2000XTZ to treasury contract
+            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            await transferOperation.confirmation();
+
+        } catch(e){
+            console.log(e)
+        }
+    });
+
+    describe("MVK TOKEN", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin transfers MVK', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.transfer([
+                    {
+                        from_: bob.pkh,
+                        txs: [
+                        {
+                            to_: bob.pkh,
+                            token_id: 0,
+                            amount: MVK(1),
+                        },
+                        {
+                            to_: eve.pkh,
+                            token_id: 0,
+                            amount: MVK(1),
+                        },
+                        {
+                            to_: alice.pkh,
+                            token_id: 0,
+                            amount: 0,
+                        },
+                        ],
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates its operators', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin mints 50MVK', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.mint(bob.pkh, MVK(50)).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the MVK inflation rate', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods.updateInflationRate(700).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("DOORMAN", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin add Doorman as an operator', async () => {
+            try{
+                // Operation
+                const operation = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: doormanAddress.address,
+                            token_id: 0,
+                        },
+                    },
+                    ])
+                    .send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin stakes 100MVK', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.stake(MVK(100)).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unstakes 50MVK', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.unstake(MVK(50)).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin compounds', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.compound(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates min MVK amount', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.updateConfig(new BigNumber(MVK(0.01)), "configMinMvkAmount").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses stake', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("stake", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses unstake', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("unstake", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses compound', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("compound", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses farmClaim', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.togglePauseEntrypoint("farmClaim", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unpauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await doormanInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("DELEGATION", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates min SMVK balance required to interact with the entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(new BigNumber(MVK(0.01)), "configMinimumStakedMvkBalance").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates delegation ratio', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(100, "configDelegationRatio").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates maximum satellites', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(100, "configMaxSatellites").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates satellite name max length', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(500, "configSatNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('Admin updates satellite description max length', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(1000, "configSatDescMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('Admin updates satellite image max length', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(1000, "configSatImageMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('Admin updates satellite website max length', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateConfig(1000, "configSatWebsiteMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses delegateToSatellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("delegateToSatellite", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses undelegateSatellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("undelegateFromSatellite", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses registerSatellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("registerAsSatellite", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses unregisterSatellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("unregisterAsSatellite", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses updateSatellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("updateSatelliteRecord", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses distributeReward', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.togglePauseEntrypoint("distributeReward", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unpauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin registers as a satellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods
+                .registerAsSatellite(
+                    "Astronaut Satellite", 
+                    "This is the description", 
+                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
+                    "https://mavryk.finance/", 
+                    1000
+                ).send();
+                await operation.confirmation();
+
+                // Start governance cycle to validate satellite
+
+                var updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                await updateOperation.confirmation();
+                updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                await updateOperation.confirmation();
+                updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                await updateOperation.confirmation();
+                const nextRoundOperation    = await governanceInstance.methods.startNextRound(false).send();
+                await nextRoundOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates its satellite record', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods
+                .updateSatelliteRecord(
+                    "Astronaut Satellite", 
+                    "This is the description", 
+                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
+                    "https://mavryk.finance/", 
+                    1000
+                ).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unregister its satellite', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods
+                .unregisterAsSatellite(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin register as satellite and user delegates to it', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods
+                .registerAsSatellite(
+                    "Astronaut Satellite", 
+                    "This is the description", 
+                    "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
+                    "https://mavryk.finance/", 
+                    1000
+                ).send();
+                await operation.confirmation();
+
+                // Delegate Part
+                await signerFactory(alice.sk)
+                var delegationOperation = await mvkTokenInstance.methods
+                .update_operators([
+                {
+                    add_operator: {
+                        owner: alice.pkh,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                },
+                ])
+                .send()
+                await delegationOperation.confirmation()
+                delegationOperation = await doormanInstance.methods.stake(MVK(10)).send()
+                await delegationOperation.confirmation()
+                delegationOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh, bob.pkh).send()
+                await delegationOperation.confirmation()
+            await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin distributes rewards', async () => {
+            try{
+                // Operation
+                const operation = await delegationInstance.methods.distributeReward([bob.pkh], MVK(100)).send();
+                await operation.confirmation();
+            await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('User undelegates from satellite', async () => {
+            try{
+                // Operation
+                await signerFactory(alice.sk)
+                const operation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
+                await operation.confirmation();
+            await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    });
+
+    describe("COUNCIL", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates threshold', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(1, "configThreshold").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates action expiry in days', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(1, "configActionExpiryDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates council member name max length', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(500, "configCouncilNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates council member website max length', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(500, "configCouncilWebsiteMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates council member image max length', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(500, "configCouncilImageMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates request token name max length', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(500, "configRequestTokenNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates request purpose max length', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateConfig(500, "configRequestPurposeMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates council member info', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds a council member', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionAddMember(trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes a council member', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionRemoveMember(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin changes a council member', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionChangeMember(alice.pkh, trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets a baker', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionSetBaker().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds a new vestee', async () => {
+            try{
+                // Operation
+                councilStorage  = await councilInstance.storage();
+                const actionId  = councilStorage.actionCounter;
+                var operation   = await councilInstance.methods.councilActionAddVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
+                await operation.confirmation();
+
+                await signerFactory(alice.sk)
+                operation       = await councilInstance.methods.signAction(actionId).send()
+                await operation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates a vestee', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionUpdateVestee(bob.pkh, new BigNumber(MVK(1000000000)), 0, 24).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin locks a vestee', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionToggleVesteeLock(bob.pkh).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes a vestee', async () => {
+            try{
+                // Operation
+                councilStorage  = await councilInstance.storage();
+                const actionId  = councilStorage.actionCounter;
+                var operation   = await councilInstance.methods.councilActionRemoveVestee(bob.pkh).send()
+                await operation.confirmation();
+
+                await signerFactory(alice.sk)
+                operation       = await councilInstance.methods.signAction(actionId).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin transfers token', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionTransfer(
+                    bob.pkh,
+                    mvkTokenAddress.address,
+                    MVK(20),
+                    "FA2",
+                    0,
+                    "For testing purposes"
+                ).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin requests token', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionRequestTokens(
+                    treasuryAddress.address,
+                    mvkTokenAddress.address,
+                    "MVK",
+                    MVK(20),
+                    "FA2",
+                    0,
+                    "For testing purposes"
+                ).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin requests mint', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionRequestMint(
+                    treasuryAddress.address,
+                    MVK(20),
+                    "For testing purposes"
+                ).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets another contract baker', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.councilActionSetContractBaker(treasuryAddress.address).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin flushes an action', async () => {
+            try{
+                // Operation
+                const operation = await councilInstance.methods.flushAction(1).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin signs an action', async () => {
+            try{
+                // Operation
+                councilStorage  = await councilInstance.storage();
+                const actionId  = councilStorage.actionCounter;
+                var operation = await councilInstance.methods.councilActionRequestTokens(
+                    treasuryAddress.address,
+                    mvkTokenAddress.address,
+                    "MVK",
+                    MVK(20),
+                    "FA2",
+                    0,
+                    "For testing purposes"
+                ).send()
+                await operation.confirmation();
+
+                await signerFactory(alice.sk)
+                operation = await councilInstance.methods.signAction(actionId).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops financial request', async () => {
+            try{
+                // Operation
+                governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                const actionId              = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
+                const operation             = await councilInstance.methods.councilActionDropFinancialReq(actionId).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("VESTING", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.updateWhitelistContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds a new vestee', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.addVestee(bob.pkh, MVK(2000000), 0, 24).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin claims', async () => {
+            try{
+                // Operation
+                await wait(60 * 1000);
+                const operation = await vestingInstance.methods.claim().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates a vestee', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.updateVestee(bob.pkh, MVK(2000000), 0, 36).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin locks a vestee', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.toggleVesteeLock(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes a vestee', async () => {
+            try{
+                // Operation
+                const operation = await vestingInstance.methods.removeVestee(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("GOVERNANCE FINANCIAL", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await governanceFinancialInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await governanceFinancialInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the request approval percentage', async () => {
+            try{
+                // Operation
+                const operation = await governanceFinancialInstance.methods.updateConfig(10, "configFinancialReqApprovalPct").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the request duration in days', async () => {
+            try{
+                // Operation
+                const operation = await governanceFinancialInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await governanceFinancialInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin updates whitelist token contracts', async () => {
+            try{
+                // Operation
+                const operation = await governanceFinancialInstance.methods.updateWhitelistTokenContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin requests tokens', async () => {
+            try{
+                // Operation
+                councilStorage          = await councilInstance.storage()
+                const actionCounter     = councilStorage.actionCounter
+                var operation           = await councilInstance.methods.councilActionRequestTokens(
+                    treasuryAddress.address,
+                    mvkTokenAddress.address,
+                    "MVK",
+                    MVK(20),
+                    "FA2",
+                    0,
+                    "For testing purposes"
+                ).send()
+                await operation.confirmation();
+                await signerFactory(alice.sk)
+                operation               = await councilInstance.methods.signAction(actionCounter).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin requests mint', async () => {
+            try{
+                // Operation
+                councilStorage          = await councilInstance.storage()
+                const actionCounter     = councilStorage.actionCounter
+                var operation = await councilInstance.methods.councilActionRequestMint(
+                    treasuryAddress.address,
+                    MVK(20),
+                    "For testing purposes"
+                ).send()
+                await operation.confirmation();
+                await signerFactory(alice.sk)
+                operation               = await councilInstance.methods.signAction(actionCounter).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin drops financial request', async () => {
+            try{
+                // Operation
+                councilStorage              = await councilInstance.storage()
+                governanceFinancialStorage  = await governanceFinancialInstance.storage()
+                const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
+                const actionCounter         = councilStorage.actionCounter
+                var operation               = await councilInstance.methods.councilActionDropFinancialReq(requestToDrop).send()
+                await operation.confirmation();
+                await signerFactory(alice.sk)
+                operation                   = await councilInstance.methods.signAction(actionCounter).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin votes for first request', async () => {
+            try{
+                // Operation
+                councilStorage              = await councilInstance.storage()
+                governanceFinancialStorage  = await governanceFinancialInstance.storage()
+                const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 2
+                await signerFactory(bob.sk)
+                const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "yay").send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("TREASURY FACTORY", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin updates whitelist token contracts', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.updateWhitelistTokenContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates treasury name max length', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.updateConfig(100, "configTreasuryNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses create treasury entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("createTreasury", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses track treasury entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("trackTreasury", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses untrack treasury entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.togglePauseEntrypoint("untrackTreasury", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin creates a treasury', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.createTreasury(
+                    "treasuryInteraction",
+                    true,
+                    treasuryMetadataBase
+                ).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin untracks a treasury', async () => {
+            try{
+                // Operation
+                treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
+                const trackedTreasuries = treasuryFactoryStorage.trackedTreasuries
+                createdTreasuryAddress  = trackedTreasuries[0]
+                const operation = await treasuryFactoryInstance.methods.untrackTreasury(createdTreasuryAddress).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin tracks a treasury', async () => {
+            try{
+                // Operation
+                const operation = await treasuryFactoryInstance.methods.trackTreasury(createdTreasuryAddress).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("TREASURY", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin updates whitelist token contracts', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.updateWhitelistTokenContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses create transfer entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses mint and transfer entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses stake MVK entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses unstake MVK entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await treasuryInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("FARM FACTORY", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates farm name max length', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.updateConfig(100, "configFarmNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses create farm entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("createFarm", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses track farm entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("trackFarm", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses untrack farm entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.togglePauseEntrypoint("untrackFarm", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin creates a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.createFarm(
+                    "testFarm",
+                    false,
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase,
+                    lpTokenAddress.address,
+                    0,
+                    "fa12",
+                ).send();
+                await operation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin untracks a farm', async () => {
+            try{
+                // Operation
+                farmFactoryStorage  = await farmFactoryInstance.storage();
+                const trackedFarms  = farmFactoryStorage.trackedFarms
+                createdFarmAddress  = trackedFarms[0]
+                const operation = await farmFactoryInstance.methods.untrackFarm(createdFarmAddress).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin tracks a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmFactoryInstance.methods.trackFarm(createdFarmAddress).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("FARM", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin init a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.initFarm(
+                    12000,
+                    100,
+                    false,
+                    false
+                ).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates the rewards from transfer boolean', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates rewards per block', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.updateConfig(new BigNumber(MVK(2)), "configRewardPerBlock").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses deposit entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.togglePauseEntrypoint("deposit", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses withdraw entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.togglePauseEntrypoint("withdraw", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses claim entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.togglePauseEntrypoint("claim", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin deposits 2LP into the farm', async () => {
+            try{
+                // Operation
+                var operation = await lpTokenInstance.methods.approve(farmAddress.address, 2).send()
+                await operation.confirmation();
+                operation = await farmInstance.methods.deposit(2).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin withdraw 1LP from the farm', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.withdraw(1).send();
+                await operation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin claims from the farm', async () => {
+            try{
+                // Operation
+                var operation   = await farmFactoryInstance.methods.trackFarm(farmAddress.address).send()
+                await operation.confirmation();
+                operation       = await farmInstance.methods.claim(bob.pkh).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin closes a farm', async () => {
+            try{
+                // Operation
+                const operation = await farmInstance.methods.closeFarm().send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("AGGREGATOR FACTORY", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates aggregator name max length', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.updateConfig(500, "configAggregatorNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses create aggregator', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("createAggregator", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses track aggregator', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("trackAggregator", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses untrack aggregator', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("untrackAggregator", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses distribute reward xtz', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardXtz", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses distribute reward smvk', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.togglePauseEntrypoint("distributeRewardStakedMvk", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin creates an aggregator', async () => {
+            try{
+                // Operation
+                const oracleMap = MichelsonMap.fromLiteral({
+                    [oracle0.pkh] : true,
+                    [oracle1.pkh] : true,
+                    [oracle2.pkh] : true,
+                    // [oracle3.pkh]: true,
+                    // [oracle4.pkh]: true,
+                }) as MichelsonMap<
+                    string,
+                    boolean
+                    >
+                const operation = await aggregatorFactoryInstance.methods.createAggregator(
+                    'USD',
+                    'BTC',
+    
+                    'USDBTC',
+                    true,
+                    
+                    oracleMap,
+    
+                    new BigNumber(16),            // decimals
+                    new BigNumber(2),             // numberBlocksDelay
+                    
+                    new BigNumber(86400),         // deviationTriggerBanDuration
+                    new BigNumber(5),             // perthousandDeviationTrigger
+                    new BigNumber(60),            // percentOracleThreshold
+                    
+                    new BigNumber(0),             // requestRateDeviationDepositFee
+    
+                    new BigNumber(10000000),      // deviationRewardStakedMvk
+                    new BigNumber(2600),          // deviationRewardAmountXtz
+                    new BigNumber(10000000),      // rewardAmountStakedMvk
+                    new BigNumber(1300),          // rewardAmountXtz
+                    
+                    oracleMaintainer.pkh,         // maintainer
+                    aggregatorMetadataBase        // metadata
+                ).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin untracks an aggregator', async () => {
+            try{
+                // Operation
+                aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+                createdAggregatorAddress    = await aggregatorFactoryStorage.trackedAggregators.get({
+                  0: 'USD',
+                  1: 'BTC',
+                }) as string;
+                const operation             = await aggregatorFactoryInstance.methods.untrackAggregator('USD', 'BTC').send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin tracks an aggregator', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'BTC', createdAggregatorAddress).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("AGGREGATOR", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets maintainer', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.setMaintainer(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets name', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.setName("AggregatorTest").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds an oracle', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.addOracle(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes an oracle', async () => {
+            try{
+                // Operation
+                var operation   = await aggregatorInstance.methods.removeOracle(bob.pkh).send();
+                await operation.confirmation();
+                var operation       = await aggregatorInstance.methods.addOracle(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses %requestRateUpdate', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("requestRateUpdate", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses %requestRateUpdateDeviation', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("requestRateUpdateDeviation", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses %setObservationCommit', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("setObservationCommit", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses %setObservationReveal', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("setObservationReveal", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses %withdrawRewardXtz', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardXtz", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses %withdrawRewardStakedMvk', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.togglePauseEntrypoint("withdrawRewardStakedMvk", true).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.pauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unpauses all entrypoints', async () => {
+            try{
+                // Operation
+                const operation = await aggregatorInstance.methods.unpauseAll().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin requests rate update', async () => {
+            try{
+                // Operation
+                aggregatorStorage   = await aggregatorInstance.storage()
+                const operation = await aggregatorInstance.methods.requestRateUpdate().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets observation commit', async () => {
+            try{
+                // Operation
+                aggregatorStorage   = await aggregatorInstance.storage()
+                const round         = aggregatorStorage.round;
+                const price         = new BigNumber(200);
+                const data: MichelsonData = {
+                  prim: 'Pair',
+                  args: [
+                    { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+                    { string: bob.pkh },
+                  ],
+                };
+                const type: MichelsonType = {
+                  prim: 'pair',
+                  args: [
+                    { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+                    { prim: 'address' },
+                  ],
+                };
+                const priceCodec = packDataBytes(data, type);
+                const hash = createHash('sha256')
+                    .update(priceCodec.bytes, 'hex')
+                    .digest('hex');
+                const operation = await aggregatorInstance.methods.setObservationCommit(round, hash).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets observation reveal', async () => {
+            try{
+                // Operation
+                await wait(2 * 60 * 1000);
+                aggregatorStorage   = await aggregatorInstance.storage()
+                const round         = aggregatorStorage.round;
+                const price         = new BigNumber(200);
+
+                const operation = await aggregatorInstance.methods.setObservationReveal(round, price, salt, bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin requests rate update deviation', async () => {
+            try{
+                // Operation
+                aggregatorStorage   = await aggregatorInstance.storage()
+                const roundId       = aggregatorStorage.round;
+                const price         = new BigNumber(200);
+                const data: MichelsonData = {
+                prim: 'Pair',
+                args: [
+                    { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+                    { string: bob.pkh },
+                ],
+                };
+                const type: MichelsonType = {
+                prim: 'pair',
+                args: [
+                    { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+                    { prim: 'address' },
+                ],
+                };
+                const priceCodec = packDataBytes(data, type);
+                const hash = createHash('sha256')
+                    .update(priceCodec.bytes, 'hex')
+                    .digest('hex');
+                const operation = await aggregatorInstance.methods.requestRateUpdateDeviation(
+                    roundId.plus(1),
+                    hash
+                ).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin withdraws rewards xtz', async () => {
+            try{
+                // Operation
+                var operation   = await aggregatorFactoryInstance.methods.trackAggregator('USD', 'MVK', aggregatorAddress.address).send()
+                await operation.confirmation()
+                operation = await aggregatorInstance.methods.withdrawRewardXtz(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin withdraws rewards smvk', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.withdrawRewardStakedMvk(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates decimals', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(9, "configDecimals").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates number blocks delay', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(1, "configNumberBlocksDelay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates number deviation trigger ban duration', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(10, "configDevTriggerBanDuration").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates number per thousand deviation trigger', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(10, "configPerThousandDevTrigger").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates number percentage oracle threshold', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(50, "configPercentOracleThreshold").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates request rate deviation deposit fee', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(0, "configRequestRateDevDepositFee").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates deviation reward smvk', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(MVK(1), "configDeviationRewardStakedMvk").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates deviation reward xtz', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(100, "configDeviationRewardAmountXtz").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates reward smvk', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(MVK(1), "configRewardAmountStakedMvk").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates reward xtz', async () => {
+            try{
+                // Operation
+                var operation = await aggregatorInstance.methods.updateConfig(100, "configRewardAmountXtz").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("GOVERNANCE", async () => {
+
+        before("Set FarmFactory admin", async () => {
+            // Set the farm factory admin
+            const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+            await setAdminOperation.confirmation()
+        })
+
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance proxy', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.setGovernanceProxy(governanceProxyAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates success reward', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(new BigNumber(MVK(300)), "configSuccessReward").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates cycle voters reward', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(new BigNumber(MVK(500)), "configCycleVotersReward").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates min proposal round vote pct', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates min proposal round vote req', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates min quorum pct', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates min yay vote mvk total', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates propose fee mutez', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(1000000, "configProposeFeeMutez").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates max proposal per satellite', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(2, "configMaxProposalsPerSatellite").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates blocks per proposal round', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates blocks per voting round', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates blocks per timelock round', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin updates proposal data title max length', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(500, "configProposalDatTitleMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        
+        it('Admin updates proposal title max length', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(500, "configProposalTitleMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('Admin updates proposal description max length', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(1000, "configProposalDescMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+
+        it('Admin updates proposal invoice max length', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(1000, "configProposalInvoiceMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates proposal code max length', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateConfig(1000, "configProposalCodeMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist developers', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateWhitelistDevelopers(trudy.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.updateGeneralContracts("test", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets other contract admin', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.setContractAdmin(doormanAddress.address, bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets other contract governance', async () => {
+            try{
+                // Operation
+                const operation = await governanceInstance.methods.setContractGovernance(doormanAddress.address, governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin executes an entire proposal (with %executeProposal)', async () => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber();
+                const proposalName          = "Create a farm";
+                const proposalDesc          = "Details about new proposal";
+                const proposalIpfs          = "ipfs://QM123456789";
+                const proposalSourceCode    = "Proposal Source Code";
+
+                const farmMetadataBase = Buffer.from(
+                    JSON.stringify({
+                    name: 'MAVRYK PLENTY-USDTz Farm',
+                    description: 'MAVRYK Farm Contract',
+                    version: 'v1.0.0',
+                    liquidityPairToken: {
+                        tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                        origin: ['Plenty'],
+                        token0: {
+                            symbol: ['PLENTY'],
+                            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                        },
+                        token1: {
+                            symbol: ['USDtz'],
+                            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                        }
+                    },
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+
+                // Create a farm compiled params
+                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                    'createFarm',
+                    "testFarm",
+                    false,
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase,
+                    lpTokenAddress.address,
+                    0,
+                    "fa12",
+                ).toTransferParams();
+                const lambdaParamsValue = lambdaParams.parameter.value;
+                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                const referenceDataPacked = await utils.tezos.rpc.packData({
+                    data: lambdaParamsValue,
+                    type: proxyDataPackingHelperType
+                }).catch(e => console.error('error:', e));
+
+                var packedParam;
+                if (referenceDataPacked) {
+                    packedParam = referenceDataPacked.packed
+                    console.log('packed %createFarm param: ' + packedParam);
+                } else {
+                throw `packing failed`
+                };
+
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    }
+                ]
+
+                // Start governance rounds
+                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                await proposeOperation.confirmation();
+                var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()
+                await addPaymentDataOperation.confirmation();
+                addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, MVK(20), "fa2", mvkTokenAddress.address, 0).send()
+                await addPaymentDataOperation.confirmation();
+                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                await lockOperation.confirmation();
+                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                await voteOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+
+                // Votes operation -> both satellites vote
+                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+                await votingRoundVoteOperation.confirmation();
+
+                // Execute proposal
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin executes an entire proposal (with %processProposalSingleData)', async () => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber();
+                const proposalName          = "Create multiple farms";
+                const proposalDesc          = "Details about new proposal";
+                const proposalIpfs          = "ipfs://QM123456789";
+                const proposalSourceCode    = "Proposal Source Code";
+
+                const farmMetadataBase = Buffer.from(
+                    JSON.stringify({
+                    name: 'MAVRYK PLENTY-USDTz Farm',
+                    description: 'MAVRYK Farm Contract',
+                    version: 'v1.0.0',
+                    liquidityPairToken: {
+                        tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                        origin: ['Plenty'],
+                        token0: {
+                            symbol: ['PLENTY'],
+                            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                        },
+                        token1: {
+                            symbol: ['USDtz'],
+                            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                        }
+                    },
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+
+                // Create a farm compiled params
+                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                    'createFarm',
+                    "testFarm",
+                    false,
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase,
+                    lpTokenAddress.address,
+                    0,
+                    "fa12",
+                ).toTransferParams();
+                const lambdaParamsValue = lambdaParams.parameter.value;
+                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                const referenceDataPacked = await utils.tezos.rpc.packData({
+                    data: lambdaParamsValue,
+                    type: proxyDataPackingHelperType
+                }).catch(e => console.error('error:', e));
+
+                var packedParam;
+                if (referenceDataPacked) {
+                    packedParam = referenceDataPacked.packed
+                    console.log('packed %createFarm param: ' + packedParam);
+                } else {
+                throw `packing failed`
+                };
+
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#2",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#3",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#4",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#5",
+                        data: packedParam
+                    }
+                ]
+
+                // Start governance rounds
+                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                await proposeOperation.confirmation();
+                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                await lockOperation.confirmation();
+                var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                await voteOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+
+                // Votes operation -> both satellites vote
+                var votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                await votingRoundVoteOperation.confirmation();
+
+                // Execute proposal
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(false).send();
+                await nextRoundOperation.confirmation();
+
+                const executeSingleDataBatch = await utils.tezos.wallet
+                .batch()
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                const processProposalSingleDataBatchOperation = await executeSingleDataBatch.send()
+                await processProposalSingleDataBatchOperation.confirmation()
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops a proposal', async () => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber();
+                const proposalName          = "proposal to drop";
+                const proposalDesc          = "Details about new proposal";
+                const proposalIpfs          = "ipfs://QM123456789";
+                const proposalSourceCode    = "Proposal Source Code";
+
+                const farmMetadataBase = Buffer.from(
+                    JSON.stringify({
+                    name: 'MAVRYK PLENTY-USDTz Farm',
+                    description: 'MAVRYK Farm Contract',
+                    version: 'v1.0.0',
+                    liquidityPairToken: {
+                        tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                        origin: ['Plenty'],
+                        token0: {
+                            symbol: ['PLENTY'],
+                            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                        },
+                        token1: {
+                            symbol: ['USDtz'],
+                            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                        }
+                    },
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+
+                // Create a farm compiled params
+                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                    'createFarm',
+                    "testFarm",
+                    false,
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase,
+                    lpTokenAddress.address,
+                    0,
+                    "fa12",
+                ).toTransferParams();
+                const lambdaParamsValue = lambdaParams.parameter.value;
+                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                const referenceDataPacked = await utils.tezos.rpc.packData({
+                    data: lambdaParamsValue,
+                    type: proxyDataPackingHelperType
+                }).catch(e => console.error('error:', e));
+
+                var packedParam;
+                if (referenceDataPacked) {
+                    packedParam = referenceDataPacked.packed
+                    console.log('packed %createFarm param: ' + packedParam);
+                } else {
+                throw `packing failed`
+                };
+
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    }
+                ]
+
+                // Start governance rounds
+                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                await proposeOperation.confirmation();
+                const dropOperation         = await governanceInstance.methods.dropProposal(proposalId).send();
+                await dropOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    });
+
+    describe("GOVERNANCE SATELLITE", async () => {
+
+        before("Register another satellite for testing purposes", async () => {
+            // Operation
+            await signerFactory(alice.sk)
+            const operation = await delegationInstance.methods
+            .registerAsSatellite(
+                "Alice Satellite", 
+                "This is the description", 
+                "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3", 
+                "https://mavryk.finance/", 
+                1000
+            ).send();
+            await operation.confirmation();
+            await signerFactory(bob.sk)
+        })
+
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates approval percentage', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configApprovalPercentage").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates satellite duration in days', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.updateConfig(1, "configSatelliteDurationInDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates purpose max length', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.updateConfig(500, "configPurposeMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await governanceSatelliteInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin suspends a satellite', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.suspendSatellite(alice.pkh, "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin bans a satellite', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.banSatellite(alice.pkh, "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin restores a satellite', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin registers an aggregator', async () => {
+            try{
+                // Operation
+                const operation              = await governanceSatelliteInstance.methods.registerAggregator("MVK", "USDM", aggregatorAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates an aggregator status', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds an oracle to an aggregator', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address,"For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes all satellite oracles', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.removeAllSatelliteOracles(alice.pkh, "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin resolve a mistaken transfer', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var contractAccount         = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress.address)
+                var userAccount             = await mvkTokenStorage.ledger.get(bob.pkh)
+                const tokenAmount           = MVK(200);
+                const purpose               = "Transfer made by mistake to the aggregator factory"
+
+                // Mistake Operation
+                const transferOperation     = await mvkTokenInstance.methods.transfer([
+                    {
+                        from_: bob.pkh,
+                        txs: [
+                            {
+                                to_: aggregatorFactoryAddress.address,
+                                token_id: 0,
+                                amount: tokenAmount
+                            }
+                        ]
+                    }
+                ]).send();
+                await transferOperation.confirmation();
+
+                // Satellite Bob creates a governance action
+                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
+                        aggregatorFactoryAddress.address,
+                        purpose,
+                        [
+                            {
+                                "to_"    : bob.pkh,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress": mvkTokenAddress.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : tokenAmount
+                            }
+                        ]
+                    ).send();
+                await governanceSatelliteOperation.confirmation();
+
+                const operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops an action', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.updateAggregatorStatus(aggregatorAddress.address, "ACTIVE", "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.dropAction(actionId).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes an oracle in an aggregator', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                var actionId                = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.addOracleToAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+                
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                actionId                    = governanceSatelliteStorage.governanceSatelliteCounter
+                var operation               = await governanceSatelliteInstance.methods.removeOracleInAggregator(alice.pkh, aggregatorAddress.address, "For tests purposes").send();
+                await operation.confirmation();
+
+                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("EMERGENCY GOVERNANCE", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates vote expiry days', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1, "configVoteExpiryDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates required fee mutez to trigger emergency', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(1000000, "configRequiredFeeMutez").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates SMVK percentage required', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(0, "configStakedMvkPercentRequired").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates minimum SMVK for voting', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForVoting").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates minimum SMVK to trigger', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(new BigNumber(MVK(0.1)), "configMinStakedMvkForTrigger").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates proposal title max length', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(500, "configProposalTitleMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates proposal description max length', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateConfig(500, "configProposalDescMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin triggers emergency governance', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops emergency governance', async () => {
+            try{
+                // Operation
+                const operation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin votes for emergency governance', async () => {
+            try{
+                // Operation
+                var operation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Emergency title", "Emergency description").send({amount: 1});
+                await operation.confirmation();
+
+                // Operation
+                operation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+
+    describe("BREAK GLASS", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin sets admin', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets governance', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setGovernance(governanceAddress.address).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates threshold', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(0, "configThreshold").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates action expiry days', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(1, "configActionExpiryDays").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates name max length', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilNameMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates website max length', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilWebsiteMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates image max length', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateConfig(500, "configCouncilImageMaxLength").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates general contracts', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateGeneralContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates whitelist contracts', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin updates its council member info', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.updateCouncilMemberInfo("Bob", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin adds a new council member', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.addCouncilMember(trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes a council member', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.removeCouncilMember(alice.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin changes a council member', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.changeCouncilMember(alice.pkh, trudy.pkh, "Trudy", "https://mavryk.finance/", "https://www.iheartradio.ca/image/policy:1.15731844:1627581512/rick.jpg?f=default&$p$f=20c1bb3").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin propagate break glass', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.propagateBreakGlass().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets single contract admin', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setSingleContractAdmin(governanceAddress.address, bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin sets all contracts admin', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.setAllContractsAdmin(bob.pkh).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin pauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin unpauses all entrypoint', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin removes break glass control', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin flushes an action', async () => {
+            try{
+                // Operation
+                const operation = await breakGlassInstance.methods.flushAction(1).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin signs an action', async () => {
+            try{
+                // Operation
+                breakGlassStorage   = await breakGlassInstance.storage();
+                const recordId      = breakGlassStorage.actionCounter
+                var operation = await breakGlassInstance.methods.flushAction(1).send();
+                await operation.confirmation();
+
+                await signerFactory(alice.sk)
+                operation = await breakGlassInstance.methods.signAction(recordId).send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+    })
+});

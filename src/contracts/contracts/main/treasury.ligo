@@ -1,422 +1,711 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Shared Helpers and Types
+// ------------------------------------------------------------------------------
 
-#include "../partials/fa12/fa12_types.ligo"
-#include "../partials/fa2/fa2_types.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-type operator is address
-type owner is address
-type tokenId is nat;
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
-type configType is record [
-    minXtzAmount      : nat;
-    maxXtzAmount      : nat;
-]
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
 
-type breakGlassConfigType is record [
-    transferIsPaused         : bool; 
-    mintAndTransferIsPaused  : bool;
-    updateOperatorsIsPaused  : bool;
-]
+// MvkToken Types
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
-type storage is record [
-    admin                      : address;
-    mvkTokenAddress            : address;
+// Treasury Types
+#include "../partials/contractTypes/treasuryTypes.ligo"
 
-    config                     : configType;
+// TreasuryFactory Types
+#include "../partials/contractTypes/treasuryFactoryTypes.ligo"
 
-    whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
-    generalContracts           : generalContractsType;
-
-    breakGlassConfig           : breakGlassConfigType;
-]
-
-(* Update_operators entrypoint inputs *)
-type operatorParameter is [@layout:comb] record[
-  owner: owner;
-  operator: operator;
-  token_id: tokenId;
-]
-type updateOperator is 
-  Add_operator of operatorParameter
-| Remove_operator of operatorParameter
-type updateOperatorsParamsType is list(updateOperator)
-
-type tezType             is unit
-
-type fa12TokenType       is address
-
-type fa2TokenType        is [@layout:comb] record [
-  token                   : address;
-  id                      : nat;
-]
-
-type tokenType       is
-| Tez                     of tezType         // unit
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
-
-type transferTokenType is record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
-// type transferType is list(transferTokenType)
-
-type mintTokenType is (address * nat)
-type mintMvkAndTransferType is record [
-    to_             : address;
-    amt             : nat;
-]
-
-type updateSatelliteBalanceParams is (address * nat * nat)
-
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-| ConfigMinXtzAmount of unit
-| ConfigMaxXtzAmount of unit
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: updateConfigNewValueType; 
-  updateConfigAction: updateConfigActionType;
-]
-
+// ------------------------------------------------------------------------------
 
 type treasuryAction is 
-    | SetAdmin of (address)
-    | UpdateConfig of updateConfigParamsType    
-    | UpdateWhitelistContracts of updateWhitelistContractsParams
-    | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
-    | UpdateGeneralContracts of updateGeneralContractsParams
 
-    | Transfer of transferTokenType
-    | MintMvkAndTransfer of mintMvkAndTransferType
-    | Update_operators of (address * updateOperatorsParamsType)
+    |   Default                        of unit
+
+        // Housekeeping Entrypoints
+    |   SetAdmin                       of (address)
+    |   SetGovernance                  of (address)
+    |   SetBaker                       of option(key_hash)
+    |   SetName                        of (string)
+    |   UpdateMetadata                 of updateMetadataType
+    |   UpdateWhitelistContracts       of updateWhitelistContractsType
+    |   UpdateGeneralContracts         of updateGeneralContractsType
+    |   UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsType
+
+        // Pause / Break Glass Entrypoints
+    |   PauseAll                       of (unit)
+    |   UnpauseAll                     of (unit)
+    |   TogglePauseEntrypoint          of treasuryTogglePauseEntrypointType
+
+        // Treasury Entrypoints
+    |   Transfer                       of transferActionType
+    |   MintMvkAndTransfer             of mintMvkAndTransferType
+
+        // Staking Entrypoints
+    |   UpdateMvkOperators             of updateOperatorsType
+    |   StakeMvk                       of (nat)
+    |   UnstakeMvk                     of (nat)
+
+        // Lambda Entrypoints
+    |   SetLambda                      of setLambdaType
+
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * treasuryStorageType
 
-// admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
-    if (Tezos.sender = s.admin) then unit
-        else failwith("Only the administrator can call this entrypoint.");
-
-function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
-        else failwith("This entrypoint should not receive any tez.");
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
-
-// admin helper functions end ---------------------------------------------------------
-
-function get_fa12_token_transfer_entrypoint(
-  const token           : address)
-                        : contract(fa12_transfer_type) is
-  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa12_transfer_type))) of
-  | Some(contr) -> contr
-  | None        -> (failwith("Error. FA12 Token transfer entrypoint is not found.") : contract(fa12_transfer_type))
-  end
-
-function get_fa2_token_transfer_entrypoint(const token : address) : contract(fa2_transfer_type) is
-  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa2_transfer_type))) of
-  | Some(contr) -> contr
-  | None        -> (failwith("Error. FA2 Token transfer entrypoint is not found.") : contract(fa2_transfer_type))
-  end
-
-[@inline] function wrap_fa12_transfer_trx(const from_ : address; const to_ : address; const amt : nat) : fa12_transfer_type is FA12_transfer(from_, (to_, amt))
-
-[@inline] function wrap_fa2_transfer_trx(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const id              : fa2_token_id_type)
-                        : fa2_transfer_type is
-  FA2_transfer(
-    list [
-      record [
-        from_ = from_;
-        txs   = list [
-          record [
-            to_      = to_;
-            token_id = id;
-            amount   = amt;
-          ]
-        ];
-      ]
-    ]
-  )
-
-function transfer_tez(
-  const to_             : contract(unit);
-  const amt             : nat)
-                        : operation is
-  Tezos.transaction(unit, amt * 1mutez, to_)
-
-function transfer_fa12(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const token           : address)
-                        : operation is
-  Tezos.transaction(
-    wrap_fa12_transfer_trx(from_, to_, amt),
-    0mutez,
-    get_fa12_token_transfer_entrypoint(token)
-  )
-
-function transfer_fa2(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const token           : address;
-  const id              : fa2_token_id_type)
-                        : operation is
-  Tezos.transaction(
-    wrap_fa2_transfer_trx(from_, to_, amt, id),
-    0mutez,
-    get_fa2_token_transfer_entrypoint(token)
-  )
-
-function transfer_token(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const token           : tokenType)
-                        : operation is
-  case token of
-  | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
-  | Fa12(token) -> transfer_fa12(from_, to_, amt, token)
-  | Fa2(token)  -> transfer_fa2(from_, to_, amt, token.token, token.id)
-  end
-
-// helper function to get mint entrypoint from token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
-  case (Tezos.get_entrypoint_opt(
-      "%mint",
-      token_address) : option(contract(mintTokenType))) of
-    Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
-  end;
-
-(* Helper function to mint mvk/vmvk tokens *)
-function mintTokens(
-  const to_ : address;
-  const amount_ : nat;
-  const tokenAddress : address) : operation is
-  Tezos.transaction(
-    (to_, amount_),
-    0tez,
-    getMintEntrypointFromTokenAddress(tokenAddress)
-  );  
-
-// helper function to update satellite's balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
-  case (Tezos.get_entrypoint_opt(
-      "%onStakeChange",
-      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of
-    Some(contr) -> contr
-  | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(updateSatelliteBalanceParams))
-  end;
+// treasury contract methods lambdas
+type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasuryStorageType) -> return
 
 
-(*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// Allowed Senders : Admin, Governance Contract
+function checkSenderIsAllowed(const s : treasuryStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+// Allowed Senders : Admin
+function checkSenderIsAdmin(var s : treasuryStorageType) : unit is
+    if (Tezos.get_sender() = s.admin) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+
+
+// Allowed Senders : Admin, Governance Financial Contract
+function checkSenderIsAdminOrGovernanceFinancial(const s : treasuryStorageType) : unit is
+block{
+
+    const governanceFinancialAddress : address = case s.whitelistContracts["governanceFinancial"] of [
+            Some (_address) -> _address
+        |   None            -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED) : address)
+    ];
+    
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = governanceFinancialAddress) then skip
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+} with(unit)
+
+
+
+// Allowed Senders : Admin, Governance Contract, Treasury Factory Contract
+function checkSenderIsGovernanceOrFactory(const s : treasuryStorageType) : unit is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    if Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress
+    then skip
+    else{
 
-    s.admin := newAdminAddress;
+        const treasuryFactoryAddress : address = case s.whitelistContracts["treasuryFactory"] of [
+                Some (_address) -> _address
+            |   None            -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : address)
+        ];
 
-} with (noOperations, s)
+        if Tezos.get_sender() = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
+    };
 
-(*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
-block {
-
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
-
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
-
-  case updateConfigAction of
-  | ConfigMinXtzAmount (_v)           -> s.config.minXtzAmount            := updateConfigNewValue
-  | ConfigMaxXtzAmount (_v)           -> s.config.maxXtzAmount            := updateConfigNewValue
-  end;
-
-} with (noOperations, s)
+} with(unit)
 
 
 
-(* update_operators entrypoint *)
-// type updateOperatorsParamsType is list(updateOperator)
-function update_operators(const tokenAddress : address; const updateOperatorsParams: updateOperatorsParamsType; var s : storage) : return is
-block {
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.get_amount() = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
-    // Steps Overview:
-    // 1. Check that sender is in whitelist (governance, council)
-    // 2. Update operators for Treasury account in specified token contract
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
 
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
 
-    var operations : list(operation) := nil;
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
 
-    const updateOperatorsEntrypoint = case (Tezos.get_entrypoint_opt(
-        "%update_operators",
-        tokenAddress) : option(contract(updateOperatorsParamsType))) of
-        Some(contr) -> contr
-        | None -> (failwith("update_operators entrypoint in Token Contract not found") : contract(updateOperatorsParamsType))
-    end;
+// helper function to check that the %transfer entrypoint is not paused
+function checkTransferIsNotPaused(var s : treasuryStorageType) : unit is
+    if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
 
-    // update operators operation
-    const updateOperatorsOperation : operation = Tezos.transaction(
-        updateOperatorsParams,
-        0tez, 
-        updateOperatorsEntrypoint
+
+
+// helper function to check that the %mintMvkAndTransfer entrypoint is not paused
+function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorageType) : unit is
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %stakeMvk entrypoint is not paused
+function checkStakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
+    if s.breakGlassConfig.stakeMvkIsPaused then failwith(error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %unstakeMvk entrypoint is not paused
+function checkUnstakeMvkIsNotPaused(var s : treasuryStorageType) : unit is
+    if s.breakGlassConfig.unstakeMvkIsPaused then failwith(error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get mint entrypoint from specified token contract address
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mint",
+        token_address) : option(contract(mintType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+        ];
+
+
+
+// Helper function to mint mvk/smvk tokens 
+function mintTokens(
+    const to_ : address;
+    const amount_ : nat;
+    const tokenAddress : address) : operation is
+    Tezos.transaction(
+        (to_, amount_),
+        0tez,
+        getMintEntrypointFromTokenAddress(tokenAddress)
     );
 
-    operations := updateOperatorsOperation # operations;
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
 
-} with (operations, s)
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryUnpackLambdaFunctionType)) of [
+            Some(f) -> f(treasuryLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers Begin
+//
+// ------------------------------------------------------------------------------
+
+// Treasury Lambdas :
+#include "../partials/contractLambdas/treasury/treasuryLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers End
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _ : unit; var s : treasuryStorageType) : address is
+    s.admin
+
+
+
+(* View: get name variable *)
+[@view] function getName(const _ : unit; var s : treasuryStorageType) : string is
+    s.name
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig(const _ : unit; var s : treasuryStorageType) : treasuryBreakGlassConfigType is
+    s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _ : unit; var s : treasuryStorageType) : whitelistContractsType is
+    s.whitelistContracts
+
+
+
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContracts(const _ : unit; var s : treasuryStorageType) : whitelistTokenContractsType is
+    s.whitelistTokenContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _ : unit; var s : treasuryStorageType) : generalContractsType is
+    s.generalContracts
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : treasuryStorageType) : lambdaLedgerType is
+    s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : treasuryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : treasuryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);
+
+} with response
+
+
+
+(* setBaker entrypoint *)
+function setBaker(const keyHash : option(key_hash); var s : treasuryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetBaker"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetBaker(keyHash);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* setName entrypoint - update the metadata at a given key *)
+function setName(const updatedName : string; var s : treasuryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetName"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetName(updatedName);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateMetadata entrypoint - update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : treasuryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : treasuryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : treasuryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateWhitelistTokenContracts entrypoint *)
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams : updateWhitelistTokenContractsType; var s : treasuryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* pauseAll entrypoint *)
+function pauseAll(var s : treasuryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaPauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* unpauseAll entrypoint *)
+function unpauseAll(var s : treasuryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnpauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint: treasuryTogglePauseEntrypointType; const s : treasuryStorageType) : return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);
+
+} with response
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Treasury Entrypoints Begin
+// ------------------------------------------------------------------------------
 
 (* transfer entrypoint *)
-// type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
-function transfer(const transferToken : transferTokenType ; var s : storage) : return is 
+function transfer(const transferTokenParams : transferActionType; var s : treasuryStorageType) : return is 
 block {
     
-    // Steps Overview:
-    // 1. Check that sender is in whitelist (governance, council)
-    // 2. Send transfer operation from Treasury account to user account
-    // 3. Update user's satellite details in Delegation contract
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTransfer"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTransfer(transferTokenParams);
 
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
 
-    var operations : list(operation) := nil;
+} with response
 
-    const from_  : address   = transferToken.from_;
-    const to_    : address   = transferToken.to_;
-    const amt    : nat       = transferToken.amt;
-    const token  : tokenType = transferToken.token;
 
-    const transferTokenOperation : operation = case token of 
-        | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
-        | Fa12(token) -> block{
-                if checkInWhitelistTokenContracts(token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
-                const transferOperation : operation = transfer_fa12(from_, to_, amt, token);
-            } with transferOperation
-        | Fa2(token)  -> block {
-                if checkInWhitelistTokenContracts(token.token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
-                const transferOperation : operation = transfer_fa2(from_, to_, amt, token.token, token.id);
-            } with transferOperation
-    end;
 
-    operations := transferTokenOperation # operations;
-
-    // update user's satellite balance if MVK is transferred
-    const mvkTokenAddress : address = s.mvkTokenAddress;
-
-    const checkIfMvkToken : bool = case token of
-         Tez -> False
-        | Fa12(_token) -> False
-        | Fa2(token) -> block {
-                var mvkBool : bool := False;
-                if token.token = mvkTokenAddress then mvkBool := True else mvkBool := False;                
-            } with mvkBool        
-    end;
-
-    if checkIfMvkToken = True then block {
-        const delegationAddress : address = case s.generalContracts["delegation"] of
-            Some(_address) -> _address
-            | None -> failwith("Error. Delegation Contract is not found.")
-        end;
-
-        const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-            (to_, amt, 1n),
-            0tez,
-            updateSatelliteBalance(delegationAddress)
-        );
-
-        operations := updateSatelliteBalanceOperation # operations;
-    } else skip;    
-
-} with (operations, s)
-
-(* mint and transfer entrypoint *)
-// type mintAndTransferType is record [to_ : address; amt : nat;]
-function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferType ; var s : storage) : return is 
+(* mintMvkAndTransfer entrypoint *)
+function mintMvkAndTransfer(const mintMvkAndTransferParams : mintMvkAndTransferType ; var s : treasuryStorageType) : return is 
 block {
     
-    // Steps Overview:
-    // 1. Check that sender is in whitelist (governance, council)
-    // 2. Send mint operation to MVK Token Contract
-    // 3. Update user's satellite details in Delegation contract
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMintMvkAndTransfer"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvkAndTransfer(mintMvkAndTransferParams);
 
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
 
-    var operations : list(operation) := nil;
-
-    const to_    : address   = mintMvkAndTransfer.to_;
-    const amt    : nat       = mintMvkAndTransfer.amt;
-
-    const mvkTokenAddress : address = s.mvkTokenAddress;
-
-    const delegationAddress : address = case s.generalContracts["delegation"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found.")
-    end;
-
-    const mintMvkTokensOperation : operation = mintTokens(
-        to_,                // to address
-        amt,                // amount of mvk Tokens to be minted
-        mvkTokenAddress     // mvkTokenAddress
-    ); 
-
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-        (to_, amt, 1n),
-        0tez,
-        updateSatelliteBalance(delegationAddress)
-    );
-
-    operations := mintMvkTokensOperation # operations;
-    operations := updateSatelliteBalanceOperation # operations;
-
-} with (operations, s)
+} with response
 
 
-function main (const action : treasuryAction; const s : storage) : return is 
-    case action of
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
+
+(* updateMvkOperators entrypoint *)
+function updateMvkOperators(const updateOperatorsParams : updateOperatorsType ; var s : treasuryStorageType) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMvkOperators"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMvkOperators(updateOperatorsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* stakeMvk entrypoint *)
+function stakeMvk(const stakeAmount : nat ; var s : treasuryStorageType) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaStakeMvk"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStakeMvk(stakeAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* unstakeMvk entrypoint *)
+function unstakeMvk(const unstakeAmount : nat ; var s : treasuryStorageType) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstakeMvk"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstakeMvk(unstakeAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Treasury Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : treasuryStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
+
+
+
+(* main entrypoint *)
+function main (const action : treasuryAction; const s : treasuryStorageType) : return is 
+    
+    case action of [
+
+        |   Default(_params)                              -> ((nil : list(operation)), s)
         
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-  
-        | Transfer(parameters) -> transfer(parameters, s)
-        | MintMvkAndTransfer(parameters) -> mintMvkAndTransfer(parameters, s)
-        | Update_operators(parameters) -> update_operators(parameters.0, parameters.1, s)
-    end
+            // Housekeeping Entrypoints
+        |   SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)                     -> setGovernance(parameters, s)
+        |   SetBaker(parameters)                          -> setBaker(parameters, s)
+        |   SetName(parameters)                           -> setName(parameters, s)
+        |   UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
+        |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+        |   UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
+
+            // Pause / Break Glass Entrypoints
+        |   PauseAll(_parameters)                         -> pauseAll(s)
+        |   UnpauseAll(_parameters)                       -> unpauseAll(s)
+        |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
+        
+            // Treasury Entrypoints
+        |   Transfer(parameters)                          -> transfer(parameters, s)
+        |   MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
+
+            // Staking Entrypoints
+        |   UpdateMvkOperators(parameters)                -> updateMvkOperators(parameters, s)
+        |   StakeMvk(parameters)                          -> stakeMvk(parameters, s)
+        |   UnstakeMvk(parameters)                        -> unstakeMvk(parameters, s)
+
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                         -> setLambda(parameters, s)
+    ]

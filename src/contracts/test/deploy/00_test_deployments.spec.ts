@@ -1,20 +1,13 @@
-const {
-  TezosToolkit,
-  ContractAbstraction,
-  ContractProvider,
-  TezosOperationError,
-  WalletParamsWithKind,
-  OpKind,
-  Tezos,
-} = require('@taquito/taquito')
-const { InMemorySigner, importKey } = require('@taquito/signer')
-import assert, { ok, rejects, strictEqual } from 'assert'
-import { Utils, zeroAddress } from '../helpers/Utils'
-import fs from 'fs'
-import { confirmOperation } from '../../scripts/confirmation'
-const saveContractAddress = require('../../helpers/saveContractAddress')
+const { InMemorySigner, importKey } = require("@taquito/signer");
+import assert, { ok, rejects, strictEqual } from "assert";
+import { MVK, Utils, zeroAddress } from "../helpers/Utils";
+import fs from "fs";
+import { confirmOperation } from "../../scripts/confirmation";
+const saveContractAddress = require("../../helpers/saveContractAddress")
 const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 import { MichelsonMap } from '@taquito/michelson-encoder'
+import {TezosToolkit, TransactionOperation} from "@taquito/taquito";
+import {BigNumber} from "bignumber.js";
 
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
@@ -22,55 +15,107 @@ chai.use(chaiAsPromised)
 chai.should()
 
 import env from '../../env'
-import { alice, bob, eve, mallory } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
 
-import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
 
-import { Doorman } from '../helpers/doormanHelper'
-import { Delegation } from '../helpers/delegationHelper'
+// ------------------------------------------------------------------------------
+// Contract Helpers
+// ------------------------------------------------------------------------------
+
+import { Governance, setGovernanceLambdas } from '../helpers/governanceHelper'
+import { GovernanceFinancial, setGovernanceFinancialLambdas } from '../helpers/governanceFinancialHelper'
+import { GovernanceSatellite, setGovernanceSatelliteLambdas } from '../helpers/governanceSatelliteHelper'
+import { GovernanceProxy, setGovernanceProxyContractLambdas, setGovernanceProxyContractProxyLambdas } from '../helpers/governanceProxyHelper'
+import { EmergencyGovernance, setEmergencyGovernanceLambdas } from '../helpers/emergencyGovernanceHelper'
+import { BreakGlass, setBreakGlassLambdas } from '../helpers/breakGlassHelper'
+import { Vesting, setVestingLambdas } from '../helpers/vestingHelper'
+import { Council, setCouncilLambdas } from '../helpers/councilHelper'
+
+import { Doorman, setDoormanLambdas } from '../helpers/doormanHelper'
+import { Delegation, setDelegationLambdas } from '../helpers/delegationHelper'
+
+import { Farm, setFarmLambdas } from "../helpers/farmHelper"
+import { FarmFactory, setFarmFactoryLambdas, setFarmFactoryProductLambdas } from "../helpers/farmFactoryHelper"
+
+import { Treasury, setTreasuryLambdas } from '../helpers/treasuryHelper'
+import { TreasuryFactory, 
+  setTreasuryFactoryLambdas, setTreasuryFactoryProductLambdas 
+} from '../helpers/treasuryFactoryHelper'
+
+import {Aggregator, setAggregatorLambdas} from '../helpers/aggregatorHelper'
+import {
+  AggregatorFactory,
+  setAggregatorFactoryLambdas, setAggregatorFactoryProductLambdas
+} from '../helpers/aggregatorFactoryHelper'
+
 import { MvkToken } from '../helpers/mvkHelper'
-import { Governance } from '../helpers/governanceHelper'
-import { BreakGlass } from '../helpers/breakGlassHelper'
-import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
-import { Vesting } from '../helpers/vestingHelper'
-import { Council } from '../helpers/councilHelper'
-import { Farm } from "../helpers/farmHelper";
-import { FarmFactory } from "../helpers/farmFactoryHelper";
-import { LPToken } from "../helpers/testLPHelper";
-import { Treasury } from '../helpers/treasuryHelper'
+import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
+import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { LPToken } from "../helpers/testLPHelper"
+
+
+// ------------------------------------------------------------------------------
+// Contract Storage
+// ------------------------------------------------------------------------------
+
+import { governanceStorage } from '../../storage/governanceStorage'
+import { governanceFinancialStorage } from '../../storage/governanceFinancialStorage'
+import { governanceSatelliteStorage } from '../../storage/governanceSatelliteStorage'
+import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
+import { breakGlassStorage } from '../../storage/breakGlassStorage'
+import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
+
+import { vestingStorage } from '../../storage/vestingStorage'
+import { councilStorage } from '../../storage/councilStorage'
 
 import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
-import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
-import { governanceStorage } from '../../storage/governanceStorage'
-import { breakGlassStorage } from '../../storage/breakGlassStorage'
-import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
-import { vestingStorage } from '../../storage/vestingStorage'
-import { councilStorage } from '../../storage/councilStorage'
+
 import { treasuryStorage } from '../../storage/treasuryStorage'
+import { treasuryFactoryStorage } from '../../storage/treasuryFactoryStorage'
+
 import { farmStorage } from "../../storage/farmStorage";
 import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
+
+import { aggregatorStorage } from '../../storage/aggregatorStorage'
+import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage'
+
+import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
+import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
+import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage";
 
+// ------------------------------------------------------------------------------
+// Contract Deployment Start
+// ------------------------------------------------------------------------------
+
 describe('Contracts Deployment for Tests', async () => {
+  
   var utils: Utils
+
+  var aggregator: Aggregator
+  var aggregatorFactory: AggregatorFactory
   var doorman: Doorman
   var mvkToken: MvkToken
   var delegation: Delegation
   var governance: Governance
+  var governanceFinancial: GovernanceFinancial
+  var governanceSatellite: GovernanceSatellite
+  var governanceProxy: GovernanceProxy
   var breakGlass: BreakGlass
   var emergencyGovernance: EmergencyGovernance
   var vesting: Vesting
   var council: Council
   var treasury: Treasury
+  var treasuryFactory: TreasuryFactory
   var farm: Farm;
   var farmFA2: Farm;
   var farmFactory: FarmFactory;
   var lpToken: LPToken;
+  var mockFa12Token : MockFa12Token
+  var mockFa2Token : MockFa2Token
   var tezos
-  let deployedDoormanStorage
-  let deployedDelegationStorage
-  let deployedMvkTokenStorage
+  
 
   const signerFactory = async (pk) => {
     await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -78,299 +123,697 @@ describe('Contracts Deployment for Tests', async () => {
   }
 
   before('setup', async () => {
-    utils = new Utils()
-    await utils.init(alice.sk)
+    try{
+      utils = new Utils()
+      await utils.init(bob.sk)
+  
+      //----------------------------
+      // Originate and deploy contracts
+      //----------------------------
+  
+      mvkToken = await MvkToken.originate(utils.tezos, mvkStorage)
+  
+      await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
+      console.log('MVK Token Contract deployed at:', mvkToken.contract.address)
+  
+      governanceStorage.whitelistDevelopers = [alice.pkh, bob.pkh]
+      governanceStorage.mvkTokenAddress     = mvkToken.contract.address
+      governance = await Governance.originate(utils.tezos,governanceStorage);
+  
+      await saveContractAddress('governanceAddress', governance.contract.address)
+      console.log('Governance Contract deployed at:', governance.contract.address)
+  
+      doormanStorage.governanceAddress  = governance.contract.address
+      doormanStorage.mvkTokenAddress    = mvkToken.contract.address
+      doorman = await Doorman.originate(utils.tezos, doormanStorage)
+  
+      await saveContractAddress('doormanAddress', doorman.contract.address)
+      console.log('Doorman Contract deployed at:', doorman.contract.address)
+  
+      delegationStorage.governanceAddress = governance.contract.address
+      delegationStorage.mvkTokenAddress   = mvkToken.contract.address
+      delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        doorman: doorman.contract.address,
+      })
+      delegation = await Delegation.originate(utils.tezos, delegationStorage)
+  
+      await saveContractAddress('delegationAddress', delegation.contract.address)
+      console.log('Delegation Contract deployed at:', delegation.contract.address)
+  
+      emergencyGovernanceStorage.governanceAddress = governance.contract.address
+      emergencyGovernanceStorage.mvkTokenAddress  = mvkToken.contract.address
+      emergencyGovernance = await EmergencyGovernance.originate(utils.tezos, emergencyGovernanceStorage)
+  
+      await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
+      console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
+  
+      vestingStorage.governanceAddress  = governance.contract.address
+      vestingStorage.mvkTokenAddress    = mvkToken.contract.address
+      vesting = await Vesting.originate(utils.tezos,vestingStorage);
+  
+      await saveContractAddress('vestingAddress', vesting.contract.address)
+      console.log('Vesting Contract deployed at:', vesting.contract.address)
+  
+      lpToken = await LPToken.originate(
+        utils.tezos,
+        lpStorage
+      );
+  
+      await saveContractAddress("lpTokenAddress", lpToken.contract.address)
+      console.log("LP Token Contract deployed at:", lpToken.contract.address);
+  
+      farmStorage.governanceAddress = governance.contract.address
+      farmStorage.mvkTokenAddress  = mvkToken.contract.address
+      farmStorage.config.lpToken.tokenAddress = lpToken.contract.address;
+      farmStorage.config.tokenPair = {
+        token0Address: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
+        token1Address: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
+      }
+        
+      farm = await Farm.originate(
+        utils.tezos,
+        farmStorage
+      );
+  
+      await saveContractAddress("farmAddress", farm.contract.address)
+      console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+  
+      farmStorage.config.lpToken.tokenAddress = mvkToken.contract.address;
+      farmStorage.config.lpToken.tokenStandard = {
+        fa2: ""
+      };
+       
+      farmFA2 = await Farm.originate(
+        utils.tezos,
+        farmStorage
+      );
+  
+      await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+      console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+  
+      farmStorage.config.lpToken.tokenAddress = lpToken.contract.address;
+      farmStorage.config.infinite = true
+      farmStorage.config.lpToken.tokenStandard = {
+        fa12: ""
+      };
+  
+      farmFactoryStorage.governanceAddress = governance.contract.address
+      farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
+      farmFactory = await FarmFactory.originate(
+        utils.tezos,
+        farmFactoryStorage
+      );
+  
+      await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
+      console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
+  
+      councilStorage.governanceAddress = governance.contract.address
+      councilStorage.mvkTokenAddress  = mvkToken.contract.address
+      councilStorage.councilMembers.set(bob.pkh, {
+        name: "Bob",
+        image: "Bob image",
+        website: "Bob website"
+      })
+      councilStorage.councilMembers.set(alice.pkh, {
+        name: "Alice",
+        image: "Alice image",
+        website: "Alice website"
+      })
+      councilStorage.councilMembers.set(eve.pkh, {
+        name: "Eve",
+        image: "Eve image",
+        website: "Eve website"
+      })
+      council = await Council.originate(utils.tezos, councilStorage)
+  
+      await saveContractAddress('councilAddress', council.contract.address)
+      console.log('Council Contract deployed at:', council.contract.address)
+  
+      breakGlassStorage.governanceAddress = governance.contract.address
+      breakGlassStorage.mvkTokenAddress  = mvkToken.contract.address
+  
+      breakGlassStorage.councilMembers.set(bob.pkh, {
+        name: "Bob",
+        image: "Bob image",
+        website: "Bob website"
+      })
+      breakGlassStorage.councilMembers.set(alice.pkh, {
+        name: "Alice",
+        image: "Alice image",
+        website: "Alice website"
+      })
+      breakGlassStorage.councilMembers.set(eve.pkh, {
+        name: "Eve",
+        image: "Eve image",
+        website: "Eve website"
+      })
+      breakGlassStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        emergencyGovernance: emergencyGovernance.contract.address
+      })
+      breakGlass = await BreakGlass.originate(utils.tezos, breakGlassStorage)
+  
+      await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
+      console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
+  
+      governanceFinancialStorage.mvkTokenAddress     = mvkToken.contract.address
+      governanceFinancialStorage.governanceAddress   = governance.contract.address
+      governanceFinancial = await GovernanceFinancial.originate(utils.tezos,governanceFinancialStorage);
+  
+      await saveContractAddress('governanceFinancialAddress', governanceFinancial.contract.address)
+      console.log('Governance Financial Contract deployed at:', governanceFinancial.contract.address)
+  
+  
+      treasuryStorage.governanceAddress = governance.contract.address
+      treasuryStorage.mvkTokenAddress  = mvkToken.contract.address
+      treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        doorman                   : doorman.contract.address,
+        delegation                : delegation.contract.address,
+        governanceFinancial       : governanceFinancial.contract.address,
+        governance                : governance.contract.address
+      })
+      treasuryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
+        mvk       : mvkToken.contract.address,
+      })
+      treasury = await Treasury.originate(utils.tezos, treasuryStorage)
+  
+      await saveContractAddress('treasuryAddress', treasury.contract.address)
+      console.log('Treasury Contract deployed at:', treasury.contract.address)
+  
+      treasuryFactoryStorage.governanceAddress = governance.contract.address
+      treasuryFactoryStorage.mvkTokenAddress  = mvkToken.contract.address
+      treasuryFactoryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
+        mvk             : mvkToken.contract.address,
+  
+      })
+      treasuryFactory = await TreasuryFactory.originate(utils.tezos, treasuryFactoryStorage)
+  
+      await saveContractAddress('treasuryFactoryAddress', treasuryFactory.contract.address)
+      console.log('Treasury Factory Contract deployed at:', treasuryFactory.contract.address)
+  
+  
+      mockFa12Token = await MockFa12Token.originate(
+        utils.tezos,
+        mockFa12TokenStorage
+      )
+  
+      await saveContractAddress('mockFa12TokenAddress', mockFa12Token.contract.address)
+      console.log('Mock FA12 Token Contract deployed at:', mockFa12Token.contract.address)
+  
+      mockFa2Token = await MockFa2Token.originate(
+        utils.tezos,
+        mockFa2TokenStorage
+      )
+  
+      await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
+      console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
+  
+      governanceProxyStorage.governanceAddress  = governance.contract.address;
+      governanceProxyStorage.mvkTokenAddress    = mvkToken.contract.address;
+      governanceProxy = await GovernanceProxy.originate(utils.tezos, governanceProxyStorage);
+  
+      await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
+      console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
+  
+      aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
+      aggregatorStorage.governanceAddress = governance.contract.address;
+      aggregator = await Aggregator.originate(
+        utils.tezos,
+        aggregatorStorage
+      )
+  
+      await saveContractAddress('aggregatorAddress', aggregator.contract.address)
+      console.log('Aggregator Contract deployed at:', aggregator.contract.address)
+  
+      aggregatorFactoryStorage.mvkTokenAddress   = mvkToken.contract.address;
+      aggregatorFactoryStorage.governanceAddress = governance.contract.address;
+      aggregatorFactory = await AggregatorFactory.originate(
+        utils.tezos,
+        aggregatorFactoryStorage
+      )
+  
+      await saveContractAddress('aggregatorFactoryAddress', aggregatorFactory.contract.address)
+      console.log('Aggregator Factory Contract deployed at:', aggregatorFactory.contract.address)
+  
+      governanceSatelliteStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        "aggregatorFactory"     : aggregatorFactory.contract.address
+      })
+      governanceSatelliteStorage.mvkTokenAddress     = mvkToken.contract.address
+      governanceSatelliteStorage.governanceAddress   = governance.contract.address
+      governanceSatellite = await GovernanceSatellite.originate(utils.tezos,governanceSatelliteStorage);
+  
+      await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
+      console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
+  
+  
+      /* ---- ---- ---- ---- ---- */
+  
+      tezos = doorman.tezos
+      console.log('====== break ======')
+  
+      // Set Lambdas
+  
+      await signerFactory(bob.sk);
+  
+      // Governance Proxy Setup Lambdas - Contract Lambdas
+      await setGovernanceProxyContractLambdas(tezos, governanceProxy.contract, 7) // 7 is the last index + 1 (exclusive)
+      console.log("Governance Proxy Contract - Lambdas Setup")
 
-    //----------------------------
-    // Originate and deploy contracts
-    //----------------------------
+      // Governance Proxy Setup Lambdas - Proxy Lambdas
+      await setGovernanceProxyContractProxyLambdas(tezos, governanceProxy.contract, 7) // 7 is the starting index (inclusive)
+      console.log("Governance Proxy Contract - Proxy Lambdas Setup")
 
-    mvkToken = await MvkToken.originate(utils.tezos, mvkStorage)
 
-    await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
-    console.log('MVK Token Contract deployed at:', mvkToken.contract.address)
 
-    doormanStorage.mvkTokenAddress  = mvkToken.contract.address
-    doorman = await Doorman.originate(utils.tezos, doormanStorage)
+      // Governance Setup Lambdas
+      await setGovernanceLambdas(tezos, governance.contract)
+      console.log("Governance Lambdas Setup")
 
-    await saveContractAddress('doormanAddress', doorman.contract.address)
-    console.log('Doorman Contract deployed at:', doorman.contract.address)
+      // Governance Financial Setup Lambdas
+      await setGovernanceFinancialLambdas(tezos, governanceFinancial.contract)
+      console.log("Governance Financial Lambdas Setup")
 
-    delegationStorage.mvkTokenAddress  = mvkToken.contract.address
-    delegationStorage.generalContracts = MichelsonMap.fromLiteral({
-      doorman: doorman.contract.address,
-    })
-    delegation = await Delegation.originate(utils.tezos, delegationStorage)
+      // Governance Satellite Setup Lambdas      
+      await setGovernanceSatelliteLambdas(tezos, governanceSatellite.contract)
+      console.log("Governance Satellite Lambdas Setup")
 
-    await saveContractAddress('delegationAddress', delegation.contract.address)
-    console.log('Delegation Contract deployed at:', delegation.contract.address)
 
-    governanceStorage.mvkTokenAddress  = mvkToken.contract.address
-    governanceStorage.generalContracts = MichelsonMap.fromLiteral({
-      delegation: delegation.contract.address,
-      mvkToken: mvkToken.contract.address,
-    })
-    governance = await Governance.originate(utils.tezos, governanceStorage)
 
-    await saveContractAddress('governanceAddress', governance.contract.address)
-    console.log('Governance Contract deployed at:', governance.contract.address)
+      // Doorman Setup Lambdas
+      await setDoormanLambdas(tezos, doorman.contract)
+      console.log("Doorman Lambdas Setup")
 
-    emergencyGovernanceStorage.mvkTokenAddress  = mvkToken.contract.address
-    emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
-      mvkToken: mvkToken.contract.address,
-      governance: governance.contract.address,
-    })
-    emergencyGovernance = await EmergencyGovernance.originate(utils.tezos, emergencyGovernanceStorage)
 
-    await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
-    console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
 
-    vestingStorage.mvkTokenAddress  = mvkToken.contract.address
-    vestingStorage.generalContracts = MichelsonMap.fromLiteral({
-      mvkToken: mvkToken.contract.address,
-      doorman: doorman.contract.address,
-      delegation: delegation.contract.address,
-      governance: governance.contract.address,
-    })
-    vesting = await Vesting.originate(utils.tezos, vestingStorage)
-
-    await saveContractAddress('vestingAddress', vesting.contract.address)
-    console.log('Vesting Contract deployed at:', vesting.contract.address)
-
-    councilStorage.mvkTokenAddress  = mvkToken.contract.address
-    councilStorage.generalContracts = MichelsonMap.fromLiteral({
-      vesting: vesting.contract.address,
-      governance: governance.contract.address,
-    })
-    councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh]
-    council = await Council.originate(utils.tezos, councilStorage)
-
-    await saveContractAddress('councilAddress', council.contract.address)
-    console.log('Council Contract deployed at:', council.contract.address)
-
-    breakGlassStorage.mvkTokenAddress  = mvkToken.contract.address
-    breakGlassStorage.generalContracts = MichelsonMap.fromLiteral({
-      mvkToken: mvkToken.contract.address,
-      doorman: doorman.contract.address,
-      delegation: delegation.contract.address,
-      governance: governance.contract.address,
-      vesting: vesting.contract.address,
-      council: council.contract.address,
-      emergencyGovernance: emergencyGovernance.contract.address,
-    })
-    breakGlass = await BreakGlass.originate(utils.tezos, breakGlassStorage)
-
-    await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
-    console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
-
-    treasuryStorage.mvkTokenAddress  = mvkToken.contract.address
-    treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
-      mvkToken: mvkToken.contract.address,
-      delegation: delegation.contract.address,
-    })
-    treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      governance: governance.contract.address,
-    })
-    treasury = await Treasury.originate(utils.tezos, treasuryStorage)
-
-    await saveContractAddress('treasury', treasury.contract.address)
-    console.log('Treasury Contract deployed at:', treasury.contract.address)
-
-    lpToken = await LPToken.originate(
-      utils.tezos,
-      lpStorage
-    );
-
-    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
-    console.log("LP Token Contract deployed at:", lpToken.contract.address);
-
-    farmStorage.mvkTokenAddress  = mvkToken.contract.address
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+      // Delegation Setup Lambdas
+      await setDelegationLambdas(tezos, delegation.contract)
+      console.log("Delegation Lambdas Setup")
       
-    farm = await Farm.originate(
-      utils.tezos,
-      farmStorage
-    );
 
-    await saveContractAddress("farmAddress", farm.contract.address)
-    console.log("FA12 Farm Contract deployed at:", farm.contract.address);
 
-    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
-    farmStorage.lpToken.tokenStandard = {
-      fa2: ""
-    };
+      // Break Glass Setup Lambdas
+      await setBreakGlassLambdas(tezos, breakGlass.contract)
+      console.log("Break Glass Lambdas Setup")
+
+
+
+      // Emergency Governance Setup Lambdas
+      await setEmergencyGovernanceLambdas(tezos, emergencyGovernance.contract)
+      console.log("Emergency Governance Lambdas Setup")
+      
+
+
+      // Council Setup Lambdas
+      await setCouncilLambdas(tezos, council.contract);
+      console.log("Council Lambdas Setup")
+  
+
+
+      // Vesting Setup Lambdas      
+      await setVestingLambdas(tezos, vesting.contract);
+      console.log("Vesting Lambdas Setup")
+
+
+
+      // Farm FA12 Setup Lambdas
+      await setFarmLambdas(tezos, farm.contract)
+      console.log("Farm FA12 Lambdas Setup")
+
+      // Farm FA2 Setup Lambdas
+      await setFarmLambdas(tezos, farmFA2.contract)
+      console.log("Farm FA2 Lambdas Setup")
+
+      // Farm Factory Setup Lambdas
+      await setFarmFactoryLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Lambdas Setup")
+
+      // Farm Factory Setup Product Lambdas
+      await setFarmFactoryProductLambdas(tezos, farmFactory.contract)
+      console.log("Farm Factory Product Lambdas Setup")
+
+
+
+      // Treasury Setup Lambdas
+      await setTreasuryLambdas(tezos, treasury.contract);
+      console.log("Treasury Lambdas Setup")
+
+      // Treasury Factory Setup Lambdas
+      await setTreasuryFactoryLambdas(tezos, treasuryFactory.contract);
+      console.log("Treasury Factory Lambdas Setup")
+
+      // Treasury Factory Product Setup Lambdas
+      await setTreasuryFactoryProductLambdas(tezos, treasuryFactory.contract);
+      console.log("Treasury Factory Product Lambdas Setup")
+
+
+
+      // Aggregator Setup Lambdas
+      await setAggregatorLambdas(tezos, aggregator.contract);
+      console.log("Aggregator Lambdas Setup")
+
+      // Aggregator Factory Setup Lambdas
+      await setAggregatorFactoryLambdas(tezos, aggregatorFactory.contract);
+      console.log("AggregatorFactory Lambdas Setup")
+
+      await setAggregatorFactoryProductLambdas(tezos, aggregatorFactory.contract);
+      console.log("Aggregator Factory Product Lambdas Setup")
     
-    farmFA2 = await Farm.originate(
-      utils.tezos,
-      farmStorage
-    );
+      // Set Lambdas End
 
-    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
-    console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
-
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-    farmStorage.infinite = true
-    farmStorage.lpToken.tokenStandard = {
-      fa12: ""
-    };
-    
-    farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
-    farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "doorman"  : doorman.contract.address,
-    });
-    farmFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      "council"  : council.contract.address,
-    });
-    farmFactory = await FarmFactory.originate(
-      utils.tezos,
-      farmFactoryStorage
-    );
-
-    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
-    console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
-
-    /* ---- ---- ---- ---- ---- */
-
-    tezos = doorman.tezos
-    console.log('====== break ======')
-
-    //----------------------------
-    // Set remaining contract addresses - post-deployment
-    //----------------------------
-
-    // MVK Token Contract - set general & whitelist addresses
-    const mvkUpdateGeneralContractsOperation = await mvkToken.contract.methods
-    .updateGeneralContracts("doorman", doorman.contract.address)
-    .send();
-    await mvkUpdateGeneralContractsOperation.confirmation();
-    const mvkUpdateWhitelistContractsOperation = await mvkToken.contract.methods
-    .updateWhitelistContracts("doorman", doorman.contract.address)
-    .send();
-    await mvkUpdateWhitelistContractsOperation.confirmation();
-
-    // Doorman Contract - set treasury address
-    const updateGeneralContractsOperation = await doorman.contract.methods
-    .updateGeneralContracts("farmTreasury", eve.pkh)
-    .send();
-    await updateGeneralContractsOperation.confirmation();
-    // Give operator access to treasury for MVK Token Contract
-    await signerFactory(eve.sk); //TODO: Treasury should be able to update their operators directly from their contracts
-    const updateOperatorsOperation = await mvkToken.contract.methods.update_operators([
-        {
-            add_operator: {
-                owner: eve.pkh,
-                operator: doorman.contract.address,
-                token_id: 0
-            }
-        }
-    ]).send()
-    await updateOperatorsOperation.confirmation();
-    await signerFactory(alice.sk);
-
-    // Doorman Contract - set contract addresses [delegation, mvkToken]
-    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
-      .updateGeneralContracts('delegation', delegation.contract.address)
-      .send()
-    await setDelegationContractAddressInDoormanOperation.confirmation()
-    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods
-      .updateGeneralContracts('mvkToken', mvkToken.contract.address)
-      .send()
-    await setMvkTokenAddressInDoormanOperation.confirmation()
-    const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods
-      .updateGeneralContracts("farmFactory", farmFactory.contract.address)
-      .send();
-    await setFarmFactoryAddressInDoormanOperation.confirmation();
-    console.log('doorman contract address set')
-
-    // Farm Contract - set contract addresses [doorman]
-    const setDoormanContractAddressInFarmOperation = await farm.contract.methods
-      .updateGeneralContracts('doorman', doorman.contract.address)
-      .send()
-    await setDoormanContractAddressInFarmOperation.confirmation()
-    const setCouncilContractAddressInFarmFA12Operation = await farm.contract.methods
-      .updateWhitelistContracts('council', council.contract.address)
-      .send()
-    await setCouncilContractAddressInFarmFA12Operation.confirmation()
-    console.log('farm contract address set')
-
-    // Farm Contract - set contract addresses [doorman]
-    const setDoormanContractAddressInFarmFA2Operation = await farmFA2.contract.methods
-      .updateGeneralContracts('doorman', doorman.contract.address)
-      .send()
-    await setDoormanContractAddressInFarmFA2Operation.confirmation()
-    const setCouncilContractAddressInFarmFA2Operation = await farmFA2.contract.methods
-      .updateWhitelistContracts('council', council.contract.address)
-      .send()
-    await setCouncilContractAddressInFarmFA2Operation.confirmation()
-    console.log('farm fa2 contract address set')
-
-    // Delegation Contract - set contract addresses [governance]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods
-      .updateGeneralContracts('governance', governance.contract.address)
-      .send()
-    await setGovernanceContractAddressInDelegationOperation.confirmation()
-    console.log('delegation contract address set')
-
-    // MVK Token Contract - set whitelist contract addresses [vesting, treasury]
-    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods
-      .updateWhitelistContracts('vesting', vesting.contract.address)
-      .send()
-    await setWhitelistVestingContractInMvkTokenOperation.confirmation()
-    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods
-      .updateWhitelistContracts('treasury', treasury.contract.address)
-      .send()
-    await setWhitelistTreasuryContractInMvkTokenOperation.confirmation()
-    console.log('vesting contract address put in whitelist')
-
-    // Governance Contract - set contract addresses [emergencyGovernance, breakGlass]
-    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods
-      .updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address)
-      .send()
-    await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
-    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods
-      .updateGeneralContracts('breakGlass', breakGlass.contract.address)
-      .send()
-    await setBreakGlassContractInGovernanceOperation.confirmation()
-    console.log('governance contract address set')
-
-    // Emergency Governance Contract - set contract addresses map [breakGlass]
-    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods
-      .updateGeneralContracts('breakGlass', breakGlass.contract.address)
-      .send()
-    await setBreakGlassContractAddressInEmergencyGovernance.confirmation()
-
-    // Vesting Contract - set whitelist contract addresses map [council]
-    const setCouncilContractAddressInVesting = await vesting.contract.methods
-      .updateWhitelistContracts('council', council.contract.address)
-      .send()
-    await setCouncilContractAddressInVesting.confirmation()
-    console.log('vesting contract address put in whitelist')
-
-    // Governance Setup Lambdas
-    const governanceLambdaBatch = await tezos.wallet
+      //----------------------------
+      // Set remaining contract addresses - post-deployment
+      //----------------------------
+  
+      // Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]
+      // Aggregator Factory Contract - set general contract addresses [governanceSatellite]
+      const aggregatorFactoryContractsBatch = await tezos.wallet
       .batch()
-      .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0])) // callGovernanceLambda
-      .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1])) // updateLambdaFunction
-      .withContractCall(governance.contract.methods.setupLambdaFunction(2, governanceLambdas[2])) // updateGovernanceConfig
-      .withContractCall(governance.contract.methods.setupLambdaFunction(3, governanceLambdas[3])) // updateDelegationConfig
+      .withContractCall(aggregatorFactory.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
+      
+      const aggregatorFactoryContractsBatchOperation = await aggregatorFactoryContractsBatch.send()
+      await confirmOperation(tezos, aggregatorFactoryContractsBatchOperation.opHash)
+  
+      console.log('Aggregator Factory Contract - set whitelist contract addresses [governanceSatellite]')
+  
+      // Aggregator Contract - set whitelist contract addresses [aggregatorFactory]
+      const aggregatorContractsBatch = await tezos.wallet
+      .batch()
+      .withContractCall(aggregator.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+      .withContractCall(aggregator.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
+      
+      const aggregatorContractsBatchOperation = await aggregatorContractsBatch.send()
+      await confirmOperation(tezos, aggregatorContractsBatchOperation.opHash)
+      
+  
+      // MVK Token Contract - set governance contract address
+      // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
+  
+      const mvkContractsBatch = await tezos.wallet
+        .batch()
+        .withContractCall(mvkToken.contract.methods.setGovernance(governance.contract.address))
+        .withContractCall(mvkToken.contract.methods.updateWhitelistContracts("doorman", doorman.contract.address))
+        .withContractCall(mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address))
+        .withContractCall(mvkToken.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
+        const mvkContractsBatchOperation = await mvkContractsBatch.send()
+        await confirmOperation(tezos, mvkContractsBatchOperation.opHash)
+  
+      console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
+      
+      // Send MVK to treasury contract and council (TODO: keep?)
+      const transferToTreasury = await mvkToken.contract.methods
+        .transfer([
+          {
+            from_: bob.pkh,
+            txs: [
+              {
+                to_: treasury.contract.address,
+                token_id: 0,
+                amount: MVK(6000),
+              },
+              {
+                to_: council.contract.address,
+                token_id: 0,
+                amount: MVK(15),
+              }
+            ],
+          },
+        ])
+        .send()
+      await confirmOperation(tezos, transferToTreasury.hash)
+      const updateOperatorsTreasury = (await treasury.contract.methods
+        .updateMvkOperators([
+          {
+            add_operator: {
+                owner: treasury.contract.address,
+                operator: doorman.contract.address,
+                token_id: 0,
+            },
+        }])
+        .send()) as TransactionOperation
+  
+      await confirmOperation(tezos, updateOperatorsTreasury.hash)
+  
+      // Farm FA12 Contract - set general contract addresses [doorman]
+      // Farm FA12 Contract - set whitelist contract addresses [council] 
+      // Farm FA2 Contract - set general contract addresses [doorman]
+      // Farm FA2 Contract - set whitelist contract addresses [council]
+      const farmContractsBatch = await tezos.wallet
+        .batch()
+        .withContractCall(farm.contract.methods.updateWhitelistContracts('council', council.contract.address))
+        .withContractCall(farmFA2.contract.methods.updateWhitelistContracts('council', council.contract.address))
+      const farmContractsBatchOperation = await farmContractsBatch.send()
+      await confirmOperation(tezos, farmContractsBatchOperation.opHash)
+  
+      console.log('Farm FA12 Contract - set whitelist contract addresses [council]')
+      console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
+      
+  
+  
+      // Farm Factory Contract - set whitelist contract addresses [council]
+      const setCouncilContractAddressInFarmFactoryOperation = (await farmFactory.contract.methods.updateWhitelistContracts('council', council.contract.address).send()) as TransactionOperation
+      await confirmOperation(tezos, setCouncilContractAddressInFarmFactoryOperation.hash)
+      console.log('Farm Factory Contract - set whitelist contract addresses [council]')
+  
+  
+  
+      // Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]
+      const delegationContractsBatch = await tezos.wallet
+      .batch()
 
-    const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
-    await setupGovernanceLambdasOperation.confirmation()
-    
-    //----------------------------
-    // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
-    //----------------------------
-    await saveMVKDecimals(mvkTokenDecimals)
+      // whitelist contracts
+      .withContractCall(delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
+      .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
+      .withContractCall(delegation.contract.methods.updateWhitelistContracts("governanceSatellite", governanceSatellite.contract.address))
+      .withContractCall(delegation.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+
+      const delegationContractsBatchOperation = await delegationContractsBatch.send()
+      await confirmOperation(tezos, delegationContractsBatchOperation.opHash)
+      console.log('Delegation Contract - set whitelist contract addresses [treasury, governance, governanceSatellite, aggregatorFactory]')
+  
+  
+  
+      // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
+      const governanceContractsBatch = await tezos.wallet
+      .batch()
+  
+      // general contracts
+      .withContractCall(governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('doorman', doorman.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('delegation', delegation.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('council', council.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('vesting', vesting.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('farmTreasury', treasury.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('satelliteTreasury', treasury.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorTreasury', treasury.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('aggregatorFactory', aggregatorFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('governanceSatellite', governanceSatellite.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address))
+  
+      // whitelist contracts
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('farmFactory', farmFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('treasuryFactory', treasuryFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('aggregatorFactory', aggregatorFactory.contract.address))
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('delegation', delegation.contract.address))
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('governanceSatellite', governanceSatellite.contract.address))
+      .withContractCall(governance.contract.methods.updateWhitelistContracts('governanceFinancial', governanceFinancial.contract.address))
+  
+      // governance proxy
+      .withContractCall(governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address))
+      const governanceContractsBatchOperation = await governanceContractsBatch.send()
+      await confirmOperation(tezos, governanceContractsBatchOperation.opHash)
+  
+      console.log('Governance Contract - set general contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
+      console.log('Governance Contract - set governance proxy address')
+  
+  
+  
+      // Governance Financial Contract - set whitelist token contracts [MockFA2, MockFA12, MVK]
+      const governanceFinancialContractsBatch = await tezos.wallet
+      .batch()
+
+      // whitelist token contracts
+      .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
+      .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
+      .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
+
+      const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
+      await confirmOperation(tezos, governanceFinancialContractsBatchOperation.opHash)
+  
+      console.log('Governance Financial Contract - set whitelist token contract addresss [MockFA12, MockFA2, MVK]')
+  
+
+
+      // Treasury Contract - set whitelist contract addresses map [council, aggregatorFactory]
+      // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
+      const treasuryContractsBatch = await tezos.wallet
+      .batch()
+  
+      // whitelist contracts
+      .withContractCall(treasury.contract.methods.updateWhitelistContracts('governanceProxy', governanceProxy.contract.address))
+      .withContractCall(treasury.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+  
+      // whitelist token contracts
+      .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
+      .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
+      .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
+  
+      const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
+      await confirmOperation(tezos, treasuryContractsBatchOperation.opHash)
+      
+      console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy, aggregatorFactory]')
+      console.log('Treasury Contract - set whitelist token contract addresses map [MockFA12, MockFA2, MVK]')
+  
+  
+  
+      // Vesting Contract - set whitelist contract addresses map [council]
+      const setCouncilContractAddressInVesting = (await vesting.contract.methods.updateWhitelistContracts('council', council.contract.address).send()) as TransactionOperation
+      await confirmOperation(tezos, setCouncilContractAddressInVesting.hash)
+  
+      console.log('Vesting Contract - set whitelist contract addresses map [council]')
+      
+  
+      //----------------------------
+      // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
+      //----------------------------
+      await saveMVKDecimals(mvkTokenDecimals)
+  
+  
+      //----------------------------
+      // For Oracle/Aggregator test net deployment if needed
+      //----------------------------
+  
+      if(utils.network != "development"){
+  
+          console.log("Setup Oracles")
+  
+          const oracleMap = MichelsonMap.fromLiteral({
+            [oracle0.pkh] : true,
+            [oracle1.pkh] : true,
+            [oracle2.pkh] : true,
+            // [oracle3.pkh]: true,
+            // [oracle4.pkh]: true,
+          }) as MichelsonMap<
+              string,
+              boolean
+              >
+
+            const aggregatorMetadataBase = Buffer.from(
+                JSON.stringify({
+                    name: 'MAVRYK Aggregator Contract',
+                    version: 'v1.0.0',
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                }),
+                'ascii',
+                ).toString('hex')
+  
+          const createAggregatorsBatch = await tezos.wallet
+              .batch()
+              .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+                  'USD',
+                  'BTC',
+  
+                  'USDBTC',
+                  true,
+                  
+                  oracleMap,
+  
+                  new BigNumber(16),            // decimals
+                  new BigNumber(2),             // numberBlocksDelay
+                  
+                  new BigNumber(86400),         // deviationTriggerBanDuration
+                  new BigNumber(5),             // perthousandDeviationTrigger
+                  new BigNumber(60),            // percentOracleThreshold
+                  
+                  new BigNumber(0),             // requestRateDeviationDepositFee
+  
+                  new BigNumber(10000000),      // deviationRewardStakedMvk
+                  new BigNumber(0),             // deviationRewardAmountXtz
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  oracleMaintainer.pkh,         // maintainer
+                  aggregatorMetadataBase       // metadata bytes
+
+              ))
+              .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+                  'USD',
+                  'XTZ',
+  
+                  'USDXTZ',
+                  true,
+  
+                  oracleMap,
+  
+                  new BigNumber(16),            // decimals
+                  new BigNumber(2),             // numberBlocksDelay
+                  
+                  new BigNumber(86400),         // deviationTriggerBanDuration
+                  new BigNumber(5),             // perthousandDeviationTrigger
+                  new BigNumber(60),            // percentOracleThreshold
+                  
+                  new BigNumber(0),             // requestRateDeviationDepositFee
+                  
+                  new BigNumber(10000000),      // deviationRewardStakedMvk
+                  new BigNumber(0),             // deviationRewardAmountXtz
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  oracleMaintainer.pkh,         // maintainer
+                  aggregatorMetadataBase        // metadata bytes
+
+              ))
+              .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+                  'USD',
+                  'DOGE',
+  
+                  'USDDOGE',
+                  true,
+  
+                  oracleMap,
+  
+                  new BigNumber(16),            // decimals
+                  new BigNumber(2),             // numberBlocksDelay
+                  
+                  new BigNumber(86400),         // deviationTriggerBanDuration
+                  new BigNumber(5),             // perthousandDeviationTrigger
+                  new BigNumber(60),            // percentOracleThreshold
+                  
+                  new BigNumber(0),             // requestRateDeviationDepositFee
+                  
+                  new BigNumber(10000000),      // deviationRewardStakedMvk
+                  new BigNumber(0),             // deviationRewardAmountXtz
+                  new BigNumber(10000000),      // rewardAmountStakedMvk
+                  new BigNumber(1300),          // rewardAmountXtz
+                  
+                  oracleMaintainer.pkh,         // maintainer
+                  aggregatorMetadataBase        // metadata bytes
+                  
+              ))
+  
+          const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+          await confirmOperation(tezos, createAggregatorsBatchOperation.opHash)
+  
+          console.log("Aggregators deployed")
+      }
+
+    } catch(e){
+      console.dir(e, {depth: 5})
+    }
 
   })
 
   it(`test all contract deployments`, async () => {
     try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') // break
+      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') 
       console.log('Test: All contracts deployed')
       console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
     } catch (e) {
       console.log(e)
     }
   })
+  
 })

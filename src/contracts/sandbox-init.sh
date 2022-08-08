@@ -1,6 +1,6 @@
 #!/bin/bash
-MAIN_SANDBOX_V="901d451a"
-APPLE_SANDBOX_V="cc4f24db"
+MAIN_SANDBOX_V="72018764"
+APPLE_SANDBOX_V="72018764"
 TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox tezos-client bootstrapped)
 until [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]];
@@ -25,6 +25,10 @@ docker exec -it mavryk-sandbox tezos-client import secret key isaac unencrypted:
 docker exec -it mavryk-sandbox tezos-client import secret key david unencrypted:edsk3hwth6tL9hppsUT6sZQ5687DDY9GPgKiZgjg9DDcMjJxoRUsGc
 docker exec -it mavryk-sandbox tezos-client import secret key susie unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP
 docker exec -it mavryk-sandbox tezos-client import secret key ivan unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf
+docker exec -it mavryk-sandbox tezos-client import secret key astronaut unencrypted:edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq
+docker exec -it mavryk-sandbox tezos-client import secret key oracleMaintainer unencrypted:edsk3ULsmx8aEogiMs2T4Td8rLzfvd6Vv8D5CJqeKQKrsjZHVqRDrX
+docker exec -it mavryk-sandbox tezos-client import secret key gagarine unencrypted:edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz
+docker exec -it mavryk-sandbox tezos-client import secret key armstrong unencrypted:edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH
 
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to eve --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to mallory --burn-cap 0.06425
@@ -34,5 +38,9 @@ docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to isaac --
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to david --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to susie --burn-cap 0.06425
 docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to ivan --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 5000 from alice to astronaut --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to oracleMaintainer --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to gagarine --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to armstrong --burn-cap 0.06425
 
 docker exec -it mavryk-sandbox tezos-client list known addresses

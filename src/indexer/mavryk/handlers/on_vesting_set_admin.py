@@ -1,0 +1,19 @@
+
+from mavryk.utils.persisters import persist_admin
+from mavryk.types.vesting.storage import VestingStorage
+from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+from mavryk.types.vesting.parameter.set_admin import SetAdminParameter
+import mavryk.models as models
+
+async def on_vesting_set_admin(
+    ctx: HandlerContext,
+    set_admin: Transaction[SetAdminParameter, VestingStorage],
+) -> None:
+    
+    # Get operation info
+    target_contract = set_admin.data.target_address
+    contract        = await models.Vesting.get(address = target_contract)
+
+    # Persist new admin
+    await persist_admin(set_admin, contract)

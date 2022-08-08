@@ -1,93 +1,33 @@
-////
-// TYPES INCLUDED
-////
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-////
-// COMMON TYPES
-////
-type delegator is address
-type tokenBalance is nat
+// ------------------------------------------------------------------------------
+// Shared Helpers and Types
+// ------------------------------------------------------------------------------
 
-////
-// MICHELSON FARM TYPES
-////
-type delegatorRecord is [@layout:comb] record[
-    balance: tokenBalance;
-    participationMVKPerShare: tokenBalance;
-    unclaimedRewards: tokenBalance;
-]
-type claimedRewards is [@layout:comb] record[
-    unpaid: tokenBalance;
-    paid: tokenBalance;
-]
-type plannedRewards is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
-    totalRewards: tokenBalance;
-]
-type lpStandard is
-    Fa12 of unit
-|   Fa2 of unit
-type lpToken is [@layout:comb] record[
-    tokenAddress: address;
-    tokenId: nat;
-    tokenStandard: lpStandard;
-    tokenBalance: tokenBalance;
-]
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-type farmBreakGlassConfigType is [@layout:comb] record [
-    depositIsPaused        : bool;
-    withdrawIsPaused       : bool;
-    claimIsPaused          : bool;
-]
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
-type farmStorage is record[
-    admin                   : address;
-    mvkTokenAddress         : address;
-    
-    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts        : generalContractsType;
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
 
-    breakGlassConfig        : farmBreakGlassConfigType;
+// Farm Types
+#include "../partials/contractTypes/farmTypes.ligo"
 
-    lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
-    claimedRewards          : claimedRewards;
-    plannedRewards          : plannedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
-    lpToken                 : lpToken;
-    open                    : bool;
-    init                    : bool;
-    infinite                : bool;
-    forceRewardFromTransfer : bool;
-    initBlock               : nat;
-    blocksPerMinute         : nat;
-]
+// FarmFactory Types
+#include "../partials/contractTypes/farmFactoryTypes.ligo"
 
-type farmLpToken is [@layout:comb] record [
-    tokenAddress   : address;
-    tokenId        : nat;
-    tokenStandard  : lpStandard;
-]
+// ------------------------------------------------------------------------------
 
-type farmPlannedRewards is [@layout:comb] record [
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
-]
-
-type farmStorageType is [@layout:comb] record[
-    forceRewardFromTransfer : bool;
-    infinite                : bool;
-    plannedRewards          : farmPlannedRewards;
-    lpToken                 : farmLpToken;
-]
-
-type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
+type createFarmFuncType is (option(key_hash) * tez * farmStorageType) -> (operation * address)
 const createFarmFunc: createFarmFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
@@ -96,390 +36,615 @@ const createFarmFunc: createFarmFuncType =
           PAIR } |}
 : createFarmFuncType)];
 
-type initFarmParamsType is record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
-]
+type farmFactoryAction is
 
-////
-// STORAGE
-////
-type breakGlassConfigType is record [
-    createFarmIsPaused     : bool;
-    trackFarmIsPaused      : bool;
-    untrackFarmIsPaused    : bool;
-]
+        // Housekeeping Entrypoints
+        SetAdmin                    of (address)
+    |   SetGovernance               of (address)
+    |   UpdateMetadata              of updateMetadataType
+    |   UpdateConfig                of farmFactoryUpdateConfigParamsType
+    |   UpdateWhitelistContracts    of updateWhitelistContractsType
+    |   UpdateGeneralContracts      of updateGeneralContractsType
+    |   MistakenTransfer            of transferActionType
 
-type storage is record[
-    admin                  : address;
-    mvkTokenAddress        : address;
+        // Pause / Break Glass Entrypoints
+    |   PauseAll                    of (unit)
+    |   UnpauseAll                  of (unit)
+    |   TogglePauseEntrypoint       of farmFactoryTogglePauseEntrypointType
 
-    whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts       : generalContractsType;
+        // Farm Factory Entrypoints
+    |   CreateFarm                  of createFarmType
+    |   TrackFarm                   of (address)
+    |   UntrackFarm                 of (address)
 
-    breakGlassConfig       : breakGlassConfigType;
+        // Lambda Entrypoints
+    |   SetLambda                   of setLambdaType
+    |   SetProductLambda            of setLambdaType
 
-    trackedFarms           : set(address);
-    blocksPerMinute        : nat;
-]
 
-////
-// RETURN TYPES
-////
-(* define return for readability *)
-type return is list (operation) * storage
-(* define noop for readability *)
+type return is list (operation) * farmFactoryStorageType
 const noOperations: list (operation) = nil;
 
-////
-// INPUTS
-////
+// farm factory contract methods lambdas
+type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmFactoryStorageType) -> return
 
-////
-// ENTRYPOINTS
-////
-type action is
-    SetAdmin of (address)
-|   UpdateWhitelistContracts of updateWhitelistContractsParams
-|   UpdateGeneralContracts of updateGeneralContractsParams
-|   UpdateAllBlocksPerMinute of (nat)
 
-|   PauseAll of (unit)
-|   UnpauseAll of (unit)
-|   TogglePauseCreateFarm of (unit)
-|   TogglePauseTrackFarm of (unit)
-|   TogglePauseUntrackFarm of (unit)
 
-|   PauseAllFarms of (unit)
-|   UnpauseAllFarms of (unit)
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
 
-|   CreateFarm of farmStorageType
-|   TrackFarm of address
-|   UntrackFarm of address
-|   CheckFarmExists of address
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
 
-////
-// HELPER FUNCTIONS
-///
-(* Checks functions *)
-function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
-  else unit
+// Allowed Senders: Admin, Governance Contract
+function checkSenderIsAllowed(var s : farmFactoryStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+        
 
-function checkSenderIsAdmin(const s: storage): unit is
-  if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
-  else unit
 
-////
-// BREAK GLASS CHECKS
-////
+// Allowed Senders: Admin
+function checkSenderIsAdmin(const s : farmFactoryStorageType) : unit is
+    if Tezos.get_sender() =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
+    else unit
 
-// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkCreateFarmIsNotPaused(var s : storage) : unit is
-    if s.breakGlassConfig.createFarmIsPaused then failwith("CreateFarm entrypoint is paused.")
-    else unit;
 
-function checkTrackFarmIsNotPaused(var s : storage) : unit is
-    if s.breakGlassConfig.trackFarmIsPaused then failwith("TrackFarm entrypoint is paused.")
-    else unit;
 
-function checkUntrackFarmIsNotPaused(var s : storage) : unit is
-    if s.breakGlassConfig.untrackFarmIsPaused then failwith("UntrackFarm entrypoint is paused.")
-    else unit;
-
-////
-// FUNCTIONS INCLUDED
-////
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-////
-// BREAK GLASS FUNCTIONS
-///
-function pauseAll(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        // set all pause configs to True
-        if s.breakGlassConfig.createFarmIsPaused then skip
-        else s.breakGlassConfig.createFarmIsPaused := True;
-
-        if s.breakGlassConfig.trackFarmIsPaused then skip
-        else s.breakGlassConfig.trackFarmIsPaused := True;
-
-        if s.breakGlassConfig.untrackFarmIsPaused then skip
-        else s.breakGlassConfig.untrackFarmIsPaused := True;
-
-    } with (noOperations, s)
-
-function unpauseAll(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        // set all pause configs to False
-        if s.breakGlassConfig.createFarmIsPaused then s.breakGlassConfig.createFarmIsPaused := False
-        else skip;
-
-        if s.breakGlassConfig.trackFarmIsPaused then s.breakGlassConfig.trackFarmIsPaused := False
-        else skip;
-
-        if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
-        else skip;
-
-    } with (noOperations, s)
-
-function togglePauseCreateFarm(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        if s.breakGlassConfig.createFarmIsPaused then s.breakGlassConfig.createFarmIsPaused := False
-        else s.breakGlassConfig.createFarmIsPaused := True;
-
-    } with (noOperations, s)
-
-function togglePauseUntrackFarm(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
-        else s.breakGlassConfig.untrackFarmIsPaused := True;
-
-    } with (noOperations, s)
-
-function togglePauseTrackFarm(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        if s.breakGlassConfig.trackFarmIsPaused then s.breakGlassConfig.trackFarmIsPaused := False
-        else s.breakGlassConfig.trackFarmIsPaused := True;
-
-    } with (noOperations, s)
-
-function pauseAllFarms(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-    } with (operations, s)
-
-function unpauseAllFarms(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-    } with (operations, s)
-
-////
-// ENTRYPOINTS FUNCTIONS
-///
-(*  UpdateAllBlocksPerMinute entrypoint *)
-function updateAllBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%updateBlocksPerMinute", farmAddress): option(contract(nat))) of
-                Some(contr) -> operations := Tezos.transaction(newBlocksPerMinutes, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-        s.blocksPerMinute := newBlocksPerMinutes;
-
-    } with (operations, s)
-
-(*  set contract admin address *)
-function setAdmin(const newAdminAddress: address; var s: storage): return is
+// Allowed Senders: Council Contract
+function checkSenderIsCouncil(const s : farmFactoryStorageType) : unit is
 block {
-    checkSenderIsAdmin(s); // check that sender is admin
-    s.admin := newAdminAddress;
+
+    const councilAddress : address = case s.whitelistContracts["council"] of [
+            Some (_address) -> _address
+        |   None            -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
+    ];
+
+    if Tezos.get_sender() = councilAddress then skip
+    else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
+
+} with (unit)
+
+
+
+// Allowed Senders: Admin, Governance Satellite Contract
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : farmFactoryStorageType) : unit is
+block{
+
+    if Tezos.get_sender() = s.admin then skip
+    else {
+
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    }
+
+} with unit
+
+
+
+// Check that no Tezos is sent to the entrypoint
+function checkNoAmount(const _p : unit) : unit is
+    if Tezos.get_amount() =/= 0tez then failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ)
+    else unit
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check that the %createFarm entrypoint is not paused
+function checkCreateFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
+    if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %trackFarm entrypoint is not paused
+function checkTrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
+    if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+// helper function to check that the %untrackFarm entrypoint is not paused
+function checkUntrackFarmIsNotPaused(var s : farmFactoryStorageType) : unit is
+    if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(farmFactoryUnpackLambdaFunctionType)) of [
+            Some(f) -> f(farmFactoryLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers Begin
+//
+// ------------------------------------------------------------------------------
+
+// Farm Factory Lambdas:
+#include "../partials/contractLambdas/farmFactory/farmFactoryLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _ : unit; var s : farmFactoryStorageType) : address is
+    s.admin
+
+
+
+(* View: checkFarmExists *)
+[@view] function checkFarmExists (const farmContract : address; const s: farmFactoryStorageType) : bool is 
+    Set.mem(farmContract, s.trackedFarms)
+
+
+
+(* View: get config *)
+[@view] function getConfig (const _ : unit; const s : farmFactoryStorageType) : farmFactoryConfigType is 
+    s.config
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig (const _ : unit; const s : farmFactoryStorageType) : farmFactoryBreakGlassConfigType is 
+    s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts (const _ : unit; const s : farmFactoryStorageType) : whitelistContractsType is 
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts (const _ : unit; const s : farmFactoryStorageType) : generalContractsType is 
+    s.generalContracts
+
+
+
+(* View: get tracked farms *)
+[@view] function getTrackedFarms (const _ : unit; const s : farmFactoryStorageType) : set(address) is 
+    s.trackedFarms
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : farmFactoryStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : farmFactoryStorageType) : lambdaLedgerType is
+    s.lambdaLedger
+
+
+
+(* View: get a farm lambda *)
+[@view] function farmLambdaOpt(const lambdaName : string; var s : farmFactoryStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.farmLambdaLedger)
+
+
+
+(* View: get the farm lambda ledger *)
+[@view] function farmLambdaLedger(const _ : unit; var s : farmFactoryStorageType) : lambdaLedgerType is
+    s.farmLambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : farmFactoryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : farmFactoryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  updateMetadata entrypoint - update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmFactoryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(* updateConfig entrypoint *)
+function updateConfig(const updateConfigParams : farmFactoryUpdateConfigParamsType; var s : farmFactoryStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : farmFactoryStorageType) : return is
+block {
+        
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : farmFactoryStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams : transferActionType; var s : farmFactoryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  pauseAll entrypoint *)
+function pauseAll(var s : farmFactoryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaPauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  unpauseAll entrypoint *)
+function unpauseAll(var s : farmFactoryStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUnpauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseEntrypoint entrypoint  *)
+function togglePauseEntrypoint(const targetEntrypoint : farmFactoryTogglePauseEntrypointType; const s : farmFactoryStorageType) : return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm factory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
+
+} with response
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Farm Factory Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* createFarm entrypoint *)
+function createFarm(const createFarmParams : createFarmType; var s : farmFactoryStorageType) : return is 
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateFarm"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaCreateFarm(createFarmParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(* trackFarm entrypoint *)
+function trackFarm (const farmContract : address; var s : farmFactoryStorageType) : return is 
+block{
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackFarm"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaTrackFarm(farmContract);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(* untrackFarm entrypoint *)
+function untrackFarm (const farmContract : address; var s : farmFactoryStorageType) : return is 
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackFarm"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUntrackFarm(farmContract);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Farm Factory Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : farmFactoryStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
 } with (noOperations, s)
 
-(* CreateFarm entrypoint *)
-function createFarm(const farmStorage: farmStorageType; var s: storage): return is 
-    block{
-        // Check if Sender is admin
-        checkSenderIsAdmin(s);
 
-        // Break glass check
-        checkCreateFarmIsNotPaused(s);
 
-        // Add FarmFactory Address to whitelistContracts of created farm
-        const councilAddress: address = case s.whitelistContracts["council"] of 
-            Some (_address) -> _address
-        |   None -> failwith("Council contract not found in whitelist contracts")
-        end;
-        const farmWhitelistContract: whitelistContractsType = map[
-            ("farmFactory") -> (Tezos.self_address: address);
-            ("council") -> (councilAddress: address)
-        ];
+(* setProductLambda entrypoint *)
+function setProductLambda(const setLambdaParams : setLambdaType; var s : farmFactoryStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.farmLambdaLedger[lambdaName] := lambdaBytes;
 
-        // Add FarmFactory Address to doormanContracts of created farm
-        const doormanAddress: address = case s.generalContracts["doorman"] of 
-            Some (_address) -> _address
-        |   None -> failwith("Doorman contract not found in general contracts")
-        end;
-        const farmGeneralContracts: generalContractsType = map[
-            ("doorman") -> (doormanAddress: address)
-        ];
+} with (noOperations, s)
 
-        // Create needed records for farm contract
-        const farmDelegators: big_map(delegator, delegatorRecord) = Big_map.empty;
-        const farmClaimedRewards: claimedRewards = record[
-            paid=0n;
-            unpaid=0n;
-        ];
-        const farmForceRewardFromTransfer: bool = farmStorage.forceRewardFromTransfer;
-        const farmInfinite: bool = farmStorage.infinite;
-        const farmTotalRewards: nat = farmStorage.plannedRewards.totalBlocks*farmStorage.plannedRewards.currentRewardPerBlock;
-        const farmPlannedRewards: plannedRewards = record[
-            totalBlocks=farmStorage.plannedRewards.totalBlocks;
-            currentRewardPerBlock=farmStorage.plannedRewards.currentRewardPerBlock;
-            totalRewards=farmTotalRewards;
-        ];
-        const farmLPToken: lpToken = record[
-            tokenAddress=farmStorage.lpToken.tokenAddress;
-            tokenId=farmStorage.lpToken.tokenId;
-            tokenStandard=farmStorage.lpToken.tokenStandard;
-            tokenBalance=0n;
-        ];
-        const farmBreakGlassConfig: farmBreakGlassConfigType = record[
-            depositIsPaused=False;
-            withdrawIsPaused=False;
-            claimIsPaused=False;
-        ];
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
 
-        // Check wether the farm is infinite or its total blocks has been set
-        if not farmInfinite and farmStorage.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
 
-        // Create a farm and auto init it?
-        const originatedFarmStorage: farmStorage = record[
-            admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
-            mvkTokenAddress         = s.mvkTokenAddress;
-            whitelistContracts      = farmWhitelistContract;      // whitelist of contracts that can access restricted entrypoints
-            generalContracts        = farmGeneralContracts;
 
-            breakGlassConfig        = farmBreakGlassConfig;
 
-            lastBlockUpdate         = Tezos.level;
-            accumulatedMVKPerShare  = 0n;
-            claimedRewards          = farmClaimedRewards;
-            plannedRewards          = farmPlannedRewards;
-            delegators              = farmDelegators;
-            lpToken                 = farmLPToken;
-            open                    = True ;
-            init                    = True;
-            infinite                = farmInfinite;
-            forceRewardFromTransfer = farmForceRewardFromTransfer;
-            initBlock               = Tezos.level;
-            blocksPerMinute         = s.blocksPerMinute;
-        ];
+(* main entrypoint *)
+function main (const action : farmFactoryAction; var s : farmFactoryStorageType) : return is
+block{
+    
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
-        // Do we want to send tez to the farm contract?
-        const farmOrigination: (operation * address) = createFarmFunc(
-            (None: option(key_hash)), 
-            0tez,
-            originatedFarmStorage
-        );
+} with (
 
-        s.trackedFarms := Set.add(farmOrigination.1, s.trackedFarms);
+    case action of [
+        
+            // Housekeeping Entrypoints
+            SetAdmin (parameters)                   -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)              -> setGovernance(parameters, s)
+        |   UpdateMetadata (parameters)             -> updateMetadata(parameters, s)
+        |   UpdateConfig (parameters)               -> updateConfig(parameters, s)
+        |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
 
-    } with(list[farmOrigination.0], s)
+            // Pause / Break Glass Entrypoints
+        |   PauseAll (_parameters)                  -> pauseAll(s)
+        |   UnpauseAll (_parameters)                -> unpauseAll(s)
+        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
 
-(* CheckFarmExists entrypoint *)
-function checkFarmExists (const farmContract: address; const s: storage): return is 
-    case Set.mem(farmContract, s.trackedFarms) of
-        True -> (noOperations, s)
-    |   False -> failwith("The provided farm contract does not exist in the trackedFarms set")
-    end
+            // Farm Factory Entrypoints
+        |   CreateFarm (params)                     -> createFarm(params, s)
+        |   TrackFarm (params)                      -> trackFarm(params, s)
+        |   UntrackFarm (params)                    -> untrackFarm(params, s)
 
-(* TrackFarm entrypoint *)
-function trackFarm (const farmContract: address; var s: storage): return is 
-    block{
-        // Check if Sender is admin
-        checkSenderIsAdmin(s);
-
-        // Break glass check
-        checkTrackFarmIsNotPaused(s);
-
-        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
-            True -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
-        |   False -> Set.add(farmContract, s.trackedFarms)
-        end;
-    } with(noOperations, s)
-
-(* UntrackFarm entrypoint *)
-function untrackFarm (const farmContract: address; var s: storage): return is 
-    block{
-        // Check if Sender is admin
-        checkSenderIsAdmin(s);
-
-        // Break glass check
-        checkUntrackFarmIsNotPaused(s);
-
-        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
-            True -> Set.remove(farmContract, s.trackedFarms)
-        |   False -> (failwith("The provided farm contract does not exist in the trackedFarms set"): set(address))
-        end;
-    } with(noOperations, s)
-
-(* Main entrypoint *)
-function main (const action: action; var s: storage): return is
-  block{
-    // Check that sender didn't send Tezos while calling an entrypoint
-    checkNoAmount(Unit);
-  } with(
-    case action of
-        SetAdmin (parameters) -> setAdmin(parameters, s)
-    |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
-    |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
-    |   UpdateAllBlocksPerMinute (parameters) -> updateAllBlocksPerMinute(parameters, s)
-
-    |   PauseAll (_parameters) -> pauseAll(s)
-    |   UnpauseAll (_parameters) -> unpauseAll(s)
-    |   TogglePauseCreateFarm (_parameters) -> togglePauseCreateFarm(s)
-    |   TogglePauseTrackFarm (_parameters) -> togglePauseTrackFarm(s)
-    |   TogglePauseUntrackFarm (_parameters) -> togglePauseUntrackFarm(s)
-
-    |   PauseAllFarms (_parameters) -> pauseAllFarms(s)
-    |   UnpauseAllFarms (_parameters) -> unpauseAllFarms(s)
-
-    |   CreateFarm (params) -> createFarm(params, s)
-    |   TrackFarm (params) -> trackFarm(params, s)
-    |   UntrackFarm (params) -> untrackFarm(params, s)
-
-    |   CheckFarmExists (params) -> checkFarmExists(params, s)
-    end
-  )
+            // Lambda Entrypoints
+        |   SetLambda (parameters)                  -> setLambda(parameters, s)
+        |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
+    ]
+)
