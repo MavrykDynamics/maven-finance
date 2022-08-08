@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import { compile, compileLambdas, runMigrations, compileParameters, packParameters } from './helpers'
+import { compile, compileLambdas, runMigrations } from './helpers'
 
 yargs
   .command(
@@ -8,7 +8,7 @@ yargs
     'compiles the contract',
     {
       format: {
-        description: 'fromat of output file',
+        description: 'format of output file',
         alias: 'f',
         type: 'string',
       },
@@ -56,47 +56,14 @@ yargs
         alias: 'c',
         type: 'string',
       },
+      name: {
+        description: 'name of lambda file',
+        alias: 'n',
+        type: 'string',
+      }
     },
     async (argv) => {
-      compileLambdas(argv.json, argv.contract)
-    },
-  )
-  .command(
-    'compile-lambda-parameters [json] [contract]',
-    'compile lambda parameters for the specified contract',
-    {
-      json: {
-        description: 'input file relative path (with lambdas indexes and parameters)',
-        alias: 'j',
-        type: 'string',
-      },
-      contract: {
-        description: 'input file relative path (with lambdas Ligo code)',
-        alias: 'c',
-        type: 'string',
-      },
-    },
-    async (argv) => {
-      compileParameters(argv.json, argv.contract)
-    },
-  )
-  .command(
-    'compile-pack-parameters [json] [contract]',
-    'compile and pack michelson parameters into bytes',
-    {
-      json: {
-        description: 'input file relative path (with lambdas indexes and parameters)',
-        alias: 'j',
-        type: 'string',
-      },
-      contract: {
-        description: 'input file relative path (with lambdas Ligo code)',
-        alias: 'c',
-        type: 'string',
-      },
-    },
-    async (argv) => {
-      packParameters(argv.json, argv.contract)
+      compileLambdas(argv.json, argv.contract, argv.name)
     },
   )
   .command(

@@ -2,33 +2,49 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { bob } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from '../test/helpers/Utils'
 
 import { breakGlassStorageType } from '../test/types/breakGlassStorageType'
 
 const config = {
-    threshold                  : 3,
-    actionExpiryDuration       : 5760,
-    developerAddress           : zeroAddress,
-    emergencyGovernanceAddress : zeroAddress,
+    threshold                       : 3,
+    actionExpiryDays                : 3,
+    councilMemberNameMaxLength      : 400,
+    councilMemberWebsiteMaxLength   : 400,
+    councilMemberImageMaxLength     : 400,
 }
 
+const metadata = MichelsonMap.fromLiteral({
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+        name: 'MAVRYK Break Glass Contract',
+        version: 'v1.0.0',
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>']
+        }),
+        'ascii',
+    ).toString('hex'),
+})
+
 export const breakGlassStorage: breakGlassStorageType = {
-  admin: alice.pkh,
-  mvkTokenAddress: "",
+    
+    admin               : bob.pkh,
+    mvkTokenAddress     : "",
+    governanceAddress   : "",
+    metadata            : metadata,
 
-  config: config,
+    config              : config,
+    glassBroken         : false,
+    councilMembers      : MichelsonMap.fromLiteral({}),
 
-  generalContracts: MichelsonMap.fromLiteral({}),
-  glassBroken: false,
+    whitelistContracts  : MichelsonMap.fromLiteral({}),
+    generalContracts    : MichelsonMap.fromLiteral({}),
+    
+    actionsLedger       : MichelsonMap.fromLiteral({}),
+    actionCounter       : new BigNumber(1),
 
-  councilMembers: [],
+    lambdaLedger        : MichelsonMap.fromLiteral({})
 
-  currentActionId: new BigNumber(0),
-  nextActionId: new BigNumber(1),
-
-  actionLedger: MichelsonMap.fromLiteral({}),
-  flushLedger: MichelsonMap.fromLiteral({}),
 }

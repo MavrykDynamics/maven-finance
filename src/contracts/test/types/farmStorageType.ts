@@ -2,40 +2,58 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type farmStorageType = {
-  admin: string;
-  mvkTokenAddress: string;
-  
-  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
-  breakGlassConfig: {
-    depositIsPaused: boolean
-    withdrawIsPaused: boolean;
-    claimIsPaused: boolean;
-  }
+  admin                     : string;
+  mvkTokenAddress           : string;
+  governanceAddress         : string;
+  name                      : string;
+  metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
+  config                    : {
+                                lpToken : {
+                                  tokenAddress  : String;
+                                  tokenId       : BigNumber;
+                                  tokenStandard : {};
+                                  tokenBalance  : BigNumber;
+                                },
 
-  lastBlockUpdate: BigNumber;
-  accumulatedMVKPerShare: BigNumber;
-  claimedRewards: {
-    unpaid: BigNumber;
-    paid: BigNumber;
-  }
-  plannedRewards: {
-    totalBlocks: BigNumber;
-    currentRewardPerBlock: BigNumber;
-    totalRewards: BigNumber;
-  }
-  delegators: MichelsonMap<MichelsonMapKey, unknown>;
-  lpToken: {
-    tokenAddress: String;
-    tokenId: BigNumber;
-    tokenStandard: {};
-    tokenBalance: BigNumber;
-  }
-  open: Boolean;
-  init: Boolean;
-  infinite: Boolean;
-  forceRewardFromTransfer: Boolean;
-  initBlock: BigNumber;
-  blocksPerMinute: BigNumber;
+                                tokenPair : {
+                                  token0Address : String;
+                                  token1Address : String;
+                                },
+
+                                infinite                : Boolean;
+                                forceRewardFromTransfer : Boolean;
+
+                                plannedRewards : {
+                                  totalBlocks           : BigNumber;
+                                  currentRewardPerBlock : BigNumber;
+                                  totalRewards          : BigNumber;
+                                }
+
+                              }
+
+  generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+
+  breakGlassConfig          : {
+                                depositIsPaused   : boolean
+                                withdrawIsPaused  : boolean;
+                                claimIsPaused     : boolean;
+                              }
+
+  lastBlockUpdate           : BigNumber;
+  accumulatedRewardsPerShare    : BigNumber;
+  claimedRewards            : {
+                                unpaid : BigNumber;
+                                paid   : BigNumber;
+                              }
+  depositorLedger           : MichelsonMap<MichelsonMapKey, unknown>;
+  open                      : Boolean;
+  init                      : Boolean;
+  initBlock                 : BigNumber;
+
+  minBlockTimeSnapshot              : BigNumber;
+
+  lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+
 };

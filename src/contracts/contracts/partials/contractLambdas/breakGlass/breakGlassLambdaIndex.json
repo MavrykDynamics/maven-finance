@@ -1,0 +1,82 @@
+[
+    {
+        "index": 0,
+        "name": "lambdaBreakGlass"
+    },
+    {
+        "index": 1,
+        "name": "lambdaPropagateBreakGlass"
+    },
+    {
+        "index": 2,
+        "name": "lambdaSetAdmin"
+    },
+    {
+        "index": 3,
+        "name": "lambdaSetGovernance"
+    },
+    {
+        "index": 4,
+        "name": "lambdaUpdateMetadata"
+    },
+    {
+        "index": 5,
+        "name": "lambdaUpdateConfig"
+    },
+    {
+        "index": 6,
+        "name": "lambdaUpdateWhitelistContracts"
+    },
+    {
+        "index": 7,
+        "name": "lambdaUpdateGeneralContracts"
+    },
+    {
+        "index": 8,
+        "name": "lambdaMistakenTransfer"
+    },
+    {
+        "index": 9,
+        "name": "lambdaUpdateCouncilMemberInfo"
+    },
+    {
+        "index": 10,
+        "name": "lambdaAddCouncilMember"
+    },
+    {
+        "index": 11,
+        "name": "lambdaRemoveCouncilMember"
+    },
+    {
+        "index": 12,
+        "name": "lambdaChangeCouncilMember"
+    },
+    {
+        "index": 13,
+        "name": "lambdaPauseAllEntrypoints"
+    },
+    {
+        "index": 14,
+        "name": "lambdaUnpauseAllEntrypoints"
+    },
+    {
+        "index": 15,
+        "name": "lambdaSetSingleContractAdmin"
+    },
+    {
+        "index": 16,
+        "name": "lambdaSetAllContractsAdmin"
+    },
+    {
+        "index": 17,
+        "name": "lambdaRemoveBreakGlassControl"
+    },
+    {
+        "index": 18,
+        "name": "lambdaFlushAction"
+    },
+    {
+        "index": 19,
+        "name": "lambdaSignAction"
+    }
+]

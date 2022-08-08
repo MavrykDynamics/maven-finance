@@ -9,3 +9,5 @@ compiled/*.tz
 # Webstorm IDE
 ./.idea
 **/.idea/**
+.VSCodeCounter/
+.ligo-work

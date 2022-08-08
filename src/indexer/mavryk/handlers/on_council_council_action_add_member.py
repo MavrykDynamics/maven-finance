@@ -1,0 +1,12 @@
+from mavryk.utils.persisters import persist_council_action
+from mavryk.types.council.storage import CouncilStorage
+from dipdup.models import Transaction
+from mavryk.types.council.parameter.council_action_add_member import CouncilActionAddMemberParameter
+from dipdup.context import HandlerContext
+
+async def on_council_council_action_add_member(
+    ctx: HandlerContext,
+    council_action_add_member: Transaction[CouncilActionAddMemberParameter, CouncilStorage],
+) -> None:
+
+    await persist_council_action(council_action_add_member)

@@ -1,530 +1,582 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// ------------------------------------------------------------------------------
+// Error Codes
+// ------------------------------------------------------------------------------
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Error Codes
+#include "../partials/errors.ligo"
 
-type mintTokenType is (address * nat)
+// ------------------------------------------------------------------------------
+// Shared Helpers and Types
+// ------------------------------------------------------------------------------
 
-type blockLevel is nat; 
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-type configType is record [
-    defaultCliffPeriod           : nat;   // 6 months in block levels -> 2880 * 30 * 6 = 518,400
-    defaultCooldownPeriod        : nat;   // 1 month in block level -> 2880 * 30 = 86400
-    
-    newBlockTimeLevel            : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
-    newBlocksPerMinute           : nat;  // new blocks per minute 
-    
-    blocksPerMinute              : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
-    blocksPerMonth               : nat;  // for convenience: blocks per month - to help with calculation for cliff/cooldown periods
-]
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
-type claimRecordType is record [
-    amountClaimed      : nat;
-    remainderVested    : nat; 
-    dateTimeClaimed    : timestamp;
-    blockLevelClaimed  : nat;
-]
-type claimLedgerType is big_map(address, claimRecordType)
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
 
-type vesteeRecordType is record [
-    
-    // static variables initiated at start ----
+// MvkToken types for transfer
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
-    totalAllocatedAmount     : nat;             // total amount allocated to vestee
-    claimAmountPerMonth      : nat;             // amount to be claimed each month: claimAmountPerMonth = (totalAllocatedAmount / vestingMonths)
+// Vesting types
+#include "../partials/contractTypes/vestingTypes.ligo"
 
-    startBlock               : blockLevel;      // date/time of start in block levels
-    startTimestamp           : timestamp;       // date/time start of when 
-
-    vestingMonths            : nat;             // number of months of vesting for total allocaed amount
-    cliffMonths              : nat;             // number of months for cliff before vestee can claim
-
-    endCliffBlock            : blockLevel;      // calculated end of cliff duration in block levels based on dateTimeStart
-    endCliffDateTime         : timestamp;       // calculated end of cliff duration in timestamp based on dateTimeStart
-    
-    endVestingBlock          : blockLevel;      // calculated end of vesting duration in block levels based on dateTimeStart
-    endVestingDateTime       : timestamp;       // calculated end of vesting duration in timestamp based on dateTimeStart
-
-    status                   : string;          // status of vestee: "ACTIVE", "LOCKED"
-
-    // updateable variables on claim ----------
-
-    totalRemainder           : nat;             // total amount that is left to be claimed
-    totalClaimed             : nat;             // total amount that has been claimed
-
-    monthsClaimed            : nat;             // claimed number of months   
-    monthsRemaining          : nat;             // remaining number of months   
-    
-    nextRedemptionBlock      : blockLevel;      // block level where vestee will be able to claim again - calculated at start: nextRedemptionBlock = (block level of time start * cliff months * blocks per month)
-    nextRedemptionTimestamp  : timestamp;       // timestamp of when vestee will be able to claim again
-
-    lastClaimedBlock         : blockLevel;      // block level where vestee last claimed
-    lastClaimedTimestamp     : timestamp;       // timestamp of when vestee last claimed
-] 
-type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
-
-type storage is record [
-    admin               : address;
-    mvkTokenAddress     : address;
-
-    config              : configType;
-
-    whitelistContracts  : whitelistContractsType;      
-    generalContracts    : generalContractsType;
-
-    claimLedger         : claimLedgerType;
-    vesteeLedger        : vesteeLedgerType;
-
-    totalVestedAmount   : nat;          // record of how much has been vested so far
-
-    tempBlockLevel      : nat; 
-]
-
-// how to account for changes in block level
-
-// determine if cliff period and vesting period will be unique to different users 
-// e.g. different start times for each person depending on when they joined and vesting starts
-    
-type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
-type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
-
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-  ConfigDefaultCliffPeriod of unit
-| ConfigDefaultCooldownPeriod of unit
-| ConfigNewBlockTimeLevel of unit
-| ConfigNewBlocksPerMinute of unit
-| ConfigBlocksPerMinute of unit
-| ConfigBlocksPerMonth of unit
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: updateConfigNewValueType; 
-  updateConfigAction: updateConfigActionType;
-]
+// ------------------------------------------------------------------------------
 
 type vestingAction is 
-    | SetAdmin of (address)
-    | UpdateConfig of updateConfigParamsType    
-
-    | Claim of (unit)
-    | GetVesteeBalance of (address * contract(nat))
     
-    | UpdateWhitelistContracts of updateWhitelistContractsParams
-    | UpdateGeneralContracts of updateGeneralContractsParams
-    | GetTotalVested of contract(nat)
+        // Housekeeping Entrypoints
+        SetAdmin                      of (address)
+    |   SetGovernance                 of (address)
+    |   UpdateMetadata                of updateMetadataType
+    |   UpdateWhitelistContracts      of updateWhitelistContractsType
+    |   UpdateGeneralContracts        of updateGeneralContractsType
+    |   MistakenTransfer              of transferActionType
     
-    | AddVestee of (addVesteeType)
-    | RemoveVestee of (address)
-    | ToggleVesteeLock of (address)
-    | UpdateVestee of (updateVesteeType)
+        // Internal Vestee Control Entrypoints
+    |   AddVestee                     of (addVesteeType)
+    |   RemoveVestee                  of (address)
+    |   UpdateVestee                  of (updateVesteeType)
+    |   ToggleVesteeLock              of (address)
 
-const noOperations : list (operation) = nil;
-const nullTimestamp : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
-type return is list (operation) * storage
+        // Vestee Entrypoints
+    |   Claim                         of (unit)
 
-(* ---- Helper functions begin ---- *)
+        // Lambda Entrypoints
+    |   SetLambda                     of setLambdaType
 
-// admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
-    if (Tezos.sender = s.admin) then unit
-    else failwith("Only the administrator can call this entrypoint.");
 
-// function checkSenderIsCouncil(var s : storage) : unit is
-//     if (Tezos.sender = s.councilAddress) then unit
-//     else failwith("Only the council contract can call this entrypoint.");
+const noOperations   : list (operation) = nil;
+type return is list (operation) * vestingStorageType
 
-// function checkSenderIsAdminOrCouncil(var s : storage) : unit is
-//     if (Tezos.sender = s.admin or Tezos.sender = s.councilAddress) then unit
-//     else failwith("Only the administrator or council contract can call this entrypoint.");
+// vesting contract methods lambdas
+type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorageType) -> return
 
+
+
+// ------------------------------------------------------------------------------
+//
+// Constants Begin
+//
+// ------------------------------------------------------------------------------
+
+const one_day        : int              = 86_400;
+const thirty_days    : int              = one_day * 30;
+
+// ------------------------------------------------------------------------------
+//
+// Constants End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// Allowed Senders : Admin, Governance Contract
+function checkSenderIsAllowed(var s : vestingStorageType) : unit is
+    if (Tezos.get_sender() = s.admin or Tezos.get_sender() = s.governanceAddress) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+// Allowed Senders : Admin
+function checkSenderIsAdmin(var s : vestingStorageType) : unit is
+    if (Tezos.get_sender() = s.admin) then unit
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+
+
+// Allowed Senders : Admin, Council Contract
+function checkSenderIsCouncilOrAdmin(var s : vestingStorageType) : unit is
+block{
+
+    const councilAddress : address = case s.whitelistContracts["council"] of [
+            Some (_address) -> _address
+        |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND) : address)
+    ];
+    
+    if Tezos.get_sender() = councilAddress or Tezos.get_sender() = s.admin then skip
+    else failwith(error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
+
+} with (unit)
+
+
+
+// Allowed Senders : Admin, Governance Satellite Contract
+function checkSenderIsAdminOrGovernanceSatelliteContract(var s : vestingStorageType) : unit is
+block{
+        
+    if Tezos.get_sender() = s.admin then skip
+    else {
+
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
+
+        if Tezos.get_sender() = governanceSatelliteAddress then skip
+        else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
+    }
+} with unit
+
+
+
+// Check that no Tezos is sent to the entrypoint
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
-    else failwith("This entrypoint should not receive any tez.");
-// admin helper functions end ---------------------------------------------------------
+    if (Tezos.get_amount() = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
 
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
 
-// helper function to update user's staked balance in doorman contract after vesting
-function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : contract(address * nat) is
-  case (Tezos.get_entrypoint_opt(
-      "%vestingUpdateStakedBalanceInDoorman",
-      contractAddress) : option(contract(address * nat))) of
-    Some(contr) -> contr
-  | None -> (failwith("vestingUpdateStakedBalanceInDoorman entrypoint in Doorman Contract not found") : contract(address * nat))
-  end;
 
-// helper function to get mint entrypoint from token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
-  case (Tezos.get_entrypoint_opt(
-      "%mint",
-      token_address) : option(contract(mintTokenType))) of
-    Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
-  end;
+// ------------------------------------------------------------------------------
+// Entrypoint / General Helper Functions Begin
+// ------------------------------------------------------------------------------
 
-(* Helper function to mint mvk tokens *)
+// helper function to get %mint entrypoint from MVK Token address
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintType) is
+    case (Tezos.get_entrypoint_opt(
+        "%mint",
+        token_address) : option(contract(mintType))) of [
+                Some(contr) -> contr
+            |   None        -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintType))
+        ];
+
+
+
+// helper function to mint mvk tokens 
 function mintTokens(
-  const to_ : address;
-  const amount_ : nat;
-  const tokenAddress : address) : operation is
-  Tezos.transaction(
-    (to_, amount_),
-    0tez,
-    getMintEntrypointFromTokenAddress(tokenAddress)
-  );
+    const to_           : address;
+    const amount_       : nat;
+    const tokenAddress  : address) : operation is
+    Tezos.transaction(
+        (to_, amount_),
+        0tez,
+        getMintEntrypointFromTokenAddress(tokenAddress)
+    );
+
+// ------------------------------------------------------------------------------
+// Entrypoint / General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
+function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorageType) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(vestingUnpackLambdaFunctionType)) of [
+            Some(f) -> f(vestingLambdaAction, s)
+        |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers Begin
+//
+// ------------------------------------------------------------------------------
+
+// Vesting Lambdas :
+#include "../partials/contractLambdas/vesting/vestingLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Helpers End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get admin variable *)
+[@view] function getAdmin(const _ : unit; var s : vestingStorageType) : address is
+    s.admin
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _ : unit; var s : vestingStorageType) : whitelistContractsType is 
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _ : unit; var s : vestingStorageType) : generalContractsType is 
+    s.generalContracts
+
+
+
+(* View: get total vested amount *)
+[@view] function getTotalVestedAmount(const _ : unit; var s : vestingStorageType) : nat is 
+    s.totalVestedAmount
+
+
+
+(* View: get total vesting remainder of vestee *)
+[@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorageType) : nat is 
+    case s.vesteeLedger[vesteeAddress] of [ 
+            Some(_record) -> _record.totalRemainder
+        |   None          -> failwith(error_VESTEE_NOT_FOUND)
+    ];
+
+
+
+(* View: get vestee record *)
+[@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorageType) : option(vesteeRecordType) is 
+    Big_map.find_opt(vesteeAddress, s.vesteeLedger)
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName : string; var s : vestingStorageType) : option(bytes) is
+    Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _ : unit; var s : vestingStorageType) : lambdaLedgerType is
+    s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : vestingStorageType) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    s.admin := newAdminAddress;
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : vestingStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);
+
+} with response
+
+
+
+(*  updateMetadata entrypoint - update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : vestingStorageType) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : vestingStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : vestingStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  mistakenTransfer entrypoint *)
+function mistakenTransfer(const destinationParams : transferActionType; var s : vestingStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMistakenTransfer"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaMistakenTransfer(destinationParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Internal Vestee Control Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  addVestee entrypoint *)
+function addVestee(const addVesteeParams : addVesteeType; var s : vestingStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddVestee"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaAddVestee(addVesteeParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+    
+} with response
+
+
+
+(*  removeVestee entrypoint *)
+function removeVestee(const vesteeAddress : address; var s : vestingStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveVestee"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaRemoveVestee(vesteeAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+    
+} with response
+
+
+
+(*  updateVestee entrypoint *)
+function updateVestee(const updateVesteeParams : updateVesteeType; var s : vestingStorageType) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateVestee"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateVestee(updateVesteeParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  toggleVesteeLock entrypoint *)
+function toggleVesteeLock(const vesteeAddress : address; var s : vestingStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaToggleVesteeLock"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaToggleVesteeLock(vesteeAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+    
+} with response
+
+// ------------------------------------------------------------------------------
+// Internal Vestee Control Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Vestee Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* claim entrypoint *)
+function claim(var s : vestingStorageType) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaClaim(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Vestee Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : vestingStorageType) : return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
 
 } with (noOperations, s)
 
-(*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
-block {
-
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
-
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
-
-  case updateConfigAction of
-    ConfigDefaultCliffPeriod (_v)        -> s.config.defaultCliffPeriod         := updateConfigNewValue
-  | ConfigDefaultCooldownPeriod (_v)     -> s.config.defaultCooldownPeriod      := updateConfigNewValue
-  | ConfigNewBlockTimeLevel (_v)         -> s.config.newBlockTimeLevel          := updateConfigNewValue
-  | ConfigNewBlocksPerMinute (_v)        -> s.config.newBlocksPerMinute         := updateConfigNewValue
-  | ConfigBlocksPerMinute (_v)           -> s.config.blocksPerMinute            := updateConfigNewValue
-  | ConfigBlocksPerMonth (_v)            -> s.config.blocksPerMonth             := updateConfigNewValue
-  end;
-
-} with (noOperations, s)
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
 
 
-function claim(var s : storage) : return is 
-block {
-    // Steps Overview:
-    // 1. Check if vestee exists in record
-    // 2. Check if vestee is able to claim (current block level > vestee next redemption block)
-    // 3. Calculate total claim amount based on when vestee last claimed 
-    // 4. Send operations to mint new MVK tokens and update user's balance in MVK ledger
-    // 5. Update vestee records in storage
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
 
-    s.tempBlockLevel := Tezos.level;
-    checkNoAmount(unit);
 
-    // use _vestee and _operations so that compiling will not have warnings that variable is unused
-    var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
-    end;
 
-    // vestee status is not locked
-    if _vestee.status = "LOCKED" then failwith("Error. Vestee is locked.")
-      else skip;
-
-    const blockLevelCheck  : bool = Tezos.level > _vestee.nextRedemptionBlock;
-    const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp;
-
-    const claimCheck : bool = timestampCheck and blockLevelCheck = True;
-    
-    var _operations : list(operation) := nil;
-
-    if claimCheck then block {
-
-        // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
-        var numberOfClaimMonths : nat := 0n;
+(* main entrypoint *)
+function main (const action : vestingAction; const s : vestingStorageType) : return is
+block{
         
-        // at least one month needs to pass before the first claim (e.g. for edge case vestee with 0 cliff months and 1 vesting months)
-        if _vestee.lastClaimedBlock = 0n then block {
-            const blockLevelsSinceStart   = abs(Tezos.level - _vestee.startBlock);
-            numberOfClaimMonths           := blockLevelsSinceStart / s.config.blocksPerMonth;
-        } else skip;
-        
-        if _vestee.lastClaimedBlock > 0n then block {
-            const blockLevelsSinceLastClaim  = abs(Tezos.level - _vestee.lastClaimedBlock);
-            numberOfClaimMonths              := blockLevelsSinceLastClaim / s.config.blocksPerMonth;
-        } else skip;
-    
-        // temp: for testing that mint inter-contract call works 
-        // const numberOfClaimMonths : nat = 1n;
-
-        // get total claim amount
-        const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
-
-        const mvkTokenAddress : address = s.mvkTokenAddress;
-
-        const mintVMvkTokensOperation : operation = mintTokens(
-            Tezos.sender,           // to address
-            totalClaimAmount,       // amount of mvk Tokens to be minted
-            mvkTokenAddress         // mvkTokenAddress
-        ); 
-
-        _operations := mintVMvkTokensOperation # _operations;
-        
-        const one_day        : int   = 86_400;
-        const thirty_days    : int   = one_day * 30;
-
-        var monthsRemaining  : nat   := 0n;
-        if _vestee.monthsRemaining < numberOfClaimMonths then monthsRemaining := 0n; 
-            else monthsRemaining := abs(_vestee.monthsRemaining - numberOfClaimMonths);
-
-        _vestee.monthsRemaining          := monthsRemaining;
-
-        var monthsClaimed : nat          := _vestee.monthsClaimed + numberOfClaimMonths;
-        _vestee.monthsClaimed            := monthsClaimed;
-
-        // use vestee start period to calculate next redemption period
-        _vestee.nextRedemptionBlock      := _vestee.startBlock + (monthsClaimed * s.config.blocksPerMonth) + s.config.blocksPerMonth; 
-        _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days) + thirty_days;
-
-        _vestee.lastClaimedBlock         := Tezos.level;  // current block level 
-        _vestee.lastClaimedTimestamp     := Tezos.now;    // current timestamp
-
-        _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  
-
-        var totalRemainder : nat := 0n;
-        if _vestee.totalAllocatedAmount < totalClaimAmount then totalRemainder := 0n
-            else totalRemainder := abs(_vestee.totalAllocatedAmount - totalClaimAmount);
-        _vestee.totalRemainder           := totalRemainder;
-
-        s.vesteeLedger[Tezos.sender] := _vestee;
-
-        // update total vested amount in contract
-        s.totalVestedAmount := s.totalVestedAmount + totalClaimAmount;
-
-    } else failwith("Error. You are unable to claim now.");
-
-} with (_operations, s)
-
-function getVesteeBalance(const vesteeAddress : address; const contr : contract(nat); var s : storage) : return is 
-block {
-    // Steps Overview:
-    // 1. check if vestee address exists in vestee ledger
-    // 2. return vestee's total vested remainder to callback contract
-    checkNoAmount(unit);
-
-    const vestee : vesteeRecordType = case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
-    end;
-    
-} with (list [transaction(vestee.totalRemainder, 0tz, contr)], s)
-
-function getTotalVested(const contr : contract(nat); var s : storage) : return is 
-block {
-    checkNoAmount(unit);
-} with (list [transaction(s.totalVestedAmount, 0tz, contr)], s)
-
-function addVestee(const vesteeAddress : address; const totalAllocatedAmount : nat; const cliffInMonths : nat; const vestingInMonths : nat; var s : storage) : return is 
-block {
-
-    // Steps Overview:
-    // 1. check if vestee address exists in vestee ledger
-    // 2. create new vestee
-    
-    s.tempBlockLevel := Tezos.level;
-    checkNoAmount(unit);
-
-    // checkSenderIsAdmin(s);
-
-    // check sender is from council contract
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
-
-    const one_day        : int   = 86_400;
-    const thirty_days    : int   = one_day * 30;
-
-    // check for div by 0 error
-    if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
-        else skip;
-
-    var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> failwith("Error. Vestee already exists")
-        | None -> record [
-            
-            // static variables initiated at start ----
-
-            totalAllocatedAmount = totalAllocatedAmount;                      // totalAllocatedAmount should be in mu (10^6)
-            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;    // totalAllocatedAmount should be in mu (10^6)
-            
-            startBlock           = Tezos.level;                 // date/time of start in block levels
-            startTimestamp       = Tezos.now;                   // date/time start of when 
-
-            vestingMonths        = vestingInMonths;             // number of months of vesting for total allocaed amount
-            cliffMonths          = cliffInMonths;               // number of months for cliff before vestee can claim
-
-            endCliffBlock        = Tezos.level + (cliffInMonths * s.config.blocksPerMonth);    // calculated end of cliff duration in block levels based on dateTimeStart
-            endCliffDateTime     = Tezos.now + (cliffInMonths * thirty_days);                  // calculated end of cliff duration in timestamp based on dateTimeStart
-            
-            endVestingBlock      = Tezos.level + (vestingInMonths * s.config.blocksPerMonth);  // calculated end of vesting duration in timestamp based on dateTimeStart
-            endVestingDateTime   = Tezos.now + (vestingInMonths * thirty_days);                // calculated end of vesting duration in timestamp based on dateTimeStart
-
-            // updateable variables on claim ----------
-
-            status                   = "ACTIVE";
-
-            totalRemainder           = totalAllocatedAmount;             // total amount that is left to be claimed
-            totalClaimed             = 0n;                               // total amount that has been claimed
-
-            monthsClaimed            = 0n;                               // claimed number of months   
-            monthsRemaining          = vestingInMonths;                  // remaining number of months   
-            
-            nextRedemptionBlock      = Tezos.level + (cliffInMonths * s.config.blocksPerMonth);    //  block level where vestee will be able to claim again (same as end of cliff block)
-            nextRedemptionTimestamp  = Tezos.now + (cliffInMonths * thirty_days);                  // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
-            lastClaimedBlock         = 0n;                                                         // block level where vestee last claimed
-            lastClaimedTimestamp     = nullTimestamp;                                              // timestamp of when vestee last claimed
-        ]
-    end;    
-
-    s.vesteeLedger[vesteeAddress] := newVestee;
-    
-} with (noOperations, s)
-
-function removeVestee(const vesteeAddress : address; var s : storage) : return is 
-block {
-
-    // Steps Overview:
-    // 1. check if user address exists in vestee ledger
-    // 2. remove vestee from vesteeLedger
-
-    // checkSenderIsAdmin(s);
-    checkNoAmount(unit);
-
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
-
-    var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
-    end;    
-
-    remove vesteeAddress from map s.vesteeLedger;
-    
-} with (noOperations, s)
-
-function toggleVesteeLock(const vesteeAddress : address; var s : storage) : return is 
-block {
-
-    // Steps Overview:
-    // 1. check if vestee address exists in vestee ledger
-    // 2. lock vestee account
-
-    // checkSenderIsAdmin(s);
-    checkNoAmount(unit);
-
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
-
-    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
-    end;    
-
-    var newStatus : string := "newStatus";
-    if vestee.status = "LOCKED" then newStatus := "ACTIVE"
-      else newStatus := "LOCKED";
-
-    vestee.status := newStatus;
-    s.vesteeLedger[vesteeAddress] := vestee;
-    
-} with (noOperations, s)
-
-
-function updateVestee(const vesteeAddress : address; const newTotalAllocatedAmount : nat; const newCliffInMonths : nat; const newVestingInMonths : nat; var s : storage) : return is
-block {
-
-    // Steps Overview:
-    // 1. check if vestee address exists in vestee ledger
-    // 2. update vestee record based on new params
-
-    // checkSenderIsAdmin(s);
-    checkNoAmount(unit);
-
-    // check sender is from council contract
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
-
-    // check for div by 0 error
-    if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
-        else skip;
-
-    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
-    end;    
-
-    const one_day        : int   = 86_400;
-    const thirty_days    : int   = one_day * 30;
-    
-    vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
-
-    // factor any amount that vestee has claimed so far and update new claim amount per month accordingly
-    var newMonthsRemaining      : nat  := abs(newVestingInMonths - vestee.monthsClaimed); 
-    var newRemainder            : nat  := abs(newTotalAllocatedAmount - vestee.totalClaimed); 
-    var newClaimAmountPerMonth  : nat  := newRemainder / newMonthsRemaining;
-
-    vestee.totalRemainder       := newRemainder;
-    vestee.claimAmountPerMonth  := newClaimAmountPerMonth;
-    vestee.cliffMonths          := newCliffInMonths;
-    vestee.vestingMonths        := newVestingInMonths;
-    vestee.monthsRemaining      := newMonthsRemaining;
-
-    vestee.endCliffBlock        := vestee.startBlock + (newCliffInMonths * s.config.blocksPerMonth);        // calculated end of new cliff duration in block levels based on dateTimeStart
-    vestee.endCliffDateTime     := vestee.startTimestamp + (newCliffInMonths * thirty_days);                // calculated end of new cliff duration in timestamp based on dateTimeStart
-            
-    vestee.endVestingBlock      := vestee.startBlock + (newVestingInMonths * s.config.blocksPerMonth);      // calculated end of new vesting duration in timestamp based on dateTimeStart
-    vestee.endVestingDateTime   := vestee.startTimestamp + (newVestingInMonths * thirty_days);              // calculated end of new vesting duration in timestamp based on dateTimeStart
-
-    // todo bugfix: check that new cliff in months is different from old cliff in months
-
-    // calculate next redemption block based on new cliff months and whether vestee has made a claim 
-    if newCliffInMonths <= vestee.monthsClaimed then block {
-        // no changes to vestee next redemption period
-        vestee.nextRedemptionBlock      := vestee.startBlock + (vestee.monthsClaimed * s.config.blocksPerMonth) + s.config.blocksPerMonth;    //  block level where vestee will be able to claim again (same as end of cliff block)
-        vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (vestee.monthsClaimed * thirty_days) + thirty_days;            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
-    } else block {
-        // cliff has been adjusted upwards, requiring vestee to wait for cliff period to end again before he can start to claim
-        vestee.nextRedemptionBlock      := vestee.startBlock + (newCliffInMonths * s.config.blocksPerMonth);    //  block level where vestee will be able to claim again (same as end of cliff block)
-        vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (newCliffInMonths * thirty_days);            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
-    };
-
-    s.vesteeLedger[vesteeAddress] := vestee;
-
-} with (noOperations, s)
-
-
-function main (const action : vestingAction; const s : storage) : return is 
-    case action of
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
-        
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-
-        | Claim(_params) -> claim(s)
-        | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
-        | RemoveVestee(params) -> removeVestee(params, s)
-        | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
-        | GetVesteeBalance(params) -> getVesteeBalance(params.0, params.1, s)
-        | GetTotalVested(params) -> getTotalVested(params, s)
-
-        | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)        
-    end
+    checkNoAmount(unit); // entrypoints should not receive any tez amount  
+
+} with (case action of [
+
+            // Housekeeping Entrypoints
+        |   SetAdmin(parameters)                    -> setAdmin(parameters, s)  
+        |   SetGovernance(parameters)               -> setGovernance(parameters, s)
+        |   UpdateMetadata(parameters)              -> updateMetadata(parameters, s)
+        |   UpdateWhitelistContracts(parameters)    -> updateWhitelistContracts(parameters, s)
+        |   UpdateGeneralContracts(parameters)      -> updateGeneralContracts(parameters, s)
+        |   MistakenTransfer(parameters)            -> mistakenTransfer(parameters, s)
+
+            // Internal Vestee Control Entrypoints
+        |   AddVestee(parameters)                   -> addVestee(parameters, s)
+        |   RemoveVestee(parameters)                -> removeVestee(parameters, s)
+        |   UpdateVestee(parameters)                -> updateVestee(parameters, s)        
+        |   ToggleVesteeLock(parameters)            -> toggleVesteeLock(parameters, s)
+
+            // Vestee Entrypoints
+        |   Claim(_parameters)                      -> claim(s)
+
+            // Lambda Entrypoints
+        |   SetLambda(parameters)                   -> setLambda(parameters, s)
+    ]
+)

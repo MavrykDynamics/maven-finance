@@ -44,9 +44,9 @@
     ]
   },
   "dependencies": {
-    "@taquito/signer": "^11.0.1",
-    "@taquito/taquito": "^11.0.1",
-    "@taquito/tezbridge-signer": "^10.2.1",
+    "@taquito/signer": "^13.0.0",
+    "@taquito/taquito": "^13.0.0",
+    "@taquito/tezbridge-signer": "^13.0.0",
     "assert": "^2.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1"

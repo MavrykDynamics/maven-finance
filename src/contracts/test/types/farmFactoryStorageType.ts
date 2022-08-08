@@ -2,18 +2,26 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type farmFactoryStorageType = {
-  admin: string;
-  mvkTokenAddress: string;
-  
-  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
-  breakGlassConfig: {
-    createFarmIsPaused: boolean;
-    trackFarmIsPaused: boolean;
-    untrackFarmIsPaused: boolean;
-  }
-  
-  trackedFarms: Array<unknown>;
-  blocksPerMinute: BigNumber
+    admin                 : string;
+    governanceAddress     : string;
+    mvkTokenAddress       : string;
+    metadata              : MichelsonMap<MichelsonMapKey, unknown>;
+    config                : {
+        farmNameMaxLength   : BigNumber
+    };
+    breakGlassConfig      : {
+        createFarmIsPaused  : boolean;
+        trackFarmIsPaused   : boolean;
+        untrackFarmIsPaused : boolean;
+    }
+
+    generalContracts      : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistContracts    : MichelsonMap<MichelsonMapKey, unknown>;
+    
+    trackedFarms          : Array<unknown>;
+
+    lambdaLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+    farmLambdaLedger      : MichelsonMap<MichelsonMapKey, unknown>;
+
 };
