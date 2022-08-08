@@ -334,14 +334,7 @@ block {
                 ];
 
                 // Get Governance Satellite Contract Address from the General Contracts Map on the Governance Contract
-                const governanceSatelliteAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-                const governanceSatelliteAddress : address = case governanceSatelliteAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
                 // Add Aggregator Factory Contract and Governance Satellite Contract to Whitelisted Contracts Map on the new Aggregator Contract
                 const aggregatorWhitelistContracts : whitelistContractsType = map[
@@ -568,14 +561,7 @@ block{
                 const tokenTransferType  : tokenType  = Tez;
 
                 // Get Aggregator Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const aggregatorTreasuryGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "aggregatorTreasury", s.governanceAddress);
-                const treasuryAddress : address = case aggregatorTreasuryGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryAddress : address = getContractAddressFromGovernanceContract("aggregatorTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Create operation to transfer XTZ reward from Aggregator Treasury to oracle recipient
                 const transferTokenParams : transferActionType = list[
@@ -625,14 +611,7 @@ block{
                 if checkInTrackedAggregators(Tezos.get_sender(), s) = True then skip else failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR);
 
                 // Get Delegation Contract Address from the General Contracts Map on the Governance Contract
-                const delegationAddressGeneralContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "delegation", s.governanceAddress);
-                const delegationAddress : address = case delegationAddressGeneralContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DELEGATION_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // Create operation to distribute staked MVK reward to oracle recipient through the %distributeReward entrypoint on the Delegation Contract
                 const rewardParams : distributeRewardStakedMvkType = record [

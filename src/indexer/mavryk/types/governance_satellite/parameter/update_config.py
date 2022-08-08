@@ -19,10 +19,17 @@ class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configPurposeMaxLength: Dict[str, Any]
+    configMaxActionsPerSatellite: Dict[str, Any]
 
 
 class UpdateConfigActionItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configPurposeMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -35,5 +42,8 @@ class UpdateConfigParameter(BaseModel):
 
     updateConfigNewValue: str
     updateConfigAction: Union[
-        UpdateConfigActionItem, UpdateConfigActionItem1, UpdateConfigActionItem2
+        UpdateConfigActionItem,
+        UpdateConfigActionItem1,
+        UpdateConfigActionItem2,
+        UpdateConfigActionItem3,
     ]

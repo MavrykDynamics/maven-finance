@@ -82,5 +82,6 @@ class DelegationStorage(BaseModel):
     breakGlassConfig: BreakGlassConfig
     delegateLedger: Dict[str, DelegateLedger]
     satelliteLedger: Dict[str, SatelliteLedger]
+    satelliteCounter: str
     satelliteRewardsLedger: Dict[str, SatelliteRewardsLedger]
     lambdaLedger: Dict[str, str]

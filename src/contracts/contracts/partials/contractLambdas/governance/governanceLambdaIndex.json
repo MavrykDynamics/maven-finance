@@ -49,46 +49,54 @@
     },
     {
         "index": 12,
-        "name": "lambdaStartNextRound"
+        "name": "lambdaUpdateSatelliteSnapshot"
     },
     {
         "index": 13,
-        "name": "lambdaPropose"
+        "name": "lambdaStartNextRound"
     },
     {
         "index": 14,
-        "name": "lambdaUpdateProposalData"
+        "name": "lambdaPropose"
     },
     {
         "index": 15,
-        "name": "lambdaUpdatePaymentData"
+        "name": "lambdaUpdateProposalData"
     },
     {
         "index": 16,
-        "name": "lambdaLockProposal"
+        "name": "lambdaUpdatePaymentData"
     },
     {
         "index": 17,
-        "name": "lambdaProposalRoundVote"
+        "name": "lambdaLockProposal"
     },
     {
         "index": 18,
-        "name": "lambdaVotingRoundVote"
+        "name": "lambdaProposalRoundVote"
     },
     {
         "index": 19,
-        "name": "lambdaExecuteProposal"
+        "name": "lambdaVotingRoundVote"
     },
     {
         "index": 20,
-        "name": "lambdaProcessProposalPayment"
+        "name": "lambdaExecuteProposal"
     },
     {
         "index": 21,
-        "name": "lambdaProcessProposalSingleData"
+        "name": "lambdaProcessProposalPayment"
     },
     {
         "index": 22,
+        "name": "lambdaProcessProposalSingleData"
+    },
+    {
+        "index": 23,
+        "name": "lambdaDistributeProposalRewards"
+    },
+    {
+        "index": 24,
         "name": "lambdaDropProposal"
     }
 ]

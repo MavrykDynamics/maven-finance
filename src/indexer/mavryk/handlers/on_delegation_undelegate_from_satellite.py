@@ -1,8 +1,8 @@
 
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext
-from mavryk.types.delegation.storage import DelegationStorage
 from mavryk.types.delegation.parameter.undelegate_from_satellite import UndelegateFromSatelliteParameter
+from mavryk.types.delegation.storage import DelegationStorage
 import mavryk.models as models
 
 async def on_delegation_undelegate_from_satellite(
@@ -34,7 +34,9 @@ async def on_delegation_undelegate_from_satellite(
         user        = user,
         delegation  = delegation
     )
+    satellite_record    = await delegationRecord.satellite_record
+    satellite_user      = await satellite_record.user
+    satellite_address   = satellite_user.address
     await user.save()
     await delegationRecord.delete()
     await satelliteRewardRecord.save()
-

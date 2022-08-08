@@ -6,14 +6,17 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
+
+// Votes Helpers
+#include "../partials/shared/voteHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -125,15 +128,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
-
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
     }
@@ -172,6 +167,540 @@ function checkNoAmount(const _p : unit) : unit is
 
 
 // ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to check if a satellite can interact with an action
+function validateAction(const actionRecord : breakGlassActionRecordType) : unit is
+block {
+
+    // Check if governance satellite action has been flushed
+    if actionRecord.status    = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)  else skip;
+
+    // Check if governance satellite action has already been executed
+    if actionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED) else skip;
+
+    // check that break glass action has not expired
+    if Tezos.get_now() > actionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
+
+} with (unit)
+
+
+// helper function to create a break glass action
+function createBreakGlassAction(const actionType : string; const addressMap : addressMapType ; const stringMap : stringMapType; const natMap : natMapType; var s : breakGlassStorageType) : breakGlassStorageType is
+block {
+
+    var actionRecord : breakGlassActionRecordType := record[
+
+        initiator             = Tezos.get_sender();
+        status                = "PENDING";
+        actionType            = actionType;
+        executed              = False;
+
+        signers               = set[Tezos.get_sender()];
+        signersCount          = 1n;
+
+        addressMap            = addressMap;
+        stringMap             = stringMap;
+        natMap                = natMap;
+
+        startDateTime         = Tezos.get_now();
+        startLevel            = Tezos.get_level();             
+        executedDateTime      = Tezos.get_now();
+        executedLevel         = Tezos.get_level();
+        expirationDateTime    = Tezos.get_now() + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (s)
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Sign Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to trigger the flush action action during the sign
+function triggerFlushActionAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+block {
+
+    // fetch params begin ---
+    const flushedActionId : nat = case actionRecord.natMap["actionId"] of [
+            Some(_nat) -> _nat
+        |   None       -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    // fetch params end ---
+
+    var flushedActionRecord : breakGlassActionRecordType := case s.actionsLedger[flushedActionId] of [     
+            Some(_record) -> _record
+        |   None          -> failwith(error_COUNCIL_ACTION_NOT_FOUND)
+    ];
+
+    // Check if action was previously flushed or executed
+    if flushedActionRecord.executed then failwith(error_COUNCIL_ACTION_EXECUTED)
+    else skip;
+
+    if flushedActionRecord.status = "FLUSHED" then failwith(error_COUNCIL_ACTION_FLUSHED)
+    else skip;
+
+    flushedActionRecord.status := "FLUSHED";
+    s.actionsLedger[flushedActionId] := flushedActionRecord;
+
+} with (s)
+
+
+
+// helper function to trigger the add council member action during the sign
+function triggerAddCouncilMemberAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+block {
+
+    // fetch params begin ---
+    const councilMemberAddress : address = case actionRecord.addressMap["councilMemberAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    ];
+
+    const councilMemberName : string = case actionRecord.stringMap["councilMemberName"] of [
+            Some(_string) -> _string
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const councilMemberImage : string = case actionRecord.stringMap["councilMemberImage"] of [
+            Some(_string) -> _string
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const councilMemberWebsite : string = case actionRecord.stringMap["councilMemberWebsite"] of [
+            Some(_string) -> _string
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    // fetch params end ---
+    
+    // Validate inputs
+    if String.length(councilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    if String.length(councilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
+    const councilMemberInfo: councilMemberInfoType  = record[
+        name    = councilMemberName;
+        image   = councilMemberImage;
+        website = councilMemberWebsite;
+    ];
+
+    // Check if new council member is already in the council
+    if Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+
+} with (s)
+
+
+
+// helper function to trigger the remove council member action during the sign
+function triggerRemoveCouncilMemberAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+block {
+
+    // fetch params begin ---
+    const councilMemberAddress : address = case actionRecord.addressMap["councilMemberAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    // fetch params end ---
+
+    // Check if council member is in the council
+    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    else skip;
+
+    // Check if removing the council member won't impact the threshold
+    if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
+    else skip;
+
+    s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
+
+} with (s)
+
+
+
+// helper function to trigger the change council member action during the sign
+function triggerChangeCouncilMemberAction(const actionRecord : breakGlassActionRecordType; var s : breakGlassStorageType) : breakGlassStorageType is 
+block {
+
+    // fetch params begin ---
+    const oldCouncilMemberAddress : address = case actionRecord.addressMap["oldCouncilMemberAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const newCouncilMemberAddress : address = case actionRecord.addressMap["newCouncilMemberAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const councilMemberName : string = case actionRecord.stringMap["newCouncilMemberName"] of [
+            Some(_string) -> _string
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const councilMemberImage : string = case actionRecord.stringMap["newCouncilMemberImage"] of [
+            Some(_string) -> _string
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const councilMemberWebsite : string = case actionRecord.stringMap["newCouncilMemberWebsite"] of [
+            Some(_string) -> _string
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    // fetch params end ---
+
+    // Validate inputs
+    if String.length(councilMemberName)    > s.config.councilMemberNameMaxLength    then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    if String.length(councilMemberImage)   > s.config.councilMemberImageMaxLength   then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+    if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+
+    // Check if new council member is already in the council
+    if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
+    else skip;
+
+    // Check if old council member is in the council
+    if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_NOT_FOUND)
+    else skip;
+
+    const councilMemberInfo: councilMemberInfoType  = record[
+        name    = councilMemberName;
+        image   = councilMemberImage;
+        website = councilMemberWebsite;
+    ];
+
+    s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
+    s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
+
+} with (s)
+
+
+
+// helper function to trigger the pause all entrypoint action during the sign
+function triggerPauseAllEntrypointsAction(var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+block {
+
+    // check that glass is broken
+    checkGlassIsBroken(s);
+
+    // Get General Contracts map from the Governance Contract
+    const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+    const generalContracts : generalContractsType = case generalContractsView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Pause all entrypoints in all contracts in the General Contracts map
+    //  - iterate over contracts map with operation to pause all entrypoints
+    for _contractName -> contractAddress in map generalContracts block {
+        case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
+                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+            |   None        -> skip
+        ];
+    };    
+
+} with (operations)
+
+
+
+// helper function to trigger the unpause all entrypoint action during the sign
+function triggerUnpauseAllEntrypointsAction(var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+block {
+
+    // check that glass is broken
+    checkGlassIsBroken(s);
+
+    // Get General Contracts map from the Governance Contract
+    const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+    const generalContracts : generalContractsType = case generalContractsView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Unpause all entrypoints in all contracts in the General Contracts map
+    //  - iterate over contracts map with operation to unpause all entrypoints
+    for _contractName -> contractAddress in map generalContracts block {
+        case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
+                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+            |   None        -> skip
+        ];
+    };    
+
+} with (operations)
+
+
+
+// helper function to trigger the propagate break glass action during the sign
+function triggerPropagateBreakGlassAction(var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+block {
+    
+    // check that glass is broken
+    checkGlassIsBroken(s);
+
+    // Check if the %propagateBreakGlass entrypoint exists on the Governance Contract
+    const propagateBreakGlassEntrypoint: contract(unit) = case (Tezos.get_entrypoint_opt("%propagateBreakGlass", s.governanceAddress) : option(contract(unit))) of [
+            Some (contr)        -> contr
+        |   None                -> failwith(error_PROPAGATE_BREAK_GLASS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Create operation to trigger propagateBreakGlass entrypoint on the Governance Contract
+    const propagateBreakGlassOperation : operation = Tezos.transaction(
+        unit, 
+        0tez, 
+        propagateBreakGlassEntrypoint
+    );
+
+    operations := propagateBreakGlassOperation # operations;
+
+} with (operations)
+
+
+
+// helper function to trigger the set single contract admin action during the sign
+function triggerSetSingleContractAdminAction(const actionRecord : breakGlassActionRecordType; var operations : list(operation); const s : breakGlassStorageType) : list(operation) is 
+block {
+    
+    // check that glass is broken
+    checkGlassIsBroken(s);
+
+    // fetch params begin ---
+    const newAdminAddress : address = case actionRecord.addressMap["newAdminAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+
+    const targetContractAddress : address = case actionRecord.addressMap["targetContractAddress"] of [
+            Some(_address) -> _address
+        |   None           -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    // fetch params end ---
+
+    // Get whitelist developers map from the Governance Contract
+    const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+    const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
+    const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress : address = case governanceProxyAddressView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
+    if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
+    else failwith(error_DEVELOPER_NOT_WHITELISTED);
+
+    // Create operation to set admin on specified contract
+    const setSingleContractAdminOperation : operation = Tezos.transaction(
+        newAdminAddress, 
+        0tez, 
+        setAdminInContract(targetContractAddress)
+    );
+
+    operations := setSingleContractAdminOperation # operations;
+
+} with (operations)
+
+
+
+// helper function to trigger the all contracts admin action during the sign
+function triggerSetAllContractsAdminAction(const actionRecord : breakGlassActionRecordType; var operations : list(operation); var s : breakGlassStorageType) : return is 
+block {
+
+    // check that glass is broken
+    checkGlassIsBroken(s);
+
+    // fetch params begin ---
+    const newAdminAddress : address = case actionRecord.addressMap["newAdminAddress"] of [
+            Some(_address) -> _address
+        |   None          -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
+    ];
+    // fetch params end ---
+
+    // Get whitelist developers map from the Governance Contract
+    const whitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+    const whitelistDevelopers : whitelistDevelopersType = case whitelistDevelopersView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_WHITELIST_DEVELOPERS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+    
+    // Get Governance Proxy Contract address from the General Contracts map on the Governance Contract
+    const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress : address = case governanceProxyAddressView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Check if the admin address is contained within the whitelistDevelopers map, or is the Governance Proxy Address, or is the Break Glass Contract (self)
+    if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.get_self_address() or newAdminAddress = governanceProxyAddress then skip
+    else failwith(error_DEVELOPER_NOT_WHITELISTED);
+
+    // Set new contract admin of the Break Glass contract
+    s.admin := newAdminAddress;
+
+    // -----------------
+    // Set all contracts in generalContracts map to new admin address
+    // -----------------
+
+    // Get General Contracts map from the Governance Contract
+    const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+    const generalContracts : generalContractsType = case generalContractsView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Create a set to remove duplicate contract addresses (as General Contracts map may contain duplicate addresses)
+    var uniqueContracts : set(address) := (Set.empty: set(address));
+    
+    function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
+        // Add address to the set except self
+        if generalContract.1 = Tezos.get_self_address() then contractsSet else Set.add(generalContract.1, contractsSet);
+
+    uniqueContracts := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
+
+    // Reset all contracts admin to the new admin address
+    //  - iterate over unique contracts set with setAdmin operation
+    function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
+        case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
+                Some (_setAdmin)    -> Tezos.transaction(newAdminAddress, 0tez, _setAdmin) # operationList
+            |   None                -> operationList
+        ];
+
+    operations := Set.fold(setAdminFold, uniqueContracts, operations);
+
+} with (operations, s)
+
+
+
+// helper function to trigger the remove break glass control action during the sign
+function triggerRemoveBreakGlassControlAction(var operations : list(operation); var s : breakGlassStorageType) : return is 
+block {
+
+    // remove access to protected Break Glass entrypoints                        
+    // N.B. important to ensure proper settings configuration has been done before this entrypoint is triggered
+    //   - relevant entrypoints unpaused, admin set to Break Glass Contract
+
+    checkGlassIsBroken(s); // check that glass is broken
+
+    // Get Governance proxy address from the General Contracts map on the Governance Contract
+    const governanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress : address = case governanceProxyAddressView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Set admin of the Break Glass contract to the Governance Proxy Contract
+    s.admin := governanceProxyAddress;
+
+    // Get General Contracts map from the Governance Contract
+    const generalContractsView : option (generalContractsType) = Tezos.call_view ("getGeneralContracts", unit, s.governanceAddress);
+    const generalContracts : generalContractsType = case generalContractsView of [
+            Some (value) -> value
+        |   None         -> failwith (error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+    ];
+
+    // Create a set to remove duplicate contract addresses (as General Contracts map may contain duplicate addresses)
+    var uniqueContracts : set(address)    := (Set.empty: set(address));
+
+    function generalContractsFold(const contractsSet: set(address); const generalContract: string * address) : set(address) is
+        // Add address to the set except self
+        if generalContract.1 = Tezos.get_self_address() then contractsSet else Set.add(generalContract.1, contractsSet);
+    
+    uniqueContracts := Map.fold(generalContractsFold, generalContracts, uniqueContracts);
+
+    // Reset all contracts admin to Governance Proxy contract
+    //  - iterate over unique contracts set with operation to set admin as the Governance Proxy Contract
+    function setAdminFold(const operationList: list(operation); const singleContractAddress : address) : list(operation) is
+        case (Tezos.get_entrypoint_opt("%setAdmin", singleContractAddress) : option(contract(address))) of [
+                Some (_setAdmin)    -> Tezos.transaction(governanceProxyAddress, 0tez, _setAdmin) # operationList
+            |   None                -> operationList
+        ];
+    operations := Set.fold(setAdminFold, uniqueContracts, operations);
+
+    // Set glassBroken boolean to False (removes access to protected Break Glass entrypoints)
+    s.glassBroken := False;
+
+} with (operations, s)
+
+
+
+// helper function to execute a break glass action during the sign
+function executeBreakGlassAction(var actionRecord : breakGlassActionRecordType; const actionId : actionIdType; var operations : list(operation); var s : breakGlassStorageType) : return is 
+block {
+
+    // --------------------------------------
+    // execute action based on action types
+    // --------------------------------------
+
+    const actionType : string = actionRecord.actionType;
+
+    // flush action type
+    if actionType = "flushAction" then s                                := triggerFlushActionAction(actionRecord, s);
+
+    // addCouncilMember action type
+    if actionType = "addCouncilMember" then s                           := triggerAddCouncilMemberAction(actionRecord, s);
+
+    // removeCouncilMember action type
+    if actionType = "removeCouncilMember" then s                        := triggerRemoveCouncilMemberAction(actionRecord, s);
+
+    // changeCouncilMember action type
+    if actionType = "changeCouncilMember" then s                        := triggerChangeCouncilMemberAction(actionRecord, s);
+
+    // pauseAllEntrypoints action type
+    if actionType = "pauseAllEntrypoints" then operations            := triggerPauseAllEntrypointsAction(operations, s);
+
+    // unpauseAllEntrypoints action type
+    if actionType = "unpauseAllEntrypoints" then operations          := triggerUnpauseAllEntrypointsAction(operations, s);
+
+    // propagateBreakGlass action type
+    if actionType = "propagateBreakGlass" then operations            := triggerPropagateBreakGlassAction(operations, s);
+
+    // setSingleContractAdmin action type
+    if actionType = "setSingleContractAdmin" then operations         := triggerSetSingleContractAdminAction(actionRecord, operations, s);
+
+    // setAllContractsAdmin action type
+    if actionType = "setAllContractsAdmin" then block {
+        const triggerSetAllContractsAdminActionTrigger : return         = triggerSetAllContractsAdminAction(actionRecord, operations, s);
+        s               := triggerSetAllContractsAdminActionTrigger.1;
+        operations   := triggerSetAllContractsAdminActionTrigger.0;
+    } else skip;
+
+    // removeBreakGlassControl action type
+    if actionType = "removeBreakGlassControl" then block {
+        const triggerRemoveBreakGlassControlActionTrigger : return      = triggerRemoveBreakGlassControlAction(operations, s);
+        s               := triggerRemoveBreakGlassControlActionTrigger.1;
+        operations   := triggerRemoveBreakGlassControlActionTrigger.0;
+    } else skip;
+        
+    // update break glass action record status
+    actionRecord.status              := "EXECUTED";
+    actionRecord.executed            := True;
+    actionRecord.executedDateTime    := Tezos.get_now();
+    actionRecord.executedLevel       := Tezos.get_level();
+    
+    // save break glass action record
+    s.actionsLedger[actionId]         := actionRecord;
+
+} with (operations, s)
+
+// ------------------------------------------------------------------------------
+// Sign Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
@@ -200,7 +729,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -211,7 +740,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

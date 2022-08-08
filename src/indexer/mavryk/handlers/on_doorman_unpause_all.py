@@ -9,6 +9,7 @@ async def on_doorman_unpause_all(
     ctx: HandlerContext,
     unpause_all: Transaction[UnpauseAllParameter, DoormanStorage],
 ) -> None:
+
     # Get doorman contract
     doorman_address = unpause_all.data.target_address
     doorman         = await models.Doorman.get(address=doorman_address)
