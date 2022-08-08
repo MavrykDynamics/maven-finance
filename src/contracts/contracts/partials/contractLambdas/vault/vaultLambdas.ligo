@@ -319,14 +319,14 @@ block {
                     |   Fa12(token) -> block {
                         
                             // check collateral token contract address exists in USDM Token controller collateral token ledger
-                            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token, s.admin);
-                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
+                            const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", token, s.admin);
+                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
                                     Some (_opt)    -> _opt
-                                |   None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
+                                |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND)
                             ];
                             const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                                     Some(_record)  -> _record
-                                |   None           -> failwith ("Error. Collateral Token Record not found.")
+                                |   None           -> failwith (error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                             ];
 
                             const transferOperation : operation = transferFa12Token(from_, to_, amt, token)
@@ -336,14 +336,14 @@ block {
                     |   Fa2(token)  -> block{
                         
                             // check collateral token contract address exists in USDM Token controller collateral token ledger
-                            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
-                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
+                            const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
+                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
                                     Some (_opt)    -> _opt
-                                |   None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
+                                |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND)
                             ];
                             const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                                     Some(_record)  -> _record
-                                |   None           -> failwith ("Error. Collateral Token Record not found.")
+                                |   None           -> failwith (error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                             ];
 
                             const transferOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
@@ -389,7 +389,7 @@ block {
                     const amt        : nat        = vaultDepositParams.amount;
                     const token      : tokenType  = vaultDepositParams.token;
 
-                    if to_ =/= s.admin then failwith("Error. Deposit address should be admin.") else skip;
+                    // if to_ =/= s.admin then failwith("Error. Deposit address should be admin.") else skip;
 
                     case token of [
 
@@ -425,14 +425,14 @@ block {
                             checkNoAmount(Unit);
 
                             // check collateral token contract address exists in USDM Token controller collateral token ledger
-                            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token, s.admin);
-                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
+                            const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", token, s.admin);
+                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
                                 Some (_opt)    -> _opt
-                                | None           -> failwith ("Error. getContractAddressOpt not found in contract.")
+                                | None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND)
                             ];
                             const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                                 Some(_record)  -> _record
-                                | None           -> failwith ("Error. Collateral Token Record not found.")
+                                | None           -> failwith (error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                             ];
 
                             // transfer tokens to vault
@@ -463,14 +463,14 @@ block {
                             checkNoAmount(Unit);
                             
                             // check collateral token contract address exists in USDM Token controller collateral token ledger
-                            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
-                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
-                                Some (_opt)    -> _opt
-                                | None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
+                            const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
+                            const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
+                                    Some (_opt)    -> _opt
+                                |   None           -> failwith (error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND)
                             ];
                             const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                                 Some(_record)  -> _record
-                                | None           -> failwith ("Error. Collateral Token Record not found.")
+                                | None           -> failwith (error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                             ];
 
                             // transfer tokens to vault

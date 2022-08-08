@@ -27,6 +27,8 @@ import { vaultStorageType } from "../test/types/vaultStorageType"
 describe("Lending Controller tests", async () => {
     
     var utils: Utils
+    var eveVaultSet = []
+    var malloryVaultSet = [] 
 
     let doormanInstance
     let delegationInstance
@@ -101,7 +103,7 @@ describe("Lending Controller tests", async () => {
                 
                 // init variables
                 await signerFactory(eve.sk);
-                const vaultId       = 1;
+                const vaultId       = parseInt(lendingControllerStorage.vaultCounter);
                 const vaultOwner    = eve.pkh;
                 const depositors    = "any";
                 const loanTokenName = "usdt";
@@ -114,10 +116,7 @@ describe("Lending Controller tests", async () => {
                         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
                     }),
                     'ascii',
-                ).toString('hex')
-
-                const lendingControllerParameterSchema = lendingControllerInstance.parameterSchema.ExtractSchema();
-                console.log(JSON.stringify(lendingControllerParameterSchema,null,2));
+                ).toString('hex');
 
                 // user (eve) creates a new vault with no tez
                 const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
@@ -128,12 +127,12 @@ describe("Lending Controller tests", async () => {
                 ).send();
                 await userCreatesNewVaultOperation.confirmation();
 
-                const updatedTokenControllerStorage = await lendingControllerInstance.storage();
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
                 const vaultHandle = {
                     "id"    : vaultId,
                     "owner" : vaultOwner
                 };
-                const vaultRecord = await updatedTokenControllerStorage.vaults.get(vaultHandle);
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
                 assert.equal(vaultRecord.loanToken              , loanTokenName);
                 assert.equal(vaultRecord.loanOutstandingTotal   , 0);
@@ -143,9 +142,10 @@ describe("Lending Controller tests", async () => {
                 const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
                 const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-                console.log(vaultOriginatedContractStorage);
-                console.log(vaultOriginatedContractStorage.depositors);
+                assert.equal(vaultOriginatedContractStorage.admin , lendingControllerAddress.address);
 
+                // push new vault id to vault set
+                eveVaultSet.push(vaultId);
 
             } catch(e){
                 console.log(e);
@@ -153,46 +153,62 @@ describe("Lending Controller tests", async () => {
 
         });    
 
-        // it('user (mallory) can create a new vault (depositors: whitelist set) with no tez', async () => {
-        //     try{        
+        it('user (mallory) can create a new vault (depositors: whitelist set) with no tez', async () => {
+            try{        
 
-        //         // init variables
-        //         await signerFactory(mallory.sk);
-        //         const vaultId       = 2;
-        //         const vaultOwner    = mallory.pkh;
-        //         const depositors    = "whitelist";
-        //         const loanTokenName = "USDT";
+                // init variables
+                await signerFactory(mallory.sk);
+                const lendingControllerStorage  = await lendingControllerInstance.storage();
+                const vaultId                   = parseInt(lendingControllerStorage.vaultCounter);
+                const vaultOwner                = mallory.pkh;
+                const depositors                = "whitelist";
+                const loanTokenName             = "usdt";
 
-        //         // user (mallory) creates a new vault with no tez
-        //         const userCreatesANewVaultOperation = await lendingControllerInstance.methods.createVault(
-        //             // vaultId, 
-        //             mallory.pkh,  
-        //             loanTokenName
-        //             depositors,
-        //             [mallory.pkh],
-        
-        //             ).send();
-        //         await userCreatesANewVaultOperation.confirmation();
+                const vaultMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: 'MALLORY VAULT',
+                        description: 'MAVRYK Vault Contract',
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex');
 
-        //         const updatedTokenControllerStorage = await lendingControllerInstance.storage();
-        //         const vaultHandle = {
-        //             "id"    : vaultId,
-        //             "owner" : vaultOwner
-        //         }
-        //         const vault = await updatedTokenControllerStorage.vaults.get(vaultHandle);
+                // user (mallory) creates a new vault with no tez
+                const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
+                    mallory.pkh,  
+                    vaultMetadataBase,    
+                    loanTokenName,
+                    depositors,
+                    [mallory.pkh],
+                ).send();
+                await userCreatesNewVaultOperation.confirmation();
 
-        //         assert.equal(vault.usdmOutstanding, 0);
-        //         // assert.equal(vault.collateralBalanceLedger, {});
-        //         // assert.equal(vault.collateralTokenAddresses, {});
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const vaultHandle = {
+                    "id"    : vaultId,
+                    "owner" : vaultOwner
+                }
+                const vaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
-                
-        //         // console.log(vault);
+                assert.equal(vaultRecord.loanToken              , loanTokenName);
+                assert.equal(vaultRecord.loanOutstandingTotal   , 0);
+                assert.equal(vaultRecord.loanPrincipalTotal     , 0);
+                assert.equal(vaultRecord.loanInterestTotal      , 0);
 
-        //     } catch(e){
-        //         console.log(e);
-        //     } 
+                const vaultOriginatedContract = await utils.tezos.contract.at(vaultRecord.address);
+                const vaultOriginatedContractStorage : vaultStorageType = await vaultOriginatedContract.storage();
 
-        // });    
+                assert.equal(vaultOriginatedContractStorage.admin , lendingControllerAddress.address);
+
+                // push new vault id to vault set
+                malloryVaultSet.push(vaultId);
+
+            } catch(e){
+                console.log(e);
+            } 
+
+        });    
     
     }); // end test: create vaults with no tez
 
@@ -201,257 +217,271 @@ describe("Lending Controller tests", async () => {
     // 
     // Test: Create vaults with tez as initial deposit
     //
-    // describe('test: create vaults with tez as initial deposit', function () {
-    //     it('user (mallory) can create a new vault (depositors: any) with 10 tez as initial deposit', async () => {
-    //         try{        
+    describe('test: create vaults with tez as initial deposit', function () {
+        it('user (mallory) can create a new vault (depositors: any) with 10 tez as initial deposit', async () => {
+            try{        
                 
-    //             // init variables
-    //             await signerFactory(mallory.sk);
-    //             const vaultId     = 3;
-    //             const vaultOwner  = mallory.pkh;
-    //             const depositors  = "any"
-    //             const tezSent     = 10;
-    //             const loanTokenName = "USDT";
+                // init variables
+                await signerFactory(mallory.sk);
+                const lendingControllerStorage  = await lendingControllerInstance.storage();
+                const vaultId                   = parseInt(lendingControllerStorage.vaultCounter);
+                const vaultOwner                = mallory.pkh;
+                const depositors                = "any"
+                const tezSent                   = 10;
+                const loanTokenName             = "usdt";
 
-    //             // user (mallory) creates a new vault
-    //             const userCreatesANewVaultOperation = await lendingControllerInstance.methods.createVault(
-    //                 // vaultId, 
-    //                 mallory.pkh,  
-    //                 depositors,
-    //                 loanTokenName
-    //                 ).send({ amount : tezSent });
-    //             await userCreatesANewVaultOperation.confirmation();
+                const vaultMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: 'MALLORY VAULT (any depositors with Tez)',
+                        description: 'MAVRYK Vault Contract',
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex');
 
-    //             const updatedTokenControllerStorage = await lendingControllerInstance.storage();
-    //             const vaultHandle = {
-    //                 "id"    : vaultId,
-    //                 "owner" : vaultOwner
-    //             };
-    //             const vault                 = await updatedTokenControllerStorage.vaults.get(vaultHandle);
-    //             const tezCollateralBalance  = await vault.collateralBalanceLedger.get('tez');
+                // user (mallory) creates a new vault
+                const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
+                    mallory.pkh,  
+                    vaultMetadataBase,
+                    loanTokenName,
+                    depositors,
+                    ).send({ amount : tezSent });
+                await userCreatesNewVaultOperation.confirmation();
 
-    //             assert.equal(vault.usdmOutstanding, 0);
-    //             assert.equal(tezCollateralBalance, TEZ(tezSent));
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const vaultHandle = {
+                    "id"    : vaultId,
+                    "owner" : vaultOwner
+                };
+                const vaultRecord           = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+                const tezCollateralBalance  = await vaultRecord.collateralBalanceLedger.get('tez');
 
-    //             // console.log(vault);
-    //             // console.log(tezCollateralBalance);
+                assert.equal(tezCollateralBalance, TEZ(tezSent));
 
-    //         } catch(e){
-    //             console.log(e);
-    //         } 
+                // push new vault id to vault set
+                malloryVaultSet.push(vaultId);
 
-    //     });    
+            } catch(e){
+                console.log(e);
+            } 
 
-    //     it('user (eve) can create a new vault (depositors: whitelist set) with 10 tez as initial deposit', async () => {
-    //         try{        
+        });    
+
+        it('user (eve) can create a new vault (depositors: whitelist set) with 10 tez as initial deposit', async () => {
+            try{        
                 
-    //             // init variables
-    //             await signerFactory(eve.sk);
-    //             const vaultId       = 4;
-    //             const vaultOwner    = eve.pkh;
-    //             const depositors    = "whitelist";
-    //             const tezSent       = 10;
-    //             const loanTokenName = "USDT";
+                // init variables
+                await signerFactory(eve.sk);
+                const lendingControllerStorage  = await lendingControllerInstance.storage();
+                const vaultId                   = parseInt(lendingControllerStorage.vaultCounter);
+                const vaultOwner                = eve.pkh;
+                const depositors                = "whitelist";
+                const tezSent                   = 10;
+                const loanTokenName             = "usdt";
 
-    //             // user (eve) creates a new vault
-    //             const userCreatesANewVaultOperation = await lendingControllerInstance.methods.createVault(
-    //                 // vaultId, 
-    //                 eve.pkh,  
-    //                 depositors,
-    //                 [eve.pkh],
-    //                 loanTokenName
-    //                 ).send({ amount: tezSent });
-    //             await userCreatesANewVaultOperation.confirmation();
+                const vaultMetadataBase = Buffer.from(
+                    JSON.stringify({
+                        name: 'MALLORY VAULT (whitelist depositors with Tez)',
+                        description: 'MAVRYK Vault Contract',
+                        version: 'v1.0.0',
+                        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex');
 
-    //             const updatedTokenControllerStorage = await lendingControllerInstance.storage();
-    //             const vaultHandle = {
-    //                 "id"    : vaultId,
-    //                 "owner" : vaultOwner
-    //             }
-    //             const vault                 = await updatedTokenControllerStorage.vaults.get(vaultHandle);
-    //             const tezCollateralBalance  = await vault.collateralBalanceLedger.get('tez');
+                // user (eve) creates a new vault
+                const userCreatesNewVaultOperation = await lendingControllerInstance.methods.createVault(
+                    eve.pkh,  
+                    vaultMetadataBase,
+                    loanTokenName,
+                    depositors,
+                    [eve.pkh],
+                    ).send({ amount: tezSent });
+                await userCreatesNewVaultOperation.confirmation();
 
-    //             assert.equal(vault.usdmOutstanding, 0);
-    //             assert.equal(tezCollateralBalance, TEZ(tezSent));
+                const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+                const vaultHandle = {
+                    "id"    : vaultId,
+                    "owner" : vaultOwner
+                }
+                const vaultRecord           = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+                const tezCollateralBalance  = await vaultRecord.collateralBalanceLedger.get('tez');
 
-    //         } catch(e){
-    //             console.log(e);
-    //         } 
+                assert.equal(tezCollateralBalance, TEZ(tezSent));
 
-    //     });    
+                // push new vault id to vault set
+                eveVaultSet.push(vaultId);
 
-    // }); // end test: create vaults with tez as initial deposit
+            } catch(e){
+                console.log(e);
+            } 
+
+        });    
+
+    }); // end test: create vaults with tez as initial deposit
 
 
 
     // 
     // Test: Deposit tez into vault
     //
-    // describe('test: deposit tez into vault', function () {
+    describe('test: deposit tez into vault', function () {
     
-    //     it('user (eve) can deposit tez into her vault (depositors: any)', async () => {
+        it('user (eve) can deposit tez into her vault (depositors: any)', async () => {
             
-    //         // init variables
-    //         await signerFactory(eve.sk);
-    //         const vaultId            = 1;
-    //         const vaultOwner         = eve.pkh;
-    //         const depositAmountMutez = 10000000;
-    //         const depositAmountTez   = 10;
+            // init variables
+            await signerFactory(eve.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+            const depositAmountMutez = 10000000;
+            const depositAmountTez   = 10;
 
-    //         const vaultHandle = {
-    //             "id"     : vaultId,
-    //             "owner"  : vaultOwner
-    //         };
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
 
-    //         const lendingControllerStorage      = await lendingControllerInstance.storage();
-    //         const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
 
-    //         // get vault contract
-    //         const vaultAddress             = vault.address;
-    //         const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-    //         const eveVaultInstanceStorage  = await eveVaultInstance.storage();
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+            const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-    //         const eveDepositTezOperation  = await eveVaultInstance.methods.vaultDeposit(
-    //             eve.pkh,                              // from_
-    //             lendingControllerAddress.address,     // to_
-    //             depositAmountMutez,                   // amt
-    //             "tez"                                 // token
-    //         ).send({ mutez : true, amount : depositAmountMutez });
-    //         await eveDepositTezOperation.confirmation();
+            const eveDepositTezOperation  = await eveVaultInstance.methods.vaultDeposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            ).send({ mutez : true, amount : depositAmountMutez });
+            await eveDepositTezOperation.confirmation();
 
-
-    //         const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-    //         const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-    //         const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
-    //         assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
+            assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
 
-    //     });
+        });
 
-    //     it('user (mallory) can deposit tez into user (eve)\'s vault (depositors: any)', async () => {
+        it('user (mallory) can deposit tez into user (eve)\'s vault (depositors: any)', async () => {
             
-    //         // init variables
-    //         await signerFactory(mallory.sk);
-    //         const vaultId            = 1;
-    //         const vaultOwner         = eve.pkh;
+            // init variables
+            await signerFactory(mallory.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
 
-    //         const depositAmountMutez = 10000000;
-    //         const depositAmountTez   = 10;
-    //         const finalAmountMutez   = 20000000;
-    //         const finalAmountTez     = 20;
+            const depositAmountMutez = 10000000;
+            const depositAmountTez   = 10;
+            const finalAmountMutez   = 20000000;
+            const finalAmountTez     = 20;
 
-    //         const vaultHandle = {
-    //             "id"    : vaultId,
-    //             "owner" : vaultOwner
-    //         };
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
 
-    //         const lendingControllerStorage      = await lendingControllerInstance.storage();
-    //         const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-    //         const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
 
-    //         // check that initial tez collateral balance is now ten tez
-    //         assert.equal(initialTezCollateralBalance, TEZ(10));
+            // check that initial tez collateral balance is now ten tez
+            assert.equal(initialTezCollateralBalance, TEZ(10));
 
-    //         // get vault contract
-    //         const vaultAddress             = vault.address;
-    //         const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
-    //         const eveVaultInstanceStorage  = await eveVaultInstance.storage();
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const eveVaultInstance         = await utils.tezos.contract.at(vaultAddress);
+            const eveVaultInstanceStorage  = await eveVaultInstance.storage();
 
-    //         const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.vaultDeposit(
-    //             mallory.pkh,                          // from_
-    //             lendingControllerAddress.address,     // to_
-    //             depositAmountMutez,                   // amt
-    //             "tez"                                 // token
-    //         ).send({ mutez : true, amount : depositAmountMutez });
-    //         await malloryDepositTezIntoEveVaultOperation.confirmation();
+            const malloryDepositTezIntoEveVaultOperation  = await eveVaultInstance.methods.vaultDeposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            ).send({ mutez : true, amount : depositAmountMutez });
+            await malloryDepositTezIntoEveVaultOperation.confirmation();
 
-    //         const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-    //         const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-    //         const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
-    //         // check that tez balance is now 20 tez
-    //         assert.equal(tezCollateralBalance, TEZ(finalAmountTez));
+            // check that tez balance is now 20 tez
+            assert.equal(tezCollateralBalance, TEZ(finalAmountTez));
 
-    //     });
+        });
 
-    //     it('user (mallory) deposit tez into her vault (depositors: whitelist set)', async () => {
+        it('user (mallory) deposit tez into her vault (depositors: whitelist set)', async () => {
             
-    //         // init variables
-    //         await signerFactory(mallory.sk);
-    //         const vaultId            = 2;
-    //         const vaultOwner         = mallory.pkh;
+            // init variables
+            await signerFactory(mallory.sk);
+            const vaultId            = malloryVaultSet[0];;
+            const vaultOwner         = mallory.pkh;
     
-    //         const depositAmountMutez = 10000000;
-    //         const depositAmountTez   = 10;
+            const depositAmountMutez = 10000000;
+            const depositAmountTez   = 10;
     
-    //         const vaultHandle = {
-    //             "id"     : vaultId,
-    //             "owner"  : vaultOwner
-    //         };
+            const vaultHandle = {
+                "id"     : vaultId,
+                "owner"  : vaultOwner
+            };
     
-    //         const lendingControllerStorage      = await lendingControllerInstance.storage();
-    //         const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
     
-    //         // get vault contract
-    //         const vaultAddress             = vault.address;
-    //         const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
-    //         const vaultInstanceStorage     = await vaultInstance.storage();
+            // get vault contract
+            const vaultAddress             = vault.address;
+            const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
+            const vaultInstanceStorage     = await vaultInstance.storage();
     
-    //         const malloryDepositTezOperation  = await vaultInstance.methods.vaultDeposit(
-    //             mallory.pkh,                          // from_
-    //             lendingControllerAddress.address,     // to_
-    //             depositAmountMutez,                   // amt
-    //             "tez"                                 // token
-    //         ).send({ mutez : true, amount : depositAmountMutez });
-    //         await malloryDepositTezOperation.confirmation();
+            const malloryDepositTezOperation  = await vaultInstance.methods.vaultDeposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            ).send({ mutez : true, amount : depositAmountMutez });
+            await malloryDepositTezOperation.confirmation();
     
-    //         const updatedLendingControllerStorage = await lendingControllerInstance.storage();
-    //         const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
-    //         const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedVault                    = await updatedLendingControllerStorage.vaults.get(vaultHandle);
+            const tezCollateralBalance            = await updatedVault.collateralBalanceLedger.get('tez');
             
-    //         assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
+            assert.equal(tezCollateralBalance, TEZ(depositAmountTez));
     
-    //     });
+        });
     
-    //     it('user (eve) cannot deposit tez into user (mallory)\'s vault (depositors: whitelist set)', async () => {
+        it('user (eve) cannot deposit tez into user (mallory)\'s vault (depositors: whitelist set)', async () => {
                 
-    //         // init variables
-    //         await signerFactory(eve.sk);
-    //         const vaultId            = 2;
-    //         const vaultOwner         = mallory.pkh;
-    //         const depositAmountMutez = 10000000;
-    //         const depositAmountTez   = 10;
-    //         const finalAmountMutez   = 20000000;
-    //         const finalAmountTez     = 20;
+            // init variables
+            await signerFactory(eve.sk);
+            const vaultId            = malloryVaultSet[0];
+            const vaultOwner         = mallory.pkh;
+            const depositAmountMutez = 10000000;
+            const depositAmountTez   = 10;
+            const finalAmountMutez   = 20000000;
+            const finalAmountTez     = 20;
     
-    //         const vaultHandle = {
-    //             "id"    : vaultId,
-    //             "owner" : vaultOwner
-    //         };
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
     
-    //         const lendingControllerStorage      = await lendingControllerInstance.storage();
-    //         const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
-    //         const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
+            const lendingControllerStorage      = await lendingControllerInstance.storage();
+            const vault                         = await lendingControllerStorage.vaults.get(vaultHandle);
+            const initialTezCollateralBalance   = await vault.collateralBalanceLedger.get('tez');
     
-    //         // check that initial tez collateral balance is now ten tez (from previous test)
-    //         assert.equal(initialTezCollateralBalance, TEZ(10));
+            // check that initial tez collateral balance is now ten tez (from previous test)
+            assert.equal(initialTezCollateralBalance, TEZ(10));
     
-    //         // get vault contract
-    //         const vaultAddress              = vault.address;
-    //         const vaultInstance             = await utils.tezos.contract.at(vaultAddress);
-    //         const vaultInstanceStorage      = await vaultInstance.storage();
+            // get vault contract
+            const vaultAddress              = vault.address;
+            const vaultInstance             = await utils.tezos.contract.at(vaultAddress);
+            const vaultInstanceStorage      = await vaultInstance.storage();
     
-    //         const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.vaultDeposit(
-    //             eve.pkh,                              // from_
-    //             lendingControllerAddress.address,     // to_
-    //             depositAmountMutez,                   // amt
-    //             "tez"                                 // token
-    //         );
-    //         await chai.expect(failEveDepositTezIntoMalloryVaultOperation.send({ mutez : true, amount : depositAmountMutez })).to.be.rejected;    
+            const failEveDepositTezIntoMalloryVaultOperation  = await vaultInstance.methods.vaultDeposit(
+                depositAmountMutez,                   // amt
+                "tez"                                 // token
+            );
+            await chai.expect(failEveDepositTezIntoMalloryVaultOperation.send({ mutez : true, amount : depositAmountMutez })).to.be.rejected;    
     
-    //     });
+        });
 
-    // }); // end test: deposit tez into vault
+    }); // end test: deposit tez into vault
 
 
 
