@@ -195,8 +195,8 @@ describe("Testnet interactions helper", async () => {
             console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
 
             // Admin sends 2000XTZ to treasury contract
-            // const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
-            // await transferOperation.confirmation();
+            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            await transferOperation.confirmation();
 
         } catch(e){
             console.log(e)
@@ -698,6 +698,13 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 // Start governance cycle to validate satellite
+
+                var updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                await updateOperation.confirmation();
+                updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                await updateOperation.confirmation();
+                updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                await updateOperation.confirmation();
                 const nextRoundOperation    = await governanceInstance.methods.startNextRound(false).send();
                 await nextRoundOperation.confirmation();
             } catch(e){
@@ -2526,6 +2533,13 @@ describe("Testnet interactions helper", async () => {
     })
 
     describe("GOVERNANCE", async () => {
+
+        before("Set FarmFactory admin", async () => {
+            // Set the farm factory admin
+            const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+            await setAdminOperation.confirmation()
+        })
+
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
         });
@@ -2754,10 +2768,6 @@ describe("Testnet interactions helper", async () => {
 
         it('Admin executes an entire proposal (with %executeProposal)', async () => {
             try{
-                // Set the farm factory admin
-                const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                await setAdminOperation.confirmation()
-
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 const proposalId            = governanceStorage.nextProposalId.toNumber();

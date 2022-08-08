@@ -503,7 +503,6 @@ block {
                 const mvkLoyaltyIndex : nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
                 
                 // Calculate Exit Fee
-                //const exitFee : nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
                 const exitFeeWithoutFloatingPoint : nat = abs(300_000n * fixedPointAccuracy - 5_250n * mvkLoyaltyIndex)*fixedPointAccuracy + (25n * mvkLoyaltyIndex * mvkLoyaltyIndex);
                 const exitFee                     : nat = exitFeeWithoutFloatingPoint / (10_000n * fixedPointAccuracy);
 
