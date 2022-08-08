@@ -5,9 +5,10 @@ import { State } from 'reducers'
 // view
 import { Button } from '../../Button/Button.controller'
 import { Input, InputStatusType } from '../../Input/Input.controller'
+import CoinsIcons from '../../Icon/CoinsIcons.view'
 
 // helpers
-import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../../utils/validatorFunctions'
+import { mathRoundTwoDigit } from '../../../../utils/validatorFunctions'
 
 // actions
 import { deposit } from '../../../../pages/Farms/Farms.actions'
@@ -16,9 +17,6 @@ import { deposit } from '../../../../pages/Farms/Farms.actions'
 import { ModalCard, ModalCardContent } from '../../../../styles'
 import {
   FarmCardContentSection,
-  FarmCardFirstTokenIcon,
-  FarmCardSecondTokenIcon,
-  FarmCardTokenLogoContainer,
   FarmCardTopSection,
   FarmTitleSection,
   FarmInputSection,
@@ -67,10 +65,7 @@ export const FarmDepositModal = ({ loading, cancelCallback }: { loading: boolean
       <ModalCardContent className="farm-modal">
         <FarmCardTopSection>
           <FarmCardContentSection>
-            <FarmCardTokenLogoContainer>
-              <FarmCardFirstTokenIcon src={'/images/coin-gold.svg'} />
-              <FarmCardSecondTokenIcon src={'/images/coin-silver.svg'} />
-            </FarmCardTokenLogoContainer>
+            <CoinsIcons />
             <FarmTitleSection>
               <h3>Stake MVK-tzBTC LP Tokens</h3>
             </FarmTitleSection>

@@ -16,6 +16,8 @@ import { deposit, harvest, withdraw } from '../Farms.actions'
 import { ButtonIcon } from '../../../app/App.components/Button/Button.style'
 import { showModal } from '../../../app/App.components/Modal/Modal.actions'
 import Icon from '../../../app/App.components/Icon/Icon.view'
+import RoiCalculator from '../RoiCalculator/RoiCalculator.controller'
+import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
 
 // const
 import { SELECT_FARM_ADDRESS } from '../Farms.actions'
@@ -25,13 +27,7 @@ import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/M
 import { calculateAPR } from '../Frams.helpers'
 
 // styles
-import {
-  FarmCardFirstTokenIcon,
-  FarmCardSecondTokenIcon,
-  FarmCardStyled,
-  FarmCardTokenLogoContainer,
-  FarmHarvestStyled,
-} from './FarmCard.style'
+import { FarmCardStyled, FarmHarvestStyled } from './FarmCard.style'
 
 type FarmCardProps = {
   name: string
@@ -63,6 +59,7 @@ export const FarmCard = ({
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const [visibleModal, setVisibleModal] = useState(false)
   const myFarmStakedBalance = 45645.8987
   const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
 
@@ -82,10 +79,7 @@ export const FarmCard = ({
 
   const logoHeaderContent = (
     <div className="farm-card-header">
-      <FarmCardTokenLogoContainer>
-        <FarmCardFirstTokenIcon src={'/images/coin-gold.svg'} />
-        <FarmCardSecondTokenIcon src={'/images/coin-silver.svg'} />
-      </FarmCardTokenLogoContainer>
+      <CoinsIcons />
       <div className="farm-card-section">
         <h3>
           {/* {firstToken}-{secondToken} */}
@@ -108,7 +102,7 @@ export const FarmCard = ({
       <h3>APY</h3>
       <div className="btn-info">
         <var>{valueAPR}</var>
-        <button className="calc-button">
+        <button onClick={() => setVisibleModal(true)} className="calc-button">
           <Icon id="calculator" />
         </button>
       </div>
@@ -219,6 +213,7 @@ export const FarmCard = ({
             {linksBlock}
           </>
         </Expand>
+        {visibleModal ? <RoiCalculator onClose={() => setVisibleModal(false)} /> : null}
       </FarmCardStyled>
     )
   }
@@ -243,6 +238,7 @@ export const FarmCard = ({
           {farmingBlock}
         </div>
       </Expand>
+      {visibleModal ? <RoiCalculator onClose={() => setVisibleModal(false)} /> : null}
     </FarmCardStyled>
   )
 }
