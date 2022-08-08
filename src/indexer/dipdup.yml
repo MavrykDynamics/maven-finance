@@ -33,52 +33,52 @@ contracts:
     address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
     typename: liquidity_baking
   mvk:
-    address: KT1Tb58w7AtHo7PE9izLVMhVxZe7A51jGTAD
+    address: KT192v2xcsPVAoskhDguRGEz7hqsAVJ4MQtC
     typename: mvk
   governance:
-    address: KT1RUWTJqH1oozLuHS9AoPni9zFKNEysXZwP
+    address: KT1WHrvLPYe9BwGrrrecTvP8sMMQNWLvHgeo
     typename: governance
   doorman:
-    address: KT1E6Rm9speuNjJiR5AwRBQHsYPUvCE2A4eb
+    address: KT1J3DBsCtT3b2gQnh93sEp8RYZtm9qvKzzs
     typename: doorman
   farm:
-    address: KT1STegKh48tDDhD1gPSLBCHSJdAbuadCEoJ #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
+    address: KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74 #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
     typename: farm
   farm_factory:
-    address: KT1NYbCPvbPnqE9vRD3VbD6VLk5Yqhkjcaoq
+    address: KT18cWwjTscZey2VvN6dy1h3bSTotjpUKqZq
     typename: farm_factory
   delegation:
-    address: KT1Mjk2ShBdqWUBaBgikvwMGsya1xp2oUydo
+    address: KT1TiD8PAqz6cF9fNkySyQmW93any7TrNhab
     typename: delegation
   vesting:
-    address: KT1G9LDbPoKysVnoQqyC5HVRursov7GtWQrv
+    address: KT1PXkvDio6sjem4tZ1cXhKsji9A3naZd73r
     typename: vesting
   emergency_governance:
-    address: KT1NoM6ezyks9C4Z1JhC8cCSCPT7cNQBQ1z4
+    address: KT1BeKpjRUSTkykiAGGGzfgiVFpRb5Dk3SGo
     typename: emergency_governance
   council:
-    address: KT1EgRoWXgSvyhMiqhJcMQibnFMDyfaBg1cg
+    address: KT1SR8Hutr5TFWDUuNncg6pjXrcMkjQJjfKm
     typename: council
   break_glass:
-    address: KT1R5Teaq8sc7zjbtDzS4NTJenQ3HD5awGvB
+    address: KT1S4B8HWNj5QBrYLSSVQfECpwCaBU6rRVm9
     typename: break_glass
   governance_financial:
-    address: KT1AFDPNEpzAfPZ7nJKw1AEMMVpF8AN7uJfk
+    address: KT1J5614w7Ku4613TduVyvSv3B1X1jf6nWah
     typename: governance_financial
   governance_satellite:
-    address: KT1TdK2Z8D7MLxyYsjGfDY959gFacf11bxwN
+    address: KT19HcgaDZydTBSENfo1HxfEfAbiitZgRiSk
     typename: governance_satellite
   aggregator:
-    address: KT1MKqrDtXaYoehEZeFFxut9ok1ppV4BYWbx
+    address: KT1R8uVX8bXeeUnzyepLoSAx55Hj2iNXkrsL
     typename: aggregator
   aggregator_factory:
-    address: KT1NeKMEdL8mKY1yQLdU55c9b9BavWseC4MC
+    address: KT1WXqKTZdtei7zLEAs243zgWev6tobJccHB
     typename: aggregator_factory
   treasury:
-    address: KT1PiK3dD6UNghLrqVZnZfbnyHacg1cS8eek
+    address: KT1UHBYfSKHSYP5mCyiHbEipdSuGJgZyJf3c
     typename: treasury
   treasury_factory:
-    address: KT1MMVwT1Vk4o5tKU9txwU9fcTVH93d3feuB
+    address: KT1GHvyBLDjvUCBsfVxjFKea7zrifgjPWZHV
     typename: treasury_factory
 
 datasources:

@@ -53,7 +53,7 @@ async def on_governance_satellite_vote_for_action(
     satellite_snapshot      = await models.GovernanceSatelliteSnapshotRecord.get(
         governance  = governance,
         user        = voter,
-        cycle       = governance.cycle_counter
+        cycle       = governance.cycle_id
     )
     vote_record, _          = await models.GovernanceSatelliteActionRecordVote.get_or_create(
         governance_satellite_action = action_record,

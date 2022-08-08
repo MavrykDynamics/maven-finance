@@ -52,7 +52,7 @@ async def on_governance_financial_vote_for_request(
     satellite_snapshot      = await models.GovernanceSatelliteSnapshotRecord.get(
         governance  = governance,
         user        = voter,
-        cycle       = governance.cycle_counter
+        cycle       = governance.cycle_id
     )
     vote_record, _          = await models.GovernanceFinancialRequestRecordVote.get_or_create(
         governance_financial_request    = financial_request,
