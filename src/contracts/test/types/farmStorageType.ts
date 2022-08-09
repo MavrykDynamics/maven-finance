@@ -2,9 +2,11 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type farmStorageType = {
+
   admin                     : string;
   mvkTokenAddress           : string;
   governanceAddress         : string;
+  name                      : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
   config                    : {
                                 lpToken : {
@@ -21,7 +23,6 @@ export type farmStorageType = {
 
                                 infinite                : Boolean;
                                 forceRewardFromTransfer : Boolean;
-                                blocksPerMinute         : BigNumber;
 
                                 plannedRewards : {
                                   totalBlocks           : BigNumber;
@@ -46,10 +47,13 @@ export type farmStorageType = {
                                 unpaid : BigNumber;
                                 paid   : BigNumber;
                               }
-  depositors                : MichelsonMap<MichelsonMapKey, unknown>;
+  depositorLedger           : MichelsonMap<MichelsonMapKey, unknown>;
   open                      : Boolean;
   init                      : Boolean;
   initBlock                 : BigNumber;
 
+  minBlockTimeSnapshot              : BigNumber;
+
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+
 };

@@ -36,6 +36,8 @@ deployedFarmInfiniteContract = os.path.join(deploymentsDir, 'farmInfiniteAddress
 deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
 deployedLpTokenContract = os.path.join(deploymentsDir, 'lpTokenAddress.json')
 deployedCouncilContract = os.path.join(deploymentsDir, 'councilAddress.json')
+deployedDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
+deployedGovernanceContract = os.path.join(deploymentsDir, 'governanceAddress.json')
 
 deployedFarm = open(deployedFarmContract)
 farmContractAddress = json.load(deployedFarm)
@@ -60,6 +62,14 @@ lpTokenAddress = lpTokenAddress['address']
 deployedCouncil = open(deployedCouncilContract)
 councilAddress = json.load(deployedCouncil)
 councilAddress = councilAddress['address']
+
+deployedDoorman = open(deployedDoormanContract)
+doormanAddress = json.load(deployedDoorman)
+doormanAddress = doormanAddress['address']
+
+deployedGovernance = open(deployedGovernanceContract)
+governanceAddress = json.load(deployedGovernance)
+governanceAddress = governanceAddress['address']
 
 print('Farm Contract Deployed at: ' + farmContractAddress)
 print('Farm FA2 Contract Deployed at: ' + farmContractAddress)
@@ -124,13 +134,11 @@ class FarmContract(TestCase):
         # Initial parameters
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -156,14 +164,12 @@ class FarmContract(TestCase):
         # Initial parameters
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
         
         # Init farm operation
         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
             res = self.farmContract.initFarm({
                 "currentRewardPerBlock": currentRewardPerBlock,
                 "totalBlocks": totalBlocks,
-                "blocksPerMinute": blocksPerMinute,
                 "forceRewardFromTransfer": False,
                 "infinite": False
             }).interpret(storage=init_farm_storage, sender=alice)
@@ -189,13 +195,11 @@ class FarmContract(TestCase):
         # Initial parameters
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -205,7 +209,6 @@ class FarmContract(TestCase):
             res = self.farmContract.initFarm({
                 "currentRewardPerBlock": currentRewardPerBlock,
                 "totalBlocks": totalBlocks,
-                "blocksPerMinute": blocksPerMinute,
                 "forceRewardFromTransfer": False,
                 "infinite": False
             }).interpret(storage=res.storage, source=bob)
@@ -231,14 +234,12 @@ class FarmContract(TestCase):
         # Initial parameters
         totalBlocks     = 0
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
         
         # Init farm operation
         with self.raisesMichelsonError(error_codes.error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION):
             self.farmContract.initFarm({
                 "currentRewardPerBlock": currentRewardPerBlock,
                 "totalBlocks": totalBlocks,
-                "blocksPerMinute": blocksPerMinute,
                 "forceRewardFromTransfer": False,
                 "infinite": False
             }).interpret(storage=init_farm_storage, source=bob)
@@ -252,14 +253,12 @@ class FarmContract(TestCase):
         # Initial parameters
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 0
         
         # Init farm operation
         with self.raisesMichelsonError(error_codes.error_INVALID_BLOCKS_PER_MINUTE):
             self.farmContract.initFarm({
                 "currentRewardPerBlock": currentRewardPerBlock,
                 "totalBlocks": totalBlocks,
-                "blocksPerMinute": blocksPerMinute,
                 "forceRewardFromTransfer": False,
                 "infinite": False
             }).interpret(storage=init_farm_storage, source=bob)
@@ -290,13 +289,11 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -306,7 +303,7 @@ class FarmContract(TestCase):
         with self.raisesMichelsonError(error_codes.error_FARM_CLOSED):
             res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+101)
 
-        self.assertEqual(False, alice in res.storage['depositors'])
+        self.assertEqual(False, alice in res.storage['depositorLedger'])
         print('----')
         print('✅ User should not be able to deposit in a ended farm')
 
@@ -318,13 +315,11 @@ class FarmContract(TestCase):
         secondDeposit               = 50
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -332,11 +327,11 @@ class FarmContract(TestCase):
 
         # Operations
         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
+        userUnclaimedReward = int(res.storage['depositorLedger'][bob]['unclaimedRewards'])
         self.assertEqual(0,userUnclaimedReward)
 
         res = self.farmContract.deposit(secondDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1)
-        userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
+        userUnclaimedReward = int(res.storage['depositorLedger'][bob]['unclaimedRewards'])
         self.assertNotEqual(0,userUnclaimedReward)
 
         print('----')
@@ -349,13 +344,13 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -364,11 +359,11 @@ class FarmContract(TestCase):
         # Deposit operation
         res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
-        self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(totalDepositAmount, res.storage['depositorLedger'][bob]['balance'])
         print('----')
         print('✅ Alice deposits 2LP')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
 
     def test_11_alice_deposit_2_lp(self):        
         init_farm_storage = deepcopy(self.farmStorage)
@@ -377,13 +372,13 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -392,11 +387,11 @@ class FarmContract(TestCase):
         # Deposit operation
         res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
-        self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(totalDepositAmount, res.storage['depositorLedger'][bob]['balance'])
         print('----')
         print('✅ Alice deposits 2LP')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
 
     def test_12_alice_deposit_2_lp_on_fa2(self):        
         init_farm_storage = deepcopy(self.farmFA2Storage)
@@ -405,13 +400,13 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmFA2Contract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -420,11 +415,11 @@ class FarmContract(TestCase):
         # Deposit operation
         res = self.farmFA2Contract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
-        self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(totalDepositAmount, res.storage['depositorLedger'][bob]['balance'])
         print('----')
         print('✅ Alice deposits 2LP on a farm with FA2 LP Tokens')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         
     def test_13_alice_deposit_2_lp_then_2_lp_on_different_block(self):        
         init_farm_storage = deepcopy(self.farmStorage)
@@ -433,13 +428,13 @@ class FarmContract(TestCase):
         firstDepositedAmount        = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -452,16 +447,16 @@ class FarmContract(TestCase):
         # Second deposit operation
         res = self.farmContract.deposit(firstDepositedAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
 
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
         totalDepositAmount = 2 * firstDepositedAmount
 
         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
-        self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(totalDepositAmount, res.storage['depositorLedger'][bob]['balance'])
         print('----')
         print('✅ Alice deposits 2LP on one block then 2 more on another block')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaimedRewards during second deposit')
         print(aliceUnclaimedRewards)
     
@@ -489,13 +484,13 @@ class FarmContract(TestCase):
         firstWithdraw               = 50
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -503,11 +498,11 @@ class FarmContract(TestCase):
 
         # Operations
         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
+        userUnclaimedReward = int(res.storage['depositorLedger'][bob]['unclaimedRewards'])
         self.assertEqual(0,userUnclaimedReward)
 
         res = self.farmContract.withdraw(firstWithdraw).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1)
-        userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
+        userUnclaimedReward = int(res.storage['depositorLedger'][bob]['unclaimedRewards'])
         self.assertNotEqual(0,userUnclaimedReward)
 
         print('----')
@@ -520,13 +515,13 @@ class FarmContract(TestCase):
         firstWithdraw               = 50
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -547,13 +542,13 @@ class FarmContract(TestCase):
         firstWithdraw               = 200
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -574,13 +569,13 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -591,14 +586,14 @@ class FarmContract(TestCase):
 
         # Withdraw operation
         res = self.farmContract.withdraw(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
 
-        self.assertEqual(0, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(0, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(0, aliceUnclaimedRewards)
         print('----')
         print('✅ Alice deposits 2LP then withdraws 2LP on the same block')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaimedRewards during withdrawal')
         print(aliceUnclaimedRewards)
 
@@ -609,13 +604,13 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmFA2Contract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -626,14 +621,14 @@ class FarmContract(TestCase):
 
         # Withdraw operation
         res = self.farmFA2Contract.withdraw(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
 
-        self.assertEqual(0, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(0, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(0, aliceUnclaimedRewards)
         print('----')
         print('✅ Alice deposits 2LP then withdraws 2LP on the same block on a farm with FA2 LP Tokens')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaim rewards during withdrawal')
         print(aliceUnclaimedRewards)
         
@@ -644,13 +639,13 @@ class FarmContract(TestCase):
         totalDepositAmount          = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -662,16 +657,16 @@ class FarmContract(TestCase):
 
         # Withdraw operation
         res = self.farmContract.withdraw(totalDepositAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 
-        self.assertEqual(0, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(0, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
         print('----')
         print('✅ Alice deposits 2LP then withdraws 2LP on two different blocks')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaimed rewards during withdrawal')
         print(aliceUnclaimedRewards)
 
@@ -683,13 +678,13 @@ class FarmContract(TestCase):
         totalWithdrawAmount         = 1
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -701,16 +696,16 @@ class FarmContract(TestCase):
 
         # Withdraw operation
         res = self.farmContract.withdraw(totalWithdrawAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards'];
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards'];
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 
-        self.assertEqual(totalDepositAmount-totalWithdrawAmount, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(totalDepositAmount-totalWithdrawAmount, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
         print('----')
         print('✅ Alice deposits 2LP then withdraws 1LP on two different blocks')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaimed rewards during withdrawal')
         print(aliceUnclaimedRewards)
 
@@ -722,13 +717,13 @@ class FarmContract(TestCase):
         totalWithdrawAmount         = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -741,16 +736,16 @@ class FarmContract(TestCase):
         # Withdraw operation
         aliceUnclaimedRewards = 0
         res = self.farmContract.withdraw(totalWithdrawAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
 
         suspectedRewards = totalBlocks * currentRewardPerBlock
 
-        self.assertEqual(0, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(0, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
         print('----')
         print('✅ Alice deposits 2LP before farm ends then withdraws 2LP after farm ends')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaimed rewards during withdrawal')
         print(aliceUnclaimedRewards)
 
@@ -762,7 +757,9 @@ class FarmContract(TestCase):
 
         # Deposit operation
         with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
-            self.farmContract.claim(bob).interpret(storage=init_farm_storage, source=bob)
+            self.farmContract.claim(bob).interpret(storage=init_farm_storage, source=bob, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
 
         print('----')
         print('✅ User should not be able to claim in a non-initiated farm')
@@ -773,13 +770,13 @@ class FarmContract(TestCase):
         # Initial values
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -787,7 +784,9 @@ class FarmContract(TestCase):
 
         # Operations
         with self.raisesMichelsonError(error_codes.error_DEPOSITOR_NOT_FOUND):
-            self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
+            self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
 
         print('----')
         print('✅ User should not be able to claim if he never deposited')
@@ -799,13 +798,13 @@ class FarmContract(TestCase):
         firstDeposit                = 100
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -814,7 +813,9 @@ class FarmContract(TestCase):
         # Operations
         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
-            self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
+            self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
 
         print('----')
         print('✅ User should not be able to claim if he has no unclaimed rewards')
@@ -827,13 +828,13 @@ class FarmContract(TestCase):
         bobDepositAmount            = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -845,20 +846,24 @@ class FarmContract(TestCase):
         nextBlock = lastBlockUpdate + 50
 
         # New deposit
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
 
         # breakpoint()
 
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=nextBlock)
-        bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
+        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        bobUnclaimedRewards = res.storage['depositorLedger'][alice]['unclaimedRewards']
         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
-        self.assertEqual(aliceDepositAmount, res.storage['depositors'][bob]['balance'])
-        self.assertEqual(bobDepositAmount, res.storage['depositors'][alice]['balance'])
+        self.assertEqual(aliceDepositAmount, res.storage['depositorLedger'][bob]['balance'])
+        self.assertEqual(bobDepositAmount, res.storage['depositorLedger'][alice]['balance'])
         self.assertEqual(0, aliceUnclaimedRewards)
         self.assertEqual(0, bobUnclaimedRewards)
         self.assertEqual(suspectedRewards/2, aliceClaimedRewards)
@@ -866,11 +871,11 @@ class FarmContract(TestCase):
         print('----')
         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice unclaimed sMVK:')
         print(aliceClaimedRewards)
         print('bob deposit balance:')
-        print(res.storage['depositors'][alice]['balance'])
+        print(res.storage['depositorLedger'][alice]['balance'])
         print('bob unclaimed sMVK:')
         print(bobClaimedRewards)
 
@@ -882,13 +887,13 @@ class FarmContract(TestCase):
         bobDepositAmount            = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmFA2Contract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -900,17 +905,21 @@ class FarmContract(TestCase):
         nextBlock = lastBlockUpdate + 50
 
         # New deposit
-        res = self.farmFA2Contract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmFA2Contract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmFA2Contract.claim(alice).interpret(storage=res.storage, sender=alice, level=nextBlock)
-        bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
+        res = self.farmFA2Contract.claim(alice).interpret(storage=res.storage, sender=alice, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        bobUnclaimedRewards = res.storage['depositorLedger'][alice]['unclaimedRewards']
         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
-        self.assertEqual(aliceDepositAmount, res.storage['depositors'][bob]['balance'])
-        self.assertEqual(bobDepositAmount, res.storage['depositors'][alice]['balance'])
+        self.assertEqual(aliceDepositAmount, res.storage['depositorLedger'][bob]['balance'])
+        self.assertEqual(bobDepositAmount, res.storage['depositorLedger'][alice]['balance'])
         self.assertEqual(0, aliceUnclaimedRewards)
         self.assertEqual(0, bobUnclaimedRewards)
         self.assertEqual(suspectedRewards/2, aliceClaimedRewards)
@@ -918,11 +927,11 @@ class FarmContract(TestCase):
         print('----')
         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one on a farm with FA2 LP Tokens')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice claimed sMVK:')
         print(aliceClaimedRewards)
         print('bob deposit balance:')
-        print(res.storage['depositors'][alice]['balance'])
+        print(res.storage['depositorLedger'][alice]['balance'])
         print('bob claimed sMVK:')
         print(bobClaimedRewards)
 
@@ -934,13 +943,13 @@ class FarmContract(TestCase):
         bobDepositAmount            = 4
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -954,19 +963,23 @@ class FarmContract(TestCase):
         nextBlock += 25
 
         # New deposit
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
         nextBlock += 15
 
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=nextBlock)
-        bobUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        bobUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         aliceSuspectedRewards = math.trunc((50 * currentRewardPerBlock) + (25 * currentRewardPerBlock / 3))
         bobSuspectedRewards = math.trunc(40 * currentRewardPerBlock * 2 / 3)
-        self.assertEqual(aliceDepositAmount, res.storage['depositors'][bob]['balance'])
-        self.assertEqual(bobDepositAmount, res.storage['depositors'][alice]['balance'])
+        self.assertEqual(aliceDepositAmount, res.storage['depositorLedger'][bob]['balance'])
+        self.assertEqual(bobDepositAmount, res.storage['depositorLedger'][alice]['balance'])
         self.assertEqual(0, aliceUnclaimedRewards)
         self.assertEqual(0, bobUnclaimedRewards)
         self.assertEqual(aliceSuspectedRewards, aliceClaimedRewards)
@@ -974,11 +987,11 @@ class FarmContract(TestCase):
         print('----')
         print('✅ Alice deposit 2LP on a block, Bob deposit 4LP on another block then Alice claim on another block then Bob claim on another block')
         print('alice deposit balance:')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('alice claimed sMVK:')
         print(aliceClaimedRewards)
         print('bob deposit balance:')
-        print(res.storage['depositors'][alice]['balance'])
+        print(res.storage['depositorLedger'][alice]['balance'])
         print('bob claimed sMVK:')
         print(bobClaimedRewards)
         
@@ -989,13 +1002,13 @@ class FarmContract(TestCase):
         totalDepositAmount      = 2
         totalBlocks             = 100
         currentRewardPerBlock   = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1008,19 +1021,21 @@ class FarmContract(TestCase):
         aliceUnclaimedRewards = 0;
         aliceClaimedRewards = 0;
         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-            aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
+            aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = 0
         
-        self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(totalDepositAmount, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(aliceClaimedRewards, suspectedRewards)
         self.assertEqual(aliceUnclaimedRewards, suspectedRewards)
         print('----')
         print('✅ Alice claims sMVK after depositing 2LP on the same block')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('rewards:')
         print(aliceClaimedRewards)
 
@@ -1032,13 +1047,13 @@ class FarmContract(TestCase):
         totalDepositAmount      = 2
         totalBlocks             = 100
         currentRewardPerBlock   = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1055,19 +1070,21 @@ class FarmContract(TestCase):
         aliceUnclaimedRewards = 0
         aliceClaimedRewards = 0
         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-            aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
+            aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = 0
         
-        self.assertEqual(0, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(0, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(aliceClaimedRewards, suspectedRewards)
         self.assertEqual(aliceUnclaimedRewards, suspectedRewards)
         print('----')
         print('✅ Alice deposits and withdraws on the same block then claim on a different block')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('rewards:')
         print(aliceClaimedRewards)
         
@@ -1078,13 +1095,13 @@ class FarmContract(TestCase):
         totalDepositAmount      = 2
         totalBlocks             = 100
         currentRewardPerBlock   = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1095,8 +1112,10 @@ class FarmContract(TestCase):
         nextBlock = lastBlockUpdate + 10
 
         # Claim reward after one block
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
@@ -1115,13 +1134,13 @@ class FarmContract(TestCase):
         totalDepositAmount      = 2
         totalBlocks             = 100
         currentRewardPerBlock   = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1132,13 +1151,17 @@ class FarmContract(TestCase):
         nextBlock = lastBlockUpdate + 10
 
         # Claim reward after one block
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-            aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
+            aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
@@ -1157,13 +1180,13 @@ class FarmContract(TestCase):
         totalDepositAmount      = 2
         totalBlocks             = 100
         currentRewardPerBlock   = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1173,8 +1196,10 @@ class FarmContract(TestCase):
         aliceUnclaimedRewards = 0
         aliceClaimedRewards = 0
         with self.raisesMichelsonError(error_codes.error_DEPOSITOR_NOT_FOUND):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-            aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
+            aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = 0
@@ -1194,13 +1219,13 @@ class FarmContract(TestCase):
         totalWithdrawAmount     = 1
         totalBlocks             = 100
         currentRewardPerBlock   = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1215,19 +1240,21 @@ class FarmContract(TestCase):
         nextBlock += 10
 
         # Claim reward after one block
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=nextBlock, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 
-        self.assertEqual(1, res.storage['depositors'][bob]['balance'])
+        self.assertEqual(1, res.storage['depositorLedger'][bob]['balance'])
         self.assertEqual(suspectedRewards, aliceClaimedRewards)
         self.assertEqual(0, aliceUnclaimedRewards)
         print('----')
         print('✅ Alice deposits 2LP on a block, withdraws 1LP on another and claims on another')
         print('alice delegated lp balance')
-        print(res.storage['depositors'][bob]['balance'])
+        print(res.storage['depositorLedger'][bob]['balance'])
         print('rewards:')
         print(aliceClaimedRewards)
 
@@ -1240,13 +1267,13 @@ class FarmContract(TestCase):
         eveDepositAmount            = 10
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1258,16 +1285,22 @@ class FarmContract(TestCase):
         res = self.farmContract.deposit(bobDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 50)
 
         # Claim reward after one block
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 1000)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 1000, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 1001)
-        bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
+        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 1001, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        bobUnclaimedRewards = res.storage['depositorLedger'][alice]['unclaimedRewards']
         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 1002)
-        eveUnclaimedRewards = res.storage['depositors'][eve]['unclaimedRewards']
+        res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 1002, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        eveUnclaimedRewards = res.storage['depositorLedger'][eve]['unclaimedRewards']
         eveClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         totalFarmRewards = totalBlocks * currentRewardPerBlock
@@ -1295,13 +1328,13 @@ class FarmContract(TestCase):
         eveDepositAmount            = 10
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1309,7 +1342,9 @@ class FarmContract(TestCase):
 
         # Deposit LP Tokens and claims LP
         res = self.farmContract.deposit(aliceDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 1)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 10)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 10, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         res = self.farmContract.deposit(eveDepositAmount).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 20)
@@ -1317,21 +1352,27 @@ class FarmContract(TestCase):
         res = self.farmContract.deposit(bobDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 50)
 
         # Claim reward after one block
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 1000)   
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 1000, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         aliceClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate + 1001)
+        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate + 1001, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate + 1002)
-        eveUnclaimedRewards = res.storage['depositors'][eve]['unclaimedRewards']
+        res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate + 1002, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        eveUnclaimedRewards = res.storage['depositorLedger'][eve]['unclaimedRewards']
         eveClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         totalFarmRewards = totalBlocks * currentRewardPerBlock
 
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
-        bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
-        eveUnclaimedRewards = res.storage['depositors'][eve]['unclaimedRewards']
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
+        bobUnclaimedRewards = res.storage['depositorLedger'][alice]['unclaimedRewards']
+        eveUnclaimedRewards = res.storage['depositorLedger'][eve]['unclaimedRewards']
         totalUserUnclaimedRewards = aliceUnclaimedRewards + bobUnclaimedRewards + eveUnclaimedRewards
         totalUserClaimedRewards = aliceClaimedRewards + bobClaimedRewards + eveClaimedRewards
 
@@ -1413,13 +1454,13 @@ class FarmContract(TestCase):
         withdrawAmount = 1
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1441,7 +1482,9 @@ class FarmContract(TestCase):
             res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
         
         with self.raisesMichelsonError(error_codes.error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
 
         self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
         self.assertNotEqual(depositIsPaused, finaldepositIsPaused)
@@ -1469,13 +1512,13 @@ class FarmContract(TestCase):
         finalclaimIsPaused = claimIsPaused
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1516,13 +1559,13 @@ class FarmContract(TestCase):
         withdrawAmount = 1
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1541,7 +1584,9 @@ class FarmContract(TestCase):
         # Tests operations
         res = self.farmContract.deposit(depositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1)
         res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+2)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+3)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+3, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         
         # Final values
         finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
@@ -1576,13 +1621,13 @@ class FarmContract(TestCase):
         withdrawAmount = 1
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -1606,7 +1651,9 @@ class FarmContract(TestCase):
             res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob)
         
         with self.raisesMichelsonError(error_codes.error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob)
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
         
         # Final values
         finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
@@ -1631,7 +1678,7 @@ class FarmContract(TestCase):
         print(finalclaimIsPaused)
 
     ###
-    # %togglePauseDeposit
+    # %togglePauseEntrypoint
     ##
     def test_64_admin_pause_deposit(self):
         init_farm_storage = deepcopy(self.farmStorage)
@@ -1641,19 +1688,21 @@ class FarmContract(TestCase):
         depositAmount = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
 
         # Operation
-        res = self.farmContract.togglePauseDeposit().interpret(storage=res.storage, source=bob)
+        res = self.farmContract.togglePauseEntrypoint({
+            "toggleDeposit": True
+        }).interpret(storage=res.storage, source=bob)
 
         # Final values
         finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
@@ -1670,48 +1719,6 @@ class FarmContract(TestCase):
         print('deposit is paused:')
         print(finaldepositIsPaused)
 
-    
-    def test_65_non_admin_pause_deposit(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-
-        # Initial values
-        depositIsPaused = init_farm_storage['breakGlassConfig']['depositIsPaused']
-        depositAmount = 2
-        finaldepositIsPaused = depositIsPaused;
-        totalBlocks                 = 100
-        currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
-        
-        # Init farm operation
-        res = self.farmContract.initFarm({
-            "currentRewardPerBlock": currentRewardPerBlock,
-            "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
-            "forceRewardFromTransfer": False,
-            "infinite": False
-        }).interpret(storage=init_farm_storage, source=bob)
-
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.farmContract.togglePauseDeposit().interpret(storage=res.storage, sender=alice)
-
-            # Final values
-            finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
-
-            # Tests operations
-            res = self.farmContract.deposit(depositAmount).interpret(storage=res.storage, source=bob)
-
-            self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
-            self.assertEqual(depositIsPaused, finaldepositIsPaused)
-
-        print('----')
-        print('✅ Non-admin should not be to pause deposit entrypoint')
-        print('deposit is paused:')
-        print(finaldepositIsPaused)
-    
-    ###
-    # %togglePauseWithdraw
-    ##
     def test_66_admin_pause_withdraw(self):
         init_farm_storage = deepcopy(self.farmStorage)
 
@@ -1720,19 +1727,21 @@ class FarmContract(TestCase):
         withdrawAmount = 2
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
 
         # Operation
-        res = self.farmContract.togglePauseWithdraw().interpret(storage=res.storage, source=bob)
+        res = self.farmContract.togglePauseEntrypoint({
+            "toggleWithdraw": True
+        }).interpret(storage=res.storage, source=bob)
 
         # Final values
         finalwithdrawIsPaused = res.storage['breakGlassConfig']['withdrawIsPaused']
@@ -1749,48 +1758,6 @@ class FarmContract(TestCase):
         print('withdraw is paused:')
         print(finalwithdrawIsPaused)
 
-    
-    def test_67_non_admin_pause_withdraw(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-
-        # Initial values
-        withdrawIsPaused = init_farm_storage['breakGlassConfig']['withdrawIsPaused']
-        withdrawAmount = 2
-        finalwithdrawIsPaused = withdrawIsPaused;
-        totalBlocks                 = 100
-        currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
-        
-        # Init farm operation
-        res = self.farmContract.initFarm({
-            "currentRewardPerBlock": currentRewardPerBlock,
-            "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
-            "forceRewardFromTransfer": False,
-            "infinite": False
-        }).interpret(storage=init_farm_storage, source=bob)
-
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.farmContract.togglePauseWithdraw().interpret(storage=res.storage, sender=alice)
-
-            # Final values
-            finalwithdrawIsPaused = res.storage['breakGlassConfig']['withdrawIsPaused']
-
-            # Tests operations
-            res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob)
-
-            self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
-            self.assertEqual(withdrawIsPaused, finalwithdrawIsPaused)
-
-        print('----')
-        print('✅ Non-admin should not be to pause withdraw entrypoint')
-        print('withdraw is paused:')
-        print(finalwithdrawIsPaused)
-
-    ###
-    # %togglePauseClaim
-    ##
     def test_64_admin_pause_claim(self):
         init_farm_storage = deepcopy(self.farmStorage)
 
@@ -1798,27 +1765,31 @@ class FarmContract(TestCase):
         claimIsPaused = init_farm_storage['breakGlassConfig']['claimIsPaused']
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob, level=0)
 
         # Operation
         res = self.farmContract.deposit(2).interpret(storage=res.storage, source=bob, level=1)
-        res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, source=bob, level=2)
+        res = self.farmContract.togglePauseEntrypoint({
+            "toggleClaim": True
+        }).interpret(storage=res.storage, source=bob, level=2)
 
         # Final values
         finalclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=5)
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=5, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
 
         self.assertEqual(2, res.storage['config']['lpToken']['tokenBalance'])
         self.assertNotEqual(claimIsPaused, finalclaimIsPaused)
@@ -1828,7 +1799,6 @@ class FarmContract(TestCase):
         print('claim is paused:')
         print(finalclaimIsPaused)
 
-    
     def test_68_non_admin_pause_claim(self):
         init_farm_storage = deepcopy(self.farmStorage)
 
@@ -1837,26 +1807,30 @@ class FarmContract(TestCase):
         finalclaimIsPaused = claimIsPaused;
         totalBlocks                 = 100
         currentRewardPerBlock       = 1000
-        blocksPerMinute = 2
+
         
         # Init farm operation
         res = self.farmContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
 
         # Operation
         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, sender=alice)
+            res = self.farmContract.togglePauseEntrypoint({
+                "toggleClaim": True
+            }).interpret(storage=res.storage, sender=alice)
 
             # Final values
             finalclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
 
             # Tests operations
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob)
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, view_results={
+                governanceAddress+"%getGeneralContractOpt": doormanAddress,
+            });
 
             self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
             self.assertEqual(claimIsPaused, finalclaimIsPaused)
@@ -1865,265 +1839,24 @@ class FarmContract(TestCase):
         print('✅ Non-admin should not be to pause claim entrypoint')
         print('claim is paused:')
         print(finalclaimIsPaused)
-    
-    ###
-    # %updateBlocksPerMinute
+
     ##
-    def test_70_council_should_increase_blocks_per_minute_farm(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-        
-        # Initial values
-        totalBlocks                 = 10000
-        currentRewardPerBlock       = self.MVK(500)
-        blocksPerMinute             = 2
-        newBlocksPerMinute          = 3
-        totalRewards                = totalBlocks * currentRewardPerBlock
-
-        # Init farm operation
-        res = self.farmContract.initFarm({
-            "currentRewardPerBlock": currentRewardPerBlock,
-            "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
-            "forceRewardFromTransfer": False,
-            "infinite": False
-        }).interpret(storage=init_farm_storage, source=bob)
-        lastBlockUpdate = res.storage['lastBlockUpdate']
-
-        # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+2000)
-        res = self.farmContract.deposit(self.MVK()).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+5000)
-        res = self.farmContract.withdraw(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+5500)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+6000)
-        aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-        # Operation
-        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=councilAddress, level=lastBlockUpdate+6000)
-        storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-        storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-        storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-        storageTotalRewards = res.storage['config']['plannedRewards']["totalRewards"]
-
-        # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+6000)
-        bobClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.deposit(self.MVK(8)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+10200)
-        res = self.farmContract.withdraw(self.MVK()).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+11000)
-
-        # # Final claims
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+storageTotalBlocks)
-        aliceClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+storageTotalBlocks)
-        bobClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+storageTotalBlocks)
-        eveClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-        totalClaim = aliceClaim + bobClaim + eveClaim
-
-        self.assertEqual(totalRewards, pytest.approx(totalClaim,0.01))
-        self.assertEqual(totalRewards, storageTotalRewards)
-        self.assertEqual(newBlocksPerMinute, storageBlocksPerMinute)
-        self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
-        self.assertNotEqual(totalBlocks, storageTotalBlocks)
-
-        print('----')
-        print('✅ Council should be to call updateBlocksPerMinute entrypoint')
-        print('blocksPerMinute:')
-        print(storageBlocksPerMinute)
-        print('new totalBlocks:')
-        print(storageTotalBlocks)
-        print('new currentRewardPerBlock:')
-        print(storageRewardPerBlock)
-        print('total rewards claim:')
-        print(totalClaim)
-
-    def test_71_council_should_decrease_blocks_per_minute_farm(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-        
-        # Initial values
-        totalBlocks                 = 10000
-        currentRewardPerBlock       = self.MVK(500)
-        blocksPerMinute             = 2
-        newBlocksPerMinute          = 1
-        totalRewards                = totalBlocks * currentRewardPerBlock
-
-        # Init farm operation
-        res = self.farmContract.initFarm({
-            "currentRewardPerBlock": currentRewardPerBlock,
-            "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
-            "forceRewardFromTransfer": False,
-            "infinite": False
-        }).interpret(storage=init_farm_storage, source=bob)
-        lastBlockUpdate = res.storage['lastBlockUpdate']
-
-        # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+2000)
-        res = self.farmContract.deposit(self.MVK(1)).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+3000)
-        res = self.farmContract.withdraw(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+4000)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+4200)
-        aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-        # Operation
-        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=councilAddress, level=lastBlockUpdate+4200)
-        storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-        storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-        storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-        storageTotalRewards = res.storage['config']['plannedRewards']["totalRewards"]
-
-        # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+4200)
-        bobClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.deposit(self.MVK(8)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4500)
-        res = self.farmContract.withdraw(self.MVK(1)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4600)
-
-        # Final claims
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+storageTotalBlocks)
-        aliceClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+storageTotalBlocks)
-        bobClaim += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.claim(eve).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+storageTotalBlocks)
-        eveClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-        totalClaim = aliceClaim + bobClaim + eveClaim
-
-        self.assertEqual(totalRewards, pytest.approx(totalClaim,0.01))
-        self.assertEqual(totalRewards, storageTotalRewards)
-        self.assertEqual(newBlocksPerMinute, storageBlocksPerMinute)
-        self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
-        self.assertNotEqual(totalBlocks, storageTotalBlocks)
-
-        print('----')
-        print('✅ Council should be to call updateBlocksPerMinute entrypoint')
-        print('blocksPerMinute:')
-        print(storageBlocksPerMinute)
-        print('new totalBlocks:')
-        print(storageTotalBlocks)
-        print('new currentRewardPerBlock:')
-        print(storageRewardPerBlock)
-        print('total rewards claim:')
-        print(totalClaim)
-
-    def test_72_non_council_update_blocks_per_minute(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-        
-        # Initial values
-        totalBlocks                 = 100
-        currentRewardPerBlock       = 1000
-        blocksPerMinute             = 2
-        newBlocksPerMinute          = 3
-
-        # Init farm operation
-        res = self.farmContract.initFarm({
-            "currentRewardPerBlock": currentRewardPerBlock,
-            "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
-            "forceRewardFromTransfer": False,
-            "infinite": False
-        }).interpret(storage=init_farm_storage, source=bob)
-
-        # Operation
-        res = self.farmContract.updateWhitelistContracts("council", bob).interpret(storage=res.storage, sender=bob);
-        res = self.farmContract.updateWhitelistContracts("farmFactory", bob).interpret(storage=res.storage, sender=bob);
-        with self.raisesMichelsonError(error_codes.error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED):
-            res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=alice)
-            storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-            storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-            storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-            self.assertEqual(blocksPerMinute,storageBlocksPerMinute)
-            self.assertEqual(currentRewardPerBlock,storageRewardPerBlock)
-            self.assertEqual(totalBlocks,storageTotalBlocks)
-        print('----')
-        print('✅ Non-council should not be to call updateBlocksPerMinute entrypoint')
-        print('blocksPerMinute:')
-        print(blocksPerMinute)
-
-    def test_73_council_update_blocks_per_minute_farm_non_init(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-        
-        # Initial values
-        newBlocksPerMinute          = 3
-
-        # Operation
-        with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
-            res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=init_farm_storage, source=councilAddress)
-            storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-            storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
-            storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-            self.assertEqual(0,storageBlocksPerMinute)
-            self.assertEqual(0,storageRewardPerBlock)
-            self.assertEqual(0,storageTotalBlocks)
-        print('----')
-        print('✅ Council should not be to call updateBlocksPerMinute entrypoint if the farm has not yet been initiated')
-        print('blocksPerMinute:')
-        print(0)
-
-    def test_74_update_blocks_per_minute_infinite_farm(self):
-        init_farm_storage = deepcopy(self.farmStorage)
-        
-        # Initial values
-        totalBlocks                         = 0
-        currentRewardPerBlock               = self.MVK(500)
-        blocksPerMinute                     = 2
-        newBlocksPerMinute                  = 3
-
-        # Reward proportionnality testing
-        expectedRewardsForFiveMinutes       = 10 * currentRewardPerBlock # For 2BPM
-        blocksForTwoMinutes                 = 4 # For 2BPM
-        blocksForThreeMinutes               = 9 # For 9BPM
-
-        # Init farm operation
-        res = self.farmContract.initFarm({
-            "currentRewardPerBlock": currentRewardPerBlock,
-            "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
-            "forceRewardFromTransfer": False,
-            "infinite": True
-        }).interpret(storage=init_farm_storage, source=bob)
-        lastBlockUpdate = res.storage['lastBlockUpdate']
-
-        # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-
-        # Operation
-        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=councilAddress, level=lastBlockUpdate+blocksForTwoMinutes)
-        storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
-        storageRewardPerBlock = res.storage['config']['plannedRewards']["currentRewardPerBlock"]
-
-        # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+blocksForThreeMinutes+blocksForTwoMinutes)
-        aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-
-        self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
-        self.assertEqual(aliceClaim, pytest.approx(expectedRewardsForFiveMinutes, 0.01))
-
-        print('----')
-        print('✅ Infinite farm should be to update its blocks per minute')
-        print('blocksPerMinute:')
-        print(storageBlocksPerMinute)
-        print('new currentRewardPerBlock:')
-        print(storageRewardPerBlock)
-        print('total rewards claim:')
-        print(aliceClaim)
-
-    ###
-    ## %closeFarm
-    ###
+    # %closeFarm
+    ##
     def test_80_admin_can_close_farm(self):
         init_farm_storage = deepcopy(self.farmStorage)
         
         # Initial values
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
+
         userDepositAmount          = 2
 
         # Init farm operation
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -2134,7 +1867,9 @@ class FarmContract(TestCase):
 
         # Test operations
         res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Close Farm operation
@@ -2149,7 +1884,9 @@ class FarmContract(TestCase):
         userWithdraw = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
-            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)
+            res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
 
         suspectedRewards = (lastBlockUpdate+50-lastBlockUpdate) * currentRewardPerBlock
 
@@ -2176,14 +1913,14 @@ class FarmContract(TestCase):
         # Initial values
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
+
         userDepositAmount          = 2
 
         # Init farm operation
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -2191,7 +1928,9 @@ class FarmContract(TestCase):
 
         # Test operations
         res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Close Farm operation
@@ -2202,7 +1941,9 @@ class FarmContract(TestCase):
         res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)        
         res = self.farmContract.withdraw(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)
         userWithdraw = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
         
         suspectedRewards = (lastBlockUpdate+51-lastBlockUpdate) * currentRewardPerBlock
@@ -2231,14 +1972,14 @@ class FarmContract(TestCase):
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
         newRewardPerBlock = 2000
-        blocksPerMinute = 2
+
         userDepositAmount          = 2
 
         # Init farm operation
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -2246,7 +1987,9 @@ class FarmContract(TestCase):
 
         # Test operations
         res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Increase reward operation
@@ -2257,7 +2000,9 @@ class FarmContract(TestCase):
         newStorageRewardPerBlock = res.storage['config']['plannedRewards']['currentRewardPerBlock'];
 
         # Final tests operations
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
         
         suspectedRewards = 50 * currentRewardPerBlock + newRewardPerBlock * 50
@@ -2281,14 +2026,14 @@ class FarmContract(TestCase):
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
         newRewardPerBlock = 500
-        blocksPerMinute = 2
+
         userDepositAmount          = 2
 
         # Init farm operation
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -2296,7 +2041,9 @@ class FarmContract(TestCase):
 
         # Test operations
         res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Decrease reward operation
@@ -2307,7 +2054,9 @@ class FarmContract(TestCase):
             }).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
 
         # Final tests operations
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
         
         storageRewardPerBlock = res.storage['config']['plannedRewards']['currentRewardPerBlock']
@@ -2331,14 +2080,14 @@ class FarmContract(TestCase):
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
         newRewardPerBlock = 2000
-        blocksPerMinute = 2
+
         userDepositAmount          = 2
 
         # Init farm operation
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -2346,7 +2095,9 @@ class FarmContract(TestCase):
 
         # Test operations
         res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Increase reward operation
@@ -2357,7 +2108,9 @@ class FarmContract(TestCase):
             }).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+50)
 
         # Final tests operations
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
         
         storageRewardPerBlock = res.storage['config']['plannedRewards']['currentRewardPerBlock']
@@ -2381,14 +2134,14 @@ class FarmContract(TestCase):
         totalBlocks     = 100
         currentRewardPerBlock  = 1000
         newRewardPerBlock = 2000
-        blocksPerMinute = 2
+
         userDepositAmount          = 2
 
         # Init farm operation
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": False
         }).interpret(storage=init_farm_storage, source=bob)
@@ -2405,7 +2158,9 @@ class FarmContract(TestCase):
         newStorageRewardPerBlock = res.storage['config']['plannedRewards']['currentRewardPerBlock'];
 
         # Final tests operations
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+100, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         suspectedRewards = 50 * currentRewardPerBlock + newRewardPerBlock * 50
@@ -2431,7 +2186,7 @@ class FarmContract(TestCase):
         # Initial parameters
         totalBlocks     = 0
         currentRewardPerBlock  = 1000
-        blocksPerMinute = 2
+
         aliceDepositAmount          = 2
         bobDepositAmount            = 2
         totalBlocks                 = 100
@@ -2441,7 +2196,7 @@ class FarmContract(TestCase):
         res = self.farmInfiniteContract.initFarm({
             "currentRewardPerBlock": currentRewardPerBlock,
             "totalBlocks": totalBlocks,
-            "blocksPerMinute": blocksPerMinute,
+
             "forceRewardFromTransfer": False,
             "infinite": True
         }).interpret(storage=init_infinite_farm_storage, source=bob)
@@ -2452,26 +2207,34 @@ class FarmContract(TestCase):
         res = self.farmContract.deposit(bobDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
 
         # First claim
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+10000)
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+10000, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Second deposit
         res = self.farmContract.deposit(aliceDepositAmount).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+12500)
 
         # Second claim
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+1500000)
+        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+1500000, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Third deposit
         res = self.farmContract.deposit(aliceDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1500500)
 
         # Final claim
-        res = self.farmContract.claim(bob).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+2000000)
-        aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+        res = self.farmContract.claim(bob).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+2000000, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        aliceUnclaimedRewards = res.storage['depositorLedger'][bob]['unclaimedRewards']
         aliceClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+2000000)
-        bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
+        res = self.farmContract.claim(alice).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+2000000, view_results={
+            governanceAddress+"%getGeneralContractOpt": doormanAddress,
+        });
+        bobUnclaimedRewards = res.storage['depositorLedger'][alice]['unclaimedRewards']
         bobClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         totalClaimedRewards = aliceClaimedRewards + bobClaimedRewards

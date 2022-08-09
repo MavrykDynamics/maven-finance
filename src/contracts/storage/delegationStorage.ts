@@ -24,19 +24,19 @@ const breakGlassConfig = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-  data: Buffer.from(
-    JSON.stringify({
-      name: 'MAVRYK Delegation Contract',
-      version: 'v1.0.0',
-      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-      source: {
-        tools: ['Ligo', 'Flextesa'],
-        location: 'https://ligolang.org/',
-      },
-    }),
-    'ascii',
-  ).toString('hex'),
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+        name: 'MAVRYK Delegation Contract',
+        version: 'v1.0.0',
+        authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        source: {
+            tools: ['Ligo', 'Flextesa'],
+            location: 'https://ligolang.org/',
+        },
+        }),
+        'ascii',
+    ).toString('hex'),
 })
 
 // const satelliteLedger = MichelsonMap.fromLiteral({})
@@ -67,23 +67,24 @@ const metadata = MichelsonMap.fromLiteral({
 
 export const delegationStorage: delegationStorageType = {
   
-  admin               : bob.pkh,
-  mvkTokenAddress     : "",
-  governanceAddress   : "",
-  metadata            : metadata,
-  
-  config              : config,
-  breakGlassConfig    : breakGlassConfig,
+    admin               : bob.pkh,
+    mvkTokenAddress     : "",
+    governanceAddress   : "",
+    metadata            : metadata,
+    
+    config              : config,
+    breakGlassConfig    : breakGlassConfig,
 
-  whitelistContracts  : MichelsonMap.fromLiteral({}),
-  generalContracts    : MichelsonMap.fromLiteral({}),
-  
-  delegateLedger      : MichelsonMap.fromLiteral({}),
-  // satelliteLedger     : satelliteLedger,
-  satelliteLedger     : MichelsonMap.fromLiteral({}),
-  satelliteRewardsLedger: MichelsonMap.fromLiteral({}),
-  // satelliteRewardsLedger  : satelliteRewardsLedger,
+    whitelistContracts  : MichelsonMap.fromLiteral({}),
+    generalContracts    : MichelsonMap.fromLiteral({}),
+    
+    delegateLedger      : MichelsonMap.fromLiteral({}),
+    // satelliteLedger     : satelliteLedger,
+    satelliteLedger     : MichelsonMap.fromLiteral({}),
+    satelliteCounter    : new BigNumber(0),
+    satelliteRewardsLedger: MichelsonMap.fromLiteral({}),
+    // satelliteRewardsLedger  : satelliteRewardsLedger,
 
-  lambdaLedger        : MichelsonMap.fromLiteral({}),
+    lambdaLedger        : MichelsonMap.fromLiteral({}),
   
 };

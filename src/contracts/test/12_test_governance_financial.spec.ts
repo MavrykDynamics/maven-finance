@@ -99,8 +99,9 @@
 //             // Bob stakes 100 MVK tokens and registers as a satellite
     
 //             delegationStorage = await delegationInstance.storage();
-//             const satelliteMap = await delegationStorage.satelliteLedger;
-//             if(satelliteMap.get(bob.pkh) === undefined){
+//             const bobSatellite = await delegationStorage.satelliteLedger.get(bob.pkh);
+
+//             if(bobSatellite === undefined){
 //                 var updateOperators = await mvkTokenInstance.methods
 //                     .update_operators([
 //                     {
@@ -178,6 +179,10 @@
 //                 // Mallory transfers 250 XTZ to Treasury
 //                 const malloryTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 100});
 //                 await malloryTransferTezToTreasuryOperation.confirmation();
+
+//                 // Switch to next cycle round to valide new satellites
+//                 const startNextRoundOperation   = await governanceInstance.methods.startNextRound(false).send();
+//                 await startNextRoundOperation.confirmation()
 //             }
 //         } catch(e) {
 //             console.dir(e, {depth: 5})
@@ -302,23 +307,23 @@
 //         beforeEach("Set signer to admin", async () => {
 //             await signerFactory(bob.sk)
 //         });
-//         it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
+//         before("Configure delegation ratio on delegation contract", async () => {
 //             try{
 //                 // Initial Values
-//                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const currentConfigValue = governanceFinancialStorage.config.votingPowerRatio;
-//                 const newConfigValue = 10001;
+//                 await signerFactory(bob.sk)
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const newConfigValue = 10;
 
 //                 // Operation
-//                 await chai.expect(governanceFinancialInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send()).to.be.rejected;
+//                 const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
+//                 await updateConfigOperation.confirmation();
 
 //                 // Final values
-//                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const updateConfigValue = governanceFinancialStorage.config.votingPowerRatio;
+//                 delegationStorage   = await delegationInstance.storage();
+//                 const updateConfigValue = delegationStorage.config.delegationRatio;
 
 //                 // Assertions
-//                 assert.notEqual(newConfigValue, currentConfigValue);
-//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+//                 assert.equal(updateConfigValue, newConfigValue);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
@@ -465,18 +470,17 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
+//                 governanceFinancialStorage            = await governanceFinancialInstance.storage();
 //                 const updatedCouncilStorage           = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -495,40 +499,42 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-//                 const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
-//                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
-//                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
-//                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
+//                 const updatedgovernanceFinancialStorage                 = await governanceFinancialInstance.storage();        
+//                 const updatedGovernanceFinancialRequestLedger           = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
+//                 mvkTokenStorage                                         = await mvkTokenInstance.storage();
+//                 const councilMvkLedger                                  = await mvkTokenStorage.ledger.get(councilContractAddress);
+//                 governanceStorage                                       = await governanceInstance.storage();
+//                 var currentCycle                                        = governanceStorage.cycleId;
+
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance,       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
+
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance,         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -557,7 +563,7 @@
 //             try{
 //                 // some init constants
 //                 var councilStorage             = await councilInstance.storage();
-//                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
+//                 governanceFinancialStorage     = await governanceFinancialInstance.storage();
 //                 const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
 //                 const councilActionId          = councilStorage.actionCounter;
 
@@ -568,7 +574,7 @@
 
 //                 // Operation
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
 //                         treasury, 
@@ -587,49 +593,7 @@
 
 //                 // Reset general Contracts
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
-//                 await updateGeneralContractOperation.confirmation();
-//             } catch(e){
-//                 console.dir(e, {depth: 5})
-//             } 
-//         });
-
-//         it('Council contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map or if the getActiveSatellites view does not exist', async () => {
-//             try{
-//                 // some init constants
-//                 var councilStorage             = await councilInstance.storage();
-//                 const councilActionId          = councilStorage.actionCounter;
-//                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
-//                 const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
-
-
-//                 // request mint params
-//                 const treasury              = treasuryAddress.address;
-//                 const tokenAmount           = MVK(1000); // 1000 MVK
-//                 const purpose               = "Test Council Request Mint 1000 MVK";
-
-//                 // Operation
-//                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
-//                 await updateGeneralContractOperation.confirmation();
-//                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
-//                         treasury, 
-//                         tokenAmount,
-//                         purpose
-//                     ).send();
-//                 await councilRequestsMintOperation.confirmation();
-
-//                 // council members sign action, and action is executed once threshold of 3 signers is reached
-//                 await signerFactory(alice.sk);
-//                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
-//                 await aliceSignsRequestMintActionOperation.confirmation();
-
-//                 await signerFactory(eve.sk);
-//                 await chai.expect(councilInstance.methods.signAction(councilActionId).send()).to.be.rejected;
-
-//                 // Reset general Contracts
-//                 await signerFactory(bob.sk);
-//                 updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -705,17 +669,16 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
     
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
+//                 governanceFinancialStorage            = await governanceFinancialInstance.storage();
 //                 const updatedCouncilStorage           = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
     
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestID);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestID);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -734,29 +697,19 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal.toNumber(),               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal.toNumber(),            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval.toNumber(), 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance.toNumber(),       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
     
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance.toNumber(),         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
-    
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
     
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
     
 //                 // get updated storage
@@ -765,10 +718,23 @@
     
 //                 mvkTokenStorage                                         = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
     
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
+
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -855,7 +821,7 @@
 
 //                 // Operation
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
 //                         treasury, 
@@ -877,60 +843,12 @@
 
 //                 // Reset general Contracts
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
 //         });
-
-//         it('Council contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map or if the getActiveSatellites view does not exist', async () => {
-//             try{
-//                 // some init constants
-//                 var councilStorage             = await councilInstance.storage();
-//                 const councilActionId          = councilStorage.actionCounter;
-//                 const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
-
-//                 // request mint params
-//                 const tokenAmount              = MVK(100); // 100 MVK
-//                 const treasury                 = treasuryAddress.address;
-//                 const tokenContractAddress     = mvkTokenAddress.address; 
-//                 const tokenName                = "MVK";
-//                 const tokenType                = "FA2";
-//                 const tokenId                  = 0;
-//                 const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";
-
-//                 // Operation
-//                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
-//                 await updateGeneralContractOperation.confirmation();
-//                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
-//                         treasury, 
-//                         tokenContractAddress,
-//                         tokenName, 
-//                         tokenAmount, 
-//                         tokenType, 
-//                         tokenId, 
-//                         purpose
-//                     ).send();
-//                 await councilRequestsTokensOperation.confirmation();
-
-//                 await signerFactory(alice.sk);
-//                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
-//                 await aliceSignsRequestMintActionOperation.confirmation();
-    
-//                 await signerFactory(eve.sk);                
-//                 await chai.expect(councilInstance.methods.signAction(councilActionId).send()).to.be.rejected;
-
-//                 // Reset general Contracts
-//                 await signerFactory(bob.sk);
-//                 updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
-//                 await updateGeneralContractOperation.confirmation();
-//             } catch(e){
-//                 console.dir(e, {depth: 5})
-//             } 
-//         });
-        
 //     });
 
 //     describe("%dropFinancialRequest", async () => {
@@ -1003,7 +921,7 @@
 //                 var updatedCouncilStorage               = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
     
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
@@ -1028,7 +946,7 @@
 //                 var councilActionsDropRequestSigned   = await updatedCouncilStorage.councilActionsLedger.get(dropCouncilActionId);
 //                 await signerFactory(bob.sk);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsDropRequestSigned.signersCount,  3);
 //                 assert.equal(councilActionsDropRequestSigned.executed,      true);
 //                 assert.equal(councilActionsDropRequestSigned.status,        "EXECUTED");
@@ -1040,7 +958,7 @@
 //                 assert.equal(financialRequest.status,        false);
 
 //                 // Try to sign previous action again with eve
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(financialRequestID, "yay").send()).to.be.rejected;
 
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -1112,7 +1030,7 @@
 //                 var updatedCouncilStorage               = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
     
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
@@ -1199,18 +1117,17 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                   = await governanceFinancialInstance.storage();
-//                 var updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
+//                 var updatedCouncilStorage               = await councilInstance.storage();
+//                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -1229,38 +1146,41 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
+
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -1347,18 +1267,17 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                   = await governanceFinancialInstance.storage();
-//                 var updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 governanceFinancialStorage                  = await governanceFinancialInstance.storage();
+//                 var updatedCouncilStorage                   = await councilInstance.storage();
+//                 const councilActionsRequestMintSigned       = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -1377,21 +1296,10 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
-
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
 
 //                 // DROP PREVIOUSLY EXECUTED REQUEST
 //                 await signerFactory(bob.sk);
@@ -1407,6 +1315,21 @@
 
 //                 await signerFactory(eve.sk);
 //                 await chai.expect(councilInstance.methods.signAction(dropCouncilActionId).send()).to.be.rejected;
+
+//                 // final values
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
 
 //                 // Reset financial request expiry date
 //                 await signerFactory(bob.sk);
@@ -1424,7 +1347,7 @@
 //             try{
 //                 // Try to sign action again with mallory
 //                 await signerFactory(mallory.sk);
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "nay").send()).to.be.rejected;
 //                 await signerFactory(bob.sk);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -1434,7 +1357,7 @@
 //         it('Satellite should not be able to call this entrypoint if the financial request does not exist', async () => {
 //             try{
 //                 // Try to sign action again with bob
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "nay").send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
@@ -1444,10 +1367,10 @@
 //             try{
 //                 // Try to sign action again with bob
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "nay").send()).to.be.rejected;
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -1522,7 +1445,7 @@
 //                 var updatedCouncilStorage               = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
     
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
@@ -1547,7 +1470,7 @@
 //                 var councilActionsDropRequestSigned   = await updatedCouncilStorage.councilActionsLedger.get(dropCouncilActionId);
 //                 await signerFactory(bob.sk);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsDropRequestSigned.signersCount,  3);
 //                 assert.equal(councilActionsDropRequestSigned.executed,      true);
 //                 assert.equal(councilActionsDropRequestSigned.status,        "EXECUTED");
@@ -1559,7 +1482,7 @@
 //                 assert.equal(financialRequest.status,        false);
 
 //                 // Try to sign previous action again with eve
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(financialRequestID, "yay").send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }
@@ -1622,17 +1545,16 @@
 
 //                 // get updated storage
 //                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
-//                 const updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 const updatedCouncilStorage                    = await councilInstance.storage();
+//                 const councilActionsRequestMintSigned          = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -1651,29 +1573,18 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
@@ -1681,10 +1592,23 @@
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 //                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -1693,7 +1617,7 @@
 
 //                 // Try to vote for the request again
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "disapprove").send()).to.be.rejected;
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "nay").send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
@@ -1753,17 +1677,16 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
-//                 const updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
+//                 const updatedCouncilStorage             = await councilInstance.storage();
+//                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -1782,52 +1705,56 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
                 
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobApproveFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
-//                 await bobApproveFinancialRequestOperation.confirmation();
+//                 const bobYayFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
+//                 await bobYayFinancialRequestOperation.confirmation();
 
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 var updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 var updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, bobStakeAmount)
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, 0)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal, bobStakeAmount)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, 0)
 
-//                 // change vote and disapprove financial request
-//                 const bobDisapproveFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "disapprove").send();
-//                 await bobDisapproveFinancialRequestOperation.confirmation();
-
-//                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-//                 updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
-//                 updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, 0)
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, bobStakeAmount)
-
-//                 // change vote and disapprove financial request again
-//                 const bobDisapproveFinancialRequestOperationAgain = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "disapprove").send();
-//                 await bobDisapproveFinancialRequestOperationAgain.confirmation();
+//                 // change vote and nay financial request
+//                 const bobDisyayFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "nay").send();
+//                 await bobDisyayFinancialRequestOperation.confirmation();
 
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, 0)
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, bobStakeAmount)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal, 0)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, bobStakeAmount)
+
+//                 // change vote and nay financial request again
+//                 const bobDisyayFinancialRequestOperationAgain = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "nay").send();
+//                 await bobDisyayFinancialRequestOperationAgain.confirmation();
+
+//                 // get updated storage (governance financial request ledger and council account in mvk token contract)
+//                 updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+//                 updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal, 0)
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal, bobStakeAmount)
+
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             } 
@@ -1891,18 +1818,17 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
-//                 const updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
+//                 const updatedCouncilStorage             = await councilInstance.storage();
+//                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -1921,25 +1847,29 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send()).to.be.rejected;
+//                 await chai.expect(governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send()).to.be.rejected;
+
+
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
 
 //                 // Reset financial request expiry date
 //                 const updateFinancialExpiryReset    = await governanceFinancialInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
@@ -1949,11 +1879,11 @@
 //             } 
 //         });
 
-//         it('Satellite should not be able to approve a request if the council contract is not referenced in the generalContracts map', async () => {
+//         it('Satellite should not be able to yay a request if the council contract is not referenced in the generalContracts map', async () => {
 //             try{
 //                 // Replace council contract
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("council", eve.pkh).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("council", councilAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 
 //                 // some init constants
@@ -2007,7 +1937,7 @@
 
 //                 // Reset council contract
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("council", councilAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("council", councilAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
@@ -2078,17 +2008,16 @@
 //                 await eveSignsRequestTokensActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                       = await governanceFinancialInstance.storage();
-//                 const updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestTokensSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 governanceFinancialStorage                      = await governanceFinancialInstance.storage();
+//                 const updatedCouncilStorage                     = await councilInstance.storage();
+//                 const councilActionsRequestTokensSigned         = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestTokensSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestTokensSigned.executed,      true);
 //                 assert.equal(councilActionsRequestTokensSigned.status,        "EXECUTED");
                 
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -2107,29 +2036,18 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage
@@ -2139,9 +2057,24 @@
 //                 const mockFa12TokenStorage                             = await mockFa12TokenInstance.storage();
 //                 const councilMockFa12Ledger                            = await mockFa12TokenStorage.ledger.get(councilContractAddress);
 
+
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
+
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -2216,17 +2149,16 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
+//                 governanceFinancialStorage            = await governanceFinancialInstance.storage();
 //                 const updatedCouncilStorage           = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -2245,29 +2177,18 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage
@@ -2277,9 +2198,24 @@
 //                 const mockFa2TokenStorage                              = await mockFa2TokenInstance.storage();
 //                 const councilMockFa2Ledger                             = await mockFa2TokenStorage.ledger.get(councilAddress.address);
 
+
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
+
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -2356,17 +2292,16 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
+//                 governanceFinancialStorage            = await governanceFinancialInstance.storage();
 //                 const updatedCouncilStorage           = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -2385,39 +2320,41 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      tokenType);
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        tokenId);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval,   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage
 //                 const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);             
 //                 const councilTezBalance                                = await utils.tezos.tz.getBalance(councilContractAddress);
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal,        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal,     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal,        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal,     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
@@ -2485,18 +2422,17 @@
 //                 await eveSignsRequestMintActionOperation.confirmation();
 
 //                 // get updated storage
-//                 governanceFinancialStorage                     = await governanceFinancialInstance.storage();
-//                 const updatedCouncilStorage           = await councilInstance.storage();
-//                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
+//                 governanceFinancialStorage              = await governanceFinancialInstance.storage();
+//                 const updatedCouncilStorage             = await councilInstance.storage();
+//                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
-//                 // check that council action is approved and has been executed
+//                 // check that council action is yayd and has been executed
 //                 assert.equal(councilActionsRequestMintSigned.signersCount,  3);
 //                 assert.equal(councilActionsRequestMintSigned.executed,      true);
 //                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
 //                 const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
-//                 const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
 //                 const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
 //                 const financialRequestPercentageDecimals       = 4;
@@ -2515,29 +2451,18 @@
 //                 assert.equal(governanceFinancialRequestLedger.tokenType,                      "FA2");
 //                 assert.equal(governanceFinancialRequestLedger.tokenId,                        0);
 //                 assert.equal(governanceFinancialRequestLedger.requestPurpose,                 purpose);
-//                 assert.equal(governanceFinancialRequestLedger.approveVoteTotal,               0);
-//                 assert.equal(governanceFinancialRequestLedger.disapproveVoteTotal,            0);
+//                 assert.equal(governanceFinancialRequestLedger.yayVoteStakedMvkTotal,               0);
+//                 assert.equal(governanceFinancialRequestLedger.nayVoteStakedMvkTotal,            0);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkPercentageForApproval, 6700);
 //                 assert.equal(governanceFinancialRequestLedger.stakedMvkRequiredForApproval.toNumber(),   stakedMvkRequiredForApproval);
-                
-//                 // check details of financial request snapshot ledger
-//                 const bobFinancialRequestSnapshot = await governanceFinancialRequestSnapshotLedger.get(bob.pkh);
-//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount,  0);
-//                 assert.equal(bobFinancialRequestSnapshot.totalMvkBalance,       bobStakeAmount);
-//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower,      bobStakeAmount);
 
-//                 const aliceFinancialRequestSnapshot   = await governanceFinancialRequestSnapshotLedger.get(alice.pkh);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount,    0);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalMvkBalance,         aliceStakeAmount);
-//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower,        aliceStakeAmount);
-
-//                 // satellites vote and approve financial request
+//                 // satellites vote and yay financial request
 //                 await signerFactory(bob.sk);
-//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await bobVotesForFinancialRequestOperation.confirmation();
 
 //                 await signerFactory(alice.sk);
-//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+//                 const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "yay").send();
 //                 await aliceVotesForFinancialRequestOperation.confirmation();
 
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
@@ -2545,10 +2470,23 @@
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 //                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
+//                 governanceStorage                     = await governanceInstance.storage();
+//                 var currentCycle                      = governanceStorage.cycleId;
+    
+//                 // check details of financial request snapshot ledger
+//                 const bobFinancialRequestSnapshot = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: bob.pkh});
+//                 assert.equal(bobFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),  0);
+//                 assert.equal(bobFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),       bobStakeAmount);
+//                 assert.equal(bobFinancialRequestSnapshot.totalVotingPower.toNumber(),      bobStakeAmount);
+    
+//                 const aliceFinancialRequestSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: alice.pkh});
+//                 assert.equal(aliceFinancialRequestSnapshot.totalDelegatedAmount.toNumber(),    0);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalStakedMvkBalance.toNumber(),         aliceStakeAmount);
+//                 assert.equal(aliceFinancialRequestSnapshot.totalVotingPower.toNumber(),        aliceStakeAmount);
 
 //                 // check that financial request has been executed
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal.toNumber(),        MVK(20));
-//                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal.toNumber(),     0);
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.yayVoteStakedMvkTotal.toNumber(),        MVK(20));
+//                 assert.equal(updatedGovernanceFinancialRequestLedger.nayVoteStakedMvkTotal.toNumber(),     0);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.status,                  true);
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             

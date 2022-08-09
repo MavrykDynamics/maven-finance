@@ -2,12 +2,21 @@ const { alice, bob, eve, mallory } = require("./scripts/sandbox/accounts");
 
 module.exports = {
   confirmationPollingTimeoutSecond: 500000,
-  syncInterval: 0, // 0 for tests, 5000 for deploying
-  confirmTimeout: 90000, // 90000 for tests, 180000 for deploying
+
+  // test config
+
+  syncInterval: 0,
+  confirmTimeout: 90000,
+
+  // testnet deployment config
+
+  // syncInterval: 5000,
+  // confirmTimeout: 1800000,
+
   buildDir: "build",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",
-  ligoVersion: "0.42.0",
+  ligoVersion: "0.47.0",
   network: "development",
   networks: {
     development: {
@@ -15,6 +24,18 @@ module.exports = {
       network_id: "*",
       secretKey: bob.sk,
       port: 8732,
+    },
+    ghostnet: {
+      rpc: "https://ghostnet.smartpy.io",
+      port: 443,
+      network_id: "*",
+      secretKey: bob.sk,
+    },
+    jakartanet: {
+      rpc: "https://jakartanet.ecadinfra.com",
+      port: 443,
+      network_id: "*",
+      secretKey: bob.sk,
     },
     ithacanet: {
       rpc: "https://ithacanet.ecadinfra.com",

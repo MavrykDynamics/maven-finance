@@ -12,7 +12,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan, oracleMaintainer } from "../scripts/sandbox/accounts";
 
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import delegationAddress from '../deployments/delegationAddress.json';
@@ -28,10 +28,14 @@
 // import lpTokenAddress from '../deployments/lpTokenAddress.json';
 // import farmFactoryAddress from '../deployments/farmFactoryAddress.json'
 // import treasuryFactoryAddress from '../deployments/treasuryFactoryAddress.json'
+// import governanceSatelliteAddress from '../deployments/governanceSatelliteAddress.json'
+// import aggregatorAddress from '../deployments/aggregatorAddress.json'
+// import aggregatorFactoryAddress from '../deployments/aggregatorFactoryAddress.json'
 // import farmAddress from '../deployments/farmAddress.json'
 // import doormanLambdas from '../build/lambdas/doormanLambdas.json'
 // import { MichelsonMap } from "@taquito/taquito";
 // import { farmStorageType } from "./types/farmStorageType";
+// import { aggregatorStorageType } from "./types/aggregatorStorageType";
 
 // describe("Governance proxy lambdas tests", async () => {
 //     var utils: Utils;
@@ -50,6 +54,9 @@
 //     let farmFactoryInstance;
 //     let treasuryFactoryInstance;
 //     let farmInstance;
+//     let governanceSatelliteInstance;
+//     let aggregatorInstance;
+//     let aggregatorFactoryInstance;
 
 //     let doormanStorage;
 //     let delegationStorage;
@@ -65,10 +72,14 @@
 //     let farmFactoryStorage;
 //     let treasuryFactoryStorage;
 //     let farmStorage;
+//     let governanceSatelliteStorage;
+//     let aggregatorStorage;
+//     let aggregatorFactoryStorage;
 
 //     // For testing purposes
 //     var aTrackedFarm;
 //     var aTrackedTreasury;
+//     var aTrackedAggregator;
     
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -94,6 +105,9 @@
 //             farmFactoryInstance = await utils.tezos.contract.at(farmFactoryAddress.address);
 //             treasuryFactoryInstance = await utils.tezos.contract.at(treasuryFactoryAddress.address);
 //             farmInstance    = await utils.tezos.contract.at(farmAddress.address);
+//             governanceSatelliteInstance    = await utils.tezos.contract.at(governanceSatelliteAddress.address);
+//             aggregatorInstance    = await utils.tezos.contract.at(aggregatorAddress.address);
+//             aggregatorFactoryInstance    = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
                 
 //             doormanStorage    = await doormanInstance.storage();
 //             delegationStorage    = await delegationInstance.storage();
@@ -109,6 +123,9 @@
 //             farmFactoryStorage  = await farmFactoryInstance.storage();
 //             treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
 //             farmStorage = await farmInstance.storage();
+//             governanceSatelliteStorage = await governanceSatelliteInstance.storage();
+//             aggregatorStorage = await aggregatorInstance.storage();
+//             aggregatorFactoryStorage = await aggregatorFactoryInstance.storage();
     
 //             console.log('-- -- -- -- -- Governance Proxy Tests -- -- -- --')
 //             console.log('Doorman Contract deployed at:', doormanInstance.address);
@@ -123,6 +140,9 @@
 //             console.log('Farm Factory Contract deployed at:', farmFactoryAddress.address);
 //             console.log('Treasury Factory Contract deployed at:', treasuryFactoryAddress.address);
 //             console.log('Farm Contract deployed at:', farmAddress.address);
+//             console.log('Governance Satellite Contract deployed at:', farmAddress.address);
+//             console.log('Aggregator Contract deployed at:', aggregatorAddress.address);
+//             console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
 //             console.log('Bob address: ' + bob.pkh);
 //             console.log('Alice address: ' + alice.pkh);
 //             console.log('Eve address: ' + eve.pkh);
@@ -144,13 +164,9 @@
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
 //                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
-//                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumMvkTotal").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
+//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
 //                 await updateGovernanceConfig.confirmation();
     
 //                 // Register satellites
@@ -208,6 +224,8 @@
 //                 setAdminOperation               = await mvkTokenInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                 await setAdminOperation.confirmation();
 //                 setAdminOperation               = await farmInstance.methods.setAdmin(governanceProxyAddress.address).send();
+//                 await setAdminOperation.confirmation();
+//                 setAdminOperation               = await aggregatorInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                 await setAdminOperation.confirmation();
 //                 for (let entry of generalContracts){
 //                     // Get contract storage
@@ -412,1781 +430,2355 @@
 //         });
 //     })
 
-//     describe("%processProposalSingleData", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
-
-//         it("User should be able to execute the proposal data one by one (execution is in FILO)", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-
-//                 // Update general map compiled params
-//                 const firstLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const firstLambdaParamsValue = firstLambdaParams.parameter.value;
-//                 const firstProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const firstReferenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: firstLambdaParamsValue,
-//                     type: firstProxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var firstPackedParam;
-//                 if (firstReferenceDataPacked) {
-//                     firstPackedParam = firstReferenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const secondLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     15,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const secondLambdaParamsValue = secondLambdaParams.parameter.value;
-//                 const secondProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const secondReferenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: secondLambdaParamsValue,
-//                     type: secondProxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var secondPackedParam;
-//                 if (secondReferenceDataPacked) {
-//                     secondPackedParam = secondReferenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": secondPackedParam,
-//                     "MaxSatellites#2": firstPackedParam,
-//                     "MaxSatellites#3": firstPackedParam,
-//                     "MaxSatellites#4": firstPackedParam,
-//                     "MaxSatellites#5": firstPackedParam,
-//                     "MaxSatellites#6": firstPackedParam,
-//                     "MaxSatellites#7": firstPackedParam,
-//                     "MaxSatellites#8": firstPackedParam,
-//                     "MaxSatellites#9": firstPackedParam,
-//                     "MaxSatellites#10": firstPackedParam
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(false).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Mid values
-//                 governanceStorage   = await governanceInstance.storage();
-//                 const initProposal  = await governanceStorage.proposalLedger.get(proposalId);
-
-//                 // Process data in batch and check which operation was executed last
-//                 const executeSingleDataBatch = await utils.tezos.wallet
-//                 .batch()
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 .withContractCall(governanceInstance.methods.processProposalSingleData())
-//                 const processProposalSingleDataBatchOperation = await executeSingleDataBatch.send()
-//                 await processProposalSingleDataBatchOperation.confirmation()
-
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
-//                 const finalMaxSatellites    = delegationStorage.config.maxSatellites;
-
-//                 // Assertions
-//                 assert.equal(initProposal.executed, false)
-//                 assert.equal(finalProposal.executed, true)
-//                 assert.equal(finalMaxSatellites.toNumber(), 15)
-//             } catch(e){
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-
-//         it("Extra check to see if execution is also in FILO with standard execution", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-
-//                 // Update general map compiled params
-//                 const firstLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     30,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const firstLambdaParamsValue = firstLambdaParams.parameter.value;
-//                 const firstProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const firstReferenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: firstLambdaParamsValue,
-//                     type: firstProxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var firstPackedParam;
-//                 if (firstReferenceDataPacked) {
-//                     firstPackedParam = firstReferenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const secondLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     35,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const secondLambdaParamsValue = secondLambdaParams.parameter.value;
-//                 const secondProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const secondReferenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: secondLambdaParamsValue,
-//                     type: secondProxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var secondPackedParam;
-//                 if (secondReferenceDataPacked) {
-//                     secondPackedParam = secondReferenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": secondPackedParam,
-//                     "MaxSatellites#2": firstPackedParam,
-//                     "MaxSatellites#3": firstPackedParam,
-//                     "MaxSatellites#4": firstPackedParam,
-//                     "MaxSatellites#5": firstPackedParam,
-//                     "MaxSatellites#6": firstPackedParam,
-//                     "MaxSatellites#7": firstPackedParam,
-//                     "MaxSatellites#8": firstPackedParam,
-//                     "MaxSatellites#9": firstPackedParam,
-//                     "MaxSatellites#10": firstPackedParam
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 governanceStorage           = await governanceInstance.storage();
-
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
-//                 const finalMaxSatellites    = delegationStorage.config.maxSatellites;
-
-//                 // Assertions
-//                 assert.equal(finalProposal.executed, true)
-//                 assert.equal(finalMaxSatellites.toNumber(), 35)
-//             } catch(e){
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
-
-//     describe("%addUpdatePaymentData", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
-
-//         it("Proposer should be able to add payment data to a proposal", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-
-//                 // Update general map compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-
-//                 // Mid values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 const initProposal          = await governanceStorage.proposalLedger.get(proposalId);
-
-//                 // Add proposal data
-//                 var addPaymentDataOperation   = await governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()
-//                 await addPaymentDataOperation.confirmation();
-//                 addPaymentDataOperation   = await governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#2", eve.pkh, "fa2", mvkTokenAddress.address, 0, MVK(20)).send()
-//                 await addPaymentDataOperation.confirmation();
-
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
-
-//                 // Assertions
-//                 assert.notEqual(finalProposal.paymentMetadata, initProposal.paymentMetadata);
-//                 assert.notStrictEqual(finalProposal.paymentMetadata.get("Payment#1"), undefined);
-//                 assert.notStrictEqual(finalProposal.paymentMetadata.get("Payment#2"), undefined);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-
-//         it("Non-proposer should not be able to add payment data to a proposal", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-
-//                 // Update general map compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-
-//                 // Add proposal data
-//                 await signerFactory(eve.sk)
-//                 await chai.expect(governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()).to.be.rejected;                
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-
-//         it("Proposer should not be able to add payment data to a proposal if it is locked", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-
-//                 // Update general map compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-
-//                 // Add proposal data
-//                 await chai.expect(governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()).to.be.rejected;                
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
-
-//     describe("%processProposalPayment", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
-
-//         it("Proposer should be able to process the payment after a proposal is successful", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const initSatellites        = delegationStorage.config.maxSatellites;
-//                 const initFirstUserMVK      = await mvkTokenStorage.ledger.get(bob.pkh);
-//                 const initSecondUserMVK     = await mvkTokenStorage.ledger.get(eve.pkh);
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-//                 const proposalPaymentData   = MichelsonMap.fromLiteral({
-//                     "Payment#1": {
-//                         "to_"    : bob.pkh,
-//                         "token"  : {
-//                             "fa2" : {
-//                                 "tokenContractAddress" : mvkTokenAddress.address,
-//                                 "tokenId" : 0
-//                             }
-//                         },
-//                         "amount" : MVK(50)
-//                     },
-//                     "Payment#2": {
-//                         "to_"    : eve.pkh,
-//                         "token"  : {
-//                             "fa2" : {
-//                                 "tokenContractAddress" : mvkTokenAddress.address,
-//                                 "tokenId" : 0
-//                             }
-//                         },
-//                         "amount" : MVK(20)
-//                     },
-//                 });
-
-//                 // Update general map compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
-
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
-
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Mid values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const endSatellites         = delegationStorage.config.maxSatellites;
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-
-//                 // Assertions
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endSatellites, initSatellites);
-//                 assert.equal(endSatellites, 23);
-
-//                 // Process payment data
-//                 const processPaymentOperation   = await governanceInstance.methods.processProposalPayment(proposalId).send()
-//                 await processPaymentOperation.confirmation();
-
-//                 // Final values
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const endFirstUserMVK       = await mvkTokenStorage.ledger.get(bob.pkh);
-//                 const endSecondUserMVK      = await mvkTokenStorage.ledger.get(eve.pkh);
-
-//                 // Assertions
-//                 assert.equal(endFirstUserMVK.toNumber(), initFirstUserMVK.toNumber() + MVK(50))
-//                 assert.equal(endSecondUserMVK.toNumber(), initSecondUserMVK.toNumber() + MVK(20))
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-
-//         it("Proposer should not be able to process the payment twice", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+//     // describe("%processProposalSingleData", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("User should be able to execute the proposal data one by one (execution is in FILO)", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             const governanceProxyStorage    = await governanceProxyInstance.storage()
+
+//     //             // Update general map compiled params
+//     //             const firstLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const firstLambdaParamsValue = firstLambdaParams.parameter.value;
+//     //             const firstProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const firstReferenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: firstLambdaParamsValue,
+//     //                 type: firstProxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var firstPackedParam;
+//     //             if (firstReferenceDataPacked) {
+//     //                 firstPackedParam = firstReferenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const secondLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 15,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const secondLambdaParamsValue = secondLambdaParams.parameter.value;
+//     //             const secondProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const secondReferenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: secondLambdaParamsValue,
+//     //                 type: secondProxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var secondPackedParam;
+//     //             if (secondReferenceDataPacked) {
+//     //                 secondPackedParam = secondReferenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#2",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#3",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#4",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#5",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#6",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#7",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#8",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#9",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#10",
+//     //                     data: secondPackedParam
+//     //                 }
+//     //             ];
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             var addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "MaxSatellites#11", secondPackedParam).send();
+//     //             await addDataOperation.confirmation()
+//     //             addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "MaxSatellites#5", firstPackedParam).send();
+//     //             await addDataOperation.confirmation()
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(false).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Mid values
+//     //             governanceStorage   = await governanceInstance.storage();
+//     //             const initProposal  = await governanceStorage.proposalLedger.get(proposalId);
+
+//     //             // Process data in batch and check which operation was executed last
+//     //             const executeSingleDataBatch = await utils.tezos.wallet
+//     //             .batch()
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             .withContractCall(governanceInstance.methods.processProposalSingleData())
+//     //             const processProposalSingleDataBatchOperation = await executeSingleDataBatch.send()
+//     //             await processProposalSingleDataBatchOperation.confirmation()
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             delegationStorage           = await delegationInstance.storage();
+//     //             const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const finalMaxSatellites    = delegationStorage.config.maxSatellites;
+
+//     //             // Assertions
+//     //             assert.equal(initProposal.executed, false)
+//     //             assert.equal(finalProposal.executed, true)
+//     //             assert.equal(finalMaxSatellites.toNumber(), 15)
+//     //         } catch(e){
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+
+//     //     it("Extra check to see if execution is also in FILO with standard execution", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             // Update general map compiled params
+//     //             const firstLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 30,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const firstLambdaParamsValue = firstLambdaParams.parameter.value;
+//     //             const firstProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const firstReferenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: firstLambdaParamsValue,
+//     //                 type: firstProxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var firstPackedParam;
+//     //             if (firstReferenceDataPacked) {
+//     //                 firstPackedParam = firstReferenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + firstPackedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const secondLambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 35,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const secondLambdaParamsValue = secondLambdaParams.parameter.value;
+//     //             const secondProxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const secondReferenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: secondLambdaParamsValue,
+//     //                 type: secondProxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var secondPackedParam;
+//     //             if (secondReferenceDataPacked) {
+//     //                 secondPackedParam = secondReferenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + secondPackedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#2",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#3",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#4",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#5",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#6",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#7",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#8",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#9",
+//     //                     data: firstPackedParam
+//     //                 },
+//     //                 {
+//     //                     title: "MaxSatellites#10",
+//     //                     data: secondPackedParam
+//     //                 }
+//     //             ]
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             governanceStorage           = await governanceInstance.storage();
+
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             delegationStorage           = await delegationInstance.storage();
+//     //             const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const finalMaxSatellites    = delegationStorage.config.maxSatellites;
+
+//     //             // Assertions
+//     //             assert.equal(finalProposal.executed, true)
+//     //             assert.equal(finalMaxSatellites.toNumber(), 35)
+//     //         } catch(e){
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+
+//     // describe("%updatePaymentData", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Proposer should be able to add payment data to a proposal", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             // Update general map compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+
+//     //             // Mid values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             const initProposal          = await governanceStorage.proposalLedger.get(proposalId);
+
+//     //             // Add proposal data
+//     //             var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()
+//     //             await addPaymentDataOperation.confirmation();
+//     //             addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, MVK(20), "fa2", mvkTokenAddress.address, 0).send()
+//     //             await addPaymentDataOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
+
+//     //             // Assertions
+//     //             assert.notEqual(finalProposal.paymentMetadata, initProposal.paymentMetadata);
+//     //             assert.notStrictEqual(finalProposal.paymentMetadata.get("0"), undefined);
+//     //             assert.notStrictEqual(finalProposal.paymentMetadata.get("1"), undefined);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+
+//     //     it("Non-proposer should not be able to add payment data to a proposal", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             // Update general map compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+
+//     //             // Add proposal data
+//     //             await signerFactory(eve.sk)
+//     //             await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()).to.be.rejected;                
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+
+//     //     it("Proposer should not be able to add payment data to a proposal if it is locked", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             // Update general map compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+
+//     //             // Add proposal data
+//     //             await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, MVK(50), "fa2", mvkTokenAddress.address, 0).send()).to.be.rejected;                
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+
+//     // describe("%processProposalPayment", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Proposer should be able to process the payment after a proposal is successful", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const initSatellites        = delegationStorage.config.maxSatellites;
+//     //             const initFirstUserMVK      = await mvkTokenStorage.ledger.get(bob.pkh);
+//     //             const initSecondUserMVK     = await mvkTokenStorage.ledger.get(eve.pkh);
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+//     //             const proposalPaymentData   = [
+//     //                 {
+//     //                     title: "Payment#1",
+//     //                     transaction: {
+//     //                         "to_"    : bob.pkh,
+//     //                         "token"  : {
+//     //                             "fa2" : {
+//     //                                 "tokenContractAddress" : mvkTokenAddress.address,
+//     //                                 "tokenId" : 0
+//     //                             }
+//     //                         },
+//     //                         "amount" : MVK(50)
+//     //                     }
+//     //                 },
+//     //                 {
+//     //                     title: "Payment#2",
+//     //                     transaction: {
+//     //                         "to_"    : eve.pkh,
+//     //                         "token"  : {
+//     //                             "fa2" : {
+//     //                                 "tokenContractAddress" : mvkTokenAddress.address,
+//     //                                 "tokenId" : 0
+//     //                             }
+//     //                         },
+//     //                         "amount" : MVK(20)
+//     //                     }
+//     //                 }
+//     //             ];
+
+//     //             // Update general map compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Mid values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             delegationStorage           = await delegationInstance.storage();
+//     //             const endSatellites         = delegationStorage.config.maxSatellites;
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//     //             // Assertions
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endSatellites, initSatellites);
+//     //             assert.equal(endSatellites, 23);
+
+//     //             // Process payment data
+//     //             const processPaymentOperation   = await governanceInstance.methods.processProposalPayment(proposalId).send()
+//     //             await processPaymentOperation.confirmation();
+
+//     //             // Final values
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const endFirstUserMVK       = await mvkTokenStorage.ledger.get(bob.pkh);
+//     //             const endSecondUserMVK      = await mvkTokenStorage.ledger.get(eve.pkh);
+
+//     //             // Assertions
+//     //             assert.equal(endFirstUserMVK.toNumber(), initFirstUserMVK.toNumber() + MVK(50))
+//     //             assert.equal(endSecondUserMVK.toNumber(), initSecondUserMVK.toNumber() + MVK(20))
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+
+//     //     it("Proposer should not be able to process the payment twice", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
                 
-//                 // Process payment data
-//                 await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
+//     //             // Process payment data
+//     //             await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
 
-//         it("Proposer should not be able to process the payment if there is no payment data in the proposal", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const initSatellites        = delegationStorage.config.maxSatellites;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Proposer should not be able to process the payment if there is no payment data in the proposal", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const initSatellites        = delegationStorage.config.maxSatellites;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 // Update general map compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Update general map compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Mid values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const endSatellites         = delegationStorage.config.maxSatellites;
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             // Mid values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             delegationStorage           = await delegationInstance.storage();
+//     //             const endSatellites         = delegationStorage.config.maxSatellites;
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                 // Assertions
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endSatellites, initSatellites);
-//                 assert.equal(endSatellites, 23);
+//     //             // Assertions
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endSatellites, initSatellites);
+//     //             assert.equal(endSatellites, 23);
 
-//                 // Process payment data
-//                 await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;                
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
+//     //             // Process payment data
+//     //             await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;                
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
 
-//         it("Non-proposer should be able to process the payment", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const initSatellites        = delegationStorage.config.maxSatellites;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update maxSatellites";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-//                 const proposalPaymentData   = MichelsonMap.fromLiteral({
-//                     "Payment#1": {
-//                         "to_"    : bob.pkh,
-//                         "token"  : {
-//                             "fa2" : {
-//                                 "tokenContractAddress" : mvkTokenAddress.address,
-//                                 "tokenId" : 0
-//                             }
-//                         },
-//                         "amount" : MVK(50)
-//                     },
-//                     "Payment#2": {
-//                         "to_"    : eve.pkh,
-//                         "token"  : {
-//                             "fa2" : {
-//                                 "tokenContractAddress" : mvkTokenAddress.address,
-//                                 "tokenId" : 0
-//                             }
-//                         },
-//                         "amount" : MVK(20)
-//                     },
-//                 });
+//     //     it("Non-proposer should be able to process the payment", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const initSatellites        = delegationStorage.config.maxSatellites;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update maxSatellites";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+//     //             const proposalPaymentData   = [
+//     //                 {
+//     //                     title: "Payment#1",
+//     //                     transaction: {
+//     //                         "to_"    : bob.pkh,
+//     //                         "token"  : {
+//     //                             "fa2" : {
+//     //                                 "tokenContractAddress" : mvkTokenAddress.address,
+//     //                                 "tokenId" : 0
+//     //                             }
+//     //                         },
+//     //                         "amount" : MVK(50)
+//     //                     }
+//     //                 },
+//     //                 {
+//     //                     title: "Payment#2",
+//     //                     transaction: {
+//     //                         "to_"    : eve.pkh,
+//     //                         "token"  : {
+//     //                             "fa2" : {
+//     //                                 "tokenContractAddress" : mvkTokenAddress.address,
+//     //                                 "tokenId" : 0
+//     //                             }
+//     //                         },
+//     //                         "amount" : MVK(20)
+//     //                     }
+//     //                 }
+//     //             ];
 
-//                 // Update general map compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDelegationConfig',
-//                     23,
-//                     'configMaxSatellites'
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Update general map compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateDelegationConfig',
+//     //                 23,
+//     //                 'configMaxSatellites'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDelegationConfig param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateDelegationConfig param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "MaxSatellites#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata, proposalPaymentData).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Mid values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const endSatellites         = delegationStorage.config.maxSatellites;
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             // Mid values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             delegationStorage           = await delegationInstance.storage();
+//     //             const endSatellites         = delegationStorage.config.maxSatellites;
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                 // Assertions
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endSatellites, initSatellites);
-//                 assert.equal(endSatellites, 23);
+//     //             // Assertions
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endSatellites, initSatellites);
+//     //             assert.equal(endSatellites, 23);
 
-//                 // Process payment data
-//                 await signerFactory(eve.sk);
-//                 await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;                
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
+//     //             // Process payment data
+//     //             await signerFactory(eve.sk);
+//     //             await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;                
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
 
-//         it("Proposer should not be able to process the payment after a proposal is not successful", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update nothing";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
-//                 const proposalPaymentData   = MichelsonMap.fromLiteral({
-//                     "Payment#1": {
-//                         "to_"    : bob.pkh,
-//                         "token"  : {
-//                             "fa2" : {
-//                                 "tokenContractAddress" : mvkTokenAddress.address,
-//                                 "tokenId" : 0
-//                             }
-//                         },
-//                         "amount" : MVK(50)
-//                     },
-//                     "Payment#2": {
-//                         "to_"    : eve.pkh,
-//                         "token"  : {
-//                             "fa2" : {
-//                                 "tokenContractAddress" : mvkTokenAddress.address,
-//                                 "tokenId" : 0
-//                             }
-//                         },
-//                         "amount" : MVK(20)
-//                     },
-//                 });
+//     //     it("Proposer should not be able to process the payment after a proposal is not successful", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update nothing";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+//     //             const proposalPaymentData   = [
+//     //                 {
+//     //                     title: "Payment#1",
+//     //                     transaction: {
+//     //                         "to_"    : bob.pkh,
+//     //                         "token"  : {
+//     //                             "fa2" : {
+//     //                                 "tokenContractAddress" : mvkTokenAddress.address,
+//     //                                 "tokenId" : 0
+//     //                             }
+//     //                         },
+//     //                         "amount" : MVK(50)
+//     //                     }
+//     //                 },
+//     //                 {
+//     //                     title: "Payment#2",
+//     //                     transaction: {
+//     //                         "to_"    : eve.pkh,
+//     //                         "token"  : {
+//     //                             "fa2" : {
+//     //                                 "tokenContractAddress" : mvkTokenAddress.address,
+//     //                                 "tokenId" : 0
+//     //                             }
+//     //                         },
+//     //                         "amount" : MVK(20)
+//     //                     }
+//     //                 }
+//     //             ];
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, null, proposalPaymentData).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, null, proposalPaymentData).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(false).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(false).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Mid values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             // Mid values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             delegationStorage           = await delegationInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                 // Assertions
-//                 assert.strictEqual(proposal.executed, false);
+//     //             // Assertions
+//     //             assert.strictEqual(proposal.executed, false);
 
-//                 // Process payment data
-//                 await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             // Process payment data
+//     //             await chai.expect(governanceInstance.methods.processProposalPayment(proposalId).send()).to.be.rejected;
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
-//     describe("%createFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
+//     // describe("%createFarm", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
 
-//         it("Scenario - Creation of a single farm", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Create a farm";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Scenario - Creation of a single farm", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Create a farm";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 const farmMetadataBase = Buffer.from(
-//                     JSON.stringify({
-//                     name: 'MAVRYK PLENTY-USDTz Farm',
-//                     description: 'MAVRYK Farm Contract',
-//                     version: 'v1.0.0',
-//                     liquidityPairToken: {
-//                         tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-//                         origin: ['Plenty'],
-//                         token0: {
-//                             symbol: ['PLENTY'],
-//                             tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-//                         },
-//                         token1: {
-//                             symbol: ['USDtz'],
-//                             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-//                         }
-//                     },
-//                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//                     }),
-//                     'ascii',
-//                 ).toString('hex')
+//     //             const farmMetadataBase = Buffer.from(
+//     //                 JSON.stringify({
+//     //                 name: 'MAVRYK PLENTY-USDTz Farm',
+//     //                 description: 'MAVRYK Farm Contract',
+//     //                 version: 'v1.0.0',
+//     //                 liquidityPairToken: {
+//     //                     tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//     //                     origin: ['Plenty'],
+//     //                     token0: {
+//     //                         symbol: ['PLENTY'],
+//     //                         tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//     //                     },
+//     //                     token1: {
+//     //                         symbol: ['USDtz'],
+//     //                         tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//     //                     }
+//     //                 },
+//     //                 authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//     //                 }),
+//     //                 'ascii',
+//     //             ).toString('hex')
 
-//                 // Create a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'createFarm',
-//                     false,
-//                     false,
-//                     12000,
-//                     100,
-//                     farmMetadataBase,
-//                     lpTokenAddress.address,
-//                     0,
-//                     "fa12",
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Create a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'createFarm',
+//     //                 "testFarm",
+//     //                 false,
+//     //                 false,
+//     //                 false,
+//     //                 12000,
+//     //                 100,
+//     //                 farmMetadataBase,
+//     //                 lpTokenAddress.address,
+//     //                 0,
+//     //                 "fa12",
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %createFarm param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %createFarm param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "FirstFarm#1": packedParam
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "FirstFarm#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
                 
-//                 // Assertions
-//                 console.log("TRACKED FARMS: ", endTrackedFarms);
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
-//                 aTrackedFarm    = endTrackedFarms[0]
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
+//     //             // Assertions
+//     //             console.log("TRACKED FARMS: ", endTrackedFarms);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
+//     //             aTrackedFarm    = endTrackedFarms[0]
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
 
-//         it("Scenario - Creation of multiple farms (stress test)", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Create multiple farms";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Scenario - Creation of multiple farms (stress test)", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Create multiple farms";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 const farmMetadataBase = Buffer.from(
-//                     JSON.stringify({
-//                     name: 'MAVRYK PLENTY-USDTz Farm',
-//                     description: 'MAVRYK Farm Contract',
-//                     version: 'v1.0.0',
-//                     liquidityPairToken: {
-//                         tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-//                         origin: ['Plenty'],
-//                         token0: {
-//                             symbol: ['PLENTY'],
-//                             tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-//                         },
-//                         token1: {
-//                             symbol: ['USDtz'],
-//                             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-//                         }
-//                     },
-//                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//                     }),
-//                     'ascii',
-//                 ).toString('hex')
+//     //             const farmMetadataBase = Buffer.from(
+//     //                 JSON.stringify({
+//     //                 name: 'MAVRYK PLENTY-USDTz Farm',
+//     //                 description: 'MAVRYK Farm Contract',
+//     //                 version: 'v1.0.0',
+//     //                 liquidityPairToken: {
+//     //                     tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//     //                     origin: ['Plenty'],
+//     //                     token0: {
+//     //                         symbol: ['PLENTY'],
+//     //                         tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//     //                     },
+//     //                     token1: {
+//     //                         symbol: ['USDtz'],
+//     //                         tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//     //                     }
+//     //                 },
+//     //                 authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//     //                 }),
+//     //                 'ascii',
+//     //             ).toString('hex')
 
-//                 // Create a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'createFarm',
-//                     false,
-//                     false,
-//                     12000,
-//                     100,
-//                     farmMetadataBase,
-//                     lpTokenAddress.address,
-//                     0,
-//                     "fa12",
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Create a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'createFarm',
+//     //                 "testFarm",
+//     //                 false,
+//     //                 false,
+//     //                 false,
+//     //                 12000,
+//     //                 100,
+//     //                 farmMetadataBase,
+//     //                 lpTokenAddress.address,
+//     //                 0,
+//     //                 "fa12",
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %createFarm param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %createFarm param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "FirstFarm#1": packedParam,
-//                     "FirstFarm#2": packedParam,
-//                 });
-
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 const nextRoundParam        = await governanceInstance.methods.startNextRound(true).toTransferParams();
-//                 const estimate              = await utils.tezos.estimate.transfer(nextRoundParam);
-//                 console.log("ESTIMATION: ", estimate)
-
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
-
-//                 // Assertions
-//                 console.log("TRACKED FARMS: ", endTrackedFarms);
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
-
-//     describe("%untrackFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
-
-//         it("Scenario - Untrack a previously created farm", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Untrack a farm";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "FirstFarm#1",
+//     //                     data: packedParam
+//     //                 },
+//     //                 // Since the recent changes, it's now only possible to create one farm at a time
+//     //                 // {
+//     //                 //     title: "FirstFarm#2",
+//     //                 //     data: packedParam
+//     //                 // }
+//     //             ]
                 
-//                 console.log("INIT TRACKED FARMS: ", initTrackedFarms);
-//                 console.log(initTrackedFarms.length)
 
-//                 // Untrack a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'untrackFarm',
-//                     aTrackedFarm
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %untrackFarm param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Untrack#1": packedParam
-//                 });
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const nextRoundParam        = await governanceInstance.methods.startNextRound(true).toTransferParams();
+//     //             const estimate              = await utils.tezos.estimate.transfer(nextRoundParam);
+//     //             console.log("ESTIMATION: ", estimate)
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Assertions
+//     //             console.log("TRACKED FARMS: ", endTrackedFarms);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
+//     // describe("%untrackFarm", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Scenario - Untrack a previously created farm", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Untrack a farm";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
                 
-//                 // Assertions
-//                 console.log("TRACKED FARMS: ", endTrackedFarms);
-//                 console.log(endTrackedFarms.length)
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
-//                 assert.equal(endTrackedFarms.includes(aTrackedFarm), false);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             console.log("INIT TRACKED FARMS: ", initTrackedFarms);
+//     //             console.log(initTrackedFarms.length)
 
-//     describe("%trackFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
+//     //             // Untrack a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'untrackFarm',
+//     //                 aTrackedFarm
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//         it("Scenario - Track the previously untracked farm", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Track a farm";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 // Untrack a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'trackFarm',
-//                     aTrackedFarm
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %untrackFarm param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Untrack#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %trackFarm param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Track#1": packedParam
-//                 });
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 farmFactoryStorage          = await farmFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
                 
-//                 // Assertions
-//                 console.log("TRACKED FARMS: ", endTrackedFarms);
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
-//                 assert.equal(endTrackedFarms.includes(aTrackedFarm), true);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             // Assertions
+//     //             console.log("TRACKED FARMS: ", endTrackedFarms);
+//     //             console.log(endTrackedFarms.length)
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
+//     //             assert.equal(endTrackedFarms.includes(aTrackedFarm), false);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
-//     describe("%createTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
+//     // describe("%trackFarm", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
 
-//         it("Scenario - Creation of a single treasury and send MVK to a user through payment data", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Create a treasury";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Scenario - Track the previously untracked farm", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const initTrackedFarms      = await farmFactoryStorage.trackedFarms;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Track a farm";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 const treasuryMetadataBase = Buffer.from(
-//                 JSON.stringify({
-//                     name: 'MAVRYK PLENTY-USDTz Farm',
-//                     description: 'MAVRYK Farm Contract',
-//                     version: 'v1.0.0',
-//                     liquidityPairToken: {
-//                     tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-//                     origin: ['Plenty'],
-//                     token0: {
-//                         symbol: ['PLENTY'],
-//                         tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-//                     },
-//                     token1: {
-//                         symbol: ['USDtz'],
-//                         tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-//                     }
-//                     },
-//                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//                 }),
-//                 'ascii',
-//                 ).toString('hex')
+//     //             // Untrack a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'trackFarm',
+//     //                 aTrackedFarm
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %trackFarm param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Track#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             farmFactoryStorage          = await farmFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endTrackedFarms       = await farmFactoryStorage.trackedFarms;
+                
+//     //             // Assertions
+//     //             console.log("TRACKED FARMS: ", endTrackedFarms);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endTrackedFarms.length, initTrackedFarms.length);
+//     //             assert.equal(endTrackedFarms.includes(aTrackedFarm), true);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+
+//     // describe("%createTreasury", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Scenario - Creation of a single treasury and send MVK to a user through payment data", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Create a treasury";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             const treasuryMetadataBase = Buffer.from(
+//     //             JSON.stringify({
+//     //                 name: 'MAVRYK PLENTY-USDTz Farm',
+//     //                 description: 'MAVRYK Farm Contract',
+//     //                 version: 'v1.0.0',
+//     //                 liquidityPairToken: {
+//     //                 tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//     //                 origin: ['Plenty'],
+//     //                 token0: {
+//     //                     symbol: ['PLENTY'],
+//     //                     tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//     //                 },
+//     //                 token1: {
+//     //                     symbol: ['USDtz'],
+//     //                     tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//     //                 }
+//     //                 },
+//     //                 authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//     //             }),
+//     //             'ascii',
+//     //             ).toString('hex')
                     
-//                 // Create a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'createTreasury',
-//                     treasuryMetadataBase
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Create a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'createTreasury',
+//     //                 "testTreasuryPropo",
+//     //                 false,
+//     //                 treasuryMetadataBase
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %createTreasury param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %createTreasury param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "FirstTreasury#1": packedParam
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "FirstTreasury#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Mid values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
+//     //             // Mid values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
-//                 // Assertions
-//                 console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
-//                 aTrackedTreasury    = endtrackedTreasuries[0]
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
+//     //             // Assertions
+//     //             console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
+//     //             aTrackedTreasury    = endtrackedTreasuries[0]
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
 
-//         it("Scenario - Creation of multiple treasuries", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Create a treasury";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Scenario - Creation of multiple treasuries", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Create a treasury";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 const treasuryMetadataBase = Buffer.from(
-//                 JSON.stringify({
-//                     name: 'MAVRYK PLENTY-USDTz Farm',
-//                     description: 'MAVRYK Farm Contract',
-//                     version: 'v1.0.0',
-//                     liquidityPairToken: {
-//                     tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
-//                     origin: ['Plenty'],
-//                     token0: {
-//                         symbol: ['PLENTY'],
-//                         tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
-//                     },
-//                     token1: {
-//                         symbol: ['USDtz'],
-//                         tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
-//                     }
-//                     },
-//                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-//                 }),
-//                 'ascii',
-//                 ).toString('hex')
+//     //             const treasuryMetadataBase = Buffer.from(
+//     //             JSON.stringify({
+//     //                 name: 'MAVRYK PLENTY-USDTz Farm',
+//     //                 description: 'MAVRYK Farm Contract',
+//     //                 version: 'v1.0.0',
+//     //                 liquidityPairToken: {
+//     //                 tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//     //                 origin: ['Plenty'],
+//     //                 token0: {
+//     //                     symbol: ['PLENTY'],
+//     //                     tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//     //                 },
+//     //                 token1: {
+//     //                     symbol: ['USDtz'],
+//     //                     tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//     //                 }
+//     //                 },
+//     //                 authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//     //             }),
+//     //             'ascii',
+//     //             ).toString('hex')
                     
-//                 // Create a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'createTreasury',
-//                     treasuryMetadataBase
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Create a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'createTreasury',
+//     //                 "testTreasuryPropo",
+//     //                 false,
+//     //                 treasuryMetadataBase
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %createTreasury param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %createTreasury param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "FirstTreasury#1": packedParam,
-//                     "FirstTreasury#2": packedParam,
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "FirstTreasury#1",
+//     //                     data: packedParam
+//     //                 },
+//     //                 {
+//     //                     title: "FirstTreasury#2",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const nextRoundParam        = await governanceInstance.methods.startNextRound(true).toTransferParams();
-//                 const estimate              = await utils.tezos.estimate.transfer(nextRoundParam);
-//                 console.log("ESTIMATION: ", estimate)
+//     //             const nextRoundParam        = await governanceInstance.methods.startNextRound(true).toTransferParams();
+//     //             const estimate              = await utils.tezos.estimate.transfer(nextRoundParam);
+//     //             console.log("ESTIMATION: ", estimate)
 
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
-//                 // Assertions
-//                 console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             // Assertions
+//     //             console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
-//     describe("%untrackTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
+//     // describe("%untrackTreasury", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
 
-//         it("Scenario - Untrack a previously created treasury", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Untrack a farm";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Scenario - Untrack a previously created treasury", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Untrack a farm";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
                 
-//                 console.log("INIT TRACKED TREASURIES: ", inittrackedTreasuries);
-//                 console.log(inittrackedTreasuries.length)
+//     //             console.log("INIT TRACKED TREASURIES: ", inittrackedTreasuries);
+//     //             console.log(inittrackedTreasuries.length)
 
-//                 // Untrack a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'untrackTreasury',
-//                     aTrackedTreasury
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Untrack a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'untrackTreasury',
+//     //                 aTrackedTreasury
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %untrackFarm param: ' + packedParam);
-//                 } else {
-//                 throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %untrackFarm param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Untrack#1": packedParam
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Untrack#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
-//                 // Assertions
-//                 console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
-//                 console.log(endtrackedTreasuries.length)
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
-//                 assert.equal(endtrackedTreasuries.includes(aTrackedTreasury), false);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             // Assertions
+//     //             console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+//     //             console.log(endtrackedTreasuries.length)
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
+//     //             assert.equal(endtrackedTreasuries.includes(aTrackedTreasury), false);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
-//     describe("%trackTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
+//     // describe("%trackTreasury", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
 
-//         it("Scenario - Track the previously untracked farm", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Track a farm";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     //     it("Scenario - Track the previously untracked farm", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const inittrackedTreasuries = await treasuryFactoryStorage.trackedTreasuries;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Track a farm";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
 
-//                 // Untrack a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'trackTreasury',
-//                     aTrackedTreasury
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //             // Untrack a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'trackTreasury',
+//     //                 aTrackedTreasury
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %trackFarm param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %trackFarm param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Track#1": packedParam
-//                 });
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Track#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endtrackedTreasuries  = await treasuryFactoryStorage.trackedTreasuries;
                 
-//                 // Assertions
-//                 console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
-//                 assert.equal(endtrackedTreasuries.includes(aTrackedTreasury), true);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             // Assertions
+//     //             console.log("TRACKED TREASURIES: ", endtrackedTreasuries);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endtrackedTreasuries.length, inittrackedTreasuries.length);
+//     //             assert.equal(endtrackedTreasuries.includes(aTrackedTreasury), true);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
-//     describe("%updateMvkInflationRate", async() => {
-//         beforeEach("Set signer to admin", async() => {
-//             await signerFactory(bob.sk)
-//         })
 
-//         it("Scenario - Update the Mvk Inflation rate", async() => {
-//             try{
-//                 // Initial values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const initMVKInflationRate  = mvkTokenStorage.inflationRate;
-//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update MVK Inflation Rate";
-//                 const proposalDesc          = "Details about new proposal";
-//                 const proposalIpfs          = "ipfs://QM123456789";
-//                 const proposalSourceCode    = "Proposal Source Code";
+//     // describe("%createAggregator", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
 
-//                 // Untrack a farm compiled params
-//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateMvkInflationRate',
-//                     700
-//                 ).toTransferParams();
-//                 const lambdaParamsValue = lambdaParams.parameter.value;
-//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+//     //     it("Scenario - Creation of a single aggregator", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage               = await governanceInstance.storage();
+//     //             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//     //             const inittrackedAggregators    = await aggregatorFactoryStorage.trackedAggregators;
+//     //             const proposalId                = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName              = "Create an aggregator";
+//     //             const proposalDesc              = "Details about new proposal";
+//     //             const proposalIpfs              = "ipfs://QM123456789";
+//     //             const proposalSourceCode        = "Proposal Source Code";
 
-//                 const referenceDataPacked = await utils.tezos.rpc.packData({
-//                     data: lambdaParamsValue,
-//                     type: proxyDataPackingHelperType
-//                 }).catch(e => console.error('error:', e));
+//     //             const oracleMap = MichelsonMap.fromLiteral({
+//     //                 [bob.pkh]              : true,
+//     //                 [eve.pkh]              : true,
+//     //                 [mallory.pkh]          : true,
+//     //                 [oracleMaintainer.pkh] : true,
+//     //               });
+                  
+//     //             const aggregatorMetadataBase = Buffer.from(
+//     //                 JSON.stringify({
+//     //                     name: 'MAVRYK Aggregator Contract',
+//     //                     version: 'v1.0.0',
+//     //                     authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//     //                 }),
+//     //                 'ascii',
+//     //                 ).toString('hex')
+                    
+//     //             // Create a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'createAggregator',
+//     //                 'USD',
+//     //                 'DOGE',
 
-//                 var packedParam;
-//                 if (referenceDataPacked) {
-//                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateMvkInflationRate param: ' + packedParam);
-//                 } else {
-//                     throw `packing failed`
-//                 };
+//     //                 'USDDOGE',
+//     //                 true,
+                    
+//     //                 oracleMap,
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Track#1": packedParam
-//                 });
+//     //                 new BigNumber(8),             // decimals
+//     //                 new BigNumber(2),             // numberBlocksDelay
 
-//                 // Start governance rounds
-//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //                 new BigNumber(86400),         // deviationTriggerBanTimestamp
+//     //                 new BigNumber(5),             // perthousandDeviationTrigger
+//     //                 new BigNumber(60),            // percentOracleThreshold
 
-//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
-//                 await proposeOperation.confirmation();
-//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
-//                 await lockOperation.confirmation();
-//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
-//                 await voteOperation.confirmation();
-//                 await signerFactory(bob.sk);
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
-//                 await nextRoundOperation.confirmation();
+//     //                 new BigNumber(0),             // requestRateDeviationDepositFee 
 
-//                 // Votes operation -> both satellites vote
-//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(alice.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
-//                 await votingRoundVoteOperation.confirmation();
-//                 await signerFactory(bob.sk);
+//     //                 new BigNumber(10000000),      // deviationRewardStakedMvk
+//     //                 new BigNumber(0),             // deviationRewardAmountXtz
+//     //                 new BigNumber(10000000),      // rewardAmountStakedMvk ~ 0.01 MVK 
+//     //                 new BigNumber(1000000),       // rewardAmountXtz - 1 tez for testing (usual should be around ~ 0.0013 tez)
+                    
+//     //                 oracleMaintainer.pkh,         // maintainer
+//     //                 aggregatorMetadataBase        // metadata bytes
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
-//                 // Execute proposal
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
-//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
-//                 await nextRoundOperation.confirmation();
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
 
-//                 // Final values
-//                 governanceStorage           = await governanceInstance.storage();
-//                 mvkTokenStorage             = await mvkTokenInstance.storage();
-//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endMVKInflationRate   = mvkTokenStorage.inflationRate;
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %createAggregator param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "FirstAggregator#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Mid values
+//     //             governanceStorage               = await governanceInstance.storage();
+//     //             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//     //             const endtrackedAggregators     = await aggregatorFactoryStorage.trackedAggregators;
+//     //             const proposal                  = await governanceStorage.proposalLedger.get(proposalId);
                 
-//                 // Assertions
-//                 assert.strictEqual(proposal.executed, true);
-//                 assert.notEqual(endMVKInflationRate, initMVKInflationRate);
-//                 assert.equal(endMVKInflationRate, 700);
-//             } catch(e) {
-//                 console.dir(e, {depth:5})
-//             }
-//         })
-//     })
+//     //             // Assertions
+//     //             console.log("TRACKED AGGREGATORS: ", endtrackedAggregators);
+//     //             aTrackedAggregator    = aggregatorFactoryStorage.trackedAggregators.get({
+//     //                 0: 'USD',
+//     //                 1: 'DOGE',
+//     //             }) as string;
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endtrackedAggregators.size, inittrackedAggregators.size);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+//     // describe("%untrackAggregator", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Scenario - Untrack a previously created aggregator", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage               = await governanceInstance.storage();
+//     //             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//     //             const inittrackedAggregators    = await aggregatorFactoryStorage.trackedAggregators;
+//     //             const proposalId                = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName              = "Untrack a aggregator";
+//     //             const proposalDesc              = "Details about new proposal";
+//     //             const proposalIpfs              = "ipfs://QM123456789";
+//     //             const proposalSourceCode        = "Proposal Source Code";
+                
+//     //             console.log("INIT TRACKED FARMS: ", inittrackedAggregators);
+//     //             console.log(inittrackedAggregators.size)
+
+//     //             // Untrack a aggregator compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'untrackAggregator',
+//     //                 'USD',
+//     //                 'DOGE'
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %untrackAggregator param: ' + packedParam);
+//     //             } else {
+//     //             throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Untrack#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ]
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endTrackedAggregators = await aggregatorFactoryStorage.trackedAggregators;
+//     //             const aggregator            = aggregatorFactoryStorage.trackedAggregators.get({
+//     //                 0: 'USD',
+//     //                 1: 'DOGE',
+//     //             }) as string;
+                
+//     //             // Assertions
+//     //             console.log("TRACKED AGGREGATORS: ", endTrackedAggregators);
+//     //             console.log(endTrackedAggregators.size)
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endTrackedAggregators.size, inittrackedAggregators.size);
+//     //             assert.equal(aggregator, undefined);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+
+//     // describe("%trackAggregator", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Scenario - Track the previously untracked aggregator", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage               = await governanceInstance.storage();
+//     //             aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//     //             const initTrackedAggregators    = await aggregatorFactoryStorage.trackedAggregators;
+//     //             const proposalId                = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName              = "Track a aggregator";
+//     //             const proposalDesc              = "Details about new proposal";
+//     //             const proposalIpfs              = "ipfs://QM123456789";
+//     //             const proposalSourceCode        = "Proposal Source Code";
+
+//     //             // Untrack a aggregator compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'trackAggregator',
+//     //                 'USD',
+//     //                 'DOGE',
+//     //                 aTrackedAggregator
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %trackAggregator param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Track#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endTrackedAggregators = await aggregatorFactoryStorage.trackedAggregators;
+//     //             const aggregator            = aggregatorFactoryStorage.trackedAggregators.get({
+//     //                 0: 'USD',
+//     //                 1: 'DOGE',
+//     //             }) as string;
+
+//     //             // Assertions
+//     //             console.log("TRACKED AGGREGATORS: ", endTrackedAggregators);
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endTrackedAggregators.size, initTrackedAggregators.size);
+//     //             assert.notEqual(aggregator, undefined);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+
+//     // describe("%setAggregatorMaintainer", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Scenario - Sets a new maintainer for an aggregator", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage               = await governanceInstance.storage();
+//     //             aggregatorStorage               = await aggregatorInstance.storage();
+//     //             const initMaintainer            = aggregatorFactoryStorage.maintainer;
+//     //             const proposalId                = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName              = "Set a maintainer";
+//     //             const proposalDesc              = "Details about new proposal";
+//     //             const proposalIpfs              = "ipfs://QM123456789";
+//     //             const proposalSourceCode        = "Proposal Source Code";
+
+//     //             // Untrack a aggregator compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'setAggregatorMaintainer',
+//     //                 aggregatorAddress.address,
+//     //                 alice.pkh
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %setAggregatorMaintainer param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "SetMaintainer#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             aggregatorStorage           = await aggregatorInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endMaintainer         = aggregatorStorage.maintainer;
+
+//     //             // Assertions
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.strictEqual(endMaintainer, alice.pkh);
+//     //             assert.notStrictEqual(endMaintainer, initMaintainer);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
+
+//     // describe("%updateMvkInflationRate", async() => {
+//     //     beforeEach("Set signer to admin", async() => {
+//     //         await signerFactory(bob.sk)
+//     //     })
+
+//     //     it("Scenario - Update the Mvk Inflation rate", async() => {
+//     //         try{
+//     //             // Initial values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const initMVKInflationRate  = mvkTokenStorage.inflationRate;
+//     //             const proposalId            = governanceStorage.nextProposalId.toNumber();
+//     //             const proposalName          = "Update MVK Inflation Rate";
+//     //             const proposalDesc          = "Details about new proposal";
+//     //             const proposalIpfs          = "ipfs://QM123456789";
+//     //             const proposalSourceCode    = "Proposal Source Code";
+
+//     //             // Untrack a farm compiled params
+//     //             const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//     //                 'updateMvkInflationRate',
+//     //                 700
+//     //             ).toTransferParams();
+//     //             const lambdaParamsValue = lambdaParams.parameter.value;
+//     //             const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//     //             const referenceDataPacked = await utils.tezos.rpc.packData({
+//     //                 data: lambdaParamsValue,
+//     //                 type: proxyDataPackingHelperType
+//     //             }).catch(e => console.error('error:', e));
+
+//     //             var packedParam;
+//     //             if (referenceDataPacked) {
+//     //                 packedParam = referenceDataPacked.packed
+//     //                 console.log('packed %updateMvkInflationRate param: ' + packedParam);
+//     //             } else {
+//     //                 throw `packing failed`
+//     //             };
+
+//     //             const proposalMetadata      = [
+//     //                 {
+//     //                     title: "Track#1",
+//     //                     data: packedParam
+//     //                 }
+//     //             ];
+
+//     //             // Start governance rounds
+//     //             var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//     //             await proposeOperation.confirmation();
+//     //             const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//     //             await lockOperation.confirmation();
+//     //             var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//     //             await voteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Votes operation -> both satellites vote
+//     //             var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(alice.sk);
+//     //             votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//     //             await votingRoundVoteOperation.confirmation();
+//     //             await signerFactory(bob.sk);
+
+//     //             // Execute proposal
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+//     //             nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//     //             await nextRoundOperation.confirmation();
+
+//     //             // Final values
+//     //             governanceStorage           = await governanceInstance.storage();
+//     //             mvkTokenStorage             = await mvkTokenInstance.storage();
+//     //             const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//     //             const endMVKInflationRate   = mvkTokenStorage.inflationRate;
+                
+//     //             // Assertions
+//     //             assert.strictEqual(proposal.executed, true);
+//     //             assert.notEqual(endMVKInflationRate, initMVKInflationRate);
+//     //             assert.equal(endMVKInflationRate, 700);
+//     //         } catch(e) {
+//     //             console.dir(e, {depth:5})
+//     //         }
+//     //     })
+//     // })
 
 //     describe("%setContractAdmin", async() => {
 //         beforeEach("Set signer to admin", async() => {
@@ -2227,9 +2819,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "SetAdmin#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "SetAdmin#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 //Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2288,7 +2883,7 @@
 //             await signerFactory(bob.sk)
 //         })
 
-//         it("Scenario - Set all contracts governance to another address", async() => {
+//         it("Scenario - Set all contracts governance to another address (same address for the tests)", async() => {
 //             try{
 //                 // Initial values
 //                 governanceStorage           = await governanceInstance.storage();
@@ -2301,14 +2896,13 @@
 //                 const proposalSourceCode    = "Proposal Source Code";
 
 //                 // Set a contract governance compiled params
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({});
+//                 const proposalMetadata      = [];
 //                 var generalCounter          = 0;
 //                 for (let entry of generalContracts){
 //                     // Get contract storage
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     generalCounter++;
 //                     var entryName       = "Governance#"+generalCounter
 
 //                     // Check admin
@@ -2316,7 +2910,7 @@
 //                         var lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                             'setContractGovernance',
 //                             entry[1],
-//                             alice.pkh,
+//                             governanceAddress.address,
 //                         ).toTransferParams();
 //                         var lambdaParamsValue = lambdaParams.parameter.value;
 //                         var proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -2335,7 +2929,11 @@
 //                         };
 
 //                         // Add new setGovernance data
-//                         proposalMetadata.set(entryName, packedParam);
+//                         proposalMetadata[generalCounter] = {
+//                             title: entryName, 
+//                             data: packedParam
+//                         }
+//                         generalCounter++;
 //                     }
 //                 }
 
@@ -2383,7 +2981,7 @@
 
 //                     // Check admin
 //                     if(storage.hasOwnProperty('governanceAddress')){
-//                         assert.strictEqual(storage.governanceAddress, alice.pkh);
+//                         assert.strictEqual(storage.governanceAddress, governanceAddress.address);
 //                     }
 //                 }
 //             } catch(e) {
@@ -2445,14 +3043,16 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Metadata#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Metadata#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
-
 //                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
 //                 await proposeOperation.confirmation();
 //                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2535,9 +3135,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Whitelist#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Whitelist#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2626,9 +3229,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "General#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "General#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2717,9 +3323,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Whitelist#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Whitelist#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2768,6 +3377,100 @@
 //         })
 //     })
 
+//     describe("%setContractName", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Updates the name of the farm contract", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmStorage                 = await farmInstance.storage();
+//                 const initName              = farmStorage.name;
+//                 const newName               = "newFarmName";
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Update farm name";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'setContractName',
+//                     farmAddress.address,
+//                     newName
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %setContractName param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "SetName#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmStorage                 = await farmInstance.storage();
+//                 const endName               = farmStorage.name;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notStrictEqual(endName, initName);
+//                 assert.strictEqual(endName, newName);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
 //     describe("%updateWhitelistDevelopersSet", async() => {
 //         beforeEach("Set signer to admin", async() => {
 //             await signerFactory(bob.sk)
@@ -2805,9 +3508,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Whitelist#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Whitelist#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2895,9 +3601,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "SuccessReward#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "SuccessReward#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2984,9 +3693,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Days#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Days#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3023,6 +3735,99 @@
 //                 governanceStorage           = await governanceInstance.storage();
 //                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
 //                 const endDays               = governanceFinancialStorage.config.financialRequestDurationInDays;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endDays, initDays);
+//                 assert.equal(endDays, 1);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%updateGovernanceSatelliteConfig", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Update the governanceSatellite governanceSatelliteDurationInDays", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 governanceSatelliteStorage          = await governanceSatelliteInstance.storage();
+//                 const initDays                      = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
+//                 const proposalId                    = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName                  = "Update governanceSatelliteDurationInDays";
+//                 const proposalDesc                  = "Details about new proposal";
+//                 const proposalIpfs                  = "ipfs://QM123456789";
+//                 const proposalSourceCode            = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateGovernanceSatelliteConfig',
+//                     1,
+//                     'configSatelliteDurationInDays'
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %updateGovernanceSatelliteConfig param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Days#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage();
+//                 const endDays               = governanceSatelliteStorage.config.governanceSatelliteDurationInDays;
 //                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
 //                 // Assertions
@@ -3074,9 +3879,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MaxSatellites#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "MaxSatellites#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3164,9 +3972,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "ActionExpiryDays#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "ActionExpiryDays#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3254,9 +4065,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "VoteExpiryDays#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "VoteExpiryDays#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3344,9 +4158,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "ActionExpiryDays#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "ActionExpiryDays#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3395,27 +4212,28 @@
 //         })
 //     })
 
-//     describe("%updateDoormanMinMVKAmount", async() => {
+//     describe("%updateFarmFactoryConfig", async() => {
 //         beforeEach("Set signer to admin", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
-//         it("Scenario - Update the doorman minMvkAmount", async() => {
+//         it("Scenario - Update the farm factory farm name max length", async() => {
 //             try{
 //                 // Initial values
 //                 governanceStorage           = await governanceInstance.storage();
-//                 doormanStorage              = await breakGlassInstance.storage();
-//                 const initAmount            = doormanStorage.minMvkAmount;
+//                 farmFactoryStorage          = await farmFactoryInstance.storage();
+//                 const initMaxLength         = farmFactoryStorage.config.farmNameMaxLength;
 //                 const proposalId            = governanceStorage.nextProposalId.toNumber();
-//                 const proposalName          = "Update minMvkAmount";
+//                 const proposalName          = "Update farm name max length";
 //                 const proposalDesc          = "Details about new proposal";
 //                 const proposalIpfs          = "ipfs://QM123456789";
 //                 const proposalSourceCode    = "Proposal Source Code";
 
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateDoormanMinMvkAmount',
-//                     new BigNumber(MVK(0.01))
+//                     'updateFarmFactoryConfig',
+//                     1234,
+//                     'configFarmNameMaxLength'
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
 //                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -3428,14 +4246,390 @@
 //                 var packedParam;
 //                 if (referenceDataPacked) {
 //                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateDoormanMinMVKAmount param: ' + packedParam);
+//                     console.log('packed %updateFarmFactoryConfig param: ' + packedParam);
 //                 } else {
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MinMvkAmount#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "MaxLength#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmFactoryStorage          = await farmFactoryInstance.storage();
+//                 const endMaxLength          = farmFactoryStorage.config.farmNameMaxLength;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endMaxLength, initMaxLength);
+//                 assert.equal(endMaxLength, 1234);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%updateAggregatorConfig", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Update an aggregator numberBlocksDelay", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorStorage           = await aggregatorInstance.storage();
+//                 const initBlocksDelay       = aggregatorStorage.config.numberBlocksDelay.toNumber();
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Update numberBlocksDelay";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateAggregatorConfig',
+//                     aggregatorAddress.address,
+//                     3,
+//                     'configNumberBlocksDelay'
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %updateAggregatorConfig param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "NumberBlocksDelay#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorStorage           = await aggregatorInstance.storage();
+//                 const endBlocksDelay        = aggregatorStorage.config.numberBlocksDelay.toNumber();
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endBlocksDelay, initBlocksDelay);
+//                 assert.equal(endBlocksDelay, 3);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%updateAggregatorFactoryConfig", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Update the aggregator factory aggregator name max length", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorFactoryStorage    = await treasuryFactoryInstance.storage();
+//                 const initMaxLength         = aggregatorFactoryStorage.config.aggregatorNameMaxLength;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Update aggregator name max length";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateAggregatorFactoryConfig',
+//                     1234,
+//                     'configAggregatorNameMaxLength'
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %updateAggregatorFactoryConfig param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "MaxLength#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const endMaxLength          = aggregatorFactoryStorage.config.aggregatorNameMaxLength;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endMaxLength, initMaxLength);
+//                 assert.equal(endMaxLength, 1234);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%updateTreasuryFactoryConfig", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Update the treasury factory farm name max length", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//                 const initMaxLength         = treasuryFactoryStorage.config.treasuryNameMaxLength;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Update treasury name max length";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateTreasuryFactoryConfig',
+//                     1234,
+//                     'configTreasuryNameMaxLength'
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %updateTreasuryFactoryConfig param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "MaxLength#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//                 const endMaxLength          = treasuryFactoryStorage.config.treasuryNameMaxLength;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endMaxLength, initMaxLength);
+//                 assert.equal(endMaxLength, 1234);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%updateDoormanConfig", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Update the doorman minMvkAmount", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await breakGlassInstance.storage();
+//                 const initAmount            = doormanStorage.config.minMvkAmount;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Update minMvkAmount";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateDoormanConfig',
+//                     new BigNumber(MVK(0.01)),
+//                     'configMinMvkAmount'
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %updateDoormanConfig param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "MinMvkAmount#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3471,7 +4665,7 @@
 //                 // Final values
 //                 governanceStorage           = await governanceInstance.storage();
 //                 doormanStorage              = await doormanInstance.storage();
-//                 const endAmount             = doormanStorage.minMvkAmount;
+//                 const endAmount             = doormanStorage.config.minMvkAmount;
 //                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
 //                 // Assertions
@@ -3525,9 +4719,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "RewardPerBlock#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "RewardPerBlock#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3599,7 +4796,6 @@
 //                     farmAddress.address,
 //                     100,
 //                     MVK(100),
-//                     2,
 //                     false,
 //                     false
 //                 ).toTransferParams();
@@ -3619,9 +4815,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "InitFarm#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "InitFarm#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3666,7 +4865,6 @@
 //                 assert.equal(endConfig.plannedRewards.currentRewardPerBlock, MVK(100));
 //                 assert.equal(endConfig.plannedRewards.totalBlocks, 100);
 //                 assert.equal(endConfig.infinite, false);
-//                 assert.equal(endConfig.blocksPerMinute, 2);
 //                 assert.equal(endConfig.forceRewardFromTransfer, false);
 //                 assert.equal(farmStorage.init, true);
 //                 assert.equal(farmStorage.open, true);
@@ -3714,9 +4912,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "CloseFarm#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "CloseFarm#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3817,9 +5018,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "TransferTreasury#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "TransferTreasury#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3912,9 +5116,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "MintMvkAndTransferTreasury#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "MintMvkAndTransferTreasury#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3965,7 +5172,7 @@
 //         })
 //     })
 
-//     describe("%updateOperatorsTreasury", async() => {
+//     describe("%updateMvkOperatorsTreasury", async() => {
 //         beforeEach("Set signer to admin", async() => {
 //             await signerFactory(bob.sk)
 //         })
@@ -3983,7 +5190,7 @@
 
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'updateOperatorsTreasury',
+//                     'updateMvkOperatorsTreasury',
 //                     treasuryAddress.address,
 //                     [
 //                         {
@@ -4006,14 +5213,17 @@
 //                 var packedParam;
 //                 if (referenceDataPacked) {
 //                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %updateOperatorsTreasury param: ' + packedParam);
+//                     console.log('packed %updateMvkOperatorsTreasury param: ' + packedParam);
 //                 } else {
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "UpdateOperatorsTreasury#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "UpdateMvkOperatorsTreasury#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4059,7 +5269,7 @@
 //     })
 
 
-//     describe("%stakeTreasury", async() => {
+//     describe("%stakeMvkTreasury", async() => {
 //         beforeEach("Set signer to admin", async() => {
 //             await signerFactory(bob.sk)
 //         })
@@ -4081,7 +5291,7 @@
 
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'stakeTreasury',
+//                     'stakeMvkTreasury',
 //                     treasuryAddress.address,
 //                     MVK(10)
 //                 ).toTransferParams();
@@ -4096,14 +5306,17 @@
 //                 var packedParam;
 //                 if (referenceDataPacked) {
 //                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %stakeTreasury param: ' + packedParam);
+//                     console.log('packed %stakeMvkTreasury param: ' + packedParam);
 //                 } else {
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "StakeTreasury#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "StakeMvkTreasury#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4156,7 +5369,7 @@
 //         })
 //     })
 
-//     describe("%unstakeTreasury", async() => {
+//     describe("%unstakeMvkTreasury", async() => {
 //         beforeEach("Set signer to admin", async() => {
 //             await signerFactory(bob.sk)
 //         })
@@ -4178,7 +5391,7 @@
 
 //                 // Update general map compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
-//                     'unstakeTreasury',
+//                     'unstakeMvkTreasury',
 //                     treasuryAddress.address,
 //                     MVK(5)
 //                 ).toTransferParams();
@@ -4193,14 +5406,17 @@
 //                 var packedParam;
 //                 if (referenceDataPacked) {
 //                     packedParam = referenceDataPacked.packed
-//                     console.log('packed %stakeTreasury param: ' + packedParam);
+//                     console.log('packed %unstakeMvkTreasury param: ' + packedParam);
 //                 } else {
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "UnstakeTreasury#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "UnstakeMvkTreasury#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4266,7 +5482,7 @@
 
 //                 const firstUserMvkBalance           = await mvkTokenStorage.ledger.get(bob.pkh);
 //                 const initMVKTotalSupply            = mvkTokenStorage.totalSupply.toNumber();
-//                 const initSMVKTotalSupply           = doormanStorage.stakedMvkTotalSupply.toNumber();
+//                 const initSMVKTotalSupply           = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
 
 //                 const proposalId                    = governanceStorage.nextProposalId.toNumber();
 //                 const proposalName                  = "Update the unstake entrypoint of the doorman contract";
@@ -4287,7 +5503,7 @@
 //                 // Refresh the values and calculate the exit fee
 //                 mvkTokenStorage                             = await mvkTokenInstance.storage();
 //                 doormanStorage                              = await doormanInstance.storage();
-//                 const firstRefreshedSMVKTotalSupply         = doormanStorage.stakedMvkTotalSupply.toNumber();
+//                 const firstRefreshedSMVKTotalSupply         = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
 //                 const firstRefreshedUserMvkBalance          = await mvkTokenStorage.ledger.get(bob.pkh);
 //                 const firstExitFee                          = Math.abs(firstUserMvkBalance.toNumber() + unstakeAmount - firstRefreshedUserMvkBalance.toNumber())
 //                 console.log("OLD UNSTAKE EXIT FEE: ", firstExitFee);
@@ -4305,7 +5521,7 @@
 //                 mvkTokenStorage                             = await mvkTokenInstance.storage();
 //                 doormanStorage                              = await doormanInstance.storage();
 //                 const secondRefreshedMVKTotalSupply         = mvkTokenStorage.totalSupply.toNumber();
-//                 const secondRefreshedSMVKTotalSupply        = doormanStorage.stakedMvkTotalSupply.toNumber();
+//                 const secondRefreshedSMVKTotalSupply        = ((await mvkTokenStorage.ledger.get(doormanAddress.address)) === undefined ? new BigNumber(0) : (await mvkTokenStorage.ledger.get(doormanAddress.address))).toNumber();
                 
 //                 // Assertions
 //                 assert.equal(initMVKTotalSupply, secondRefreshedMVKTotalSupply);
@@ -4334,9 +5550,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "SetContractLambda#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "SetContractLambda#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4441,9 +5660,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "SetFactoryProductLambda#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "SetFactoryProductLambda#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4534,9 +5756,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "AddVestee#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "AddVestee#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4630,9 +5855,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "UpdateVestee#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "UpdateVestee#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4720,9 +5948,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "ToggleVesteeLock#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "ToggleVesteeLock#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4808,9 +6039,12 @@
 //                     throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "RemoveVestee#1": packedParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "RemoveVestee#1",
+//                         data: packedParam
+//                     }
+//                 ];
 
 //                 // Start governance rounds
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4852,6 +6086,941 @@
 //                 // Assertions
 //                 assert.strictEqual(proposal.executed, true);
 //                 assert.strictEqual(vestee, undefined)
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleAggregatorEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the aggregator requestRateUpdate entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorStorage           = await aggregatorInstance.storage();
+//                 const initPaused            = aggregatorStorage.breakGlassConfig.requestRateUpdateIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses requestRateUpdate";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleAggregatorEntrypoint',
+//                     aggregatorAddress.address,
+//                     'requestRateUpdate',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleAggregatorEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorStorage           = await aggregatorInstance.storage();
+//                 const endPaused             = aggregatorStorage.breakGlassConfig.requestRateUpdateIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleAggregatorFactoryEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the aggregator factory createAggregator entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const initPaused            = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses createAggregator";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleAggregatorFacEntrypoint',
+//                     'createAggregator',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleAggregatorFacEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 aggregatorFactoryStorage    = await aggregatorFactoryInstance.storage();
+//                 const endPaused             = aggregatorFactoryStorage.breakGlassConfig.createAggregatorIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleFarmEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the farm deposit entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmStorage                 = await farmInstance.storage();
+//                 const initPaused            = farmStorage.breakGlassConfig.depositIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses deposit";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleFarmEntrypoint',
+//                     farmAddress.address,
+//                     'deposit',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleFarmEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmStorage                 = await farmInstance.storage();
+//                 const endPaused             = farmStorage.breakGlassConfig.depositIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleFarmFactoryEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the farm factory createFarm entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmFactoryStorage          = await farmFactoryInstance.storage();
+//                 const initPaused            = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses createFarm";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleFarmFacEntrypoint',
+//                     'createFarm',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleFarmFacEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 farmFactoryStorage          = await farmFactoryInstance.storage();
+//                 const endPaused             = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleTreasuryEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the treasury mintMvkAndTransfer entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 treasuryStorage             = await treasuryInstance.storage();
+//                 const initPaused            = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses mintMvkAndTransfer";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleTreasuryEntrypoint',
+//                     treasuryAddress.address,
+//                     'mintMvkAndTransfer',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleTreasuryEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 treasuryStorage             = await treasuryInstance.storage();
+//                 const endPaused             = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleTreasuryFactoryEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the treasury factory createTreasury entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//                 const initPaused            = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses createTreasury";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleTreasuryFacEntrypoint',
+//                     'createTreasury',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleTreasuryFacEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 treasuryFactoryStorage      = await treasuryFactoryInstance.storage();
+//                 const endPaused             = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleDoormanEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the doorman stake entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const initPaused            = doormanStorage.breakGlassConfig.stakeIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses stake";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleDoormanEntrypoint',
+//                     'stake',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleDoormanEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const endPaused             = doormanStorage.breakGlassConfig.stakeIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%toggleDelegationEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses the delegation stake entrypoint", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const initPaused            = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses stake";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'toggleDelegationEntrypoint',
+//                     'registerAsSatellite',
+//                     true
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %toggleDelegationEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 delegationStorage           = await delegationInstance.storage();
+//                 const endPaused             = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endPaused, initPaused);
+//                 assert.equal(endPaused, true);
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%pauseAllContractEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses all the doorman entrypoints", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const initBreakGlass        = doormanStorage.breakGlassConfig;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses all entrypoints";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 console.log("BREAK GLASS CONFIG BEFORE: ", initBreakGlass)
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'pauseAllContractEntrypoint',
+//                     doormanAddress.address
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %pauseAllContractEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const endBreakGlass         = doormanStorage.breakGlassConfig;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endBreakGlass, initBreakGlass);
+//                 console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%unpauseAllContractEntrypoint", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Pauses all the doorman entrypoints", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const initBreakGlass        = doormanStorage.breakGlassConfig;
+//                 const proposalId            = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName          = "Pauses all entrypoints";
+//                 const proposalDesc          = "Details about new proposal";
+//                 const proposalIpfs          = "ipfs://QM123456789";
+//                 const proposalSourceCode    = "Proposal Source Code";
+
+//                 console.log("BREAK GLASS CONFIG BEFORE: ", initBreakGlass)
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'unpauseAllContractEntrypoint',
+//                     doormanAddress.address
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %unpauseAllContractEntrypoint param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "PauseEntrypoint#1",
+//                         data: packedParam
+//                     }
+//                 ];
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const endBreakGlass         = doormanStorage.breakGlassConfig;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endBreakGlass, initBreakGlass);
+//                 console.log("BREAK GLASS CONFIG AFTER: ", endBreakGlass)
 //             } catch(e) {
 //                 console.dir(e, {depth:5})
 //             }
