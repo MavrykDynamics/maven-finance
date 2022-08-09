@@ -16,32 +16,36 @@ const breakGlassConfig = {
 }
 
 const metadata = MichelsonMap.fromLiteral({
-  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
-  data: Buffer.from(
-    JSON.stringify({
-      name: 'MAVRYK Treasury Factory Contract',
-      version: 'v1.0.0',
-      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
-    }),
-    'ascii',
-  ).toString('hex'),
+    '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+    data: Buffer.from(
+        JSON.stringify({
+            name: 'MAVRYK Treasury Factory Contract',
+            version: 'v1.0.0',
+            authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+        }),
+        'ascii',
+    ).toString('hex'),
 })
 
 export const treasuryFactoryStorage: treasuryFactoryStorageType = {
-  
-  admin                     : bob.pkh,
-  mvkTokenAddress           : "",
-  governanceAddress         : "",
-  metadata                  : metadata,
+    
+    admin                     : bob.pkh,
+    mvkTokenAddress           : "",
+    governanceAddress         : "",
+    metadata                  : metadata,
 
-  trackedTreasuries         : [],
-  breakGlassConfig          : breakGlassConfig,
+    config                    : {
+        treasuryNameMaxLength   : new BigNumber(100)
+    },
 
-  whitelistContracts        : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
-  generalContracts          : MichelsonMap.fromLiteral({}),
+    trackedTreasuries         : [],
+    breakGlassConfig          : breakGlassConfig,
 
-  lambdaLedger              : MichelsonMap.fromLiteral({}),
-  treasuryLambdaLedger      : MichelsonMap.fromLiteral({})
+    whitelistContracts        : MichelsonMap.fromLiteral({}),
+    whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
+    generalContracts          : MichelsonMap.fromLiteral({}),
+
+    lambdaLedger              : MichelsonMap.fromLiteral({}),
+    treasuryLambdaLedger      : MichelsonMap.fromLiteral({})
 
 };

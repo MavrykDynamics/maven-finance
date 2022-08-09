@@ -12,7 +12,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory, trudy } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy, oscar } from "../scripts/sandbox/accounts";
 
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import delegationAddress from '../deployments/delegationAddress.json';
@@ -87,9 +87,9 @@
 //         console.log('Eve address: ' + eve.pkh);
 
 //         // Init multiple satellites
-//         delegationStorage = await delegationInstance.storage();
-//         const satelliteMap = await delegationStorage.satelliteLedger;
-//         if(satelliteMap.get(eve.pkh) === undefined){
+//         delegationStorage       = await delegationInstance.storage();
+//         const satelliteCreated  = await delegationStorage.satelliteLedger.get(eve.pkh);
+//         if(satelliteCreated === undefined){
 //             var updateOperators = await mvkTokenInstance.methods
 //                 .update_operators([
 //                 {
@@ -154,18 +154,39 @@
 //                 700
 //             ).send();
 //             await registerAsSatellite.confirmation();
+
+//             // Reset signer
+//             await signerFactory(bob.sk)
+    
+//             // Set council contract admin to governance proxy for later tests
+//             const setAdminOperation = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send();
+//             await setAdminOperation.confirmation()
 //         }
-
-//         // Reset signer
-//         await signerFactory(bob.sk)
-
-//         // Set council contract admin to governance proxy for later tests
-//         const setAdminOperation = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send();
-//         await setAdminOperation.confirmation()
 //     });
 
 //     describe("First Cycle", async () => {
 //         describe("%updateConfig", async () => {
+//             before("Configure delegation ratio on delegation contract", async () => {
+//                 try{
+//                     // Initial Values
+//                     await signerFactory(bob.sk)
+//                     delegationStorage   = await delegationInstance.storage();
+//                     const newConfigValue = 10;
+
+//                     // Operation
+//                     const updateConfigOperation = await delegationInstance.methods.updateConfig(newConfigValue,"configDelegationRatio").send();
+//                     await updateConfigOperation.confirmation();
+
+//                     // Final values
+//                     delegationStorage   = await delegationInstance.storage();
+//                     const updateConfigValue = delegationStorage.config.delegationRatio;
+
+//                     // Assertions
+//                     assert.equal(updateConfigValue, newConfigValue);
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             });
 //             beforeEach("Set signer to admin", async () => {
 //                 await signerFactory(bob.sk)
 //             });
@@ -254,7 +275,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = 10;
+//                     const newConfigValue = 1;
 
 //                     // Operation
 //                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumPercentage").send();
@@ -291,63 +312,22 @@
 //                     console.dir(e, {depth: 5})
 //                 }
 //             });
-//             it('Admin should be able to call the entrypoint and configure the min quorum mvk total required', async () => {
+//             it('Admin should be able to call the entrypoint and configure the min yay votes mvk total required', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = MVK(2);
+//                     const newConfigValue = 5050;
 
 //                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinQuorumMvkTotal").send();
+//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.minQuorumMvkTotal;
+//                     const updateConfigValue = governanceStorage.config.minYayVotePercentage;
 
 //                     // Assertions
 //                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should be able to call the entrypoint and configure the voting power ratio', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = 10;
-
-//                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send();
-//                     await updateConfigOperation.confirmation();
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.votingPowerRatio;
-
-//                     // Assertions
-//                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const currentConfigValue = governanceStorage.config.votingPowerRatio;
-//                     const newConfigValue = 10001;
-
-//                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.votingPowerRatio;
-
-//                     // Assertions
-//                     assert.notEqual(newConfigValue, currentConfigValue);
-//                     assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -372,60 +352,19 @@
 //                     console.dir(e, {depth: 5})
 //                 }
 //             });
-//             it('Admin should be able to call the entrypoint and configure the min sMVK required percentage', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = 0;
-
-//                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMinimumStakeReqPercentage").send();
-//                     await updateConfigOperation.confirmation();
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.minimumStakeReqPercentage;
-
-//                     // Assertions
-//                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should not be able to call the entrypoint and configure the min sMVK required percentage if it exceed 100%', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const currentConfigValue = governanceStorage.config.minimumStakeReqPercentage;
-//                     const newConfigValue = 10001;
-
-//                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configMinimumStakeReqPercentage").send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.minimumStakeReqPercentage;
-
-//                     // Assertions
-//                     assert.notEqual(newConfigValue, currentConfigValue);
-//                     assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should be able to call the entrypoint and configure the max proposals per delegate', async () => {
+//             it('Admin should be able to call the entrypoint and configure the max proposals per satellite', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const newConfigValue = 5;
 
 //                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMaxProposalsPerDelegate").send();
+//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configMaxProposalsPerSatellite").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.maxProposalsPerDelegate;
+//                     const updateConfigValue = governanceStorage.config.maxProposalsPerSatellite;
 
 //                     // Assertions
 //                     assert.equal(updateConfigValue, newConfigValue);
@@ -596,7 +535,7 @@
 //                     const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
 //                     const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
 //                     const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//                     const currentRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//                     const cycleHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //                     // Operation
 //                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -612,7 +551,7 @@
 //                     const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
 //                     const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
 //                     const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//                     const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //                     // Assertions
 //                     assert.equal(currentCycleInfoRoundString, "proposal");
@@ -622,7 +561,7 @@
 //                     assert.equal(currentCycleInfoRoundStartLevel, 0);
 //                     assert.equal(currentCycleInfoRoundEndLevel, 0);
 //                     assert.equal(currentCycleInfoCycleEndLevel, 0);
-//                     assert.equal(currentRoundHighestVotedProposalId, 0);
+//                     assert.equal(cycleHighestVotedProposalId, 0);
 
 //                     assert.equal(finalRoundString, "proposal");
 //                     assert.notEqual(finalBlocksPerProposalRound, currentCycleInfoBlocksPerProposalRound);
@@ -631,7 +570,7 @@
 //                     assert.notEqual(finalRoundStartLevel, currentCycleInfoRoundStartLevel);
 //                     assert.notEqual(finalRoundEndLevel, currentCycleInfoRoundEndLevel);
 //                     assert.notEqual(finalCycleEndLevel, currentCycleInfoCycleEndLevel);
-//                     assert.notEqual(finalRoundHighestVotedProposalId, currentRoundHighestVotedProposalId);
+//                     assert.notEqual(finalRoundHighestVotedProposalId, cycleHighestVotedProposalId);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -729,7 +668,7 @@
 //                     governanceStorage = await governanceInstance.storage();
 //                     const finalRound                       = governanceStorage.currentCycleInfo.round
 //                     const finalRoundString                 = Object.keys(finalRound)[0]
-//                     const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
+//                     const finalRoundHighestVotedProposalId = governanceStorage.cycleHighestVotedProposalId
 
 //                     // Assertions
 //                     assert.equal(currentCycleInfoRoundString, "proposal");
@@ -798,9 +737,10 @@
 //                     await startNextRoundOperation.confirmation();
 
 //                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const finalRound                       = governanceStorage.currentCycleInfo.round
-//                     const finalRoundString                 = Object.keys(finalRound)[0]
+//                     governanceStorage                       = await governanceInstance.storage();
+//                     mvkTokenStorage                         = await mvkTokenInstance.storage();
+//                     const finalRound                        = governanceStorage.currentCycleInfo.round
+//                     const finalRoundString                  = Object.keys(finalRound)[0]
 
 //                     // Assertions
 //                     assert.equal(finalRoundString, "timelock");
@@ -833,55 +773,6 @@
 //                 }
 //             })
 
-//             // it('User should not be able to call the entrypoint if the current round has not ended yet', async () => {
-//             //     try{
-//             //         // Initial Values
-//             //         governanceStorage = await governanceInstance.storage();
-//             //         const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
-//             //         const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
-//             //         const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-//             //         const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-//             //         const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-//             //         const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-//             //         const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-//             //         const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//             //         const currentRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
-
-//             //         const roundDurationConfig = 1
-
-//             //         // Operation
-//             //         await signerFactory(bob.sk)
-//             //         var updateConfigOperation = await governanceInstance.methods.updateConfig(roundDurationConfig, "configBlocksPerProposalRound").send();
-//             //         await updateConfigOperation.confirmation();
-//             //         await signerFactory(eve.sk)
-
-//             //         await chai.expect(governanceInstance.methods.startNextRound(true).send()).to.be.rejected;
-
-//             //         // Final values
-//             //         governanceStorage = await governanceInstance.storage();
-//             //         const finalRound                       = governanceStorage.currentCycleInfo.round
-//             //         const finalRoundString                 = Object.keys(finalRound)[0]
-//             //         const finalBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-//             //         const finalBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-//             //         const finalBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-//             //         const finalRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-//             //         const finalRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-//             //         const finalCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
-//             //         const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
-
-//             //         // Assertions
-//             //         assert.equal(finalRoundString, currentCycleInfoRoundString);
-//             //         assert.equal(finalBlocksPerProposalRound.toNumber(), currentCycleInfoBlocksPerProposalRound.toNumber());
-//             //         assert.equal(finalBlocksPerVotingRound.toNumber(), currentCycleInfoBlocksPerVotingRound.toNumber());
-//             //         assert.equal(finalBlocksPerTimelockRound.toNumber(), currentCycleInfoBlocksPerTimelockRound.toNumber());
-//             //         assert.equal(finalRoundStartLevel.toNumber(), currentCycleInfoRoundStartLevel.toNumber());
-//             //         assert.equal(finalRoundEndLevel.toNumber(), currentCycleInfoRoundEndLevel.toNumber());
-//             //         assert.equal(finalCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
-//             //         assert.equal(finalRoundHighestVotedProposalId.toNumber(), currentRoundHighestVotedProposalId.toNumber());
-//             //     } catch(e){
-//             //         console.dir(e, {depth: 5})
-//             //     }
-//             // })
 //         })
 
 //         describe("%propose", async () => {
@@ -908,17 +799,17 @@
 //                     const successReward = governanceStorage.config.successReward
 //                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-//                     const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
+//                     const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
 //                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                     const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
-//                     const cycleCounter = governanceStorage.cycleCounter
+//                     const cycleId = governanceStorage.cycleId
 //                     const finalNextProposalId = governanceStorage.nextProposalId;
 //                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
-//                     const newCurrentRoundProposal = governanceStorage.currentCycleInfo.roundProposals.get(nextProposalId);
+//                     const cycleProposal = await governanceStorage.cycleProposals.get(nextProposalId)
 
 //                     // Assertions
 //                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
-//                     assert.notStrictEqual(newCurrentRoundProposal, undefined);
+//                     assert.notEqual(cycleProposal, undefined);
 //                     assert.notStrictEqual(newProposal, undefined);
 //                     assert.strictEqual(newProposal.proposerAddress, eve.pkh);
 //                     assert.strictEqual(newProposal.status, "ACTIVE");
@@ -929,21 +820,21 @@
 //                     assert.equal(newProposal.successReward.toNumber(), successReward.toNumber());
 //                     assert.equal(newProposal.executed, false);
 //                     assert.equal(newProposal.locked, false);
-//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.passVoteMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
 //                     assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
-//                     assert.equal(newProposal.upvoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.upvoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.downvoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.downvoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.abstainCount.toNumber(), 0);
-//                     assert.equal(newProposal.abstainMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-//                     assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
+//                     assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
-//                     assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
+//                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.cycle.toNumber(), cycleId.toNumber());
 //                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -982,9 +873,12 @@
 //                     throw `packing failed`
 //                     };
 
-//                     const proposalMetadata      = MichelsonMap.fromLiteral({
-//                         "Metadata#1": packedUpdateConfigSuccessRewardParam
-//                     });
+//                     const proposalMetadata      = [
+//                         {
+//                             title: "Metadata#1",
+//                             data: packedUpdateConfigSuccessRewardParam
+//                         }
+//                     ]
 
 //                     // Operation
 //                     const proposeOperation = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 0.1});
@@ -995,20 +889,20 @@
 //                     const successReward = governanceStorage.config.successReward
 //                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
-//                     const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
+//                     const minYayVotePercentage = governanceStorage.config.minYayVotePercentage
 //                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
 //                     const minProposalRoundVotesRequired = governanceStorage.config.minProposalRoundVotesRequired
-//                     const cycleCounter = governanceStorage.cycleCounter
+//                     const cycleId = governanceStorage.cycleId
 //                     const finalNextProposalId = governanceStorage.nextProposalId;
 //                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId.toNumber());
-//                     const proposalMetadataStorage = await newProposal.proposalMetadata.get("Metadata#1");
-//                     const newCurrentRoundProposal = governanceStorage.currentCycleInfo.roundProposals.get(nextProposalId);
-
+//                     const proposalMetadataStorage = await newProposal.proposalMetadata.get("0");
+//                     const cycleProposal = await governanceStorage.cycleProposals.get(nextProposalId)
+                    
 //                     // Assertions
 //                     assert.notStrictEqual(proposalMetadataStorage, undefined);
-//                     assert.strictEqual(proposalMetadataStorage, packedUpdateConfigSuccessRewardParam);
+//                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam);
 //                     assert.equal(nextProposalId.toNumber() + 1, finalNextProposalId.toNumber());
-//                     assert.notStrictEqual(newCurrentRoundProposal, undefined);
+//                     assert.notEqual(cycleProposal, undefined);
 //                     assert.notStrictEqual(newProposal, undefined);
 //                     assert.strictEqual(newProposal.proposerAddress, eve.pkh);
 //                     assert.strictEqual(newProposal.status, "ACTIVE");
@@ -1019,21 +913,21 @@
 //                     assert.equal(newProposal.successReward.toNumber(), successReward.toNumber());
 //                     assert.equal(newProposal.executed, false);
 //                     assert.equal(newProposal.locked, false);
-//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.passVoteMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.proposalVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minProposalRoundVotePercentage.toNumber(), minProposalRoundVotePercentage.toNumber());
 //                     assert.equal(newProposal.minProposalRoundVotesRequired.toNumber(), minProposalRoundVotesRequired.toNumber());
-//                     assert.equal(newProposal.upvoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.upvoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.downvoteCount.toNumber(), 0);
-//                     assert.equal(newProposal.downvoteMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.abstainCount.toNumber(), 0);
-//                     assert.equal(newProposal.abstainMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.yayVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.yayVoteStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.nayVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.nayVoteStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteCount.toNumber(), 0);
+//                     assert.equal(newProposal.passVoteStakedMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.minQuorumPercentage.toNumber(), minQuorumPercentage.toNumber());
-//                     assert.equal(newProposal.minQuorumMvkTotal.toNumber(), minQuorumMvkTotal.toNumber());
+//                     assert.equal(newProposal.minYayVotePercentage.toNumber(), minYayVotePercentage.toNumber());
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
-//                     assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
-//                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
+//                     assert.equal(newProposal.quorumStakedMvkTotal.toNumber(), 0);
+//                     assert.equal(newProposal.cycle.toNumber(), cycleId.toNumber());
 //                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -1098,44 +992,9 @@
 //                     console.dir(e, {depth: 5})
 //                 }
 //             })
-
-//             it('Satellite should not be able to call this entrypoint if it does not have enough sMVK', async () => {
-//                 try{
-//                     // Initial Values
-//                     delegationStorage           = await delegationInstance.storage();
-//                     const nextProposalId        = governanceStorage.nextProposalId;
-//                     const proposalName          = "New Proposal #4";
-//                     const proposalDesc          = "Details about new proposal #4";
-//                     const proposalIpfs          = "ipfs://QM123456789";
-//                     const proposalSourceCode    = "Proposal Source Code";
-
-//                     // Preparation
-//                     await signerFactory(bob.sk)
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1000,"configMinimumStakeReqPercentage").send();
-//                     await updateConfigOperation.confirmation();
-
-//                     // Operation
-//                     await signerFactory(alice.sk);
-//                     await chai.expect(governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 0.1})).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const newProposal = await governanceStorage.proposalLedger.get(nextProposalId);
-
-//                     // Assertions
-//                     assert.strictEqual(newProposal, undefined);
-
-//                     // Reset
-//                     await signerFactory(bob.sk)
-//                     var updateConfigOperation       = await governanceInstance.methods.updateConfig(0,"configMinimumStakeReqPercentage").send();
-//                     await updateConfigOperation.confirmation();
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             })
 //         })
 
-//         describe("%addUpdateProposalData", async () => {
+//         describe("%updateProposalData", async () => {
 //             beforeEach("Set signer to satellite", async () => {
 //                 await signerFactory(eve.sk)
 //             });
@@ -1145,6 +1004,7 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
+//                     const proposalDebug              = await governanceStorage.proposalLedger.get(proposalId);
 
 //                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
 //                     'updateCouncilConfig',
@@ -1168,16 +1028,16 @@
 //                     };
 
 //                     // Operation
-//                     const addMetadataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#2", packedUpdateConfigSuccessRewardParam).send();
+//                     const addMetadataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedUpdateConfigSuccessRewardParam).send();
 //                     await addMetadataOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("Metadata#2");
+//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("1");
 
 //                     // Assertions
-//                     assert.strictEqual(proposalMetadataStorage, packedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1209,16 +1069,16 @@
 //                     };
 
 //                     // Operation
-//                     const addMetadataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#2", packedUpdateConfigSuccessRewardParam).send();
+//                     const addMetadataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#2", packedUpdateConfigSuccessRewardParam).send();
 //                     await addMetadataOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("Metadata#2");
+//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("1");
 
 //                     // Assertions
-//                     assert.strictEqual(proposalMetadataStorage, packedUpdateConfigSuccessRewardParam)
+//                     assert.strictEqual(proposalMetadataStorage.data, packedUpdateConfigSuccessRewardParam)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1251,12 +1111,12 @@
 
 //                     // Operation
 //                     await signerFactory(bob.sk);
-//                     await chai.expect(governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("Metadata#3");
+//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("2");
 
 //                     // Assertions
 //                     assert.strictEqual(proposalMetadataStorage, undefined)
@@ -1291,7 +1151,7 @@
 //                     };
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
@@ -1331,12 +1191,12 @@
 
 //                     // Operation
 //                     await signerFactory(alice.sk);
-//                     await chai.expect(governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#3", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected;
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("Metadata#3");
+//                     const proposalMetadataStorage = await proposal.proposalMetadata.get("2");
 
 //                     // Assertions
 //                     assert.strictEqual(proposalMetadataStorage, undefined)
@@ -1443,6 +1303,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
+//                     const cycleId          = governanceStorage.cycleId.toNumber();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
 //                     // Operation
@@ -1451,17 +1312,16 @@
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
-//                     const roundVoter = await roundVoters.get(eve.pkh);
+//                     const roundVoter = await governanceStorage.roundVotes.get({
+//                         0: cycleId,
+//                         1: eve.pkh,
+//                     })
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoteCount = await proposal.passVoteCount;
-//                     const passVoters = await proposal.passVotersMap;
-//                     const passVoter = await passVoters.get(eve.pkh);
+//                     const proposalVoteCount = await proposal.proposalVoteCount;
 
 //                     // Assertions
 //                     assert.notStrictEqual(roundVoter, undefined)
-//                     assert.notStrictEqual(passVoter, undefined)
-//                     assert.notEqual(passVoteCount.toNumber(), 0)
+//                     assert.notEqual(proposalVoteCount.toNumber(), 0)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1471,6 +1331,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
+//                     const cycleId          = governanceStorage.cycleId.toNumber();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
 //                     // Operation
@@ -1479,15 +1340,13 @@
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
-//                     const roundVoter = await roundVoters.get(bob.pkh);
-//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoters = await proposal.passVotersMap;
-//                     const passVoter = await passVoters.get(bob.pkh);
+//                     const roundVoter = await governanceStorage.roundVotes.get({
+//                         0: cycleId,
+//                         1: bob.pkh,
+//                     })
 
 //                     // Assertions
 //                     assert.strictEqual(roundVoter, undefined)
-//                     assert.strictEqual(passVoter, undefined)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1497,6 +1356,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
+//                     const cycleId          = governanceStorage.cycleId.toNumber();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 1;
 
 //                     // Operation
@@ -1529,15 +1389,13 @@
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const roundVoters = await governanceStorage.currentCycleInfo.roundVotes;
-//                     const roundVoter = await roundVoters.get(mallory.pkh);
-//                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoters = await proposal.passVotersMap;
-//                     const passVoter = await passVoters.get(mallory.pkh);
+//                     const roundVoter = await governanceStorage.roundVotes.get({
+//                         0: cycleId,
+//                         1: mallory.pkh,
+//                     })
 
 //                     // Assertions
 //                     assert.strictEqual(roundVoter, undefined)
-//                     assert.strictEqual(passVoter, undefined)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1573,13 +1431,14 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
+//                     const cycleId          = governanceStorage.cycleId.toNumber();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
-//                     const roundVoters           = await governanceStorage.currentCycleInfo.roundVotes;
-//                     const roundVoter            = await roundVoters.get(eve.pkh);
-//                     const previousProposal = await governanceStorage.proposalLedger.get(roundVoter);
-//                     const previousPassVoteCount = await previousProposal.passVoteCount;
-//                     const previousPassVoters = await previousProposal.passVotersMap;
-//                     const previousPassVoter = await previousPassVoters.get(eve.pkh);
+//                     const roundVoter            = await governanceStorage.roundVotes.get({
+//                         0: cycleId,
+//                         1: eve.pkh,
+//                     })
+//                     const previousProposal = await governanceStorage.proposalLedger.get(roundVoter.proposal.toNumber());
+//                     const previousProposalVoteCount = await previousProposal.proposalVoteCount;
 
 //                     // Add data to proposal for later execution
 //                     const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
@@ -1589,12 +1448,12 @@
 //                     ).toTransferParams();
 //                     const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
 //                     const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
-        
+
 //                     const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
 //                         data: configSuccessRewardParamValue,
 //                         type: callGovernanceLambdaEntrypointType
 //                     }).catch(e => console.error('error:', e));
-        
+
 //                     var packedUpdateConfigSuccessRewardParam;
 //                     if (updateConfigSuccessRewardPacked) {
 //                         packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
@@ -1602,7 +1461,7 @@
 //                         throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     // Operation
@@ -1613,25 +1472,20 @@
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const finalRoundVoters = await governanceStorage.currentCycleInfo.roundVotes;
-//                     const finalRoundVoter = await finalRoundVoters.get(eve.pkh);
+//                     const finalRoundVoter = await governanceStorage.roundVotes.get({
+//                         0: cycleId,
+//                         1: eve.pkh,
+//                     })
 //                     const proposal = await governanceStorage.proposalLedger.get(proposalId);
-//                     const passVoteCount = await proposal.passVoteCount;
-//                     const passVoters = await proposal.passVotersMap;
-//                     const passVoter = await passVoters.get(eve.pkh);
+//                     const proposalVoteCount = await proposal.proposalVoteCount;
 
-//                     const oldProposal = await governanceStorage.proposalLedger.get(roundVoter);
-//                     const oldPassVoteCount = await oldProposal.passVoteCount;
-//                     const oldPassVoters = await oldProposal.passVotersMap;
-//                     const oldPassVoter = await oldPassVoters.get(eve.pkh);
+//                     const oldProposal = await governanceStorage.proposalLedger.get(roundVoter.proposal.toNumber());
+//                     const oldProposalVoteCount = await oldProposal.proposalVoteCount;
 
 //                     // Assertions
-//                     assert.notEqual(finalRoundVoter.toNumber(), roundVoter.toNumber())
-//                     assert.notStrictEqual(passVoter, undefined)
-//                     assert.notEqual(passVoteCount.toNumber(), 0)
-//                     assert.notStrictEqual(previousPassVoter, undefined)
-//                     assert.strictEqual(oldPassVoter, undefined)
-//                     assert.strictEqual(previousPassVoteCount.toNumber(), oldPassVoteCount.toNumber() + 1)
+//                     assert.notEqual(finalRoundVoter.proposal.toNumber(), roundVoter.proposal.toNumber())
+//                     assert.notEqual(proposalVoteCount.toNumber(), 0)
+//                     assert.strictEqual(previousProposalVoteCount.toNumber(), oldProposalVoteCount.toNumber() + 1)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1780,7 +1634,7 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
 //                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
-//                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
+//                     const highestVotedProposal  = governanceStorage.cycleHighestVotedProposalId;
 //                     const timelockProposal      = governanceStorage.timelockProposalId;
 
 //                     // Operation
@@ -1797,8 +1651,6 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
-//                     const timelockProposal      = governanceStorage.timelockProposalId;
 
 //                     // Operation
 //                     const startTimelockRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -1821,7 +1673,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
+//                     const highestVotedProposal  = governanceStorage.cycleHighestVotedProposalId;
 //                     const timelockProposal      = governanceStorage.timelockProposalId;
                 
 //                     const startProposalRoundOperation = await governanceInstance.methods.startNextRound(false).send();
@@ -1830,13 +1682,130 @@
 //                     await executeOperation.confirmation();
 
 //                     // Final values
-//                     governanceStorage           = await governanceInstance.storage()
+//                     governanceStorage                    = await governanceInstance.storage()
 //                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
 //                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Assertions
 //                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.equal(timelockProposal.toNumber(),highestVotedProposal.toNumber())
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+//         })
+
+//         describe("%distributeProposalRewards", async () => {
+
+//             beforeEach("Set signer to standard user", async () => {
+//                 await signerFactory(trudy.sk)
+//             });
+
+//             it('User should not be able to call this entrypoint if it did not vote on the proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage   = await governanceInstance.storage()
+//                     const proposalId    = governanceStorage.nextProposalId.toNumber() - 2;
+//                     const proposal      = await governanceStorage.proposalLedger.get(proposalId);
+
+//                     // Operation
+//                     await chai.expect(governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send()).to.be.rejected;
+
+//                     // Assertion
+//                     assert.equal(proposal.rewardClaimReady, true);
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('User should not be able to call this entrypoint if the reward cannot be claimed yet', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage                   = await governanceInstance.storage()
+//                     const proposalId                    = governanceStorage.nextProposalId.toNumber();
+//                     const firstProposalName             = "New Proposal #1";
+//                     const firstProposalDesc             = "Details about new proposal #1";
+//                     const firstProposalIpfs             = "ipfs://QM123456789";
+//                     const firstProposalSourceCode       = "Proposal Source Code";
+
+//                     // Propose a new proposal
+//                     await signerFactory(eve.sk)
+//                     const proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
+//                     await proposeOperation.confirmation();
+
+//                     // Operation
+//                     await signerFactory(trudy.sk)
+//                     await chai.expect(governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send()).to.be.rejected;
+
+//                     // Final values
+//                     governanceStorage                   = await governanceInstance.storage()
+//                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+
+//                     // Assertion
+//                     assert.equal(proposal.rewardClaimReady, false);
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('User should be able to trigger a satellite claim for a given proposal', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     delegationStorage                   = await delegationInstance.storage();
+//                     const satelliteRewardsBegin         = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+//                     const proposalId                    = governanceStorage.nextProposalId.toNumber() - 3;
+//                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+//                     const claimTraceBegin               = await governanceStorage.proposalRewards.get({
+//                         0: proposalId,
+//                         1: eve.pkh
+//                     })
+
+//                     // Operation
+//                     const claimOperation    = await governanceInstance.methods.distributeProposalRewards(eve.pkh, [proposalId]).send();
+//                     await claimOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     delegationStorage               = await delegationInstance.storage();
+//                     const satelliteRewardsEnd       = await delegationStorage.satelliteRewardsLedger.get(eve.pkh);
+//                     const claimTraceEnd             = await governanceStorage.proposalRewards.get({
+//                         0: proposalId,
+//                         1: eve.pkh
+//                     })
+
+//                     // Log
+//                     console.log("Satellite rewards before claim:", satelliteRewardsBegin);
+//                     console.log("Satellite rewards after claim:", satelliteRewardsEnd);
+
+//                     // Assertion
+//                     assert.equal(proposal.rewardClaimReady, true);
+//                     assert.strictEqual(claimTraceBegin, undefined);
+//                     assert.notStrictEqual(claimTraceEnd, undefined);
+//                     assert.notEqual(satelliteRewardsBegin.unpaid.toNumber(), satelliteRewardsEnd.unpaid.toNumber());
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('User should not be able to trigger a satellite claim for a given proposal twice', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     delegationStorage                   = await delegationInstance.storage();
+//                     const proposalId                    = governanceStorage.nextProposalId.toNumber() - 3;
+//                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+//                     const claimTraceBegin               = await governanceStorage.proposalRewards.get({
+//                         0: proposalId,
+//                         1: eve.pkh
+//                     })
+
+//                     // Operation
+//                     await chai.expect(governanceInstance.methods.distributeProposalRewards(eve.pkh, [proposalId]).send()).to.be.rejected;
+
+//                     // Assertion
+//                     assert.equal(proposal.rewardClaimReady, true);
+//                     assert.notStrictEqual(claimTraceBegin, undefined);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1895,14 +1864,14 @@
 //                 try{
 //                     // Update config
 //                     await signerFactory(bob.sk);
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMaxProposalsPerDelegate").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMaxProposalsPerSatellite").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Initial Values
 //                     await signerFactory(eve.sk)
-//                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round
-//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0]
+//                     governanceStorage               = await governanceInstance.storage();
+//                     var currentCycleInfoRound       = governanceStorage.currentCycleInfo.round
+//                     var currentCycleInfoRoundString = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Operation
 //                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
@@ -1918,16 +1887,72 @@
 //                     const firstProposalSourceCode    = "Proposal Source Code";
 
 //                     // Operation
-//                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
-//                     await proposeOperation.confirmation();
+//                     await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1})).to.be.rejected; 
 
-//                     const secondProposalName          = "New Proposal #2";
-//                     const secondProposalDesc          = "Details about new proposal #2";
-//                     const secondProposalIpfs          = "ipfs://QM123456789";
-//                     const secondProposalSourceCode    = "Proposal Source Code";
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should not be able to call this entrypoint if it registered during the current cycle', async () => {
+//                 try{
+//                     // Initial Values
+//                     await signerFactory(trudy.sk)
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round
+//                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0]
+//                     var currentCycle                    = governanceStorage.cycleId;
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.propose(secondProposalName, secondProposalDesc, secondProposalIpfs, secondProposalSourceCode).send({amount: 0.1})).to.be.rejected; 
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+//                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+//                         await startNextRoundOperation.confirmation();
+//                         governanceStorage           = await governanceInstance.storage();
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
+//                     }
+//                     const firstProposalName         = "New Proposal #1";
+//                     const firstProposalDesc         = "Details about new proposal #1";
+//                     const firstProposalIpfs         = "ipfs://QM123456789";
+//                     const firstProposalSourceCode   = "Proposal Source Code";
+
+//                     // Register as satellite
+//                     const preregisteringSnapshot    = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: trudy.pkh})
+//                     const updateOperatorsOperation  = await mvkTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: trudy.pkh,
+//                             operator: doormanAddress.address,
+//                             token_id: 0,
+//                         },
+//                     },
+//                     ])
+//                     .send()
+//                     await updateOperatorsOperation.confirmation();
+//                     const stakeOperation            = await doormanInstance.methods.stake(MVK(20000)).send();
+//                     await stakeOperation.confirmation();
+//                     const registerAsSatellite       = await delegationInstance.methods
+//                     .registerAsSatellite(
+//                         "Trudy Satellite", 
+//                         "Test description", 
+//                         "Test image", 
+//                         "Test website", 
+//                         700
+//                     ).send();
+//                     await registerAsSatellite.confirmation();
+
+//                     // Post registering values
+//                     governanceStorage               = await governanceInstance.storage();
+//                     currentCycle                    = governanceStorage.cycleId;
+//                     const postregisteringSnapshot   = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: trudy.pkh})
+
+//                     // Operation
+//                     await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1})).to.be.rejected; 
+
+//                     // Assertions
+//                     assert.strictEqual(preregisteringSnapshot, undefined);
+//                     assert.notStrictEqual(postregisteringSnapshot, undefined);
+//                     assert.strictEqual(postregisteringSnapshot.ready, false);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1937,7 +1962,7 @@
 //                 try{
 //                     // Update config
 //                     await signerFactory(bob.sk);
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(25,"configMaxProposalsPerDelegate").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(25,"configMaxProposalsPerSatellite").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Initial Values
@@ -1987,7 +2012,7 @@
 //             })
 //         })
 
-//         describe("%addUpdateProposalData", async () => {
+//         describe("%updateProposalData", async () => {
 
 //             beforeEach("Set signer to satellite", async () => {
 //                 await signerFactory(eve.sk)
@@ -2054,7 +2079,7 @@
 //                     assert.strictEqual(currentCycleInfoRoundString, "voting");
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2110,7 +2135,7 @@
 //                     };
 
 //                     // Operation
-//                     await chai.expect(governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
+//                     await chai.expect(governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2167,6 +2192,7 @@
 //         })
 
 //         describe("%proposalRoundVote", async () => {
+
 //             it('Satellite should not be able to call this entrypoint if it is not the proposal round', async () => {
 //                 try{
 //                     // Initial Values
@@ -2203,6 +2229,95 @@
 //                     await startNextRoundOperation.confirmation();
 
 //                     await chai.expect(governanceInstance.methods.proposalRoundVote(proposalId).send()).to.be.rejected;
+//                 } catch(e){
+//                     console.dir(e, {depth: 5})
+//                 }
+//             })
+
+//             it('Satellite should not be able increase its total voting power during the current round', async () => {
+//                 try{
+//                     // Initial Values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     const proposalId                    = governanceStorage.nextProposalId; 
+//                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
+
+//                     // Operation
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
+//                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
+//                         await startNextRoundOperation.confirmation();
+//                         governanceStorage           = await governanceInstance.storage();
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
+//                     }
+//                     const firstProposalName          = "New Proposal #1";
+//                     const firstProposalDesc          = "Details about new proposal #1";
+//                     const firstProposalIpfs          = "ipfs://QM123456789";
+//                     const firstProposalSourceCode    = "Proposal Source Code";
+
+//                     // Pre increase values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     doormanStorage                      = await doormanInstance.storage();
+//                     delegationStorage                   = await delegationInstance.storage();
+//                     var currentCycle                    = governanceStorage.cycleId;
+//                     const preIncreaseSnapshot           = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
+//                     const preIncreaseUserSMVK           = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+//                     const preIncreaseSatellite          = await delegationStorage.satelliteLedger.get(eve.pkh);
+
+//                     // User increases its stake
+//                     var stakeOperation    = await doormanInstance.methods.stake(MVK(20)).send()
+//                     await stakeOperation.confirmation();
+
+//                     // User delegates to satellite
+//                     await signerFactory(oscar.sk)
+//                     const updateOperators = await mvkTokenInstance.methods.update_operators([
+//                     {
+//                         add_operator: {
+//                             owner: oscar.pkh,
+//                             operator: doormanAddress.address,
+//                             token_id: 0,
+//                         },
+//                     },
+//                     ])
+//                     .send()
+//                     await updateOperators.confirmation();
+//                     stakeOperation = await doormanInstance.methods.stake(MVK(10000)).send();
+//                     await stakeOperation.confirmation();
+//                     const delegateOperation = await delegationInstance.methods.delegateToSatellite(oscar.pkh, eve.pkh).send()
+//                     await delegateOperation.confirmation()
+
+//                     // Post staking values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     doormanStorage                      = await doormanInstance.storage();
+//                     var currentCycle                    = governanceStorage.cycleId;
+
+//                     // Operation
+//                     await signerFactory(eve.sk)
+//                     var proposeOperation                = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
+//                     await proposeOperation.confirmation();
+
+//                     const lockProposalOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                     await lockProposalOperation.confirmation();
+
+//                     const voteOperation                 = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                     await voteOperation.confirmation();
+
+//                     // Final values
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     const proposal                      = await governanceStorage.proposalLedger.get(proposalId);
+//                     const postIncreaseSnapshot          = await governanceStorage.snapshotLedger.get({ 0: currentCycle, 1: eve.pkh})
+//                     const postIncreaseUserSMVK          = (await doormanStorage.userStakeBalanceLedger.get(eve.pkh)).balance.toNumber();
+//                     const postIncreaseSatellite         = await delegationStorage.satelliteLedger.get(eve.pkh);
+
+//                     // Assertions
+//                     assert.notEqual(postIncreaseUserSMVK, preIncreaseUserSMVK);
+//                     assert.notEqual(postIncreaseSatellite.stakedMvkBalance.toNumber(), preIncreaseSatellite.stakedMvkBalance.toNumber());
+//                     assert.notEqual(postIncreaseSatellite.totalDelegatedAmount.toNumber(), preIncreaseSatellite.totalDelegatedAmount.toNumber());
+//                     assert.equal(postIncreaseSnapshot.totalStakedMvkBalance.toNumber(), preIncreaseSnapshot.totalStakedMvkBalance.toNumber())
+//                     assert.equal(postIncreaseSnapshot.totalDelegatedAmount.toNumber(), preIncreaseSnapshot.totalDelegatedAmount.toNumber())
+//                     assert.equal(postIncreaseSnapshot.totalVotingPower.toNumber(), preIncreaseSnapshot.totalVotingPower.toNumber())
+//                     assert.notEqual(postIncreaseSnapshot.cycle.toNumber(), preIncreaseSnapshot.cycle.toNumber())
+//                     assert.equal(proposal.proposalVoteStakedMvkTotal.toNumber(), postIncreaseSnapshot.totalVotingPower.toNumber())
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2279,13 +2394,10 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
+//                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinimumStakeReqPercentage").send();
-//                     await updateConfigOperation.confirmation();
-
 //                     // Initial Values
 //                     await signerFactory(eve.sk)
 //                     governanceStorage           = await governanceInstance.storage()
@@ -2331,7 +2443,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2421,11 +2533,9 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
-//                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinimumStakeReqPercentage").send();
+//                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Initial Values
@@ -2473,7 +2583,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2566,7 +2676,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2674,7 +2784,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2721,11 +2831,9 @@
 //                     await updateConfigOperation.confirmation();
 //                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumPercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinQuorumMvkTotal").send();
+//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinYayVotePercentage").send();
 //                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configVotingPowerRatio").send();
-//                     await updateConfigOperation.confirmation();
-//                     var updateConfigOperation = await governanceInstance.methods.updateConfig(1,"configMinimumStakeReqPercentage").send();
+//                     var updateConfigOperation = await delegationInstance.methods.updateConfig(1,"configDelegationRatio").send();
 //                     await updateConfigOperation.confirmation();
 
 //                     // Initial Values
@@ -2772,7 +2880,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2784,8 +2892,14 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
+
+//                     await signerFactory(alice.sk)
+//                     votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     await votingRoundVoteOperation.confirmation();
+
+//                     await signerFactory(eve.sk)
 
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
@@ -2794,10 +2908,10 @@
 //                     await startNextRoundOperation.confirmation();
 
                     
-//                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
-//                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+//                     governanceStorage                   = await governanceInstance.storage();
+//                     var currentCycleInfoRound           = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString     = Object.keys(currentCycleInfoRound)[0];
+//                     var proposal                      = await governanceStorage.proposalLedger.get(proposalId);
 
 //                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, true)
@@ -2851,7 +2965,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2863,7 +2977,7 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("nay").send();
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("nay").send();
 //                     await votingRoundVoteOperation.confirmation();
 
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -2920,7 +3034,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -2932,7 +3046,7 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
 
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -3001,7 +3115,7 @@
 //                       throw `packing failed`
 //                     };
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3013,7 +3127,7 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
 
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -3074,7 +3188,7 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
 
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -3125,7 +3239,7 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", Buffer.from("TestWithWrongData", 'ascii').toString('hex')).send();
+//                     const addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "Metadata#1", Buffer.from("TestWithWrongData", 'ascii').toString('hex')).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3137,7 +3251,7 @@
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                     await startNextRoundOperation.confirmation();
 
-//                     const votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
+//                     var votingRoundVoteOperation = await governanceInstance.methods.votingRoundVote("yay").send();
 //                     await votingRoundVoteOperation.confirmation();
 
 //                     var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();

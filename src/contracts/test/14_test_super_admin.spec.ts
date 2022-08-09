@@ -136,13 +136,9 @@
 //                         await updateGovernanceConfig.confirmation();
 //                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
 //                         await updateGovernanceConfig.confirmation();
-//                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
-//                         await updateGovernanceConfig.confirmation();
 //                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
 //                         await updateGovernanceConfig.confirmation();
-//                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumMvkTotal").send();
-//                         await updateGovernanceConfig.confirmation();
-//                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
+//                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinYayVotePercentage").send();
 //                         await updateGovernanceConfig.confirmation();
 
 //                         // Register Alice and Bob as satellites
@@ -238,7 +234,7 @@
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
-//                         var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+//                         var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(governanceAddress.address, bob.pkh).send();
 //                         await setAdminActionOperation.confirmation()
 
 //                         // Sign set admin action
@@ -250,7 +246,7 @@
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
-//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, delegationAddress.address).send();
+//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(delegationAddress.address, bob.pkh).send();
 //                         await setAdminActionOperation.confirmation()
 
 //                         // Sign set admin action
@@ -267,7 +263,7 @@
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
-//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, treasuryAddress.address).send();
+//                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(treasuryAddress.address, bob.pkh).send();
 //                         await setAdminActionOperation.confirmation()
 
 //                         // Sign set admin action
@@ -300,7 +296,7 @@
 //                         console.log("WHITELISTED: ", whitelistedDevelopers);
 
 //                         // Operation
-//                         await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                         await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 
 //                         // Assertions
 //                         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
@@ -330,7 +326,7 @@
 //                         const proposalSourceCode    = "Proposal Source Code";
 
 //                         // Preparation
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Remove User from whitelisted dev
@@ -353,9 +349,12 @@
 //                         throw `packing failed`
 //                         };
 
-//                         const proposalMetadata      = MichelsonMap.fromLiteral({
-//                             "Metadata#1": packedUpdateUpdateWhitelistDevelopersParam
-//                         });
+//                         const proposalMetadata      = [
+//                             {
+//                                 title: "Metadata#1",
+//                                 data: packedUpdateUpdateWhitelistDevelopersParam
+//                             }
+//                         ]
 
 //                         // Start governance rounds
 //                         var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -420,7 +419,7 @@
 //                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
 //                         // Operation
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Sign action
@@ -447,14 +446,14 @@
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
 //                         breakGlassStorage           = await breakGlassInstance.storage();
-//                         const newAdmin              = governanceAddress.address;
+//                         const newAdmin              = governanceProxyAddress.address;
 //                         const targetContract        = councilAddress.address;
 //                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
 //                         // Operation
 //                         councilStorage   = await councilInstance.storage();
 //                         console.log(councilStorage.admin)
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Sign action
@@ -483,7 +482,7 @@
 //                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
 //                         // Operation
-//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
 //                         // Sign action

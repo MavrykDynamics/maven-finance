@@ -10,3 +10,4 @@ compiled/*.tz
 ./.idea
 **/.idea/**
 .VSCodeCounter/
+.ligo-work

@@ -458,6 +458,7 @@
 //                 doormanStorage              = await doormanInstance.storage();
 //                 governanceStorage           = await governanceInstance.storage();
 //                 mvkTokenStorage             = await mvkTokenInstance.storage();
+//                 console.log(governanceStorage.lambdaLedger)
 //                 const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
 //                 const proposalId            = governanceStorage.nextProposalId.toNumber();
 //                 const proposalName          = "New Proposal #1";
@@ -507,9 +508,12 @@
 //                   throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Metadata#1": packedUpdateConfigSuccessRewardParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Metadata#1",
+//                         data: packedUpdateConfigSuccessRewardParam
+//                     }
+//                 ]
 
 //                 // Initial governance storage operations
 //                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
@@ -521,8 +525,6 @@
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotePct").send();
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
@@ -544,7 +546,7 @@
 //                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("nay").send();
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(mallory.sk);
-//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("abstain").send();
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("pass").send();
 //                 await votingRoundVoteOperation.confirmation();
 //                 await signerFactory(bob.sk);
 
@@ -555,6 +557,12 @@
 //                 await nextRoundOperation.confirmation();
 //                 governanceStorage               = await governanceInstance.storage();
 //                 console.log("ROUND: ", governanceStorage.currentCycleInfo.round)
+
+//                 // Post governance cycle reward distribution
+//                 var governanceClaimOperation    = await governanceInstance.methods.distributeProposalRewards(bob.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
+//                 governanceClaimOperation        = await governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
 
 //                 // Final values
 //                 delegationStorage                       = await delegationInstance.storage();
@@ -573,10 +581,10 @@
 
 //                 // Claim operations
 //                 await signerFactory(bob.sk)
-//                 var claimOperation  = await doormanInstance.methods.compound(bob.pkh).send();
+//                 var claimOperation              = await doormanInstance.methods.compound(bob.pkh).send();
 //                 await claimOperation.confirmation();
 //                 await signerFactory(mallory.sk)
-//                 claimOperation  = await doormanInstance.methods.compound(mallory.pkh).send();
+//                 claimOperation                  = await doormanInstance.methods.compound(mallory.pkh).send();
 //                 await claimOperation.confirmation();
 
 //                 // Final values
@@ -658,9 +666,12 @@
 //                   throw `packing failed`
 //                 };
 
-//                 const proposalMetadata      = MichelsonMap.fromLiteral({
-//                     "Metadata#1": packedUpdateConfigSuccessRewardParam
-//                 });
+//                 const proposalMetadata      = [
+//                     {
+//                         title: "Metadata#1",
+//                         data: packedUpdateConfigSuccessRewardParam
+//                     }
+//                 ]
 
 //                 // Initial governance storage operations
 //                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
@@ -672,8 +683,6 @@
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotePct").send();
 //                 await updateGovernanceConfig.confirmation();
 //                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-//                 await updateGovernanceConfig.confirmation();
-//                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
 //                 await updateGovernanceConfig.confirmation();
 //                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
 //                 await nextRoundOperation.confirmation();
@@ -706,6 +715,12 @@
 //                 await nextRoundOperation.confirmation();
 //                 governanceStorage               = await governanceInstance.storage();
 //                 console.log("ROUND: ", governanceStorage.currentCycleInfo.round)
+
+//                 // Post governance cycle reward distribution
+//                 var governanceClaimOperation    = await governanceInstance.methods.distributeProposalRewards(bob.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
+//                 governanceClaimOperation        = await governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
 
 //                 // Final values
 //                 delegationStorage                       = await delegationInstance.storage();
@@ -769,14 +784,14 @@
 //                 delegationStorage = await delegationInstance.storage();
 
 //                 // Preparation operation
-//                 var updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 
 //                 // Distribute Operation
 //                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
 
 //                 // Reset operation
-//                 updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 //             }
 //             catch(e) {
@@ -790,14 +805,14 @@
 //                 delegationStorage = await delegationInstance.storage();
 
 //                 // Preparation operation
-//                 var updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+//                 var updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 
 //                 // Distribute Operation
 //                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
 
 //                 // Reset operation
-//                 updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+//                 updateGeneralContractsOperation   = await governanceInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
 //                 await updateGeneralContractsOperation.confirmation();
 //             }
 //             catch(e) {
