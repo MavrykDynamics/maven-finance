@@ -6,14 +6,14 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -43,14 +43,13 @@ type farmAction is
     |   MistakenTransfer            of transferActionType
 
         // Farm Admin Entrypoints
-    |   UpdateBlocksPerMinute       of (nat)
     |   InitFarm                    of initFarmParamsType
     |   CloseFarm                   of (unit)
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                    of (unit)
     |   UnpauseAll                  of (unit)
-    |   TogglePauseEntrypoint      of farmTogglePauseEntrypointType
+    |   TogglePauseEntrypoint       of farmTogglePauseEntrypointType
 
         // Farm Entrypoints
     |   Deposit                     of nat
@@ -162,14 +161,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -261,14 +253,7 @@ block{
     // --------------------------------------------------------------------------------------
 
     // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-    const doormanContractAddress : address = case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const doormanContractAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
     
     // Get %farmClaim entrypoint on the Doorman Contract
     const doormanContract : contract(farmClaimType) =
@@ -291,6 +276,50 @@ block{
 // ------------------------------------------------------------------------------
 // Farm Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// helper function to update the farm duration and rewards based on the current protocol block time
+function updateDurationAndRewards(var s: farmStorageType) : farmStorageType is
+block {
+    
+    // Get last block time
+    const lastBlockTime : nat       = s.minBlockTimeSnapshot;
+    const currentBlockTime : nat    = Tezos.get_min_block_time();
+
+    if lastBlockTime =/= currentBlockTime then {
+        
+        // Calculate new rewards per block
+        var newCurrentRewardPerBlock : nat := 0n;
+        if s.config.infinite then {
+
+            newCurrentRewardPerBlock := currentBlockTime * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / lastBlockTime;
+
+        }
+        else {
+
+            // Unclaimed rewards
+            const totalUnclaimedRewards : nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid + s.claimedRewards.paid));
+
+            // Updates rewards and total blocks accordingly
+            const newTotalBlocks        : nat = (lastBlockTime * s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / currentBlockTime;
+            const remainingBlocks       : nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
+            
+            newCurrentRewardPerBlock    := (totalUnclaimedRewards * fixedPointAccuracy * fixedPointAccuracy) / remainingBlocks;
+            
+            // Update new total blocks
+            s.config.plannedRewards.totalBlocks := newTotalBlocks / fixedPointAccuracy;
+        };
+
+        // Update farm storage with new config values (minBlockTimeSnapshot and currentRewardPerBlock)
+        s.minBlockTimeSnapshot                          := currentBlockTime;
+        s.config.plannedRewards.currentRewardPerBlock   := (newCurrentRewardPerBlock/fixedPointAccuracy);
+        s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
+
+
+    } else skip;
+
+} with (s)
+
+
 
 // helper function to update farm blocks 
 function updateBlock(var s: farmStorageType) : farmStorageType is
@@ -344,13 +373,14 @@ block{
 // helper function to update farm
 function updateFarm(var s : farmStorageType) : farmStorageType is
 block{
-    s := case s.config.lpToken.tokenBalance = 0n of [
+    s   := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
         |   False -> case s.lastBlockUpdate = Tezos.get_level() or not s.open of [
                     True -> s
                 |   False -> updateFarmParameters(s)
             ]
-        ];
+    ];
+    s   := updateDurationAndRewards(s);
 } with (s)
 
 
@@ -426,7 +456,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -435,7 +465,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 
@@ -520,6 +550,12 @@ block {
 (*  View: get init block *)
 [@view] function getInitBlock(const _ : unit; const s: farmStorageType) : nat is
     s.initBlock
+
+
+
+(*  View: get min block time snapshot *)
+[@view] function getMinBlockTimeSnapshot(const _ : unit; const s: farmStorageType) : nat is
+    s.minBlockTimeSnapshot
 
 
 
@@ -708,23 +744,6 @@ block {
 // ------------------------------------------------------------------------------
 // Farm Admin Entrypoints End
 // ------------------------------------------------------------------------------
-
-(*  updateBlocksPerMinute Entrypoint *)
-function updateBlocksPerMinute(const blocksPerMinute: nat; var s: farmStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateBlocksPerMinute"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaUpdateBlocksPerMinute(blocksPerMinute);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
-
-} with response
 
 
 
@@ -953,14 +972,13 @@ block{
         |   MistakenTransfer (parameters)            -> mistakenTransfer(parameters, s)
 
             // Farm Admin Entrypoints
-        |   UpdateBlocksPerMinute (parameters)       -> updateBlocksPerMinute(parameters, s)
         |   InitFarm (parameters)                    -> initFarm(parameters, s)
         |   CloseFarm (_parameters)                  -> closeFarm(s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                   -> pauseAll(s)
         |   UnpauseAll (_parameters)                 -> unpauseAll(s)
-        |   TogglePauseEntrypoint (parameters)      -> togglePauseEntrypoint(parameters, s)
+        |   TogglePauseEntrypoint (parameters)       -> togglePauseEntrypoint(parameters, s)
 
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)
@@ -968,6 +986,6 @@ block{
         |   Claim (parameters)                       -> claim(parameters, s)
 
             // Lambda Entrypoints
-        |   SetLambda(parameters)                    -> setLambda(parameters, s)
+        |   SetLambda (parameters)                   -> setLambda(parameters, s)
     ]
 )

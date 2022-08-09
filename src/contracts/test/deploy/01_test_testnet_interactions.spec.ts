@@ -193,6 +193,11 @@ describe("Testnet interactions helper", async () => {
             console.log('Governance Satellite Contract deployed at:', governanceSatelliteAddress.address);
             console.log('Aggregator Contract deployed at:', aggregatorAddress.address);
             console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryAddress.address);
+
+            // Admin sends 2000XTZ to treasury contract
+            const transferOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 2000});
+            await transferOperation.confirmation();
+
         } catch(e){
             console.log(e)
         }
@@ -691,6 +696,17 @@ describe("Testnet interactions helper", async () => {
                     1000
                 ).send();
                 await operation.confirmation();
+
+                // Start governance cycle to validate satellite
+
+                var updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                await updateOperation.confirmation();
+                updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                await updateOperation.confirmation();
+                updateOperation = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                await updateOperation.confirmation();
+                const nextRoundOperation    = await governanceInstance.methods.startNextRound(false).send();
+                await nextRoundOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -950,16 +966,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin updates farm factory blocks per minute', async () => {
-            try{
-                // Operation
-                const operation = await councilInstance.methods.councilActionUpdateBlocksPerMin(farmFactoryAddress.address, 3).send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin adds a new vestee', async () => {
             try{
                 // Operation
@@ -1072,16 +1078,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin drops financial request', async () => {
-            try{
-                // Operation
-                const operation = await councilInstance.methods.councilActionDropFinancialReq(1).send()
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin flushes an action', async () => {
             try{
                 // Operation
@@ -1110,6 +1106,18 @@ describe("Testnet interactions helper", async () => {
 
                 await signerFactory(alice.sk)
                 operation = await councilInstance.methods.signAction(actionId).send()
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin drops financial request', async () => {
+            try{
+                // Operation
+                governanceFinancialStorage  = await governanceFinancialInstance.storage();
+                const actionId              = governanceFinancialStorage.financialRequestCounter.toNumber() - 1;
+                const operation             = await councilInstance.methods.councilActionDropFinancialReq(actionId).send()
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1344,6 +1352,7 @@ describe("Testnet interactions helper", async () => {
                 councilStorage              = await councilInstance.storage()
                 governanceFinancialStorage  = await governanceFinancialInstance.storage()
                 const requestToDrop         = governanceFinancialStorage.financialRequestCounter.toNumber() - 2
+                await signerFactory(bob.sk)
                 const operation             = await governanceFinancialInstance.methods.voteForRequest(requestToDrop, "yay").send()
                 await operation.confirmation();
             } catch(e){
@@ -1676,21 +1685,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
         
-        it('Admin updates blocks per minute', async () => {
-            try{
-                // Operation
-                councilStorage  = await councilInstance.storage();
-                const actionId  = councilStorage.actionCounter;
-                var operation = await councilInstance.methods.councilActionUpdateBlocksPerMin(farmFactoryAddress.address, 3).send();
-                await operation.confirmation();
-                await signerFactory(alice.sk)
-                operation = await councilInstance.methods.signAction(actionId).send()
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-        
         it('Admin pauses create farm entrypoint', async () => {
             try{
                 // Operation
@@ -1817,7 +1811,6 @@ describe("Testnet interactions helper", async () => {
                 const operation = await farmInstance.methods.initFarm(
                     12000,
                     100,
-                    2,
                     false,
                     false
                 ).send();
@@ -2540,6 +2533,13 @@ describe("Testnet interactions helper", async () => {
     })
 
     describe("GOVERNANCE", async () => {
+
+        before("Set FarmFactory admin", async () => {
+            // Set the farm factory admin
+            const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+            await setAdminOperation.confirmation()
+        })
+
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
         });
@@ -2749,7 +2749,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets other contract admin', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setContractAdmin(bob.pkh, doormanAddress.address).send();
+                const operation = await governanceInstance.methods.setContractAdmin(doormanAddress.address, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2759,7 +2759,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets other contract governance', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.setContractGovernance(governanceAddress.address, doormanAddress.address).send();
+                const operation = await governanceInstance.methods.setContractGovernance(doormanAddress.address, governanceAddress.address).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -2768,10 +2768,6 @@ describe("Testnet interactions helper", async () => {
 
         it('Admin executes an entire proposal (with %executeProposal)', async () => {
             try{
-                // Set the farm factory admin
-                const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
-                await setAdminOperation.confirmation()
-
                 // Initial values
                 governanceStorage           = await governanceInstance.storage();
                 const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -3178,21 +3174,6 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin unsuspends a satellite', async () => {
-            try{
-                // Operation
-                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
-                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.unsuspendSatellite(alice.pkh, "For tests purposes").send();
-                await operation.confirmation();
-
-                operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
-                await operation.confirmation();
-            } catch(e){
-                console.dir(e, {depth: 5})
-            }
-        });
-
         it('Admin bans a satellite', async () => {
             try{
                 // Operation
@@ -3208,12 +3189,12 @@ describe("Testnet interactions helper", async () => {
             }
         });
 
-        it('Admin unbans a satellite', async () => {
+        it('Admin restores a satellite', async () => {
             try{
                 // Operation
                 governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
                 const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
-                var operation               = await governanceSatelliteInstance.methods.unbanSatellite(alice.pkh, "For tests purposes").send();
+                var operation               = await governanceSatelliteInstance.methods.restoreSatellite(alice.pkh, "For tests purposes").send();
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
@@ -3272,6 +3253,57 @@ describe("Testnet interactions helper", async () => {
                 await operation.confirmation();
 
                 operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
+                await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin resolve a mistaken transfer', async () => {
+            try{
+                // Operation
+                governanceSatelliteStorage  = await governanceSatelliteInstance.storage()
+                const actionId              = governanceSatelliteStorage.governanceSatelliteCounter
+                var contractAccount         = await mvkTokenStorage.ledger.get(aggregatorFactoryAddress.address)
+                var userAccount             = await mvkTokenStorage.ledger.get(bob.pkh)
+                const tokenAmount           = MVK(200);
+                const purpose               = "Transfer made by mistake to the aggregator factory"
+
+                // Mistake Operation
+                const transferOperation     = await mvkTokenInstance.methods.transfer([
+                    {
+                        from_: bob.pkh,
+                        txs: [
+                            {
+                                to_: aggregatorFactoryAddress.address,
+                                token_id: 0,
+                                amount: tokenAmount
+                            }
+                        ]
+                    }
+                ]).send();
+                await transferOperation.confirmation();
+
+                // Satellite Bob creates a governance action
+                const governanceSatelliteOperation = await governanceSatelliteInstance.methods.fixMistakenTransfer(
+                        aggregatorFactoryAddress.address,
+                        purpose,
+                        [
+                            {
+                                "to_"    : bob.pkh,
+                                "token"  : {
+                                    "fa2" : {
+                                        "tokenContractAddress": mvkTokenAddress.address,
+                                        "tokenId" : 0
+                                    }
+                                },
+                                "amount" : tokenAmount
+                            }
+                        ]
+                    ).send();
+                await governanceSatelliteOperation.confirmation();
+
+                const operation = await governanceSatelliteInstance.methods.voteForAction(actionId, "yay").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -3605,7 +3637,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin sets single contract admin', async () => {
             try{
                 // Operation
-                const operation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+                const operation = await breakGlassInstance.methods.setSingleContractAdmin(governanceAddress.address, bob.pkh).send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})

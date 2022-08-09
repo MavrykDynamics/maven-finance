@@ -36,7 +36,7 @@ async def on_governance_update_proposal_data(
         # Get internal data id
         internal_id = 0
         for key in proposal_metadata:
-            if proposal_metadata[key].title == title:
+            if proposal_metadata[key] and proposal_metadata[key].title == title:
                 int(key)
         bytes_record, _     = await models.GovernanceProposalRecordData.get_or_create(
             governance_proposal_record  = proposal,

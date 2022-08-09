@@ -330,10 +330,11 @@ sealed-secrets:
       enabled: true
       ## @param metrics.serviceMonitor.namespace Namespace where Prometheus Operator is running in
       ##
-      namespace: ''
+      namespace: 'kube-prometheus-stack'
       ## @param metrics.serviceMonitor.labels Extra labels for the ServiceMonitor
       ##
-      labels: {}
+      labels:
+        release: 'prod'
       ## @param metrics.serviceMonitor.annotations Extra annotations for the ServiceMonitor
       ##
       annotations: {}

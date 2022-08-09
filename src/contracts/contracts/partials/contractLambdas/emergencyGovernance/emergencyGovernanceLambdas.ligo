@@ -209,28 +209,14 @@ block {
                 else skip;
             
                 // Get Tax Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewTax : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "taxTreasury", s.governanceAddress);
-                const treasuryAddress: address = case generalContractsOptViewTax of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TAX_TREASURY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const treasuryAddress: address = getContractAddressFromGovernanceContract("taxTreasury", s.governanceAddress, error_TAX_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Transfer fee to Treasury
                 const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
                 const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.get_amount());
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptViewDoorman of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -354,14 +340,7 @@ block {
                 if not Map.mem(userAddress, _emergencyGovernance.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
                 // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptViewDoorman : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptViewDoorman of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
                 
                 // Get user's staked MVK balance from the Doorman Contract
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
@@ -385,15 +364,8 @@ block {
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
 
                     // Get Break Glass Contract Address from the General Contracts Map on the Governance Contract
-                    const generalContractsOptViewBreakGlass : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "breakGlass", s.governanceAddress);
-                    const breakGlassContractAddress: address = case generalContractsOptViewBreakGlass of [
-                            Some (_optionContract) -> case _optionContract of [
-                                    Some (_contract)    -> _contract
-                                |   None                -> failwith (error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-                            ]
-                        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                    ];
-                    const governanceContractAddress : address = s.governanceAddress;
+                    const breakGlassContractAddress : address = getContractAddressFromGovernanceContract("breakGlass", s.governanceAddress, error_BREAK_GLASS_CONTRACT_NOT_FOUND);
+                    const governanceAddress : address = s.governanceAddress;
 
                     // Trigger break glass in Break Glass contract - set glassbroken boolean to true in Break Glass contract to give council members access to protected entrypoints
                     const triggerBreakGlassOperation : operation = Tezos.transaction(
@@ -406,7 +378,7 @@ block {
                     const triggerGovernanceBreakGlassOperation : operation = Tezos.transaction(
                         unit,
                         0tez, 
-                        triggerBreakGlass(governanceContractAddress)
+                        triggerBreakGlass(governanceAddress)
                     );
 
                     // Update emergency governance record

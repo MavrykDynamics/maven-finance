@@ -669,12 +669,18 @@ kube-prometheus-stack:
     ingress:
       ## If true, Grafana Ingress will be created
       ##
-      enabled: false
+      enabled: true
 
       ## Annotations for Grafana Ingress
       ##
       annotations:
-        {}
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/enable-cors: 'true'
+        nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+        nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+        nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+
         # kubernetes.io/ingress.class: nginx
         # kubernetes.io/tls-acme: "true"
 
@@ -687,7 +693,8 @@ kube-prometheus-stack:
       ##
       # hosts:
       #   - grafana.domain.com
-      hosts: []
+      hosts:
+        - grafana.mavryk.finance
 
       ## Path for grafana ingress
       path: /
@@ -695,7 +702,10 @@ kube-prometheus-stack:
       ## TLS configuration for grafana Ingress
       ## Secret must be manually created in the namespace
       ##
-      tls: []
+      tls:
+        - hosts:
+            - grafana.mavryk.finance
+          secretName: grafana-tls
       # - secretName: grafana-general-tls
       #   hosts:
       #   - grafana.example.com
@@ -848,7 +858,7 @@ kube-prometheus-stack:
   ## Component scraping the kubelet and kubelet-hosted cAdvisor
   ##
   kubelet:
-    enabled: true
+    enabled: false
     namespace: kube-system
 
     serviceMonitor:
@@ -1273,7 +1283,7 @@ kube-prometheus-stack:
   ## Component scraping kube proxy
   ##
   kubeProxy:
-    enabled: true
+    enabled: false
 
     ## If your kube proxy is not deployed as a pod, specify IPs it can be found on
     ##
@@ -1591,7 +1601,7 @@ kube-prometheus-stack:
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/helm/prometheus-operator/README.md
     ##
     kubeletService:
-      enabled: true
+      enabled: false
       namespace: kube-system
       ## Use '{{ template "kube-prometheus-stack.fullname" . }}-kubelet' by default
       name: ''

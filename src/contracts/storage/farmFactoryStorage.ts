@@ -22,7 +22,6 @@ export const farmFactoryStorage: farmFactoryStorageType = {
     mvkTokenAddress       : "",
     governanceAddress     : "",
     config                : {
-        blocksPerMinute       : new BigNumber(2),
         farmNameMaxLength     : new BigNumber(100)
     },
     breakGlassConfig      : {

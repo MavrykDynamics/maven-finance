@@ -93,8 +93,6 @@ const storages = {
             maxProposalsPerSatellite    = 20n;
             
             newBlockTimeLevel           = 0n;
-            newBlocksPerMinute          = 0n;
-            blocksPerMinute             = 2n;
             
             blocksPerProposalRound      = 14400n;
             blocksPerVotingRound        = 14400n;
@@ -119,7 +117,7 @@ const storages = {
 
         startLevel                  = 0n;
         nextProposalId              = 0n;
-        cycleCounter                = 0n;
+        cycleId                = 0n;
 
         currentCycleInfo.round                = Proposal;
         currentCycleInfo.blocksPerProposalRound      = 0n;
@@ -137,7 +135,6 @@ const storages = {
         snapshotStakedMvkTotalSupply   = 0n;
 
         financialRequestLedger             = (Big_map.empty: financialRequestLedgerType);
-        financialRequestSnapshotLedger     = (Big_map.empty: financialRequestSnapshotLedgerType);
         financialRequestCounter            = 0n;
 
         governanceLambdaLedger      = (Big_map.empty: governanceLambdaLedgerType);

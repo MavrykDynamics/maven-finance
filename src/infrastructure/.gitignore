@@ -2,6 +2,6 @@ env.sh
 .terragrunt-cache/
 *.tfstate
 charts/
-Chart.lock
+*.lock
 temp.yaml
 *secret.yaml

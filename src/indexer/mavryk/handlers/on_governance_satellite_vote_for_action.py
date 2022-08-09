@@ -1,8 +1,8 @@
 
-from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
-from mavryk.types.governance_satellite.parameter.vote_for_action import VoteForActionParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 from dipdup.models import Transaction
+from mavryk.types.governance_satellite.parameter.vote_for_action import VoteForActionParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 from dipdup.context import HandlerContext
+from mavryk.types.governance_satellite.storage import GovernanceSatelliteStorage
 import mavryk.models as models
 from dateutil import parser
 
@@ -13,10 +13,9 @@ async def on_governance_satellite_vote_for_action(
 
     # Get operation info
     governance_satellite_address    = vote_for_action.data.target_address
+    governance_address              = vote_for_action.storage.governanceAddress
     voter_address                   = vote_for_action.data.sender_address
     action_storage                  = vote_for_action.storage.governanceSatelliteActionLedger[vote_for_action.parameter.actionId]
-    voter_storage                   = action_storage.voters[voter_address]
-    total_voting_power              = float(voter_storage.totalVotingPower)
     timestamp                       = vote_for_action.data.timestamp
     yay_vote_smvk_total             = float(action_storage.yayVoteStakedMvkTotal)
     nay_vote_smvk_total             = float(action_storage.nayVoteStakedMvkTotal)
@@ -35,6 +34,7 @@ async def on_governance_satellite_vote_for_action(
     aggregator_ledger               = vote_for_action.storage.aggregatorLedger
 
     # Create or update vote record
+    governance              = await models.Governance.get(address   = governance_address)
     governance_satellite    = await models.GovernanceSatellite.get(address  = governance_satellite_address)
     action_record           = await models.GovernanceSatelliteActionRecord.get(
         governance_satellite    = governance_satellite,
@@ -48,12 +48,19 @@ async def on_governance_satellite_vote_for_action(
 
     voter, _                = await models.MavrykUser.get_or_create(address = voter_address)
     await voter.save()
+
+    # Register vote
+    satellite_snapshot      = await models.GovernanceSatelliteSnapshotRecord.get(
+        governance  = governance,
+        user        = voter,
+        cycle       = governance.cycle_id
+    )
     vote_record, _          = await models.GovernanceSatelliteActionRecordVote.get_or_create(
         governance_satellite_action = action_record,
         voter                       = voter
     )
     vote_record.timestamp       = timestamp
-    vote_record.voting_power    = total_voting_power
+    vote_record.voting_power    = satellite_snapshot.total_voting_power
     vote_record.vote            = vote_type
     await vote_record.save()
 

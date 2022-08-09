@@ -558,6 +558,12 @@
 //                 governanceStorage               = await governanceInstance.storage();
 //                 console.log("ROUND: ", governanceStorage.currentCycleInfo.round)
 
+//                 // Post governance cycle reward distribution
+//                 var governanceClaimOperation    = await governanceInstance.methods.distributeProposalRewards(bob.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
+//                 governanceClaimOperation        = await governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
+
 //                 // Final values
 //                 delegationStorage                       = await delegationInstance.storage();
 //                 doormanStorage                          = await doormanInstance.storage();
@@ -575,10 +581,10 @@
 
 //                 // Claim operations
 //                 await signerFactory(bob.sk)
-//                 var claimOperation  = await doormanInstance.methods.compound(bob.pkh).send();
+//                 var claimOperation              = await doormanInstance.methods.compound(bob.pkh).send();
 //                 await claimOperation.confirmation();
 //                 await signerFactory(mallory.sk)
-//                 claimOperation  = await doormanInstance.methods.compound(mallory.pkh).send();
+//                 claimOperation                  = await doormanInstance.methods.compound(mallory.pkh).send();
 //                 await claimOperation.confirmation();
 
 //                 // Final values
@@ -709,6 +715,12 @@
 //                 await nextRoundOperation.confirmation();
 //                 governanceStorage               = await governanceInstance.storage();
 //                 console.log("ROUND: ", governanceStorage.currentCycleInfo.round)
+
+//                 // Post governance cycle reward distribution
+//                 var governanceClaimOperation    = await governanceInstance.methods.distributeProposalRewards(bob.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
+//                 governanceClaimOperation        = await governanceInstance.methods.distributeProposalRewards(mallory.pkh, [proposalId]).send();
+//                 await governanceClaimOperation.confirmation();
 
 //                 // Final values
 //                 delegationStorage                       = await delegationInstance.storage();
