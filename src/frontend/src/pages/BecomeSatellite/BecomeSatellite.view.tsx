@@ -119,6 +119,7 @@ export const BecomeSatelliteView = ({
       handleValidateLoad(data)
     }
   }, [updateSatellite, usersSatellite])
+
   useEffect(() => {
     setBalanceOk(myTotalStakeBalance >= satelliteConfig.minimumStakedMvkBalance)
   }, [accountPkh, myTotalStakeBalance, satelliteConfig])
@@ -195,7 +196,11 @@ export const BecomeSatelliteView = ({
           {!accountPkh || !balanceOk ? (
             <Info
               className="indent-bottom"
-              text={!accountPkh ? 'Please connect your wallet' : `Currently staking ${myTotalStakeBalance} MVK`}
+              text={
+                !accountPkh
+                  ? 'Please connect your wallet'
+                  : `To become a satellite you need to stake ${myTotalStakeBalance} MVK`
+              }
               type="warning"
             />
           ) : null}
