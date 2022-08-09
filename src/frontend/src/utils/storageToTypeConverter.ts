@@ -942,7 +942,7 @@ export function convertBreakGlassStatusStorageType(storage: any): Record<string,
   if (storage?.aggregator?.length) {
     storage.aggregator.forEach((item: any) => {
       convert.push({
-        title: 'Aggregator',
+        title: `${item.name} Aggregator`,
         type: 'Oracles',
         address: item.address,
         methods: {
@@ -956,8 +956,8 @@ export function convertBreakGlassStatusStorageType(storage: any): Record<string,
       })
     })
   }
-  if (storage?.aggregator?.length) {
-    storage.aggregator.forEach((item: any) => {
+  if (storage?.aggregator_factory?.length) {
+    storage.aggregator_factory.forEach((item: any) => {
       convert.push({
         title: 'Aggregator Factory',
         type: 'Oracles',
