@@ -29,13 +29,14 @@ import { SatelliteGovernanceForm } from './SatelliteGovernance.form'
 import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import Pagination from 'pages/FinacialRequests/Pagination/Pagination.view'
 import { checkIfUserIsSatellite } from 'pages/Satellites/helpers/Satellites.consts'
+import { SlidingTabButtons, TabItem } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 // actions
 import { getGovernanceSatelliteStorage } from './SatelliteGovernance.actions'
 import { getTotalDelegatedMVK } from 'pages/Satellites/helpers/Satellites.consts'
 
 // style
-import { SatelliteGovernanceStyled } from './SatelliteGovernance.style'
+import { SatelliteGovernanceStyled, SlidingTabButtonsWrap } from './SatelliteGovernance.style'
 import { DropdownCard, DropdownWrap } from '../../app/App.components/DropDown/DropDown.style'
 import { SatelliteStatus } from '../../utils/TypesAndInterfaces/Delegation'
 import { EmptyContainer } from '../../app/App.style'
@@ -94,11 +95,24 @@ export const SatelliteGovernance = () => {
 
   const [separateRecord, setSeparateRecord] = useState<Record<string, unknown>[]>([])
 
+  const [tabsList, setTabsList] = useState<TabItem[]>([])
+
   useEffect(() => {
     const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
     const filterPast = getPastActionsList(governanceSatelliteActionRecord)
     setSeparateRecord(filterOngoing.length ? filterOngoing : filterPast)
     setActiveTab(filterOngoing.length ? 'ongoing' : 'past')
+
+    const prevTabs = [
+      { text: 'Ongoing Actions', id: 1, active: Boolean(filterOngoing.length) },
+      { text: 'Past Actions', id: 2, active: Boolean(!filterOngoing.length) },
+    ]
+
+    if (userIsSatellite) {
+      setTabsList([...prevTabs, { text: 'My Actions', id: 3, active: false }])
+    } else {
+      setTabsList([...prevTabs])
+    }
   }, [governanceSatelliteActionRecord, userIsSatellite])
 
   const handleClickDropdown = () => {
@@ -114,21 +128,21 @@ export const SatelliteGovernance = () => {
     handleSelect(chosenItem)
   }
 
-  const handleTabChange = (tabId: string) => {
-    if (tabId === 'ongoing') {
+  const handleChangeTabs = (tabId?: number) => {
+    if (tabId === 1) {
       setActiveTab('ongoing')
       const filterOngoing = getOngoingActionsList(governanceSatelliteActionRecord)
 
       setSeparateRecord(filterOngoing)
     }
 
-    if (tabId === 'past') {
+    if (tabId === 2) {
       setActiveTab('past')
       const filterPast = getPastActionsList(governanceSatelliteActionRecord)
       setSeparateRecord(filterPast)
     }
 
-    if (tabId === 'my') {
+    if (tabId === 3) {
       setActiveTab('my')
       const filterPast = governanceSatelliteActionRecord.filter((item: any) => {
         return accountPkh === item.initiator_id
@@ -142,7 +156,7 @@ export const SatelliteGovernance = () => {
   }, [dispatch])
 
   const listName = useMemo(() => getSatelliteGovernanceListName(activeTab), [activeTab])
-  const { pathname, search } = useLocation()
+  const { search } = useLocation()
   const currentPage = getPageNumber(search, listName)
 
   const paginatedItemsList = useMemo(() => {
@@ -237,25 +251,13 @@ export const SatelliteGovernance = () => {
             <SatelliteGovernanceForm variant={chosenDdItem?.value || ''} />
           </DropdownCard>
         ) : null}
-
-        <SlidingTabButtonsStyled className="tab-buttons">
-          <ButtonStyled buttonActive={activeTab === 'ongoing'} onClick={() => handleTabChange('ongoing')}>
-            <ButtonText>Ongoing Actions</ButtonText>
-          </ButtonStyled>
-          <ButtonStyled buttonActive={activeTab === 'past'} onClick={() => handleTabChange('past')}>
-            <ButtonText>Past Actions</ButtonText>
-          </ButtonStyled>
-          {userIsSatellite ? (
-            <ButtonStyled buttonActive={activeTab === 'my'} onClick={() => handleTabChange('my')}>
-              <ButtonText>My Actions</ButtonText>
-            </ButtonStyled>
-          ) : null}
-        </SlidingTabButtonsStyled>
+        <SlidingTabButtonsWrap>
+          <SlidingTabButtons tabItems={tabsList} onClick={handleChangeTabs} />
+        </SlidingTabButtonsWrap>
       </SatelliteGovernanceStyled>
 
       {paginatedItemsList?.length
         ? paginatedItemsList.map((item: any) => {
-            console.log('%c ||||| item', 'color:yellowgreen', item)
             const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
             return (
