@@ -841,6 +841,8 @@ export function convertCurrentRoundProposalsStorageType(storage: {
 export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
   const convert = [] as Record<string, unknown>[]
 
+  console.log('%c ||||| storage', 'color:yellowgreen', storage);
+
   if (storage?.doorman?.length) {
     storage.doorman.forEach((item: any) => {
       convert.push({
@@ -932,6 +934,40 @@ export function convertBreakGlassStatusStorageType(storage: any): Record<string,
           'create treasury paused': item.create_treasury_paused,
           'track treasury paused': item.track_treasury_paused,
           'untrack treasury paused': item.untrack_treasury_paused,
+        },
+      })
+    })
+  }
+
+  if (storage?.aggregator?.length) {
+    storage.aggregator.forEach((item: any) => {
+      convert.push({
+        title: 'Aggregator',
+        type: 'Oracles',
+        address: item.address,
+        methods: {
+          'request rate update deviation paused': item.request_rate_update_deviation_paused,
+          'request rate update paused': item.request_rate_update_paused,
+          'set observation commit paused': item.set_observation_commit_paused,
+          'set observation reveal paused': item.set_observation_reveal_paused,
+          'withdraw reward smvk paused': item.withdraw_reward_smvk_paused,
+          'withdraw reward xtz paused': item.withdraw_reward_xtz_paused,
+        },
+      })
+    })
+  }
+  if (storage?.aggregator?.length) {
+    storage.aggregator.forEach((item: any) => {
+      convert.push({
+        title: 'Aggregator Factory',
+        type: 'Oracles',
+        address: item.address,
+        methods: {
+          'untrack aggregator paused': item.untrack_aggregator_paused,
+          'track aggregator paused': item.track_aggregator_paused,
+          'distribute reward xtz paused': item.distribute_reward_xtz_paused,
+          'distribute reward smvk paused': item.distribute_reward_smvk_paused,
+          'create aggregator paused': item.create_aggregator_paused,
         },
       })
     })
