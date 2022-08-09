@@ -45,7 +45,33 @@ export const InfoBlock = styled.blockquote`
     }
   }
 
+  &.warning {
+    border-color: ${downColor};
+    min-height: 64px;
+    padding: 20px 30px;
+
+    p {
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      width: 100%;
+      padding-left: 20px;
+    }
+
+    svg {
+      stroke: ${downColor};
+      stroke-width: 2;
+      margin-right: 0;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
   &.no-edit-info {
     margin-top: 20px;
+  }
+
+  &.indent-bottom {
+    margin-bottom: 20px;
   }
 `
