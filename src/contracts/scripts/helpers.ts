@@ -93,7 +93,7 @@ export const compile = async (
         `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
             format === 'json' ? '--michelson-format json' : ''
         } --protocol jakarta`,
-        { maxBuffer: 1024 * 500 * 1024 },
+        { maxBuffer: 1024 * 500 },
     ).toString()
 
     try {
@@ -146,82 +146,163 @@ export const compileContract = async (
 ) => {
 
     const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
-    const pwd: string = execSync('echo $PWD').toString()
-    const lambdaIndexJson : string = `contracts/partials/contractLambdas/${contract}/${contract}LambdaIndex.json`
-    const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${lambdaIndexJson}`).toString())
-    let res: any[] = []
+    const contracts: string[] = contract.split(',');
 
-    const michelsonFormat: string = execSync(
-        `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol jakarta`,
-        { maxBuffer: 1024 * 500 * 1024 },
-    ).toString()
+    // loop over contracts
+    contracts.forEach((contract) => {
 
-    const jsonFormat: string = execSync(
-        `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol jakarta`,
-        { maxBuffer: 1024 * 500 * 1024 },
-    ).toString()
-    
-    try {
+        const pwd: string = execSync('echo $PWD').toString()
+        const lambdaIndexJson : string = `contracts/partials/contractLambdas/${contract}/${contract}LambdaIndex.json`
+        const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${lambdaIndexJson}`).toString())
+        let res: any[] = []
 
-        // create michelson output dir if not exists - i.e. /contracts/compiled
-        if (!fs.existsSync(michelsonOutputDir)) {
-            fs.mkdirSync(michelsonOutputDir)
-        }
+        const michelsonFormat: string = execSync(
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol jakarta`,
+            { maxBuffer: 1024 * 500 * 1024 },
+        ).toString()
 
-        // create json output dir if not exists - i.e. /build
-        if (!fs.existsSync(jsonOutputDir)) {
-            fs.mkdirSync(jsonOutputDir)
-        }
+        const jsonFormat: string = execSync(
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol jakarta`,
+            { maxBuffer: 1024 * 500 * 1024 },
+        ).toString()
+        
+        try {
 
-        // save contract in michelson
-        fs.writeFileSync(`${michelsonOutputDir}/${contract}.tz`, michelsonFormat)
-        console.log(contract + " michelson compiled")
+            // create michelson output dir if not exists - i.e. /contracts/compiled
+            if (!fs.existsSync(michelsonOutputDir)) {
+                fs.mkdirSync(michelsonOutputDir)
+            }
 
-        // format contract json
-        const artifacts: any = JSON.stringify(
-            {
-                contractName: contract,
-                michelson: JSON.parse(jsonFormat),
-                networks: {},
-                compiler: {
-                name: 'ligo',
-                version: ligoVersion,
+            // create json output dir if not exists - i.e. /build
+            if (!fs.existsSync(jsonOutputDir)) {
+                fs.mkdirSync(jsonOutputDir)
+            }
+
+            // save contract in michelson
+            fs.writeFileSync(`${michelsonOutputDir}/${contract}.tz`, michelsonFormat)
+            console.log(contract + " michelson compiled")
+
+            // format contract json
+            const artifacts: any = JSON.stringify(
+                {
+                    contractName: contract,
+                    michelson: JSON.parse(jsonFormat),
+                    networks: {},
+                    compiler: {
+                    name: 'ligo',
+                    version: ligoVersion,
+                    },
+                    networkType: 'tezos',
                 },
-                networkType: 'tezos',
-            },
-            null,
-            2,
-        )
+                null,
+                2,
+            )
 
-        // save contract in json
-        fs.writeFileSync(`${jsonOutputDir}/${contract}.json`, artifacts)
-        console.log(contract + " json build compiled")
+            // save contract in json
+            fs.writeFileSync(`${jsonOutputDir}/${contract}.json`, artifacts)
+            console.log(contract + " json build compiled")
 
-        console.log("--- compiling lambdas ---")
-        // compile and save contract lambdas
-        for (const lambda of lambdas) {
-            
-            const michelson = execSync(
-                `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
-                { maxBuffer: 1024 * 500 },
-            ).toString()
-      
-            res.push(JSON.parse(michelson).bytes)
-      
-            console.log(lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.')
+            console.log("--- compiling lambdas ---")
+            // compile and save contract lambdas
+            for (const lambda of lambdas) {
+                
+                const michelson = execSync(
+                    `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
+                    { maxBuffer: 1024 * 500 },
+                ).toString()
+        
+                res.push(JSON.parse(michelson).bytes)
+        
+                console.log(lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.')
+                }
+        
+                if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
+                    fs.mkdirSync(`${env.buildDir}/lambdas`)
+                }
+        
+                fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
+        
+        } catch (e) {
+
+        console.error(e)
+
+        }    
+    })
+}
+
+
+
+export const compileContractNoLambdas = async (
+
+    contract: string = undefined,
+    contractsDir: string = env.contractsDir,
+    michelsonOutputDir: string = env.michelsonBuildDir,
+    jsonOutputDir: string = env.buildDir,
+    ligoVersion: string = env.ligoVersion,
+    isAppleSilicon: string = 'false',
+
+) => {
+
+    const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
+    const contracts: string[] = contract.split(',');
+    
+    // loop over contracts
+    contracts.forEach((contract) => {
+
+        const michelsonFormat: string = execSync(
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --protocol jakarta`,
+            { maxBuffer: 1024 * 500 * 1024 },
+        ).toString()
+
+        const jsonFormat: string = execSync(
+            `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo --michelson-format json --protocol jakarta`,
+            { maxBuffer: 1024 * 500 * 1024 },
+        ).toString()
+        
+        try {
+
+            // create michelson output dir if not exists - i.e. /contracts/compiled
+            if (!fs.existsSync(michelsonOutputDir)) {
+                fs.mkdirSync(michelsonOutputDir)
             }
-      
-            if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
-                fs.mkdirSync(`${env.buildDir}/lambdas`)
+
+            // create json output dir if not exists - i.e. /build
+            if (!fs.existsSync(jsonOutputDir)) {
+                fs.mkdirSync(jsonOutputDir)
             }
-      
-            fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
-      
-    } catch (e) {
 
-      console.error(e)
+            // save contract in michelson
+            fs.writeFileSync(`${michelsonOutputDir}/${contract}.tz`, michelsonFormat)
+            console.log(contract + " michelson compiled")
 
-    }    
+            // format contract json
+            const artifacts: any = JSON.stringify(
+                {
+                    contractName: contract,
+                    michelson: JSON.parse(jsonFormat),
+                    networks: {},
+                    compiler: {
+                    name: 'ligo',
+                    version: ligoVersion,
+                    },
+                    networkType: 'tezos',
+                },
+                null,
+                2,
+            )
+
+            // save contract in json
+            fs.writeFileSync(`${jsonOutputDir}/${contract}.json`, artifacts)
+            console.log(contract + " json build compiled")
+
+            console.log('--- --- ---')
+        
+        } catch (e) {
+
+        console.error(e)
+
+        }    
+    })
 }
 
 
@@ -276,35 +357,41 @@ export const compileContractLambdas = async (
 ) => {
         
     const ligo: string = getLigo(true, ligoVersion)
-    const pwd: string = execSync('echo $PWD').toString()
-    const lambdaIndexJson : string = `contracts/partials/contractLambdas/${contract}/${contract}LambdaIndex.json`
-    const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${lambdaIndexJson}`).toString())
-    let res: any[] = []
+    const contracts: string[] = contract.split(',');
+    
+    // loop over contracts
+    contracts.forEach((contract) => {
 
-    try {
-        for (const lambda of lambdas) {
+        const pwd: string = execSync('echo $PWD').toString()
+        const lambdaIndexJson : string = `contracts/partials/contractLambdas/${contract}/${contract}LambdaIndex.json`
+        const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${lambdaIndexJson}`).toString())
+        let res: any[] = []
 
-            const michelson = execSync(
-                `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
-                { maxBuffer: 1024 * 500 },
-            ).toString()
+        try {
+            for (const lambda of lambdas) {
 
-            res.push(JSON.parse(michelson).bytes)
+                const michelson = execSync(
+                    `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/contracts/main/${contract}.ligo --protocol jakarta`,
+                    { maxBuffer: 1024 * 500 },
+                ).toString()
 
-            console.log(lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.')
+                res.push(JSON.parse(michelson).bytes)
 
+                console.log(lambda.index + 1 + '. ' + lambda.name + ' successfully compiled.')
+
+            }
+
+            if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
+                fs.mkdirSync(`${env.buildDir}/lambdas`)
+            }
+
+            fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
+
+        } catch (e) {
+            console.log('error in compiling lambdas')
+            console.error(e)
         }
-
-        if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
-            fs.mkdirSync(`${env.buildDir}/lambdas`)
-        }
-
-        fs.writeFileSync(`${env.buildDir}/lambdas/${contract}Lambdas.json`, JSON.stringify(res))
-
-    } catch (e) {
-        console.log('error in compiling lambdas')
-        console.error(e)
-    }
+    })
 }
 
 

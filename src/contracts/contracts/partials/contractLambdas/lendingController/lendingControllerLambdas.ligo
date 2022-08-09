@@ -385,6 +385,9 @@ block {
                 const interestRateBelowOptimalUtilisation   : nat           = setLoanTokenParams.interestRateBelowOptimalUtilisation;
                 const interestRateAboveOptimalUtilisation   : nat           = setLoanTokenParams.interestRateAboveOptimalUtilisation;
 
+                // check if loan token already exists
+                if Big_map.mem(tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
+
                 const newLoanTokenRecord : loanTokenRecordType = record [
                     
                     tokenName                           = tokenName;
@@ -415,10 +418,8 @@ block {
 
                 ];
                 
-                s.loanTokenLedger[tokenName] := case s.loanTokenLedger[tokenName] of [
-                        Some(_record) -> failwith(error_LOAN_TOKEN_RECORD_ALREADY_EXISTS)
-                    |   None          -> newLoanTokenRecord
-                ];
+                // update loan token ledger
+                s.loanTokenLedger[tokenName] := newLoanTokenRecord;
 
             }
         |   _ -> skip
@@ -433,7 +434,6 @@ function lambdaAddLiquidity(const lendingControllerLambdaAction : lendingControl
 block {
     
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     // init operations
     var operations : list(operation) := nil;
@@ -449,7 +449,7 @@ block {
                 // Get Token Record
                 var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // update pool totals
@@ -465,8 +465,8 @@ block {
 
                 // send token from sender to token pool
                 const sendTokenToPoolOperation : operation = transferFa2Token(
-                    Tezos.get_sender(),               // from_
-                    Tezos.get_self_address(),         // to_
+                    Tezos.get_sender(),         // from_
+                    Tezos.get_self_address(),   // to_
                     tokensDeposited,            // token amount
                     tokenId,                    // token id
                     tokenContractAddress        // token contract address
@@ -490,7 +490,6 @@ function lambdaRemoveLiquidity(const lendingControllerLambdaAction : lendingCont
 block {
     
     checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s);    // check that sender is admin or the Governance Contract address
 
     // init operations
     var operations : list(operation) := nil;
@@ -501,12 +500,12 @@ block {
                 // init variables for convenience
                 const tokenName             : string    = removeLiquidityParams.tokenName;
                 const tokensWithdrawn       : nat       = removeLiquidityParams.tokensWithdrawn;
-                // const recipient             : address   = removeLiquidityParams.to_; 
+                const initiator             : address   = Tezos.get_sender();
 
                 // Get Token Record
                 var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
                         Some(_record) -> _record 
-                    |   None          -> failwith("error_LOAN_TOKEN_RECORD_NOT_FOUND")
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
                 
                 const tokenId                   : nat       = tokenRecord.tokenId;
@@ -526,13 +525,13 @@ block {
                 const newTokenPoolTotal : nat = abs(tokenPoolTotal - tokensWithdrawn);
 
                 // burn LP Token operation
-                const burnLpTokenOperation : operation = mintOrBurnLpToken(Tezos.get_sender(), (0 - lpTokensBurned), lpTokenContractAddress);
+                const burnLpTokenOperation : operation = mintOrBurnLpToken(initiator, (0 - lpTokensBurned), lpTokenContractAddress);
                 operations := burnLpTokenOperation # operations;
 
                 // send withdrawn tokens to sender 
                 const withdrawnTokensToSenderOperation : operation = transferFa2Token(
                     Tezos.get_self_address(),     // from_
-                    Tezos.get_sender(),           // to_
+                    initiator,                    // to_
                     tokensWithdrawn,              // token amount
                     tokenId,                      // token id
                     tokenContractAddress          // token contract address
@@ -578,7 +577,7 @@ block {
                 // Get loan token type
                 const loanTokenRecord : loanTokenRecordType = case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // Get borrow index of token
@@ -588,7 +587,7 @@ block {
                 const newVaultId : vaultIdType = s.vaultCounter;
                 
                 // check if vault id already exists
-                if Big_map.mem(newVaultId, s.vaultLedger) then failwith("Error. Vault Id already exists.") else skip;
+                if Big_map.mem(newVaultId, s.vaultLedger) then failwith(error_VAULT_ID_ALREADY_USED) else skip;
                 
                 // make vault handle
                 const handle : vaultHandleType = record [
@@ -597,7 +596,7 @@ block {
                 ];
 
                 // check if vault already exists
-                if Big_map.mem(handle, s.vaults) then failwith("Error. Vault already exists.") else skip;
+                if Big_map.mem(handle, s.vaults) then failwith(error_VAULT_ALREADY_EXISTS) else skip;
 
                 // Prepare Vault Metadata
                 const vaultMetadata: metadataType = Big_map.literal (list [
@@ -1309,7 +1308,7 @@ block {
                 // Get loan token type
                 var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // Get loan token parameters
@@ -1531,7 +1530,7 @@ block {
                 // Get loan token type
                 var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_record) -> _record
-                    |   None          -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                    |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // Get loan token parameters

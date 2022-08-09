@@ -995,7 +995,7 @@ block {
 //                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
 //                 const loanTokenType : tokenType = case s.loanTokenLedger[vaultLoanTokenName] of [
 //                         Some(_loanToken) -> _loanToken.tokenType
-//                     |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+//                     |   None             -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
 //                 ];
 
 //                 // check if vault is undercollaterized; if it is not, then allow user to borrow
@@ -1130,7 +1130,7 @@ block {
 //                 const vaultLoanToken   : string = vault.loanToken; // USDT, EURL, some other crypto coin
 //                 const loanTokenType    : tokenType = case s.loanTokenLedger[vaultLoanToken] of [
 //                         Some(_loanToken) -> _loanToken.tokenType
-//                     |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+//                     |   None             -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
 //                 ];
 //                 const loanTokenAddress  : address = loanTokenType.tokenContractAddress;
 //                 const loanTokenId       : nat     = loanTokenType.tokenId;
@@ -1312,7 +1312,7 @@ block {
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
                 const loanTokenType : tokenType = case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_loanToken) -> _loanToken.tokenType
-                    |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                    |   None             -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // check if vault is undercollaterized; if it is not, then allow user to borrow
@@ -1395,7 +1395,7 @@ block {
                 const vaultLoanTokenName : string = vault.loanToken; // USDT, EURL, some other crypto coin
                 const loanTokenType : tokenType = case s.loanTokenLedger[vaultLoanTokenName] of [
                         Some(_loanToken) -> _loanToken.tokenType
-                    |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                    |   None             -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // ------------------------------------------------------------------
@@ -1602,7 +1602,7 @@ block {
                 const vaultLoanToken   : string = vault.loanToken; // USDT, EURL, some other crypto coin
                 const loanTokenType    : tokenType = case s.loanTokenLedger[vaultLoanToken] of [
                         Some(_loanToken) -> _loanToken.tokenType
-                    |   None             -> failwith(error_LOAN_TOKEN_NOT_FOUND)
+                    |   None             -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
                 const loanTokenAddress  : address = loanTokenType.tokenContractAddress;
                 const loanTokenId       : nat     = loanTokenType.tokenId;

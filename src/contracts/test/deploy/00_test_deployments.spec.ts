@@ -52,6 +52,7 @@ import { MvkToken } from '../helpers/mvkHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
 import { LPToken } from "../helpers/testLPHelper"
+import { TokenPoolLpToken } from "../helpers/tokenPoolLpTokenHelper"
 
 // import { UsdmToken } from "../helpers/usdmTokenHelper"
 // import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper"
@@ -94,6 +95,7 @@ import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage"
+import { tokenPoolLpTokenStorage } from "../../storage/tokenPoolLpTokenStorage"
 
 // import { usdmTokenStorage } from "../../storage/usdmTokenStorage"
 // import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerStorage"
@@ -135,6 +137,10 @@ describe('Contracts Deployment for Tests', async () => {
   var lpToken: LPToken;
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+
+  var lpTokenPoolMockFa12Token : TokenPoolLpToken;
+  var lpTokenPoolMockFa2Token : TokenPoolLpToken;
+
   // var usdmToken : UsdmToken
   // var usdmTokenController : UsdmTokenController
   
@@ -400,6 +406,24 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
 
 
+      // LP Token for Mock FA12 Token in Lending Controller Token Pool 
+      lpTokenPoolMockFa12Token = await TokenPoolLpToken.originate(
+        utils.tezos,
+        tokenPoolLpTokenStorage
+      );
+  
+      await saveContractAddress("lpTokenPoolMockFa12TokenAddress", lpTokenPoolMockFa12Token.contract.address)
+      console.log("LP Token Pool Mock Fa12 Token Contract deployed at:", lpTokenPoolMockFa12Token.contract.address);
+
+      // LP Token for Mock FA12 Token in Lending Controller Token Pool 
+      lpTokenPoolMockFa2Token = await TokenPoolLpToken.originate(
+        utils.tezos,
+        tokenPoolLpTokenStorage
+      );
+  
+      await saveContractAddress("lpTokenPoolMockFa2TokenAddress", lpTokenPoolMockFa2Token.contract.address)
+      console.log("LP Token Pool Mock Fa2 Token Contract deployed at:", lpTokenPoolMockFa2Token.contract.address);
+  
       lendingControllerStorage.mvkTokenAddress     = mvkToken.contract.address
       lendingControllerStorage.governanceAddress   = governance.contract.address
       lendingController = await LendingController.originate(utils.tezos,lendingControllerStorage);

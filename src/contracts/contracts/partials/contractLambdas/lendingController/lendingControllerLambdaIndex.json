@@ -45,50 +45,54 @@
     },
     {
         "index": 11,
-        "name": "lambdaAddLiquidity"
+        "name": "lambdaSetLoanToken"
     },
     {
         "index": 12,
-        "name": "lambdaRemoveLiquidity"
+        "name": "lambdaAddLiquidity"
     },
     {
         "index": 13,
-        "name": "lambdaCreateVault"
+        "name": "lambdaRemoveLiquidity"
     },
     {
         "index": 14,
-        "name": "lambdaCloseVault"
+        "name": "lambdaCreateVault"
     },
     {
         "index": 15,
-        "name": "lambdaLiquidateVault"
+        "name": "lambdaCloseVault"
     },
     {
         "index": 16,
-        "name": "lambdaWithdrawFromVault"
+        "name": "lambdaLiquidateVault"
     },
     {
         "index": 17,
-        "name": "lambdaRegisterDeposit"
+        "name": "lambdaWithdrawFromVault"
     },
     {
         "index": 18,
-        "name": "lambdaBorrow"
+        "name": "lambdaRegisterDeposit"
     },
     {
         "index": 19,
-        "name": "lambdaRepay"
+        "name": "lambdaBorrow"
     },
     {
         "index": 20,
-        "name": "lambdaVaultDepositStakedMvk"
+        "name": "lambdaRepay"
     },
     {
         "index": 21,
-        "name": "lambdaVaultWithdrawStakedMvk"
+        "name": "lambdaVaultDepositStakedMvk"
     },
     {
         "index": 22,
+        "name": "lambdaVaultWithdrawStakedMvk"
+    },
+    {
+        "index": 23,
         "name": "lambdaVaultLiquidateStakedMvk"
     }
     

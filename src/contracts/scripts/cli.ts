@@ -1,6 +1,6 @@
 import yargs from 'yargs'
 
-import { compile, compileLambdas, compileContract, compileContractLambdas, runMigrations } from './helpers'
+import { compile, compileLambdas, compileContract, compileContractLambdas, compileContractNoLambdas, runMigrations } from './helpers'
 
 yargs
 
@@ -9,7 +9,7 @@ yargs
     'compiles the contract',
     {
         format: {
-            description: 'fromat of output file',
+            description: 'format of output file',
             alias: 'f',
             type: 'string',
         },
@@ -85,6 +85,50 @@ yargs
     async (argv) => {
         
         compileContract(argv.contract, argv.contracts_dir, argv.michelson_output_dir, argv.json_output_dir, argv.ligo_version, argv.is_apple_silicon)
+
+    },
+)
+
+
+
+.command(
+    'compile-contract-no-lambdas [contract] [contracts_dir] [michelson_output_dir] [json_output_dir] [ligo_version] [is_apple_silicon]',
+    'compiles the contract into michelson and json',
+    {        
+        contract: {
+            description: 'the contract to compile',
+            alias: 'c',
+            type: 'string',
+        },
+        contracts_dir: {
+            description: 'contracts directory',
+            alias: 'p',
+            type: 'string',
+        },
+        michelson_output_dir: {
+            description: 'michelson output directory',
+            alias: 'a',
+            type: 'string',
+        },
+        json_output_dir: {
+            description: 'json output directory',
+            alias: 'b',
+            type: 'string',
+        },
+        ligo_version: {
+            description: 'ligo version',
+            alias: 'v',
+            type: 'string',
+        },
+        is_apple_silicon: {
+            description: 'cpu is an apple silicon boolean',
+            alias: 'm',
+            type: 'string',
+        },
+    },
+    async (argv) => {
+        
+        compileContractNoLambdas(argv.contract, argv.contracts_dir, argv.michelson_output_dir, argv.json_output_dir, argv.ligo_version, argv.is_apple_silicon)
 
     },
 )
