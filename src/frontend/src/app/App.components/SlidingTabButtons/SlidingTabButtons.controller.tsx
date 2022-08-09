@@ -1,4 +1,4 @@
-import { Ref, useState } from 'react'
+import { Ref, useEffect, useState } from 'react'
 
 import { SlidingTabButtonStyle } from './SlidingTabButtons.constants'
 import { SlidingTabButtonsView } from './SlidingTabButtons.view'
@@ -21,6 +21,10 @@ type SlidingTabButtonsProps = {
 export const SlidingTabButtons = ({ kind, onClick, className = '', tabItems }: SlidingTabButtonsProps) => {
   const [tabValues, setTabValues] = useState<TabItem[]>(tabItems || [])
   const [clicked, setClicked] = useState(false)
+
+  useEffect(() => {
+    setTabValues(tabItems || [])
+  }, [tabItems?.length])
 
   const setActive = (itemId: number, tabId: number) => itemId === tabId
   const clickCallback = (tabId: number) => {
