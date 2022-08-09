@@ -25,11 +25,11 @@
     },
     {
         "index": 6,
-        "name": "lambdaSuspendSatellite"
+        "name": "lambdaMistakenTransfer"
     },
     {
         "index": 7,
-        "name": "lambdaUnsuspendSatellite"
+        "name": "lambdaSuspendSatellite"
     },
     {
         "index": 8,
@@ -37,7 +37,7 @@
     },
     {
         "index": 9,
-        "name": "lambdaUnbanSatellite"
+        "name": "lambdaRestoreSatellite"
     },
     {
         "index": 10,
@@ -65,10 +65,14 @@
     },
     {
         "index": 16,
-        "name": "lambdaDropAction"
+        "name": "lambdaFixMistakenTransfer"
     },
     {
         "index": 17,
+        "name": "lambdaDropAction"
+    },
+    {
+        "index": 18,
         "name": "lambdaVoteForAction"
-    }
+  }
 ]

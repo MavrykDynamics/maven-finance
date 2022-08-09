@@ -915,7 +915,7 @@ external-dns:
       enabled: true
       ## @param metrics.serviceMonitor.namespace Namespace in which Prometheus is running
       ##
-      namespace: ''
+      namespace: 'kube-prometheus-stack'
       ## @param metrics.serviceMonitor.interval Interval at which metrics should be scraped
       ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
       ##
@@ -940,11 +940,12 @@ external-dns:
       relabelings: []
       ## @param metrics.serviceMonitor.honorLabels Specify honorLabels parameter to add the scrape endpoint
       ##
-      honorLabels: false
+      honorLabels: true
       ## @param metrics.serviceMonitor.additionalLabels Used to pass Labels that are required by the installed Prometheus Operator
       ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
       ##
-      additionalLabels: {}
+      additionalLabels:
+        release: 'prod'
       ## @param metrics.serviceMonitor.jobLabel The name of the label on the target service to use as the job name in prometheus.
       ##
       jobLabel: ''

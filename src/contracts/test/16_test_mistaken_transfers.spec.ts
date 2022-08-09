@@ -30,6 +30,9 @@
 // import governanceFinancialAddress from '../deployments/governanceFinancialAddress.json';
 // import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 // import vestingAddress from '../deployments/vestingAddress.json';
+// import aggregatorAddress from '../deployments/aggregatorAddress.json';
+// import aggregatorFactoryAddress from '../deployments/aggregatorFactoryAddress.json';
+// import governanceSatelliteAddress from '../deployments/governanceSatelliteAddress.json';
 
 // describe("Mistaken transfers tests", async () => {
 //     var utils: Utils;
@@ -50,6 +53,9 @@
 //     let governanceFinancialInstance;
 //     let governanceProxyInstance;
 //     let vestingInstance;
+//     let aggregatorInstance;
+//     let aggregatorFactoryInstance;
+//     let governanceSatelliteInstance;
 
 //     let doormanStorage;
 //     let delegationStorage;
@@ -67,6 +73,9 @@
 //     let governanceFinancialStorage;
 //     let governanceProxyStorage;
 //     let vestingStorage;
+//     let aggregatorStorage;
+//     let aggregatorFactoryStorage;
+//     let governanceSatelliteStorage;
     
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -100,6 +109,9 @@
 //         governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
 //         governanceProxyInstance         = await utils.tezos.contract.at(governanceProxyAddress.address);
 //         vestingInstance                 = await utils.tezos.contract.at(vestingAddress.address);
+//         aggregatorInstance              = await utils.tezos.contract.at(aggregatorAddress.address);
+//         aggregatorFactoryInstance       = await utils.tezos.contract.at(aggregatorFactoryAddress.address);
+//         governanceSatelliteInstance     = await utils.tezos.contract.at(governanceSatelliteAddress.address);
             
 //         doormanStorage                  = await doormanInstance.storage();
 //         delegationStorage               = await delegationInstance.storage();
@@ -117,21 +129,27 @@
 //         governanceFinancialStorage      = await governanceFinancialInstance.storage();
 //         governanceProxyStorage          = await governanceProxyInstance.storage();
 //         vestingStorage                  = await vestingInstance.storage();
+//         aggregatorStorage               = await aggregatorInstance.storage();
+//         aggregatorFactoryStorage        = await aggregatorFactoryInstance.storage();
+//         governanceSatelliteStorage      = await governanceSatelliteInstance.storage();
 
-//         console.log('-- -- -- -- -- Mistaken Transfer Tests -- -- -- --')
+//         console.log('-- -- -- -- -- Doorman Tests -- -- -- --')
 //         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('Treasury Contract deployed at:', treasuryInstance.address);
 //         console.log('Treasury Factory Contract deployed at:', treasuryFactoryInstance.address);
-//         console.log('Farm Contract deployed at:', farmAddress.address);
-//         console.log('LP Token Contract deployed at:', lpTokenAddress.address);
-//         console.log('Break Glass Contract deployed at:', breakGlassAddress.address);
-//         console.log('Farm Factory Contract deployed at:', farmFactoryAddress.address);
-//         console.log('Emergency Governance Contract deployed at:', emergencyGovernanceAddress.address);
-//         console.log('Governance Contract deployed at:', governanceAddress.address);
-//         console.log('Governance Financial Contract deployed at:', governanceFinancialAddress.address);
-//         console.log('Governance Proxy Contract deployed at:', governanceProxyAddress.address);
-//         console.log('Vesting Contract deployed at:', vestingAddress.address);
+//         console.log('Farm Contract deployed at:', farmInstance.address);
+//         console.log('LP Token Contract deployed at:', lpTokenInstance.address);
+//         console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
+//         console.log('Farm Factory Contract deployed at:', farmFactoryInstance.address);
+//         console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
+//         console.log('Governance Contract deployed at:', governanceInstance.address);
+//         console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
+//         console.log('Governance Proxy Contract deployed at:', governanceProxyInstance.address);
+//         console.log('Vesting Contract deployed at:', vestingInstance.address);
+//         console.log('Aggregator Contract deployed at:', aggregatorInstance.address);
+//         console.log('Aggregator Factory Contract deployed at:', aggregatorFactoryInstance.address);
+//         console.log('Governance Satellite Contract deployed at:', governanceSatelliteInstance.address);
 //         console.log('Mock FA12 Contract deployed at:', mockFa12TokenInstance.address);
 //         console.log('Mock FA2 Contract deployed at:', mockFa2TokenInstance.address);
 //         console.log('Bob address: ' + bob.pkh);
@@ -1257,6 +1275,357 @@
 //                         "to_"    : bob.pkh,
 //                         "token"  : {
 //                             "fa12" : mockFa12TokenAddress.address
+//                         },
+//                         "amount" : tokenAmount
+//                     }
+//                 ]
+//                 ).send()).to.be.rejected;
+
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+//     })
+
+//     describe("AGGREGATOR", async () => {
+
+//         beforeEach('Set sender to admin', async () => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Governance Satellite should be able to transfer Tokens sent to an aggregator by mistake", async() => {
+//             try{
+
+//                 // Initial values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 var contractAccount         = await mockFa2TokenStorage.ledger.get(aggregatorAddress.address)
+//                 var userAccount             = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
+//                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
+//                 const tokenAmount           = 200;
+
+//                 // Mistake Operation
+//                 const transferOperation     = await mockFa2TokenInstance.methods.transfer([
+//                     {
+//                         from_: bob.pkh,
+//                         txs: [
+//                             {
+//                                 to_: aggregatorAddress.address,
+//                                 token_id: 0,
+//                                 amount: tokenAmount
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await transferOperation.confirmation();
+
+//                 // Mid values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 contractAccount             = await mockFa2TokenStorage.ledger.get(aggregatorAddress.address)
+//                 userAccount                 = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+                
+//                 // Treasury Transfer Operation
+//                 const mistakenTransferOperation     = await aggregatorInstance.methods.mistakenTransfer(
+//                     [
+//                         {
+//                             "to_"    : bob.pkh,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress": mockFa2TokenAddress.address,
+//                                     "tokenId" : 0
+//                                 }
+//                             },
+//                             "amount" : tokenAmount
+//                         }
+//                     ]
+//                     ).send();
+//                 await mistakenTransferOperation.confirmation();
+
+//                 // Final values
+//                 mockFa2TokenStorage        = await mockFa2TokenInstance.storage()
+//                 contractAccount             = await mockFa2TokenStorage.ledger.get(aggregatorAddress.address)
+//                 userAccount                 = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+//                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
+
+//                 // Assertions
+//                 assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
+//                 assert.equal(endAccountBalance, initAccountBalance)
+//                 assert.equal(endUserBalance, initUserBalance)
+
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+
+//         it("Non Governance Satellite should not be able to call this entrypoint", async() => {
+//             try{
+                
+//                 // Initial values
+//                 mockFa2TokenStorage        = await mockFa2TokenInstance.storage()
+//                 const tokenAmount           = 200;
+
+//                 // Mistake Operation
+//                 const transferOperation     = await mockFa2TokenInstance.methods.transfer([
+//                     {
+//                         from_: bob.pkh,
+//                         txs: [
+//                             {
+//                                 to_: aggregatorAddress.address,
+//                                 token_id: 0,
+//                                 amount: tokenAmount
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await transferOperation.confirmation();
+                
+//                 // Treasury Transfer Operation
+//                 await signerFactory(alice.sk)
+//                 await chai.expect(aggregatorInstance.methods.mistakenTransfer(
+//                 [
+//                     {
+//                         "to_"    : bob.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress": mockFa2TokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
+//                         },
+//                         "amount" : tokenAmount
+//                     }
+//                 ]
+//                 ).send()).to.be.rejected;
+
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+//     })
+
+//     describe("AGGREGATOR FACTORY", async () => {
+
+//         beforeEach('Set sender to admin', async () => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Governance Satellite should be able to transfer Tokens sent to the aggregator factory by mistake", async() => {
+//             try{
+
+//                 // Initial values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 var contractAccount         = await mockFa2TokenStorage.ledger.get(aggregatorFactoryAddress.address)
+//                 var userAccount             = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
+//                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
+//                 const tokenAmount           = 200;
+
+//                 // Mistake Operation
+//                 const transferOperation     = await mockFa2TokenInstance.methods.transfer([
+//                     {
+//                         from_: bob.pkh,
+//                         txs: [
+//                             {
+//                                 to_: aggregatorFactoryAddress.address,
+//                                 token_id: 0,
+//                                 amount: tokenAmount
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await transferOperation.confirmation();
+
+//                 // Mid values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 contractAccount             = await mockFa2TokenStorage.ledger.get(aggregatorFactoryAddress.address)
+//                 userAccount                 = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+                
+//                 // Treasury Transfer Operation
+//                 const mistakenTransferOperation     = await aggregatorFactoryInstance.methods.mistakenTransfer(
+//                     [
+//                         {
+//                             "to_"    : bob.pkh,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress": mockFa2TokenAddress.address,
+//                                     "tokenId" : 0
+//                                 }
+//                             },
+//                             "amount" : tokenAmount
+//                         }
+//                     ]
+//                     ).send();
+//                 await mistakenTransferOperation.confirmation();
+
+//                 // Final values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 contractAccount             = await mockFa2TokenStorage.ledger.get(aggregatorFactoryAddress.address)
+//                 userAccount                 = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+//                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
+
+//                 // Assertions
+//                 assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
+//                 assert.equal(endAccountBalance, initAccountBalance)
+//                 assert.equal(endUserBalance, initUserBalance)
+
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+
+//         it("Non Governance Satellite should not be able to call this entrypoint", async() => {
+//             try{
+                
+//                 // Initial values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 const tokenAmount           = 200;
+
+//                 // Mistake Operation
+//                 const transferOperation     = await mockFa2TokenInstance.methods.transfer([
+//                     {
+//                         from_: bob.pkh,
+//                         txs: [
+//                             {
+//                                 to_: aggregatorFactoryAddress.address,
+//                                 token_id: 0,
+//                                 amount: tokenAmount
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await transferOperation.confirmation();
+                
+//                 // Treasury Transfer Operation
+//                 await signerFactory(alice.sk)
+//                 await chai.expect(aggregatorFactoryInstance.methods.mistakenTransfer(
+//                 [
+//                     {
+//                         "to_"    : bob.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress": mockFa2TokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
+//                         },
+//                         "amount" : tokenAmount
+//                     }
+//                 ]
+//                 ).send()).to.be.rejected;
+
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+//     })
+
+//     describe("GOVERNANCE SATELLITE", async () => {
+
+//         beforeEach('Set sender to admin', async () => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Governance Satellite should be able to transfer Tokens sent to the governance satellite by mistake", async() => {
+//             try{
+
+//                 // Initial values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 var contractAccount         = await mockFa2TokenStorage.ledger.get(governanceSatelliteAddress.address)
+//                 var userAccount             = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const initAccountBalance    = contractAccount ? contractAccount.toNumber() : 0;
+//                 const initUserBalance       = userAccount ? userAccount.toNumber() : 0;
+//                 const tokenAmount           = 200;
+
+//                 // Mistake Operation
+//                 const transferOperation     = await mockFa2TokenInstance.methods.transfer([
+//                     {
+//                         from_: bob.pkh,
+//                         txs: [
+//                             {
+//                                 to_: governanceSatelliteAddress.address,
+//                                 token_id: 0,
+//                                 amount: tokenAmount
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await transferOperation.confirmation();
+
+//                 // Mid values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 contractAccount             = await mockFa2TokenStorage.ledger.get(governanceSatelliteAddress.address)
+//                 userAccount                 = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const midAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+                
+//                 // Treasury Transfer Operation
+//                 const mistakenTransferOperation     = await governanceSatelliteInstance.methods.mistakenTransfer(
+//                     [
+//                         {
+//                             "to_"    : bob.pkh,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress": mockFa2TokenAddress.address,
+//                                     "tokenId" : 0
+//                                 }
+//                             },
+//                             "amount" : tokenAmount
+//                         }
+//                     ]
+//                     ).send();
+//                 await mistakenTransferOperation.confirmation();
+
+//                 // Final values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 contractAccount             = await mockFa2TokenStorage.ledger.get(governanceSatelliteAddress.address)
+//                 userAccount                 = await mockFa2TokenStorage.ledger.get(bob.pkh)
+//                 const endAccountBalance     = contractAccount ? contractAccount.toNumber() : 0;
+//                 const endUserBalance        = userAccount ? userAccount.toNumber() : 0;
+
+//                 // Assertions
+//                 assert.equal(midAccountBalance, initAccountBalance + tokenAmount)
+//                 assert.equal(endAccountBalance, initAccountBalance)
+//                 assert.equal(endUserBalance, initUserBalance)
+
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+
+//         it("Non Governance Satellite should not be able to call this entrypoint", async() => {
+//             try{
+                
+//                 // Initial values
+//                 mockFa2TokenStorage         = await mockFa2TokenInstance.storage()
+//                 const tokenAmount           = 200;
+
+//                 // Mistake Operation
+//                 const transferOperation     = await mockFa2TokenInstance.methods.transfer([
+//                     {
+//                         from_: bob.pkh,
+//                         txs: [
+//                             {
+//                                 to_: governanceSatelliteAddress.address,
+//                                 token_id: 0,
+//                                 amount: tokenAmount
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await transferOperation.confirmation();
+                
+//                 // Treasury Transfer Operation
+//                 await signerFactory(alice.sk)
+//                 await chai.expect(governanceSatelliteInstance.methods.mistakenTransfer(
+//                 [
+//                     {
+//                         "to_"    : bob.pkh,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress": mockFa2TokenAddress.address,
+//                                 "tokenId" : 0
+//                             }
 //                         },
 //                         "amount" : tokenAmount
 //                     }

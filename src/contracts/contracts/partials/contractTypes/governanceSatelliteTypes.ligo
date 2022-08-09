@@ -16,28 +16,23 @@ type governanceSatelliteConfigType is [@layout:comb] record [
     governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
     governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
     governancePurposeMaxLength             : nat;
+    maxActionsPerSatellite                 : nat;
 ]
-
-type governanceSatelliteVoteType is [@layout:comb] record [
-    vote              : voteType;
-    totalVotingPower  : nat; 
-    timeVoted         : timestamp;
-]
-
-type governanceSatelliteVotersMapType is map (address, governanceSatelliteVoteType)
 
 type governanceSatelliteActionRecordType is [@layout:comb] record [
     initiator                          : address;
     status                             : bool;     // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     executed                           : bool;     // false on creation; set to true when financial request is executed successfully
     
-    governanceType                     : string;   // "SUSPEND", "UNSUSPEND", "BAN", "UNBAN", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
+    governanceType                     : string;   // "SUSPEND", "BAN", "RESTORE", "REMOVE_ALL_SATELLITE_ORACLES", "ADD_ORACLE_TO_AGGREGATOR", "REMOVE_ORACLE_IN_AGGREGATOR", "UPDATE_AGGREGATOR_STATUS"
     governancePurpose                  : string;
-    voters                             : governanceSatelliteVotersMapType; 
+    voters                             : set(address);
 
     addressMap                         : addressMapType;
     stringMap                          : stringMapType;
     natMap                             : natMapType;
+
+    transferList                       : transferActionType; 
 
     yayVoteStakedMvkTotal              : nat;
     nayVoteStakedMvkTotal              : nat;
@@ -75,21 +70,7 @@ type aggregatorRecordType is [@layout:comb] record [
 type aggregatorLedgerType is big_map(address, aggregatorRecordType)
 
 
-// ------------------------------------------------------------------------------
-// Snapshot Types
-// ------------------------------------------------------------------------------
-
-
-type governanceSatelliteSnapshotMapType is map (address, satelliteSnapshotRecordType)
-type governanceSatelliteSnapshotLedgerType is big_map (actionIdType, governanceSatelliteSnapshotMapType);
-
-type actionSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    actionId              : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
-
+type actionsInitiatorsType is big_map(address, set(actionIdType));
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -101,6 +82,7 @@ type governanceSatelliteUpdateConfigActionType is
         ConfigApprovalPercentage          of unit
     |   ConfigSatelliteDurationInDays     of unit
     |   ConfigPurposeMaxLength            of unit
+    |   ConfigMaxActionsPerSatellite      of unit
 
 type governanceSatelliteUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue  : governanceSatelliteUpdateConfigNewValueType; 
@@ -113,18 +95,13 @@ type suspendSatelliteActionType is [@layout:comb] record [
     purpose                     : string;
 ]
 
-type unsuspendSatelliteActionType is [@layout:comb] record [
-    satelliteToBeUnsuspended    : address;
-    purpose                     : string;
-]
-
 type banSatelliteActionType is [@layout:comb] record [
     satelliteToBeBanned         : address;
     purpose                     : string;
 ]
 
-type unbanSatelliteActionType is [@layout:comb] record [
-    satelliteToBeUnbanned       : address;
+type restoreSatelliteActionType is [@layout:comb] record [
+    satelliteToBeRestored       : address;
     purpose                     : string;
 ]
 
@@ -176,6 +153,12 @@ type updateSatelliteStatusParamsType is [@layout:comb] record [
     newStatus                   : string;
 ]
 
+type fixMistakenTransferParamsType is [@layout:comb] record [
+    targetContractAddress   : address;
+    purpose                 : string;
+    transferList            : transferActionType;
+]
+
 
 // ------------------------------------------------------------------------------
 // Lambda Action Types
@@ -191,12 +174,12 @@ type governanceSatelliteLambdaActionType is
     |   LambdaUpdateConfig                  of governanceSatelliteUpdateConfigParamsType
     |   LambdaUpdateWhitelistContracts      of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts        of updateGeneralContractsType
+    |   LambdaMistakenTransfer              of transferActionType
 
         // Satellite Governance
     |   LambdaSuspendSatellite              of suspendSatelliteActionType
-    |   LambdaUnsuspendSatellite            of unsuspendSatelliteActionType
     |   LambdaBanSatellite                  of banSatelliteActionType
-    |   LambdaUnbanSatellite                of unbanSatelliteActionType
+    |   LambdaRestoreSatellite              of restoreSatelliteActionType
 
         // Satellite Oracle Governance
     |   LambdaRemoveAllSatelliteOracles     of removeAllSatelliteOraclesActionType
@@ -207,6 +190,9 @@ type governanceSatelliteLambdaActionType is
     |   LambdaSetAggregatorMaintainer       of setAggregatorMaintainerActionType
     |   LambdaRegisterAggregator            of registerAggregatorActionType     // callback from aggregator factory in creating aggregator contract
     |   LambdaUpdateAggregatorStatus        of updateAggregatorStatusActionType
+
+        // Mistaken Transfer Governance
+    |   LambdaFixMistakenTransfer           of fixMistakenTransferParamsType
 
         // Governance Actions
     |   LambdaVoteForAction                 of voteForActionType
@@ -232,8 +218,11 @@ type governanceSatelliteStorageType is record [
     
     // governance satellite storage 
     governanceSatelliteActionLedger         : governanceSatelliteActionLedgerType;
-    governanceSatelliteSnapshotLedger       : governanceSatelliteSnapshotLedgerType;
     governanceSatelliteCounter              : nat;
+    governanceSatelliteVoters               : big_map((actionIdType*address), voteType);
+
+    // spam check
+    actionsInitiators                       : actionsInitiatorsType;
 
     // satellite oracles and aggregators
     satelliteOracleLedger                   : satelliteOracleLedgerType;

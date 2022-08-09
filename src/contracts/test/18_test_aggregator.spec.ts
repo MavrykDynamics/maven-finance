@@ -166,9 +166,13 @@
 //     // ------------------------------------------------------------------
 
 //     // Bob stakes 100 MVK tokens and registers as a satellite
-//     const satelliteMap = await delegationStorage.satelliteLedger;
+//     const bobSatellite      = await delegationStorage.satelliteLedger.get(bob.pkh);
+//     const aliceSatellite    = await delegationStorage.satelliteLedger.get(alice.pkh);
+//     const mallorySatellite  = await delegationStorage.satelliteLedger.get(mallory.pkh);
+//     const eveSatellite      = await delegationStorage.satelliteLedger.get(eve.pkh);
+//     const oracleSatellite   = await delegationStorage.satelliteLedger.get(oracleMaintainer.pkh);
     
-//     if(satelliteMap.get(bob.pkh) === undefined){
+//     if(bobSatellite === undefined){
 
 //         await signerFactory(bob.sk);
 //         var updateOperators = await mvkTokenInstance.methods
@@ -207,7 +211,7 @@
 //     }
 
 
-//     if(satelliteMap.get(alice.pkh) === undefined){
+//     if(aliceSatellite === undefined){
 
 //         // Alice stakes 100 MVK tokens and registers as a satellite 
 //         await signerFactory(alice.sk);
@@ -231,7 +235,7 @@
 //     }
 
 
-//     if(satelliteMap.get(eve.pkh) === undefined){
+//     if(eveSatellite === undefined){
 
 //         // Eve stakes 100 MVK tokens and registers as a satellite 
 //         await signerFactory(eve.sk);
@@ -255,7 +259,7 @@
 //     }
 
 
-//     if(satelliteMap.get(mallory.pkh) === undefined){
+//     if(mallorySatellite === undefined){
 
 //         // Mallory stakes 100 MVK tokens and registers as a satellite 
 //         await signerFactory(mallory.sk);
@@ -279,7 +283,7 @@
 //     }
 
 
-//     if(satelliteMap.get(oracleMaintainer.pkh) === undefined){
+//     if(oracleSatellite === undefined){
 
 //       // Oracle Maintainer stakes 100 MVK tokens and registers as a satellite 
 //       await signerFactory(oracleMaintainer.sk);

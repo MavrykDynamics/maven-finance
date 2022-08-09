@@ -198,6 +198,39 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  mistakenTransfer lambda *)
+function lambdaMistakenTransfer(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorageType): return is
+block {
+
+    var operations : list(operation) := nil;
+
+    case aggregatorLambdaAction of [
+        | LambdaMistakenTransfer(destinationParams) -> {
+
+                // Check if the sender is the governanceSatellite contract
+                checkSenderIsAdminOrGovernanceSatelliteContract(s);
+
+                // Create transfer operations
+                function transferOperationFold(const transferParam: transferDestinationType; const operationList: list(operation)): list(operation) is
+                  block{
+                    // Check if token is not MVK (it would break SMVK) before creating the transfer operation
+                    const transferTokenOperation : operation = case transferParam.token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(transferParam.to_, "Error. Contract not found at given address"): contract(unit)), transferParam.amount * 1mutez)
+                        | Fa12(token) -> transferFa12Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token)
+                        | Fa2(token)  -> transferFa2Token(Tezos.get_self_address(), transferParam.to_, transferParam.amount, token.tokenId, token.tokenContractAddress)
+                    ];
+                  } with(transferTokenOperation # operationList);
+                
+                operations  := List.fold_right(transferOperationFold, destinationParams, operations)
+                
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -539,11 +572,14 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaRequestRateUpdDeviation(params) -> {
 
+                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
                 checkSenderIsOracle(s);
                 checkIfCorrectRound(abs(params.roundId - 1), s);
                 checkIfLastRoundCompleted(s);
                 checkOracleIsNotBannedForDeviationTrigger(s);
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
 
                 // Check if Tez sent is equal to request rate deposit fee (if any)
                 const requestRateDeviationDepositFee : nat = s.config.requestRateDeviationDepositFee;
@@ -713,11 +749,14 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaSetObservationCommit(params) -> {
 
+                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
                 checkSenderIsOracle(s);
                 checkIfTimeToCommit(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredCommit(s);
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
                 
                 // Update Observation Commits map with new observation from oracle
                 const observationsDataUpdated       : observationCommitsType  = Map.update(( Tezos.get_sender() ), Some( params.sign ), s.observationCommits);
@@ -777,11 +816,14 @@ block{
     case aggregatorLambdaAction of [
         |   LambdaSetObservationReveal(params) -> {
 
+                // Get Delegation Contract address from the General Contracts Map on the Governance Contract
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+
                 checkSenderIsOracle(s);
                 checkIfTimeToReveal(s);
                 checkIfCorrectRound(params.roundId, s);
                 checkIfOracleAlreadyAnsweredReveal(s);
-                checkSatelliteIsNotSuspendedOrBanned(Tezos.get_sender(), s);
+                checkSatelliteStatus(Tezos.get_sender(), delegationAddress, True, True);
                 
                 // Fetch oracle commit and compare it with bytes of reveal price salted 
                 const oracleCommit  : bytes = getObservationCommit(Tezos.get_sender(), s.observationCommits);
@@ -890,7 +932,8 @@ block{
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
                 // Check that satellite is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(oracleAddress, s);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                checkSatelliteStatus(oracleAddress, delegationAddress, True, True);
                 
                 // Get oracle's XTZ reward amount 
                 const reward : nat = getRewardAmountXtz(oracleAddress, s);
@@ -959,7 +1002,8 @@ block{
                 if Map.mem(oracleAddress, s.oracleAddresses) then skip else failwith(error_ORACLE_NOT_PRESENT_IN_AGGREGATOR);
 
                 // Check that satellite is not suspended or banned
-                checkSatelliteIsNotSuspendedOrBanned(oracleAddress, s);
+                const delegationAddress : address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
+                checkSatelliteStatus(oracleAddress, delegationAddress, True, True);
 
                 // Get oracle's staked MVK reward amount 
                 const reward = getRewardAmountStakedMvk(oracleAddress, s);

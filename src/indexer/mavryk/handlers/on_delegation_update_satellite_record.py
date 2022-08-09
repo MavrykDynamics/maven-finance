@@ -1,6 +1,6 @@
 
-from mavryk.types.delegation.parameter.update_satellite_record import UpdateSatelliteRecordParameter
 from dipdup.models import Transaction
+from mavryk.types.delegation.parameter.update_satellite_record import UpdateSatelliteRecordParameter
 from dipdup.context import HandlerContext
 from mavryk.types.delegation.storage import DelegationStorage
 import mavryk.models as models
@@ -9,7 +9,6 @@ async def on_delegation_update_satellite_record(
     ctx: HandlerContext,
     update_satellite_record: Transaction[UpdateSatelliteRecordParameter, DelegationStorage],
 ) -> None:
-
     # Get operation values
     delegation_address      = update_satellite_record.data.target_address
     satellite_address       = update_satellite_record.data.sender_address

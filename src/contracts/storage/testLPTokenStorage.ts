@@ -10,7 +10,7 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 import { lpStorageType } from "../test/types/testLPTokenType";
 
-const totalSupply   = 100;
+const totalSupply   = 200000;
 const initialSupply = new BigNumber(totalSupply); // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4);
 

@@ -1,7 +1,7 @@
 
+from dipdup.models import Transaction
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
 from mavryk.types.governance_financial.parameter.vote_for_request import VoteForRequestParameter, VoteItem as nay, VoteItem1 as pass_, VoteItem2 as yay
 import mavryk.models as models
 
@@ -12,11 +12,11 @@ async def on_governance_financial_vote_for_request(
     
     # Get operation info
     financial_address   = vote_for_request.data.target_address
+    governance_address  = vote_for_request.storage.governanceAddress
     voter_address       = vote_for_request.data.sender_address
     vote                = vote_for_request.parameter.vote
     request_id          = int(vote_for_request.parameter.requestId)
     request_storage     = vote_for_request.storage.financialRequestLedger[vote_for_request.parameter.requestId]
-    voter_storage       = request_storage.voters[voter_address]
     timestamp           = vote_for_request.data.timestamp
     yay_smvk_total      = float(request_storage.yayVoteStakedMvkTotal)
     nay_smvk_total      = float(request_storage.nayVoteStakedMvkTotal)
@@ -31,6 +31,7 @@ async def on_governance_financial_vote_for_request(
         vote_type       = models.GovernanceVoteType.PASS
 
     # Create and update records
+    governance              = await models.Governance.get(address   = governance_address)
     governance_financial    = await models.GovernanceFinancial.get(address  = financial_address)
     financial_request       = await models.GovernanceFinancialRequestRecord.get(
         governance_financial    = governance_financial,
@@ -46,11 +47,18 @@ async def on_governance_financial_vote_for_request(
         address = voter_address
     )
     await voter.save()
+
+    # Register vote
+    satellite_snapshot      = await models.GovernanceSatelliteSnapshotRecord.get(
+        governance  = governance,
+        user        = voter,
+        cycle       = governance.cycle_id
+    )
     vote_record, _          = await models.GovernanceFinancialRequestRecordVote.get_or_create(
         governance_financial_request    = financial_request,
         voter                           = voter
     )
     vote_record.timestamp       = timestamp
+    vote_record.voting_power    = satellite_snapshot.total_voting_power
     vote_record.vote            = vote_type
-    vote_record.voting_power    = float(voter_storage.totalVotingPower)
     await vote_record.save()
