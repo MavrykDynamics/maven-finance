@@ -255,13 +255,15 @@ export const SatelliteGovernance = () => {
 
       {paginatedItemsList?.length
         ? paginatedItemsList.map((item: any) => {
+            console.log('%c ||||| item', 'color:yellowgreen', item)
             const linkAddress = item.governance_satellite_action_parameters?.[0]?.value || ''
 
             return (
               <SatelliteGovernanceCard
                 key={item.id}
                 id={item.id}
-                satelliteId={item.linkAddress || item.initiator_id}
+                satelliteId={item.governance_satellite_id}
+                initiatorId={item.initiator_id}
                 date={item.expiration_datetime}
                 executed={item.executed}
                 status={item.status}

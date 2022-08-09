@@ -1,33 +1,27 @@
-import * as React from 'react'
-import { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 import { Link } from 'react-router-dom'
-import { State } from 'reducers'
 
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
 import { Button } from '../../../app/App.components/Button/Button.controller'
+import Expand from '../../../app/App.components/Expand/Expand.view'
 
 import { getSeparateSnakeCase } from '../../../utils/parse'
 
 // action
 import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
 
-import {
-  SatelliteGovernanceArrowButton,
-  SatelliteGovernanceCardDropDown,
-  SatelliteGovernanceCardStyled,
-  SatelliteGovernanceCardTitleTextGroup,
-  SatelliteGovernanceCardTopSection,
-} from './SatelliteGovernanceCard.style'
+import { SatelliteGovernanceCardDropDown, SatelliteGovernanceCardTitleTextGroup } from './SatelliteGovernanceCard.style'
 import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 
 type Props = {
   satelliteId: string
+  initiatorId: string
   date: string
   executed: boolean
   status: number
@@ -45,6 +39,7 @@ type Props = {
 export const SatelliteGovernanceCard = ({
   id,
   satelliteId,
+  initiatorId,
   date,
   executed,
   status,
@@ -58,19 +53,9 @@ export const SatelliteGovernanceCard = ({
   snapshotSmvkTotalSupply,
 }: Props) => {
   const dispatch = useDispatch()
-  console.log(satelliteId)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
   const [expanded, setExpanded] = useState(false)
-  const [accordionHeight, setAccordionHeight] = useState(0)
-  const ref = useRef(null)
 
   const open = () => setExpanded(!expanded)
-
-  useEffect(() => {
-    // @ts-ignore
-    const getHeight = ref.current.scrollHeight
-    setAccordionHeight(getHeight)
-  }, [expanded])
 
   const handleVotingRoundVote = (type: string) => {
     dispatch(voteForAction(id, type, open))
@@ -97,90 +82,79 @@ export const SatelliteGovernanceCard = ({
     : ProposalStatus.ACTIVE
 
   return (
-    <SatelliteGovernanceCardStyled>
-      <SatelliteGovernanceCardTopSection
-        onClick={open}
-        className={expanded ? 'show' : 'hide'}
-        height={accordionHeight}
-        ref={ref}
-      >
-        <SatelliteGovernanceCardTitleTextGroup>
-          <h3>Date</h3>
-          <p>
-            <Time value={date} format="M d\t\h, Y" />
-          </p>
-        </SatelliteGovernanceCardTitleTextGroup>
-        <SatelliteGovernanceCardTitleTextGroup>
-          <h3>Action</h3>
-          <p className="first-big-letter">{getSeparateSnakeCase(governanceType)}</p>
-        </SatelliteGovernanceCardTitleTextGroup>
-        <SatelliteGovernanceCardTitleTextGroup>
-          <h3>Satellite</h3>
-          <p>
-            <TzAddress tzAddress={satelliteId} hasIcon={false} />
-          </p>
-        </SatelliteGovernanceCardTitleTextGroup>
-        <SatelliteGovernanceArrowButton>
-          {expanded ? (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-            </svg>
-          ) : (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
-            </svg>
-          )}
-        </SatelliteGovernanceArrowButton>
-        <SatelliteGovernanceCardTitleTextGroup className={'statusFlag'}>
-          <StatusFlag status={statusFlag} text={statusFlag} />
-        </SatelliteGovernanceCardTitleTextGroup>
-      </SatelliteGovernanceCardTopSection>
-
-      <SatelliteGovernanceCardDropDown className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
-        <div className={'description accordion ' + `${expanded}`} ref={ref}>
-          <div>
-            <h3>Purpose</h3>
-            <p className="purpose">{purpose}</p>
-            {linkAddress ? (
-              <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
-                View Satellite
-              </Link>
-            ) : null}
-            {statusFlag === ProposalStatus.ONGOING ? (
-              <Button
-                text="Drop Action"
-                className="brop-btn"
-                icon="close-stroke"
-                kind={'actionSecondary'}
-                onClick={handleClick}
-              />
-            ) : null}
+    <Expand
+      className="expand-satellite-governance"
+      header={
+        <>
+          <SatelliteGovernanceCardTitleTextGroup>
+            <h3>Date</h3>
+            <p>
+              <Time value={date} format="M d\t\h, Y" />
+            </p>
+          </SatelliteGovernanceCardTitleTextGroup>
+          <SatelliteGovernanceCardTitleTextGroup>
+            <h3>Action</h3>
+            <p className="first-big-letter">{getSeparateSnakeCase(governanceType)}</p>
+          </SatelliteGovernanceCardTitleTextGroup>
+          <SatelliteGovernanceCardTitleTextGroup>
+            <h3>Satellite</h3>
+            <p>
+              <TzAddress tzAddress={satelliteId} hasIcon={false} />
+            </p>
+          </SatelliteGovernanceCardTitleTextGroup>
+          <SatelliteGovernanceCardTitleTextGroup>
+            <h3>Initiator</h3>
+            <p>
+              <TzAddress tzAddress={initiatorId} hasIcon={false} />
+            </p>
+          </SatelliteGovernanceCardTitleTextGroup>
+        </>
+      }
+      sufix={<StatusFlag status={statusFlag} text={statusFlag} />}
+    >
+      <SatelliteGovernanceCardDropDown>
+        <div>
+          <h3>Purpose</h3>
+          <p className="purpose">{purpose}</p>
+          {linkAddress ? (
+            <Link className={'view-satellite'} to={`/satellite-details/${linkAddress}`}>
+              View Satellite
+            </Link>
+          ) : null}
+          {statusFlag === ProposalStatus.ONGOING ? (
+            <Button
+              text="Drop Action"
+              className="brop-btn"
+              icon="close-stroke"
+              kind={'actionSecondary'}
+              onClick={handleClick}
+            />
+          ) : null}
+        </div>
+        <div className="voting-block">
+          <h3>Vote Statistics</h3>
+          <b className="voting-ends">
+            Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" /> {timeFormat}{' '}
+            CEST
+          </b>
+          <div className="voting-bar">
+            <VotingBarBlockView
+              yayVotesSmvkTotal={yayVotesSmvkTotal}
+              nayVotesSmvkTotal={nayVotesSmvkTotal}
+              passVoteSmvkTotal={passVoteSmvkTotal}
+              snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
+              smvkPercentageForApproval={smvkPercentageForApproval}
+            />
           </div>
-          <div className="voting-block">
-            <h3>Vote Statistics</h3>
-            <b className="voting-ends">
-              Voting {!isEndingVotingTime ? 'ended' : 'ending'} on <Time value={date} format="M d\t\h, Y" />{' '}
-              {timeFormat} CEST
-            </b>
-            <div className="voting-bar">
-              <VotingBarBlockView
-                yayVotesSmvkTotal={yayVotesSmvkTotal}
-                nayVotesSmvkTotal={nayVotesSmvkTotal}
-                passVoteSmvkTotal={passVoteSmvkTotal}
-                snapshotSmvkTotalSupply={snapshotSmvkTotalSupply}
-                smvkPercentageForApproval={smvkPercentageForApproval}
-              />
-            </div>
-            {statusFlag === ProposalStatus.ONGOING ? (
-              <VotingButtonsContainer className="voting-buttons">
-                <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
-                <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
-                <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
-              </VotingButtonsContainer>
-            ) : null}
-          </div>
+          {statusFlag === ProposalStatus.ONGOING ? (
+            <VotingButtonsContainer className="voting-buttons">
+              <Button text={'Vote YES'} onClick={() => handleVotingRoundVote('yay')} kind={'votingFor'} />
+              <Button text={'Vote PASS'} onClick={() => handleVotingRoundVote('pass')} kind={'votingAbstain'} />
+              <Button text={'Vote NO'} onClick={() => handleVotingRoundVote('nay')} kind={'votingAgainst'} />
+            </VotingButtonsContainer>
+          ) : null}
         </div>
       </SatelliteGovernanceCardDropDown>
-    </SatelliteGovernanceCardStyled>
+    </Expand>
   )
 }
