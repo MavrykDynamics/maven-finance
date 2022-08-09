@@ -42,6 +42,16 @@ export const ExpandStyled = styled(CardHover)`
       }
     }
   }
+
+  &.expand-satellite-governance {
+    margin-bottom: 16px;
+
+    .expand-header {
+      padding-left: 40px;
+      padding-right: 20px;
+      grid-template-columns: 1fr 260px 1fr 1fr 110px 110px;
+    }
+  }
 `
 
 export const ExpandArticleStyled = styled.article<{ height: number; theme: MavrykTheme }>`

@@ -3,38 +3,6 @@ import { CardHover, royalPurpleColor, cyanColor, boxShadowColor, headerColor } f
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
-export const SatelliteGovernanceCardStyled = styled(CardHover)`
-  width: 100%;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  margin-top: 0;
-  padding: 0;
-  cursor: pointer;
-  overflow: hidden;
-`
-export const SatelliteGovernanceCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 180px 260px 150px auto 130px;
-  padding: 20px 40px;
-  padding-right: 26px;
-`
-
-export const SatelliteGovernanceArrowButton = styled.div<{ theme: MavrykTheme }>`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  > svg {
-    height: 12px;
-    width: 16px;
-    stroke: ${({ theme }) => theme.headerColor};
-    stroke-width: 5px;
-    fill: none;
-  }
-`
-
 export const SatelliteGovernanceCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
@@ -79,20 +47,17 @@ export const SatelliteGovernanceCardTitleTextGroup = styled.div<{ theme: MavrykT
   }
 `
 
-export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; theme: MavrykTheme }>`
+export const SatelliteGovernanceCardDropDown = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
-  height: 0;
   justify-content: space-between;
   align-items: flex-start;
   display: flex;
-  flex-direction: column;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   cursor: pointer;
-  transition: height 0.3s ease-in-out;
   overflow: hidden;
   position: relative;
-
+  padding: 20px 40px;
   .purpose {
     word-break: break-all;
   }
@@ -137,13 +102,6 @@ export const SatelliteGovernanceCardDropDown = styled.div<{ height: number; them
     padding: 20px 40px;
     text-align: left;
     width: 100%;
-  }
-
-  &.show {
-    height: ${({ height }) => height}px;
-  }
-  &.hide {
-    height: 0; /* changed */
   }
 
   .view-satellite {
