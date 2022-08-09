@@ -24,6 +24,12 @@ export type FarmTopBarViewProps = {
   onSearch: (val: string) => void
   onSort: (val: string) => void
 }
+
+const LIVE_FINISHED_TABS = [
+  { text: 'LIVE', id: 1, active: true },
+  { text: 'FINISHED', id: 2, active: false },
+]
+
 export const FarmTopBar = ({
   ready,
   handleToggleStakedOnly,
@@ -55,7 +61,7 @@ export const FarmTopBar = ({
   return (
     <FarmTopBarStyled className={className}>
       <Toggle disabled={!ready} onChange={handleToggleStakedOnly} className="farm-toggle" sufix="Staked Only" />
-      <SlidingTabButtons className="tab-bar" onClick={handleLiveFinishedToggleButtons} type={'Farms'} />
+      <SlidingTabButtons tabItems={LIVE_FINISHED_TABS} className="tab-bar" onClick={handleLiveFinishedToggleButtons} />
       <Input
         type="text"
         placeholder="Search..."
