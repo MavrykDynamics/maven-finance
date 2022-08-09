@@ -241,7 +241,6 @@ type closeVaultActionType is [@layout:comb] record [
 type setLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
     tokenContractAddress                    : address;
-    tokenType                               : tokenType; 
     tokenId                                 : nat;
 
     lpTokenContractAddress                  : address;
@@ -254,6 +253,9 @@ type setLoanTokenActionType is [@layout:comb] record [
     maxInterestRate                         : nat;  // max interest rate
     interestRateBelowOptimalUtilisation     : nat;  // interest rate below kink
     interestRateAboveOptimalUtilisation     : nat;  // interest rate above kink
+
+    // variants at the end for taquito 
+    tokenType                               : tokenType; 
 ]
 
 type withdrawFromVaultActionType is [@layout:comb] record [

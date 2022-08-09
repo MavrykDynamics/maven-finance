@@ -1090,27 +1090,30 @@ error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND                                       
 
 error_VAULT_CONTROLLER_CONTRACT_NOT_FOUND                                                               = 773
 
-error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 774
-error_LOAN_TOKEN_NOT_FOUND                                                                              = 775
-error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 776
-error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 777
-error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 778
-error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 779
-error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 780
-error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 781
-error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 782
-error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 783
-error_LOAN_INTEREST_MISCALCULATION                                                                      = 784
+error_VAULT_ALREADY_EXISTS                                                                              = 774
+error_VAULT_ID_ALREADY_USED                                                                             = 775
+error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 776
+error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 777
+error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 778
+error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 779
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 780
+error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 781
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 782
+error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 783
+error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 784
+error_LOAN_INTEREST_MISCALCULATION                                                                      = 785
 
-error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 785
-error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 786
-error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 787
-error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 788
-error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 789
-error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 790
-error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 791
+error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 786
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 787
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 788
+error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 789
+error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 790
+error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 791
+error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 792
+error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 793
 
-error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 792
+error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 794
+
 
 
 

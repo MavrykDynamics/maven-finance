@@ -10,9 +10,9 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 import { lpStorageType } from "../test/types/testLPTokenType";
 
-const totalSupply   = 200000;
-const initialSupply = new BigNumber(totalSupply); // 1,000 MVK Tokens in mu (10^6)
-const singleUserSupply = new BigNumber(totalSupply / 4);
+const totalSupply       = 200000;
+const initialSupply     = new BigNumber(totalSupply); // 1,000 MVK Tokens in mu (10^6)
+const singleUserSupply  = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({
     '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
