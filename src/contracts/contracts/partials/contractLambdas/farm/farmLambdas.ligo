@@ -59,14 +59,7 @@ block {
         |   LambdaSetName(updatedName) -> {
 
                 // Get Farm Factory Contract address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "farmFactory", s.governanceAddress);
-                const farmFactoryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_FARM_FACTORY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const farmFactoryAddress : address = getContractAddressFromGovernanceContract("farmFactory", s.governanceAddress, error_FARM_FACTORY_CONTRACT_NOT_FOUND);
 
                 // Get the Farm Factory Contract Config
                 const configView : option (farmFactoryConfigType) = Tezos.call_view ("getConfig", unit, farmFactoryAddress);
@@ -130,7 +123,7 @@ block {
                         s.config.forceRewardFromTransfer := updateConfigNewValue = 1n;
 
                     }
-                |   ConfigRewardPerBlock (_v)          -> block {
+                |   ConfigRewardPerBlock (_v)           -> block {
                         
                         // Check if Farm has been initiated
                         checkFarmIsInit(s);
@@ -138,14 +131,10 @@ block {
                         // Update Farm storage
                         s := updateFarm(s);
 
-                        // Check that currentRewardPerBlock does not exceed new reward per block
-                        const currentRewardPerBlock : nat = s.config.plannedRewards.currentRewardPerBlock;
-                        if currentRewardPerBlock > updateConfigNewValue then failwith(error_CONFIG_VALUE_ERROR) else skip;
-
                         // Calculate new total rewards
-                        const totalClaimedRewards : nat = s.claimedRewards.unpaid + s.claimedRewards.paid;
-                        const remainingBlocks : nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
-                        const newTotalRewards : nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
+                        const totalClaimedRewards : nat     = s.claimedRewards.unpaid + s.claimedRewards.paid;
+                        const remainingBlocks : nat         = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
+                        const newTotalRewards : nat         = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
 
                         // Update farm storage
                         s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
@@ -244,67 +233,6 @@ block {
 // Farm Admin Lambdas End
 // ------------------------------------------------------------------------------
 
-(*  updateBlocksPerMinute lambda *)
-function lambdaUpdateBlocksPerMinute(const farmLambdaAction : farmLambdaActionType; var s : farmStorageType) : return is
-block {
-
-    // Steps Overview:
-    // 1. Check that sender is the Council Contract or the Farm Factory Contract
-    // 2. Check if farm has been initiated
-    // 3. Update farm storage first
-    // 4. Validate new blocksPerMinute is greater than 0
-    // 5. Calculate new rewards per block
-    // 6. Update farm storage with new config values (blocksPerMinute and currentRewardPerBlock)
-
-    
-    // Check that sender is the Council Contract or the Farm Factory Contract
-    checkSenderIsCouncilOrFarmFactory(s);
-
-    // Check if farm has been initiated
-    checkFarmIsInit(s);
-
-    case farmLambdaAction of [
-        |   LambdaUpdateBlocksPerMinute(blocksPerMinute) -> {
-                
-                // Update farm storage
-                s := updateFarm(s);
-
-                // Validate new blocksPerMinute is greater than 0
-                if blocksPerMinute > 0n then skip else failwith(error_INVALID_BLOCKS_PER_MINUTE);
-
-                // Calculate new rewards per block
-                var newCurrentRewardPerBlock : nat := 0n;
-                if s.config.infinite then {
-
-                    newCurrentRewardPerBlock := s.config.blocksPerMinute * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
-
-                }
-                else {
-
-                    // Unclaimed rewards
-                    const totalUnclaimedRewards : nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid + s.claimedRewards.paid));
-
-                    // Updates rewards and total blocks accordingly
-                    const blocksPerMinuteRatio  : nat = s.config.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
-                    const newTotalBlocks        : nat = (s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
-                    const remainingBlocks       : nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
-                    
-                    newCurrentRewardPerBlock    := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
-                    
-                    // Update new total blocks
-                    s.config.plannedRewards.totalBlocks := newTotalBlocks;
-                };
-
-                // Update farm storage with new config values (blocksPerMinute and currentRewardPerBlock)
-                s.config.blocksPerMinute := blocksPerMinute;
-                s.config.plannedRewards.currentRewardPerBlock := (newCurrentRewardPerBlock/fixedPointAccuracy);
-
-            }
-        |   _ -> skip
-    ];
-
-} with (noOperations, s)
-
 
 
 (* initFarm lambda *)
@@ -327,23 +255,20 @@ block{
                 // Check if farm is already open
                 if s.open or s.init then failwith(error_FARM_ALREADY_OPEN) else skip;
 
-                // Check that the blocks per minute is greater than 0
-                if initFarmParams.blocksPerMinute <= 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE) else skip;
-
                 // Check whether the farm is infinite or if its total blocks has been set
                 if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
                 
                 // Update Farm Storage and init Farm
-                s := updateFarm(s);
-                s.initBlock := Tezos.get_level();
-                s.config.infinite := initFarmParams.infinite;
-                s.config.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
-                s.config.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
-                s.config.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
-                s.config.plannedRewards.totalRewards := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
-                s.config.blocksPerMinute := initFarmParams.blocksPerMinute;
-                s.open := True ;
-                s.init := True ;
+                s                                               := updateFarm(s);
+                s.initBlock                                     := Tezos.get_level();
+                s.config.infinite                               := initFarmParams.infinite;
+                s.config.forceRewardFromTransfer                := initFarmParams.forceRewardFromTransfer;
+                s.config.plannedRewards.currentRewardPerBlock   := initFarmParams.currentRewardPerBlock;
+                s.config.plannedRewards.totalBlocks             := initFarmParams.totalBlocks;
+                s.config.plannedRewards.totalRewards            := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
+                s.minBlockTimeSnapshot                          := 15n;
+                s.open                                          := True ;
+                s.init                                          := True ;
 
             }
         |   _ -> skip

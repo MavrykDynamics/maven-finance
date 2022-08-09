@@ -6,14 +6,14 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -103,14 +103,7 @@ function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorageType) :
 function checkSenderIsDoormanContract(var s : emergencyGovernanceStorageType) : unit is
 block{
 
-    const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-    const doormanAddress : address = case generalContractsOptView of [
-            Some (_optionContract) -> case _optionContract of [
-                    Some (_contract)    -> _contract
-                |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-            ]
-        |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-    ];
+    const doormanAddress : address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
     if (Tezos.get_sender() = doormanAddress) then skip
     else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
@@ -125,14 +118,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -200,7 +186,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -209,7 +195,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

@@ -12,6 +12,7 @@ const config = {
     governanceSatelliteApprovalPercentage  : 6700,
     governanceSatelliteDurationInDays      : 3,
     governancePurposeMaxLength             : 1000,
+    maxActionsPerSatellite                 : 10
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -39,9 +40,11 @@ export const governanceSatelliteStorage: governanceSatelliteStorageType = {
     generalContracts                    : MichelsonMap.fromLiteral({}),
 
     governanceSatelliteActionLedger     : MichelsonMap.fromLiteral({}),
-    governanceSatelliteSnapshotLedger   : MichelsonMap.fromLiteral({}),
+    governanceSatelliteVoters           : MichelsonMap.fromLiteral({}),
     governanceSatelliteCounter          : new BigNumber(1),
-
+    
+    actionsInitiators                   : MichelsonMap.fromLiteral({}),
+    
     satelliteOracleLedger               : MichelsonMap.fromLiteral({}),
     aggregatorLedger                    : MichelsonMap.fromLiteral({}),
     

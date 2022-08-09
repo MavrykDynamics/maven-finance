@@ -12,12 +12,12 @@ async def on_delegation_unregister_as_satellite(
 
     # Get operation values
     delegation_address      = unregister_as_satellite.data.target_address
-    satelliteAddress        = unregister_as_satellite.data.sender_address
-    rewards_record          = unregister_as_satellite.storage.satelliteRewardsLedger[satelliteAddress]
+    satellite_address       = unregister_as_satellite.data.sender_address
+    rewards_record          = unregister_as_satellite.storage.satelliteRewardsLedger[satellite_address]
 
     # Delete records
     user, _ = await models.MavrykUser.get_or_create(
-        address = satelliteAddress
+        address = satellite_address
     )
     delegation = await models.Delegation.get(
         address = delegation_address
@@ -35,5 +35,6 @@ async def on_delegation_unregister_as_satellite(
         user = user
     )
     await user.save()
+    
+    satelliteRecord.currently_registered    = False
     await satelliteRecord.save()
-    await satelliteRecord.delete()

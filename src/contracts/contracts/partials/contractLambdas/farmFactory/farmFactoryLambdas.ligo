@@ -157,36 +157,6 @@ block {
 
 } with (operations, s)
 
-
-
-(*  UpdateBlocksPerMinute lambda *)
-function lambdaUpdateBlocksPerMinute(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorageType) : return is
-block {
-
-    checkSenderIsCouncil(s); // check that sender is the Council Contract
-
-    var operations : list(operation) := nil;
-
-    case farmFactoryLambdaAction of [
-        |   LambdaUpdateBlocksPerMinute(newBlocksPerMinute) -> {
-                
-                // Update blocksPerMinute in each farm within trackedFarms
-                for farmAddress in set s.trackedFarms 
-                block {
-                    case (Tezos.get_entrypoint_opt("%updateBlocksPerMinute", farmAddress) : option(contract(nat))) of [
-                            Some(contr) -> operations := Tezos.transaction(newBlocksPerMinute, 0tez, contr) # operations
-                        |   None        -> skip
-                    ];
-                };
-
-                s.config.blocksPerMinute := newBlocksPerMinute;
-
-            }
-        |   _ -> skip
-    ];
-
-} with (operations, s)
-
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -345,14 +315,7 @@ block{
                 if String.length(createFarmParams.name) > s.config.farmNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Get Council Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "council", s.governanceAddress);
-                const councilAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_VESTING_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                const councilAddress : address = getContractAddressFromGovernanceContract("council", s.governanceAddress, error_COUNCIL_CONTRACT_NOT_FOUND);
                 
                 // Add FarmFactory Address and Council Address to whitelistContracts map of created Farm
                 const farmWhitelistContracts : whitelistContractsType = map[
@@ -399,7 +362,6 @@ block{
                     lpToken                     = farmLPToken;
                     infinite                    = farmInfinite;
                     forceRewardFromTransfer     = farmForceRewardFromTransfer;
-                    blocksPerMinute             = s.config.blocksPerMinute;
                     plannedRewards              = farmPlannedRewards;
                 ];
 
@@ -436,6 +398,8 @@ block{
                     open                        = True;
                     init                        = True;
                     initBlock                   = Tezos.get_level();
+
+                    minBlockTimeSnapshot        = Tezos.get_min_block_time();
 
                     lambdaLedger                = farmLambdaLedger;
                 ];

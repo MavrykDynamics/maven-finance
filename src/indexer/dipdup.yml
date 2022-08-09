@@ -15,72 +15,85 @@ hasura:
   admin_secret: ${ADMIN_SECRET:-changeme}
   select_limit: 1000
 
+prometheus:
+  host: 0.0.0.0
+  port: 9090
+  update_interval: 5
+
 advanced:
   reindex:
     manual: wipe
     migration: exception
     rollback: ignore
+    config_modified: wipe
+    schema_modified: wipe
 
 contracts:
+  liquidity_baking:
+    address: KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5
+    typename: liquidity_baking
   mvk:
-    address: KT1KgUQ26ciUCrkZrDoV26ezvW2TiZTjZ1TQ
+    address: KT192v2xcsPVAoskhDguRGEz7hqsAVJ4MQtC
     typename: mvk
   governance:
-    address: KT1XYGTH2ogxW1roAYWrTtUcsXVyu414shxM
+    address: KT1WHrvLPYe9BwGrrrecTvP8sMMQNWLvHgeo
     typename: governance
   doorman:
-    address: KT1EbCBmz4sdEiVs4R4iUgeEm4hZzjuJ6xMD
+    address: KT1J3DBsCtT3b2gQnh93sEp8RYZtm9qvKzzs
     typename: doorman
   farm:
-    address: KT1B1AiBSiG2z8mPZvgKc5Rv1WxoKJVWw27t
+    address: KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74 #KT1CbLGSBeeHES4eXjjp6teh5pbrgkDi2qto
     typename: farm
   farm_factory:
-    address: KT1LwHbAUBvTbRZbr2tgRHykrYvZD4x76rSa
+    address: KT18cWwjTscZey2VvN6dy1h3bSTotjpUKqZq
     typename: farm_factory
   delegation:
-    address: KT1CMAgdQipgpTZ2ejW6xWeE7TVdbKefTdmQ
+    address: KT1TiD8PAqz6cF9fNkySyQmW93any7TrNhab
     typename: delegation
   vesting:
-    address: KT1EBHf15fU5Dho88DDpzrZkh5v9EfRTLHZT
+    address: KT1PXkvDio6sjem4tZ1cXhKsji9A3naZd73r
     typename: vesting
   emergency_governance:
-    address: KT1TiPdAN9SpKFL23WcYqFsgwPxq6d4YoG7v
+    address: KT1BeKpjRUSTkykiAGGGzfgiVFpRb5Dk3SGo
     typename: emergency_governance
   council:
-    address: KT1CkevWWpee584oiZXAmm78vTWiYezSK5ZQ
+    address: KT1SR8Hutr5TFWDUuNncg6pjXrcMkjQJjfKm
     typename: council
   break_glass:
-    address: KT1XsnpSVhTfCHG9Eq2eYAC8arvM6oE9tZvv
+    address: KT1S4B8HWNj5QBrYLSSVQfECpwCaBU6rRVm9
     typename: break_glass
   governance_financial:
-    address: KT1NAuqiAaS4rTiGxqWU6C4yUHEN7LFBkpQb
+    address: KT1J5614w7Ku4613TduVyvSv3B1X1jf6nWah
     typename: governance_financial
   governance_satellite:
-    address: KT1QdNZVmU6eHQUiw74E47E4kExWNK3vazbG
+    address: KT19HcgaDZydTBSENfo1HxfEfAbiitZgRiSk
     typename: governance_satellite
   aggregator:
-    address: KT1HitmjJgX6MccVJ8o5pvUco3p4iStohJHi
+    address: KT1R8uVX8bXeeUnzyepLoSAx55Hj2iNXkrsL
     typename: aggregator
   aggregator_factory:
-    address: KT1RjYz5QD5EfcRicmzuiYfXH2rQmCpgvcZe
+    address: KT1WXqKTZdtei7zLEAs243zgWev6tobJccHB
     typename: aggregator_factory
   treasury:
-    address: KT1HyW4eKjp6igpH6HNuwwPrVnkbf8wajZU2
+    address: KT1UHBYfSKHSYP5mCyiHbEipdSuGJgZyJf3c
     typename: treasury
   treasury_factory:
-    address: KT1Q58LZnrNh5ETnofJtj3KFyCNMJFwmgWd2
+    address: KT1GHvyBLDjvUCBsfVxjFKea7zrifgjPWZHV
     typename: treasury_factory
 
 datasources:
-  tzkt:
+  tzkt_testnet:
     kind: tzkt
-    url: ${TZKT_URL:-changeme}
+    url: ${TZKT_TESTNET_URL:-changeme}
+  tzkt_mainnet:
+    kind: tzkt
+    url: ${TZKT_MAINNET_URL:-changeme}
 
 templates:
   # Template for Farm Factory
   farm_template:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -107,10 +120,6 @@ templates:
         pattern:
           - destination: <farm_contract>
             entrypoint: updateGeneralContracts
-      - callback: on_farm_update_blocks_per_minute
-        pattern:
-          - destination: <farm_contract>
-            entrypoint: updateBlocksPerMinute
       - callback: on_farm_init_farm
         pattern:
           - destination: <farm_contract>
@@ -146,7 +155,7 @@ templates:
   # Template for treasury Factory
   treasury_template:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -192,7 +201,7 @@ templates:
   # Template for aggregator factory
   aggregator_template:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -269,10 +278,51 @@ templates:
             entrypoint: withdrawRewardStakedMvk
 
 indexes:
+  # BIGMAP INDEXES
+  # Governance Satellite snapshot big_map index
+  governance_satellite_snapshot:
+    kind: big_map
+    datasource: tzkt_testnet
+    skip_history: never
+    handlers:
+      - callback: on_governance_snapshot_ledger_update
+        contract: governance
+        path: snapshotLedger
+  # OPERATION INDEXES
+  # Liquidity Baking contract indexes
+  liquidity_baking:
+    kind: operation
+    datasource: tzkt_mainnet
+    types:
+      - origination
+      - transaction
+    contracts:
+      - liquidity_baking
+    handlers:
+      - callback: on_liquidity_baking_add_liquidity
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: addLiquidity
+      - callback: on_liquidity_baking_remove_liquidity
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: removeLiquidity
+      - callback: on_liquidity_baking_token_to_xtz
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: tokenToXtz
+      - callback: on_liquidity_baking_xtz_to_token
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: xtzToToken
+      - callback: on_liquidity_baking_token_to_token
+        pattern:
+          - destination: liquidity_baking
+            entrypoint: tokenToToken
   # MVK Token contract indexes
   mvk:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -322,7 +372,7 @@ indexes:
   # Governance contract indexes
   governance:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -408,7 +458,7 @@ indexes:
   # Doorman contract indexes
   doorman:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -477,7 +527,7 @@ indexes:
   # Farm contract indexes
   farm:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -508,10 +558,6 @@ indexes:
         pattern:
           - destination: farm
             entrypoint: updateGeneralContracts
-      - callback: on_farm_update_blocks_per_minute
-        pattern:
-          - destination: farm
-            entrypoint: updateBlocksPerMinute
       - callback: on_farm_init_farm
         pattern:
           - destination: farm
@@ -547,7 +593,7 @@ indexes:
   # Farm Factory contract indexes
   farm_factory:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -579,10 +625,6 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: updateGeneralContracts
-      - callback: on_farm_factory_update_blocks_per_minute
-        pattern:
-          - destination: farm_factory
-            entrypoint: updateBlocksPerMinute
       - callback: on_farm_factory_pause_all
         pattern:
           - destination: farm_factory
@@ -613,7 +655,7 @@ indexes:
   # Delegation contract indexes
   delegation:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -691,7 +733,7 @@ indexes:
   # Vesting contract indexes
   vesting:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -741,7 +783,7 @@ indexes:
   # Emergency Governance contract indexes
   emergency_governance:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -787,7 +829,7 @@ indexes:
   # Council contract indexes
   council:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -838,10 +880,6 @@ indexes:
         pattern:
           - destination: council
             entrypoint: councilActionSetBaker
-      - callback: on_council_council_action_update_blocks_per_min
-        pattern:
-          - destination: council
-            entrypoint: councilActionUpdateBlocksPerMin
       - callback: on_council_council_action_add_vestee
         pattern:
           - destination: council
@@ -889,7 +927,7 @@ indexes:
   # Break Glass contract indexes
   break_glass:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -975,7 +1013,7 @@ indexes:
   # Governance Financial contract indexes
   governance_financial:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1033,7 +1071,7 @@ indexes:
   # Governance Satellite contract indexes
   governance_satellite:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1068,18 +1106,14 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: suspendSatellite
-      - callback: on_governance_satellite_unsuspend_satellite
-        pattern:
-          - destination: governance_satellite
-            entrypoint: unsuspendSatellite
       - callback: on_governance_satellite_ban_satellite
         pattern:
           - destination: governance_satellite
             entrypoint: banSatellite
-      - callback: on_governance_satellite_unban_satellite
+      - callback: on_governance_satellite_restore_satellite
         pattern:
           - destination: governance_satellite
-            entrypoint: unbanSatellite
+            entrypoint: restoreSatellite
       - callback: on_governance_satellite_remove_all_satellite_oracles
         pattern:
           - destination: governance_satellite
@@ -1100,6 +1134,10 @@ indexes:
         pattern:
           - destination: governance_satellite
             entrypoint: updateAggregatorStatus
+      - callback: on_governance_satellite_fix_mistaken_transfer
+        pattern:
+          - destination: governance_satellite
+            entrypoint: fixMistakenTransfer
       - callback: on_governance_satellite_drop_action
         pattern:
           - destination: governance_satellite
@@ -1111,7 +1149,7 @@ indexes:
   # Aggregator contract indexes
   aggregator:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1193,7 +1231,7 @@ indexes:
   # Aggregator Factory contract indexes
   aggregator_factory:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1250,7 +1288,7 @@ indexes:
   # Treasury contract indexes
   treasury:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction
@@ -1300,7 +1338,7 @@ indexes:
   # Treasury Factory contract indexes
   treasury_factory:
     kind: operation
-    datasource: tzkt
+    datasource: tzkt_testnet
     types:
       - origination
       - transaction

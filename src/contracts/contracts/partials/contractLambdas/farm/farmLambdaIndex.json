@@ -33,38 +33,34 @@
     },
     {
         "index": 8,
-        "name": "lambdaUpdateBlocksPerMinute"
-    },
-    {
-        "index": 9,
         "name": "lambdaInitFarm"
     },
     {
-        "index": 10,
+        "index": 9,
         "name": "lambdaCloseFarm"
     },
     {
-        "index": 11,
+        "index": 10,
         "name": "lambdaPauseAll"
     },
     {
-        "index": 12,
+        "index": 11,
         "name": "lambdaUnpauseAll"
     },
     {
-        "index": 13,
+        "index": 12,
         "name": "lambdaTogglePauseEntrypoint"
     },
     {
-        "index": 14,
+        "index": 13,
         "name": "lambdaDeposit"
     },
     {
-        "index": 15,
+        "index": 14,
         "name": "lambdaWithdraw"
     },
     {
-        "index": 16,
+        "index": 15,
         "name": "lambdaClaim"
     }    
 ]

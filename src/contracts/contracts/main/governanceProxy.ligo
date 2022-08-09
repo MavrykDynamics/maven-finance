@@ -6,14 +6,14 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -144,14 +144,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -183,7 +176,7 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
         "%setAdmin",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -193,7 +186,7 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
         "%setGovernance",
         contractAddress) : option(contract(address))) of [
                 Some(contr) -> contr
-            |   None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
+            |   None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
         ];
 
 
@@ -308,7 +301,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -317,7 +310,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 

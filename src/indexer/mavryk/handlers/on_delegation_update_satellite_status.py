@@ -1,7 +1,7 @@
 
 from dipdup.models import Transaction
-from dipdup.context import HandlerContext
 from mavryk.types.delegation.parameter.update_satellite_status import UpdateSatelliteStatusParameter
+from dipdup.context import HandlerContext
 from mavryk.types.delegation.storage import DelegationStorage
 import mavryk.models as models
 

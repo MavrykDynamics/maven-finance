@@ -45,7 +45,6 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    blocksPerMinute: str
     forceRewardFromTransfer: bool
     infinite: bool
     lpToken: LpToken
@@ -99,4 +98,5 @@ class FarmStorage(BaseModel):
     open: bool
     init: bool
     initBlock: str
+    minBlockTimeSnapshot: str
     lambdaLedger: Dict[str, str]

@@ -1,8 +1,8 @@
 
-from mavryk.types.delegation.storage import DelegationStorage
-from dipdup.context import HandlerContext
-from mavryk.types.delegation.parameter.on_stake_change import OnStakeChangeParameter
 from dipdup.models import Transaction
+from mavryk.types.delegation.parameter.on_stake_change import OnStakeChangeParameter
+from dipdup.context import HandlerContext
+from mavryk.types.delegation.storage import DelegationStorage
 import mavryk.models as models
 
 async def on_delegation_on_stake_change(

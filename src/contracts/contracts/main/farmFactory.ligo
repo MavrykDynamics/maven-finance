@@ -6,14 +6,14 @@
 #include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
-// Shared Methods and Types
+// Shared Helpers and Types
 // ------------------------------------------------------------------------------
 
-// Shared Methods
-#include "../partials/shared/sharedMethods.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
-// Transfer Methods
-#include "../partials/shared/transferMethods.ligo"
+// Transfer Helpers
+#include "../partials/shared/transferHelpers.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -46,7 +46,6 @@ type farmFactoryAction is
     |   UpdateWhitelistContracts    of updateWhitelistContractsType
     |   UpdateGeneralContracts      of updateGeneralContractsType
     |   MistakenTransfer            of transferActionType
-    |   UpdateBlocksPerMinute       of (nat)
 
         // Pause / Break Glass Entrypoints
     |   PauseAll                    of (unit)
@@ -118,14 +117,7 @@ block{
     if Tezos.get_sender() = s.admin then skip
     else {
 
-        const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "governanceSatellite", s.governanceAddress);
-        const governanceSatelliteAddress : address = case generalContractsOptView of [
-                Some (_optionContract) -> case _optionContract of [
-                        Some (_contract)    -> _contract
-                    |   None                -> failwith (error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND)
-                ]
-            |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-        ];
+        const governanceSatelliteAddress : address = getContractAddressFromGovernanceContract("governanceSatellite", s.governanceAddress, error_GOVERNANCE_SATELLITE_CONTRACT_NOT_FOUND);
 
         if Tezos.get_sender() = governanceSatelliteAddress then skip
         else failwith(error_ONLY_ADMIN_OR_GOVERNANCE_SATELLITE_CONTRACT_ALLOWED);
@@ -204,7 +196,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
+// Lambda Helpers Begin
 //
 // ------------------------------------------------------------------------------
 
@@ -213,7 +205,7 @@ block {
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods End
+// Lambda Helpers End
 //
 // ------------------------------------------------------------------------------
 
@@ -438,25 +430,6 @@ block {
 
 } with response
 
-
-
-(*  UpdateBlocksPerMinute entrypoint *)
-function updateBlocksPerMinute(const newBlocksPerMinute : nat; var s : farmFactoryStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateBlocksPerMinute"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init farmFactory lambda action
-    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaUpdateBlocksPerMinute(newBlocksPerMinute);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
-
-} with response
-
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -659,7 +632,6 @@ block{
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)
         |   MistakenTransfer (parameters)           -> mistakenTransfer(parameters, s)
-        |   UpdateBlocksPerMinute (parameters)      -> updateBlocksPerMinute(parameters, s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll (_parameters)                  -> pauseAll(s)

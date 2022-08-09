@@ -44,7 +44,6 @@ type farmConfigType is record [
     lpToken                     : lpTokenType;
     infinite                    : bool;
     forceRewardFromTransfer     : bool;
-    blocksPerMinute             : nat;
     plannedRewards              : plannedRewardsType;
 ]
 
@@ -58,7 +57,6 @@ type farmConfigType is record [
 type initFarmParamsType is [@layout:comb] record[
     totalBlocks                 : nat;
     currentRewardPerBlock       : nat;
-    blocksPerMinute             : nat;
     forceRewardFromTransfer     : bool;
     infinite                    : bool;
 ]
@@ -104,7 +102,6 @@ type farmLambdaActionType is
     |   LambdaMistakenTransfer            of transferActionType
 
         // Farm Admin Entrypoints
-    |   LambdaUpdateBlocksPerMinute       of (nat)
     |   LambdaInitFarm                    of initFarmParamsType
     |   LambdaCloseFarm                   of (unit)
 
@@ -145,6 +142,8 @@ type farmStorageType is [@layout:comb] record[
     open                        : bool;
     init                        : bool;
     initBlock                   : nat;
+
+    minBlockTimeSnapshot        : nat;
 
     lambdaLedger                : lambdaLedgerType;
 ]

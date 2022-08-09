@@ -15,7 +15,7 @@ async def on_farm_claim(
     depositor_address               = claim.data.sender_address
     depositor_storage               = claim.storage.depositorLedger[depositor_address]
     balance                         = int(depositor_storage.balance)
-    participation_rewards_per_share      = float(depositor_storage.participationRewardsPerShare )
+    participation_rewards_per_share = float(depositor_storage.participationRewardsPerShare )
     claimed_rewards                 = float(depositor_storage.claimedRewards)
     unclaimed_rewards               = float(depositor_storage.unclaimedRewards)
     lp_token_balance                = int(claim.storage.config.lpToken.tokenBalance)
@@ -24,11 +24,19 @@ async def on_farm_claim(
     accumulated_rewards_per_share   = float(claim.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(claim.storage.claimedRewards.unpaid)
     paid_rewards                    = float(claim.storage.claimedRewards.paid)
+    total_rewards                   = float(claim.storage.config.plannedRewards.totalRewards)
+    current_reward_per_block        = float(claim.storage.config.plannedRewards.currentRewardPerBlock)
+    total_blocks                    = int(claim.storage.config.plannedRewards.totalBlocks)
+    min_block_time_snapshot         = int(claim.storage.minBlockTimeSnapshot)
     
     # Create and update records
     farm                            = await models.Farm.get(
         address = farm_address
     )
+    farm.total_rewards              = total_rewards
+    farm.current_reward_per_block   = current_reward_per_block
+    farm.total_blocks               = total_blocks
+    farm.min_block_time_snapshot    = min_block_time_snapshot
     farm.lp_token_balance           = lp_token_balance
     farm.accumulated_mvk_per_share  = accumulated_rewards_per_share
     farm.last_block_update          = last_block_update

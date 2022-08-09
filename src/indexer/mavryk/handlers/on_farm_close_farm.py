@@ -16,6 +16,10 @@ async def on_farm_close_farm(
     open                            = close_farm.storage.open
     accumulated_rewards_per_share   = float(close_farm.storage.accumulatedRewardsPerShare)
     unpaid_rewards                  = float(close_farm.storage.claimedRewards.unpaid)
+    total_rewards                   = float(close_farm.storage.config.plannedRewards.totalRewards)
+    current_reward_per_block        = float(close_farm.storage.config.plannedRewards.currentRewardPerBlock)
+    total_blocks                    = int(close_farm.storage.config.plannedRewards.totalBlocks)
+    min_block_time_snapshot         = int(close_farm.storage.minBlockTimeSnapshot)
 
     # Update record
     farm                                = await models.Farm.get(address = farm_address)
@@ -23,4 +27,8 @@ async def on_farm_close_farm(
     farm.open                           = open
     farm.accumulated_rewards_per_share  = accumulated_rewards_per_share
     farm.unpaid_rewards                 = unpaid_rewards
+    farm.total_rewards                  = total_rewards
+    farm.current_reward_per_block       = current_reward_per_block
+    farm.total_blocks                   = total_blocks
+    farm.min_block_time_snapshot        = min_block_time_snapshot
     await farm.save()

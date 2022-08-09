@@ -21,8 +21,6 @@ const config = {
     maxProposalsPerSatellite            : 20,
 
     newBlockTimeLevel                   : 0,
-    newBlocksPerMinute                  : 0,
-    blocksPerMinute                     : 2,
 
     blocksPerProposalRound              : 14400,
     blocksPerVotingRound                : 14400,
@@ -48,7 +46,7 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const governanceStorage: governanceStorageType = {
-    
+  
     admin                   : bob.pkh,
     mvkTokenAddress         : "",
     governanceProxyAddress  : zeroAddress,
@@ -60,10 +58,12 @@ export const governanceStorage: governanceStorageType = {
     generalContracts        : MichelsonMap.fromLiteral({}),
 
     proposalLedger          : MichelsonMap.fromLiteral({}),
+    proposalRewards         : MichelsonMap.fromLiteral({}),
     snapshotLedger          : MichelsonMap.fromLiteral({}),
 
+    // startLevel              : new BigNumber(1),
     nextProposalId          : new BigNumber(1),
-    cycleCounter            : new BigNumber(1),
+    cycleId            : new BigNumber(1),
 
     currentCycleInfo         : {
         round                     : { proposal: null },
@@ -73,15 +73,16 @@ export const governanceStorage: governanceStorageType = {
         roundStartLevel           : new BigNumber(0),
         roundEndLevel             : new BigNumber(0),
         cycleEndLevel             : new BigNumber(0),
-        roundProposals            : MichelsonMap.fromLiteral({}),
-        roundProposers            : MichelsonMap.fromLiteral({}),
-        roundVotes                : MichelsonMap.fromLiteral({}),
         cycleTotalVotersReward    : new BigNumber(0),
         minQuorumStakedMvkTotal   : new BigNumber(0)
     },
 
+    cycleProposals                     : MichelsonMap.fromLiteral({}),
+    cycleProposers                     : MichelsonMap.fromLiteral({}),
+    roundVotes                         : MichelsonMap.fromLiteral({}),
+
     cycleHighestVotedProposalId        : new BigNumber(0),
     timelockProposalId                 : new BigNumber(0),
-    
+
     lambdaLedger                       : MichelsonMap.fromLiteral({})
 };
