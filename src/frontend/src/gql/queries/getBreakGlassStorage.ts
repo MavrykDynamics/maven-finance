@@ -82,6 +82,7 @@ export const BREAK_GLASS_STATUS_QUERY = `
     }
     aggregator {
       address
+      name
       request_rate_update_deviation_paused
       request_rate_update_paused
       set_observation_commit_paused
