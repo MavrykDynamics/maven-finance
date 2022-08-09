@@ -46,7 +46,7 @@ export const SlidingTabButtonsView = ({
 }
 
 type TabButtonProps = {
-  buttonRef: Ref<any>
+  buttonRef?: Ref<any>
   text: string
   kind?: SlidingTabButtonStyle
   onClick: (tabId: number) => void

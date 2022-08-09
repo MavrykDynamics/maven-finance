@@ -23,6 +23,8 @@ export const RoiCalculatorStyled = styled.section`
   }
 
   .fieldset-roi {
+    margin-bottom: 24px;
+
     .pinned-text {
       top: 13px;
     }
@@ -82,4 +84,35 @@ export const RoiCalculatorStyled = styled.section`
       }
     }
   }
-`
+
+  .tab-block {
+    margin-bottom: 32px;
+
+    h4 {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 14px;
+      color: ${headerColor};
+      padding-left: 4px;
+      margin-bottom: 12px;
+    }
+
+    .tab-component {
+      display: grid;
+
+      button {
+        width: auto;
+      }
+
+      &.values-tabs {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      &.staked-tabs {
+        grid-template-columns: repeat(5, 1fr);
+      }
+      &.compounding-tabs {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+  }
+` // RoiCalculatorStyled
