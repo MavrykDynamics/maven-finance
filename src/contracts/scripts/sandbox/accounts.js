@@ -1,17 +1,15 @@
 module.exports = {
     alice: {
-        pkh: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb",
-        sk: "edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq",
-        pk: "edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn"
+        pkh: "tz1Rf4qAP6ZK19hR6Xwcwqz5778PnwNLPDBM",
+        sk: "edskS5Xd6CDBLbuJwkaa7mT2K6mom4odhbBiS3bxDtAB1crXWj4gwKF5oQsN9aijR3CNpr7cZXxcoUU32vqm67W3MRGSTVzMmz"
     },
     bob: {
         pkh: "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD",
         sk: "edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq",
     },
     eve: {
-        pkh: "tz1PrFSuTikuSWfZkACrXpmaS4RuKmEcZMSP",
-        sk: "edsk3QbYXUV92sMoLyMtUSHr4ymkVBWMWUsiG9Z2DuPhvFNPHrKM5B",
-        pk: "edpktfEyF8ivHSWSLaEmgnxaUqjDuCZ4HVqjHvgWiVvw8Xs82DLJyB"
+        pkh: "tz1bfkfgQ8EsH9wrFXueAvm8rKRxzab1vQH1",
+        sk: "edskRvgMBH37Dci9isEHcdsHQ4ioPdUq3AfXDiAj3ZXiuy3YMs4LEUiZVMaSG9KjTFo78LidgZkdVbkXUamMK2or8UAxB743SH"
     },
     mallory: {
         pkh: "tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n",
@@ -47,5 +45,98 @@ module.exports = {
         pkh: "tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ",
         sk: "edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf",
         pk: "edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL"
+    },
+    //
+    // Local oracle adresses
+    //
+    oracleMaintainer: {
+        pkh: 'tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb',
+        sk: 'edsk3ULsmx8aEogiMs2T4Td8rLzfvd6Vv8D5CJqeKQKrsjZHVqRDrX',
+        pk: 'edpkuZxa3i78gthryUa1aqh5AwuCqqLG7P55Tsh79pZaSryxZzhCVZ',
+    },
+    oracle0: {
+        pkh: 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6',
+        sk: 'edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e',
+        pk: 'edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4',
+    },
+    oracle1: {
+        pkh: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
+        sk: 'edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt',
+        pk: 'edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4',
+    },
+    oracle2: {
+        pkh: 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L',
+        sk: 'edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL',
+        pk: 'edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR',
+    },
+    oracle3: {
+        pkh: 'tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc',
+        sk: 'edsk3Wz91mGzhGcq2jVnbTnfkyY7Zod8gdQp2dHfnzud5gRAJ2uoaK',
+        pk: 'edpkvJm4eyR4vL7cY3B8zRyFMAGE4W8AuDtjio6v1GSm7dgS79rL23',
+    },
+    oracle4: {
+        pkh: 'tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px',
+        sk: 'edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf',
+        pk: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
     }
 };
+
+// Ithacanet addresses
+
+// module.exports = {
+//     alice: {
+//         pkh: 'tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr',
+//         sk: 'edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt',
+//         pk: 'edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1',
+//     },
+//     bob: {
+//         pkh: 'tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm',
+//         sk: 'edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ',
+//         pk: 'edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV',
+//     },
+//     eve: {
+//         pkh: 'tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk',
+//         sk: 'edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE',
+//         pk: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN',
+//     },
+//     mallory: {
+//         pkh: 'tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v',
+//         sk: 'edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq',
+//         pk: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82',
+//     },
+//     oscar: {
+//         pkh: 'tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe',
+//         sk: 'edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2',
+//         pk: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar',
+//     },
+//     trudy: {
+//         pkh: 'tz1S3yZiTz316jY4NVVC4HFCgecMvryZ9Kk1',
+//         sk: 'edskRnLBuG23ucD8zD8pQKK9A1va5fVRNpSgK6JiDW5251mdJjFjkT9Lw9WipWxmivxG8gnr8swmnUuKcHrMxEEtThdszDkDP4',
+//         pk: '',
+//     },
+//     isaac: {
+//         pkh: 'tz1cPsRXpj1yA2nBSFtUo2HHLsgr6hDKWvCB',
+//         sk: 'edskRce5phNTy39eQAbe4gDmrr84HFmSrqmKRDLDj9c6VuuVEgeVtaaffXjfPNwMkhqQyvWdoufbDHqG2TvwnPwLfc8q7621po',
+//         pk: '',
+//     },
+//     oracleMaintainer: {
+//         pkh: 'tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe',
+//         sk: '',
+//         pk: '',
+//     },
+//     oracle0: {
+//         pkh: 'tz1S3yZiTz316jY4NVVC4HFCgecMvryZ9Kk1',
+//         sk: '',
+//         pk: '',
+//     },
+//     oracle1: {
+//         pkh: 'tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk',
+//         sk: '',
+//         pk: '',
+//     },
+//     oracle2: {
+//         pkh: 'tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v',
+//         sk: '',
+//         pk: '',
+//     },
+// };

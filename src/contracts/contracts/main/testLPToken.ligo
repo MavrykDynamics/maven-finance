@@ -27,6 +27,39 @@ type return is list (operation) * storage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
 
+
+
+(* get: balance View *)
+[@view] function get_balance(const userAndId: address * nat; const store: storage) : nat is
+  case Big_map.find_opt(userAndId.0, store.ledger) of [
+      Some (_v) -> _v.balance
+    | None      -> 0n
+  ]
+
+
+
+(* total_supply View *)
+[@view] function total_supply(const _tokenId: nat; const _store: storage) : nat is
+  _store.totalSupply
+
+
+
+(* all_tokens View *)
+[@view] function all_tokens(const _ : unit; const _store: storage) : list(nat) is
+  list[0n]
+
+
+
+(* get: metadata *)
+[@view] function token_metadata(const tokenId: nat; const store: storage) : token_metadata_info is
+  case Big_map.find_opt(tokenId, store.token_metadata) of [
+    Some (_metadata)  -> _metadata
+  | None              -> record[
+    token_id    = tokenId;
+    token_info  = map[]
+  ]
+  ]
+
 (* Inputs *)
 type transferParams is michelson_pair(address, "from", michelson_pair(address, "to", amt, "value"), "")
 type approveParams is michelson_pair(trusted, "spender", amt, "value")
@@ -76,15 +109,15 @@ function transfer (const from_ : address; const to_ : address; const value : amt
     else skip;
 
     (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.sender then block {
-      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.sender, s);
+    if from_ =/= Tezos.get_sender() then block {
+      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.get_sender(), s);
 
       if spenderAllowance < value then
         failwith("NotEnoughAllowance")
       else skip;
 
       (* Decrease any allowances *)
-      senderAccount.allowances[Tezos.sender] := abs(spenderAllowance - value);
+      senderAccount.allowances[Tezos.get_sender()] := abs(spenderAllowance - value);
     } else skip;
 
     (* Update sender balance *)
@@ -109,7 +142,7 @@ function approve (const spender : address; const value : amt; var s : storage) :
   block {
 
     (* Create or get sender account *)
-    var senderAccount : account := getAccount(Tezos.sender, s);
+    var senderAccount : account := getAccount(Tezos.get_sender(), s);
 
     (* Get current spender allowance *)
     const spenderAllowance : amt = getAllowance(senderAccount, spender, s);
@@ -123,7 +156,7 @@ function approve (const spender : address; const value : amt; var s : storage) :
     senderAccount.allowances[spender] := value;
 
     (* Update storage *)
-    s.ledger[Tezos.sender] := senderAccount;
+    s.ledger[Tezos.get_sender()] := senderAccount;
 
   } with (noOperations, s)
 

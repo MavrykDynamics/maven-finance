@@ -2,23 +2,22 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type governanceFinancialStorageType = {
-  admin: string;
-  mvkTokenAddress: string;
-  governanceAddress: string;
-  metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
-  config: {};
+    admin                               : string;
+    mvkTokenAddress                     : string;
+    governanceAddress                   : string;
+    metadata                            : MichelsonMap<MichelsonMapKey, unknown>;
 
-  whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
-  whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
-  generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
+    config                              : {};
 
-  snapshotStakedMvkTotalSupply       : BigNumber;
+    whitelistContracts                  : MichelsonMap<MichelsonMapKey, unknown>;
+    whitelistTokenContracts             : MichelsonMap<MichelsonMapKey, unknown>;
+    generalContracts                    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  lambdaLedger                       : MichelsonMap<MichelsonMapKey, unknown>;
+    financialRequestLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+    financialRequestVoters              : MichelsonMap<MichelsonMapKey, unknown>;
+    financialRequestCounter             : BigNumber;
 
-  financialRequestLedger             : MichelsonMap<MichelsonMapKey, unknown>;
-  financialRequestSnapshotLedger     : MichelsonMap<MichelsonMapKey, unknown>;
-  financialRequestCounter            : BigNumber;
+    lambdaLedger                        : MichelsonMap<MichelsonMapKey, unknown>;
   
 };

@@ -1,11 +1,11 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Transfer Types: transferDestinationType
+#include "../partials/shared/transferTypes.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
 // MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 type trusted is address;
 type amt is nat;
@@ -57,11 +57,11 @@ type entryAction is
 
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
-    if (Tezos.sender = s.admin) then unit
+    if (Tezos.get_sender() = s.admin) then unit
     else failwith("Error. Only the administrator can call this entrypoint.");
 
 function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
+    if (Tezos.get_amount() = 0tez) then unit
     else failwith("Error. This entrypoint should not receive any tez.");
 
 // admin helper functions end ---------------------------------------------------------
@@ -100,15 +100,15 @@ function transfer (const from_ : address; const to_ : address; const value : amt
     else skip;
 
     (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.sender then block {
-      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.sender, s);
+    if from_ =/= Tezos.get_sender() then block {
+      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.get_sender(), s);
 
       if spenderAllowance < value then
         failwith("NotEnoughAllowance")
       else skip;
 
       (* Decrease any allowances *)
-      senderAccount.allowances[Tezos.sender] := abs(spenderAllowance - value);
+      senderAccount.allowances[Tezos.get_sender()] := abs(spenderAllowance - value);
     } else skip;
 
     (* Update sender balance *)
@@ -133,7 +133,7 @@ function approve (const spender : address; const value : amt; var s : storage) :
   block {
 
     (* Create or get sender account *)
-    var senderAccount : account := getAccount(Tezos.sender, s);
+    var senderAccount : account := getAccount(Tezos.get_sender(), s);
 
     (* Get current spender allowance *)
     const spenderAllowance : amt = getAllowance(senderAccount, spender, s);
@@ -147,7 +147,7 @@ function approve (const spender : address; const value : amt; var s : storage) :
     senderAccount.allowances[spender] := value;
 
     (* Update storage *)
-    s.ledger[Tezos.sender] := senderAccount;
+    s.ledger[Tezos.get_sender()] := senderAccount;
 
   } with (noOperations, s)
 

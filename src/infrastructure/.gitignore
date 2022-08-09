@@ -1,0 +1,7 @@
+env.sh
+.terragrunt-cache/
+*.tfstate
+charts/
+*.lock
+temp.yaml
+*secret.yaml

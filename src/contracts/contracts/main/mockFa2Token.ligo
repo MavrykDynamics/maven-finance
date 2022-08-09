@@ -1,11 +1,11 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
+// Transfer Types: transferDestinationType
+#include "../partials/shared/transferTypes.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
+// Shared Helpers
+#include "../partials/shared/sharedHelpers.ligo"
 
 // MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
+#include "../partials/contractTypes/mvkTokenTypes.ligo"
 
 ////
 // COMMON TYPES
@@ -132,19 +132,19 @@ function checkBalance(const spenderBalance: tokenBalance; const tokenAmount: tok
   else unit
 
 function checkOwnership(const owner: owner): unit is
-  if Tezos.sender =/= owner then failwith("FA2_NOT_OWNER")
+  if Tezos.get_sender() =/= owner then failwith("FA2_NOT_OWNER")
   else unit
 
 function checkOperator(const owner: owner; const token_id: tokenId; const operators: operators): unit is
-  if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
+  if owner = Tezos.get_sender() or Big_map.mem((owner, Tezos.get_sender(), token_id), operators) then unit
   else failwith ("FA2_NOT_OPERATOR")
 
 function checkSenderIsAdmin(const store: storage): unit is
-  if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+  if Tezos.get_sender() =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
 function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
+  if Tezos.get_amount() =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
 
 (* Transfer Entrypoint *)
@@ -258,7 +258,7 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
       updateOperatorsParams,
       store.operators
     )
-  } with(noOperations,store with record[operators=updatedOperators])
+  } with (noOperations,store with record[operators=updatedOperators])
 
 (* AssertMetadata Entrypoint *)
 function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: storage): return is

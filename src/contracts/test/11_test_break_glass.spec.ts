@@ -571,7 +571,7 @@
 //                     const glassBroken       = breakGlassStorage.glassBroken;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -728,7 +728,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -801,7 +801,7 @@
 //                         var storage:any     = await contract.storage();
 
 //                         // Check admin
-//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
 //                             setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                             await setAdminOperation.confirmation()
 //                         }
@@ -847,13 +847,10 @@
 //                     var breakGlassActionID    = breakGlassStorage.actionCounter;
 //                     const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass().send();
 //                     await propagateActionOperation.confirmation();
-
+                    
 //                     // Sign action propagate action
 //                     await signerFactory(alice.sk);
 //                     var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
-//                     await signActionOperation.confirmation();
-//                     await signerFactory(eve.sk);
-//                     signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                     await signActionOperation.confirmation();
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
@@ -880,7 +877,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
@@ -912,7 +909,7 @@
 //                     const targetContract    = trudy.pkh;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -926,7 +923,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
@@ -1307,7 +1304,7 @@
 //                     breakGlassStorage               = await breakGlassInstance.storage();
 //                     const nextActionID              = breakGlassStorage.actionCounter;
 
-//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(breakGlassAddress.address, bob.pkh).send();
 //                     await setContractAdminOperation.confirmation();
 
 //                     await signerFactory(eve.sk);
@@ -1795,8 +1792,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     const generalContracts  = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.status, "EXECUTED");
@@ -1852,8 +1850,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     const generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     const generalContracts  = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.status, "EXECUTED");
@@ -1886,7 +1885,7 @@
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
-//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+//                     const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
 //                     await newActionOperation.confirmation();
 
 //                     // Final values
@@ -1969,8 +1968,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     var generalContracts    = breakGlassStorage.generalContracts.entries();
+//                     var generalContracts    = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
@@ -1991,7 +1991,8 @@
 
 //                     // reset all contracts admin to breakGlass for future tests
 //                     await signerFactory(bob.sk)
-//                     generalContracts  = await breakGlassStorage.generalContracts.entries();
+//                     governanceStorage       = await governanceInstance.storage();
+//                     generalContracts        = await governanceStorage.generalContracts.entries();
 //                     var setAdminOperation   = await breakGlassInstance.methods.setAdmin(breakGlassAddress.address).send();
 //                     await setAdminOperation.confirmation();
 //                 } catch(e){
@@ -2029,7 +2030,7 @@
 
 //                     // Reset contract config
 //                     await signerFactory(alice.sk)
-//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(breakGlassAddress.address, bob.pkh).send();
 //                     await setContractAdminOperation.confirmation();
 
 //                     await signerFactory(eve.sk);
@@ -2057,9 +2058,10 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     var nextActionID        = breakGlassStorage.actionCounter;
 
-//                     var generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     var generalContracts  = governanceStorage.generalContracts.entries();
 //                     await signerFactory(bob.sk)
 //                     for (let entry of generalContracts){
 //                         // Get contract storage
@@ -2067,13 +2069,14 @@
 //                         var storage:any     = await contract.storage();
 
 //                         // Check admin
-//                         if(storage.hasOwnProperty('admin')){
+//                         if(storage.hasOwnProperty('admin') && storage.admin!==breakGlassAddress.address && entry[1]!==breakGlassAddress.address){
 //                             var setAdminOperation   = await contract.methods.setAdmin(breakGlassAddress.address).send();
 //                             await setAdminOperation.confirmation();              
 //                         }
 //                     }
 
 //                     // Reset admin to breakGlass contract
+//                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     var setContractAdminOperation = await breakGlassInstance.methods.setAdmin(breakGlassAddress.address).send();
 //                     await setContractAdminOperation.confirmation();
 
@@ -2105,8 +2108,9 @@
 
 //                     // Final values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     governanceStorage       = await governanceInstance.storage();
 //                     action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
-//                     generalContracts  = breakGlassStorage.generalContracts.entries();
+//                     generalContracts        = governanceStorage.generalContracts.entries();
 
 //                     assert.equal(action.executed, true);
 //                     assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
@@ -2235,7 +2239,7 @@
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
 
-//                     action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+//                     action              = await breakGlassStorage.actionsLedger.get(flushedAction);
 //                     assert.equal(action.status, "FLUSHED");
 
 //                     // Operation

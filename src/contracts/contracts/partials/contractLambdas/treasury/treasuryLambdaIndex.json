@@ -1,75 +1,67 @@
 [
     {
-      "index": 0,
-      "name": "lambdaSetAdmin"
+        "index": 0,
+        "name": "lambdaSetAdmin"
     },
     {
-      "index": 1,
-      "name": "lambdaSetGovernance"
+        "index": 1,   
+        "name": "lambdaSetGovernance"
     },
     {
-      "index": 2,
-      "name": "lambdaSetBaker"
+        "index": 2,
+        "name": "lambdaSetBaker"
     },
     {
-      "index": 3,
-      "name": "lambdaUpdateMetadata"
+        "index": 3,
+        "name": "lambdaSetName"
     },
     {
-      "index": 4,
-      "name": "lambdaUpdateWhitelistContracts"
+        "index": 4,
+        "name": "lambdaUpdateMetadata"
     },
     {
-      "index": 5,
-      "name": "lambdaUpdateGeneralContracts"
+        "index": 5,
+        "name": "lambdaUpdateWhitelistContracts"
     },
     {
-      "index": 6,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+        "index": 6,
+        "name": "lambdaUpdateGeneralContracts"
     },
     {
-      "index": 7,
-      "name": "lambdaPauseAll"
+        "index": 7,
+        "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
-      "index": 8,
-      "name": "lambdaUnpauseAll"
+        "index": 8,
+        "name": "lambdaPauseAll"
     },
     {
-      "index": 9,
-      "name": "lambdaTogglePauseTransfer"
+        "index": 9,
+        "name": "lambdaUnpauseAll"
     },
     {
-      "index": 10,
-      "name": "lambdaTogglePauseMintMvkAndTransfer"
+        "index": 10,
+        "name": "lambdaTogglePauseEntrypoint"
     },
     {
-      "index": 11,
-      "name": "lambdaTogglePauseStake"
+        "index": 11,
+        "name": "lambdaTransfer"
     },
     {
-      "index": 12,
-      "name": "lambdaTogglePauseUnstake"
+        "index": 12,
+        "name": "lambdaMintMvkAndTransfer"
     },
     {
-      "index": 13,
-      "name": "lambdaTransfer"
+        "index": 13,
+        "name": "lambdaUpdateMvkOperators"
     },
     {
-      "index": 14,
-      "name": "lambdaMintMvkAndTransfer"
+        "index": 14,
+        "name": "lambdaStakeMvk"
     },
     {
-      "index": 15,
-      "name": "lambdaUpdateOperators"
-    },
-    {
-      "index": 16,
-      "name": "lambdaStake"
-    },
-    {
-      "index": 17,
-      "name": "lambdaUnstake"
+        "index": 15,
+        "name": "lambdaUnstakeMvk"
     }
 ]
   

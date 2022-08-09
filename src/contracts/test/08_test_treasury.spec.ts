@@ -866,7 +866,7 @@
 //         });
 //     })
 
-//     describe('%stake', function() {
+//     describe('%stakeMvk', function() {
 
 //         it('Admin should be able to call this entrypoint and stake MVK', async () => {
 //             try{        
@@ -879,7 +879,7 @@
 //                 const stakeAmount                   = MVK(10);
 
 //                 // Operations
-//                 const stakeOperation = await treasuryInstance.methods.stake(stakeAmount).send();
+//                 const stakeOperation = await treasuryInstance.methods.stakeMvk(stakeAmount).send();
 //                 await stakeOperation.confirmation();
 
 //                 // Final values
@@ -904,7 +904,7 @@
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.stake(stakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.stakeMvk(stakeAmount).send()).to.be.eventually.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             } 
@@ -917,16 +917,16 @@
 
 //                 // Update config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.stake(stakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.stakeMvk(stakeAmount).send()).to.be.eventually.rejected;
 
 //                 // Reset config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -934,7 +934,7 @@
 //         });
 //     });
 
-//     describe('%unstake', function() {
+//     describe('%unstakeMvk', function() {
 
 //         it('Admin should be able to call this entrypoint and unstake MVK', async () => {
 //             try{        
@@ -947,7 +947,7 @@
 //                 const unstakeAmount                 = MVK(5);
 
 //                 // Operations
-//                 const stakeOperation = await treasuryInstance.methods.unstake(unstakeAmount).send();
+//                 const stakeOperation = await treasuryInstance.methods.unstakeMvk(unstakeAmount).send();
 //                 await stakeOperation.confirmation();
 
 //                 // Final values
@@ -970,7 +970,7 @@
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.unstake(unstakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.unstakeMvk(unstakeAmount).send()).to.be.eventually.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             } 
@@ -983,16 +983,16 @@
 
 //                 // Update config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.unstake(unstakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.unstakeMvk(unstakeAmount).send()).to.be.eventually.rejected;
 
 //                 // Reset config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
@@ -1048,7 +1048,7 @@
 //         });
 //     });
 
-//     describe('%togglePauseTransfer', function() {
+//     describe('%togglePauseEntrypoint', function() {
 //         beforeEach("Set signer to admin", async () => {
 //             await signerFactory(bob.sk)
 //         });
@@ -1063,7 +1063,7 @@
 //                 const tokenId                  = 0;
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseTransfer().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1087,7 +1087,7 @@
 //                 ).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseTransfer().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("transfer", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1097,20 +1097,7 @@
 //                 console.dir(e, {depth:  5});
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
-//             try{
-//                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseTransfer().send()).to.be.rejected;
-//             } catch(e){
-//                 console.dir(e, {depth:  5});
-//             }
-//         });
-//     })
-
-//     describe('%togglePauseMintMvkAndTransfer', function() {
-//         beforeEach("Set signer to admin", async () => {
-//             await signerFactory(bob.sk)
-//         });
+        
 //         it('Admin should be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
@@ -1120,7 +1107,7 @@
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
@@ -1133,7 +1120,7 @@
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("mintMvkAndTransfer", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1143,41 +1130,28 @@
 //                 console.dir(e, {depth:  5});
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
-//             try{
-//                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseMintMvkAndTransfer().send()).to.be.rejected;
-//             } catch(e){
-//                 console.dir(e, {depth:  5});
-//             }
-//         });
-//     });
-
-//     describe('%togglePauseStake', function() {
-//         beforeEach("Set signer to admin", async () => {
-//             await signerFactory(bob.sk)
-//         });
+        
 //         it('Admin should be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 treasuryStorage                 = await treasuryInstance.storage();
-//                 const isPausedStart             = treasuryStorage.breakGlassConfig.stakeIsPaused
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.stakeMvkIsPaused
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
 //                 treasuryStorage       = await treasuryInstance.storage();
-//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeIsPaused
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeMvkIsPaused
 
-//                 await chai.expect(treasuryInstance.methods.stake(
+//                 await chai.expect(treasuryInstance.methods.stakeMvk(
 //                     amount,
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("stakeMvk", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1187,41 +1161,28 @@
 //                 console.dir(e, {depth:  5});
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
-//             try{
-//                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseStake().send()).to.be.rejected;
-//             } catch(e){
-//                 console.dir(e, {depth:  5});
-//             }
-//         });
-//     });
-
-//     describe('%togglePauseUnstake', function() {
-//         beforeEach("Set signer to admin", async () => {
-//             await signerFactory(bob.sk)
-//         });
+        
 //         it('Admin should be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 treasuryStorage                 = await treasuryInstance.storage();
-//                 const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeIsPaused
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeMvkIsPaused
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
 //                 treasuryStorage       = await treasuryInstance.storage();
-//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeIsPaused
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeMvkIsPaused
 
-//                 await chai.expect(treasuryInstance.methods.unstake(
+//                 await chai.expect(treasuryInstance.methods.unstakeMvk(
 //                     amount,
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", false).send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1231,10 +1192,11 @@
 //                 console.dir(e, {depth:  5});
 //             }
 //         });
+
 //         it('Non-admin should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseUnstake().send()).to.be.rejected;
+//                 await chai.expect(treasuryInstance.methods.togglePauseEntrypoint("unstakeMvk", true).send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             }
