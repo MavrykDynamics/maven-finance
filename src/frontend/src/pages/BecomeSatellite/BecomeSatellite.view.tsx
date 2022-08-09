@@ -14,6 +14,7 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
+import { Info } from '../../app/App.components/Info/Info.view'
 import {
   RegisterAsSatelliteForm,
   RegisterAsSatelliteFormInputStatus,
@@ -190,139 +191,153 @@ export const BecomeSatelliteView = ({
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <PageContent>
-        <BecomeSatelliteForm>
-          {updateSatellite ? (
-            <BecomeSatelliteFormTitle>Edit Satellite Profile</BecomeSatelliteFormTitle>
-          ) : (
-            <BecomeSatelliteFormTitle>Become a Satellite</BecomeSatelliteFormTitle>
-          )}
-          <CommaNumber
-            className="label"
-            value={Number(satelliteConfig.minimumStakedMvkBalance)}
-            beginningText={'1 - Stake at least'}
-            endingText={'MVK'}
-          />
-
-          {accountPkh ? (
-            <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
-              <Icon id={balanceOk ? 'check-stroke' : 'close-stroke'} />
-              <CommaNumber value={Number(myTotalStakeBalance)} beginningText={'Currently staking'} endingText={'MVK'} />
-            </BecomeSatelliteFormBalanceCheck>
-          ) : (
-            <BecomeSatelliteFormBalanceCheck balanceOk={false}>
-              <div>
-                <Icon id="close-stroke" />
-                Please connect your wallet
-              </div>
-            </BecomeSatelliteFormBalanceCheck>
-          )}
-
-          <BecomeSatelliteFormHorizontal>
-            <article>
-              {updateSatellite ? (
-                <label className="label">2 - Edit your name</label>
-              ) : (
-                <label className="label">2 - Enter your name</label>
-              )}
-              <Input
-                type="text"
-                placeholder="Name"
-                required
-                disabled={disabled}
-                value={form.name}
-                onChange={(e: any) => {
-                  setForm({ ...form, name: e.target.value })
-                  handleValidate('NAME')
-                }}
-                onBlur={(e: any) => handleValidate('NAME')}
-                inputStatus={formInputStatus.name}
-              />
-            </article>
-            <article>
-              {updateSatellite ? (
-                <label className="label">3 - Edit your website</label>
-              ) : (
-                <label className="label">3 - Enter your website</label>
-              )}
-              <Input
-                type="text"
-                placeholder="Website"
-                disabled={disabled}
-                value={form.website}
-                onChange={(e: any) => {
-                  setForm({ ...form, website: e.target.value })
-                  handleValidate('WEBSITE')
-                }}
-                onBlur={(e: any) => handleValidate('WEBSITE')}
-                inputStatus={formInputStatus.website}
-              />
-            </article>
-          </BecomeSatelliteFormHorizontal>
-          {updateSatellite ? (
-            <label className="label">4 - Edit description</label>
-          ) : (
-            <label className="label">4 - Enter a description</label>
-          )}
-          <TextArea
-            placeholder="Your description here..."
-            value={form.description}
-            disabled={disabled}
-            onChange={(e: any) => {
-              setForm({ ...form, description: e.target.value })
-              handleValidate('DESCRIPTION')
-            }}
-            onBlur={(e: any) => handleValidate('DESCRIPTION')}
-            inputStatus={formInputStatus.description}
-          />
-          {updateSatellite ? (
-            <label className="label">5 - Edit your fee (%)</label>
-          ) : (
-            <label className="label">5 - Enter your fee (%)</label>
-          )}
-          <div className="input-fee-wrap">
-            <InputWithPercent
-              type="text"
-              placeholder="Fee"
-              disabled={disabled}
-              value={form.fee}
-              onBlur={(e: any) => handleValidate('FEE')}
-              inputStatus={disabled ? '' : formInputStatus.fee}
-              onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
+        <div>
+          {!accountPkh || !balanceOk ? (
+            <Info
+              className="indent-bottom"
+              text={!accountPkh ? 'Please connect your wallet' : `Currently staking ${myTotalStakeBalance} MVK`}
+              type="warning"
             />
-          </div>
-          <IPFSUploader
-            disabled={disabled}
-            typeFile="image"
-            imageIpfsUrl={form.image}
-            setIpfsImageUrl={(e: any) => {
-              setForm({ ...form, image: e })
-              setValidForm({ ...validForm, image: Boolean(e) })
-              setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
-            }}
-            title={'Upload your photo'}
-            listNumber={6}
-          />
-          <BecomeSatelliteButttons>
-            {updateSatellite && (
-              <Button
-                icon="close-stroke"
-                kind={ACTION_SECONDARY}
-                disabled={disabled}
-                text={'Unregister Satellite'}
-                loading={loading}
-                onClick={handleUnregisterSatellite}
-              />
+          ) : null}
+
+          <BecomeSatelliteForm>
+            {updateSatellite ? (
+              <BecomeSatelliteFormTitle>Edit Satellite Profile</BecomeSatelliteFormTitle>
+            ) : (
+              <BecomeSatelliteFormTitle>Become a Satellite</BecomeSatelliteFormTitle>
             )}
-            <Button
-              icon="satellite-stroke"
-              text={updateSatellite ? 'Update Satellite Info' : 'Become a satellite'}
-              loading={loading}
-              disabled={disabled}
-              kind={ACTION_PRIMARY}
-              onClick={handleSubmit}
+            <CommaNumber
+              className="label"
+              value={Number(satelliteConfig.minimumStakedMvkBalance)}
+              beginningText={'1 - Stake at least'}
+              endingText={'MVK'}
             />
-          </BecomeSatelliteButttons>
-        </BecomeSatelliteForm>
+
+            {accountPkh ? (
+              <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
+                <Icon id={balanceOk ? 'check-stroke' : 'close-stroke'} />
+                <CommaNumber
+                  value={Number(myTotalStakeBalance)}
+                  beginningText={'Currently staking'}
+                  endingText={'MVK'}
+                />
+              </BecomeSatelliteFormBalanceCheck>
+            ) : (
+              <BecomeSatelliteFormBalanceCheck balanceOk={false}>
+                <div>
+                  <Icon id="close-stroke" />
+                  Please connect your wallet
+                </div>
+              </BecomeSatelliteFormBalanceCheck>
+            )}
+
+            <BecomeSatelliteFormHorizontal>
+              <article>
+                {updateSatellite ? (
+                  <label className="label">2 - Edit your name</label>
+                ) : (
+                  <label className="label">2 - Enter your name</label>
+                )}
+                <Input
+                  type="text"
+                  placeholder="Name"
+                  required
+                  disabled={disabled}
+                  value={form.name}
+                  onChange={(e: any) => {
+                    setForm({ ...form, name: e.target.value })
+                    handleValidate('NAME')
+                  }}
+                  onBlur={(e: any) => handleValidate('NAME')}
+                  inputStatus={formInputStatus.name}
+                />
+              </article>
+              <article>
+                {updateSatellite ? (
+                  <label className="label">3 - Edit your website</label>
+                ) : (
+                  <label className="label">3 - Enter your website</label>
+                )}
+                <Input
+                  type="text"
+                  placeholder="Website"
+                  disabled={disabled}
+                  value={form.website}
+                  onChange={(e: any) => {
+                    setForm({ ...form, website: e.target.value })
+                    handleValidate('WEBSITE')
+                  }}
+                  onBlur={(e: any) => handleValidate('WEBSITE')}
+                  inputStatus={formInputStatus.website}
+                />
+              </article>
+            </BecomeSatelliteFormHorizontal>
+            {updateSatellite ? (
+              <label className="label">4 - Edit description</label>
+            ) : (
+              <label className="label">4 - Enter a description</label>
+            )}
+            <TextArea
+              placeholder="Your description here..."
+              value={form.description}
+              disabled={disabled}
+              onChange={(e: any) => {
+                setForm({ ...form, description: e.target.value })
+                handleValidate('DESCRIPTION')
+              }}
+              onBlur={(e: any) => handleValidate('DESCRIPTION')}
+              inputStatus={formInputStatus.description}
+            />
+            {updateSatellite ? (
+              <label className="label">5 - Edit your fee (%)</label>
+            ) : (
+              <label className="label">5 - Enter your fee (%)</label>
+            )}
+            <div className="input-fee-wrap">
+              <InputWithPercent
+                type="text"
+                placeholder="Fee"
+                disabled={disabled}
+                value={form.fee}
+                onBlur={(e: any) => handleValidate('FEE')}
+                inputStatus={disabled ? '' : formInputStatus.fee}
+                onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
+              />
+            </div>
+            <IPFSUploader
+              disabled={disabled}
+              typeFile="image"
+              imageIpfsUrl={form.image}
+              setIpfsImageUrl={(e: any) => {
+                setForm({ ...form, image: e })
+                setValidForm({ ...validForm, image: Boolean(e) })
+                setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
+              }}
+              title={'Upload your photo'}
+              listNumber={6}
+            />
+            <BecomeSatelliteButttons>
+              {updateSatellite && (
+                <Button
+                  icon="close-stroke"
+                  kind={ACTION_SECONDARY}
+                  disabled={disabled}
+                  text={'Unregister Satellite'}
+                  loading={loading}
+                  onClick={handleUnregisterSatellite}
+                />
+              )}
+              <Button
+                icon="satellite-stroke"
+                text={updateSatellite ? 'Update Satellite Info' : 'Become a satellite'}
+                loading={loading}
+                disabled={disabled}
+                kind={ACTION_PRIMARY}
+                onClick={handleSubmit}
+              />
+            </BecomeSatelliteButttons>
+          </BecomeSatelliteForm>
+        </div>
         <SatellitesSideBar isButton={false} />
       </PageContent>
     </Page>

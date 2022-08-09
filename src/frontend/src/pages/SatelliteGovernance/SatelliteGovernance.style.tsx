@@ -9,6 +9,7 @@ export const SlidingTabButtonsWrap = styled.div`
 
   > div {
     width: 100%;
+    justify-content: flex-end;
   }
 
   button {
