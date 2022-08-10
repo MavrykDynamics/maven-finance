@@ -123,13 +123,6 @@ export const FarmCard = ({
     </div>
   )
 
-  const multiplierBlock = (
-    <div className="farm-info">
-      <h3>Multiplier</h3>
-      <var>20x</var>
-    </div>
-  )
-
   const earnBlock = (
     <div className="farm-info">
       <h3>Earn</h3>
@@ -228,7 +221,7 @@ export const FarmCard = ({
             {unclaimedSMVKBlock}
             {aprBlock}
             {liquidityBlock}
-            {multiplierBlock}
+            {earnBlock}
           </>
         }
       >
