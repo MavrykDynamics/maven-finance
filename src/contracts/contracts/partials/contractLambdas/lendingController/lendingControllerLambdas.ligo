@@ -144,56 +144,6 @@ block {
 
 } with (noOperations, s)
 
-
-
-(* updateCollateralTokenLedger lambda *)
-function lambdaUpdateCollateralTokens(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
-block {
-
-    checkSenderIsAdmin(s); // check that sender is admin 
-
-    case lendingControllerLambdaAction of [
-        |   LambdaUpdateCollateralTokens(updateCollateralTokenLedgerParams) -> {
-                
-                const tokenName             : string       = updateCollateralTokenLedgerParams.tokenName;
-                const tokenContractAddress  : address      = updateCollateralTokenLedgerParams.tokenContractAddress;
-                const tokenType             : tokenType    = updateCollateralTokenLedgerParams.tokenType;
-                const decimals              : nat          = updateCollateralTokenLedgerParams.decimals;
-                const oracleType            : string       = updateCollateralTokenLedgerParams.oracleType;
-                var oracleAddress           : address     := updateCollateralTokenLedgerParams.oracleAddress;
-
-                if oracleType = "cfmm" then block {
-                    oracleAddress := zeroAddress;
-                } else skip;
-                
-                const collateralTokenRecord : collateralTokenRecordType = record [
-                    tokenName            = tokenName;
-                    tokenContractAddress = tokenContractAddress;
-                    tokenType            = tokenType;
-                    decimals             = decimals;
-                    oracleType           = oracleType;
-                    oracleAddress        = oracleAddress;
-                ];
-
-                const existingToken: option(collateralTokenRecordType) = 
-                if checkInCollateralTokenLedger(collateralTokenRecord, s) then (None : option(collateralTokenRecordType)) else Some (collateralTokenRecord);
-
-                const updatedCollateralTokenLedger : collateralTokenLedgerType = 
-                Map.update(
-                    tokenName, 
-                    existingToken,
-                    s.collateralTokenLedger
-                );
-
-                s.collateralTokenLedger := updatedCollateralTokenLedger
-
-            }
-        |   _ -> skip
-    ];
-
-
-} with (noOperations, s)
-
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -560,6 +510,62 @@ block {
 // ------------------------------------------------------------------------------
 // Vault Lambdas Begin
 // ------------------------------------------------------------------------------
+
+(* updateCollateralToken lambda *)
+function lambdaUpdateCollateralToken(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s: lendingControllerStorageType) : return is
+block {
+
+    checkSenderIsAdmin(s); // check that sender is admin 
+
+    case lendingControllerLambdaAction of [
+        |   LambdaUpdateCollateralToken(updateCollateralTokenParams) -> {
+                
+                const tokenName             : string       = updateCollateralTokenParams.tokenName;
+                const tokenContractAddress  : address      = updateCollateralTokenParams.tokenContractAddress;
+                const tokenId               : nat          = updateCollateralTokenParams.tokenId;
+                
+                const decimals              : nat          = updateCollateralTokenParams.decimals;
+                const oracleType            : string       = updateCollateralTokenParams.oracleType;
+                var oracleAddress           : address     := updateCollateralTokenParams.oracleAddress;
+
+                const tokenType             : tokenType    = updateCollateralTokenParams.tokenType;
+
+                if oracleType = "cfmm" then block {
+                    oracleAddress := zeroAddress;
+                } else skip;
+                
+                const collateralTokenRecord : collateralTokenRecordType = record [
+                    tokenName            = tokenName;
+                    tokenContractAddress = tokenContractAddress;
+                    tokenId              = tokenId;
+                    
+                    decimals             = decimals;
+                    oracleType           = oracleType;
+                    oracleAddress        = oracleAddress;
+
+                    tokenType            = tokenType;
+                ];
+
+                const existingToken: option(collateralTokenRecordType) = 
+                if checkInCollateralTokenLedger(collateralTokenRecord, s) then (None : option(collateralTokenRecordType)) else Some (collateralTokenRecord);
+
+                const updatedCollateralTokenLedger : collateralTokenLedgerType = 
+                    Map.update(
+                        tokenName, 
+                        existingToken,
+                        s.collateralTokenLedger
+                    );
+
+                s.collateralTokenLedger := updatedCollateralTokenLedger
+
+            }
+        |   _ -> skip
+    ];
+
+
+} with (noOperations, s)
+
+
 
 (* createVault lambda *)
 function lambdaCreateVault(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
