@@ -22,15 +22,6 @@
 // Aggregator Types - for lastCompletedRoundPriceReturnType
 #include "../partials/contractTypes/aggregatorTypes.ligo"
 
-// Doorman Types
-// #include "../partials/contractTypes/doormanTypes.ligo"
-
-// Vault Types
-// #include "../partials/contractTypes/vaultTypes.ligo"
-
-// Token Pool Types
-// #include "../partials/contractTypes/tokenPoolTypes.ligo"
-
 // Lending Controller Types
 #include "../partials/contractTypes/lendingControllerTypes.ligo"
 
@@ -58,7 +49,6 @@ type lendingControllerAction is
     |   UpdateWhitelistContracts        of updateWhitelistContractsType
     |   UpdateGeneralContracts          of updateGeneralContractsType
     |   UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsType
-    |   UpdateCollateralTokenLedger     of updateCollateralTokenLedgerActionType
 
         // Break Glass Entrypoints
     |   PauseAll                        of (unit)
@@ -71,6 +61,7 @@ type lendingControllerAction is
     |   RemoveLiquidity                 of removeLiquidityActionType 
 
         // Vault Entrypoints
+    |   UpdateCollateralToken           of updateCollateralTokenActionType
     |   CreateVault                     of createVaultActionType
     |   CloseVault                      of closeVaultActionType
     |   WithdrawFromVault               of withdrawFromVaultActionType
@@ -798,7 +789,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get token in collateral token ledger *)
-[@view] function viewGetTokenRecordByName(const tokenName : string; var s : lendingControllerStorageType) : option(collateralTokenRecordType) is
+[@view] function getColTokenRecordByNameOpt(const tokenName : string; var s : lendingControllerStorageType) : option(collateralTokenRecordType) is
     Map.find_opt(tokenName, s.collateralTokenLedger)
 
 
@@ -807,15 +798,15 @@ block {
 [@view] function getColTokenRecordByAddressOpt(const tokenContractAddress : address; var s : lendingControllerStorageType) : option(collateralTokenRecordType) is
 block {
 
-  var tokenName : string := "empty";
-  
-  for _key -> value in map s.collateralTokenLedger block {
-    if tokenContractAddress = value.tokenContractAddress then block {
-        tokenName := _key;
-    } else skip;
-  };
+    var tokenName : string := "empty";
+    
+    for _key -> value in map s.collateralTokenLedger block {
+        if tokenContractAddress = value.tokenContractAddress then block {
+            tokenName := _key;
+        } else skip;
+    };
 
-  const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
+    const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
 
 } with collateralTokenRecord
 
@@ -987,26 +978,6 @@ block {
 
 } with response
 
-
-
-(* UpdateCollateralTokenLedger Entrypoint *)
-function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: updateCollateralTokenLedgerActionType; var s : lendingControllerStorageType) : return is 
-block{
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCollateralTokenLedger"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateCollateralTokens(updateCollateralTokenLedgerParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
-
-} with response
-
-
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1146,6 +1117,25 @@ block {
 // ------------------------------------------------------------------------------
 // Vault Entrypoints Begin
 // ------------------------------------------------------------------------------
+
+(* updateCollateralToken entrypoint *)
+function updateCollateralToken(const updateCollateralTokenParams : updateCollateralTokenActionType ; var s : lendingControllerStorageType) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCollateralToken"] of [
+        |   Some(_v) -> _v
+        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init vault controller lambda action
+    const lendingControllerLambdaAction : lendingControllerLambdaActionType = LambdaUpdateCollateralToken(updateCollateralTokenParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, lendingControllerLambdaAction, s);  
+    
+} with response
+
+
 
 (* createVault entrypoint *)
 function createVault(const createVaultParams : createVaultActionType ; var s : lendingControllerStorageType) : return is 
@@ -1413,7 +1403,6 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
         |   UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
-        |   UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
 
             // Pause / Break Glass Entrypoints
         |   PauseAll(_parameters)                         -> pauseAll(s)
@@ -1426,6 +1415,7 @@ function main (const action : lendingControllerAction; const s : lendingControll
         |   RemoveLiquidity(parameters)                   -> removeLiquidity(parameters, s)
         
             // Vault Entrypoints
+        |   UpdateCollateralToken(parameters)             -> updateCollateralToken(parameters, s)
         |   CreateVault(parameters)                       -> createVault(parameters, s)
         |   CloseVault(parameters)                        -> closeVault(parameters, s)
         |   RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)

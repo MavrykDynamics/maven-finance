@@ -75,10 +75,13 @@ type collateralTokenRecordType is [@layout:comb] record [
 
     tokenName               : string;
     tokenContractAddress    : address;
-    tokenType               : tokenType; 
+    tokenId                 : nat;
+
     decimals                : nat; 
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
+
+    tokenType               : tokenType; 
 
 ]
 type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
@@ -144,7 +147,6 @@ type vaultRecordType is [@layout:comb] record [
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
     lastUpdatedTimestamp        : timestamp;                     // timestamp of when vault was last updated
     
-
 ]
 
 // owner types
@@ -207,16 +209,6 @@ type lendingControllerUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 
-type updateCollateralTokenLedgerActionType is [@layout:comb] record [
-    tokenName                   : string;
-    tokenContractAddress        : address;
-    tokenType                   : tokenType;
-    decimals                    : nat;
-    oracleType                  : string;
-    oracleAddress               : address;
-]
-
-
 type updateVaultTokenAddressesActionType is [@layout:comb] record [
     handle                      : vaultHandleType; 
 ]
@@ -257,6 +249,21 @@ type setLoanTokenActionType is [@layout:comb] record [
     // variants at the end for taquito 
     tokenType                               : tokenType; 
 ]
+
+
+type updateCollateralTokenActionType is [@layout:comb] record [
+
+    tokenName               : string;
+    tokenContractAddress    : address;
+    tokenId                 : nat;
+    
+    decimals                : nat; 
+    oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
+    oracleAddress           : address;   // zeroAddress if no oracle
+
+    tokenType               : tokenType; 
+]
+
 
 type withdrawFromVaultActionType is [@layout:comb] record [
     id                          : vaultIdType; 
@@ -355,7 +362,6 @@ type lendingControllerLambdaActionType is
     |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
     |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
     |   LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsType
-    |   LambdaUpdateCollateralTokens          of updateCollateralTokenLedgerActionType
 
         // Pause / Break Glass Lambdas
     |   LambdaPauseAll                        of (unit)
@@ -368,6 +374,7 @@ type lendingControllerLambdaActionType is
     |   LambdaRemoveLiquidity                 of removeLiquidityActionType
 
         // Vault Entrypoints
+    |   LambdaUpdateCollateralToken           of updateCollateralTokenActionType  
     |   LambdaCreateVault                     of createVaultActionType
     |   LambdaCloseVault                      of closeVaultActionType
     |   LambdaLiquidateVault                  of liquidateVaultActionType

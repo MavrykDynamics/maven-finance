@@ -29,31 +29,31 @@
     },
     {
         "index": 7,
-        "name": "lambdaUpdateCollateralTokens"
-    },
-    {
-        "index": 8,
         "name": "lambdaPauseAll"
     },
     {
-        "index": 9,
+        "index": 8,
         "name": "lambdaUnpauseAll"
     },
     {
-        "index": 10,
+        "index": 9,
         "name": "lambdaTogglePauseEntrypoint"
     },
     {
-        "index": 11,
+        "index": 10,
         "name": "lambdaSetLoanToken"
     },
     {
-        "index": 12,
+        "index": 11,
         "name": "lambdaAddLiquidity"
     },
     {
-        "index": 13,
+        "index": 12,
         "name": "lambdaRemoveLiquidity"
+    },
+    {
+        "index": 13,
+        "name": "lambdaUpdateCollateralToken"
     },
     {
         "index": 14,
