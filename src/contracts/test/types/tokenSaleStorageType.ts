@@ -14,14 +14,14 @@ export type tokenSaleStorageType = {
   tokenSaleLedger           : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistedAddresses      : MichelsonMap<MichelsonMapKey, unknown>;
 
-  whitelistStartTimestamp    : Date;
-  whitelistEndTimestamp      : Date;
+  whitelistStartTimestamp   : String;
+  whitelistEndTimestamp     : String;
 
   tokenSaleHasStarted       : boolean;
   tokenSaleHasEnded         : boolean;
   tokenSalePaused           : boolean;
 
-  tokenSaleEndTimestamp     : Date;
+  tokenSaleEndTimestamp     : String;
   tokenSaleEndBlockLevel    : BigNumber;
   
 }

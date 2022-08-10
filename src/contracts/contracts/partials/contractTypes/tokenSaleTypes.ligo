@@ -6,8 +6,8 @@ type tokenSaleOptionType is [@layout:comb] record [
     whitelistMaxAmountTotal     : nat;
     maxAmountCap                : nat;
     vestingInMonths             : nat;
-    tezPerToken                 : tez;
-    minTezAmount                : tez;
+    tokenXtzPrice               : tez;
+    minXtzAmount                : tez;
     totalBought                 : nat;
 ]
 type tokenSaleConfigType is [@layout:comb] record [
@@ -45,12 +45,12 @@ type buyTokensType is [@layout:comb] record [
 
 type tokenSaleUpdateConfigNewValueType is nat
 type tokenSaleUpdateConfigActionType is
-        MaxAmountPerWalletTotal       of nat
-    |   WhitelistMaxAmountTotal       of nat
-    |   MaxAmountCap                  of nat
-    |   VestingInMonths               of nat
-    |   TezPerToken                   of nat
-    |   MinTezAmount                  of nat
+        ConfigMaxAmountPerWalletTotal       of nat
+    |   ConfigWhitelistMaxAmountTotal       of nat
+    |   ConfigMaxAmountCap                  of nat
+    |   ConfigVestingInMonths               of nat
+    |   ConfigTokenXtzPrice                   of nat
+    |   ConfigMinXtzAmount                  of nat
 
 type tokenSaleUpdateConfigParamsType is [@layout:comb] record [
     updateConfigNewValue  : tokenSaleUpdateConfigNewValueType; 

@@ -123,20 +123,20 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
 
 #         # Operation
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         print('--%addVestee--')
 #         print('✅ Whitelist contract should able to call this entrypoint')
@@ -146,11 +146,11 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
+#         totalConfigVestingInMonths        = 24
 
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED):
-#             self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=alice)
+#             self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=init_vesting_storage, sender=alice)
 
 #         print('✅ Other contracts should not be able to call this entrypoint')
 
@@ -159,24 +159,24 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
 
 #         # Operation
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Final operation
 #         with self.raisesMichelsonError(error_codes.error_VESTEE_ALREADY_EXISTS):
-#             self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#             self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         print('✅ Whitelist contract should not be able to call this entrypoint if the vestee already exists')
 
@@ -188,18 +188,18 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
         
 #         # Operation
 #         res = self.vestingContract.removeVestee(bob).interpret(storage=res.storage, sender=bob)
@@ -215,17 +215,17 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 
 #         # Storage preparation
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=init_vesting_storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
         
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED):
@@ -254,18 +254,18 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 #         self.assertEqual("ACTIVE", res.storage['vesteeLedger'][bob]['status'])
         
 #         # Operation
@@ -288,19 +288,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=res.storage, sender=bob);
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 #         self.assertEqual("ACTIVE", res.storage['vesteeLedger'][bob]['status'])
         
 #         # Operation
@@ -330,31 +330,31 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 #         newTotalVestedAmount        = self.MVK(3000000)
 #         newTotalCliffInMonths       = 2
-#         newTotalVestingInMonths     = 24
-#         newTotalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths       
+#         newTotalConfigVestingInMonths     = 24
+#         newTotalClaimAmountPerMonth = totalVestedAmount // totalConfigVestingInMonths       
         
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
-#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(newTotalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(newTotalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         print('--%updateVestee--')
 #         print('✅ Whitelist contract should able to call this entrypoint')
@@ -364,26 +364,26 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 #         newTotalVestedAmount        = self.MVK(3000000)
 #         newTotalCliffInMonths       = 2
-#         newTotalVestingInMonths     = 24
+#         newTotalConfigVestingInMonths     = 24
         
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=res.storage, sender=bob);
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED):
-#             self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=alice)
+#             self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalConfigVestingInMonths).interpret(storage=res.storage, sender=alice)
 
 #         print('✅ Other contracts should not be able to call this entrypoint')
     
@@ -392,14 +392,14 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         newTotalVestedAmount        = self.MVK(3000000)
 #         newTotalCliffInMonths       = 2
-#         newTotalVestingInMonths     = 24
+#         newTotalConfigVestingInMonths     = 24
         
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
 
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_VESTEE_NOT_FOUND):
-#             self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#             self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
     
 #         print('✅ Whitelist contract should not be able to call this entrypoint if the vestee does not exist')
 
@@ -411,19 +411,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
 #         currentTimestamp            = pytezos.now()
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
@@ -439,19 +439,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
 #         currentTimestamp            = pytezos.now()
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
@@ -470,19 +470,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
 #         currentTimestamp            = pytezos.now()
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
@@ -498,19 +498,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
 #         currentTimestamp            = pytezos.now()
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
@@ -520,14 +520,14 @@
 #         # Update process
 #         newTotalVestedAmount        = self.MVK(4000000)
 #         newTotalCliffInMonths       = 1
-#         newTotalVestingInMonths     = 12
+#         newTotalConfigVestingInMonths     = 12
 
-#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(newTotalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
@@ -542,19 +542,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 0
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
 #         currentTimestamp            = pytezos.now()
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
@@ -564,14 +564,14 @@
 #         # Update process
 #         newTotalVestedAmount        = self.MVK(4000000)
 #         newTotalCliffInMonths       = 0
-#         newTotalVestingInMonths     = 12
+#         newTotalConfigVestingInMonths     = 12
 
-#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(newTotalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
@@ -586,19 +586,19 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 4
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths  
 #         currentTimestamp            = pytezos.now()
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
@@ -608,14 +608,14 @@
 #         # Update process
 #         newTotalVestedAmount        = self.MVK(4000000)
 #         newTotalCliffInMonths       = 10
-#         newTotalVestingInMonths     = 12
+#         newTotalConfigVestingInMonths     = 12
 
-#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
+#         res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalConfigVestingInMonths).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(newTotalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
@@ -630,20 +630,20 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 #         currentTimestamp            = pytezos.now()
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
 
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         with self.raisesMichelsonError(error_codes.error_VESTEE_NOT_FOUND):
@@ -656,21 +656,21 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 #         currentTimestamp            = pytezos.now()
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
         
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 #         res = self.vestingContract.toggleVesteeLock(bob).interpret(storage=res.storage, sender=bob)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 #         self.assertEqual("LOCKED", res.storage['vesteeLedger'][bob]['status'])
 
 #         # Operation
@@ -684,20 +684,20 @@
 #         init_vesting_storage        = deepcopy(self.vestingStorage)
 #         totalVestedAmount           = self.MVK(3000000)
 #         totalCliffInMonths          = 2
-#         totalVestingInMonths        = 24
-#         totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
+#         totalConfigVestingInMonths        = 24
+#         totalClaimAmountPerMonth    = totalVestedAmount // totalConfigVestingInMonths
 #         currentTimestamp            = pytezos.now()
 #         firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
         
 #         # Storage preparation
 #         res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
+#         res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalConfigVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
 
 #         # Assertions
 #         self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
 #         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
 #         self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-#         self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+#         self.assertEqual(totalConfigVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
 
 #         # Operation
 #         res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff)
