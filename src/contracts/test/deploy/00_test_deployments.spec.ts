@@ -52,6 +52,7 @@ import { MvkToken } from '../helpers/mvkHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
 import { LPToken } from "../helpers/testLPHelper"
+import { TokenSale } from "../helpers/tokenSaleHelper"
 
 
 // ------------------------------------------------------------------------------
@@ -84,6 +85,7 @@ import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage";
+import { tokenSaleStorage } from "../../storage/tokenSaleStorage";
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -114,6 +116,7 @@ describe('Contracts Deployment for Tests', async () => {
   var lpToken: LPToken;
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+  var tokenSale: TokenSale
   var tezos
   
 
@@ -315,6 +318,17 @@ describe('Contracts Deployment for Tests', async () => {
         utils.tezos,
         mockFa12TokenStorage
       )
+  
+      tokenSaleStorage.governanceAddress  = governance.contract.address
+      tokenSaleStorage.mvkTokenAddress    = mvkToken.contract.address
+      tokenSaleStorage.treasuryAddress    = treasury.contract.address
+      tokenSale = await TokenSale.originate(
+        utils.tezos,
+        tokenSaleStorage
+      );
+  
+      await saveContractAddress("tokenSaleAddress", tokenSale.contract.address)
+      console.log("Token Sale Contract deployed at:", tokenSale.contract.address);
   
       await saveContractAddress('mockFa12TokenAddress', mockFa12Token.contract.address)
       console.log('Mock FA12 Token Contract deployed at:', mockFa12Token.contract.address)
