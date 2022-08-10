@@ -14,8 +14,8 @@ export type tokenSaleStorageType = {
   tokenSaleLedger           : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistedAddresses      : MichelsonMap<MichelsonMapKey, unknown>;
 
-  whitelistStartDateTime    : Date;
-  whitelistEndDateTime      : Date;
+  whitelistStartTimestamp    : Date;
+  whitelistEndTimestamp      : Date;
 
   tokenSaleHasStarted       : boolean;
   tokenSaleHasEnded         : boolean;
@@ -23,9 +23,5 @@ export type tokenSaleStorageType = {
 
   tokenSaleEndTimestamp     : Date;
   tokenSaleEndBlockLevel    : BigNumber;
-
-  optionOneBoughtTotal      : BigNumber;
-  optionTwoBoughtTotal      : BigNumber;
-  optionThreeBoughtTotal    : BigNumber;
   
 }

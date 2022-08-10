@@ -1,67 +1,31 @@
-
-// Treasury Transfer Types
-#include "../../partials/functionalTypes/treasuryTransferTypes.ligo"
-
-
 type userAddressType                is address 
 type metadataType                   is big_map (string, bytes);
 
+type tokenSaleOptionType is [@layout:comb] record [
+    maxAmountPerWalletTotal     : nat;
+    whitelistMaxAmountTotal     : nat;
+    maxAmountCap                : nat;
+    vestingInMonths             : nat;
+    tezPerToken                 : tez;
+    minTezAmount                : tez;
+    totalBought                 : nat;
+]
 type tokenSaleConfigType is [@layout:comb] record [
-
-    maxAmountOptionOnePerWalletTotal      : nat; 
-    maxAmountOptionTwoPerWalletTotal      : nat; 
-    maxAmountOptionThreePerWalletTotal    : nat; 
-
-    whitelistMaxAmountOptionOneTotal      : nat; 
-    whitelistMaxAmountOptionTwoTotal      : nat; 
-    whitelistMaxAmountOptionThreeTotal    : nat; 
-
-    optionOneMaxAmountCap                 : nat;    
-    optionTwoMaxAmountCap                 : nat;    
-    optionThreeMaxAmountCap               : nat;    
-
-    vestingOptionOneInMonths              : nat;   // 7
-    vestingOptionTwoInMonths              : nat;   // 9  
-    vestingOptionThreeInMonths            : nat;   // 13  
-
-    optionOneTezPerToken                  : nat;
-    optionTwoTezPerToken                  : nat;
-    optionThreeTezPerToken                : nat;
-
-    minOptionOneAmountInTez               : nat;
-    minOptionTwoAmountInTez               : nat;
-    minOptionThreeAmountInTez             : nat;
-
-    blocksPerMinute                       : nat;
+    buyOptions  : map(nat, tokenSaleOptionType);
+    empty       : unit;
 ]
 
 type whitelistedAddressesType is big_map(userAddressType, bool)
 
-type tokenSaleRecordType is [@layout:comb] record [
-  
-    optionOneBought                   : nat;
-    optionTwoBought                   : nat;
-    optionThreeBought                 : nat;
-
-    optionOneClaimedAmount            : nat;
-    optionTwoClaimedAmount            : nat;
-    optionThreeClaimedAmount          : nat;
-
-    optionOneTimesClaimed             : nat;
-    optionTwoTimesClaimed             : nat;
-    optionThreeTimesClaimed           : nat;
-
-    optionOneLastClaimed              : timestamp;
-    optionTwoLastClaimed              : timestamp;
-    optionThreeLastClaimed            : timestamp;
-
-    optionOneLastClaimedBlockLevel    : nat;
-    optionTwoLastClaimedBlockLevel    : nat;
-    optionThreeLastClaimedBlockLevel  : nat;
-
+type tokenSaleUserOptionType is [@layout:comb] record [
+    tokenBought         : nat;
+    tokenClaimed        : nat;
+    claimCounter        : nat;
+    lastClaimTimestamp  : timestamp;
+    lastClaimLevel      : nat;
 ]
+type tokenSaleRecordType is map(nat, tokenSaleUserOptionType)
 type tokenSaleLedgerType is big_map(userAddressType, tokenSaleRecordType)
-
 
 // ------------------------------------------------------------------------------
 // Action Types
@@ -74,59 +38,35 @@ type updateMetadataType is [@layout:comb] record [
 
 type updateWhitelistAddressesType is list(address)
 
-type optionType is 
-  OptionOne     of unit
-| OptionTwo     of unit
-| OptionThree   of unit 
-
 type buyTokensType is [@layout:comb] record [
-  amount        : nat;
-  tokenOption   : optionType;
+    amount          : nat;
+    buyOption       : nat;
 ]
 
 type tokenSaleUpdateConfigNewValueType is nat
-type tokenSaleUpdateConfigActionType is 
-  MaxAmountOptOnePerWalletTotal         of unit
-| MaxAmountOptTwoPerWalletTotal         of unit
-| MaxAmountOptThreePerWalletTotal       of unit
-
-| WhitelistMaxAmountOptOneTotal         of unit
-| WhitelistMaxAmountOptTwoTotal         of unit
-| WhitelistMaxAmountOptThreeTotal       of unit
-
-| OptionOneMaxAmountCap                 of unit
-| OptionTwoMaxAmountCap                 of unit
-| OptionThreeMaxAmountCap               of unit
-
-| VestingOptionOneInMonths              of unit
-| VestingOptionTwoInMonths              of unit
-| VestingOptionThreeInMonths            of unit
-
-| OptionOneTezPerToken                  of unit
-| OptionTwoTezPerToken                  of unit
-| OptionThreeTezPerToken                of unit
-
-| MinOptionOneAmountInTez               of unit
-| MinOptionTwoAmountInTez               of unit
-| MinOptionThreeAmountInTez             of unit
-
-| BlocksPerMinute                       of unit
+type tokenSaleUpdateConfigActionType is
+        MaxAmountPerWalletTotal       of nat
+    |   WhitelistMaxAmountTotal       of nat
+    |   MaxAmountCap                  of nat
+    |   VestingInMonths               of nat
+    |   TezPerToken                   of nat
+    |   MinTezAmount                  of nat
 
 type tokenSaleUpdateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : tokenSaleUpdateConfigNewValueType; 
-  updateConfigAction    : tokenSaleUpdateConfigActionType;
+    updateConfigNewValue  : tokenSaleUpdateConfigNewValueType; 
+    updateConfigAction    : tokenSaleUpdateConfigActionType;
 ]
 
-type setWhitelistDateTimeActionType is [@layout:comb] record [
-  whitelistStartDateTime  : timestamp; 
-  whitelistEndDateTime    : timestamp;
+type setWhitelistTimestampActionType is [@layout:comb] record [
+    whitelistStartTimestamp  : timestamp; 
+    whitelistEndTimestamp    : timestamp;
 ]
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
-type tokenSaleStorage is record [
+type tokenSaleStorageType is record [
 
     admin                       : address;
     metadata                    : metadataType;
@@ -139,8 +79,8 @@ type tokenSaleStorage is record [
     whitelistedAddresses        : whitelistedAddressesType;
     tokenSaleLedger             : tokenSaleLedgerType;
 
-    whitelistStartDateTime      : timestamp;
-    whitelistEndDateTime        : timestamp;
+    whitelistStartTimestamp     : timestamp;
+    whitelistEndTimestamp       : timestamp;
 
     tokenSaleHasStarted         : bool;
     tokenSaleHasEnded           : bool;
@@ -149,7 +89,4 @@ type tokenSaleStorage is record [
     tokenSaleEndTimestamp       : timestamp;
     tokenSaleEndBlockLevel      : nat;
 
-    optionOneBoughtTotal        : nat;
-    optionTwoBoughtTotal        : nat;
-    optionThreeBoughtTotal      : nat;
 ]
