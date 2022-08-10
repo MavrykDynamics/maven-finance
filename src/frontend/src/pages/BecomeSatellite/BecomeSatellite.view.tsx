@@ -199,7 +199,7 @@ export const BecomeSatelliteView = ({
               text={
                 !accountPkh
                   ? 'Please connect your wallet'
-                  : `To become a satellite you need to stake ${myTotalStakeBalance} MVK`
+                  : `To become a satellite you need to stake ${satelliteConfig.minimumStakedMvkBalance} MVK`
               }
               type="warning"
             />
