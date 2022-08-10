@@ -1,5 +1,9 @@
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
+
+// types
+import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
@@ -9,6 +13,33 @@ import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/D
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { hideModal } from '../../app/App.components/Modal/Modal.actions'
 
+export const GET_FARM_CONTRACTS = 'GET_FARM_CONTRACTS'
+export const getFarmsContracts = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  const { farmStorage } = state.farm
+  const requests = [
+    'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
+    'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
+  ]
+  const urls = farmStorage.map(
+    (item: FarmStorage) => `https://api.tzkt.io/v1/contracts/${item.lpTokenAddress}`,
+  ) as string[]
+  console.log('%c ||||| urls', 'color:yellowgreen', urls)
+  try {
+    const farmContracts = (await Promise.all(requests.map((url) => fetch(url))).then(async (res) => {
+      return Promise.all(res.map(async (data) => await data.json()))
+    })) as FarmContractType[]
+
+    await dispatch({
+      type: GET_FARM_CONTRACTS,
+      farmContracts,
+    })
+  } catch (error) {
+    console.log('error getFarmsContracts', error)
+  }
+}
+
 export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -17,14 +48,16 @@ export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, get
   const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
   const convertedFarmStorage = storageToTypeConverter('farm', storage?.farm)
   const convertedFarmFactoryStorage = storageToTypeConverter('farmFactory', storage?.farm_factory[0])
-  dispatch({
+  await dispatch({
     type: GET_FARM_STORAGE,
     farmStorage: convertedFarmStorage,
   })
-  dispatch({
+  await dispatch({
     type: GET_FARM_FACTORY_STORAGE,
     farmFactoryStorage: convertedFarmFactoryStorage,
   })
+
+  await dispatch(getFarmsContracts())
 }
 
 export const GET_FARM_FACTORY_STORAGE = 'GET_FARM_FACTORY_STORAGE'
