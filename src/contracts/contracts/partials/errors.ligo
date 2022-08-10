@@ -1016,7 +1016,7 @@
 [@inline] const error_ONLY_TOKEN_SALE_CONTRACT_ALLOWED                                                                  = 737n;
 
 // CONTRACT SPECIFIC ERRORS
-[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                                                            = 738n;
+[@inline] const error_MVK_PAY_AMOUNT_NOT_MET                                                                            = 738n;
 [@inline] const error_MIN_TEZ_AMOUNT_NOT_REACHED                                                                        = 739n;
 [@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                                                                        = 740n;
 [@inline] const error_TOKEN_SALE_HAS_ENDED                                                                              = 741n;
