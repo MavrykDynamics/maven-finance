@@ -1,4 +1,6 @@
-import * as React from 'react'
+// type
+import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect, useState } from 'react'
@@ -27,25 +29,26 @@ export const Farms = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { farmStorage } = useSelector((state: State) => state.farm)
-  const { farmFactoryStorage } = useSelector((state: State) => state.farmFactory)
-  const { trackedFarms } = farmFactoryStorage
-  const [farmsList, setFarmsList] = useState(trackedFarms)
+  const { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
+  const [farmsList, setFarmsList] = useState(farmStorage)
   const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false)
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
   const [farmsViewVariant, setFarmsViewVariant] = useState<FarmsViewVariantType>('vertical')
 
-  console.log('%c ||||| farmsList', 'color:yellowgreen', farmsList)
-
   useEffect(() => {
     dispatch(getFarmStorage())
-    // dispatch(getFarmFactoryStorage())
   }, [dispatch])
 
-  const handleToggleStakedFarmsOnly = () => {
-    setStakeFarmsOnly(!stakedFarmsOnly)
-    console.log('Here in handleToggleStakedFarmsOnly')
+  const handleToggleStakedFarmsOnly = (e?: any) => {
+    if (e?.target?.checked) {
+      const filteredStakeOnly = farmsList.filter(
+        (item) => item.farmAccounts?.length && item.farmAccounts.some((account) => account?.deposited_amount > 0),
+      )
+      setFarmsList(filteredStakeOnly)
+    } else {
+      setFarmsList(farmStorage)
+    }
   }
 
   const handleSetFarmsViewVariant = (variant: FarmsViewVariantType) => {
@@ -99,7 +102,11 @@ export const Farms = () => {
               className={farmsViewVariant}
             />
             <section className={`farm-list ${farmsViewVariant}`}>
-              {farmsList.map((farm: any, index: number) => {
+              {farmsList.map((farm: FarmStorage, index: number) => {
+                // const lpTokenBalance = farm.lpTokenBalance || ''
+                const lpTokenBalance = 'KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG'
+                const farmContract = farmContracts.find((item) => item.address === lpTokenBalance)
+                console.log('%c ||||| farmContract', 'color:yellowgreen', farmContract)
                 return (
                   <FarmCard
                     variant={farmsViewVariant}
@@ -110,7 +117,7 @@ export const Farms = () => {
                     currentRewardPerBlock={farm.currentRewardPerBlock}
                     firstToken={'MVK'}
                     secondToken={'USDM'}
-                    lpToken={'Plenty LP'}
+                    lpToken={farmContract?.creator.alias || ''}
                     firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
                     secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
                     totalLiquidity={1231243}

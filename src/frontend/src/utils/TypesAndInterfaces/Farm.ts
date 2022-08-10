@@ -32,3 +32,36 @@ export interface FarmStorage {
   withdrawPaused: boolean
   farmAccounts: FarmAccountsType[]
 }
+
+export type TzipsType = 'fa1' | 'fa12' | 'fa2'
+
+export type FarmContractType = {
+  id: number
+  type: string
+  address: string
+  kind: string
+  tzips: TzipsType[]
+  alias: string
+  balance: number
+  creator: {
+    alias: string
+    address: string
+  }
+  numContracts: number
+  activeTokensCount: number
+  tokenBalancesCount: number
+  tokenTransfersCount: number
+  numDelegations: number
+  numOriginations: number
+  numTransactions: number
+  numReveals: number
+  numMigrations: number
+  transferTicketCount: number
+  firstActivity: number
+  firstActivityTime: string
+  lastActivity: number
+  lastActivityTime: string
+  typeHash: number
+  codeHash: number
+}
+
