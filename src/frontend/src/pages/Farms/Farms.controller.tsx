@@ -103,10 +103,8 @@ export const Farms = () => {
             />
             <section className={`farm-list ${farmsViewVariant}`}>
               {farmsList.map((farm: FarmStorage, index: number) => {
-                // const lpTokenBalance = farm.lpTokenBalance || ''
-                const lpTokenBalance = 'KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG'
-                const farmContract = farmContracts.find((item) => item.address === lpTokenBalance)
-                console.log('%c ||||| farmContract', 'color:yellowgreen', farmContract)
+                const lpTokenAddress = farm.lpTokenAddress || ''
+                const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
                 return (
                   <FarmCard
                     variant={farmsViewVariant}

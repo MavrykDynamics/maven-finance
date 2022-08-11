@@ -18,22 +18,33 @@ export const getFarmsContracts = (accountPkh?: string) => async (dispatch: any, 
   const state: State = getState()
 
   const { farmStorage } = state.farm
-  const requests = [
-    'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
-    'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
-  ]
+  // const requests = [
+  //   'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
+  //   'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
+  // ]
   const urls = farmStorage.map(
-    (item: FarmStorage) => `https://api.tzkt.io/v1/contracts/${item.lpTokenAddress}`,
+    (item: FarmStorage) => `${process.env.REACT_APP_RPC_TZKT_API}/v1/contracts/${item.lpTokenAddress}`,
   ) as string[]
-  console.log('%c ||||| urls', 'color:yellowgreen', urls)
+
   try {
-    const farmContracts = (await Promise.all(requests.map((url) => fetch(url))).then(async (res) => {
+    const farmContracts = (await Promise.all(urls.map((url) => fetch(url))).then(async (res) => {
       return Promise.all(res.map(async (data) => await data.json()))
     })) as FarmContractType[]
 
+    // TODO remore after test
+    const testData = farmContracts.map((item) => {
+      return {
+        ...item,
+        creator: {
+          ...item.creator,
+          alias: 'Test provider distributer',
+        },
+      }
+    })
+
     await dispatch({
       type: GET_FARM_CONTRACTS,
-      farmContracts,
+      farmContracts: testData,
     })
   } catch (error) {
     console.log('error getFarmsContracts', error)
