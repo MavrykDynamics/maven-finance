@@ -31,6 +31,7 @@ export const Farms = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
   const [farmsList, setFarmsList] = useState(farmStorage)
+  const [toggleChecked, setToggleChecked] = useState(false)
   const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false)
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
@@ -41,8 +42,10 @@ export const Farms = () => {
   }, [dispatch])
 
   const handleToggleStakedFarmsOnly = (e?: any) => {
+    setSearchValue('')
+    setToggleChecked(e?.target?.checked)
     if (e?.target?.checked) {
-      const filteredStakeOnly = farmsList.filter(
+      const filteredStakeOnly = farmStorage.filter(
         (item) => item.farmAccounts?.length && item.farmAccounts.some((account) => account?.deposited_amount > 0),
       )
       setFarmsList(filteredStakeOnly)
@@ -58,7 +61,9 @@ export const Farms = () => {
   const handleLiveFinishedToggleButtons = () => {
     console.log('Here in handleLiveFinishedToggleButtons')
   }
+
   const handleOnSearch = (text: string) => {
+    setToggleChecked(false)
     setSearchValue(text)
     const filteredFarmsList = farmStorage.filter((farm) => {
       const isIncludesTokenAddress = farm.lpTokenAddress.includes(text)
@@ -107,6 +112,7 @@ export const Farms = () => {
           handleLiveFinishedToggleButtons={handleLiveFinishedToggleButtons}
           handleSetFarmsViewVariant={handleSetFarmsViewVariant}
           className={farmsViewVariant}
+          toggleChecked={toggleChecked}
         />
         {farmsList?.length ? (
           <>

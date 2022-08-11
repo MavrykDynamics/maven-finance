@@ -23,6 +23,7 @@ export type FarmTopBarViewProps = {
   searchValue: string
   onSearch: (val: string) => void
   onSort: (val: string) => void
+  toggleChecked: boolean
 }
 
 const LIVE_FINISHED_TABS = [
@@ -39,6 +40,7 @@ export const FarmTopBar = ({
   onSort,
   handleSetFarmsViewVariant,
   className,
+  toggleChecked,
 }: FarmTopBarViewProps) => {
   const itemsForDropDown = [
     { text: 'LP Balance', value: 'lpBalance' },
@@ -60,7 +62,13 @@ export const FarmTopBar = ({
 
   return (
     <FarmTopBarStyled className={className}>
-      <Toggle disabled={!ready} onChange={handleToggleStakedOnly} className="farm-toggle" sufix="Staked Only" />
+      <Toggle
+        checked={toggleChecked}
+        disabled={!ready}
+        onChange={handleToggleStakedOnly}
+        className="farm-toggle"
+        sufix="Staked Only"
+      />
       <SlidingTabButtons tabItems={LIVE_FINISHED_TABS} className="tab-bar" onClick={handleLiveFinishedToggleButtons} />
       <Input
         type="text"
