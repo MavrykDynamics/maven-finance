@@ -140,6 +140,7 @@ describe('Contracts Deployment for Tests', async () => {
 
   var lpTokenPoolMockFa12Token : TokenPoolLpToken;
   var lpTokenPoolMockFa2Token : TokenPoolLpToken;
+  var lpTokenPoolXtz : TokenPoolLpToken;
 
   // var usdmToken : UsdmToken
   // var usdmTokenController : UsdmTokenController
@@ -406,7 +407,17 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
 
 
+      lendingControllerStorage.mvkTokenAddress     = mvkToken.contract.address
+      lendingControllerStorage.governanceAddress   = governance.contract.address
+      lendingController = await LendingController.originate(utils.tezos,lendingControllerStorage);
+
+      await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
+      console.log('Lending Controller Contract deployed at:', lendingController.contract.address)
+
       // LP Token for Mock FA12 Token in Lending Controller Token Pool 
+      tokenPoolLpTokenStorage.whitelistContracts = MichelsonMap.fromLiteral({
+        "lendingController"     : lendingController.contract.address
+      })
       lpTokenPoolMockFa12Token = await TokenPoolLpToken.originate(
         utils.tezos,
         tokenPoolLpTokenStorage
@@ -423,13 +434,16 @@ describe('Contracts Deployment for Tests', async () => {
   
       await saveContractAddress("lpTokenPoolMockFa2TokenAddress", lpTokenPoolMockFa2Token.contract.address)
       console.log("LP Token Pool Mock Fa2 Token Contract deployed at:", lpTokenPoolMockFa2Token.contract.address);
-  
-      lendingControllerStorage.mvkTokenAddress     = mvkToken.contract.address
-      lendingControllerStorage.governanceAddress   = governance.contract.address
-      lendingController = await LendingController.originate(utils.tezos,lendingControllerStorage);
 
-      await saveContractAddress('lendingControllerAddress', lendingController.contract.address)
-      console.log('Lending Controller Contract deployed at:', lendingController.contract.address)
+      // LP Token for XTZ in Lending Controller Token Pool 
+      lpTokenPoolXtz= await TokenPoolLpToken.originate(
+        utils.tezos,
+        tokenPoolLpTokenStorage
+      );
+  
+      await saveContractAddress("lpTokenPoolXtzAddress", lpTokenPoolXtz.contract.address)
+      console.log("LP Token Pool XTZ Contract deployed at:", lpTokenPoolXtz.contract.address);
+  
 
 
       // usdmToken = await UsdmToken.originate(

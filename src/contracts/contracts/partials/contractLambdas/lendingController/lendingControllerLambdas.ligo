@@ -382,8 +382,6 @@ block {
 (* addLiquidity lambda *)
 function lambdaAddLiquidity(const lendingControllerLambdaAction : lendingControllerLambdaActionType; var s : lendingControllerStorageType) : return is
 block {
-    
-    checkNoAmount(Unit);        // entrypoint should not receive any tez amount  
 
     // init operations
     var operations : list(operation) := nil;
@@ -392,39 +390,71 @@ block {
         |   LambdaAddLiquidity(addLiquidityParams) -> {
                 
                 // init variables for convenience
-                const tokenName           : string              = addLiquidityParams.tokenName;
-                const tokensDeposited     : nat                 = addLiquidityParams.tokensDeposited;
-                const owner               : address             = addLiquidityParams.owner; 
+                const loanTokenName       : string              = addLiquidityParams.loanTokenName;
+                const amount              : nat                 = addLiquidityParams.amount;
+                const initiator           : address             = Tezos.get_sender();
 
                 // Get Token Record
-                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
+                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record 
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // update pool totals
-                tokenRecord.tokenPoolTotal  := tokenRecord.tokenPoolTotal + tokensDeposited;
-                tokenRecord.lpTokensTotal   := tokenRecord.lpTokensTotal + tokensDeposited;
+                tokenRecord.tokenPoolTotal  := tokenRecord.tokenPoolTotal + amount;
+                tokenRecord.lpTokensTotal   := tokenRecord.lpTokensTotal + amount;
 
                 const tokenId                   : nat       = tokenRecord.tokenId;
                 const tokenContractAddress      : address   = tokenRecord.tokenContractAddress;
                 const lpTokenContractAddress    : address   = tokenRecord.lpTokenContractAddress;
 
                 // Update Token Ledger
-                s.loanTokenLedger[tokenName] := tokenRecord;
+                s.loanTokenLedger[loanTokenName] := tokenRecord;
 
-                // send token from sender to token pool
-                const sendTokenToPoolOperation : operation = transferFa2Token(
-                    Tezos.get_sender(),         // from_
-                    Tezos.get_self_address(),   // to_
-                    tokensDeposited,            // token amount
-                    tokenId,                    // token id
-                    tokenContractAddress        // token contract address
-                );
-                operations := sendTokenToPoolOperation # operations;
+                case tokenRecord.tokenType of [
+
+                    |   Tez(_tez) -> block{
+                    
+                            // send tez from sender to Lending Controller token pool
+                            const sendTezToPoolOperation : operation = transferTez( (Tezos.get_contract_with_error(Tezos.get_self_address(), "Error. Unable to send tez.") : contract(unit)), amount * 1mutez );
+                            operations := sendTezToPoolOperation # operations;
+
+                        }
+
+                    |   Fa12(_token) -> block {
+
+                            checkNoAmount(Unit);
+
+                            // send token from sender to Lending Controller token pool
+                            const sendTokenToPoolOperation : operation = transferFa12Token(
+                                initiator,                  // from_
+                                Tezos.get_self_address(),   // to_
+                                amount,                     // token amount
+                                tokenContractAddress        // token contract address
+                            );
+                            operations := sendTokenToPoolOperation # operations;
+
+                        }
+
+                    |   Fa2(_token) -> block {
+
+                            checkNoAmount(Unit);
+
+                            // send token from sender to Lending Controller token pool
+                            const sendTokenToPoolOperation : operation = transferFa2Token(
+                                initiator,                  // from_
+                                Tezos.get_self_address(),   // to_
+                                amount,                     // token amount
+                                tokenId,                    // token id
+                                tokenContractAddress        // token contract address
+                            );
+                            operations := sendTokenToPoolOperation # operations;
+
+                        }
+                ];
 
                 // mint LP Tokens and send to sender
-                const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(owner, int(tokensDeposited), lpTokenContractAddress);
+                const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(initiator, int(amount), lpTokenContractAddress);
                 operations := mintLpTokensTokensOperation # operations;
 
             }
@@ -448,12 +478,12 @@ block {
         |   LambdaRemoveLiquidity(removeLiquidityParams) -> {
                 
                 // init variables for convenience
-                const tokenName             : string    = removeLiquidityParams.tokenName;
-                const tokensWithdrawn       : nat       = removeLiquidityParams.tokensWithdrawn;
+                const loanTokenName         : string    = removeLiquidityParams.loanTokenName;
+                const amount                : nat       = removeLiquidityParams.amount;
                 const initiator             : address   = Tezos.get_sender();
 
                 // Get Token Record
-                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[tokenName] of [
+                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record 
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
@@ -464,36 +494,64 @@ block {
                 
                 const lpTokenContractAddress    : address   = tokenRecord.lpTokenContractAddress;
                 const lpTokensTotal             : nat       = tokenRecord.lpTokensTotal;
-                const lpTokensBurned            : nat       = tokensWithdrawn;
+                const lpTokensBurned            : nat       = amount;
 
                 // calculate new total of LP Tokens
                 if lpTokensBurned > lpTokensTotal then failwith("Error. You cannot burn more than the total amount of LP tokens.") else skip;
                 const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
 
                 // calculate new token pool amount
-                if tokensWithdrawn > tokenPoolTotal then failwith("Error. Token pool minus tokens withdrawn is negative.") else skip;
-                const newTokenPoolTotal : nat = abs(tokenPoolTotal - tokensWithdrawn);
+                if amount > tokenPoolTotal then failwith("Error. Token pool minus tokens withdrawn is negative.") else skip;
+                const newTokenPoolTotal : nat = abs(tokenPoolTotal - amount);
 
                 // burn LP Token operation
                 const burnLpTokenOperation : operation = mintOrBurnLpToken(initiator, (0 - lpTokensBurned), lpTokenContractAddress);
                 operations := burnLpTokenOperation # operations;
 
-                // send withdrawn tokens to sender 
-                const withdrawnTokensToSenderOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),     // from_
-                    initiator,                    // to_
-                    tokensWithdrawn,              // token amount
-                    tokenId,                      // token id
-                    tokenContractAddress          // token contract address
-                );
-                operations := withdrawnTokensToSenderOperation # operations;
+                case tokenRecord.tokenType of [
+
+                    |   Tez(_tez) -> block{
+                    
+                            // send withdrawn tez to initiator
+                            const withdrawnTezToSenderOperation : operation = transferTez( (Tezos.get_contract_with_error(initiator, "Error. Unable to send tez.") : contract(unit)), amount * 1mutez );
+                            operations := withdrawnTezToSenderOperation # operations;
+
+                        }
+
+                    |   Fa12(_token) -> block {
+
+                            // send withdrawn tokens to initiator 
+                            const withdrawnTokensToSenderOperation : operation = transferFa12Token(
+                                Tezos.get_self_address(),     // from_
+                                initiator,                    // to_
+                                amount,                       // token amount
+                                tokenContractAddress          // token contract address
+                            );
+                            operations := withdrawnTokensToSenderOperation # operations;
+
+                        }
+
+                    |   Fa2(_token) -> block {
+
+                            // send withdrawn tokens to initiator 
+                            const withdrawnTokensToSenderOperation : operation = transferFa2Token(
+                                Tezos.get_self_address(),     // from_
+                                initiator,                    // to_
+                                amount,                       // token amount
+                                tokenId,                      // token id
+                                tokenContractAddress          // token contract address
+                            );
+                            operations := withdrawnTokensToSenderOperation # operations;
+
+                        }
+                ];
 
                 // update pool totals
                 tokenRecord.tokenPoolTotal  := newTokenPoolTotal;
                 tokenRecord.lpTokensTotal   := newLpTokensTotal;
 
                 // Update Token Ledger
-                s.loanTokenLedger[tokenName] := tokenRecord;
+                s.loanTokenLedger[loanTokenName] := tokenRecord;
                 
             }
         |   _ -> skip
