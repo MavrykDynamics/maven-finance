@@ -19,7 +19,7 @@ export interface FarmStorage {
   currentRewardPerBlock: number
   claimPaused: boolean
   depositPaused: boolean
-  farmFactoryId: null
+  farmFactoryId: string
   infinite: boolean
   initBlock: number
   lastBlockUpdate: number
