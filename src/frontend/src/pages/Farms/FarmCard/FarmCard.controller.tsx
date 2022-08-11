@@ -34,7 +34,7 @@ type FarmCardProps = {
   farmAddress: string
   firstToken: string
   secondToken: string
-  lpToken: string
+  distributer: string
   lpTokenAddress: string
   lpTokenBalance: number
   currentRewardPerBlock: number
@@ -49,7 +49,7 @@ export const FarmCard = ({
   firstTokenAddress,
   secondToken,
   secondTokenAddress,
-  lpToken,
+  distributer,
   lpTokenAddress,
   totalLiquidity,
   variant,
@@ -85,7 +85,7 @@ export const FarmCard = ({
           {/* {firstToken}-{secondToken} */}
           {name}
         </h3>
-        <p>{lpToken}</p>
+        <p>{distributer}</p>
       </div>
     </div>
   )
