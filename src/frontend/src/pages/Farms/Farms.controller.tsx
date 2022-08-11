@@ -3,7 +3,7 @@ import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Fa
 
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getFarmFactoryStorage, getFarmStorage } from './Farms.actions'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Page } from 'styles'
@@ -15,6 +15,7 @@ import { Modal } from '../../app/App.components/Modal/Modal.controller'
 // styles
 import { FarmsStyled } from './Farms.style'
 import { EmptyContainer as EmptyList } from 'app/App.style'
+import { MOCK_FARMS } from './Frams.helpers'
 
 export type FarmsViewVariantType = 'vertical' | 'horizontal'
 
@@ -29,9 +30,12 @@ export const Farms = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
+  let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
+  farmStorage = MOCK_FARMS
   const [farmsList, setFarmsList] = useState(farmStorage)
+  const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage[]>([])
   const [toggleChecked, setToggleChecked] = useState(false)
+  const [liveFinished, setLiveFinished] = useState<number | undefined>(1)
   const [stakedFarmsOnly, setStakeFarmsOnly] = useState(false)
   const [searchValue, setSearchValue] = useState<string>('')
   const [sortBy, setSortBy] = useState<string>('')
@@ -41,41 +45,48 @@ export const Farms = () => {
     dispatch(getFarmStorage())
   }, [dispatch])
 
+  useEffect(() => {
+    const filterStakedOnly = toggleChecked
+      ? farmStorage.filter(
+          (item) =>
+            item.farmAccounts?.length && item.farmAccounts.some((account: any) => account?.deposited_amount > 0),
+        )
+      : farmStorage
+
+    const isLive = liveFinished === 1
+    const filteredLiveFinished = filterStakedOnly.filter((item) => item.open === isLive)
+
+    const filteredSearch = searchValue.length
+      ? filteredLiveFinished.filter((farm) => {
+          const isIncludesTokenAddress = farm.lpTokenAddress.includes(searchValue)
+          const isIncludesName = farm.name.includes(searchValue)
+          const lpTokenAddress = farm.lpTokenAddress || ''
+          const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
+          const isIncludesAlias =
+            farmContract?.creator?.alias?.includes(searchValue) || farmContract?.metadata?.alias?.includes(searchValue)
+          return isIncludesTokenAddress || isIncludesName || isIncludesAlias
+        })
+      : filteredLiveFinished
+
+    setFarmsList(filteredSearch)
+  }, [farmStorage, liveFinished, searchValue, toggleChecked])
+
   const handleToggleStakedFarmsOnly = (e?: any) => {
-    setSearchValue('')
     setToggleChecked(e?.target?.checked)
-    if (e?.target?.checked) {
-      const filteredStakeOnly = farmStorage.filter(
-        (item) => item.farmAccounts?.length && item.farmAccounts.some((account) => account?.deposited_amount > 0),
-      )
-      setFarmsList(filteredStakeOnly)
-    } else {
-      setFarmsList(farmStorage)
-    }
   }
 
   const handleSetFarmsViewVariant = (variant: FarmsViewVariantType) => {
     setFarmsViewVariant(variant)
   }
 
-  const handleLiveFinishedToggleButtons = () => {
-    console.log('Here in handleLiveFinishedToggleButtons')
+  const handleLiveFinishedToggleButtons = (tabId?: number) => {
+    setLiveFinished(tabId)
   }
 
   const handleOnSearch = (text: string) => {
-    setToggleChecked(false)
     setSearchValue(text)
-    const filteredFarmsList = farmStorage.filter((farm) => {
-      const isIncludesTokenAddress = farm.lpTokenAddress.includes(text)
-      const isIncludesName = farm.name.includes(text)
-      const lpTokenAddress = farm.lpTokenAddress || ''
-      const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
-      const isIncludesAlias =
-        farmContract?.creator?.alias?.includes(text) || farmContract?.metadata?.alias?.includes(text)
-      return isIncludesTokenAddress || isIncludesName || isIncludesAlias
-    })
-    setFarmsList(filteredFarmsList)
   }
+
   const handleOnSort = (sortValue: any) => {
     setSortBy(sortValue)
     if (sortValue !== 'null') {
@@ -114,7 +125,7 @@ export const Farms = () => {
           className={farmsViewVariant}
           toggleChecked={toggleChecked}
         />
-        {farmsList?.length ? (
+        {farmsList.length ? (
           <>
             <section className={`farm-list ${farmsViewVariant}`}>
               {farmsList.map((farm: FarmStorage, index: number) => {
