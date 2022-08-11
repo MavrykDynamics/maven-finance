@@ -47,6 +47,10 @@ export type FarmContractType = {
     alias: string
     address: string
   }
+  metadata: {
+    alias: string
+    address: string
+  }
   numContracts: number
   activeTokensCount: number
   tokenBalancesCount: number

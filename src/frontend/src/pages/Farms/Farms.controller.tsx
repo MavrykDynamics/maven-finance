@@ -58,9 +58,18 @@ export const Farms = () => {
   const handleLiveFinishedToggleButtons = () => {
     console.log('Here in handleLiveFinishedToggleButtons')
   }
-  const handleOnSearch = (e: any) => {
-    setSearchValue(e.target.value)
-    console.log('Here in handle search')
+  const handleOnSearch = (text: string) => {
+    setSearchValue(text)
+    const filteredFarmsList = farmStorage.filter((farm) => {
+      const isIncludesTokenAddress = farm.lpTokenAddress.includes(text)
+      const isIncludesName = farm.name.includes(text)
+      const lpTokenAddress = farm.lpTokenAddress || ''
+      const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
+      const isIncludesAlias =
+        farmContract?.creator?.alias?.includes(text) || farmContract?.metadata?.alias?.includes(text)
+      return isIncludesTokenAddress || isIncludesName || isIncludesAlias
+    })
+    setFarmsList(filteredFarmsList)
   }
   const handleOnSort = (sortValue: any) => {
     setSortBy(sortValue)
@@ -89,18 +98,18 @@ export const Farms = () => {
     <Page>
       <PageHeader page={'farms'} kind={'primary'} loading={loading} />
       <FarmsStyled>
+        <FarmTopBar
+          ready={ready}
+          searchValue={searchValue}
+          onSearch={handleOnSearch}
+          onSort={handleOnSort}
+          handleToggleStakedOnly={handleToggleStakedFarmsOnly}
+          handleLiveFinishedToggleButtons={handleLiveFinishedToggleButtons}
+          handleSetFarmsViewVariant={handleSetFarmsViewVariant}
+          className={farmsViewVariant}
+        />
         {farmsList?.length ? (
           <>
-            <FarmTopBar
-              ready={ready}
-              searchValue={searchValue}
-              onSearch={handleOnSearch}
-              onSort={handleOnSort}
-              handleToggleStakedOnly={handleToggleStakedFarmsOnly}
-              handleLiveFinishedToggleButtons={handleLiveFinishedToggleButtons}
-              handleSetFarmsViewVariant={handleSetFarmsViewVariant}
-              className={farmsViewVariant}
-            />
             <section className={`farm-list ${farmsViewVariant}`}>
               {farmsList.map((farm: FarmStorage, index: number) => {
                 const lpTokenAddress = farm.lpTokenAddress || ''
@@ -115,7 +124,7 @@ export const Farms = () => {
                     currentRewardPerBlock={farm.currentRewardPerBlock}
                     firstToken={'MVK'}
                     secondToken={'USDM'}
-                    lpToken={farmContract?.creator.alias || ''}
+                    distributer={farmContract?.creator.alias || ''}
                     firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
                     secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
                     totalLiquidity={1231243}
