@@ -165,16 +165,15 @@ type mintOrBurnParamsType is [@layout:comb] record [
 
 
 type addLiquidityActionType is [@layout:comb] record [
-    tokenName               : string;
-    tokensDeposited         : nat;
-    owner                   : address;
+    loanTokenName  : string;
+    amount         : nat;    
 ]
 
 
 type removeLiquidityActionType is [@layout:comb] record [
     lpTokensBurned          : nat;
-    tokenName               : string;
-    tokensWithdrawn         : nat;
+    loanTokenName           : string;
+    amount                  : nat;
     [@annot:to] to_         : address;
 ]
 
