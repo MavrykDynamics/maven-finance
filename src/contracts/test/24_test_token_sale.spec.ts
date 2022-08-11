@@ -238,17 +238,17 @@ describe("Token sale tests", async () => {
                 tokenSaleStorage        = await tokenSaleInstance.storage();
                 const buyOptionIndex    = "3";
                 var buyOption           = tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
-                const configValueStart  = buyOption.vestingInMonths.toNumber();
+                const configValueStart  = buyOption.vestingPeriods.toNumber();
                 const updatedValue      = 13;
 
                 // Operation
-                const updateOperation   = await tokenSaleInstance.methods.updateConfig(updatedValue, "configVestingInMonths", buyOptionIndex).send();
+                const updateOperation   = await tokenSaleInstance.methods.updateConfig(updatedValue, "configVestingPeriods", buyOptionIndex).send();
                 await updateOperation.confirmation();
 
                 // Final values
                 tokenSaleStorage        = await tokenSaleInstance.storage();
                 buyOption               = tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
-                const configValueEnd    = buyOption.vestingInMonths.toNumber();
+                const configValueEnd    = buyOption.vestingPeriods.toNumber();
 
                 // Assertions
                 assert.notStrictEqual(buyOption, undefined);
@@ -266,7 +266,7 @@ describe("Token sale tests", async () => {
                 const buyOptionIndex    = "2";
                 var buyOption           = tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
                 const configValueStart  = buyOption.tokenXtzPrice.toNumber();
-                const updatedValue      = 100000;
+                const updatedValue      = 1; // Set a very small price for future tests
 
                 // Operation
                 const updateOperation   = await tokenSaleInstance.methods.updateConfig(updatedValue, "configTokenXtzPrice", buyOptionIndex).send();
@@ -286,26 +286,49 @@ describe("Token sale tests", async () => {
             }
         });
 
-        it('Admin should be able to update the min tez amount of an existing buy option', async () => {
+        it('Admin should be able to update the min mvk amount of an existing buy option', async () => {
             try{
                 // Initial Values
                 tokenSaleStorage        = await tokenSaleInstance.storage();
                 const buyOptionIndex    = "1";
                 var buyOption           = tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
-                const configValueStart  = buyOption.minXtzAmount.toNumber();
-                const updatedValue      = 100000;
+                const configValueStart  = buyOption.minMvkAmount.toNumber();
+                const updatedValue      = 1; // Small number for future tests
 
                 // Operation
-                const updateOperation   = await tokenSaleInstance.methods.updateConfig(updatedValue, "configMinXtzAmount", buyOptionIndex).send();
+                const updateOperation   = await tokenSaleInstance.methods.updateConfig(updatedValue, "configMinMvkAmount", buyOptionIndex).send();
                 await updateOperation.confirmation();
 
                 // Final values
                 tokenSaleStorage        = await tokenSaleInstance.storage();
                 buyOption               = tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
-                const configValueEnd    = buyOption.minXtzAmount.toNumber();
+                const configValueEnd    = buyOption.minMvkAmount.toNumber();
 
                 // Assertions
                 assert.notStrictEqual(buyOption, undefined);
+                assert.equal(configValueEnd, updatedValue);
+                assert.notEqual(configValueEnd, configValueStart);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('Admin should be able to update the global vesting period duration', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage        = await tokenSaleInstance.storage();
+                const configValueStart  = tokenSaleStorage.config.vestingPeriodDurationSec.toNumber();
+                const updatedValue      = 15 // 15sec per vesting periods
+
+                // Operation
+                const updateOperation   = await tokenSaleInstance.methods.updateConfig(updatedValue, "configVestingPeriodDurationSec").send();
+                await updateOperation.confirmation();
+
+                // Final values
+                tokenSaleStorage        = await tokenSaleInstance.storage();
+                const configValueEnd    = tokenSaleStorage.config.vestingPeriodDurationSec.toNumber();
+
+                // Assertions
                 assert.equal(configValueEnd, updatedValue);
                 assert.notEqual(configValueEnd, configValueStart);
             } catch(e){
@@ -322,7 +345,7 @@ describe("Token sale tests", async () => {
                 const updatedValue      = 1000;
 
                 // Operation
-                await chai.expect(tokenSaleInstance.methods.updateConfig(updatedValue, "minXtzAmount", buyOptionIndex).send()).to.be.rejected;
+                await chai.expect(tokenSaleInstance.methods.updateConfig(updatedValue, "configMinMvkAmount", buyOptionIndex).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5});
             }
@@ -588,6 +611,24 @@ describe("Token sale tests", async () => {
             }
         });
     
+        it('Whitelisted user should not be able to exceed the maximum of tokens it can personaly buy during the whitelist period', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const whitelistMaximum          = buyOption.whitelistMaxAmountTotal.toNumber();
+                const tokenXTZPrice             = buyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = whitelistMaximum + MVK();
+                const amountToPay               = (amountToBuy / MVK() * tokenXTZPrice) / 10**6
+
+                // Set the whitelisted period
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    
         it('Non-whitelisted user should be not able to buy tokens during the whitelist period', async () => {
             try{
                 // Initial Values
@@ -602,7 +643,7 @@ describe("Token sale tests", async () => {
 
                 // Set the whitelisted period
                 await signerFactory(trudy.sk);
-                chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
                 
                 // Assertions
                 assert.strictEqual(userWhitelisted, undefined);
@@ -629,8 +670,8 @@ describe("Token sale tests", async () => {
 
                 // Set the whitelisted period
                 await signerFactory(trudy.sk);
-                const buyOperations = await tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay});
-                await buyOperations.confirmation();
+                const buyOperation = await tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay});
+                await buyOperation.confirmation();
 
                 // Final values
                 tokenSaleStorage                = await tokenSaleInstance.storage();
@@ -641,6 +682,118 @@ describe("Token sale tests", async () => {
                 assert.equal(endUserBuyOption.tokenBought.toNumber(), amountToBuy);
                 assert.equal(endUserBuyOption.tokenClaimed.toNumber(), 0);
                 assert.equal(endUserBuyOption.claimCounter.toNumber(), 0);
+                assert.strictEqual(initUserTokenRecord, undefined);
+                assert.strictEqual(userWhitelisted, undefined);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    
+        it('User should not be able to exceed the maximum of tokens available', async () => {
+            try{
+                // Update the maxAmountCap
+                await signerFactory(bob.sk);
+                const buyOptionIndex            = "1";
+                var updateOperation             = await tokenSaleInstance.methods.updateConfig(1000, "configMaxAmountCap", buyOptionIndex).send();
+                await updateOperation.confirmation();
+
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const maxAmount                 = buyOption.maxAmountCap.toNumber();
+                const tokenXTZPrice             = buyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = maxAmount + MVK();
+                const amountToPay               = (amountToBuy / MVK() * tokenXTZPrice) / 10**6
+                
+                // Set the whitelisted period
+                await signerFactory(eve.sk)
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+
+                // Reset the max amount cap
+                await signerFactory(bob.sk);
+                updateOperation                 = await tokenSaleInstance.methods.updateConfig(MVK(11000000), "configMaxAmountCap", buyOptionIndex).send();
+                await updateOperation.confirmation();
+
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    
+        it('User should not be able to buy tokens if it did not exceed the minimum amount it can buy', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const tokenXTZPrice             = buyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = MVK();
+                const amountToPay               = (amountToBuy / MVK() * tokenXTZPrice) / 10**6
+                
+                // Update the minMvkAmount
+                await signerFactory(bob.sk);
+                var updateOperation             = await tokenSaleInstance.methods.updateConfig(10000000000000000, "configMinMvkAmount", buyOptionIndex).send();
+                await updateOperation.confirmation();
+
+                // Set the whitelisted period
+                await signerFactory(eve.sk)
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+
+                // Reset the max cap
+                await signerFactory(bob.sk);
+                updateOperation                 = await tokenSaleInstance.methods.updateConfig(1, "configMinMvkAmount", buyOptionIndex).send();
+                await updateOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    
+        it('User should be able to buy tokens from multiple options', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const userAddress               = mallory.pkh;
+                const firstBuyOptionIndex       = "1";
+                const secondBuyOptionIndex      = "2";
+                const thirdBuyOptionIndex       = "3";
+                const firstBuyOption            = await tokenSaleStorage.config.buyOptions.get(firstBuyOptionIndex);
+                const secondBuyOption           = await tokenSaleStorage.config.buyOptions.get(secondBuyOptionIndex);
+                const thirdBuyOption            = await tokenSaleStorage.config.buyOptions.get(thirdBuyOptionIndex);
+                const firstTokenXTZPrice        = firstBuyOption.tokenXtzPrice.toNumber();
+                const secondTokenXTZPrice       = secondBuyOption.tokenXtzPrice.toNumber();
+                const thirdTokenXTZPrice        = thirdBuyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = MVK(30);
+                const firstAmountToPay          = (amountToBuy / MVK() * firstTokenXTZPrice) / 10**6
+                const secondAmountToPay         = (amountToBuy / MVK() * secondTokenXTZPrice) / 10**6
+                const thirdAmountToPay          = (amountToBuy / MVK() * thirdTokenXTZPrice) / 10**6
+                const userWhitelisted           = await tokenSaleStorage.whitelistedAddresses.get(userAddress);
+                const initUserTokenRecord       = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+
+                // Set the whitelisted period
+                await signerFactory(mallory.sk);
+                var buyOperation                = await tokenSaleInstance.methods.buyTokens(amountToBuy, firstBuyOptionIndex).send({amount: firstAmountToPay});
+                await buyOperation.confirmation();
+                buyOperation                    = await tokenSaleInstance.methods.buyTokens(amountToBuy, secondBuyOptionIndex).send({amount: secondAmountToPay});
+                await buyOperation.confirmation();
+                buyOperation                    = await tokenSaleInstance.methods.buyTokens(amountToBuy, thirdBuyOptionIndex).send({amount: thirdAmountToPay});
+                await buyOperation.confirmation();
+
+                // Final values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const endUserTokenRecord        = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const endFirstUserBuyOption     = await endUserTokenRecord.get(firstBuyOptionIndex);
+                const endSecondUserBuyOption    = await endUserTokenRecord.get(secondBuyOptionIndex);
+                const endThirdUserBuyOption     = await endUserTokenRecord.get(thirdBuyOptionIndex);
+
+                // Assertions
+                assert.equal(endFirstUserBuyOption.tokenBought.toNumber(), amountToBuy);
+                assert.equal(endFirstUserBuyOption.tokenClaimed.toNumber(), 0);
+                assert.equal(endFirstUserBuyOption.claimCounter.toNumber(), 0);
+                assert.equal(endSecondUserBuyOption.tokenBought.toNumber(), amountToBuy);
+                assert.equal(endSecondUserBuyOption.tokenClaimed.toNumber(), 0);
+                assert.equal(endSecondUserBuyOption.claimCounter.toNumber(), 0);
+                assert.equal(endThirdUserBuyOption.tokenBought.toNumber(), amountToBuy);
+                assert.equal(endThirdUserBuyOption.tokenClaimed.toNumber(), 0);
+                assert.equal(endThirdUserBuyOption.claimCounter.toNumber(), 0);
                 assert.strictEqual(initUserTokenRecord, undefined);
                 assert.strictEqual(userWhitelisted, undefined);
             } catch(e){
@@ -739,4 +892,101 @@ describe("Token sale tests", async () => {
             }
         });
     });
+
+    describe("%claimTokens", async () => {
+        
+        beforeEach("Set signer to user", async () => {
+            await signerFactory(eve.sk)
+        });
+    
+        it('User should be able to claim tokens', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const userAddress               = eve.pkh;
+                const treasuryAddress           = tokenSaleStorage.treasuryAddress;
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const initUserTokenRecord       = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const initMvkBalance            = await mvkTokenStorage.ledger.get(eve.pkh) !== undefined ? (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber() : 0;
+                const initTreasuryMvkBalance    = await mvkTokenStorage.ledger.get(treasuryAddress) !== undefined ? (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber() : 0;
+
+                // Set the whitelisted period
+                const claimOperation            = await tokenSaleInstance.methods.claimTokens(eve.pkh).send();
+                await claimOperation.confirmation();
+
+                // Final values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const endUserTokenRecord        = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const endUserBuyOption          = await endUserTokenRecord.get(buyOptionIndex);
+                const endMvkBalance             = await mvkTokenStorage.ledger.get(eve.pkh);
+                const endTreasuryMvkBalance     = await mvkTokenStorage.ledger.get(treasuryAddress);
+
+                console.log("End user buy option:", buyOption);
+                console.log("End user option:", endUserBuyOption);
+                console.log("Init MVK:", initMvkBalance);
+                console.log("End MVK:", endMvkBalance);
+                console.log("Init Treasury:", initTreasuryMvkBalance);
+                console.log("End Treasury:", endTreasuryMvkBalance);
+
+                // Assertions
+                assert.notStrictEqual(initUserTokenRecord, undefined);
+                assert.equal(endMvkBalance.toNumber(), initMvkBalance + endUserBuyOption.tokenClaimed.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    
+        it('User should be able to claim tokens #2', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const vestingPeriodDurationSec  = tokenSaleStorage.config.vestingPeriodDurationSec.toNumber();
+                const userAddress               = eve.pkh;
+                const treasuryAddress           = tokenSaleStorage.treasuryAddress;
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const initUserTokenRecord       = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const initUserBuyOption         = await initUserTokenRecord.get(buyOptionIndex);
+                const initMvkBalance            = await mvkTokenStorage.ledger.get(eve.pkh) !== undefined ? (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber() : 0;
+                const initTreasuryMvkBalance    = await mvkTokenStorage.ledger.get(treasuryAddress) !== undefined ? (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber() : 0;
+
+                // wait more than the entire vesting time
+                const timeToWait = vestingPeriodDurationSec * 1000 * (buyOption.vestingPeriods.toNumber() + 1)
+                console.log("WAIT FOR:", timeToWait)
+                console.log("DURVEST:", vestingPeriodDurationSec)
+                console.log("VESTPERIOD:", buyOption.vestingPeriods.toNumber())
+                await wait(timeToWait);
+
+                // Set the whitelisted period
+                const claimOperation            = await tokenSaleInstance.methods.claimTokens(eve.pkh).send();
+                await claimOperation.confirmation();
+
+                // Final values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const endUserTokenRecord        = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const endUserBuyOption          = await endUserTokenRecord.get(buyOptionIndex);
+                const endMvkBalance             = await mvkTokenStorage.ledger.get(eve.pkh);
+                const endTreasuryMvkBalance     = await mvkTokenStorage.ledger.get(treasuryAddress);
+                const userClaimAmount           = endUserBuyOption.tokenClaimed.toNumber() - initUserBuyOption.tokenClaimed.toNumber();
+
+                console.log("End user buy option:", buyOption);
+                console.log("End user option:", endUserBuyOption);
+                console.log("Init MVK:", initMvkBalance);
+                console.log("End MVK:", endMvkBalance);
+                console.log("Init Treasury:", initTreasuryMvkBalance);
+                console.log("End Treasury:", endTreasuryMvkBalance);
+
+                // Assertions
+                assert.notStrictEqual(initUserTokenRecord, undefined);
+                assert.equal(endMvkBalance.toNumber(), initMvkBalance + userClaimAmount);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    })
 });

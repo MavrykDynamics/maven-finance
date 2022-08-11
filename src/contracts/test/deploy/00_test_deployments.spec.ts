@@ -669,6 +669,7 @@ describe('Contracts Deployment for Tests', async () => {
       // whitelist contracts
       .withContractCall(treasury.contract.methods.updateWhitelistContracts('governanceProxy', governanceProxy.contract.address))
       .withContractCall(treasury.contract.methods.updateWhitelistContracts("aggregatorFactory", aggregatorFactory.contract.address))
+      .withContractCall(treasury.contract.methods.updateWhitelistContracts("tokenSale", tokenSale.contract.address))
   
       // whitelist token contracts
       .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
