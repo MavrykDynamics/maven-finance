@@ -9,32 +9,33 @@ import { tokenSaleStorageType } from "../test/types/tokenSaleStorageType";
 
 
 const config = {
-    buyOptions  : MichelsonMap.fromLiteral({
+    vestingPeriodDurationSec  : new BigNumber(2628000), // 2628000 seconds in a month
+    buyOptions                : MichelsonMap.fromLiteral({
         1: {
             maxAmountPerWalletTotal     : MVK(20000),
             whitelistMaxAmountTotal     : MVK(10000),
             maxAmountCap                : MVK(12000000),
-            vestingInMonths             : 6,
+            vestingPeriods              : 6,
             tokenXtzPrice               : 80000,
-            minXtzAmount                : 30000000,
+            minMvkAmount                : 30000000,
             totalBought                 : 0,
         },
         2: {
             maxAmountPerWalletTotal     : MVK(20000),
             whitelistMaxAmountTotal     : MVK(10000),
             maxAmountCap                : MVK(10000000),
-            vestingInMonths             : 9,
+            vestingPeriods              : 9,
             tokenXtzPrice               : 70000,
-            minXtzAmount                : 30000000,
+            minMvkAmount                : 30000000,
             totalBought                 : 0,
         },
         3: {
             maxAmountPerWalletTotal     : MVK(20000),
             whitelistMaxAmountTotal     : MVK(10000),
             maxAmountCap                : MVK(8000000),
-            vestingInMonths             : 12,
+            vestingPeriods              : 12,
             tokenXtzPrice               : 60000,
-            minXtzAmount                : 30000000,
+            minMvkAmount                : 30000000,
             totalBought                 : 0,
         }
     })
