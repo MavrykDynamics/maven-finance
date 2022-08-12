@@ -31,7 +31,7 @@ export const Farms = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
-  farmStorage = MOCK_FARMS
+  //farmStorage = MOCK_FARMS
   const [farmsList, setFarmsList] = useState(farmStorage)
   const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage[]>([])
   const [toggleChecked, setToggleChecked] = useState(false)
@@ -55,6 +55,7 @@ export const Farms = () => {
 
     const isLive = liveFinished === 1
     const filteredLiveFinished = filterStakedOnly.filter((item) => item.open === isLive)
+    // const filteredLiveFinished = filterStakedOnly
 
     const filteredSearch = searchValue.length
       ? filteredLiveFinished.filter((farm) => {
@@ -68,8 +69,31 @@ export const Farms = () => {
         })
       : filteredLiveFinished
 
-    setFarmsList(filteredSearch)
-  }, [farmStorage, liveFinished, searchValue, toggleChecked])
+    if (sortBy) {
+      console.log('%c ||||| sortBy', 'color:red', sortBy)
+      const dataToSort = filteredSearch ? [...filteredSearch] : []
+
+      dataToSort.sort((a: FarmStorage, b: FarmStorage) => {
+        console.log('%c ||||| Number(a.open)', 'color:yellowgreen', Number(a.open))
+        let res = 0
+        switch (sortBy) {
+          case 'active':
+            res = Number(a.open) - Number(b.open)
+            break
+          case 'lpBalance':
+          case 'rewardPerBlock':
+          default:
+            res = 1
+            break
+        }
+        return res
+      })
+
+      setFarmsList(dataToSort)
+    } else {
+      setFarmsList(filteredSearch)
+    }
+  }, [farmStorage, liveFinished, searchValue, toggleChecked, sortBy])
 
   const handleToggleStakedFarmsOnly = (e?: any) => {
     setToggleChecked(e?.target?.checked)
@@ -88,27 +112,28 @@ export const Farms = () => {
   }
 
   const handleOnSort = (sortValue: any) => {
+    console.log('%c ||||| sortValue', 'color:yellowgreen', sortValue)
     setSortBy(sortValue)
-    if (sortValue !== 'null') {
-      setFarmsList((data: any[]) => {
-        const dataToSort = data ? [...data] : []
-        dataToSort.sort((a: any, b: any) => {
-          let res = 0
-          switch (sortValue) {
-            case 'open':
-              res = Number(a[sortValue]) - Number(b[sortValue])
-              break
-            case 'lpBalance':
-            case 'rewardPerBlock':
-            default:
-              res = Number(b[sortValue]) - Number(a[sortValue])
-              break
-          }
-          return res
-        })
-        return dataToSort
-      })
-    }
+    // if (sortValue !== 'null') {
+    //   setFarmsList((data: any[]) => {
+    //     const dataToSort = data ? [...data] : []
+    //     dataToSort.sort((a: any, b: any) => {
+    //       let res = 0
+    //       switch (sortValue) {
+    //         case 'open':
+    //           res = Number(a[sortValue]) - Number(b[sortValue])
+    //           break
+    //         case 'lpBalance':
+    //         case 'rewardPerBlock':
+    //         default:
+    //           res = Number(b[sortValue]) - Number(a[sortValue])
+    //           break
+    //       }
+    //       return res
+    //     })
+    //     return dataToSort
+    //   })
+    // }
   }
   return (
     <Page>
@@ -131,6 +156,7 @@ export const Farms = () => {
               {farmsList.map((farm: FarmStorage, index: number) => {
                 const lpTokenAddress = farm.lpTokenAddress || ''
                 const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
+                console.log('%c ||||| farm.open', 'color:yellowgreen', farm.open)
                 return (
                   <FarmCard
                     variant={farmsViewVariant}

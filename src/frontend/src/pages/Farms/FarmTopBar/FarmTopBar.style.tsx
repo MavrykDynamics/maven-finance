@@ -31,6 +31,10 @@ export const FarmTopBarStyled = styled(Card)`
 
   .order-by {
     margin-left: 30px;
+
+    .drop-down {
+      min-width: 290px;
+    }
   }
 
   .tab-bar {
