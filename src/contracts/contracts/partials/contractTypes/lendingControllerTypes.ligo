@@ -35,10 +35,6 @@ type lendingControllerConfigType is [@layout:comb] record [
     minimumLoanFeeTreasuryShare  : nat;  // percentage of minimum loan fee that goes to the treasury
     interestTreasuryShare        : nat;  // percentage of interest that goes to the treasury
 
-
-    // annualServiceLoanFee      : nat;    // annual service loan fee - compounding over time    
-    // dailyServiceLoanFee       : nat;    // daily service loan fee - compounding over time (annualServiceLoanFee / 365)
-
     decimals                  : nat;    // decimals used for percentage calculation
 
 ]
@@ -163,6 +159,12 @@ type mintOrBurnParamsType is [@layout:comb] record [
     target    : address;
 ];
 
+(* Mint entrypoint inputs *)
+type mintParamsType is (address * tokenBalanceType)
+
+(* Burn entrypoint inputs *)
+type burnParamsType is (address * tokenBalanceType)
+
 
 type addLiquidityActionType is [@layout:comb] record [
     loanTokenName  : string;
@@ -171,10 +173,8 @@ type addLiquidityActionType is [@layout:comb] record [
 
 
 type removeLiquidityActionType is [@layout:comb] record [
-    lpTokensBurned          : nat;
     loanTokenName           : string;
     amount                  : nat;
-    [@annot:to] to_         : address;
 ]
 
 // collateralRatio           : nat;    // collateral ratio

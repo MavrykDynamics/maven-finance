@@ -20,6 +20,10 @@ import governanceAddress from '../deployments/governanceAddress.json';
 import mockFa12TokenAddress from '../deployments/mockFa12TokenAddress.json';
 import mockFa2TokenAddress from '../deployments/mockFa2TokenAddress.json';
 
+import mockUsdMockFa12TokenAggregatorAddress from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
+import mockUsdMockFa2TokenAggregatorAddress from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
+import mockUsdXtzAggregatorAddress from "../deployments/mockUsdXtzAddress.json";
+
 import lpTokenPoolMockFa12TokenAddress from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
 import lpTokenPoolMockFa2TokenAddress from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
 import lpTokenPoolXtzAddress from "../deployments/lpTokenPoolXtzAddress.json";
@@ -41,6 +45,10 @@ describe("Lending Controller tests", async () => {
     let mockFa12TokenInstance
     let mockFa2TokenInstance
 
+    let mockUsdMockFa12TokenAggregatorInstance
+    let mockUsdMockFa2TokenAggregatorInstance
+    let mockUsdXtzAggregatorInstance
+
     let lpTokenPoolMockFa12TokenInstance
     let lpTokenPoolMockFa2TokenInstance
     let lpTokenPoolXtzInstance
@@ -57,6 +65,15 @@ describe("Lending Controller tests", async () => {
     let governanceStorage
 
     let lendingControllerStorage
+
+        const almostEqual = (actual, expected, delta) => {
+        let greaterLimit  = expected + expected * delta
+        let lowerLimit    = expected - expected * delta
+        // console.log("GREATER: ", greaterLimit) 
+        // console.log("LOWER: ", lowerLimit)
+        // console.log("STUDIED: ", actual)
+        return actual <= greaterLimit && actual >= lowerLimit
+    }
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -79,6 +96,10 @@ describe("Lending Controller tests", async () => {
         lpTokenPoolMockFa2TokenInstance  = await utils.tezos.contract.at(lpTokenPoolMockFa2TokenAddress.address);
         lpTokenPoolXtzInstance           = await utils.tezos.contract.at(lpTokenPoolXtzAddress.address);
 
+        mockUsdMockFa12TokenAggregatorInstance  = await utils.tezos.contract.at(mockUsdMockFa12TokenAggregatorAddress.address);
+        mockUsdMockFa2TokenAggregatorInstance   = await utils.tezos.contract.at(mockUsdMockFa2TokenAggregatorAddress.address);
+        mockUsdXtzAggregatorInstance            = await utils.tezos.contract.at(mockUsdXtzAggregatorAddress.address);
+
         lendingControllerInstance   = await utils.tezos.contract.at(lendingControllerAddress.address);
 
         doormanStorage              = await doormanInstance.storage();
@@ -100,6 +121,10 @@ describe("Lending Controller tests", async () => {
         console.log('LP Token Pool - Mock FA12 Token - deployed at:', lpTokenPoolMockFa12TokenInstance.address);
         console.log('LP Token Pool - Mock FA2 Token - deployed at:', lpTokenPoolMockFa2TokenInstance.address);
         console.log('LP Token Pool - XTZ - deployed at:', lpTokenPoolXtzInstance.address);
+
+        console.log('Mock Aggregator - USD / Mock FA12 Token - deployed at:', mockUsdMockFa12TokenAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / Mock FA2 Token - deployed at:', mockUsdMockFa2TokenAggregatorInstance.address);
+        console.log('Mock Aggregator - USD / XTZ - deployed at:', mockUsdXtzAggregatorInstance.address);
 
         console.log('Lending Controller Contract deployed at:', lendingControllerInstance.address);
 
@@ -746,10 +771,11 @@ describe("Lending Controller tests", async () => {
 
 
 
-    // // 
-    // // Test: Create vaults with tez as initial deposit
-    // //
-    describe('test: create vaults with tez as initial deposit', function () {
+    // 
+    // Test: Create vaults with tez as initial deposit
+    //
+    describe('%createVault test: create vaults with tez as initial deposit', function () {
+
         it('user (mallory) can create a new vault (depositors: any) with 10 tez as initial deposit', async () => {
             try{        
                 
@@ -1911,7 +1937,7 @@ describe("Lending Controller tests", async () => {
             const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
             const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa2Ledger);
 
-            // get initial lending controller's Mock FA12 Token balance
+            // get initial lending controller's Mock FA2 Token balance
             const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
             const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : parseInt(lendingControllerMockFa2Ledger);
 
@@ -1972,14 +1998,18 @@ describe("Lending Controller tests", async () => {
 
             lendingControllerStorage = await lendingControllerInstance.storage();
             
-            // get mock fa2 token storage and lp token pool mock fa2 token storage
+            // get LP token pool XTZ token storage (FA2 Token Standard)
             const lpTokenPoolXtzStorage   = await lpTokenPoolXtzInstance.storage();
+
+            // get initial eve XTZ balance
+            const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
+            const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
 
             // get initial eve's Token Pool FA2 LP - Tez - balance
             const eveLpTokenPoolXtzLedger            = await lpTokenPoolXtzStorage.ledger.get(eve.pkh);            
             const eveInitialLpTokenPoolXtzBalance    = eveLpTokenPoolXtzLedger == undefined ? 0 : parseInt(eveLpTokenPoolXtzLedger);
 
-            // get initial lending controller's Xtz balance
+            // get initial lending controller's XTZ balance
             const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
             const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
 
@@ -1987,7 +2017,7 @@ describe("Lending Controller tests", async () => {
             const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
             const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
 
-            // eve deposits mock FA12 tokens into lending controller token pool
+            // eve deposits mock XTZ into lending controller token pool
             const eveDepositTokenOperation  = await lendingControllerInstance.methods.addLiquidity(
                 loanTokenName,
                 depositAmount, 
@@ -2010,15 +2040,278 @@ describe("Lending Controller tests", async () => {
             const updatedEveLpTokenPoolXtzLedger        = await updatedLpTokenPoolXtzStorage.ledger.get(eve.pkh);            
             assert.equal(updatedEveLpTokenPoolXtzLedger, eveInitialLpTokenPoolXtzBalance + depositAmount);        
 
+            // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
+            const eveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
+            assert.equal(almostEqual(eveXtzBalance, eveInitialXtzBalance - depositAmount, 0.0001), true)
+
         });
     
     }); // end test: add liquidity 
 
 
+
+    // 
+    // Test: Remove Liquidity from Lending Pool
+    //
+    describe('%removeLiquidity', function () {
+    
+        it('user (eve) can remove liquidity for mock FA12 token from Lending Controller token pool', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const loanTokenName = "mockFa12";
+            const withdrawAmount = 5000000; // 5 Mock FA12 Tokens
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            
+            // get mock fa12 token storage and lp token pool mock fa12 token storage
+            const mockFa12TokenStorage              = await mockFa12TokenInstance.storage();
+            const lpTokenPoolMockFa12TokenStorage   = await lpTokenPoolMockFa12TokenInstance.storage();
+            
+            // get initial eve's Mock FA12 Token balance
+            const eveMockFa12Ledger                 = await mockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMockFa12TokenBalance    = eveMockFa12Ledger == undefined ? 0 : parseInt(eveMockFa12Ledger.balance);
+
+            // get initial eve's Token Pool FA2 LP - Mock FA12 Token - balance
+            const eveLpTokenPoolMockFa12Ledger                 = await lpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialLpTokenPoolMockFa12TokenBalance    = eveLpTokenPoolMockFa12Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa12Ledger);
+
+            // get initial lending controller's Mock FA12 Token balance
+            const lendingControllerMockFa12Ledger                = await mockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+            const lendingControllerInitialMockFa12TokenBalance   = lendingControllerMockFa12Ledger == undefined ? 0 : parseInt(lendingControllerMockFa12Ledger.balance);
+
+            // get initial lending controller token pool total
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
+
+            // eve withdraws mock FA12 tokens liquidity from lending controller token pool
+            const eveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                loanTokenName,
+                withdrawAmount, 
+            ).send();
+            await eveWithdrawTokenOperation.confirmation();
+
+            // get updated storages
+            const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+            const updatedMockFa12TokenStorage             = await mockFa12TokenInstance.storage();
+            const updatedLpTokenPoolMockFa12TokenStorage  = await lpTokenPoolMockFa12TokenInstance.storage();
+
+            // check new balance for loan token pool total
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
+
+            // check Eve's Mock FA12 Token balance
+            const updatedEveMockFa12Ledger         = await updatedMockFa12TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMockFa12Ledger.balance, eveInitialMockFa12TokenBalance + withdrawAmount);
+
+            // check Lending Controller's Mock FA12 Token Balance
+            const lendingControllerMockFa12Account  = await updatedMockFa12TokenStorage.ledger.get(lendingControllerAddress.address);            
+            assert.equal(lendingControllerMockFa12Account.balance, lendingControllerInitialMockFa12TokenBalance - withdrawAmount);
+
+            // check Eve's LP Token Pool Mock FA12 Token balance
+            const updatedEveLpTokenPoolMockFa12Ledger        = await updatedLpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveLpTokenPoolMockFa12Ledger, eveInitialLpTokenPoolMockFa12TokenBalance - withdrawAmount);        
+
+        });
+
+
+        it('user (eve) can remove liquidity for mock FA2 token from Lending Controller token pool', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const loanTokenName = "mockFa2";
+            const withdrawAmount = 5000000; // 5 Mock FA2 Tokens
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            
+            // get mock fa12 token storage and lp token pool mock fa2 token storage
+            const mockFa2TokenStorage              = await mockFa2TokenInstance.storage();
+            const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+            
+            // get initial eve's Mock FA2 Token balance
+            const eveMockFa2Ledger                 = await mockFa2TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialMockFa2TokenBalance    = eveMockFa2Ledger == undefined ? 0 : parseInt(eveMockFa2Ledger);
+
+            // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
+            const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa2Ledger);
+
+            // get initial lending controller's Mock FA2 Token balance
+            const lendingControllerMockFa2Ledger                = await mockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+            const lendingControllerInitialMockFa2TokenBalance   = lendingControllerMockFa2Ledger == undefined ? 0 : parseInt(lendingControllerMockFa2Ledger);
+
+            // get initial lending controller token pool total
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
+
+            // eve withdraws mock FA2 tokens liquidity from lending controller token pool
+            const eveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                loanTokenName,
+                withdrawAmount, 
+            ).send();
+            await eveWithdrawTokenOperation.confirmation();
+
+            // get updated storages
+            const updatedLendingControllerStorage         = await lendingControllerInstance.storage();
+            const updatedMockFa2TokenStorage              = await mockFa2TokenInstance.storage();
+            const updatedLpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+
+            // check new balance for loan token pool total
+            const updatedLoanTokenRecord           = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
+
+            // check Eve's Mock FA2 Token balance
+            const updatedEveMockFa2Ledger         = await updatedMockFa2TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveMockFa2Ledger, eveInitialMockFa2TokenBalance + withdrawAmount);
+
+            // check Lending Controller's Mock FA2 Token Balance
+            const lendingControllerMockFa2Account  = await updatedMockFa2TokenStorage.ledger.get(lendingControllerAddress.address);            
+            assert.equal(lendingControllerMockFa2Account, lendingControllerInitialMockFa2TokenBalance - withdrawAmount);
+
+            // check Eve's LP Token Pool Mock FA2 Token balance
+            const updatedEveLpTokenPoolMockFa2Ledger        = await updatedLpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveLpTokenPoolMockFa2Ledger, eveInitialLpTokenPoolMockFa2TokenBalance - withdrawAmount);        
+
+        });
+
+
+
+        it('user (eve) can remove liquidity for tez from Lending Controller token pool', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const loanTokenName = "tez";
+            const withdrawAmount = 5000000; // 5 XTZ
+
+            lendingControllerStorage = await lendingControllerInstance.storage();
+            
+            // get LP Token Pool XTZ token storage (FA2 Token Standard)
+            const lpTokenPoolXtzStorage   = await lpTokenPoolXtzInstance.storage();
+
+            // get initial eve XTZ balance
+            const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
+            const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
+
+            // get initial eve's Token Pool FA2 LP - Tez - balance
+            const eveLpTokenPoolXtzLedger            = await lpTokenPoolXtzStorage.ledger.get(eve.pkh);            
+            const eveInitialLpTokenPoolXtzBalance    = eveLpTokenPoolXtzLedger == undefined ? 0 : parseInt(eveLpTokenPoolXtzLedger);
+
+            // get initial lending controller's Xtz balance
+            const lendingControllerInitialXtzLedger   = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+            const lendingControllerInitialXtzBalance  = lendingControllerInitialXtzLedger.toNumber();
+
+            // get initial lending controller token pool total
+            const initialLoanTokenRecord                 = await lendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            const lendingControllerInitialTokenPoolTotal = parseInt(initialLoanTokenRecord.tokenPoolTotal);
+
+            // eve withdraws tez from lending controller token pool
+            const eveWithdrawTezOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                loanTokenName,
+                withdrawAmount, 
+            ).send();
+            await eveWithdrawTezOperation.confirmation();
+
+            // get updated storages
+            const updatedLendingControllerStorage  = await lendingControllerInstance.storage();
+            const updatedLpTokenPoolXtzStorage     = await lpTokenPoolXtzInstance.storage();
+
+            // check new balance for loan token pool total
+            const updatedLoanTokenRecord = await updatedLendingControllerStorage.loanTokenLedger.get(loanTokenName);
+            assert.equal(updatedLoanTokenRecord.tokenPoolTotal, lendingControllerInitialTokenPoolTotal - withdrawAmount);
+
+            // check Lending Controller's XTZ Balance
+            const lendingControllerXtzBalance = await utils.tezos.tz.getBalance(lendingControllerAddress.address);
+            assert.equal(lendingControllerXtzBalance, lendingControllerInitialXtzBalance - withdrawAmount);
+
+            // check Eve's LP Token Pool XTZ balance
+            const updatedEveLpTokenPoolXtzLedger = await updatedLpTokenPoolXtzStorage.ledger.get(eve.pkh);            
+            assert.equal(updatedEveLpTokenPoolXtzLedger, eveInitialLpTokenPoolXtzBalance - withdrawAmount);        
+
+            // check Eve's XTZ Balance and account for gas cost in transaction with almostEqual
+            const eveXtzBalance = await utils.tezos.tz.getBalance(eve.pkh);
+            assert.equal(almostEqual(eveXtzBalance, eveInitialXtzBalance + withdrawAmount, 0.0001), true)
+
+        });
+
+        it('user (eve) cannot remove more liquidity than he has (mock FA12 token)', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const loanTokenName = "mockFa12";
+            const incrementAmount = 10000000; // Increment user balance by 10 Mock FA12 Tokens
+
+            const lpTokenPoolMockFa12TokenStorage   = await lpTokenPoolMockFa12TokenInstance.storage();
+
+            // get initial eve's Token Pool FA2 LP - Mock FA12 Token - balance
+            const eveLpTokenPoolMockFa12Ledger                 = await lpTokenPoolMockFa12TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialLpTokenPoolMockFa12TokenBalance    = eveLpTokenPoolMockFa12Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa12Ledger);
+
+            const withdrawMoreThanBalanceAmount = eveInitialLpTokenPoolMockFa12TokenBalance + incrementAmount;
+
+            // fail: eve has insufficient mock FA12 tokens in token pool
+            const failEveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                loanTokenName,
+                withdrawMoreThanBalanceAmount
+            );
+            await chai.expect(failEveWithdrawTokenOperation.send()).to.be.rejected;    
+            
+        });
+
+
+        it('user (eve) cannot remove more liquidity than he has (mock FA2 token)', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const loanTokenName = "mockFa2";
+            const incrementAmount = 10000000; // Increment user balance by 10 Mock FA2 Tokens
+
+            const lpTokenPoolMockFa2TokenStorage   = await lpTokenPoolMockFa2TokenInstance.storage();
+
+            // get initial eve's Token Pool FA2 LP - Mock FA2 Token - balance
+            const eveLpTokenPoolMockFa2Ledger                 = await lpTokenPoolMockFa2TokenStorage.ledger.get(eve.pkh);            
+            const eveInitialLpTokenPoolMockFa2TokenBalance    = eveLpTokenPoolMockFa2Ledger == undefined ? 0 : parseInt(eveLpTokenPoolMockFa2Ledger);
+
+            const withdrawMoreThanBalanceAmount = eveInitialLpTokenPoolMockFa2TokenBalance + incrementAmount;
+
+            // fail: eve has insufficient mock FA2 tokens in token pool
+            const failEveWithdrawTokenOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                loanTokenName,
+                withdrawMoreThanBalanceAmount, 
+            );
+            await chai.expect(failEveWithdrawTokenOperation.send()).to.be.rejected;    
+            
+        });
+
+
+        it('user (eve) cannot remove more liquidity than he has (tez)', async () => {
+    
+            // init variables
+            await signerFactory(eve.sk);
+            const loanTokenName = "tez";
+            const incrementAmount = 10000000; // Increment user balance by 10 XTZ
+
+            // get initial eve XTZ balance
+            const eveInitialXtzLedger   = await utils.tezos.tz.getBalance(eve.pkh);
+            const eveInitialXtzBalance  = eveInitialXtzLedger.toNumber();
+
+            const withdrawMoreThanBalanceAmount = eveInitialXtzBalance + incrementAmount;
+
+            // fail: eve has insufficient tez in token pool
+            const failEveWithdrawTezOperation  = await lendingControllerInstance.methods.removeLiquidity(
+                loanTokenName,
+                withdrawMoreThanBalanceAmount, 
+            );
+            await chai.expect(failEveWithdrawTezOperation.send()).to.be.rejected;    
+            
+        });
+
+    });
+
+
+
     // -------------------------------
     // Stop here
     // -------------------------------
-
 
     // 
     // Test: Setup CFMMs XTZ/USDM
