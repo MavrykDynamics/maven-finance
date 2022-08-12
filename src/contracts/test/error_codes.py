@@ -1088,32 +1088,59 @@ error_TOKEN_POOL_REWARDS_RECORD_NOT_FOUND                                       
 
 
 
-error_VAULT_CONTROLLER_CONTRACT_NOT_FOUND                                                               = 773
+error_NOT_AUTHORISED_TO_DEPOSIT_INTO_VAULT                                                              = 773
+error_AMOUNT_NOT_EQUAL_TO_DEPOSIT                                                                       = 774
 
-error_VAULT_ALREADY_EXISTS                                                                              = 774
-error_VAULT_ID_ALREADY_USED                                                                             = 775
-error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 776
-error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 777
-error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 778
-error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 779
-error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 780
-error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 781
-error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 782
-error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 783
-error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 784
-error_LOAN_INTEREST_MISCALCULATION                                                                      = 785
+error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER                                                              = 775
+error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE                                                          = 776
 
-error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 786
-error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 787
-error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 788
-error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 789
-error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 790
-error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 791
-error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 792
-error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 793
 
-error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 794
 
+
+
+
+
+
+
+error_VAULT_CONTROLLER_CONTRACT_NOT_FOUND                                                               = 777
+
+error_VAULT_ALREADY_EXISTS                                                                              = 778
+error_VAULT_ID_ALREADY_USED                                                                             = 779
+error_VAULT_IS_UNDERCOLLATERIZED                                                                        = 780
+error_TOTAL_SERVICE_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                     = 781
+error_LOAN_FEE_CANNOT_BE_GREATER_THAN_BORROWED_AMOUNT                                                   = 782
+error_BORROW_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                       = 783
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 784
+error_USER_BORROW_INDEX_CANNOT_BE_GREATER_THAN_TOKEN_BORROW_INDEX                                       = 785
+error_REPAY_CALLBACK_ENTRYPOINT_IN_TOKEN_POOL_CONTRACT_NOT_FOUND                                        = 786
+error_LOAN_OUTSTANDING_MISCALCULATION                                                                   = 787
+error_PRINCIPAL_REDUCTION_MISCALCULATION                                                                = 788
+error_LOAN_INTEREST_MISCALCULATION                                                                      = 789
+
+error_MINIMUM_LOAN_FEE_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_MINIMUM_LOAN_FEE                           = 790
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_INTEREST_ACCRUED                                   = 791
+error_INTEREST_TREASURY_SHARE_CANNOT_BE_GREATER_THAN_TOTAL_INTEREST_PAID                                = 792
+error_LOAN_TOKEN_ALREADY_EXISTS                                                                         = 793
+error_LOAN_TOKEN_RECORD_NOT_FOUND                                                                       = 794
+error_LOAN_TOKEN_RECORD_ALREADY_EXISTS                                                                  = 795
+error_COLLATERAL_TOKEN_RECORD_NOT_FOUND                                                                 = 796
+error_SENDER_MUST_BE_VAULT_ADDRESS                                                                      = 797
+
+error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT                                                    = 798
+error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                                = 799
+error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED                                                     = 800
+
+
+error_OWNER_VAULT_SET_DOES_NOT_EXIST                                                                    = 801
+
+error_GET_COL_TOKEN_RECORD_BY_ADDRESS_OPT_VIEW_NOT_FOUND                                                = 802
+
+error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS                                                   = 803
+error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE                                                               = 804
+
+error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT                                                        = 805
+
+error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE                                               = 806
 
 
 

@@ -233,7 +233,7 @@ block {
         |   LambdaVaultDelegateTezToBaker(vaultDelegateParams) -> {
 
                 // set new delegate only if sender is the vault owner
-                if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
+                if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_TEZ_TO_BAKER) 
                 else skip; 
                 
                 const delegateToTezBakerOperation : operation = Tezos.set_delegate(vaultDelegateParams);
@@ -258,19 +258,11 @@ block {
         |   LambdaVaultDelegateMvkToSat(satelliteAddress) -> {
 
                 // set new delegate only if sender is the vault owner
-                if Tezos.get_sender() =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
+                if Tezos.get_sender() =/= s.handle.owner then failwith(error_ONLY_OWNER_CAN_DELEGATE_MVK_TO_SATELLITE) 
                 else skip; 
 
-                // get delegation contract address through on-chain view to USDM Token Controller 
-                const getContractAddressView : option (option(address)) = Tezos.call_view ("getContractAddressOpt", "delegation", s.admin);
-                const getDelegationAddressOpt : option(address) = case getContractAddressView of [
-                    Some (_opt)    -> _opt
-                    | None           -> failwith ("Error. getContractAddressOpt not found in USDM Token Controller.")
-                ];
-                const delegationAddress : address = case getDelegationAddressOpt of [
-                    Some(_address)  -> _address
-                    | None           -> failwith ("Error. Delegation contract address not found.")
-                ];
+                // Get Delegation Address from the General Contracts map on the Governance Contract
+                const delegationAddress: address = getContractAddressFromGovernanceContract("delegation", s.governanceAddress, error_DELEGATION_CONTRACT_NOT_FOUND);
 
                 // create delegate to satellite operation
                 const delegateToSatelliteOperation : operation = Tezos.transaction(
@@ -318,7 +310,7 @@ block {
 
                     |   Fa12(token) -> block {
                         
-                            // check collateral token contract address exists in USDM Token controller collateral token ledger
+                            // check collateral token contract address exists in Lending controller collateral token ledger
                             const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", token, s.admin);
                             const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
                                     Some (_opt)    -> _opt
@@ -335,7 +327,7 @@ block {
 
                     |   Fa2(token)  -> block{
                         
-                            // check collateral token contract address exists in USDM Token controller collateral token ledger
+                            // check collateral token contract address exists in Lending controller collateral token ledger
                             const getCollateralTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getColTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
                             const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getCollateralTokenRecordView of [
                                     Some (_opt)    -> _opt

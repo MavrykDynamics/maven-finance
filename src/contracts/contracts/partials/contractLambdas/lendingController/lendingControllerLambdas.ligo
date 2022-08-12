@@ -483,32 +483,32 @@ block {
                 const initiator             : address   = Tezos.get_sender();
 
                 // Get Token Record
-                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record 
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
                 
-                const tokenId                   : nat       = tokenRecord.tokenId;
-                const tokenContractAddress      : address   = tokenRecord.tokenContractAddress;
-                const tokenPoolTotal            : nat       = tokenRecord.tokenPoolTotal;
+                const tokenId                   : nat       = loanTokenRecord.tokenId;
+                const tokenContractAddress      : address   = loanTokenRecord.tokenContractAddress;
+                const tokenPoolTotal            : nat       = loanTokenRecord.tokenPoolTotal;
                 
-                const lpTokenContractAddress    : address   = tokenRecord.lpTokenContractAddress;
-                const lpTokensTotal             : nat       = tokenRecord.lpTokensTotal;
+                const lpTokenContractAddress    : address   = loanTokenRecord.lpTokenContractAddress;
+                const lpTokensTotal             : nat       = loanTokenRecord.lpTokensTotal;
                 const lpTokensBurned            : nat       = amount;
 
                 // calculate new total of LP Tokens
-                if lpTokensBurned > lpTokensTotal then failwith("Error. You cannot burn more than the total amount of LP tokens.") else skip;
+                if lpTokensBurned > lpTokensTotal then failwith(error_CANNOT_BURN_MORE_THAN_TOTAL_AMOUNT_OF_LP_TOKENS) else skip;
                 const newLpTokensTotal : nat = abs(lpTokensTotal - lpTokensBurned);
 
                 // calculate new token pool amount
-                if amount > tokenPoolTotal then failwith("Error. Token pool minus tokens withdrawn is negative.") else skip;
+                if amount > tokenPoolTotal then failwith(error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE) else skip;
                 const newTokenPoolTotal : nat = abs(tokenPoolTotal - amount);
 
                 // burn LP Token operation
-                const burnLpTokenOperation : operation = mintOrBurnLpToken(initiator, (0 - lpTokensBurned), lpTokenContractAddress);
+                const burnLpTokenOperation : operation = burnLpToken(initiator, lpTokensBurned, lpTokenContractAddress);
                 operations := burnLpTokenOperation # operations;
 
-                case tokenRecord.tokenType of [
+                case loanTokenRecord.tokenType of [
 
                     |   Tez(_tez) -> block{
                     
@@ -547,11 +547,11 @@ block {
                 ];
 
                 // update pool totals
-                tokenRecord.tokenPoolTotal  := newTokenPoolTotal;
-                tokenRecord.lpTokensTotal   := newLpTokensTotal;
+                loanTokenRecord.tokenPoolTotal  := newTokenPoolTotal;
+                loanTokenRecord.lpTokensTotal   := newLpTokensTotal;
 
                 // Update Token Ledger
-                s.loanTokenLedger[loanTokenName] := tokenRecord;
+                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
                 
             }
         |   _ -> skip
@@ -823,22 +823,15 @@ block {
 
                         const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
                                 Some(_record) -> _record
-                            |   None -> failwith("Error. Token does not exist in collateral token record.")
+                            |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                         ];
 
                         if collateralTokenRecord.tokenName = "sMVK" then block {
 
                             // for special case of sMVK
 
-                            // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                            const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                            const doormanAddress : address = case generalContractsOptView of [
-                                    Some (_optionContract) -> case _optionContract of [
-                                            Some (_contract)    -> _contract
-                                        |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                                    ]
-                                |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                            ];
+                            // Get Doorman Address from the General Contracts map on the Governance Contract
+                            const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                             // create operation to doorman to withdraw all staked MVK from vault to user
                             const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType = record [
@@ -922,7 +915,7 @@ block {
                 // remove vault from stroage
                 var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
                         Some (_set) -> _set
-                    |   None        -> failwith("Error. Owner vault set not found.")
+                    |   None        -> failwith(error_OWNER_VAULT_SET_DOES_NOT_EXIST)
                 ];
 
                 s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
@@ -1194,28 +1187,28 @@ block {
 
                 // if tez is to be withdrawn, check that Tezos amount should be the same as withdraw amount
                 if tokenName = "tez" then block {
-                    if mutezToNatural(Tezos.get_amount()) =/= withdrawTokenAmount then failwith("Error. Tezos amount and withdraw token amount do not match.") else skip;
+                    if mutezToNatural(Tezos.get_amount()) =/= withdrawTokenAmount then failwith(error_TEZOS_SENT_IS_NOT_EQUAL_TO_WITHDRAW_AMOUNT) else skip;
                 } else skip;
 
                 // get token collateral balance in vault, fail if none found
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
                         Some(_balance) -> _balance
-                    |   None -> failwith("Error. You do not have any tokens to withdraw.")
+                    |   None -> failwith(error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT)
                 ];
 
                 // calculate new vault balance
-                if withdrawTokenAmount > vaultTokenCollateralBalance then failwith("Error. Token withdrawal amount cannot be greater than your collateral balance.") else skip;
+                if withdrawTokenAmount > vaultTokenCollateralBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
                 const newCollateralBalance : nat  = abs(vaultTokenCollateralBalance - withdrawTokenAmount);
 
                 // check if vault is undercollaterized, if not then send withdraw operation
                 if isUnderCollaterized(vault, s) 
-                then failwith("Error. Withdrawal is not allowed as vault is undercollaterized.") 
+                then failwith(error_CANNOT_WITHDRAW_AS_VAULT_IS_UNDERCOLLATERIZED) 
                 else skip;
                 
                 // get collateral token record - with token contract address and token type
                 const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
                         Some(_collateralTokenRecord) -> _collateralTokenRecord
-                    |   None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+                    |   None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // pattern match withdraw operation based on token type
@@ -1482,15 +1475,8 @@ block {
 
                 operations := transferLoanToBorrowerOperation # operations;
 
-                // Get Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasury", s.governanceAddress);
-                const treasuryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Treasury Address from the General Contracts map on the Governance Contract
+                const treasuryAddress: address = getContractAddressFromGovernanceContract("treasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // transfer total fees amount to treasury
                 const transferFeesToTreasuryOperation : operation = transferFa2Token(
@@ -1503,15 +1489,8 @@ block {
 
                 operations := transferFeesToTreasuryOperation # operations;
 
-                // Get Token Pool Reward Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPoolReward", s.governanceAddress);
-                const tokenPoolRewardAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
+                const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
                 // transfer total fees amount to token pool reward contract
                 const transferFeesToTokenPoolRewardContractOperation : operation = transferFa2Token(
@@ -1702,25 +1681,11 @@ block {
                 // Process Fee Transfers
                 // ------------------------------------------------------------------
                 
-                // Get Treasury Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "treasury", s.governanceAddress);
-                const treasuryAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TREASURY_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Treasury Address from the General Contracts map on the Governance Contract
+                const treasuryAddress: address = getContractAddressFromGovernanceContract("treasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
-                // Get Token Pool Reward Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "tokenPoolReward", s.governanceAddress);
-                const tokenPoolRewardAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+                // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
+                const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
                 // Send interest payment to treasury
                 const sendInterestToTreasuryOperation : operation = transferFa2Token(
@@ -1854,17 +1819,9 @@ block {
 
                 // get vault
                 var vault : vaultRecordType := getVault(vaultHandle, s);
-
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
+                
+                // Get Doorman Address from the General Contracts map on the Governance Contract
+                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // create operation to doorman to update balance of staked MVK from user to vault
                 const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
@@ -1926,15 +1883,9 @@ block {
                 // get vault
                 var vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
+
+                // Get Doorman Address from the General Contracts map on the Governance Contract
+                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
 
                 // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
@@ -1944,7 +1895,7 @@ block {
                 ];
 
                 // calculate new collateral balance
-                if withdrawAmount > vaultTokenCollateralBalance then failwith("Error. You do not have enough collateral balance.") else skip;
+                if withdrawAmount > vaultTokenCollateralBalance then failwith(error_CANNOT_WITHDRAW_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
                 const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - withdrawAmount);
 
                 // create operation to doorman to update balance of staked MVK from user to vault
@@ -1980,12 +1931,11 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
                 
-                
                 // init variables for convenience
                 const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
                 const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
                 const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
-                const _liquidator       : address          = vaultLiquidateStakedMvkParams.liquidator;
+                const _liquidator       : address           = vaultLiquidateStakedMvkParams.liquidator;
                 
                 const tokenName       : string            = "sMVK";
 
@@ -2004,25 +1954,17 @@ block {
                 // get vault
                 var vault : vaultRecordType := getVault(vaultHandle, s);
 
-                // Get Doorman Contract Address from the General Contracts Map on the Governance Contract
-                const generalContractsOptView : option (option(address)) = Tezos.call_view ("getGeneralContractOpt", "doorman", s.governanceAddress);
-                const doormanAddress : address = case generalContractsOptView of [
-                        Some (_optionContract) -> case _optionContract of [
-                                Some (_contract)    -> _contract
-                            |   None                -> failwith (error_DOORMAN_CONTRACT_NOT_FOUND)
-                        ]
-                    |   None -> failwith (error_GET_GENERAL_CONTRACT_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
-                ];
-
+                // Get Doorman Address from the General Contracts map on the Governance Contract
+                const doormanAddress: address = getContractAddressFromGovernanceContract("doorman", s.governanceAddress, error_DOORMAN_CONTRACT_NOT_FOUND);
 
                 // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
                 var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
-                    Some(_balance) -> _balance
-                    | None           -> failwith("Error. Vault collateral has zero balalnce.")
+                        Some(_balance) -> _balance
+                    |   None           -> failwith(error_INSUFFICIENT_COLLATERAL_TOKEN_BALANCE_IN_VAULT)
                 ];
 
                 // calculate new collateral balance
-                if liquidatedAmount > vaultTokenCollateralBalance then failwith("Error. You do not have enough collateral balance.") else skip;
+                if liquidatedAmount > vaultTokenCollateralBalance then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_TOTAL_COLLATERAL_BALANCE) else skip;
                 const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - liquidatedAmount);
 
                 // create operation to doorman to update balance of staked MVK from user to vault
