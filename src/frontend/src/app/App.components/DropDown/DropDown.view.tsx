@@ -40,7 +40,7 @@ export const DropDownView = ({
   items,
 }: DropDownViewProps) => {
   return (
-    <DropDownStyled>
+    <DropDownStyled className="drop-down">
       <DropDownMenu
         onClick={() => {
           onClick()
