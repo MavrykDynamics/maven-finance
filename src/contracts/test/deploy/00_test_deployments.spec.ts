@@ -138,6 +138,10 @@ describe('Contracts Deployment for Tests', async () => {
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
 
+  var mockUsdXtzAggregator : Aggregator;
+  var mockUsdMockFa12TokenAggregator : Aggregator;
+  var mockUsdMockFa2TokenAggregator : Aggregator;
+
   var lpTokenPoolMockFa12Token : TokenPoolLpToken;
   var lpTokenPoolMockFa2Token : TokenPoolLpToken;
   var lpTokenPoolXtz : TokenPoolLpToken;
@@ -155,7 +159,7 @@ describe('Contracts Deployment for Tests', async () => {
   // var cfmmTezMockFa12Token : CfmmTezFa12Token
 
   var lendingController : LendingController
-  // var vault : Vault
+  
   var tezos
   
 
@@ -443,6 +447,68 @@ describe('Contracts Deployment for Tests', async () => {
   
       await saveContractAddress("lpTokenPoolXtzAddress", lpTokenPoolXtz.contract.address)
       console.log("LP Token Pool XTZ Contract deployed at:", lpTokenPoolXtz.contract.address);
+  
+
+      aggregatorStorage.config = {
+        nameMaxLength                       : new BigNumber(200),
+        decimals                            : new BigNumber(6),
+        numberBlocksDelay                   : new BigNumber(2),
+        
+        deviationTriggerBanDuration         : new BigNumber(86400), // one day
+        perThousandDeviationTrigger         : new BigNumber(2),
+        percentOracleThreshold              : new BigNumber(49),
+    
+        requestRateDeviationDepositFee      : new BigNumber(0),
+        
+        deviationRewardStakedMvk            : new BigNumber(15000000), // 0.015 MVK
+        deviationRewardAmountXtz            : new BigNumber(0),  
+        rewardAmountStakedMvk               : new BigNumber(10000000), // 0.01 MVK
+        rewardAmountXtz                     : new BigNumber(1300),     // ~0.0013 tez 
+      };
+      aggregatorStorage.lastCompletedRoundPrice = {
+        round                   : new BigNumber(0),
+        price                   : new BigNumber(1500000),
+        percentOracleResponse   : new BigNumber(100),
+        priceDateTime           : '1'
+      };
+      mockUsdMockFa12TokenAggregator = await Aggregator.originate(
+        utils.tezos,
+        aggregatorStorage
+      )
+  
+      await saveContractAddress('mockUsdMockFa12TokenAggregatorAddress', mockUsdMockFa12TokenAggregator.contract.address)
+      console.log('Mock USD/MockFA12Token Aggregator Contract deployed at:', mockUsdMockFa12TokenAggregator.contract.address)
+
+
+      aggregatorStorage.lastCompletedRoundPrice = {
+        round                   : new BigNumber(0),
+        price                   : new BigNumber(3500000),
+        percentOracleResponse   : new BigNumber(100),
+        priceDateTime           : '1'
+      };
+      mockUsdMockFa2TokenAggregator = await Aggregator.originate(
+        utils.tezos,
+        aggregatorStorage
+      )
+  
+      await saveContractAddress('mockUsdMockFa2TokenAggregatorAddress', mockUsdMockFa2TokenAggregator.contract.address)
+      console.log('Mock USD/MockFA2Token Aggregator Contract deployed at:', mockUsdMockFa2TokenAggregator.contract.address)
+
+
+      aggregatorStorage.lastCompletedRoundPrice = {
+        round                   : new BigNumber(0),
+        price                   : new BigNumber(1800000),
+        percentOracleResponse   : new BigNumber(100),
+        priceDateTime           : '1'
+      };
+      mockUsdXtzAggregator = await Aggregator.originate(
+        utils.tezos,
+        aggregatorStorage
+      )
+  
+      await saveContractAddress('mockUsdXtzAggregatorAddress', mockUsdXtzAggregator.contract.address)
+      console.log('Mock USD/XTZ Aggregator Contract deployed at:', mockUsdXtzAggregator.contract.address)
+  
   
 
 

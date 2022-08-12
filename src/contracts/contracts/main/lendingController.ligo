@@ -341,13 +341,22 @@ function getUpdateRewardsEntrypointInTokenPoolRewardContract(const contractAddre
 
 
 
-// helper function to get mintOrBurn entrypoint from LQT contract
+// helper function to get mintOrBurn entrypoint from LP Token contract
 function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
     case (Tezos.get_entrypoint_opt(
         "%mintOrBurn",
         tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
                 Some(contr) -> contr
             |   None -> (failwith("Error. MintOrBurn entrypoint in LP Token contract not found") : contract(mintOrBurnParamsType))
+        ]
+
+// helper function to get burn entrypoint from LP Token contract
+function getLpTokenBurnEntrypoint(const tokenContractAddress : address) : contract(burnParamsType) is
+    case (Tezos.get_entrypoint_opt(
+        "%burn",
+        tokenContractAddress) : option(contract(burnParamsType))) of [
+                Some(contr) -> contr
+            |   None -> (failwith("Error. Burn entrypoint in LP Token contract not found") : contract(burnParamsType))
         ]
 
 // ------------------------------------------------------------------------------
@@ -369,6 +378,15 @@ block {
     ];
 
 } with (Tezos.transaction(mintOrBurnParams, 0mutez, getLpTokenMintOrBurnEntrypoint(lpTokenAddress) ) )
+
+
+function burnLpToken(const target : address; const amount : nat; const lpTokenAddress : address) : operation is 
+block {
+
+    const burnParams : burnParamsType = (target, amount)
+
+
+} with (Tezos.transaction(burnParams, 0mutez, getLpTokenBurnEntrypoint(lpTokenAddress) ) )
 
 
 
@@ -410,73 +428,91 @@ block {
         
         const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
                 Some(_record) -> _record
-            | None -> failwith("Error. Token does not exist in collateral token record.")
+            | None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
         ];
 
-        // get last completed round price of token from Oracle view
-        const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, collateralTokenRecord.oracleAddress);
-        const getTokenLastCompletedRoundPriceOpt: option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
-                Some (_value) -> _value
-            | None -> failwith ("Error. lastCompletedRoundPrice View not found in the Oracle Contract.")
-        ];
-        const tokenLastCompletedRoundPrice: lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
-                Some (_value) -> _value
-            | None -> failwith ("Error. lastCompletedRoundPrice not found.")
-        ];
+        case collateralTokenRecord.tokenType of [
 
-        // todo: check decimals and percentOracleResponse
-        // todo: ensure exponent is standardized
-        // denomination in USD 
-        
-        const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
-        const priceDecimals    : nat  = tokenLastCompletedRoundPrice.decimals;
+            |   Tez(_tez) -> block {
 
-        // calculate required number of decimals to rebase each token to the same unit for comparison
-        // assuming most token decimals are 6, and most price decimals from oracle is 8 - set upper limit of 24 (e.g. 12 decimals each)
-        if tokenDecimals + priceDecimals > 24n then failwith("Error. Too many decimals for token * price.") else skip;
-        const rebaseDecimals   : nat  = abs(24n - (tokenDecimals + priceDecimals));
+                }
 
-        const tokenPrice       : nat  = tokenLastCompletedRoundPrice.price;            
+            |   Fa12(_token) -> block {
 
-        // calculate value of collateral balance
-        var tokenValueInUsd : nat := tokenBalance * tokenPrice;
+                
+                }
 
-        if rebaseDecimals = 1n then 
-            tokenValueInUsd := tokenValueInUsd * 10n
-        else if rebaseDecimals = 2n then 
-            tokenValueInUsd := tokenValueInUsd * 100n 
-        else if rebaseDecimals = 3n then 
-            tokenValueInUsd := tokenValueInUsd * 1000n 
-        else if rebaseDecimals = 4n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e4 
-        else if rebaseDecimals = 5n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e5
-        else if rebaseDecimals = 6n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e6
-        else if rebaseDecimals = 7n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e7
-        else if rebaseDecimals = 8n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e8
-        else if rebaseDecimals = 9n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e9
-        else if rebaseDecimals = 10n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e10
-        else if rebaseDecimals = 11n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e11
-        else if rebaseDecimals = 12n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e12
-        else if rebaseDecimals = 13n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e13
-        else if rebaseDecimals = 14n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e14
-        else if rebaseDecimals = 15n then 
-            tokenValueInUsd := tokenValueInUsd * fpa10e15
-        else skip;
-            
-        // increment vault collateral value - value should have a base decimal of 1e24
-        vaultCollateralValueInUsd := vaultCollateralValueInUsd + tokenValueInUsd;
+            |   Fa2(_token) -> block {
+
+                    // get last completed round price of token from Oracle view
+                    const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, collateralTokenRecord.oracleAddress);
+                    const getTokenLastCompletedRoundPriceOpt: option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
+                            Some (_value) -> _value
+                        |   None          -> failwith (error_GET_LAST_COMPLETED_ROUND_PRICE_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
+                    ];
+                    const tokenLastCompletedRoundPrice: lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
+                            Some (_value) -> _value
+                        |   None          -> failwith (error_LAST_COMPLETED_ROUND_PRICE_NOT_FOUND)
+                    ];
+
+                    // todo: check decimals and percentOracleResponse
+                    // todo: ensure exponent is standardized
+                    // denomination in USD 
+                    
+                    const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+                    const priceDecimals    : nat  = tokenLastCompletedRoundPrice.decimals;
+
+                    // calculate required number of decimals to rebase each token to the same unit for comparison
+                    // assuming most token decimals are 6, and most price decimals from oracle is 8 - set upper limit of 24 (e.g. 12 decimals each)
+                    if tokenDecimals + priceDecimals > 24n then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
+                    const rebaseDecimals   : nat  = abs(24n - (tokenDecimals + priceDecimals));
+
+                    const tokenPrice       : nat  = tokenLastCompletedRoundPrice.price;            
+
+                    // calculate value of collateral balance
+                    var tokenValueInUsd : nat := tokenBalance * tokenPrice;
+
+                    if rebaseDecimals = 1n then 
+                        tokenValueInUsd := tokenValueInUsd * 10n
+                    else if rebaseDecimals = 2n then 
+                        tokenValueInUsd := tokenValueInUsd * 100n 
+                    else if rebaseDecimals = 3n then 
+                        tokenValueInUsd := tokenValueInUsd * 1000n 
+                    else if rebaseDecimals = 4n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e4 
+                    else if rebaseDecimals = 5n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e5
+                    else if rebaseDecimals = 6n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e6
+                    else if rebaseDecimals = 7n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e7
+                    else if rebaseDecimals = 8n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e8
+                    else if rebaseDecimals = 9n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e9
+                    else if rebaseDecimals = 10n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e10
+                    else if rebaseDecimals = 11n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e11
+                    else if rebaseDecimals = 12n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e12
+                    else if rebaseDecimals = 13n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e13
+                    else if rebaseDecimals = 14n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e14
+                    else if rebaseDecimals = 15n then 
+                        tokenValueInUsd := tokenValueInUsd * fpa10e15
+                    else skip;
+                        
+                    // increment vault collateral value - value should have a base decimal of 1e24
+                    vaultCollateralValueInUsd := vaultCollateralValueInUsd + tokenValueInUsd;
+
+                }
+        ];        
 
     };
+
+
 
     // loanOutstanding will be 1e9 (token decimals), so multiply by 1e15 to have a base of 1e24
     const loanOutstandingRebased : nat = loanOutstandingTotal * fpa10e15; 

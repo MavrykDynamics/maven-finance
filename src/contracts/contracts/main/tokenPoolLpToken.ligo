@@ -286,7 +286,7 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
 function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storage) : return is
 block {
 
-  // check sender is from cfmm contract
+  // check sender is from whitelisted contract
   if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
   const quantity        : int      = mintOrBurnParams.quantity;
@@ -340,6 +340,10 @@ block {
 (* Mint Entrypoint *)
 function mint(const mintParams: mintParams; const store : storage) : return is
   block {
+
+    // check sender is from whitelisted contract
+    if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
     const senderAddress: owner       = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
@@ -354,6 +358,10 @@ function mint(const mintParams: mintParams; const store : storage) : return is
 (* Burn Entrypoint *)
 function burn(const burnParams: burnParams; const store: storage) : return is
   block {
+
+    // check sender is from whitelisted contract
+    if checkInWhitelistContracts(Tezos.get_sender(), store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
     const targetAddress: owner       = burnParams.0;
     const burnedTokens: tokenBalance = burnParams.1;
     var targetBalance: tokenBalance := getBalance(targetAddress, store);
