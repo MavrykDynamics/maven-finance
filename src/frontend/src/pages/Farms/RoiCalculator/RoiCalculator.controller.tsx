@@ -9,12 +9,13 @@ import { Input, InputStatusType } from '../../../app/App.components/Input/Input.
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import Checkbox from '../../../app/App.components/Checkbox/Checkbox.view'
+import Expand from '../../../app/App.components/Expand/Expand.view'
 
 // helpers
 import { mathRoundTwoDigit } from '../../../utils/validatorFunctions'
 
 // style
-import { RoiCalculatorStyled } from './RoiCalculator.style'
+import { RoiCalculatorStyled, RoiExpandStyled } from './RoiCalculator.style'
 
 type Props = {
   onClose: () => void
@@ -93,7 +94,7 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
   }
 
   return (
-    <ModalPopup onClose={onClose}>
+    <ModalPopup className="modal-roi" onClose={onClose}>
       <RoiCalculatorStyled>
         <header>
           <CoinsIcons />
@@ -162,6 +163,32 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
           </button>
         </div>
       </RoiCalculatorStyled>
+      <RoiExpandStyled>
+        <Expand className="roi-expand" showCustomText="Details" header={<></>}>
+          <ul className="roi-expand-ul">
+            <li>
+              <h4>APR (incl LP rewards)</h4>
+              <var>21.57%</var>
+            </li>
+            <li>
+              <h4>Base APR (MVK yield only)</h4>
+              <var>21.57%</var>
+            </li>
+            <li>
+              <h4>LP Rewards APR</h4>
+              <var>21.57%</var>
+            </li>
+            <li>
+              <h4>APY</h4>
+              <var>21.57%</var>
+            </li>
+            <li>
+              <h4>Farm Multiplier</h4>
+              <var>21.57%</var>
+            </li>
+          </ul>
+        </Expand>
+      </RoiExpandStyled>
     </ModalPopup>
   )
 }

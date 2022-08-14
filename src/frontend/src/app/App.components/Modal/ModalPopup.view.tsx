@@ -10,9 +10,10 @@ type Props = {
   onClose: () => void
   children: React.ReactNode
   width?: number
+  className?: string
 }
 
-export default function ModalPopup({ onClose, width = 475, children }: Props) {
+export default function ModalPopup({ onClose, width = 475, children, className }: Props) {
   const handleEsc = (event: KeyboardEvent): void => {
     // close modal press key Esc
     const keyCode: number = event.keyCode
@@ -32,7 +33,9 @@ export default function ModalPopup({ onClose, width = 475, children }: Props) {
         <ModalClose onClick={onClose}>
           <Icon id="error" />
         </ModalClose>
-        <ModalCardContent style={{ width }}>{children}</ModalCardContent>
+        <ModalCardContent className={className} style={{ width }}>
+          {children}
+        </ModalCardContent>
       </ModalCard>
     </ModalStyled>
   )

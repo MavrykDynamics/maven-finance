@@ -3,6 +3,8 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
 
 export const RoiCalculatorStyled = styled.section`
+  padding: 30px;
+
   header {
     display: flex;
     align-items: center;
@@ -131,3 +133,52 @@ export const RoiCalculatorStyled = styled.section`
     }
   }
 ` // RoiCalculatorStyled
+
+export const RoiExpandStyled = styled.div`
+  .roi-expand {
+    border-radius: 0;
+    border: none;
+
+    &:hover {
+      box-shadow: none;
+    }
+
+    article {
+      &::before {
+        display: none;
+      }
+    }
+
+    .roi-expand-ul {
+      list-style: none;
+      padding-bottom: 30px;
+      padding-right: 30px;
+      padding-left: 30px;
+      margin: 0;
+
+      li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        h4 {
+          margin: 0;
+          font-weight: 600;
+          font-size: 14px;
+          color: ${headerColor};
+        }
+
+        var {
+          font-weight: 600;
+          font-size: 14px;
+          color: ${cyanColor};
+        }
+      }
+    }
+  }
+`

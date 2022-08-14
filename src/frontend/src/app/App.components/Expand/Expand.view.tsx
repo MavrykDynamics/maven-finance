@@ -12,9 +12,17 @@ type Props = {
   sufix?: React.ReactNode
   className?: string
   showText?: boolean
+  showCustomText?: string
 }
 
-export default function Expand({ children, header, className = '', sufix = null, showText = false }: Props) {
+export default function Expand({
+  children,
+  header,
+  className = '',
+  showCustomText = '',
+  sufix = null,
+  showText = false,
+}: Props) {
   const ref = useRef(null)
   const [expanded, setExpanded] = useState(false)
   const [accordionHeight, setAccordionHeight] = useState(0)
@@ -33,6 +41,7 @@ export default function Expand({ children, header, className = '', sufix = null,
         {header}
         <div className={`arrow-wrap ${expanded ? 'top' : 'bottom'}`}>
           {showText ? <span>{expanded ? 'Hide' : 'Show'}</span> : null}
+          {showCustomText ? <span>{showCustomText}</span> : null}
           <Icon id="arrow-down" />
         </div>
         {sufix}
