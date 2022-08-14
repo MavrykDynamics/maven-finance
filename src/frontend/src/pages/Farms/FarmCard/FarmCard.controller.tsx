@@ -67,14 +67,28 @@ export const FarmCard = ({
     dispatch(harvest(farmAddress))
   }
 
-  const triggerDepositModal = async () => {
+  const setReduxFarmAddress = async () => {
     await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
+  }
+
+  const triggerDepositModal = async () => {
+    await setReduxFarmAddress()
     await dispatch(showModal(FARM_DEPOSIT))
   }
 
   const triggerWithdrawModal = async () => {
-    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
+    await setReduxFarmAddress()
     await dispatch(showModal(FARM_WITHDRAW))
+  }
+
+  const triggerCalculatorModal = async () => {
+    await setReduxFarmAddress()
+    setVisibleModal(true)
+  }
+
+  const closeCalculatorModal = async () => {
+    setVisibleModal(false)
+    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: '' })
   }
 
   const logoHeaderContent = (
@@ -102,7 +116,7 @@ export const FarmCard = ({
       <h3>APY</h3>
       <div className="btn-info">
         <var>{valueAPR}</var>
-        <button onClick={() => setVisibleModal(true)} className="calc-button">
+        <button onClick={triggerCalculatorModal} className="calc-button">
           <Icon id="calculator" />
         </button>
       </div>
@@ -206,7 +220,7 @@ export const FarmCard = ({
             {linksBlock}
           </>
         </Expand>
-        {visibleModal ? <RoiCalculator onClose={() => setVisibleModal(false)} /> : null}
+        {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
       </FarmCardStyled>
     )
   }
@@ -231,7 +245,7 @@ export const FarmCard = ({
           {farmingBlock}
         </div>
       </Expand>
-      {visibleModal ? <RoiCalculator onClose={() => setVisibleModal(false)} /> : null}
+      {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
     </FarmCardStyled>
   )
 }
