@@ -115,4 +115,19 @@ export const RoiCalculatorStyled = styled.section`
       }
     }
   }
+
+  .compounding-every {
+    display: flex;
+    align-items: center;
+
+    .compounding-checkbox {
+      display: flex;
+      align-items: center;
+      margin-right: 22px;
+    }
+
+    .compounding-tabs {
+      width: 100%;
+    }
+  }
 ` // RoiCalculatorStyled

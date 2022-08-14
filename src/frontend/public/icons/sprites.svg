@@ -461,6 +461,9 @@
     <symbol id="check-stroke" viewBox="0 0 12 13" fill="none">
         <path d="M1 7L5 11.5L11 1.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
+    <symbol id="check-fill" viewBox="0 0 12 9">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M10.8 0C10.464 0 10.164 0.132 9.948 0.348L4.8 5.508L2.052 2.748C1.836 2.532 1.536 2.4 1.2 2.4C0.54 2.4 0 2.94 0 3.6C0 3.936 0.132 4.236 0.348 4.452L3.948 8.052C4.164 8.268 4.464 8.4 4.8 8.4C5.136 8.4 5.436 8.268 5.652 8.052L11.652 2.052C11.868 1.836 12 1.536 12 1.2C12 0.54 11.46 0 10.8 0Z" />
+    </symbol>
     <symbol id="man-check" viewBox="0 0 24 24" fill="none">
         <path d="M5.25 6.75C6.90685 6.75 8.25 5.40685 8.25 3.75C8.25 2.09315 6.90685 0.75 5.25 0.75C3.59315 0.75 2.25 2.09315 2.25 3.75C2.25 5.40685 3.59315 6.75 5.25 6.75Z"
               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
