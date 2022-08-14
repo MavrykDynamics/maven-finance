@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
 //view
 import ModalPopup from '../../../app/App.components/Modal/ModalPopup.view'
@@ -15,10 +17,11 @@ import { RoiCalculatorStyled } from './RoiCalculator.style'
 
 type Props = {
   onClose: () => void
+  lpTokenAddress: string
 }
 
 const STAKED_VALUES = [
-  { text: '$100', id: 1, active: true },
+  { text: '$100', id: 1, active: false },
   { text: '$1000', id: 2, active: false },
   { text: 'My Balance', id: 3, active: false },
 ]
@@ -38,9 +41,19 @@ const COMPOUNDING_ITEMS = [
   { text: '30D', id: 4, active: false },
 ]
 
-export default function RoiCalculator({ onClose }: Props) {
+export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
+  const { selectedFarmAddress, farmContracts } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
   const [status, setStatus] = useState<InputStatusType>('')
+  console.log('%c ||||| farmContracts', 'color:yellowgreen', farmContracts)
+  console.log('%c ||||| selectedFarmAddress', 'color:yellowgreen', selectedFarmAddress)
+  const currentContract = useMemo(
+    () => farmContracts.find((item) => item.address === lpTokenAddress),
+    [selectedFarmAddress, farmContracts],
+  )
+
+  console.log('%c ||||| currentContract', 'color:yellowgreen', currentContract)
+
   const checkInputIsOk = (value: number | '') => {
     setStatus(value ? 'success' : 'error')
   }
@@ -57,8 +70,8 @@ export default function RoiCalculator({ onClose }: Props) {
     }
   }
 
-  const handleChange = (e: any) => {
-    const value = mathRoundTwoDigit(e.target.value)
+  const handleChange = (text: string) => {
+    const value = mathRoundTwoDigit(text)
     setAmount(+value)
     checkInputIsOk(value)
   }
@@ -72,7 +85,9 @@ export default function RoiCalculator({ onClose }: Props) {
   }
 
   const handleChangeValues = (tabId?: number) => {
-    console.log('%c ||||| handleChangeValues tabId', 'color:yellowgreen', tabId)
+    const balance = currentContract?.balance ?? 0
+    const value = tabId === 1 ? 100 : tabId === 2 ? 1000 : balance
+    handleChange(`${value}`)
   }
 
   return (
@@ -91,7 +106,7 @@ export default function RoiCalculator({ onClose }: Props) {
             id="input-roi"
             type={'number'}
             placeholder={String(amount)}
-            onChange={handleChange}
+            onChange={(e: any) => handleChange(e.target.value)}
             onBlur={handleBlur}
             onFocus={handleFocus}
             value={amount}
