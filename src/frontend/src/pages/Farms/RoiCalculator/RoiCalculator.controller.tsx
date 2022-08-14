@@ -8,6 +8,7 @@ import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
 import { Input, InputStatusType } from '../../../app/App.components/Input/Input.controller'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import Checkbox from '../../../app/App.components/Checkbox/Checkbox.view'
 
 // helpers
 import { mathRoundTwoDigit } from '../../../utils/validatorFunctions'
@@ -20,27 +21,6 @@ type Props = {
   lpTokenAddress: string
 }
 
-const STAKED_VALUES = [
-  { text: '$100', id: 1, active: false },
-  { text: '$1000', id: 2, active: false },
-  { text: 'My Balance', id: 3, active: false },
-]
-
-const STAKED_ITEMS = [
-  { text: '1D', id: 1, active: true },
-  { text: '7D', id: 2, active: false },
-  { text: '30D', id: 3, active: false },
-  { text: '1Y', id: 4, active: false },
-  { text: '5Y', id: 5, active: false },
-]
-
-const COMPOUNDING_ITEMS = [
-  { text: '1D', id: 1, active: true },
-  { text: '7D', id: 2, active: false },
-  { text: '14D', id: 3, active: false },
-  { text: '30D', id: 4, active: false },
-]
-
 export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
   const { selectedFarmAddress, farmContracts } = useSelector((state: State) => state.farm)
   const [amount, setAmount] = useState<number | ''>('')
@@ -52,7 +32,29 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
     [selectedFarmAddress, farmContracts],
   )
 
+  const STAKED_ITEMS = [
+    { text: '1D', id: 1, active: true },
+    { text: '7D', id: 2, active: false },
+    { text: '30D', id: 3, active: false },
+    { text: '1Y', id: 4, active: false },
+    { text: '5Y', id: 5, active: false },
+  ]
+
+  const COMPOUNDING_ITEMS = [
+    { text: '1D', id: 1, active: true },
+    { text: '7D', id: 2, active: false },
+    { text: '14D', id: 3, active: false },
+    { text: '30D', id: 4, active: false },
+  ]
+  const STAKED_VALUES = [
+    { text: '$100', id: 1, active: false },
+    { text: '$1000', id: 2, active: false },
+    { text: 'My Balance', id: 3, active: false },
+  ]
+
   console.log('%c ||||| currentContract', 'color:yellowgreen', currentContract)
+
+  console.log('%c ||||| STAKED_VALUES', 'color:gold', STAKED_VALUES)
 
   const checkInputIsOk = (value: number | '') => {
     setStatus(value ? 'success' : 'error')
@@ -123,7 +125,7 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
         <div className="tab-block">
           <SlidingTabButtons
             className="tab-component values-tabs"
-            tabItems={STAKED_VALUES}
+            tabItems={Array.from(STAKED_VALUES)}
             onClick={handleChangeValues}
           />
         </div>
@@ -139,7 +141,8 @@ export default function RoiCalculator({ onClose, lpTokenAddress }: Props) {
 
         <div className="tab-block">
           <h4>Compounding Every</h4>
-          <div>
+          <div className="compounding-every">
+            <Checkbox className="compounding-checkbox" id="compounding-checkbox" />
             <SlidingTabButtons
               className="tab-component compounding-tabs"
               tabItems={COMPOUNDING_ITEMS}
