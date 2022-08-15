@@ -21,7 +21,7 @@ type depositorsType is
   | Whitelist of set(address)
 
 type vaultHandleType is [@layout:comb] record [
-    id      : nat ;
+    id      : nat;
     owner   : address;
 ]
 

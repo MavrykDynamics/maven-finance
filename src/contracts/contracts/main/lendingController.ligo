@@ -64,8 +64,8 @@ type lendingControllerAction is
     |   UpdateCollateralToken           of updateCollateralTokenActionType
     |   CreateVault                     of createVaultActionType
     |   CloseVault                      of closeVaultActionType
-    |   WithdrawFromVault               of withdrawFromVaultActionType
     |   RegisterDeposit                 of registerDepositType
+    |   WithdrawFromVault               of withdrawFromVaultActionType
     |   LiquidateVault                  of liquidateVaultActionType
     |   Borrow                          of borrowActionType
     |   Repay                           of repayActionType
@@ -107,19 +107,24 @@ const fpa10e23 : nat = 1_000_000_000_000_000_000_000_00n;        // 10^23
 const fpa10e22 : nat = 1_000_000_000_000_000_000_000_0n;         // 10^22
 const fpa10e21 : nat = 1_000_000_000_000_000_000_000n;           // 10^21
 
-const fpa10e15 : nat = 1_000_000_000_000_000n;           // 10^15
-const fpa10e14 : nat = 1_000_000_000_000_00n;            // 10^14
-const fpa10e13 : nat = 1_000_000_000_000_0n;             // 10^13
-const fpa10e12 : nat = 1_000_000_000_000n;               // 10^12
-const fpa10e11 : nat = 1_000_000_000_00n;                // 10^11
-const fpa10e10 : nat = 1_000_000_000_0n;                 // 10^10
-const fpa10e9 : nat = 1_000_000_000n;                    // 10^9
-const fpa10e8 : nat = 1_000_000_00n;                     // 10^8
-const fpa10e7 : nat = 1_000_000_0n;                      // 10^7
-const fpa10e6 : nat = 1_000_000n;                        // 10^6
-const fpa10e5 : nat = 1_000_00n;                         // 10^5
-const fpa10e4 : nat = 1_000_0n;                          // 10^4
-const fpa10e3 : nat = 1_000n;                            // 10^3
+const fpa10e20 : nat = 1_000_000_000_000_000_000_00n;           // 10^20
+const fpa10e19 : nat = 1_000_000_000_000_000_000_0n;            // 10^19
+const fpa10e18 : nat = 1_000_000_000_000_000_000n;              // 10^18
+const fpa10e17 : nat = 1_000_000_000_000_000_00n;               // 10^17
+const fpa10e16 : nat = 1_000_000_000_000_000_0n;                // 10^16
+const fpa10e15 : nat = 1_000_000_000_000_000n;                  // 10^15
+const fpa10e14 : nat = 1_000_000_000_000_00n;                   // 10^14
+const fpa10e13 : nat = 1_000_000_000_000_0n;                    // 10^13
+const fpa10e12 : nat = 1_000_000_000_000n;                      // 10^12
+const fpa10e11 : nat = 1_000_000_000_00n;                       // 10^11
+const fpa10e10 : nat = 1_000_000_000_0n;                        // 10^10
+const fpa10e9 : nat = 1_000_000_000n;                           // 10^9
+const fpa10e8 : nat = 1_000_000_00n;                            // 10^8
+const fpa10e7 : nat = 1_000_000_0n;                             // 10^7
+const fpa10e6 : nat = 1_000_000n;                               // 10^6
+const fpa10e5 : nat = 1_000_00n;                                // 10^5
+const fpa10e4 : nat = 1_000_0n;                                 // 10^4
+const fpa10e3 : nat = 1_000n;                                   // 10^3
 
 const minBlockTime              : nat   = Tezos.get_min_block_time();
 const blocksPerMinute           : nat   = 60n / minBlockTime;
@@ -391,6 +396,86 @@ block {
 
 
 
+// helper function to create new loan token record
+function createLoanTokenRecord(const setLoanTokenParams : setLoanTokenActionType) : loanTokenRecordType is 
+block {
+
+    // init variables for convenience
+    const tokenName                             : string        = setLoanTokenParams.tokenName;
+    const tokenContractAddress                  : address       = setLoanTokenParams.tokenContractAddress;
+    const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
+    const tokenId                               : nat           = setLoanTokenParams.tokenId;
+    const decimals                              : nat           = setLoanTokenParams.decimals;
+
+    const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
+    const lpTokenId                             : nat           = setLoanTokenParams.lpTokenId;
+    const reserveRatio                          : nat           = setLoanTokenParams.reserveRatio;
+
+    const optimalUtilisationRate                : nat           = setLoanTokenParams.optimalUtilisationRate;
+    const baseInterestRate                      : nat           = setLoanTokenParams.baseInterestRate;
+    const maxInterestRate                       : nat           = setLoanTokenParams.maxInterestRate;
+    const interestRateBelowOptimalUtilisation   : nat           = setLoanTokenParams.interestRateBelowOptimalUtilisation;
+    const interestRateAboveOptimalUtilisation   : nat           = setLoanTokenParams.interestRateAboveOptimalUtilisation;
+
+    const newLoanTokenRecord : loanTokenRecordType = record [
+                    
+        tokenName                           = tokenName;
+        tokenContractAddress                = tokenContractAddress;
+        tokenType                           = tokenType;
+        tokenId                             = tokenId;
+        decimals                            = decimals;
+
+        lpTokensTotal                       = 0n;
+        lpTokenContractAddress              = lpTokenContractAddress;
+        lpTokenId                           = lpTokenId;
+
+        reserveRatio                        = reserveRatio;
+        tokenPoolTotal                      = 0n;
+        totalBorrowed                       = 0n;
+        totalRemaining                      = 0n;
+
+        utilisationRate                     = 0n;
+        optimalUtilisationRate              = optimalUtilisationRate;
+        baseInterestRate                    = baseInterestRate;
+        maxInterestRate                     = maxInterestRate;
+        interestRateBelowOptimalUtilisation = interestRateBelowOptimalUtilisation;
+        interestRateAboveOptimalUtilisation = interestRateAboveOptimalUtilisation;
+
+        currentInterestRate                 = 0n;
+        lastUpdatedBlockLevel               = Tezos.get_level();
+        accumulatedRewardsPerShare          = 0n;
+        borrowIndex                         = 0n;
+
+    ];
+
+} with newLoanTokenRecord
+
+
+
+// helper function to create new vault record
+function createVaultRecord(const vaultAddress : address; const collateralBalanceLedger : collateralBalanceLedgerType; const loanTokenName : string; const decimals : nat; const tokenBorrowIndex : nat) : vaultRecordType is 
+block {
+
+    const vaultRecord : vaultRecordType = record [
+                        
+        address                     = vaultAddress;
+        collateralBalanceLedger     = collateralBalanceLedger;
+        loanToken                   = loanTokenName;
+
+        loanOutstandingTotal        = 0n;
+        loanPrincipalTotal          = 0n;
+        loanInterestTotal           = 0n;
+        loanDecimals                = decimals;
+        borrowIndex                 = tokenBorrowIndex;
+
+        lastUpdatedBlockLevel       = Tezos.get_level();
+        lastUpdatedTimestamp        = Tezos.get_now();
+    ];
+    
+} with vaultRecord
+
+
+
 function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; var s : lendingControllerStorageType) : bool is 
 block {
   
@@ -415,114 +500,152 @@ block {
 
 
 
+// helper function to rebase token decimals
+function rebaseTokenValue(const tokenValueRaw : nat; const rebaseDecimals : nat) : nat is 
+block {
+
+    var tokenValueRebased : nat := tokenValueRaw;
+
+    if rebaseDecimals = 1n then 
+        tokenValueRebased := tokenValueRebased * 10n
+    else if rebaseDecimals = 2n then 
+        tokenValueRebased := tokenValueRebased * 100n 
+    else if rebaseDecimals = 3n then 
+        tokenValueRebased := tokenValueRebased * 1000n 
+    else if rebaseDecimals = 4n then 
+        tokenValueRebased := tokenValueRebased * fpa10e4  // e.g. fixed point accuracy (10^4 or 1e4)
+    else if rebaseDecimals = 5n then 
+        tokenValueRebased := tokenValueRebased * fpa10e5
+    else if rebaseDecimals = 6n then 
+        tokenValueRebased := tokenValueRebased * fpa10e6
+    else if rebaseDecimals = 7n then 
+        tokenValueRebased := tokenValueRebased * fpa10e7
+    else if rebaseDecimals = 8n then 
+        tokenValueRebased := tokenValueRebased * fpa10e8
+    else if rebaseDecimals = 9n then 
+        tokenValueRebased := tokenValueRebased * fpa10e9
+    else if rebaseDecimals = 10n then 
+        tokenValueRebased := tokenValueRebased * fpa10e10
+    else if rebaseDecimals = 11n then 
+        tokenValueRebased := tokenValueRebased * fpa10e11
+    else if rebaseDecimals = 12n then 
+        tokenValueRebased := tokenValueRebased * fpa10e12
+    else if rebaseDecimals = 13n then 
+        tokenValueRebased := tokenValueRebased * fpa10e13
+    else if rebaseDecimals = 14n then 
+        tokenValueRebased := tokenValueRebased * fpa10e14
+    else if rebaseDecimals = 15n then 
+        tokenValueRebased := tokenValueRebased * fpa10e15
+    else if rebaseDecimals = 16n then 
+        tokenValueRebased := tokenValueRebased * fpa10e16
+    else if rebaseDecimals = 17n then 
+        tokenValueRebased := tokenValueRebased * fpa10e17
+    else if rebaseDecimals = 18n then 
+        tokenValueRebased := tokenValueRebased * fpa10e18
+    else if rebaseDecimals = 19n then 
+        tokenValueRebased := tokenValueRebased * fpa10e19
+    else if rebaseDecimals = 20n then 
+        tokenValueRebased := tokenValueRebased * fpa10e20
+    else if rebaseDecimals = 21n then 
+        tokenValueRebased := tokenValueRebased * fpa10e21
+    else if rebaseDecimals = 22n then 
+        tokenValueRebased := tokenValueRebased * fpa10e22
+    else if rebaseDecimals = 23n then 
+        tokenValueRebased := tokenValueRebased * fpa10e23
+    else if rebaseDecimals = 24n then 
+        tokenValueRebased := tokenValueRebased * fpa10e24
+    else if rebaseDecimals = 25n then 
+        tokenValueRebased := tokenValueRebased * fpa10e25
+    else if rebaseDecimals = 26n then 
+        tokenValueRebased := tokenValueRebased * fpa10e26
+    else failwith(error_REBASE_DECIMALS_OUT_OF_BOUNDS);    
+
+} with tokenValueRebased
+
+
+
+// helper function to get token last completed round price from oracle
+function getTokenLastCompletedRoundPriceFromOracle(const oracleAddress : address) : lastCompletedRoundPriceReturnType is 
+block {
+
+    // get last completed round price of token from Oracle view
+    const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, oracleAddress);
+    const getTokenLastCompletedRoundPriceOpt : option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
+            Some (_value) -> _value
+        |   None          -> failwith (error_GET_LAST_COMPLETED_ROUND_PRICE_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
+    ];
+    const tokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
+            Some (_value) -> _value
+        |   None          -> failwith (error_LAST_COMPLETED_ROUND_PRICE_NOT_FOUND)
+    ];
+
+} with tokenLastCompletedRoundPrice
+
+
+
+// helper function to calculate vault's collateral value rebased (to max decimals 1e32)
+function calculateVaultCollateralValueRebased(const collateralBalanceLedger : collateralBalanceLedgerType; const s : lendingControllerStorageType) : nat is
+block {
+
+    var vaultCollateralValueRebased  : nat := 0n;
+    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation;
+
+    for tokenName -> tokenBalance in map collateralBalanceLedger block {
+        
+        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                Some(_record) -> _record
+            |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+        ];
+
+        // get last completed round price of token from Oracle view
+        const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
+        
+        const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+        const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
+        const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
+
+        // calculate required number of decimals to rebase each token to the same unit for comparison
+        // assuming most token decimals are 6, and most price decimals from oracle is 8 - set upper limit of 24 (e.g. 12 decimals each)
+        if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
+        const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
+
+        // calculate raw value of collateral balance
+        const tokenValueRaw : nat = tokenBalance * tokenPrice;
+
+        // rebase token value to 1e32 (or 10^32)
+        const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);                
+        
+        // increment vault collateral value (1e32 or 10^32)
+        vaultCollateralValueRebased := vaultCollateralValueRebased + tokenValueRebased;      
+
+    };
+
+} with vaultCollateralValueRebased
+
+
+
 // helper function to check if vault is under collaterized
 function isUnderCollaterized(const vault : vaultRecordType; var s : lendingControllerStorageType) : bool is 
 block {
     
     // initialise variables - vaultCollateralValue and loanOutstanding
-    var vaultCollateralValueInUsd   : nat  := 0n;
-    const loanOutstandingTotal      : nat  = vault.loanOutstandingTotal;    
-    const liquidationRatio          : nat  = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
+    const loanOutstandingTotal       : nat  = vault.loanOutstandingTotal;    
+    const loanDecimals               : nat  = vault.loanDecimals;
+    const liquidationRatio           : nat  = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
+    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation;
 
-    for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
-        
-        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                Some(_record) -> _record
-            | None -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-        ];
+    // calculate vault collateral value rebased (1e32 or 10^32)
+    const vaultCollateralValueRebased : nat = calculateVaultCollateralValueRebased(vault.collateralBalanceLedger, s);
 
-        case collateralTokenRecord.tokenType of [
+    // calculate loan outstanding rebase decimals (difference from max decimals 1e32)
+    const loanOutstandingRebaseDecimals : nat = abs(maxDecimalsForCalculation - loanDecimals);
 
-            |   Tez(_tez) -> block {
-
-                }
-
-            |   Fa12(_token) -> block {
-
-                
-                }
-
-            |   Fa2(_token) -> block {
-
-                    // get last completed round price of token from Oracle view
-                    const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, collateralTokenRecord.oracleAddress);
-                    const getTokenLastCompletedRoundPriceOpt: option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
-                            Some (_value) -> _value
-                        |   None          -> failwith (error_GET_LAST_COMPLETED_ROUND_PRICE_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
-                    ];
-                    const tokenLastCompletedRoundPrice: lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
-                            Some (_value) -> _value
-                        |   None          -> failwith (error_LAST_COMPLETED_ROUND_PRICE_NOT_FOUND)
-                    ];
-
-                    // todo: check decimals and percentOracleResponse
-                    // todo: ensure exponent is standardized
-                    // denomination in USD 
-                    
-                    const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
-                    const priceDecimals    : nat  = tokenLastCompletedRoundPrice.decimals;
-
-                    // calculate required number of decimals to rebase each token to the same unit for comparison
-                    // assuming most token decimals are 6, and most price decimals from oracle is 8 - set upper limit of 24 (e.g. 12 decimals each)
-                    if tokenDecimals + priceDecimals > 24n then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
-                    const rebaseDecimals   : nat  = abs(24n - (tokenDecimals + priceDecimals));
-
-                    const tokenPrice       : nat  = tokenLastCompletedRoundPrice.price;            
-
-                    // calculate value of collateral balance
-                    var tokenValueInUsd : nat := tokenBalance * tokenPrice;
-
-                    if rebaseDecimals = 1n then 
-                        tokenValueInUsd := tokenValueInUsd * 10n
-                    else if rebaseDecimals = 2n then 
-                        tokenValueInUsd := tokenValueInUsd * 100n 
-                    else if rebaseDecimals = 3n then 
-                        tokenValueInUsd := tokenValueInUsd * 1000n 
-                    else if rebaseDecimals = 4n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e4 
-                    else if rebaseDecimals = 5n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e5
-                    else if rebaseDecimals = 6n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e6
-                    else if rebaseDecimals = 7n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e7
-                    else if rebaseDecimals = 8n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e8
-                    else if rebaseDecimals = 9n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e9
-                    else if rebaseDecimals = 10n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e10
-                    else if rebaseDecimals = 11n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e11
-                    else if rebaseDecimals = 12n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e12
-                    else if rebaseDecimals = 13n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e13
-                    else if rebaseDecimals = 14n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e14
-                    else if rebaseDecimals = 15n then 
-                        tokenValueInUsd := tokenValueInUsd * fpa10e15
-                    else skip;
-                        
-                    // increment vault collateral value - value should have a base decimal of 1e24
-                    vaultCollateralValueInUsd := vaultCollateralValueInUsd + tokenValueInUsd;
-
-                }
-        ];        
-
-    };
-
-
-
-    // loanOutstanding will be 1e9 (token decimals), so multiply by 1e15 to have a base of 1e24
-    const loanOutstandingRebased : nat = loanOutstandingTotal * fpa10e15; 
+    // calculate loan outstanding rebased (1e32 or 10^32)
+    const loanOutstandingRebased : nat = rebaseTokenValue(loanOutstandingTotal, loanOutstandingRebaseDecimals);  
 
     // check is vault is under collaterized based on liquidation ratio
-    const isUnderCollaterized : bool = vaultCollateralValueInUsd < (liquidationRatio * loanOutstandingRebased) / 1000n;
+    const isUnderCollaterized : bool = vaultCollateralValueRebased < (liquidationRatio * loanOutstandingRebased) / 1000n;
     
-    // old code
-    // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.loanOutstanding * s.target, 44n)); 
-
 } with isUnderCollaterized
 
 // ------------------------------------------------------------------------------
