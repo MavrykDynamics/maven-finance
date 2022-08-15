@@ -28,7 +28,7 @@ export const FarmCardStyled = styled(Card)`
 
     h3 {
       font-weight: 600;
-      font-size: 18px;
+      font-size: 22px;
       line-height: 18px;
       color: ${cyanColor};
     }
@@ -38,7 +38,7 @@ export const FarmCardStyled = styled(Card)`
       font-size: 11px;
       line-height: 11px;
       color: ${headerColor};
-      margin: 4px 0;
+      margin: 3px 0;
     }
   }
 
@@ -57,7 +57,7 @@ export const FarmCardStyled = styled(Card)`
       font-size: 14px;
       line-height: 14px;
       margin-top: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
 
       svg {
         fill: none;
@@ -98,7 +98,7 @@ export const FarmCardStyled = styled(Card)`
     .farm-info-vertical {
       padding-left: 40px;
       padding-right: 40px;
-      margin-bottom: 34px;
+      margin-bottom: 31px;
 
       .farm-info {
         display: flex;
@@ -114,7 +114,7 @@ export const FarmCardStyled = styled(Card)`
       padding-left: 20px;
       padding-right: 40px;
       padding-top: 40px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .expand-header {
@@ -127,8 +127,8 @@ export const FarmCardStyled = styled(Card)`
       border: none;
 
       .farm-info-vertical {
-        margin-top: 20px;
-        margin-bottom: 20px;
+        margin-top: 7px;
+        margin-bottom: 19px;
       }
 
       .links-block {
@@ -145,19 +145,21 @@ export const FarmCardStyled = styled(Card)`
       padding: 20px;
       padding-top: 0;
 
-      > div {
+      .farm-harves {
         padding: 20px;
       }
+
       .start-farming {
         padding: 0;
         flex-direction: column;
         align-items: baseline;
         padding-left: 20px;
         padding-right: 20px;
-        margin-bottom: 30px;
+        margin-bottom: 10px;
 
         h3 {
-          margin-bottom: 8px;
+          margin-bottom: 13px;
+          margin-top: 3px;
         }
 
         div {

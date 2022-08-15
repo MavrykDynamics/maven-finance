@@ -15,8 +15,8 @@ import { TimeLeftAreaWrap, TimeLeftArea } from './TimeRemaining.style'
 
 export default function TimeRemaining() {
   const { governanceStorage } = useSelector((state: State) => state.governance)
-
   const endLevel = governanceStorage?.currentRoundEndLevel
+  console.log('%c ||||| governanceStorage?.currentRoundEndLevel', 'color:yellowgreen', governanceStorage)
   const [votingEnding, setVotingEnding] = useState<string>('')
 
   const timeNow = Date.now()

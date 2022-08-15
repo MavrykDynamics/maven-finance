@@ -27,8 +27,8 @@ export type FarmTopBarViewProps = {
 }
 
 const LIVE_FINISHED_TABS = [
-  { text: 'LIVE', id: 1, active: true },
-  { text: 'FINISHED', id: 2, active: false },
+  { text: 'Live', id: 1, active: true },
+  { text: 'Finished', id: 2, active: false },
 ]
 
 export const FarmTopBar = ({
