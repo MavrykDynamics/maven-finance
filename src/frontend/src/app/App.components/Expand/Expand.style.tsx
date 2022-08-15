@@ -10,7 +10,7 @@ export const ExpandStyled = styled(CardHover)`
     display: grid;
     grid-template-columns: auto 120px;
     align-items: center;
-    min-height: 75px;
+    min-height: 73px;
     cursor: pointer;
   }
 
