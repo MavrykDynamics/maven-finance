@@ -15,16 +15,16 @@ export const FarmCardTokenLogoContainer = styled.figure<{ theme: MavrykTheme }>`
   }
 `
 export const FarmCardFirstTokenIcon = styled.img<{ theme: MavrykTheme }>`
-  height: 45px;
-  width: 45px;
-  bottom: 2px;
-  right: -10px;
+  height: 43px;
+  width: 43px;
+  bottom: 5px;
+  right: -5px;
   align-self: flex-end;
   z-index: 1;
 `
 export const FarmCardSecondTokenIcon = styled.img<{ theme: MavrykTheme }>`
-  height: 32px;
-  width: 32px;
+  height: 30px;
+  width: 30px;
   top: -8px;
   left: 0;
   align-self: flex-end;

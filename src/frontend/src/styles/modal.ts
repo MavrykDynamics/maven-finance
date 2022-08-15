@@ -60,6 +60,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 40px;
   }
 
   &.modal-roi {

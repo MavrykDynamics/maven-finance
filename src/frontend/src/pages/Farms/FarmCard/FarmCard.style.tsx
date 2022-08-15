@@ -25,12 +25,15 @@ export const FarmCardStyled = styled(Card)`
 
   .farm-card-section {
     margin-left: 16px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 
     h3 {
       font-weight: 600;
       font-size: 22px;
       line-height: 18px;
       color: ${cyanColor};
+      word-break: break-all;
     }
 
     p {
@@ -75,7 +78,7 @@ export const FarmCardStyled = styled(Card)`
     align-items: baseline;
 
     .expand-header {
-      grid-template-columns: 210px 1fr 1fr 1fr 1fr 120px;
+      grid-template-columns: 250px 1fr 1fr 1fr 1fr 120px;
       padding-left: 40px;
     }
 
@@ -89,6 +92,7 @@ export const FarmCardStyled = styled(Card)`
       figure {
         top: 5px;
         right: 12px;
+        flex-shrink: 0;
       }
     }
   } //horizontal
@@ -223,7 +227,7 @@ export const FarmCardStyled = styled(Card)`
       font-size: 14px;
       line-height: 21px;
       color: ${skyColor};
-      margin-right: 40px;
+      margin-right: 10px;
     }
   }
 
@@ -276,7 +280,7 @@ export const FarmCardTopSection = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
   width: 100%;
   min-height: max-content;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   padding: 0 10px;
 `
 
