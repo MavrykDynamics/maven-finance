@@ -68,4 +68,8 @@ export const EmptyContainer = styled.figure<{ theme: MavrykTheme }>`
   & ~ figure {
     display: none;
   }
+
+  &.centered {
+    margin: 50px auto 0 auto;
+  }
 `
