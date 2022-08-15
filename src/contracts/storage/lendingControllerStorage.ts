@@ -9,21 +9,20 @@ import { zeroAddress } from "../test/helpers/Utils"
 import { lendingControllerStorageType } from "../test/types/lendingControllerStorageType"
 
 const config = {
+
     collateralRatio             : 2000,    // collateral ratio (%)
     liquidationRatio            : 1500,    // liquidation ratio (%)
 
-    liquidationFee              : 10,
-    adminLiquidationFee         : 10,
+    liquidationFee              : 5,
+    adminLiquidationFee         : 5,
 
     minimumLoanFee              : 10,
-    // annualServiceLoanFee        : 100,
-    // dailyServiceLoanFee         : 30,
 
     minimumLoanFeeTreasuryShare : 100,
-    interestTreasuryShare : 100,
-
+    interestTreasuryShare       : 100,
 
     decimals                    : 3,       // decimals 
+    maxDecimalsForCalculation   : 32
 }
 
 const breakGlassConfig = {
@@ -70,6 +69,7 @@ const usdtRecord = {
     tokenContractAddress        : zeroAddress,
     tokenType                   : usdtTokenType, 
     tokenId                     : 0,
+    decimals                    : 6,
 
     lpTokensTotal               : 0,
     lpTokenContractAddress      : zeroAddress,
@@ -92,7 +92,6 @@ const usdtRecord = {
     lastUpdatedBlockLevel       : 0,
 
     accumulatedRewardsPerShare  : 1,
-    
     borrowIndex                 : 1
 }
 

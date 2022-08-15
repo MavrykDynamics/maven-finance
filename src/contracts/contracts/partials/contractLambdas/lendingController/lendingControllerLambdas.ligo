@@ -318,58 +318,11 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaSetLoanToken(setLoanTokenParams) -> {
                 
-                // init variables for convenience
-                const tokenName                             : string        = setLoanTokenParams.tokenName;
-                const tokenContractAddress                  : address       = setLoanTokenParams.tokenContractAddress;
-                const tokenType                             : tokenType     = setLoanTokenParams.tokenType;
-                const tokenId                               : nat           = setLoanTokenParams.tokenId;
-
-                const lpTokenContractAddress                : address       = setLoanTokenParams.lpTokenContractAddress;
-                const lpTokenId                             : nat           = setLoanTokenParams.lpTokenId;
-
-                const reserveRatio                          : nat           = setLoanTokenParams.reserveRatio;
-
-                const optimalUtilisationRate                : nat           = setLoanTokenParams.optimalUtilisationRate;
-                const baseInterestRate                      : nat           = setLoanTokenParams.baseInterestRate;
-                const maxInterestRate                       : nat           = setLoanTokenParams.maxInterestRate;
-                const interestRateBelowOptimalUtilisation   : nat           = setLoanTokenParams.interestRateBelowOptimalUtilisation;
-                const interestRateAboveOptimalUtilisation   : nat           = setLoanTokenParams.interestRateAboveOptimalUtilisation;
-
                 // check if loan token already exists
-                if Big_map.mem(tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
-
-                const newLoanTokenRecord : loanTokenRecordType = record [
-                    
-                    tokenName                           = tokenName;
-                    tokenContractAddress                = tokenContractAddress;
-                    tokenType                           = tokenType;
-                    tokenId                             = tokenId;
-
-                    lpTokensTotal                       = 0n;
-                    lpTokenContractAddress              = lpTokenContractAddress;
-                    lpTokenId                           = lpTokenId;
-
-                    reserveRatio                        = reserveRatio;
-                    tokenPoolTotal                      = 0n;
-                    totalBorrowed                       = 0n;
-                    totalRemaining                      = 0n;
-
-                    utilisationRate                     = 0n;
-                    optimalUtilisationRate              = optimalUtilisationRate;
-                    baseInterestRate                    = baseInterestRate;
-                    maxInterestRate                     = maxInterestRate;
-                    interestRateBelowOptimalUtilisation = interestRateBelowOptimalUtilisation;
-                    interestRateAboveOptimalUtilisation = interestRateAboveOptimalUtilisation;
-
-                    currentInterestRate                 = 0n;
-                    lastUpdatedBlockLevel               = Tezos.get_level();
-                    accumulatedRewardsPerShare          = 0n;
-                    borrowIndex                         = 0n;
-
-                ];
+                if Big_map.mem(setLoanTokenParams.tokenName, s.loanTokenLedger) then failwith(error_LOAN_TOKEN_ALREADY_EXISTS) else skip;
                 
                 // update loan token ledger
-                s.loanTokenLedger[tokenName] := newLoanTokenRecord;
+                s.loanTokenLedger[setLoanTokenParams.tokenName] := createLoanTokenRecord(setLoanTokenParams);
 
             }
         |   _ -> skip
@@ -395,23 +348,24 @@ block {
                 const initiator           : address             = Tezos.get_sender();
 
                 // Get Token Record
-                var tokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
+                var loanTokenRecord : loanTokenRecordType := case s.loanTokenLedger[loanTokenName] of [
                         Some(_record) -> _record 
                     |   None          -> failwith(error_LOAN_TOKEN_RECORD_NOT_FOUND)
                 ];
 
                 // update pool totals
-                tokenRecord.tokenPoolTotal  := tokenRecord.tokenPoolTotal + amount;
-                tokenRecord.lpTokensTotal   := tokenRecord.lpTokensTotal + amount;
+                loanTokenRecord.tokenPoolTotal   := loanTokenRecord.tokenPoolTotal + amount;
+                loanTokenRecord.lpTokensTotal    := loanTokenRecord.lpTokensTotal + amount;
+                loanTokenRecord.totalRemaining   := loanTokenRecord.totalRemaining + amount;
 
-                const tokenId                   : nat       = tokenRecord.tokenId;
-                const tokenContractAddress      : address   = tokenRecord.tokenContractAddress;
-                const lpTokenContractAddress    : address   = tokenRecord.lpTokenContractAddress;
+                const tokenId                   : nat       = loanTokenRecord.tokenId;
+                const tokenContractAddress      : address   = loanTokenRecord.tokenContractAddress;
+                const lpTokenContractAddress    : address   = loanTokenRecord.lpTokenContractAddress;
 
                 // Update Token Ledger
-                s.loanTokenLedger[loanTokenName] := tokenRecord;
+                s.loanTokenLedger[loanTokenName] := loanTokenRecord;
 
-                case tokenRecord.tokenType of [
+                case loanTokenRecord.tokenType of [
 
                     |   Tez(_tez) -> block{
                     
@@ -491,6 +445,7 @@ block {
                 const tokenId                   : nat       = loanTokenRecord.tokenId;
                 const tokenContractAddress      : address   = loanTokenRecord.tokenContractAddress;
                 const tokenPoolTotal            : nat       = loanTokenRecord.tokenPoolTotal;
+                const totalRemaining            : nat       = loanTokenRecord.totalRemaining;
                 
                 const lpTokenContractAddress    : address   = loanTokenRecord.lpTokenContractAddress;
                 const lpTokensTotal             : nat       = loanTokenRecord.lpTokensTotal;
@@ -503,6 +458,10 @@ block {
                 // calculate new token pool amount
                 if amount > tokenPoolTotal then failwith(error_TOKEN_POOL_TOTAL_CANNOT_BE_NEGATIVE) else skip;
                 const newTokenPoolTotal : nat = abs(tokenPoolTotal - amount);
+
+                // calculate new token pool remaining
+                if amount > totalRemaining then failwith(error_TOKEN_POOL_REMAINING_CANNOT_BE_NEGATIVE) else skip;
+                const newTotalRemaining : nat = abs(totalRemaining - amount);
 
                 // burn LP Token operation
                 const burnLpTokenOperation : operation = burnLpToken(initiator, lpTokensBurned, lpTokenContractAddress);
@@ -547,8 +506,9 @@ block {
                 ];
 
                 // update pool totals
-                loanTokenRecord.tokenPoolTotal  := newTokenPoolTotal;
-                loanTokenRecord.lpTokensTotal   := newLpTokensTotal;
+                loanTokenRecord.tokenPoolTotal   := newTokenPoolTotal;
+                loanTokenRecord.lpTokensTotal    := newLpTokensTotal;
+                loanTokenRecord.totalRemaining   := newTotalRemaining;
 
                 // Update Token Ledger
                 s.loanTokenLedger[loanTokenName] := loanTokenRecord;
@@ -721,41 +681,30 @@ block {
                     const collateralBalanceLedgerMap : collateralBalanceLedgerType = map[
                         ("tez" : string) -> mutezToNatural(Tezos.get_amount())
                     ];
-                    const vault : vaultRecordType = record [
-                        
-                        address                     = vaultOrigination.1; // vault address
-                        collateralBalanceLedger     = collateralBalanceLedgerMap;
-                        loanToken                   = loanTokenRecord.tokenName;
 
-                        loanOutstandingTotal        = 0n;
-                        loanPrincipalTotal          = 0n;
-                        loanInterestTotal           = 0n;
-                        borrowIndex                 = tokenBorrowIndex;
-
-                        lastUpdatedBlockLevel       = Tezos.get_level();
-                        lastUpdatedTimestamp        = Tezos.get_now();
-                    ];
+                    const vault : vaultRecordType = createVaultRecord(
+                        vaultOrigination.1,             // vault address
+                        collateralBalanceLedgerMap,     // collateral balance ledger
+                        loanTokenRecord.tokenName,      // loan token name
+                        loanTokenRecord.decimals,       // loan token decimals
+                        tokenBorrowIndex                // token borrow index
+                    );
                     
                     // update controller storage with new vault
                     s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
                 } else block {
+
                     // no tez is sent
                     const emptyCollateralBalanceLedgerMap : collateralBalanceLedgerType = map[];
-                    const vault : vaultRecordType = record [
 
-                        address                     = vaultOrigination.1; // vault address
-                        collateralBalanceLedger     = emptyCollateralBalanceLedgerMap;
-                        loanToken                   = loanTokenRecord.tokenName;
-                        
-                        loanOutstandingTotal        = 0n;
-                        loanPrincipalTotal          = 0n;
-                        loanInterestTotal           = 0n;
-                        borrowIndex                 = tokenBorrowIndex;
-                        
-                        lastUpdatedBlockLevel       = Tezos.get_level();
-                        lastUpdatedTimestamp        = Tezos.get_now();
-                    ];
+                    const vault : vaultRecordType = createVaultRecord(
+                        vaultOrigination.1,                  // vault address
+                        emptyCollateralBalanceLedgerMap,     // collateral balance ledger
+                        loanTokenRecord.tokenName,           // loan token name
+                        loanTokenRecord.decimals,            // loan token decimals
+                        tokenBorrowIndex                     // token borrow index
+                    );
 
                     // update controller storage with new vault
                     s.vaults := Big_map.update(handle, Some(vault), s.vaults);
@@ -939,10 +888,35 @@ block {
     case lendingControllerLambdaAction of [
         |   LambdaLiquidateVault(_liquidateVaultParams) -> {
                 
-                // init variables for convenience
-                // const vaultHandle       : vaultHandleType         = liquidateVaultParams.handle; 
-                // const loanQuantity      : nat                     = liquidateVaultParams.loanQuantity;
-                // const loanToken         : string                  = liquidateVaultParams.loanToken;
+                // init variables for convenience                
+                // const vaultId           : nat       = _liquidateVaultParams.vaultId;
+                // const vaultOwner        : address   = _liquidateVaultParams.vaultOwner;
+                // const amount            : nat       = _liquidateVaultParams.amount;
+
+                // liquidationBenchmark : 50%
+                // markForLiquidation : x hours 
+                // liquidationFee : 6%
+                // adminLiquidationFee : 6%
+
+                // vault collateral - $1000 -> $300 
+                // borrowed - $700
+                // liquidation ratio : 150% or 1.5
+                // collateral ratio : 300%
+                // $1050
+
+                // pay back $350
+                // fees: $70
+                // total: $420
+
+                // liquidate 50%
+                // remaining loan: $350
+                // remaining vault collateral: $580
+                // vault 350 * 1.5 = 525 -> vault is collaterized
+
+                // clear up everything
+                // remaining loan: $0
+                // remaining vault collateral: $230
+                // vault 0 * 1.5 = 0 -> vault is collaterized
 
                 // const recipient         : address                 = Tezos.get_sender();
                 // const initiator         : initiatorAddressType    = Tezos.get_sender();
@@ -956,32 +930,12 @@ block {
                 // // check if vault is under collaterized
                 // if isUnderCollaterized(_vault, s) 
                 // then skip 
-                // else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
+                // else failwith(error_VAULT_IS_NOT_UNDERCOLLATERIZED);
 
                 // // check if there is sufficient loanOutstanding, and calculate remaining loan after liquidation
-                // if loanQuantity > _vault.loanOutstandingTotal then failwith("Error. Cannot burn more than outstanding amount in vault.") else skip;
-                // const remainingLoan : nat = abs(_vault.loanOutstandingTotal - loanQuantity);
+                // if amount > _vault.loanOutstandingTotal then failwith(error_CANNOT_LIQUIDATE_MORE_THAN_VAULT_LOAN_OUTSTANDING_TOTAL) else skip;
+                // const remainingLoan : nat = abs(_vault.loanOutstandingTotal - amount);
 
-                // // get USDM target
-                // // var usdmTarget : nat  := case s.targetLedger["usdm"] of [
-                // //       Some(_nat) -> _nat
-                // //     | None -> failwith("Error. Target not found for USDM.")
-                // // ];
-                
-                // // todo: fix extracted balance amount
-                // (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
-                // // const totalExtractedBalance : nat = (usdmQuantity * usdmTarget * fixedPointAccuracy) / (31n * fixedPointAccuracy); 
-
-                // // usdmQuantity - 1e9 | usdmTarget - 1e24 | fixedPointAccuracy - 1e24
-                // // var totalValueToBeLiquidated           : nat := loanQuantity * usdmTarget / fixedPointAccuracy;
-
-                // // 1e9 * 1e24 * (1e3?) / 1e24
-                // // const liquidationFeeToLiquidator       : nat  = loanQuantity * usdmTarget * liquidationFee / fixedPointAccuracy; 
-
-                // // amount to be sent to treasury
-                // // 1e9 * 1e24 * (1e3?) / 1e24
-                // // const adminLiquidationFeeToLiquidator  : nat  = loanQuantity * usdmTarget * adminLiquidationFee / fixedPointAccuracy; 
-                
                 // // total value to be liquidated and sent to liquidator
                 // // totalValueToBeLiquidated := totalValueToBeLiquidated + liquidationFeeToLiquidator;
                 // var totalValueToBeLiquidated : nat := 0n;
@@ -1025,8 +979,8 @@ block {
 
                 //         // get collateral token record - with token contract address and token type
                 //         const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                //             Some(_collateralTokenRecord) -> _collateralTokenRecord
-                //             | None  -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+                //                  Some(_collateralTokenRecord) -> _collateralTokenRecord
+                //             |    None  -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
                 //         ];
 
                 //         // get price of token in xtz
@@ -1373,7 +1327,7 @@ block {
                 const tokenPoolTotal    : nat         = loanTokenRecord.tokenPoolTotal;
                 const totalBorrowed     : nat         = loanTokenRecord.totalBorrowed;
                 const totalRemaining    : nat         = loanTokenRecord.totalRemaining;
-                // const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
+                const loanTokenType     : tokenType   = loanTokenRecord.tokenType;
                 const tokenBorrowIndex  : nat         = loanTokenRecord.borrowIndex;
                 const loanTokenId       : nat         = loanTokenRecord.tokenId;
                 const loanTokenAddress  : address     = loanTokenRecord.tokenContractAddress;
@@ -1464,44 +1418,112 @@ block {
                 // Process Transfers (loan, fees, and rewards)
                 // ------------------------------------------------------------------
 
-                // transfer loan amount from token pool to borrower
-                const transferLoanToBorrowerOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),   // Lending Controller Contract
-                    initiator,                  // initiator
-                    finalLoanAmount,            // final loan amount (after fees and interest)
-                    loanTokenId,                // loan token id    
-                    loanTokenAddress            // loan token address
-                );
+                case loanTokenType of [
+                    |   Tez(_tez) -> {
 
-                operations := transferLoanToBorrowerOperation # operations;
+                            // transfer loan amount from token pool to borrower
+                            const transferLoanToBorrowerOperation : operation = transferTez( (Tezos.get_contract_with_error(initiator, "Error. Unable to send tez.") : contract(unit)), finalLoanAmount * 1mutez );
+                            operations := transferLoanToBorrowerOperation # operations;
 
-                // Get Treasury Address from the General Contracts map on the Governance Contract
-                const treasuryAddress: address = getContractAddressFromGovernanceContract("treasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+                            // Get Treasury Address from the General Contracts map on the Governance Contract
+                            const treasuryAddress: address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
-                // transfer total fees amount to treasury
-                const transferFeesToTreasuryOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),  // Token Pool Contract
-                    treasuryAddress,
-                    minimumLoanFeeTreasuryShare,
-                    loanTokenId,
-                    loanTokenAddress
-                );
+                            // transfer total fees amount to treasury
+                            const transferFeesToTreasuryOperation : operation = transferTez( (Tezos.get_contract_with_error(treasuryAddress, "Error. Unable to send tez.") : contract(unit)), minimumLoanFeeTreasuryShare * 1mutez );
+                            operations := transferFeesToTreasuryOperation # operations;
 
-                operations := transferFeesToTreasuryOperation # operations;
+                            // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
+                            const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
 
-                // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
-                const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+                            // transfer total fees amount to token pool reward contract
+                            const transferFeesToTokenPoolRewardContractOperation : operation = transferTez( (Tezos.get_contract_with_error(tokenPoolRewardAddress, "Error. Unable to send tez.") : contract(unit)), minimumLoanFeeRewardPool * 1mutez );
+                            operations := transferFeesToTokenPoolRewardContractOperation # operations;
 
-                // transfer total fees amount to token pool reward contract
-                const transferFeesToTokenPoolRewardContractOperation : operation = transferFa2Token(
-                    Tezos.get_self_address(),  // Token Pool Contract
-                    tokenPoolRewardAddress,
-                    minimumLoanFeeRewardPool,
-                    loanTokenId,
-                    loanTokenAddress
-                );
+                        }
 
-                operations := transferFeesToTokenPoolRewardContractOperation # operations;
+                    |   Fa12(_token) -> {
+
+                            // transfer loan amount from token pool to borrower
+                            const transferLoanToBorrowerOperation : operation = transferFa12Token(
+                                Tezos.get_self_address(),   // Lending Controller Contract
+                                initiator,                  // initiator
+                                finalLoanAmount,            // final loan amount (after fees and interest)
+                                loanTokenAddress            // loan token address
+                            );
+
+                            operations := transferLoanToBorrowerOperation # operations;
+
+                            // Get Treasury Address from the General Contracts map on the Governance Contract
+                            const treasuryAddress: address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+
+                            // transfer total fees amount to treasury
+                            const transferFeesToTreasuryOperation : operation = transferFa12Token(
+                                Tezos.get_self_address(),  // Token Pool Contract
+                                treasuryAddress,
+                                minimumLoanFeeTreasuryShare,
+                                loanTokenAddress
+                            );
+
+                            operations := transferFeesToTreasuryOperation # operations;
+
+                            // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
+                            const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+
+                            // transfer total fees amount to token pool reward contract
+                            const transferFeesToTokenPoolRewardContractOperation : operation = transferFa12Token(
+                                Tezos.get_self_address(),  // Token Pool Contract
+                                tokenPoolRewardAddress,
+                                minimumLoanFeeRewardPool,
+                                loanTokenAddress
+                            );
+
+                            operations := transferFeesToTokenPoolRewardContractOperation # operations;
+
+                        }
+
+                    |   Fa2(_token) -> {
+
+                            // transfer loan amount from token pool to borrower
+                            const transferLoanToBorrowerOperation : operation = transferFa2Token(
+                                Tezos.get_self_address(),   // Lending Controller Contract
+                                initiator,                  // initiator
+                                finalLoanAmount,            // final loan amount (after fees and interest)
+                                loanTokenId,                // loan token id    
+                                loanTokenAddress            // loan token address
+                            );
+
+                            operations := transferLoanToBorrowerOperation # operations;
+
+                            // Get Treasury Address from the General Contracts map on the Governance Contract
+                            const treasuryAddress: address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+
+                            // transfer total fees amount to treasury
+                            const transferFeesToTreasuryOperation : operation = transferFa2Token(
+                                Tezos.get_self_address(),  // Token Pool Contract
+                                treasuryAddress,
+                                minimumLoanFeeTreasuryShare,
+                                loanTokenId,
+                                loanTokenAddress
+                            );
+
+                            operations := transferFeesToTreasuryOperation # operations;
+
+                            // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
+                            const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);
+
+                            // transfer total fees amount to token pool reward contract
+                            const transferFeesToTokenPoolRewardContractOperation : operation = transferFa2Token(
+                                Tezos.get_self_address(),  // Token Pool Contract
+                                tokenPoolRewardAddress,
+                                minimumLoanFeeRewardPool,
+                                loanTokenId,
+                                loanTokenAddress
+                            );
+
+                            operations := transferFeesToTokenPoolRewardContractOperation # operations;
+
+                        }
+                ];
 
                 // ------------------------------------------------------------------
                 // Update Storage
@@ -1682,7 +1704,7 @@ block {
                 // ------------------------------------------------------------------
                 
                 // Get Treasury Address from the General Contracts map on the Governance Contract
-                const treasuryAddress: address = getContractAddressFromGovernanceContract("treasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+                const treasuryAddress: address = getContractAddressFromGovernanceContract("lendingTreasury", s.governanceAddress, error_TREASURY_CONTRACT_NOT_FOUND);
 
                 // Get Token Pool Reward Address from the General Contracts map on the Governance Contract
                 const tokenPoolRewardAddress: address = getContractAddressFromGovernanceContract("tokenPoolReward", s.governanceAddress, error_TOKEN_POOL_REWARD_CONTRACT_NOT_FOUND);

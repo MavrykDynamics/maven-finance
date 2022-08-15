@@ -23,6 +23,7 @@ type tokenIdType        is nat;
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
 // Lambda Action Types
 // ------------------------------------------------------------------------------
@@ -34,25 +35,24 @@ type tokenPoolLambdaActionType is
     |   LambdaSetAdmin                  of (address)
     |   LambdaSetGovernance             of (address)
     |   LambdaUpdateMetadata            of updateMetadataType
-    |   LambdaUpdateConfig              of vaultControllerUpdateConfigParamsType
     |   LambdaUpdateWhitelistContracts  of updateWhitelistContractsType
-    |   LambdaUpdateGeneralContracts    of updateGeneralContractsParams
-    |   LambdaUpdateWhitelistTokens     of updateWhitelistTokenContractsParams
+    |   LambdaUpdateGeneralContracts    of updateGeneralContractsType
+    |   LambdaUpdateWhitelistTokens     of updateWhitelistTokenContractsType
 
         // Token Pool Entrypoints
-    |   LambdaAddLiquidity              of addLiquidityActionType
-    |   LambdaRemoveLiquidity           of removeLiquidityActionType
+    // |   LambdaAddLiquidity              of addLiquidityActionType
+    // |   LambdaRemoveLiquidity           of removeLiquidityActionType
 
         // Lending Entrypoints
-    |   OnBorrow                        of onBorrowActionType
-    |   OnRepay                         of onRepayActionType
+    // |   OnBorrow                        of onBorrowActionType
+    // |   OnRepay                         of onRepayActionType
     
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
 
 
-type tokenPoolRewardStorage is [@layout:comb] record [
+type tokenPoolRewardStorageType is [@layout:comb] record [
     admin                       : address;
     metadata                    : metadataType;
     config                      : tokenPoolConfigType;
