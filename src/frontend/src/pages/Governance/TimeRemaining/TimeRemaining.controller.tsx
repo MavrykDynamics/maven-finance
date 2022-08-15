@@ -15,6 +15,7 @@ import { TimeLeftAreaWrap, TimeLeftArea } from './TimeRemaining.style'
 
 export default function TimeRemaining() {
   const { governanceStorage } = useSelector((state: State) => state.governance)
+
   const endLevel = governanceStorage?.currentRoundEndLevel
   const [votingEnding, setVotingEnding] = useState<string>('')
 
@@ -38,6 +39,8 @@ export default function TimeRemaining() {
   useEffect(() => {
     handleGetTimestampByLevel(endLevel ?? 0)
   }, [endLevel])
+
+  if (!endLevel) return null
 
   return (
     <>
