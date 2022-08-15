@@ -34,7 +34,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   background: ${containerColor};
   border-radius: 10px;
   min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
-  max-height: calc(95vh - 50px);
+  max-height: calc(100vh - 50px);
   min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
   border: 1px solid ${cyanColor};

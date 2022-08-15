@@ -3,12 +3,13 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
 
 export const RoiCalculatorStyled = styled.section`
-  padding: 30px;
+  padding: 40px 40px;
+  padding-bottom: 30px;
 
   header {
     display: flex;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 21px;
 
     h2 {
       color: ${cyanColor};
@@ -25,7 +26,7 @@ export const RoiCalculatorStyled = styled.section`
   }
 
   .fieldset-roi {
-    margin-bottom: 24px;
+    margin-bottom: 29px;
 
     .pinned-text {
       top: 13px;
@@ -56,7 +57,7 @@ export const RoiCalculatorStyled = styled.section`
   .current-rates {
     background: linear-gradient(180deg, #503eaa 0%, rgba(80, 62, 170, 0) 100%);
     border-radius: 10px;
-    margin-top: 12px;
+    margin-top: 40px;
     padding: 20px 30px;
     color: ${cyanColor};
     font-weight: 700;
@@ -88,7 +89,7 @@ export const RoiCalculatorStyled = styled.section`
   }
 
   .tab-block {
-    margin-bottom: 32px;
+    margin-bottom: 30px;
 
     h4 {
       font-weight: 700;
@@ -104,6 +105,8 @@ export const RoiCalculatorStyled = styled.section`
 
       button {
         width: auto;
+        padding-left: 18px;
+        padding-right: 18px;
       }
 
       &.values-tabs {
@@ -147,6 +150,10 @@ export const RoiExpandStyled = styled.div`
       &::before {
         display: none;
       }
+
+      &.show {
+        padding-top: 11px;
+      }
     }
 
     .roi-expand-ul {
@@ -160,7 +167,7 @@ export const RoiExpandStyled = styled.div`
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 14px;
+        margin-bottom: 17px;
 
         &:last-child {
           margin-bottom: 0;
