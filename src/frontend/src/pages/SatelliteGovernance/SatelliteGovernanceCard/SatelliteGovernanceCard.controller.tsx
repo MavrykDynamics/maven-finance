@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 /* @ts-ignore */
 import Time from 'react-pure-time'
-import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
 import { Button } from '../../../app/App.components/Button/Button.controller'
@@ -12,16 +11,12 @@ import { getSeparateSnakeCase } from '../../../utils/parse'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
-import { Button } from '../../../app/App.components/Button/Button.controller'
 import Expand from '../../../app/App.components/Expand/Expand.view'
-
-import { getSeparateSnakeCase } from '../../../utils/parse'
 
 // action
 import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
 
 import { SatelliteGovernanceCardDropDown, SatelliteGovernanceCardTitleTextGroup } from './SatelliteGovernanceCard.style'
-import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 
 type Props = {
   satelliteId: string
