@@ -5,7 +5,7 @@ type tokenSaleOptionType is [@layout:comb] record [
     maxAmountPerWalletTotal     : nat;
     whitelistMaxAmountTotal     : nat;
     maxAmountCap                : nat;
-    vestingPeriods             : nat;
+    vestingPeriods              : nat;
     tokenXtzPrice               : tez;
     minMvkAmount                : nat;
     totalBought                 : nat;
