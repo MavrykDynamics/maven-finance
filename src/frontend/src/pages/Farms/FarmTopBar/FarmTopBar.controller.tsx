@@ -15,7 +15,7 @@ import { DropdownContainer } from '../../../app/App.components/DropDown/DropDown
 import { FarmTopBarStyled } from './FarmTopBar.style'
 
 export type FarmTopBarViewProps = {
-  loading: boolean
+  ready: boolean
   handleToggleStakedOnly: () => void
   handleLiveFinishedToggleButtons: () => void
   handleSetFarmsViewVariant: (arg0: FarmsViewVariantType) => void
@@ -23,9 +23,16 @@ export type FarmTopBarViewProps = {
   searchValue: string
   onSearch: (val: string) => void
   onSort: (val: string) => void
+  toggleChecked: boolean
 }
+
+const LIVE_FINISHED_TABS = [
+  { text: 'Live', id: 1, active: true },
+  { text: 'Finished', id: 2, active: false },
+]
+
 export const FarmTopBar = ({
-  loading,
+  ready,
   handleToggleStakedOnly,
   handleLiveFinishedToggleButtons,
   searchValue,
@@ -33,10 +40,16 @@ export const FarmTopBar = ({
   onSort,
   handleSetFarmsViewVariant,
   className,
+  toggleChecked,
 }: FarmTopBarViewProps) => {
   const itemsForDropDown = [
-    { text: 'LP Balance', value: 'lpBalance' },
-    { text: 'Max rewards/block', value: 'rewardPerBlock' },
+    { text: 'Active', value: 'active' },
+    { text: 'Highest APR', value: 'highestAPR' },
+    { text: 'Lowest APR', value: 'lowestAPR' },
+    { text: 'Highest liquidity (lpBalance)', value: 'highestLiquidity' },
+    { text: 'Lowest liquidity (lpBalance)', value: 'lowestLiquidity' },
+    { text: 'Your Largest Stake', value: 'yourLargestStake' },
+    { text: 'Rewards Per Block', value: 'rewardsPerBlock' },
   ]
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
@@ -54,13 +67,14 @@ export const FarmTopBar = ({
 
   return (
     <FarmTopBarStyled className={className}>
-      <Toggle onChange={handleToggleStakedOnly} className="farm-toggle" sufix="Staked Only" />
-      <SlidingTabButtons
-        className="tab-bar"
-        onClick={handleLiveFinishedToggleButtons}
-        type={'Farms'}
-        loading={loading}
+      <Toggle
+        checked={toggleChecked}
+        disabled={!ready}
+        onChange={handleToggleStakedOnly}
+        className="farm-toggle"
+        sufix="Staked Only"
       />
+      <SlidingTabButtons tabItems={LIVE_FINISHED_TABS} className="tab-bar" onClick={handleLiveFinishedToggleButtons} />
       <Input
         type="text"
         placeholder="Search..."
@@ -72,7 +86,7 @@ export const FarmTopBar = ({
         <h4>Order By:</h4>
         <DropDown
           clickOnDropDown={handleClickDropdown}
-          placeholder={'Max Rewards...'}
+          placeholder={'Choose order'}
           onChange={onSort}
           isOpen={ddIsOpen}
           itemSelected={chosenDdItem?.text}

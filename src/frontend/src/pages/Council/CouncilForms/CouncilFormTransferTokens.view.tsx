@@ -85,11 +85,11 @@ export const CouncilFormTransferTokens = () => {
             required
             value={receiverAddress}
             name="receiverAddress"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.receiverAddress}
           />
         </div>
@@ -103,11 +103,11 @@ export const CouncilFormTransferTokens = () => {
             required
             value={tokenContractAddress}
             name="tokenContractAddress"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.tokenContractAddress}
           />
         </div>
@@ -119,11 +119,11 @@ export const CouncilFormTransferTokens = () => {
             required
             value={tokenAmount}
             name="tokenAmount"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.tokenAmount}
           />
         </div>
@@ -135,11 +135,11 @@ export const CouncilFormTransferTokens = () => {
             required
             value={tokenType}
             name="tokenType"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.tokenType}
           />
         </div>
@@ -151,11 +151,11 @@ export const CouncilFormTransferTokens = () => {
             required
             value={tokenId}
             name="tokenId"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.tokenId}
           />
         </div>
@@ -167,11 +167,11 @@ export const CouncilFormTransferTokens = () => {
           required
           value={purpose}
           name="purpose"
-          onChange={(e) => {
+          onChange={(e: any) => {
             handleChange(e)
             handleBlur(e)
           }}
-          onBlur={(e) => handleBlur(e)}
+          onBlur={(e: any) => handleBlur(e)}
           inputStatus={formInputStatus.purpose}
         />
       </div>

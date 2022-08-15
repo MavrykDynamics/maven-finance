@@ -1,13 +1,11 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
-
 import { InputView } from './Input.view'
 
 export type InputStatusType = 'success' | 'error' | '' | undefined
 export type InputKind = 'primary' | 'search'
 type InputProps = {
+  id?: string
   icon?: string
-  placeholder: string
+  placeholder?: string
   name?: string
   value?: string | number
   onChange: any
@@ -15,7 +13,7 @@ type InputProps = {
   onFocus?: any
   onKeyDown?: any
   inputStatus?: InputStatusType
-  type: string
+  type?: string
   errorMessage?: string
   disabled?: boolean
   required?: boolean
@@ -24,6 +22,7 @@ type InputProps = {
 }
 
 export const Input = ({
+  id = '',
   icon,
   placeholder,
   name,
@@ -42,6 +41,7 @@ export const Input = ({
 }: InputProps) => {
   return (
     <InputView
+      id={id}
       type={type}
       icon={icon}
       name={name}
@@ -59,28 +59,4 @@ export const Input = ({
       kind={kind}
     />
   )
-}
-
-Input.propTypes = {
-  icon: PropTypes.string,
-  placeholder: PropTypes.string,
-  name: PropTypes.string,
-  value: PropTypes.any,
-  onChange: PropTypes.func.isRequired,
-  onBlur: PropTypes.func.isRequired,
-  inputStatus: PropTypes.string,
-  type: PropTypes.string,
-  errorMessage: PropTypes.string,
-  disabled: PropTypes.bool,
-  kind: PropTypes.string,
-}
-
-Input.defaultProps = {
-  icon: undefined,
-  placeholder: undefined,
-  name: undefined,
-  value: undefined,
-  inputStatus: undefined,
-  type: 'text',
-  kind: 'primary',
 }

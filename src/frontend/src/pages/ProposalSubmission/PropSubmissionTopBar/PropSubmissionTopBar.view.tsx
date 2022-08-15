@@ -3,7 +3,6 @@ import useGovernence from '../../Governance/UseGovernance'
 
 // components
 import TimeRemaining from '../../Governance/TimeRemaining/TimeRemaining.controller'
-import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { GovernancePhase } from '../../../reducers/governance'
 import { getSeparateSnakeCase } from '../../../utils/parse'
@@ -24,6 +23,11 @@ export type PropSubmissionTopBarViewProps = {
   isInEmergencyGovernance: boolean
   handleTabChange: (val?: any) => void
 }
+const GOV_PROPOSAL_SUBMISSION_ITEMS = [
+  { text: 'Stage 1', id: 1, active: true },
+  { text: 'Stage 2', id: 2, active: false },
+  { text: 'Stage 3', id: 3, active: false },
+]
 export const PropSubmissionTopBarView = ({
   governancePhase,
   isInEmergencyGovernance,
@@ -41,7 +45,7 @@ export const PropSubmissionTopBarView = ({
         <>
           <PropSubTopBarTabsContainer>
             <PropSubTopBarTabsText>Submission Process:</PropSubTopBarTabsText>
-            <SlidingTabButtons onClick={handleTabChange} type={GOV_PROPOSAL_SUBMISSION_FORM} />
+            <SlidingTabButtons tabItems={GOV_PROPOSAL_SUBMISSION_ITEMS} onClick={handleTabChange} />
           </PropSubTopBarTabsContainer>
 
           <PropSubTopBarTimeContainer>

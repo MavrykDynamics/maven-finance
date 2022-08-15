@@ -80,6 +80,24 @@ export const BREAK_GLASS_STATUS_QUERY = `
       track_treasury_paused
       untrack_treasury_paused
     }
+    aggregator {
+      address
+      name
+      request_rate_update_deviation_paused
+      request_rate_update_paused
+      set_observation_commit_paused
+      set_observation_reveal_paused
+      withdraw_reward_smvk_paused
+      withdraw_reward_xtz_paused
+    }
+    aggregator_factory {
+      address
+      untrack_aggregator_paused
+      track_aggregator_paused
+      distribute_reward_xtz_paused
+      distribute_reward_smvk_paused
+      create_aggregator_paused
+    }
   }
 `
 

@@ -34,7 +34,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   background: ${containerColor};
   border-radius: 10px;
   min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
-  max-height: calc(90vh - 50px);
+  max-height: calc(100vh - 50px);
   min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
   border: 1px solid ${cyanColor};
@@ -52,6 +52,19 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
     color: ${({ theme }) => theme.headerColor};
     margin: 0;
     margin-bottom: 21px;
+  }
+
+  &.farm-modal {
+    width: 420px;
+    height: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+  }
+
+  &.modal-roi {
+    padding: 0;
   }
 `
 

@@ -334,11 +334,15 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
   storage?.forEach((farmItem: any) => {
     const newFarm: FarmStorage = {
       address: farmItem.address,
+      name: farmItem.name,
+      lpTokenAddress: farmItem.lp_token_address,
       open: farmItem.open,
       withdrawPaused: farmItem.withdraw_paused,
       claimPaused: farmItem.claim_paused,
       depositPaused: farmItem.deposit_paused,
       blocksPerMinute: farmItem.blocks_per_minute,
+      lpTokenBalance: farmItem.lp_token_balance,
+      currentRewardPerBlock: farmItem.current_reward_per_block,
       farmFactoryId: farmItem.farm_factory_id,
       infinite: farmItem.infinite,
       initBlock: farmItem.init_block,
@@ -349,6 +353,7 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
       rewardPerBlock: calcWithoutPrecision(farmItem.reward_per_block),
       rewardsFromTreasury: farmItem.rewards_from_treasury,
       totalBlocks: farmItem.total_blocks,
+      farmAccounts: farmItem.farm_accounts,
     }
     farms.push(newFarm)
   })
@@ -622,7 +627,7 @@ function convertToGovernanceStorageType(storage: {
     startLevel: currentGovernance.start_level,
     tempFlag: currentGovernance.start_level,
     timelockProposalId: currentGovernance.timelock_proposal_id,
-    cycleCounter: currentGovernance.cycle_counter,
+    cycleCounter: currentGovernance.cycle_counter ?? 0,
     cycleHighestVotedProposalId: currentGovernance.cycle_highest_voted_proposal_id,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
@@ -836,6 +841,8 @@ export function convertCurrentRoundProposalsStorageType(storage: {
 export function convertBreakGlassStatusStorageType(storage: any): Record<string, unknown>[] {
   const convert = [] as Record<string, unknown>[]
 
+  console.log('%c ||||| storage', 'color:yellowgreen', storage);
+
   if (storage?.doorman?.length) {
     storage.doorman.forEach((item: any) => {
       convert.push({
@@ -927,6 +934,40 @@ export function convertBreakGlassStatusStorageType(storage: any): Record<string,
           'create treasury paused': item.create_treasury_paused,
           'track treasury paused': item.track_treasury_paused,
           'untrack treasury paused': item.untrack_treasury_paused,
+        },
+      })
+    })
+  }
+
+  if (storage?.aggregator?.length) {
+    storage.aggregator.forEach((item: any) => {
+      convert.push({
+        title: `${item.name} Aggregator`,
+        type: 'Oracles',
+        address: item.address,
+        methods: {
+          'request rate update deviation paused': item.request_rate_update_deviation_paused,
+          'request rate update paused': item.request_rate_update_paused,
+          'set observation commit paused': item.set_observation_commit_paused,
+          'set observation reveal paused': item.set_observation_reveal_paused,
+          'withdraw reward smvk paused': item.withdraw_reward_smvk_paused,
+          'withdraw reward xtz paused': item.withdraw_reward_xtz_paused,
+        },
+      })
+    })
+  }
+  if (storage?.aggregator_factory?.length) {
+    storage.aggregator_factory.forEach((item: any) => {
+      convert.push({
+        title: 'Aggregator Factory',
+        type: 'Oracles',
+        address: item.address,
+        methods: {
+          'untrack aggregator paused': item.untrack_aggregator_paused,
+          'track aggregator paused': item.track_aggregator_paused,
+          'distribute reward xtz paused': item.distribute_reward_xtz_paused,
+          'distribute reward smvk paused': item.distribute_reward_smvk_paused,
+          'create aggregator paused': item.create_aggregator_paused,
         },
       })
     })

@@ -61,6 +61,13 @@ export const BGMiddleWrapper = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
   margin-top: 45px;
+
+  .brake-glass-tabs {
+    button {
+      height: 100%;
+      width: 177px;
+    }
+  }
 `
 
 export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`

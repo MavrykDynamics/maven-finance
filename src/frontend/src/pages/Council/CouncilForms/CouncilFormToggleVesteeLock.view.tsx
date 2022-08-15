@@ -69,11 +69,11 @@ export const CouncilFormToggleVesteeLock = () => {
             required
             value={vesteeAddress}
             name="vesteeAddress"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.vesteeAddress}
           />
         </div>

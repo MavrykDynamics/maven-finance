@@ -1,40 +1,46 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../../reducers'
-import { Button } from '../../../app/App.components/Button/Button.controller'
-import { ConnectWallet } from '../../../app/App.components/ConnectWallet/ConnectWallet.controller'
-import {
-  FarmCardContentSection,
-  FarmCardDropDownContainer,
-  FarmCardFirstTokenIcon,
-  FarmCardRewardsSection,
-  FarmCardSecondTokenIcon,
-  FarmCardStakedBalanceSection,
-  FarmCardStyled,
-  FarmCardTokenLogoContainer,
-  FarmCardTopSection,
-  FarmTitleSection,
-  StakedBalanceAddSubtractButton,
-  StakedBalanceAddSubtractIcon,
-} from './FarmCard.style'
 import { useEffect, useRef, useState } from 'react'
-import * as React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
+// types
+import type { FarmsViewVariantType } from '../Farms.controller'
+
+// view
+import Expand from '../../../app/App.components/Expand/Expand.view'
+import { Button } from '../../../app/App.components/Button/Button.controller'
+import { ButtonCircle } from '../../../app/App.components/Button/ButtonCircle.view'
+import { ConnectWallet } from '../../../app/App.components/ConnectWallet/ConnectWallet.controller'
 import { ColoredLine } from '../../../app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { deposit, harvest, withdraw } from '../Farms.actions'
 import { ButtonIcon } from '../../../app/App.components/Button/Button.style'
 import { showModal } from '../../../app/App.components/Modal/Modal.actions'
-import { Modal } from '../../../app/App.components/Modal/Modal.controller'
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import RoiCalculator from '../RoiCalculator/RoiCalculator.controller'
+import CoinsIcons from '../../../app/App.components/Icon/CoinsIcons.view'
+
+// const
+import { SELECT_FARM_ADDRESS } from '../Farms.actions'
 import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/Modal.constants'
 
+// helpers
+import { calculateAPR } from '../Frams.helpers'
+
+// styles
+import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
+
 type FarmCardProps = {
+  name: string
   farmAddress: string
   firstToken: string
   secondToken: string
-  lpToken: string
+  distributer: string
   lpTokenAddress: string
+  lpTokenBalance: number
+  currentRewardPerBlock: number
   firstTokenAddress: string
   secondTokenAddress: string
-  className: string
+  variant: FarmsViewVariantType
   totalLiquidity: number
 }
 export const FarmCard = ({
@@ -43,127 +49,205 @@ export const FarmCard = ({
   firstTokenAddress,
   secondToken,
   secondTokenAddress,
-  lpToken,
+  distributer,
   lpTokenAddress,
   totalLiquidity,
-  className,
+  variant,
+  name,
+  lpTokenBalance,
+  currentRewardPerBlock,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const [visibleModal, setVisibleModal] = useState(false)
   const myFarmStakedBalance = 45645.8987
-  const [expanded, setExpanded] = useState(false)
-  const [accordionHeight, setAccordionHeight] = useState(0)
-  const ref = useRef(null)
-  const open = () => setExpanded(!expanded)
-  useEffect(() => {
-    // @ts-ignore
-    const getHeight = ref.current.scrollHeight
-    setAccordionHeight(getHeight)
-  }, [expanded])
+  const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
 
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
   }
-  const depositLpTokens = (amount: number) => {
-    dispatch(deposit(farmAddress, amount))
-  }
-  const withdrawLpTokens = (amount: number) => {
-    dispatch(withdraw(farmAddress, amount))
+
+  const setReduxFarmAddress = async () => {
+    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: farmAddress })
   }
 
-  const triggerDepositModal = () => {
-    console.log('Here in Deposit Modal')
-    dispatch(showModal(FARM_DEPOSIT))
+  const triggerDepositModal = async () => {
+    await setReduxFarmAddress()
+    await dispatch(showModal(FARM_DEPOSIT))
   }
-  const triggerWithdrawModal = () => {
-    console.log('Here in Withdraw Modal')
-    dispatch(showModal(FARM_WITHDRAW))
+
+  const triggerWithdrawModal = async () => {
+    await setReduxFarmAddress()
+    await dispatch(showModal(FARM_WITHDRAW))
   }
-  return (
-    <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion${expanded ? 'Show' : 'Hide'} ${className}`}>
-      <Modal />
-      <FarmCardTopSection>
-        <FarmCardContentSection>
-          <FarmCardTokenLogoContainer>
-            <FarmCardFirstTokenIcon src={'/images/coin-gold.svg'} />
-            <FarmCardSecondTokenIcon src={'/images/coin-silver.svg'} />
-          </FarmCardTokenLogoContainer>
-          <FarmTitleSection>
-            <h3>
-              {firstToken}-{secondToken}
-            </h3>
-            <p>{lpToken}</p>
-          </FarmTitleSection>
-        </FarmCardContentSection>
-        <FarmCardContentSection>
-          <div>
-            <p>APR:</p>
-            <p>Earn:</p>
-          </div>
-          <div>
-            <p>23.98%</p>
-            <p>sMVK + Fees</p>
-          </div>
-        </FarmCardContentSection>
-        <FarmCardRewardsSection>
-          <h4>sMVK Earned:</h4>
-          <div>
-            <p>123.0q3</p>
-            <Button text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
-          </div>
-        </FarmCardRewardsSection>
-        <FarmCardStakedBalanceSection>
-          <h4>
-            {firstToken}-{secondToken} staked:
-          </h4>
-          <div>
-            {!wallet || !ready ? (
-              <ConnectWallet type={'simpleButton'} />
-            ) : (
-              <>
-                <CommaNumber
-                  value={Number(myFarmStakedBalance)}
-                  loading={loading}
-                  endingText={firstToken + '-' + secondToken}
-                />
-                <StakedBalanceAddSubtractButton onClick={triggerDepositModal}>
-                  <StakedBalanceAddSubtractIcon>
-                    <use xlinkHref={`/icons/sprites.svg#add`} />
-                  </StakedBalanceAddSubtractIcon>
-                </StakedBalanceAddSubtractButton>
-                <StakedBalanceAddSubtractButton onClick={triggerWithdrawModal}>
-                  <StakedBalanceAddSubtractIcon>
-                    <use xlinkHref={`/icons/sprites.svg#subtract`} />
-                  </StakedBalanceAddSubtractIcon>
-                </StakedBalanceAddSubtractButton>
-              </>
-            )}
-          </div>
-        </FarmCardStakedBalanceSection>
-      </FarmCardTopSection>
-      <FarmCardDropDownContainer
-        onClick={open}
-        className={expanded ? 'show' : 'hide'}
-        height={accordionHeight}
-        ref={ref}
-      >
-        <span>
-          {expanded ? 'Hide ' : 'Details '}
-          {expanded ? (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-            </svg>
-          ) : (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
-            </svg>
-          )}
-        </span>
-        <div className={'accordion ' + `${expanded}`} ref={ref}>
-          Hello fuckers
+
+  const triggerCalculatorModal = async () => {
+    await setReduxFarmAddress()
+    setVisibleModal(true)
+  }
+
+  const closeCalculatorModal = async () => {
+    setVisibleModal(false)
+    await dispatch({ type: SELECT_FARM_ADDRESS, selectedFarmAddress: '' })
+  }
+
+  const logoHeaderContent = (
+    <div className="farm-card-header">
+      <CoinsIcons />
+      <div className="farm-card-section">
+        <h3>
+          {/* {firstToken}-{secondToken} */}
+          {name}
+        </h3>
+        <p>{distributer}</p>
+      </div>
+    </div>
+  )
+
+  const unclaimedSMVKBlock = (
+    <div className="farm-info">
+      <h3>Unclaimed sMVK</h3>
+      <var>0.00</var>
+    </div>
+  )
+
+  const aprBlock = (
+    <div className="farm-info">
+      <h3>APY</h3>
+      <div className="btn-info">
+        <var>{valueAPR}</var>
+        <button onClick={triggerCalculatorModal} className="calc-button">
+          <Icon id="calculator" />
+        </button>
+      </div>
+    </div>
+  )
+
+  const liquidityBlock = (
+    <div className="farm-info">
+      <h3>Liquidity</h3>
+      <var>$209,544,892</var>
+    </div>
+  )
+
+  const totalLiquidityBlock = (
+    <div className="farm-info">
+      <h3>Total Liquidity</h3>
+      <var>$209,544,892</var>
+    </div>
+  )
+
+  const earnBlock = (
+    <div className="farm-info">
+      <h3>Earn</h3>
+      <var>sMVK+Fees</var>
+    </div>
+  )
+
+  const stakedBlock = (
+    <div className="farm-info">
+      <h3>MVK-XTZ LP staked</h3>
+      <var>
+        <CommaNumber value={Number(myFarmStakedBalance)} />
+      </var>
+    </div>
+  )
+
+  const linksBlock = (
+    <div className="links-block">
+      <a target="_blank" rel="noreferrer" href="https://mavryk.finance/">
+        Get MVK-tzBTC <Icon id="send" />
+      </a>
+      <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${farmAddress}`}>
+        View Contract <Icon id="send" />
+      </a>
+      <a target="_blank" rel="noreferrer" href={`https://tzkt.io/${lpTokenAddress}`}>
+        See Pair Info <Icon id="send" />
+      </a>
+    </div>
+  )
+
+  const harvestBlock = (
+    <FarmHarvestStyled className="farm-harvest">
+      <div className="farm-info">
+        <h3>sMVK Earned</h3>
+        <var>0.00</var>
+      </div>
+      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
+    </FarmHarvestStyled>
+  )
+
+  const farmingBlock = (
+    <>
+      {!wallet || !ready ? (
+        <div className="start-farming">
+          <h3>Start Farming</h3>
+          <ConnectWallet />
         </div>
-      </FarmCardDropDownContainer>
+      ) : (
+        <FarmStakeStyled className="farm-stake">
+          {stakedBlock}
+          <div className="circle-buttons">
+            {/* <ButtonCircle onClick={triggerDepositModal} kind="actionPrimary" text="" icon="add" />
+            <ButtonCircle onClick={triggerWithdrawModal} kind="actionSecondary" text="" icon="subtract" /> */}
+            <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
+            <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
+          </div>
+        </FarmStakeStyled>
+      )}
+    </>
+  )
+
+  const questionLinkBlock = (
+    <a className="info-link" href="https://mavryk.finance/litepaper#yield-farming" target="_blank" rel="noreferrer">
+      <Icon id="question" />
+    </a>
+  )
+
+  if (variant === 'vertical') {
+    return (
+      <FarmCardStyled key={lpTokenAddress} className={`contractCard accordion} ${variant}`}>
+        {questionLinkBlock}
+        {logoHeaderContent}
+        <div className="farm-info-vertical">
+          {aprBlock}
+          {earnBlock}
+        </div>
+        <div className="vertical-harvest">{harvestBlock}</div>
+        <div className="vertical-harvest">{farmingBlock}</div>
+
+        <Expand className="vertical-expand" showText header={<></>}>
+          <>
+            <div className="farm-info-vertical">{totalLiquidityBlock}</div>
+            {linksBlock}
+          </>
+        </Expand>
+        {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
+      </FarmCardStyled>
+    )
+  }
+
+  return (
+    <FarmCardStyled key={lpTokenAddress} className={`contractCard  ${variant}`}>
+      {questionLinkBlock}
+      <Expand
+        header={
+          <>
+            {logoHeaderContent}
+            {unclaimedSMVKBlock}
+            {aprBlock}
+            {liquidityBlock}
+            {earnBlock}
+          </>
+        }
+      >
+        <div className="horizontal-expand">
+          {harvestBlock}
+          {farmingBlock}
+          {linksBlock}
+        </div>
+      </Expand>
+      {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
     </FarmCardStyled>
   )
 }
