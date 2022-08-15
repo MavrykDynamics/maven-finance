@@ -12,6 +12,9 @@ import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
+// helpers
+import { calculateAPR } from './Frams.helpers'
+
 // styles
 import { FarmsStyled } from './Farms.style'
 import { EmptyContainer as EmptyList } from 'app/App.style'
@@ -31,7 +34,7 @@ export const Farms = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
-  //farmStorage = MOCK_FARMS
+  farmStorage = MOCK_FARMS
   const [farmsList, setFarmsList] = useState(farmStorage)
   const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage[]>([])
   const [toggleChecked, setToggleChecked] = useState(false)
@@ -74,13 +77,22 @@ export const Farms = () => {
       const dataToSort = filteredSearch ? [...filteredSearch] : []
 
       dataToSort.sort((a: FarmStorage, b: FarmStorage) => {
-        console.log('%c ||||| Number(a.open)', 'color:yellowgreen', Number(a.open))
         let res = 0
         switch (sortBy) {
           case 'active':
             res = Number(a.open) - Number(b.open)
             break
-          case 'lpBalance':
+          case 'highestAPR':
+            res = -(
+              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) -
+              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+            )
+            break
+          case 'lowestAPR':
+            res =
+              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) -
+              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+            break
           case 'rewardPerBlock':
           default:
             res = 1
