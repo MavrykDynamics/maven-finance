@@ -27,7 +27,7 @@ import { FARM_DEPOSIT, FARM_WITHDRAW } from '../../../app/App.components/Modal/M
 import { calculateAPR } from '../Frams.helpers'
 
 // styles
-import { FarmCardStyled, FarmHarvestStyled } from './FarmCard.style'
+import { FarmCardStyled, FarmHarvestStyled, FarmStakeStyled } from './FarmCard.style'
 
 type FarmCardProps = {
   name: string
@@ -168,7 +168,7 @@ export const FarmCard = ({
   )
 
   const harvestBlock = (
-    <FarmHarvestStyled>
+    <FarmHarvestStyled className="farm-harvest">
       <div className="farm-info">
         <h3>sMVK Earned</h3>
         <var>0.00</var>
@@ -185,13 +185,15 @@ export const FarmCard = ({
           <ConnectWallet />
         </div>
       ) : (
-        <FarmHarvestStyled>
+        <FarmStakeStyled className="farm-stake">
           {stakedBlock}
           <div className="circle-buttons">
-            <ButtonCircle onClick={triggerDepositModal} kind="actionPrimary" text="" icon="add" />
-            <ButtonCircle onClick={triggerWithdrawModal} kind="actionSecondary" text="" icon="subtract" />
+            {/* <ButtonCircle onClick={triggerDepositModal} kind="actionPrimary" text="" icon="add" />
+            <ButtonCircle onClick={triggerWithdrawModal} kind="actionSecondary" text="" icon="subtract" /> */}
+            <Button text="Stake LP" kind="actionPrimary" icon="in" onClick={triggerDepositModal} />
+            <Button text="UnStake LP" kind="actionSecondary" icon="out" onClick={triggerWithdrawModal} />
           </div>
-        </FarmHarvestStyled>
+        </FarmStakeStyled>
       )}
     </>
   )
@@ -240,9 +242,9 @@ export const FarmCard = ({
         }
       >
         <div className="horizontal-expand">
-          {linksBlock}
           {harvestBlock}
           {farmingBlock}
+          {linksBlock}
         </div>
       </Expand>
       {visibleModal ? <RoiCalculator lpTokenAddress={lpTokenAddress} onClose={closeCalculatorModal} /> : null}
