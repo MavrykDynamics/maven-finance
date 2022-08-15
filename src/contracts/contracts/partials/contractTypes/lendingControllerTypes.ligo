@@ -24,18 +24,19 @@ type collateralNameType          is string;
 
 type lendingControllerConfigType is [@layout:comb] record [
     
-    collateralRatio           : nat;    // collateral ratio
-    liquidationRatio          : nat;    // liquidation ratio
+    collateralRatio           : nat;        // collateral ratio
+    liquidationRatio          : nat;        // liquidation ratio
     
-    liquidationFee            : nat;    // liquidation fee - penalty fee paid by vault owner to liquidator
-    adminLiquidationFee       : nat;    // admin liquidation fee - penalty fee paid by vault owner to treasury
+    liquidationFee            : nat;        // liquidation fee - penalty fee paid by vault owner to liquidator
+    adminLiquidationFee       : nat;        // admin liquidation fee - penalty fee paid by vault owner to treasury
 
-    minimumLoanFee            : nat;    // minimum loan fee - taken at first minting
+    minimumLoanFee            : nat;        // minimum loan fee - taken at first minting
 
-    minimumLoanFeeTreasuryShare  : nat;  // percentage of minimum loan fee that goes to the treasury
-    interestTreasuryShare        : nat;  // percentage of interest that goes to the treasury
+    minimumLoanFeeTreasuryShare  : nat;     // percentage of minimum loan fee that goes to the treasury
+    interestTreasuryShare        : nat;     // percentage of interest that goes to the treasury
 
-    decimals                  : nat;    // decimals used for percentage calculation
+    decimals                     : nat;    // decimals used for percentage calculation
+    maxDecimalsForCalculation    : nat;    // max decimals to be used in calculations
 
 ]
 
@@ -73,7 +74,7 @@ type collateralTokenRecordType is [@layout:comb] record [
     tokenContractAddress    : address;
     tokenId                 : nat;
 
-    decimals                : nat; 
+    decimals                : nat;       // token decimals
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
 
@@ -89,6 +90,7 @@ type loanTokenRecordType is [@layout:comb] record [
     tokenContractAddress                    : address;
     tokenType                               : tokenType; 
     tokenId                                 : nat;
+    decimals                                : nat;
 
     lpTokensTotal                           : nat;
     lpTokenContractAddress                  : address;
@@ -138,6 +140,7 @@ type vaultRecordType is [@layout:comb] record [
     loanOutstandingTotal        : nat;                           // total amount debt (principal + interest)
     loanPrincipalTotal          : nat;                           // total amount principal
     loanInterestTotal           : nat;                           // total amount interest
+    loanDecimals                : nat;                           // should be 6 by default (USDT, EURL)
     borrowIndex                 : nat;
     
     lastUpdatedBlockLevel       : nat;                           // block level of when vault was last updated for loans payment
@@ -233,6 +236,7 @@ type setLoanTokenActionType is [@layout:comb] record [
     tokenName                               : string;
     tokenContractAddress                    : address;
     tokenId                                 : nat;
+    decimals                                : nat;
 
     lpTokenContractAddress                  : address;
     lpTokenId                               : nat;
@@ -280,10 +284,13 @@ type registerDepositType is [@layout:comb] record [
 
 
 type liquidateVaultActionType is [@layout:comb] record [
-    handle                      : vaultHandleType; 
-    loanQuantity                : nat; 
-    loanToken                   : string;
-    [@annot:to] to_             : contract(unit);
+    // handle                      : vaultHandleType; 
+    // loanQuantity                : nat; 
+    // loanToken                   : string;
+    // [@annot:to] to_             : contract(unit);
+    vaultId     : nat;
+    vaultOwner  : address;
+    amount      : nat;
 ]
 
 

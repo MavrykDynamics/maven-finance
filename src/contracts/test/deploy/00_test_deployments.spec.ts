@@ -889,6 +889,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('council', council.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('vesting', vesting.contract.address))
+      .withContractCall(governance.contract.methods.updateGeneralContracts('lendingTreasury', treasury.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('farmTreasury', treasury.contract.address))
       .withContractCall(governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address))

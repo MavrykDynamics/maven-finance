@@ -22,7 +22,7 @@ import mockFa2TokenAddress from '../deployments/mockFa2TokenAddress.json';
 
 import mockUsdMockFa12TokenAggregatorAddress from "../deployments/mockUsdMockFa12TokenAggregatorAddress.json";
 import mockUsdMockFa2TokenAggregatorAddress from "../deployments/mockUsdMockFa2TokenAggregatorAddress.json";
-import mockUsdXtzAggregatorAddress from "../deployments/mockUsdXtzAddress.json";
+import mockUsdXtzAggregatorAddress from "../deployments/mockUsdXtzAggregatorAddress.json";
 
 import lpTokenPoolMockFa12TokenAddress from "../deployments/lpTokenPoolMockFa12TokenAddress.json";
 import lpTokenPoolMockFa2TokenAddress from "../deployments/lpTokenPoolMockFa2TokenAddress.json";
@@ -152,6 +152,7 @@ describe("Lending Controller tests", async () => {
                 const tokenContractAddress                  = mockFa12TokenAddress.address;
                 const tokenType                             = "fa12";
                 const tokenId                               = 0;
+                const decimals                              = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa12TokenAddress.address;
                 const lpTokenId                             = 0;
@@ -173,6 +174,7 @@ describe("Lending Controller tests", async () => {
                         tokenName,
                         tokenContractAddress,
                         tokenId,
+                        decimals,
 
                         lpTokenContractAddress,
                         lpTokenId,
@@ -227,8 +229,6 @@ describe("Lending Controller tests", async () => {
 
                 }
 
-
-
             } catch(e){
                 console.log(e);
             } 
@@ -245,6 +245,7 @@ describe("Lending Controller tests", async () => {
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
+                const decimals                              = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
@@ -268,6 +269,7 @@ describe("Lending Controller tests", async () => {
                         tokenName,
                         tokenContractAddress,
                         tokenId,
+                        decimals,
 
                         lpTokenContractAddress,
                         lpTokenId,
@@ -339,6 +341,7 @@ describe("Lending Controller tests", async () => {
                 const tokenContractAddress                  = zeroAddress;
                 const tokenType                             = "tez";
                 const tokenId                               = 0;
+                const decimals                              = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolXtzAddress.address;
                 const lpTokenId                             = 0;
@@ -360,6 +363,7 @@ describe("Lending Controller tests", async () => {
                         tokenName,
                         tokenContractAddress,
                         tokenId,
+                        decimals,
 
                         lpTokenContractAddress,
                         lpTokenId,
@@ -430,6 +434,7 @@ describe("Lending Controller tests", async () => {
                 const tokenContractAddress                  = mockFa2TokenAddress.address;
                 const tokenType                             = "fa2";
                 const tokenId                               = 0;
+                const decimals                              = 6;
 
                 const lpTokenContractAddress                = lpTokenPoolMockFa2TokenAddress.address;
                 const lpTokenId                             = 0;
@@ -446,6 +451,7 @@ describe("Lending Controller tests", async () => {
                     tokenName,
                     tokenContractAddress,
                     tokenId,
+                    decimals,
 
                     lpTokenContractAddress,
                     lpTokenId,
@@ -652,6 +658,8 @@ describe("Lending Controller tests", async () => {
 
     // 
     // Test: Create vaults with no tez 
+    //  - eve: first vault will have loan token of mockFa12, second vault will have loan token of mockFa2
+    //  - mallory: first vault will have loan token of mockFa12, second vault will have loan token of mockFa2
     //
     describe('%createVault test: create vaults with no tez', function () {
 
@@ -663,7 +671,7 @@ describe("Lending Controller tests", async () => {
                 const vaultId       = parseInt(lendingControllerStorage.vaultCounter);
                 const vaultOwner    = eve.pkh;
                 const depositors    = "any";
-                const loanTokenName = "usdt";
+                const loanTokenName = "mockFa12";
 
                 const vaultMetadataBase = Buffer.from(
                     JSON.stringify({
@@ -719,7 +727,7 @@ describe("Lending Controller tests", async () => {
                 const vaultId                   = parseInt(lendingControllerStorage.vaultCounter);
                 const vaultOwner                = mallory.pkh;
                 const depositors                = "whitelist";
-                const loanTokenName             = "usdt";
+                const loanTokenName             = "mockFa12";
 
                 const vaultMetadataBase = Buffer.from(
                     JSON.stringify({
@@ -786,7 +794,7 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = mallory.pkh;
                 const depositors                = "any"
                 const tezSent                   = 10;
-                const loanTokenName             = "usdt";
+                const loanTokenName             = "mockFa2";
 
                 const vaultMetadataBase = Buffer.from(
                     JSON.stringify({
@@ -836,7 +844,7 @@ describe("Lending Controller tests", async () => {
                 const vaultOwner                = eve.pkh;
                 const depositors                = "whitelist";
                 const tezSent                   = 10;
-                const loanTokenName             = "usdt";
+                const loanTokenName             = "mockFa2";
 
                 const vaultMetadataBase = Buffer.from(
                     JSON.stringify({
@@ -2309,539 +2317,52 @@ describe("Lending Controller tests", async () => {
 
 
 
-    // -------------------------------
-    // Stop here
-    // -------------------------------
-
     // 
-    // Test: Setup CFMMs XTZ/USDM
+    // Test: borrow 
     //
-    // describe('test: setup CFMMs (XTZ/USDM)', function () {
+    describe('%borrow', function () {
 
-    //     it('user (alice) can deposit tez into the CFMM (XTZ/USDM) cash pool', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
+        it('user (eve) can borrow 2 Mock FA12 Tokens', async () => {
 
-    //         // initial cash pool of 0
-    //         const cfmmXtzUsdmStorage = await cfmmTezUsdmInstance.storage();
-    //         assert.equal(cfmmXtzUsdmStorage.cashPool, 1);
+            await signerFactory(eve.sk);
+            const vaultId            = eveVaultSet[0];
+            const vaultOwner         = eve.pkh;
+            const borrowAmount       = 2000000; // 2 Mock FA12 Tokens
 
-    //         // 1:4 ratio - 1 tez to 4 USDM Tokens
-    //         const tezAmount   = 500;
-    //         const mutezAmount = 500000000;
-    //         const aliceTransferTezToCfmmOperation = await utils.tezos.contract.transfer(
-    //                 { 
-    //                     to:     cfmmTezUsdmAddress.address, 
-    //                     amount: tezAmount
-    //                 }
-    //             );
-    //         await aliceTransferTezToCfmmOperation.confirmation();
+            // setup vault handle and vault record
+            const vaultHandle = {
+                "id"    : vaultId,
+                "owner" : vaultOwner
+            };
+            const vaultRecord = await lendingControllerStorage.vaults.get(vaultHandle);
 
-    //         // updated cash pool
-    //         const updatedCfmmXtzUsdmStorage = await cfmmTezUsdmInstance.storage();
-    //         assert.equal(updatedCfmmXtzUsdmStorage.cashPool, mutezAmount + 1);
+            // get initial variables
+            const initialLoanOutstandingTotal   = vaultRecord.loanOutstandingTotal;
+            const initialLoanPrincipalTotal     = vaultRecord.initialLoanPrincipalTotal;
+            const initialLoanInterestTotal      = vaultRecord.initialLoanInterestTotal;
 
-    //     });
+            const eveBorrowOperation = await lendingControllerInstance.methods.borrow(vaultId, borrowAmount).send();
+            await eveBorrowOperation.confirmation();
 
-    //     it('user (alice) can deposit tez into the CFMM (XTZ/MockFa2Token) cash pool', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
+            // get updated storage
+            const updatedLendingControllerStorage = await lendingControllerInstance.storage();
+            const updatedvaultRecord = await updatedLendingControllerStorage.vaults.get(vaultHandle);
 
-    //         // initial cash pool of 0
-    //         const cfmmXtzMockFa2TokenStorage = await cfmmTezMockFa2TokenInstance.storage();
-    //         assert.equal(cfmmXtzMockFa2TokenStorage.cashPool, 1);
+            const updatedLoanOutstandingTotal   = updatedvaultRecord.loanOutstandingTotal;
+            const updatedLoanPrincipalTotal     = updatedvaultRecord.initialLoanPrincipalTotal;
+            const updatedLoanInterestTotal      = updatedvaultRecord.initialLoanInterestTotal;
 
-    //         // 1:10 ratio - 1 tez to 10 Mock FA2 Tokens
-    //         const tezAmount   = 200;
-    //         const mutezAmount = 200000000;
-    //         const aliceTransferTezToCfmmOperation = await utils.tezos.contract.transfer(
-    //                 { 
-    //                     to:     cfmmTezMockFa2TokenAddress.address, 
-    //                     amount: tezAmount
-    //                 }
-    //             );
-    //         await aliceTransferTezToCfmmOperation.confirmation();
+            console.log('initialLoanOutstandingTotal: '+ initialLoanOutstandingTotal);
+            console.log('borrowAmount: '+ borrowAmount);
+            console.log('updatedLoanOutstandingTotal: '+ updatedLoanOutstandingTotal);
 
-    //         // updated cash pool
-    //         const updatedCfmmXtzMockFa2Storage = await cfmmTezMockFa2TokenInstance.storage();
-    //         assert.equal(updatedCfmmXtzMockFa2Storage.cashPool, mutezAmount + 1);
+            assert.equal(updatedLoanOutstandingTotal, initialLoanOutstandingTotal + borrowAmount);
 
-    //     });
 
-    //     it('user (alice) can deposit tez into the CFMM (XTZ/MockFa12Token) cash pool', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
+        });
 
-    //         // initial cash pool of 0
-    //         const cfmmXtzMockFa12TokenStorage = await cfmmTezMockFa12TokenInstance.storage();
-    //         assert.equal(cfmmXtzMockFa12TokenStorage.cashPool, 1);
+    })
 
-    //         // 1:10 ratio - 1 tez to 20 Mock FA12 Tokens
-    //         const tezAmount   = 100;
-    //         const mutezAmount = 100000000;
-    //         const aliceTransferTezToCfmmOperation = await utils.tezos.contract.transfer(
-    //                 { 
-    //                     to:     cfmmTezMockFa12TokenAddress.address, 
-    //                     amount: tezAmount
-    //                 }
-    //             );
-    //         await aliceTransferTezToCfmmOperation.confirmation();
 
-    //         // updated cash pool
-    //         const updatedCfmmXtzMockFa12Storage = await cfmmTezMockFa12TokenInstance.storage();
-    //         assert.equal(updatedCfmmXtzMockFa12Storage.cashPool, mutezAmount + 1);
-
-    //     });
-
-    // }); // end test: Setup CFMM XTZ/USDM
-
-
-
-    // 
-    // Test: CFMM Liquidity Actions
-    //
-    // describe('test: CFMM Liquidity Actions', function () {
-
-    //     it('user (alice) can add liquidity to the (USDM/XTZ) CFMM contract and receive corresponding LP tokens', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
-
-    //         // check that alice has no LP tokens initially
-    //         const lpTokenUsdmXtzStorage         = await lpTokenUsdmXtzInstance.storage();
-    //         const aliceUsdmXtzLpTokenBalance    = await lpTokenUsdmXtzStorage.ledger.get(alice.pkh);
-    //         assert.equal(aliceUsdmXtzLpTokenBalance, undefined);
-
-    //         const cfmmXtzUsdmStorage            = await cfmmTezUsdmInstance.storage();
-    //         const initialCashPool               = cfmmXtzUsdmStorage.cashPool;
-    //         const initialTokenPool              = cfmmXtzUsdmStorage.tokenPool;
-    //         const initialLpTokensTotal          = cfmmXtzUsdmStorage.lpTokensTotal;
-
-    //         // init parameters - assume 1 XTZ = 4 USDM i.e. 1 xtz = $4 USD
-    //         const deadline            = new Date(Date.now() + (600 * 60));
-    //         const cashDeposited       = 25000000;         // 25 XTZ
-    //         const maxTokensDeposited  = 100000000;        // 100 USDM Tokens
-    //         const minLpTokensMinted   = 24999999;         // 24 LP Tokens
-    //         const owner               = alice.pkh;        // alice
-
-    //         // USDM Token: add cfmm as operator for alice
-    //         const updateOperatorsOperation = await usdmTokenInstance.methods.update_operators([
-    //             {
-    //                 add_operator: {
-    //                     owner: alice.pkh,
-    //                     operator: cfmmTezUsdmAddress.address,
-    //                     token_id: 0,
-    //                 },
-    //             }])
-    //             .send();
-    //         await updateOperatorsOperation.confirmation();
-
-    //         // user (alice) adds liquidity to cfmm
-    //         const aliceAddsLiquidityOperation = await cfmmTezUsdmInstance.methods.addLiquidity(
-    //             cashDeposited,
-    //             deadline,
-    //             maxTokensDeposited,
-    //             minLpTokensMinted,
-    //             owner
-    //         ).send({ mutez : true, amount: cashDeposited });
-    //         await aliceAddsLiquidityOperation.confirmation();
-
-    //         const updatedLpTokenUsdmXtzStorage         = await lpTokenUsdmXtzInstance.storage();
-    //         const updatedAliceUsdmXtzLpTokenBalance    = await updatedLpTokenUsdmXtzStorage.ledger.get(alice.pkh);
-
-    //         const updatedCfmmXtzUsdmStorage            = await cfmmTezUsdmInstance.storage();
-    //         const updatedCashPool                      = updatedCfmmXtzUsdmStorage.cashPool;
-    //         const updatedTokenPool                     = updatedCfmmXtzUsdmStorage.tokenPool;
-    //         const updatedLpTokensTotal                 = updatedCfmmXtzUsdmStorage.lpTokensTotal;
-
-    //         // check that alice has received LP tokens 
-    //         assert.equal(updatedAliceUsdmXtzLpTokenBalance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
-
-    //         // check CFMM pool
-    //         assert.equal(updatedCashPool, initialCashPool.toNumber() + cashDeposited);
-    //         assert.equal(updatedTokenPool, initialTokenPool.toNumber() + maxTokensDeposited);
-    //         assert.equal(updatedLpTokensTotal, initialLpTokensTotal.toNumber() + minLpTokensMinted);
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("updated after adding liquidity");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log(updatedLpTokenUsdmXtzStorage);
-    //         // console.log(updatedAliceUsdmXtzLpTokenBalance);
-    //         // console.log(updatedCfmmXtzUsdmStorage);
-    //     });
-
-    //     it('user (alice) can add liquidity to the (MockFa2/XTZ) CFMM contract and receive corresponding LP tokens', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
-
-    //         // check that alice has no LP tokens initially
-    //         const lpTokenMockFa2XtzStorage         = await lpTokenMockFa2XtzInstance.storage();
-    //         const aliceMockFa2XtzLpTokenBalance    = await lpTokenMockFa2XtzStorage.ledger.get(alice.pkh);
-    //         assert.equal(aliceMockFa2XtzLpTokenBalance, undefined);
-
-    //         const cfmmXtzMockFa2TokenStorage       = await cfmmTezMockFa2TokenInstance.storage();
-    //         const initialCashPool                  = cfmmXtzMockFa2TokenStorage.cashPool;
-    //         const initialTokenPool                 = cfmmXtzMockFa2TokenStorage.tokenPool;
-    //         const initialLpTokensTotal             = cfmmXtzMockFa2TokenStorage.lpTokensTotal;
-
-    //         console.log("cfmm mock fa2 token / xtz storage");
-    //         console.log(cfmmXtzMockFa2TokenStorage);
-
-    //         // init parameters - assume 1 XTZ = 2 Mock FA2 Toknes
-    //         const deadline            = new Date(Date.now() + (600 * 60));
-    //         const cashDeposited       = 25000000;           // 25 XTZ
-    //         const maxTokensDeposited  = 251000000;          // 249.9 Mock FA2 Tokens
-    //         const minLpTokensMinted   = 24999999;           // min 24.9 LP Tokens
-    //         const owner               = alice.pkh;          // alice
-
-    //         // MockFA2 Token: add cfmm as operator for alice
-    //         const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
-    //             {
-    //                 add_operator: {
-    //                     owner: alice.pkh,
-    //                     operator: cfmmTezMockFa2TokenAddress.address,
-    //                     token_id: 0,
-    //                 },
-    //             }])
-    //             .send();
-    //         await updateOperatorsOperation.confirmation();
-
-    //         // user (alice) adds liquidity to cfmm
-    //         const aliceAddsLiquidityOperation = await cfmmTezMockFa2TokenInstance.methods.addLiquidity(
-    //             cashDeposited,
-    //             deadline,
-    //             maxTokensDeposited,
-    //             minLpTokensMinted,
-    //             owner
-    //         ).send({ mutez : true, amount: cashDeposited });
-    //         await aliceAddsLiquidityOperation.confirmation();
-
-    //         const updatedLpTokenMockFa2XtzStorage         = await lpTokenMockFa2XtzInstance.storage();
-    //         const updatedAliceMockFa2XtzLpTokenBalance    = await updatedLpTokenMockFa2XtzStorage.ledger.get(alice.pkh);
-
-    //         const updatedCfmmXtzMockFa2TokenStorage       = await cfmmTezMockFa2TokenInstance.storage();
-    //         const updatedCashPool                         = updatedCfmmXtzMockFa2TokenStorage.cashPool;
-    //         const updatedTokenPool                        = updatedCfmmXtzMockFa2TokenStorage.tokenPool;
-    //         const updatedLpTokensTotal                    = updatedCfmmXtzMockFa2TokenStorage.lpTokensTotal;
-
-    //         // check that alice has received LP tokens 
-    //         assert.equal(updatedAliceMockFa2XtzLpTokenBalance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
-
-    //         // calculate values
-    //         const tokensDeposited = Math.floor((cashDeposited * initialTokenPool) / initialCashPool);
-    //         const newTokenPool = tokensDeposited + initialTokenPool.toNumber() + 1;
-
-    //         // check CFMM pool
-    //         assert.equal(updatedCashPool, initialCashPool.toNumber() + cashDeposited);
-    //         assert.equal(updatedTokenPool, newTokenPool);
-    //         assert.equal(updatedLpTokensTotal, initialLpTokensTotal.toNumber() + minLpTokensMinted);
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("updated after adding liquidity");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log(updatedLpTokenUsdmXtzStorage);
-    //         // console.log(updatedAliceUsdmXtzLpTokenBalance);
-    //         // console.log(updatedCfmmXtzUsdmStorage);
-    //     });
-
-    //     it('user (alice) can add liquidity to the (MockFa12/XTZ) CFMM contract and receive corresponding LP tokens', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
-
-    //         // check that alice has no LP tokens initially
-    //         const lpTokenMockFa12XtzStorage         = await lpTokenMockFa12XtzInstance.storage();
-    //         const aliceMockFa12XtzLpTokenBalance    = await lpTokenMockFa12XtzStorage.ledger.get(alice.pkh);
-    //         assert.equal(aliceMockFa12XtzLpTokenBalance, undefined);
-
-    //         const cfmmXtzMockFa12TokenStorage       = await cfmmTezMockFa12TokenInstance.storage();
-    //         const initialCashPool                   = cfmmXtzMockFa12TokenStorage.cashPool;
-    //         const initialTokenPool                  = cfmmXtzMockFa12TokenStorage.tokenPool;
-    //         const initialLpTokensTotal              = cfmmXtzMockFa12TokenStorage.lpTokensTotal;
-
-    //         // init parameters - assume 1 XTZ = 2 Mock FA12 Toknes
-    //         const deadline            = new Date(Date.now() + (600 * 60));
-    //         const cashDeposited       = 25000000;         // 25 XTZ
-    //         const maxTokensDeposited  = 501000000;        // 50 Mock FA12 Tokens
-    //         const minLpTokensMinted   = 24999999;         // 24.9 LP Tokens
-    //         const owner               = alice.pkh;        // alice
-
-    //         // alice resets mock FA12 tokens allowance then set new allowance to deposit amount
-    //         // reset token allowance
-    //         const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
-    //             cfmmTezMockFa12TokenAddress.address,
-    //             0
-    //         ).send();
-    //         await resetTokenAllowance.confirmation();
-
-    //         // set new token allowance
-    //         const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
-    //             cfmmTezMockFa12TokenAddress.address,
-    //             maxTokensDeposited
-    //         ).send();
-    //         await setNewTokenAllowance.confirmation();
-
-    //         // user (alice) adds liquidity to cfmm
-    //         const aliceAddsLiquidityOperation = await cfmmTezMockFa12TokenInstance.methods.addLiquidity(
-    //             cashDeposited,
-    //             deadline,
-    //             maxTokensDeposited,
-    //             minLpTokensMinted,
-    //             owner
-    //         ).send({ mutez : true, amount: cashDeposited });
-    //         await aliceAddsLiquidityOperation.confirmation();
-
-    //         const updatedLpTokenMockFa12XtzStorage         = await lpTokenMockFa12XtzInstance.storage();
-    //         const updatedAliceMockFa12XtzLpTokenBalance    = await updatedLpTokenMockFa12XtzStorage.ledger.get(alice.pkh);
-
-    //         const updatedCfmmXtzMockFa12TokenStorage       = await cfmmTezMockFa12TokenInstance.storage();
-    //         const updatedCashPool                          = updatedCfmmXtzMockFa12TokenStorage.cashPool;
-    //         const updatedTokenPool                         = updatedCfmmXtzMockFa12TokenStorage.tokenPool;
-    //         const updatedLpTokensTotal                     = updatedCfmmXtzMockFa12TokenStorage.lpTokensTotal;
-
-    //         // check that alice has received LP tokens 
-    //         assert.equal(updatedAliceMockFa12XtzLpTokenBalance.balance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
-
-    //         // calculate values
-    //         const tokensDeposited = Math.floor((cashDeposited * initialTokenPool) / initialCashPool);
-    //         const newTokenPool = tokensDeposited + initialTokenPool.toNumber() + 1;
-
-    //         // check CFMM pool
-    //         assert.equal(updatedCashPool, initialCashPool.toNumber() + cashDeposited);
-    //         assert.equal(updatedTokenPool, newTokenPool);
-    //         assert.equal(updatedLpTokensTotal, initialLpTokensTotal.toNumber() + minLpTokensMinted);
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("updated after adding liquidity");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log(updatedLpTokenUsdmXtzStorage);
-    //         // console.log(updatedAliceUsdmXtzLpTokenBalance);
-    //         // console.log(updatedCfmmXtzUsdmStorage);
-    //     });
-
-
-    // }); // end test: CFMM Liquidity Actions
-
-
-
-    //
-    // Test: CFMM On Price Action
-    //
-    // describe('test: CFMM On Price Action', function () {
-
-    //     it('user (alice) is able to swap cash (XTZ) for token', async () => {
-    
-    //         // init variables
-    //         await signerFactory(alice.sk);
-    //         const deadline            = new Date(Date.now() + (600 * 60));
-    //         const minTokensBought     = 9500000;         // 9.5 USDM Tokens
-    //         const recipient           = alice.pkh;
-    //         const cashSoldMutez       = 2500000;         // 2.5 XTZ
-
-    //         const usdmStorage                   = await usdmTokenInstance.storage();
-    //         const aliceUsdmBalance              = await usdmStorage.ledger.get(alice.pkh);
-
-    //         const usdmTokenControllerStorage    = await usdmTokenControllerInstance.storage();
-    //         const usdmTargetLedger              = await usdmTokenControllerStorage.targetLedger.get('usdm');
-    //         const usdmDriftLedger               = await usdmTokenControllerStorage.driftLedger.get('usdm');
-    //         const usdmLastDriftUpdateLedger     = await usdmTokenControllerStorage.lastDriftUpdateLedger.get('usdm');
-    //         const usdmPriceLedger               = await usdmTokenControllerStorage.priceLedger.get('usdm');
-            
-    //         const cfmmStorage         = await cfmmTezUsdmInstance.storage();
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("initial before cashForToken");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("initial alice usdm balance: " + aliceUsdmBalance);
-    //         // console.log(cfmmStorage);
-    //         // console.log(usdmTokenControllerStorage);
-
-    //         console.log("usdm target: "+ usdmTargetLedger);
-    //         console.log("usdm drift: "+ usdmDriftLedger);
-    //         console.log("usdm last drift update: "+ usdmLastDriftUpdateLedger);
-    //         console.log("usdm price: "+ usdmPriceLedger);
-            
-            
-    //         // user (alice) swap cash (XTZ) for token (USDM)
-    //         const aliceSwapsCashForTokenOperation = await cfmmTezUsdmInstance.methods.cashToToken(
-    //             deadline,
-    //             minTokensBought,
-    //             recipient
-    //         ).send({ mutez : true, amount: cashSoldMutez });
-    //         await aliceSwapsCashForTokenOperation.confirmation();
-
-    //         const updatedUsdmStorage         = await usdmTokenInstance.storage();
-    //         const updatedAliceUsdmBalance    = await updatedUsdmStorage.ledger.get(alice.pkh);
-    //         const updatedUsdmTokenControllerStorage = await usdmTokenControllerInstance.storage();
-
-    //         const updatedCfmmStorage         = await cfmmTezUsdmInstance.storage();
-
-    //         const updatedUsdmTargetLedger              = await updatedUsdmTokenControllerStorage.targetLedger.get('usdm');
-    //         const updatedUsdmDriftLedger               = await updatedUsdmTokenControllerStorage.driftLedger.get('usdm');
-    //         const updatedUsdmLastDriftUpdateLedger     = await updatedUsdmTokenControllerStorage.lastDriftUpdateLedger.get('usdm');
-    //         const updatedUsdmPriceLedger               = await updatedUsdmTokenControllerStorage.priceLedger.get('usdm');
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("updated after cashForToken");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("updated alice usdm balance: " + updatedAliceUsdmBalance);
-    //         // console.log("total minted: " + (updatedAliceUsdmBalance.toNumber() - aliceUsdmBalance.toNumber()));
-    //         // console.log(updatedCfmmStorage);
-    //         // console.log(updatedUsdmTokenControllerStorage);
-    //         // console.log(priceLedger);
-
-    //         // console.log("usdm target: "+ updatedUsdmTargetLedger);
-    //         // console.log("usdm drift: "+ updatedUsdmDriftLedger);
-    //         // console.log("usdm last drift update: "+ updatedUsdmLastDriftUpdateLedger);
-    //         // console.log("usdm price: "+ updatedUsdmPriceLedger);
-            
-
-    //     });
-
-    // }); // end test CFMM On Price Action
-
-
-
-
-    // 
-    // Test: USDM Token MintOrBurn
-    //
-    // describe('test: USDM Token MintOrBurn', function () {
-
-    //     it('user (eve) is able to mint USDM tokens from her vault', async () => {
-    
-    //         // init variables
-    //         await signerFactory(eve.sk);
-    //         const vaultId            = 1;
-    //         const vaultOwner         = eve.pkh;
-    //         const quantityToMint     = 5000000; // 5 USDM Tokens
-
-    //         // create vault handle
-    //         const vaultHandle = {
-    //             "id"     : vaultId,
-    //             "owner"  : vaultOwner
-    //         };
-
-    //         const usdmTokenControllerStorage     = await usdmTokenControllerInstance.storage();
-    //         const vault                          = await usdmTokenControllerStorage.vaults.get(vaultHandle);
-    //         // const collateralBalanceLedger        = await vault.collateralBalanceLedger;
-
-    //         const vaultTezCollateralBalance             = await vault.collateralBalanceLedger.get('tez');
-    //         const vaultMockFa2TokenCollateralBalance    = await vault.collateralBalanceLedger.get('mockFA2');
-    //         const vaultMockFa12TokenCollateralBalance   = await vault.collateralBalanceLedger.get('mockFA12');
-
-    //         // get vault contract
-    //         const vaultAddress             = vault.address;
-    //         const vaultInstance            = await utils.tezos.contract.at(vaultAddress);
-
-    //         // register vault collateral tokens - usdm token
-    //         const updateVaultCollateralTokens = await vaultInstance.methods.vaultUpdateCollateralTokens(
-    //             usdmTokenAddress.address,
-    //             'usdm'
-    //         ).send();
-    //         await updateVaultCollateralTokens.confirmation();
-
-    //         const usdmStorage             = await usdmTokenInstance.storage();
-    //         const initialEveUsdmBalance   = await usdmStorage.ledger.get(eve.pkh);
-
-    //         console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         console.log("before minting USDM Tokens");
-    //         console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         console.log("vault tez collateral balance: " + vaultTezCollateralBalance);
-    //         console.log("vault mock FA2 balance: " + vaultMockFa2TokenCollateralBalance);
-    //         console.log("vault mock FA12 balance: " + vaultMockFa12TokenCollateralBalance);
-            
-    //         // console.log("tempValue (vault collateral value): " + usdmTokenControllerStorage.tempValue);
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log(vault);
-
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log(collateralBalanceLedger);
-            
-
-    //         const mintUsdmTokensFromVaultOperation = await usdmTokenControllerInstance.methods.mintOrBurn(
-    //             vaultId,        // vault Id
-    //             quantityToMint  // USDM Tokens quantity to mint
-    //         ).send();
-    //         await mintUsdmTokensFromVaultOperation.confirmation();            
-
-    //         const updatedUsdmTokenControllerStorage = await usdmTokenControllerInstance.storage();
-    //         const updatedVault                      = await updatedUsdmTokenControllerStorage.vaults.get(vaultHandle);
-    //         const updatedCollateralBalanceLedger    = await updatedVault.collateralBalanceLedger;
-
-    //         const updatedUsdmStorage         = await usdmTokenInstance.storage();
-    //         const updatedEveUsdmBalance      = await updatedUsdmStorage.ledger.get(eve.pkh);
-
-    //         // check eve usdm balance increased
-    //         assert.equal(updatedEveUsdmBalance, initialEveUsdmBalance.toNumber() + quantityToMint);
-
-    //         // check that vault has 5 USDM outstanding now
-    //         assert.equal(updatedVault.usdmOutstanding, quantityToMint);
-
-    //         console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         console.log("updated after minting USDM Tokens");
-    //         console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("tempValue (vault collateral value): " + updatedUsdmTokenControllerStorage.tempValue);
-    //         // console.log(updatedVault);
-    //         // console.log(updatedCollateralBalanceLedger);
-
-    //     });
-
-    //     it('user (eve) is able to burn USDM tokens from her vault', async () => {
-    
-    //         // init variables
-    //         await signerFactory(eve.sk);
-    //         const vaultId            = 1;
-    //         const vaultOwner         = eve.pkh;
-    //         const quantityToBurn     = -3000000; // 3 USDM Tokens
-
-    //         // create vault handle
-    //         const vaultHandle = {
-    //             "id"     : vaultId,
-    //             "owner"  : vaultOwner
-    //         };
-
-    //         const usdmTokenControllerStorage     = await usdmTokenControllerInstance.storage();
-    //         const vault                          = await usdmTokenControllerStorage.vaults.get(vaultHandle);
-    //         const initialUsdmOutstanding         = vault.usdmOutstanding;
-
-    //         const usdmStorage                    = await usdmTokenInstance.storage();
-    //         const initialEveUsdmBalance          = await usdmStorage.ledger.get(eve.pkh);
-
-    //         const mintUsdmTokensFromVaultOperation = await usdmTokenControllerInstance.methods.mintOrBurn(
-    //             vaultId,        // vault Id
-    //             quantityToBurn  // USDM Tokens quantity to burn
-    //         ).send();
-    //         await mintUsdmTokensFromVaultOperation.confirmation();            
-
-    //         const updatedUsdmTokenControllerStorage = await usdmTokenControllerInstance.storage();
-    //         const updatedVault                      = await updatedUsdmTokenControllerStorage.vaults.get(vaultHandle);
-    //         const updatedCollateralBalanceLedger    = await updatedVault.collateralBalanceLedger;
-
-    //         const updatedUsdmStorage             = await usdmTokenInstance.storage();
-    //         const updatedEveUsdmBalance          = await updatedUsdmStorage.ledger.get(eve.pkh);
-
-    //         // check eve usdm balance decreased
-    //         assert.equal(updatedEveUsdmBalance, initialEveUsdmBalance.toNumber() + quantityToBurn);
-
-    //         // check that vault has 2 USDM outstanding now
-    //         assert.equal(updatedVault.usdmOutstanding, initialUsdmOutstanding.toNumber() + quantityToBurn);
-
-    //         console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         console.log("updated after burning USDM Tokens");
-    //         console.log("--- --- --- --- --- --- --- --- --- ---");
-    //         // console.log("tempValue (vault collateral value): " + updatedUsdmTokenControllerStorage.tempValue);
-    //         console.log(updatedVault);
-
-    //     });
-
-    // }); // end test USDM Token MintOrBurn 
 
 });
