@@ -78,10 +78,15 @@ export const SatelliteMetricsBlock = styled.div`
 export const SatelliteVotingInfoWrapper = styled.div`
   width: 100%;
 
+  figure {
+    padding: 0;
+  }
+
   .voting-info-list-wrapper {
-    max-height: 110px;
+    max-height: 84px;
     overflow-y: scroll;
     padding-right: 10px;
+    margin-top: 10px;
   }
 `
 
@@ -106,7 +111,7 @@ export const SatelliteVotingHistoryListItem = styled.div`
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding-top: 4px;
+  max-height: 28px;
 
   .satellite-voting-history-info {
     flex-shrink: 0;
