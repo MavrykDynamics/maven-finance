@@ -52,7 +52,7 @@ type return is list (operation) * tokenSaleStorageType
 
 
 const oneDayInSeconds : int = 86_400;
-const oneMonthInSeconds : int = 2_592_000;
+const onePeriodInSeconds : int = 2_592_000;
 
 const fpa10e24 : nat = 1_000_000_000_000_000_000_000_000n;       // 10^24
 const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^18
@@ -515,7 +515,7 @@ block {
     if today < tokenSaleEndTimestamp then failwith(error_TOKEN_SALE_HAS_NOT_ENDED) else skip;
 
     // calculate number of periods that has passed since token sale has ended
-    const oneMonthBlocks : nat      = s.config.vestingPeriodDurationSec / Tezos.get_min_block_time();
+    const onePeriodBlocks : nat      = s.config.vestingPeriodDurationSec / Tezos.get_min_block_time();
 
     // init MVK token type to be used in transfer params
     const mvkTokenType : tokenType  = Fa2(record [
@@ -538,39 +538,46 @@ block {
             |   None            -> failwith(error_BUY_OPTION_NOT_FOUND)
         ];
 
-        // process claim - skip if fully claimed (months claimed = vesting in months)  
+        // process claim - skip if fully claimed (periods claimed = vesting periods)  
         if userBuyOption.claimCounter = _buyOptionConfig.vestingPeriods then skip else block {
 
-            // calculate months passed since last claimed for option one
-            var monthsToClaim : nat := 0n;
+            // calculate periods passed since last claimed for option one
+            var periodsToClaim : nat := 0n;
             if userBuyOption.lastClaimLevel = 0n then block {
                 
                 // first claim
-                monthsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks) + 1n;
-                monthsToClaim := if monthsToClaim > _buyOptionConfig.vestingPeriods then _buyOptionConfig.vestingPeriods else monthsToClaim;
+                periodsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / onePeriodBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / onePeriodBlocks) + 1n;
+                periodsToClaim := if periodsToClaim > _buyOptionConfig.vestingPeriods then _buyOptionConfig.vestingPeriods else periodsToClaim;
 
             } else block {
                 // has claimed before
-                monthsToClaim := abs(todayBlocks - userBuyOption.lastClaimLevel) / oneMonthBlocks;
+                periodsToClaim := abs(todayBlocks - userBuyOption.lastClaimLevel) / onePeriodBlocks;
 
-                // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
-                // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
-                if monthsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then monthsToClaim := abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter)
-                else monthsToClaim := monthsToClaim;
+                // if total of periods to claim + already claimed periods is greater then vesting period (in periods) then take the remaining periods
+                // e.g. vesting of 2 periods, user claim once on day 0, then claim again for the second time in 6 periods - we calculate periods to claim as 2 - 1 = 1 period
+                if periodsToClaim + userBuyOption.claimCounter > _buyOptionConfig.vestingPeriods then periodsToClaim := abs(_buyOptionConfig.vestingPeriods - userBuyOption.claimCounter)
+                else periodsToClaim := periodsToClaim;
             };
 
-            // account for case where there is no vesting months for option one (least restrictive option)
-            var tokenAmountSingleMonth : nat    := if _buyOptionConfig.vestingPeriods = 0n then 
+            // account for case where there is no vesting periods for option one (least restrictive option)
+            var tokenAmountSinglePeriod : nat    := if _buyOptionConfig.vestingPeriods = 0n then 
                 userBuyOption.tokenBought
             else 
                 userBuyOption.tokenBought / _buyOptionConfig.vestingPeriods;
 
             // check that user's max tokens claimable is not exceeded
             const maxTokenAmount : nat  = userBuyOption.tokenBought;
-            if userBuyOption.tokenClaimed + tokenAmountSingleMonth > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
+            if userBuyOption.tokenClaimed + tokenAmountSinglePeriod > maxTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED) else skip;
 
             // calculate final value token amount to be claimed
-            const tokenAmount : nat = tokenAmountSingleMonth * monthsToClaim;
+            var tokenAmount : nat       := tokenAmountSinglePeriod * periodsToClaim;
+
+            // claim the dust if it is the last period
+            const finalClaimCounter : nat       = userBuyOption.claimCounter + periodsToClaim;
+            const estimatedTokenClaimed : nat   = userBuyOption.tokenClaimed + tokenAmount;
+            if finalClaimCounter = _buyOptionConfig.vestingPeriods and estimatedTokenClaimed < userBuyOption.tokenBought 
+            then tokenAmount    := tokenAmount + abs(userBuyOption.tokenBought - estimatedTokenClaimed)
+            else skip;
 
             // create transfer params and transfer operation
             const transferTokenParams : transferActionType = list[
@@ -590,7 +597,7 @@ block {
             operations := sendMvkTokensToBuyerOperation # operations;
 
             // update user token sale record
-            userBuyOption.claimCounter              := userBuyOption.claimCounter + monthsToClaim;
+            userBuyOption.claimCounter              := finalClaimCounter;
             userBuyOption.tokenClaimed              := userBuyOption.tokenClaimed + tokenAmount;
             userBuyOption.lastClaimTimestamp        := Tezos.get_now();
             userBuyOption.lastClaimLevel            := Tezos.get_level();
