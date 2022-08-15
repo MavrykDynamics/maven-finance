@@ -521,6 +521,30 @@ describe("Token sale tests", async () => {
             await signerFactory(bob.sk)
         });
 
+        it('User should not be able to buy tokens if the the token sale did not start', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const tokenXTZPrice             = buyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = MVK(3000);
+                const amountToPay               = (amountToBuy / MVK() * tokenXTZPrice) / 10**6
+                const initSaleStarted           = tokenSaleStorage.tokenSaleHasStarted;
+                const initSaleEnded             = tokenSaleStorage.tokenSaleHasEnded;
+
+                // Set the whitelisted period
+                await signerFactory(trudy.sk);
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+
+                // Assertions
+                assert.equal(initSaleStarted, false);
+                assert.equal(initSaleEnded, false);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
         it('Admin should be able to start the token sale', async () => {
             try{
                 // Initial Values
@@ -831,6 +855,28 @@ describe("Token sale tests", async () => {
             }
         });
 
+        it('User should not be able to buy tokens if the the token sale is paused', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const tokenXTZPrice             = buyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = MVK(3000);
+                const amountToPay               = (amountToBuy / MVK() * tokenXTZPrice) / 10**6
+                const initSalePaused            = tokenSaleStorage.tokenSalePaused;
+
+                // Set the whitelisted period
+                await signerFactory(trudy.sk);
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+
+                // Assertions
+                assert.equal(initSalePaused, true);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
         it('Non-admin should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
@@ -846,9 +892,34 @@ describe("Token sale tests", async () => {
     });
 
     describe("%closeSale", async () => {
+
+        before("Unpause the token sale", async () => {
+            await signerFactory(bob.sk)
+            const operation = await tokenSaleInstance.methods.pauseSale().send();
+            await operation.confirmation();
+        });
         
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
+        });
+
+        it('User should not be able to claim tokens if the the token sale did not close', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const initSaleEnded             = tokenSaleStorage.tokenSaleHasEnded;
+                const initSalePaused            = tokenSaleStorage.tokenSalePaused;
+
+                // Set the whitelisted period
+                await signerFactory(eve.sk);
+                await chai.expect(tokenSaleInstance.methods.claimTokens(eve.pkh).send()).to.be.rejected;
+
+                // Assertions
+                assert.equal(initSaleEnded, false);
+                assert.equal(initSalePaused, false);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
         });
 
         it('Admin should be able to close the token sale', async () => {
@@ -879,6 +950,30 @@ describe("Token sale tests", async () => {
             }
         });
 
+        it('User should not be able to buy tokens if the the token sale is closed', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                const buyOptionIndex            = "1";
+                const buyOption                 = await tokenSaleStorage.config.buyOptions.get(buyOptionIndex);
+                const tokenXTZPrice             = buyOption.tokenXtzPrice.toNumber();
+                const amountToBuy               = MVK(3000);
+                const amountToPay               = (amountToBuy / MVK() * tokenXTZPrice) / 10**6;
+                const initSaleEnded             = tokenSaleStorage.tokenSaleHasEnded;
+                const initSalePaused            = tokenSaleStorage.tokenSalePaused;
+
+                // Set the whitelisted period
+                await signerFactory(trudy.sk);
+                await chai.expect(tokenSaleInstance.methods.buyTokens(amountToBuy, buyOptionIndex).send({amount: amountToPay})).to.be.rejected;
+
+                // Assertions
+                assert.equal(initSaleEnded, true);
+                assert.equal(initSalePaused, false);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
         it('Non-admin should not be able to call this entrypoint', async () => {
             try{
                 // Initial Values
@@ -899,7 +994,7 @@ describe("Token sale tests", async () => {
             await signerFactory(eve.sk)
         });
     
-        it('User should be able to claim tokens', async () => {
+        it('User should be able to claim its tokens', async () => {
             try{
                 // Initial Values
                 tokenSaleStorage                = await tokenSaleInstance.storage();
@@ -912,7 +1007,7 @@ describe("Token sale tests", async () => {
                 const initMvkBalance            = await mvkTokenStorage.ledger.get(eve.pkh) !== undefined ? (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber() : 0;
                 const initTreasuryMvkBalance    = await mvkTokenStorage.ledger.get(treasuryAddress) !== undefined ? (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber() : 0;
 
-                // Set the whitelisted period
+                // Claim tokens
                 const claimOperation            = await tokenSaleInstance.methods.claimTokens(eve.pkh).send();
                 await claimOperation.confirmation();
 
@@ -939,7 +1034,7 @@ describe("Token sale tests", async () => {
             }
         });
     
-        it('User should be able to claim tokens #2', async () => {
+        it('User should be able to claim tokens for someone else', async () => {
             try{
                 // Initial Values
                 tokenSaleStorage                = await tokenSaleInstance.storage();
@@ -954,14 +1049,12 @@ describe("Token sale tests", async () => {
                 const initMvkBalance            = await mvkTokenStorage.ledger.get(eve.pkh) !== undefined ? (await mvkTokenStorage.ledger.get(eve.pkh)).toNumber() : 0;
                 const initTreasuryMvkBalance    = await mvkTokenStorage.ledger.get(treasuryAddress) !== undefined ? (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber() : 0;
 
-                // wait more than the entire vesting time
-                const timeToWait = vestingPeriodDurationSec * 1000 * (buyOption.vestingPeriods.toNumber() + 1)
-                console.log("WAIT FOR:", timeToWait)
-                console.log("DURVEST:", vestingPeriodDurationSec)
-                console.log("VESTPERIOD:", buyOption.vestingPeriods.toNumber())
+                // Wait for another vesting period to pass
+                const timeToWait                = vestingPeriodDurationSec * 1000
                 await wait(timeToWait);
 
-                // Set the whitelisted period
+                // Claim tokens
+                await signerFactory(mallory.sk)
                 const claimOperation            = await tokenSaleInstance.methods.claimTokens(eve.pkh).send();
                 await claimOperation.confirmation();
 
@@ -984,6 +1077,76 @@ describe("Token sale tests", async () => {
                 // Assertions
                 assert.notStrictEqual(initUserTokenRecord, undefined);
                 assert.equal(endMvkBalance.toNumber(), initMvkBalance + userClaimAmount);
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+    
+        it('User should be able to claim all its tokens at the end of the vesting period', async () => {
+            try{
+                // Initial Values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const vestingPeriodDurationSec  = tokenSaleStorage.config.vestingPeriodDurationSec.toNumber();
+                const userAddress               = mallory.pkh;
+                const treasuryAddress           = tokenSaleStorage.treasuryAddress;
+                const firstBuyOptionIndex       = "1";
+                const secondBuyOptionIndex      = "2";
+                const thirdBuyOptionIndex       = "3";
+                const firstBuyOption            = await tokenSaleStorage.config.buyOptions.get(firstBuyOptionIndex);
+                const secondBuyOption           = await tokenSaleStorage.config.buyOptions.get(secondBuyOptionIndex);
+                const thirdBuyOption            = await tokenSaleStorage.config.buyOptions.get(thirdBuyOptionIndex);
+                const initUserTokenRecord       = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const initFirstUserBuyOption    = await initUserTokenRecord.get(firstBuyOptionIndex);
+                const initSecondUserBuyOption   = await initUserTokenRecord.get(secondBuyOptionIndex);
+                const initThirdUserBuyOption    = await initUserTokenRecord.get(thirdBuyOptionIndex);
+                const initMvkBalance            = await mvkTokenStorage.ledger.get(mallory.pkh) !== undefined ? (await mvkTokenStorage.ledger.get(mallory.pkh)).toNumber() : 0;
+                const initTreasuryMvkBalance    = await mvkTokenStorage.ledger.get(treasuryAddress) !== undefined ? (await mvkTokenStorage.ledger.get(treasuryAddress)).toNumber() : 0;
+                const maxVestingPeriod          = firstBuyOption.vestingPeriods.toNumber() > secondBuyOption.vestingPeriods.toNumber() ?
+                    (firstBuyOption.vestingPeriods.toNumber() > thirdBuyOption.vestingPeriods.toNumber() ? firstBuyOption.vestingPeriods.toNumber() : thirdBuyOption.vestingPeriods.toNumber()) :
+                    (secondBuyOption.vestingPeriods.toNumber() > thirdBuyOption.vestingPeriods.toNumber() ? secondBuyOption.vestingPeriods.toNumber() : thirdBuyOption.vestingPeriods.toNumber())
+
+                // wait more than the entire vesting time
+                const timeToWait                = vestingPeriodDurationSec * 1000 * (maxVestingPeriod + 1)
+                console.log("TIME:", timeToWait)
+                console.log("MAX:", maxVestingPeriod)
+                await wait(timeToWait);
+
+                // Claim tokens
+                await signerFactory(mallory.sk)
+                const claimOperation            = await tokenSaleInstance.methods.claimTokens(mallory.pkh).send();
+                await claimOperation.confirmation();
+
+                // Final values
+                tokenSaleStorage                = await tokenSaleInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const endUserTokenRecord        = await tokenSaleStorage.tokenSaleLedger.get(userAddress);
+                const endFirstUserBuyOption     = await endUserTokenRecord.get(firstBuyOptionIndex);
+                const endSecondUserBuyOption    = await endUserTokenRecord.get(secondBuyOptionIndex);
+                const endThirdUserBuyOption     = await endUserTokenRecord.get(thirdBuyOptionIndex);
+                const endMvkBalance             = await mvkTokenStorage.ledger.get(mallory.pkh);
+                const endTreasuryMvkBalance     = await mvkTokenStorage.ledger.get(treasuryAddress);
+                const userFirstClaimAmount      = endFirstUserBuyOption.tokenClaimed.toNumber() - initFirstUserBuyOption.tokenClaimed.toNumber();
+                const userSecondClaimAmount     = endSecondUserBuyOption.tokenClaimed.toNumber() - initSecondUserBuyOption.tokenClaimed.toNumber();
+                const userThirdClaimAmount      = endThirdUserBuyOption.tokenClaimed.toNumber() - initThirdUserBuyOption.tokenClaimed.toNumber();
+
+                // Assertions
+                assert.notStrictEqual(initUserTokenRecord, undefined);
+                assert.equal(endFirstUserBuyOption.tokenClaimed.toNumber(), endFirstUserBuyOption.tokenBought.toNumber());
+                assert.equal(endSecondUserBuyOption.tokenClaimed.toNumber(), endSecondUserBuyOption.tokenBought.toNumber());
+                assert.equal(endThirdUserBuyOption.tokenClaimed.toNumber(), endThirdUserBuyOption.tokenBought.toNumber());
+                assert.equal(endMvkBalance.toNumber(), initMvkBalance + userFirstClaimAmount + userSecondClaimAmount + userThirdClaimAmount);
+                assert.equal(endTreasuryMvkBalance.toNumber(), initTreasuryMvkBalance - (userFirstClaimAmount + userSecondClaimAmount + userThirdClaimAmount));
+            } catch(e){
+                console.dir(e, {depth: 5});
+            }
+        });
+
+        it('User should not be able to claim tokens if it never bought some', async () => {
+            try{
+                // Claim token
+                await signerFactory(alice.sk)
+                await chai.expect(tokenSaleInstance.methods.claimTokens(alice.pkh).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5});
             }
