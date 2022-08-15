@@ -627,7 +627,7 @@ function convertToGovernanceStorageType(storage: {
     startLevel: currentGovernance.start_level,
     tempFlag: currentGovernance.start_level,
     timelockProposalId: currentGovernance.timelock_proposal_id,
-    cycleCounter: currentGovernance.cycle_counter,
+    cycleCounter: currentGovernance.cycle_counter ?? 0,
     cycleHighestVotedProposalId: currentGovernance.cycle_highest_voted_proposal_id,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
