@@ -4,20 +4,19 @@ import { useDispatch } from 'react-redux'
 import Time from 'react-pure-time'
 import { Link } from 'react-router-dom'
 
+import { Button } from '../../../app/App.components/Button/Button.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
-import { Button } from '../../../app/App.components/Button/Button.controller'
-import Expand from '../../../app/App.components/Expand/Expand.view'
-
 import { getSeparateSnakeCase } from '../../../utils/parse'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
+import { VotingBarBlockView } from '../../Governance/VotingArea/VotingBar/VotingBarBlock.view'
+import Expand from '../../../app/App.components/Expand/Expand.view'
 
 // action
 import { dropAction, voteForAction } from '../SatelliteGovernance.actions'
 
 import { SatelliteGovernanceCardDropDown, SatelliteGovernanceCardTitleTextGroup } from './SatelliteGovernanceCard.style'
-import { VotingButtonsContainer } from '../../Governance/VotingArea/VotingArea.style'
 
 type Props = {
   satelliteId: string

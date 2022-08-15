@@ -1,17 +1,16 @@
 import styled from 'styled-components/macro'
-import { headerColor, darkPurpleColor, royalPurpleColor } from 'styles'
+
 import { MavrykTheme } from '../styles/interfaces'
 
-export const AppStyled = styled.div<{ theme: MavrykTheme }>`
+export const AppStyled = styled.div<{ theme: MavrykTheme; isExpandedMenu?: boolean }>`
   --carousel-button-size: 30px;
   --carousel-button-bg: rgb(22 14 63 / 70%);
   --carousel-button-indent: -15px;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 270px auto;
+  padding-left: ${({ isExpandedMenu }) => (isExpandedMenu ? '232px' : '72px')};
 
-  @media screen and (max-width: 1460px) {
-    grid-template-columns: 72px auto;
+  @media screen and (max-width: 1260px) {
+    padding-left: 72px;
   }
 `
 
@@ -33,7 +32,6 @@ export const LoaderStyled = styled.div<{ theme: MavrykTheme }>`
     margin-top: -30px;
   }
 `
-
 export const AppBg = styled.div<{ theme: MavrykTheme }>`
   position: fixed;
   top: 0;

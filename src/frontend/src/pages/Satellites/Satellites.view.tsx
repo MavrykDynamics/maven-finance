@@ -1,24 +1,21 @@
-import React from 'react'
-import { useHistory } from 'react-router'
-
-// styles
-import { Page, PageContent } from 'styles'
-import { InfoBlockWrapper } from './Satellites.style'
-import { EmptyContainer as EmptyList } from 'app/App.style'
-
-// types
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { Feed } from './helpers/Satellites.types'
-
-// view
-import SatelliteList from './SatelliteList/SatellitesList.controller'
-import SatellitesSideBar from './SatellitesSideBar/SatellitesSideBar.controller'
-import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
+import Icon from 'app/App.components/Icon/Icon.view'
 import { InfoTab } from 'app/App.components/InfoTab/InfoTab.controller'
-
 // consts
 import { PRIMARY } from 'app/App.components/Modal/Modal.constants'
-import { SATELITES_TOP_LIST_NAME, FEEDS_TOP_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
+import { EmptyContainer as EmptyList } from 'app/App.style'
+import { FEEDS_TOP_LIST_NAME, SATELITES_TOP_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { Link } from 'react-router-dom'
+// styles
+import { Page, PageContent } from 'styles'
+// types
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+
+import { Feed } from './helpers/Satellites.types'
+// view
+import SatelliteList from './SatelliteList/SatellitesList.controller'
+import { InfoBlockWrapper } from './Satellites.style'
+import SatellitesSideBar from './SatellitesSideBar/SatellitesSideBar.controller'
 
 type OraclesViewProps = {
   isLoading: boolean
@@ -54,7 +51,6 @@ const SatellitesView = ({
   dataFeedsData,
   delegateCallback,
 }: OraclesViewProps) => {
-  const history = useHistory()
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={isLoading} />
@@ -81,12 +77,12 @@ const SatellitesView = ({
           {oracleSatellitesData.items.length || dataFeedsData.items.length ? (
             <>
               <div className="oracle-list-wrapper">
-                <div className="see-all-link" onClick={() => history.push('/satellite-nodes')}>
-                  See all Satellites
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
-                  </svg>
-                </div>
+                <Link to="/satellite-nodes">
+                  <div className="see-all-link">
+                    See all Satellites
+                    <Icon id="arrow-left-stroke" />
+                  </div>
+                </Link>
                 <SatelliteList
                   listTitle={'Top Satellites'}
                   loading={isLoading}
@@ -98,12 +94,12 @@ const SatellitesView = ({
               </div>
 
               <div className="oracle-list-wrapper">
-                <div className="see-all-link" onClick={() => history.push('/data-feeds')}>
-                  See all Data Feeds
-                  <svg>
-                    <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
-                  </svg>
-                </div>
+                <Link to="/data-feeds">
+                  <div className="see-all-link">
+                    See all Data Feeds
+                    <Icon id="arrow-left-stroke" />
+                  </div>
+                </Link>
                 <SatelliteList
                   listTitle={'Popular Feeds'}
                   loading={isLoading}

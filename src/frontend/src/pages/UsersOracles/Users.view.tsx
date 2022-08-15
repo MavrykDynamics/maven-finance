@@ -34,7 +34,7 @@ const UsersView = ({ users }: { users: any }) => {
                 fontSize={14}
                 fontWeidth={400}
                 className="link"
-                onClick={() => history.push(`/user-details/${user.id}`)}
+                onClick={() => history.push(`/satellites/user-details/${user.id}`)}
               >
                 View {user.name} feeds
               </DataFeedsTitle>
