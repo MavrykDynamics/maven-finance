@@ -1,3 +1,6 @@
+// types
+import { FarmStorage, FarmContractType } from '../utils/TypesAndInterfaces/Farm'
+
 import {
   DEPOSIT_ERROR,
   DEPOSIT_REQUEST,
@@ -9,16 +12,20 @@ import {
   WITHDRAW_ERROR,
   WITHDRAW_REQUEST,
   WITHDRAW_RESULT,
+  SELECT_FARM_ADDRESS,
+  GET_FARM_CONTRACTS,
 } from '../pages/Farms/Farms.actions'
-import { FarmStorage } from '../utils/TypesAndInterfaces/Farm'
+import { HIDE_MODAL } from '../app/App.components/Modal/Modal.actions'
 import { getItemFromStorage } from '../utils/storage'
 import { UNSTAKE } from './doorman'
 
 export interface FarmState {
   type?: typeof HARVEST | typeof DEPOSIT | typeof WITHDRAW | undefined
-  farmStorage: FarmStorage[] | any
+  farmStorage: FarmStorage[]
+  farmContracts: FarmContractType[]
   amount?: number
   error?: undefined
+  selectedFarmAddress?: string
 }
 export const HARVEST = 'HARVEST',
   DEPOSIT = 'DEPOSIT',
@@ -26,7 +33,9 @@ export const HARVEST = 'HARVEST',
 const defaultFarmStorage: FarmStorage[] = []
 const farmDefaultState: FarmState = {
   farmStorage: getItemFromStorage('FarmStorage') || defaultFarmStorage,
+  farmContracts: [],
   amount: 0,
+  selectedFarmAddress: '',
 }
 
 export function farm(state = farmDefaultState, action: any): FarmState {
@@ -35,6 +44,11 @@ export function farm(state = farmDefaultState, action: any): FarmState {
       return {
         ...state,
         farmStorage: action.farmStorage,
+      }
+    case GET_FARM_CONTRACTS:
+      return {
+        ...state,
+        farmContracts: action.farmContracts,
       }
     case HARVEST_REQUEST:
       return {
@@ -88,6 +102,16 @@ export function farm(state = farmDefaultState, action: any): FarmState {
         type: WITHDRAW,
         amount: 0,
         error: action.error,
+      }
+    case SELECT_FARM_ADDRESS:
+      return {
+        ...state,
+        selectedFarmAddress: action.selectedFarmAddress,
+      }
+    case HIDE_MODAL:
+      return {
+        ...state,
+        selectedFarmAddress: farmDefaultState.selectedFarmAddress,
       }
     default:
       return state

@@ -166,11 +166,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newCouncilMemberAddress}
             name="newCouncilMemberAddress"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.newCouncilMemberAddress}
           />
         </div>
@@ -181,11 +181,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newMemberName}
             name="newMemberName"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberName}
           />
         </div>
@@ -196,11 +196,11 @@ export const CouncilFormChangeCouncilMember = () => {
             required
             value={newMemberWebsite}
             name="newMemberWebsite"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.newMemberWebsite}
           />
         </div>

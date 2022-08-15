@@ -12,7 +12,6 @@ type SlidingTabButtonViewProps = {
   clickCallback: (tabId: number) => void
   clicked: boolean
   tabValues: TabItem[]
-  loading: boolean
   className?: string
 }
 
@@ -21,7 +20,6 @@ export const SlidingTabButtonsView = ({
   onClick,
   clickCallback,
   tabValues,
-  loading,
   className = '',
 }: SlidingTabButtonViewProps) => {
   let generalClasses = kind ?? ''
@@ -41,7 +39,6 @@ export const SlidingTabButtonsView = ({
           onClick={handleButtonClick}
           generalClasses={generalClasses}
           buttonActiveStatus={tabItem.active}
-          loading={loading}
         />
       ))}
     </SlidingTabButtonsStyled>
@@ -49,19 +46,17 @@ export const SlidingTabButtonsView = ({
 }
 
 type TabButtonProps = {
-  buttonRef: Ref<any>
+  buttonRef?: Ref<any>
   text: string
   kind?: SlidingTabButtonStyle
   onClick: (tabId: number) => void
   generalClasses: string
   buttonActiveStatus: boolean
   buttonId: number
-  loading: boolean
 }
 const TabButton = ({
   buttonRef,
   text,
-  loading,
   kind,
   generalClasses,
   buttonActiveStatus,
@@ -75,9 +70,6 @@ const TabButton = ({
       setButtonClasses((buttonClasses) => buttonClasses + ' clicked')
     }
   }, [buttonActiveStatus, text])
-  if (loading) {
-    setButtonClasses((buttonClasses) => buttonClasses + ' loading')
-  }
 
   if (!buttonActiveStatus && buttonClasses.includes(' clicked')) {
     let newClasses = buttonClasses.replace(' clicked', '')
@@ -97,31 +89,8 @@ const TabButton = ({
       onClick={_onClick}
     >
       <ButtonText>
-        {loading ? (
-          <>
-            <ButtonLoadingIcon className={kind}>
-              <use xlinkHref="/icons/sprites.svg#loading" />
-            </ButtonLoadingIcon>
-            <div>Loading...</div>
-          </>
-        ) : (
-          <>
-            <div>{text}</div>
-          </>
-        )}
+        <div>{text}</div>
       </ButtonText>
     </ButtonStyled>
   )
-}
-SlidingTabButtonsView.propTypes = {
-  kind: PropTypes.string,
-  onClick: PropTypes.func,
-  clicked: PropTypes.bool.isRequired,
-  type: PropTypes.string,
-  loading: PropTypes.bool,
-}
-
-SlidingTabButtonsView.defaultProps = {
-  kind: PRIMARY,
-  loading: false,
 }

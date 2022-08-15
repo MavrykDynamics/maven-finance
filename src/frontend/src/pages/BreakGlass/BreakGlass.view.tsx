@@ -12,6 +12,7 @@ import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatellitesSideBar/SatelliteSideBar.style'
 import { ContractCard } from './ContractCard/ContractCard.controller'
 import { ToggleButton } from './ToggleButton/Toggle-button.view'
+import { SlidingTabButtons } from '../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 type BreakGlassViewProps = {
   contracts: ContractBreakGlass[]
@@ -20,30 +21,43 @@ type BreakGlassViewProps = {
   breakGlassStatuses: Record<string, unknown>[]
 }
 
+const ALL = 'All Contracts'
+const GENERAL = 'General Contracts'
+
 export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGlassStatuses }: BreakGlassViewProps) => {
   const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken'
   const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused'
-  const [selectedContract, setSelectedContract] = useState<string>('')
+  const [selectedContract, setSelectedContract] = useState<string>(ALL)
   const [activeCard, setActiveCard] = React.useState<null | string>(null)
   const [openedAccordeon, setOpenedAcordeon] = React.useState<null | string>(null)
 
   const uniqueContracts = useMemo(() => {
-    return breakGlassStatuses ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[]) : []
-  }, [breakGlassStatuses])
-
-  useEffect(() => {
-    if (uniqueContracts?.length) {
-      setSelectedContract(uniqueContracts[0] as string)
-    }
+    const uniqueAllContracts = breakGlassStatuses
+      ? (Array.from(new Set(breakGlassStatuses.map((key) => key.type))) as string[])
+      : []
+    return [ALL, ...uniqueAllContracts.filter((item) => item !== GENERAL)]
   }, [breakGlassStatuses])
 
   const filteredBreakGlassStatuses = breakGlassStatuses
-    ? breakGlassStatuses?.filter((item) => {
-        const type = item.type as string
-        return selectedContract === type
-      })
+    ? selectedContract === ALL
+      ? breakGlassStatuses
+      : breakGlassStatuses?.filter((item) => {
+          const type = item.type as string
+          return selectedContract === type
+        })
     : []
 
+  const brakeGlassTabsList = uniqueContracts.map((item, i) => {
+    return {
+      text: item,
+      id: i + 1,
+      active: i === 0,
+    }
+  })
+
+  const handleTabChange = (tabId?: number) => {
+    setSelectedContract(tabId ? brakeGlassTabsList.find((item) => item.id === tabId)?.text || '' : '')
+  }
   return (
     <BGStyled className={'breakGlassContainer'}>
       <BGTop>
@@ -74,14 +88,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive, breakGl
       </BGTop>
       <BGMiddleWrapper>
         <BGTitle>Contract Status</BGTitle>
-        <ToggleButton
-          selected={selectedContract}
-          handleSetSelectedToggler={(tabId: string) => {
-            setSelectedContract(tabId)
-            setActiveCard(null)
-          }}
-          uniqueContracts={uniqueContracts}
-        />
+        <SlidingTabButtons className="brake-glass-tabs" tabItems={brakeGlassTabsList} onClick={handleTabChange} />
       </BGMiddleWrapper>
 
       <BGCardsWrapper>

@@ -1,6 +1,22 @@
 import styled from 'styled-components/macro'
 import { Card, royalPurpleColor, containerColor, skyColor, cyanColor, headerColor } from 'styles'
 
+export const SlidingTabButtonsWrap = styled.div`
+  display: flex;
+  width: 536px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+  > div {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  button {
+    width: 100%;
+  }
+`
+
 export const SatelliteGovernanceStyled = styled.section`
   .satellite-governance-article {
     display: grid;

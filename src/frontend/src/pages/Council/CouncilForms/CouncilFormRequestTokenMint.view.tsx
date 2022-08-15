@@ -76,11 +76,11 @@ export const CouncilFormRequestTokenMint = () => {
             required
             value={treasuryAddress}
             name="treasuryAddress"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.treasuryAddress}
           />
         </div>
@@ -92,11 +92,11 @@ export const CouncilFormRequestTokenMint = () => {
             required
             value={tokenAmount}
             name="tokenAmount"
-            onChange={(e) => {
+            onChange={(e: any) => {
               handleChange(e)
               handleBlur(e)
             }}
-            onBlur={(e) => handleBlur(e)}
+            onBlur={(e: any) => handleBlur(e)}
             inputStatus={formInputStatus.tokenAmount}
             pinnedText={'MVK'}
           />
@@ -109,11 +109,11 @@ export const CouncilFormRequestTokenMint = () => {
           required
           value={purpose}
           name="purpose"
-          onChange={(e) => {
+          onChange={(e: any) => {
             handleChange(e)
             handleBlur(e)
           }}
-          onBlur={(e) => handleBlur(e)}
+          onBlur={(e: any) => handleBlur(e)}
           inputStatus={formInputStatus.purpose}
         />
       </div>

@@ -7,7 +7,7 @@ import { State } from 'reducers'
 import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
 import { ButtonView } from './Button.view'
 
-type ButtonProps = {
+export type ButtonProps = {
   text: string
   icon?: string
   className?: string

@@ -91,6 +91,20 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     background-color: transparent;
     border: 2px solid ${({ theme }) => theme.actionPrimaryBtnColor};
   }
+
+  &.button-circle {
+    width: 50px;
+    flex-shrink: 0;
+
+    svg {
+      margin-right: 0;
+      stroke: none;
+    }
+
+    &.actionSecondary svg {
+      fill: ${({ theme }) => theme.actionPrimaryBtnColor};
+    }
+  }
 `
 
 export const ButtonText = styled.div<{ theme: MavrykTheme }>`

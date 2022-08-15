@@ -1,5 +1,9 @@
 import { State } from '../../reducers'
 import { TezosToolkit } from '@taquito/taquito'
+
+// types
+import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
@@ -7,34 +11,64 @@ import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/Doorman.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
+import { hideModal } from '../../app/App.components/Modal/Modal.actions'
 
+export const GET_FARM_CONTRACTS = 'GET_FARM_CONTRACTS'
+export const getFarmsContracts = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  const { farmStorage } = state.farm
+  // const requests = [
+  //   'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
+  //   'https://api.tzkt.io/v1/contracts/KT1DZ41c1mV12oh8YNXm54JpwUNZ2C5R6VaG',
+  // ]
+  const urls = farmStorage.map(
+    (item: FarmStorage) => `${process.env.REACT_APP_RPC_TZKT_API}/v1/contracts/${item.lpTokenAddress}`,
+  ) as string[]
+
+  try {
+    const farmContracts = (await Promise.all(urls.map((url) => fetch(url))).then(async (res) => {
+      return Promise.all(res.map(async (data) => await data.json()))
+    })) as FarmContractType[]
+
+    // TODO remore after test
+    const testData = farmContracts.map((item) => {
+      return {
+        ...item,
+        creator: {
+          ...item.creator,
+          alias: 'Test provider distributer',
+        },
+      }
+    })
+
+    await dispatch({
+      type: GET_FARM_CONTRACTS,
+      farmContracts: testData,
+    })
+  } catch (error) {
+    console.log('error getFarmsContracts', error)
+  }
+}
+
+export const SELECT_FARM_ADDRESS = 'SELECT_FARM_ADDRESS'
 export const GET_FARM_STORAGE = 'GET_FARM_STORAGE'
 export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  // if (!accountPkh) {
-  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-  //   return
-  // }
-  // const contract = accountPkh
-  //   ? await state.wallet.tezos?.wallet.at(farmAddress.address)
-  //   : await new TezosToolkit(
-  //       (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-  //     ).contract.at(farmAddress.address)
-  //
-  // const storage = await (contract as any).storage()
-  // console.log('Printing out Farm storage:\n', storage)
   const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
   const convertedFarmStorage = storageToTypeConverter('farm', storage?.farm)
   const convertedFarmFactoryStorage = storageToTypeConverter('farmFactory', storage?.farm_factory[0])
-  dispatch({
+  await dispatch({
     type: GET_FARM_STORAGE,
     farmStorage: convertedFarmStorage,
   })
-  dispatch({
+  await dispatch({
     type: GET_FARM_FACTORY_STORAGE,
     farmFactoryStorage: convertedFarmFactoryStorage,
   })
+
+  await dispatch(getFarmsContracts())
 }
 
 export const GET_FARM_FACTORY_STORAGE = 'GET_FARM_FACTORY_STORAGE'
@@ -78,33 +112,33 @@ export const harvest = (farmAddress: string) => async (dispatch: any, getState: 
   }
 
   try {
+    await dispatch({
+      type: HARVEST_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods.claim().send()
     console.log('transaction', transaction)
 
-    dispatch({
-      type: HARVEST_REQUEST,
-    })
-    dispatch(showToaster(INFO, 'Harvesting...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Harvesting...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Harvesting done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: HARVEST_RESULT,
     })
 
     if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
 
-    dispatch(getFarmStorage())
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
+    await dispatch(getFarmStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
+    await dispatch(showToaster(ERROR, 'Error', error.message))
+    await dispatch({
       type: HARVEST_ERROR,
       error,
     })
@@ -131,33 +165,33 @@ export const deposit = (farmAddress: string, amount: number) => async (dispatch:
   }
 
   try {
+    await dispatch({
+      type: DEPOSIT_REQUEST,
+    })
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods.deposit(amount * PRECISION_NUMBER).send()
     console.log('transaction', transaction)
 
-    dispatch({
-      type: DEPOSIT_REQUEST,
-    })
-    dispatch(showToaster(INFO, 'Depositing...', 'Please wait 30s'))
+    await dispatch(showToaster(INFO, 'Depositing...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
+    await dispatch(showToaster(SUCCESS, 'Depositing done', 'All good :)'))
 
-    dispatch({
+    await dispatch({
       type: DEPOSIT_RESULT,
     })
 
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
 
-    dispatch(getFarmStorage())
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
+    await dispatch(getFarmStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
+    await dispatch(showToaster(ERROR, 'Error', error.message))
+    await dispatch({
       type: DEPOSIT_ERROR,
       error,
     })
@@ -184,29 +218,26 @@ export const withdraw = (farmAddress: string, amount: number) => async (dispatch
   }
 
   try {
+    await dispatch({
+      type: WITHDRAW_REQUEST,
+    })
+
     const contract = await state.wallet.tezos?.wallet.at(farmAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods.withdraw(amount * PRECISION_NUMBER).send()
     console.log('transaction', transaction)
-
-    dispatch({
-      type: WITHDRAW_REQUEST,
-    })
-    dispatch(showToaster(INFO, 'Withdrawing...', 'Please wait 30s'))
-
+    await dispatch(showToaster(INFO, 'Withdrawing...', 'Please wait 30s'))
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Withdrawing done', 'All good :)'))
-
-    dispatch({
+    await dispatch(showToaster(SUCCESS, 'Withdrawing done', 'All good :)'))
+    await dispatch({
       type: WITHDRAW_RESULT,
     })
-
-    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
-
-    dispatch(getFarmStorage())
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
+    await dispatch(hideModal())
+    if (state.wallet.accountPkh) await dispatch(getUserData(state.wallet.accountPkh))
+    await dispatch(getFarmStorage())
+    await dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    await dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))

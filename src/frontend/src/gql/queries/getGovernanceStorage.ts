@@ -17,7 +17,6 @@ export const GOVERNANCE_STORAGE_QUERY = `
       current_blocks_per_timelock_round
       current_blocks_per_voting_round
       current_cycle_total_voters_reward
-      cycle_counter
       cycle_voters_reward
       governance_proxy_address
       proposal_invoice_max_length

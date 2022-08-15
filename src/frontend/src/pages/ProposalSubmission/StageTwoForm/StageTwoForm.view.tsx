@@ -136,7 +136,8 @@ export const StageTwoFormView = ({
                   value={item.title}
                   onChange={(e: any) => handleChangeTitle(i, e.target.value)}
                   onBlur={(e: any) => handleOnBlur(i, e.target.value, 'title')}
-                  inputStatus={isEdit ? '' : formInputStatus.title}
+                  inputStatus={''}
+                  // inputStatus={isEdit ? '' : formInputStatus.title}
                   disabled={disabled}
                 />
               </div>
@@ -150,7 +151,8 @@ export const StageTwoFormView = ({
                 value={item.bytes}
                 onChange={(e: any) => handleChangeData(i, e.target.value)}
                 onBlur={(e: any) => handleOnBlur(i, e.target.value, 'data')}
-                inputStatus={isEdit ? '' : formInputStatus.proposalBytes}
+                inputStatus={''}
+                // inputStatus={isEdit ? '' : formInputStatus.title}
                 disabled={disabled}
               />
             </article>

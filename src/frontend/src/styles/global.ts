@@ -61,6 +61,7 @@ button {
   padding: 0;
   margin: 0;
   cursor: pointer;
+  color: inherit;
 }
 
 h2 {
@@ -68,6 +69,10 @@ h2 {
   font-weight: normal;
   display: block;
   margin: 0;
+}
+
+var {
+  font-style: normal;
 }
 
 h3 {

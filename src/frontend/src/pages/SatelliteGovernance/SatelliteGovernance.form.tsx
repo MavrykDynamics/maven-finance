@@ -167,11 +167,11 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
                 value={satelliteAddress}
                 name="satelliteAddress"
                 required
-                onChange={(e) => {
+                onChange={(e: any) => {
                   handleChange(e)
                   handleBlur(e)
                 }}
-                onBlur={(e) => handleBlur(e)}
+                onBlur={(e: any) => handleBlur(e)}
                 inputStatus={formInputStatus.satelliteAddress}
               />
             </div>
@@ -182,11 +182,11 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
                   value={oracleAddress}
                   name="oracleAddress"
                   required
-                  onChange={(e) => {
+                  onChange={(e: any) => {
                     handleChange(e)
                     handleBlur(e)
                   }}
-                  onBlur={(e) => handleBlur(e)}
+                  onBlur={(e: any) => handleBlur(e)}
                   inputStatus={formInputStatus.oracleAddress}
                 />
               </div>
@@ -200,11 +200,11 @@ export const SatelliteGovernanceForm = ({ variant }: Props) => {
               value={purpose}
               name="purpose"
               required
-              onChange={(e) => {
+              onChange={(e: any) => {
                 handleChange(e)
                 handleBlur(e)
               }}
-              onBlur={(e) => handleBlur(e)}
+              onBlur={(e: any) => handleBlur(e)}
               inputStatus={formInputStatus.purpose}
             />
           </div>
