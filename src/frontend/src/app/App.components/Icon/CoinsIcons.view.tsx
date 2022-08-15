@@ -2,10 +2,11 @@ import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import { Card, skyColor, cyanColor, headerColor, royalPurpleColor } from 'styles'
 
-export const FarmCardTokenLogoContainer = styled.div<{ theme: MavrykTheme }>`
+export const FarmCardTokenLogoContainer = styled.figure<{ theme: MavrykTheme }>`
   height: 50px;
   align-items: center;
   position: relative;
+  margin: 0;
   width: 50px;
   > img {
     align-items: center;

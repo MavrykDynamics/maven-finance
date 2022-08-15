@@ -84,6 +84,13 @@ export const FarmCardStyled = styled(Card)`
         display: none;
       }
     }
+
+    .farm-card-header {
+      figure {
+        top: 5px;
+        right: 12px;
+      }
+    }
   } //horizontal
 
   &.vertical {
@@ -179,10 +186,25 @@ export const FarmCardStyled = styled(Card)`
   .horizontal-expand {
     display: grid;
     align-items: center;
-    grid-template-columns: auto 387px auto;
-    padding: 20px 40px;
+    grid-template-columns: auto auto 140px;
+    padding: 20px;
     margin: 0;
-    gap: 36px;
+    gap: 20px;
+
+    .farm-stake {
+      flex-direction: row;
+      padding: 20px;
+
+      .circle-buttons {
+        flex-direction: row;
+        padding-top: 0;
+        flex: 1;
+      }
+    }
+
+    .farm-harvest {
+      padding: 20px;
+    }
   }
 
   .start-farming {
@@ -223,11 +245,25 @@ export const FarmHarvestStyled = styled(Card)`
     flex-shrink: 0;
     margin-right: 20px;
   }
+`
+
+export const FarmStakeStyled = styled(Card)`
+  display: flex;
+  padding: 18px 30px;
+  margin: 0;
+  flex-direction: column;
+
+  .farm-info {
+    flex-shrink: 0;
+    margin-right: 20px;
+  }
 
   .circle-buttons {
     display: flex;
     flex-shrink: 0;
     gap: 10px;
+    flex-direction: column;
+    padding-top: 24px;
   }
 `
 
