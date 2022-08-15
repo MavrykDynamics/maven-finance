@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import {  cyanColor, boxShadowColor } from 'styles'
+import { boxShadowColor, cyanColor } from 'styles'
 
 import { MavrykTheme } from './interfaces'
 
@@ -11,7 +11,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   height: 100%;
   min-height: 100vh;
   max-width: 1170px;
-  padding-top: 32px;
+  padding-top: 112px;
 
   .oracle-list-wrapper {
     position: relative;

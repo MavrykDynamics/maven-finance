@@ -1,39 +1,22 @@
-import * as React from 'react'
-import { useSelector } from 'react-redux'
-
-// types
-import { State } from 'reducers'
-import { SatelliteListItemProps } from '../../helpers/Satellites.types'
-
+//styles
+import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
 // consts, helpers, actions
 import { ACTION_PRIMARY, ACTION_SECONDARY } from 'app/App.components/Button/Button.constants'
-import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
-import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
-
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { RoutingButton } from 'app/App.components/RoutingButton/RoutingButton.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { DOWN } from 'app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from 'app/App.components/StatusFlag/StatusFlag.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { getOracleStatus, ORACLE_STATUSES_MAPPER } from 'pages/Satellites/helpers/Satellites.consts'
+import * as React from 'react'
+import { useSelector } from 'react-redux'
+// types
+import { State } from 'reducers'
 
-//styles
-import { AvatarStyle } from 'app/App.components/Avatar/Avatar.style'
-import {
-  SatelliteCard,
-  SatelliteCardInner,
-  SatelliteCardTopRow,
-  SideBySideImageAndText,
-  SatelliteProfileImageContainer,
-  SatelliteProfileImage,
-  SatelliteTextGroup,
-  SatelliteMainText,
-  SatelliteSubText,
-  SatelliteProfileDetails,
-  SatelliteCardButtons,
-  SatelliteCardRow,
-  SatelliteOracleStatusComponent,
-} from './SatelliteCard.style'
+import { SatelliteListItemProps } from '../../helpers/Satellites.types'
+import { SatelliteCard, SatelliteCardButtons, SatelliteCardInner, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteOracleStatusComponent, SatelliteProfileDetails, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from './SatelliteCard.style'
 
 export const SatelliteListItem = ({
   satellite,
@@ -66,10 +49,10 @@ export const SatelliteListItem = ({
     ? proposalLedger.find((proposal: any) => proposal.id === currentlySupportingProposalId)
     : null
 
-  const signedFeedsCount = React.useMemo(
-    () => feeds.filter((feed) => feed.admin === satellite.address).length,
-    [feeds, satellite.address],
-  )
+  const signedFeedsCount = React.useMemo(() => feeds.filter((feed) => feed.admin === satellite.address).length, [
+    feeds,
+    satellite.address,
+  ])
 
   const oracleStatusType = getOracleStatus(satellite, feeds)
 
@@ -131,7 +114,7 @@ export const SatelliteListItem = ({
                   icon="man"
                   text="Profile Details"
                   kind="transparent"
-                  pathName={`/satellite-details/${satellite.address}`}
+                  pathName={`/satellites/satellite-details/${satellite.address}`}
                 />
               )}
             </SatelliteProfileDetails>

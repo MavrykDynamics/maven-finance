@@ -1,44 +1,34 @@
-import React, { useMemo, useState, useCallback } from 'react'
-import moment from 'moment'
-
 // consts, helpers
 import { ACTION_PRIMARY } from 'app/App.components/Button/Button.constants'
+import { Button } from 'app/App.components/Button/Button.controller'
+import Chart from 'app/App.components/Chart/Chart.view'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import Icon from 'app/App.components/Icon/Icon.view'
+import { InputErrorMessage } from 'app/App.components/Input/Input.style'
 import { PRIMARY } from 'app/App.components/PageHeader/PageHeader.constants'
-import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
-import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
-import { QUESTION_MARK_SVG_ENCODED, INFO_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
-
-// types
-import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
-import { Feed } from 'pages/Satellites/helpers/Satellites.types'
-
 // view
 import { PageHeader } from 'app/App.components/PageHeader/PageHeader.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
-import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
-import Chart from 'app/App.components/Chart/Chart.view'
-import { Button } from 'app/App.components/Button/Button.controller'
-import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
-
-// styles
-import {
-  DataFeedInfoBlock,
-  DataFeedsStyled,
-  DataFeedsTitle,
-  DataFeedSubTitleText,
-  DataFeedValueText,
-  UsersListCardsWrapper,
-  UsersListWrapper,
-  UserSmallCard,
-} from './DataFeedsDetails.style'
-import { cyanColor, downColor, Page } from 'styles'
-import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
-import { EmptyContainer } from 'app/App.style'
-import { usersData } from 'pages/UsersOracles/users.const'
-import { useHistory } from 'react-router'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { InputErrorMessage } from 'app/App.components/Input/Input.style'
 import { Timer } from 'app/App.components/Timer/Timer.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import { EmptyContainer } from 'app/App.style'
+import moment from 'moment'
+import { getDate_MDHMS_Format, getDate_MDY_Format } from 'pages/FinacialRequests/FinancialRequests.helpers'
+import { ORACLES_DATA_IN_FEED_LIST_NAME } from 'pages/FinacialRequests/Pagination/pagination.consts'
+import { GovRightContainerTitleArea } from 'pages/Governance/Governance.style'
+import { INFO_SVG_ENCODED, QUESTION_MARK_SVG_ENCODED } from 'pages/Satellites/helpers/Satellites.consts'
+import { Feed } from 'pages/Satellites/helpers/Satellites.types'
+import SatelliteList from 'pages/Satellites/SatelliteList/SatellitesList.controller'
+import { usersData } from 'pages/UsersOracles/users.const'
+import React, { useCallback, useMemo, useState } from 'react'
+import { useHistory } from 'react-router'
+import { Link } from 'react-router-dom'
+import { cyanColor, downColor, Page } from 'styles'
+// types
+import { SatelliteRecord } from 'utils/TypesAndInterfaces/Delegation'
+
+import DataFeedsPagination from '../pagination/DataFeedspagination.controler'
+// styles
+import { DataFeedInfoBlock, DataFeedsStyled, DataFeedsTitle, DataFeedSubTitleText, DataFeedValueText, UsersListCardsWrapper, UsersListWrapper, UserSmallCard } from './DataFeedsDetails.style'
 
 type FeedDetailsProps = {
   feed: Feed | null
@@ -264,12 +254,12 @@ const DataFeedDetailsView = ({ feed, isLoading, oracles, registerFeedHandler }: 
           <h1>Users</h1>
         </GovRightContainerTitleArea>
 
-        <div className="see-all-link" onClick={() => history.push('/users')}>
-          See all users
-          <svg>
-            <use xlinkHref="/icons/sprites.svg#arrow-left-stroke" />
-          </svg>
-        </div>
+        <Link to="users">
+          <div className="see-all-link">
+            See all users
+            <Icon id="arrow-left-stroke" />
+          </div>
+        </Link>
 
         <UsersListCardsWrapper>
           {usersData.map((user) => (

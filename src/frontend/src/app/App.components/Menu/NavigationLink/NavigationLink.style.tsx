@@ -15,22 +15,20 @@ export const NavigationLinkContainer = styled.div<{
     }
   }
 
-  @media screen and (max-width: 1460px) {
-    ${({ isMobMenuExpanded }) =>
-      !isMobMenuExpanded
-        ? css`
-            display: flex;
-            justify-content: center;
-            align-items: center;
+  ${({ isMobMenuExpanded }) =>
+    !isMobMenuExpanded
+      ? css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
-            .navLinkIcon,
-            a {
-              width: fit-content;
-              margin: 0;
-            }
-          `
-        : ''}
-  }
+          .navLinkIcon,
+          a {
+            width: fit-content;
+            margin: 0;
+          }
+        `
+      : ''}
 
   ${(props) =>
     props.selected &&
@@ -56,7 +54,7 @@ export const NavigationLinkItem = styled.div<{
 
   > a {
     display: flex;
-    margin-left: 42px;
+    margin-left: 30px;
 
     .navLinkTitle {
       font-size: 16px;
@@ -77,22 +75,20 @@ export const NavigationLinkItem = styled.div<{
       `}
   }
 
-  @media screen and (max-width: 1460px) {
-    ${({ isMobMenuExpanded }) =>
-      !isMobMenuExpanded
-        ? css`
-            display: flex;
-            justify-content: center;
-            align-items: center;
+  ${({ isMobMenuExpanded }) =>
+    !isMobMenuExpanded
+      ? css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
-            .navLinkIcon,
-            > a {
-              width: fit-content;
-              margin: 0;
-            }
-          `
-        : ''}
-  }
+          .navLinkIcon,
+          > a {
+            width: fit-content;
+            margin: 0;
+          }
+        `
+      : ''}
 `
 export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   width: 50px;
@@ -130,7 +126,7 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
     margin-left: 42px;
 
     > div {
-      width: 50px;
+      width: 15px;
       height: 50px;
       margin-right: 4px;
       flex-shrink: 0;
