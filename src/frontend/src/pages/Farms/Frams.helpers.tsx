@@ -1,11 +1,15 @@
 // types
-import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmStorage, FarmAccountsType } from '../../utils/TypesAndInterfaces/Farm'
 
 export const calculateAPR = (currentRewardPerBlock: number, lpTokenBalance: number): string => {
   const rewardRate = currentRewardPerBlock / Math.pow(10, 9)
   const blocksPerYear = 2 * 60 * 24 * 365 // 2 blocks per minute -> 1051200 blocks per year
   const result = lpTokenBalance ? (((rewardRate * blocksPerYear) / lpTokenBalance) * 100).toFixed(2) : 0
   return `${result}%`
+}
+
+export const getSummDepositedAmount = (farmAccounts: FarmAccountsType[]): number => {
+  return farmAccounts.reduce((acc, cur) => acc + cur.deposited_amount, 0)
 }
 
 export const MOCK_FARMS = [
@@ -77,7 +81,7 @@ export const MOCK_FARMS = [
     withdrawPaused: false,
     claimPaused: false,
     depositPaused: false,
-    lpTokenBalance: 2,
+    lpTokenBalance: 12,
     currentRewardPerBlock: 40,
     farmFactoryId: 'KT18cWwjTscZey2VvN6dy1h3bSTotjpUKqZq',
     infinite: false,
@@ -97,6 +101,15 @@ export const MOCK_FARMS = [
         user_id: 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD',
         participation_rewards_per_share: 0,
       },
+      {
+        claimed_rewards: 0,
+        deposited_amount: 2,
+        farm_id: 'KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74',
+        id: 1,
+        unclaimed_rewards: 0,
+        user_id: 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD',
+        participation_rewards_per_share: 0,
+      },
     ],
   },
   {
@@ -107,7 +120,7 @@ export const MOCK_FARMS = [
     withdrawPaused: false,
     claimPaused: false,
     depositPaused: false,
-    lpTokenBalance: 2,
+    lpTokenBalance: 20,
     currentRewardPerBlock: 50,
     farmFactoryId: 'KT18cWwjTscZey2VvN6dy1h3bSTotjpUKqZq',
     infinite: false,
@@ -120,7 +133,16 @@ export const MOCK_FARMS = [
     farmAccounts: [
       {
         claimed_rewards: 0,
-        deposited_amount: 2,
+        deposited_amount: 15,
+        farm_id: 'KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74',
+        id: 1,
+        unclaimed_rewards: 0,
+        user_id: 'tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD',
+        participation_rewards_per_share: 0,
+      },
+      {
+        claimed_rewards: 0,
+        deposited_amount: 1,
         farm_id: 'KT1JAgDRhRpUmisn6dU4pCUyfiQoUZc5wB74',
         id: 1,
         unclaimed_rewards: 0,

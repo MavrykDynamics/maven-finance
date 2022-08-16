@@ -44,8 +44,8 @@ export const FarmTopBar = ({
 }: FarmTopBarViewProps) => {
   const itemsForDropDown = [
     { text: 'Active', value: 'active' },
-    { text: 'Highest APR', value: 'highestAPR' },
-    { text: 'Lowest APR', value: 'lowestAPR' },
+    { text: 'Highest APY', value: 'highestAPY' },
+    { text: 'Lowest APY', value: 'lowestAPY' },
     { text: 'Highest liquidity (lpBalance)', value: 'highestLiquidity' },
     { text: 'Lowest liquidity (lpBalance)', value: 'lowestLiquidity' },
     { text: 'Your Largest Stake', value: 'yourLargestStake' },
