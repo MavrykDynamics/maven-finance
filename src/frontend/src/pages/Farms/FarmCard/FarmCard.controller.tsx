@@ -42,6 +42,7 @@ type FarmCardProps = {
   secondTokenAddress: string
   variant: FarmsViewVariantType
   totalLiquidity: number
+  depositAmount: number
 }
 export const FarmCard = ({
   farmAddress,
@@ -56,12 +57,15 @@ export const FarmCard = ({
   name,
   lpTokenBalance,
   currentRewardPerBlock,
+  depositAmount,
 }: FarmCardProps) => {
   const dispatch = useDispatch()
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const [visibleModal, setVisibleModal] = useState(false)
   const myFarmStakedBalance = 45645.8987
   const valueAPR = calculateAPR(currentRewardPerBlock, lpTokenBalance)
+
+  const disabled = !wallet || !ready || !depositAmount
 
   const harvestRewards = () => {
     dispatch(harvest(farmAddress))
@@ -133,7 +137,7 @@ export const FarmCard = ({
   const totalLiquidityBlock = (
     <div className="farm-info">
       <h3>Total Liquidity</h3>
-      <var>$209,544,892</var>
+      <var>${totalLiquidity}</var>
     </div>
   )
 
@@ -173,7 +177,7 @@ export const FarmCard = ({
         <h3>sMVK Earned</h3>
         <var>0.00</var>
       </div>
-      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={!wallet || !ready} />
+      <Button kind="actionPrimary" text={'Harvest'} onClick={harvestRewards} disabled={disabled} />
     </FarmHarvestStyled>
   )
 

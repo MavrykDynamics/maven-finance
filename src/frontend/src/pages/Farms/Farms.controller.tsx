@@ -159,10 +159,11 @@ export const Farms = () => {
               {farmsList.map((farm: FarmStorage, index: number) => {
                 const lpTokenAddress = farm.lpTokenAddress || ''
                 const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
+                const depositAmount = getSummDepositedAmount(farm.farmAccounts)
                 return (
                   <div>
                     <p>LpBalance = {farm.lpTokenBalance}</p>
-                    <p>Stake amount = {getSummDepositedAmount(farm.farmAccounts)}</p>
+                    <p>Stake amount = {depositAmount}</p>
                     <p>Rewards per block= {farm.currentRewardPerBlock}</p>
                     <FarmCard
                       variant={farmsViewVariant}
@@ -171,12 +172,13 @@ export const Farms = () => {
                       lpTokenAddress={farm.lpTokenAddress}
                       lpTokenBalance={farm.lpTokenBalance}
                       currentRewardPerBlock={farm.currentRewardPerBlock}
+                      depositAmount={depositAmount}
                       firstToken={'MVK'}
                       secondToken={'USDM'}
                       distributer={farmContract?.creator.alias || ''}
                       firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
                       secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-                      totalLiquidity={1231243}
+                      totalLiquidity={farm.lpTokenBalance}
                     />
                   </div>
                 )
