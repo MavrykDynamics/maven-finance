@@ -73,194 +73,118 @@
     },
     {
         "index": 18,
-        "name": "updateGovernanceConfig"
+        "name": "updateContractConfig"
     },
     {
         "index": 19,
-        "name": "updateGovernanceFinancialConfig"
-    },
-    {
-        "index": 20,
-        "name": "updateGovernanceSatelliteConfig"
-    },
-    {
-        "index": 21,
-        "name": "updateDelegationConfig"
-    },
-    {
-        "index": 22,
-        "name": "updateEmergencyConfig"
-    },
-    {
-        "index": 23,
-        "name": "updateBreakGlassConfig"
-    },
-    {
-        "index": 24,
-        "name": "updateCouncilConfig"
-    },
-    {
-        "index": 25,
-        "name": "updateFarmConfig"
-    },
-    {
-        "index": 26,
-        "name": "updateFarmFactoryConfig"
-    },
-    {
-        "index": 27,
-        "name": "updateAggregatorConfig"
-    },
-    {
-        "index": 28,
-        "name": "updateAggregatorFactoryConfig"
-    },
-    {
-        "index": 29,
-        "name": "updateTreasuryFactoryConfig"
-    },
-    {
-        "index": 30,
-        "name": "updateDoormanConfig"
-    },
-    {
-        "index": 31,
         "name": "pauseAllContractEntrypoint"
     },
     {
-        "index": 32,
+        "index": 20,
         "name": "unpauseAllContractEntrypoint"
     },
     {
-        "index": 33,
-        "name": "toggleAggregatorEntrypoint"
+        "index": 21,
+        "name": "toggleContractEntrypoint"
     },
     {
-        "index": 34,
-        "name": "toggleAggregatorFacEntrypoint"
-    },
-    {
-        "index": 35,
-        "name": "toggleDelegationEntrypoint"
-    },
-    {
-        "index": 36,
-        "name": "toggleDoormanEntrypoint"
-    },
-    {
-        "index": 37,
-        "name": "toggleFarmEntrypoint"
-    },
-    {
-        "index": 38,
-        "name": "toggleFarmFacEntrypoint"
-    },
-    {
-        "index": 39,
-        "name": "toggleTreasuryEntrypoint"
-    },
-    {
-        "index": 40,
-        "name": "toggleTreasuryFacEntrypoint"
-    },
-    {
-        "index": 41,
+        "index": 22,
         "name": "updateWhitelistDevelopersSet"
     },
     {
-        "index": 42,
+        "index": 23,
         "name": "setGovernanceProxy"
     },
     {
-        "index": 43,
+        "index": 24,
         "name": "createFarm"
     },
     {
-        "index": 44,
+        "index": 25,
         "name": "trackFarm"
     },
     {
-        "index": 45,
+        "index": 26,
         "name": "untrackFarm"
     },
     {
-        "index": 46,
+        "index": 27,
         "name": "initFarm"
     },
     {
-        "index": 47,
+        "index": 28,
         "name": "closeFarm"
     },
     {
-        "index": 48,
+        "index": 29,
         "name": "createTreasury"
     },
     {
-        "index": 49,
+        "index": 30,
         "name": "trackTreasury"
     },
     {
-        "index": 50,
+        "index": 31,
         "name": "untrackTreasury"
     },
     {
-        "index": 51,
+        "index": 32,
         "name": "transferTreasury"
     },
     {
-        "index": 52,
+        "index": 33,
         "name": "mintMvkAndTransferTreasury"
     },
     {
-        "index": 53,
+        "index": 34,
         "name": "updateMvkOperatorsTreasury"
     },
     {
-        "index": 54,
+        "index": 35,
         "name": "stakeMvkTreasury"
     },
     {
-        "index": 55,
+        "index": 36,
         "name": "unstakeMvkTreasury"
     },
     {
-        "index": 56,
+        "index": 37,
         "name": "createAggregator"
     },
     {
-        "index": 57,
+        "index": 38,
         "name": "trackAggregator"
     },
     {
-        "index": 58,
+        "index": 39,
         "name": "untrackAggregator"
     },
     {
-        "index": 59,
+        "index": 40,
         "name": "setAggregatorMaintainer"
     },
     {
-        "index": 60,
+        "index": 41,
         "name": "updateMvkInflationRate"
     },
     {
-        "index": 61,
+        "index": 42,
         "name": "triggerMvkInflation"
     },
     {
-        "index": 62,
+        "index": 43,
         "name": "addVestee"
     },
     {
-        "index": 63,
+        "index": 44,
         "name": "removeVestee"
     },
     {
-        "index": 64,
+        "index": 45,
         "name": "updateVestee"
     },
     {
-        "index": 65,
+        "index": 46,
         "name": "toggleVesteeLock"
     }
 ]
