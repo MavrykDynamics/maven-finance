@@ -259,7 +259,7 @@ describe("Token sale tests", async () => {
             }
         });
 
-        it('Admin should be able to update the tez per token of an existing buy option', async () => {
+        it('Admin should be able to update the token price of an existing buy option', async () => {
             try{
                 // Initial Values
                 tokenSaleStorage        = await tokenSaleInstance.storage();
