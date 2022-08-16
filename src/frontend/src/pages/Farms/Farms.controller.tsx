@@ -12,6 +12,9 @@ import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { FarmCard } from './FarmCard/FarmCard.controller'
 import { Modal } from '../../app/App.components/Modal/Modal.controller'
 
+// helpers
+import { calculateAPR, getSummDepositedAmount } from './Frams.helpers'
+
 // styles
 import { FarmsStyled } from './Farms.style'
 import { EmptyContainer as EmptyList } from 'app/App.style'
@@ -31,7 +34,7 @@ export const Farms = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
-  //farmStorage = MOCK_FARMS
+  farmStorage = MOCK_FARMS
   const [farmsList, setFarmsList] = useState(farmStorage)
   const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage[]>([])
   const [toggleChecked, setToggleChecked] = useState(false)
@@ -55,8 +58,6 @@ export const Farms = () => {
 
     const isLive = liveFinished === 1
     const filteredLiveFinished = filterStakedOnly.filter((item) => item.open === isLive)
-    // const filteredLiveFinished = filterStakedOnly
-
     const filteredSearch = searchValue.length
       ? filteredLiveFinished.filter((farm) => {
           const isIncludesTokenAddress = farm.lpTokenAddress.includes(searchValue)
@@ -70,18 +71,41 @@ export const Farms = () => {
       : filteredLiveFinished
 
     if (sortBy) {
-      console.log('%c ||||| sortBy', 'color:red', sortBy)
       const dataToSort = filteredSearch ? [...filteredSearch] : []
 
       dataToSort.sort((a: FarmStorage, b: FarmStorage) => {
-        console.log('%c ||||| Number(a.open)', 'color:yellowgreen', Number(a.open))
         let res = 0
         switch (sortBy) {
           case 'active':
             res = Number(a.open) - Number(b.open)
             break
-          case 'lpBalance':
-          case 'rewardPerBlock':
+          case 'highestAPY':
+            res =
+              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) <
+              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+                ? 1
+                : -1
+
+            break
+          case 'lowestAPY':
+            res =
+              parseFloat(calculateAPR(a.currentRewardPerBlock, a.lpTokenBalance)) >
+              parseFloat(calculateAPR(b.currentRewardPerBlock, b.lpTokenBalance))
+                ? 1
+                : -1
+            break
+          case 'highestLiquidity':
+            res = a.lpTokenBalance < b.lpTokenBalance ? 1 : -1
+            break
+          case 'lowestLiquidity':
+            res = a.lpTokenBalance > b.lpTokenBalance ? 1 : -1
+            break
+          case 'yourLargestStake':
+            res = getSummDepositedAmount(a.farmAccounts) < getSummDepositedAmount(b.farmAccounts) ? 1 : -1
+            break
+          case 'rewardsPerBlock':
+            res = a.currentRewardPerBlock < b.currentRewardPerBlock ? 1 : -1
+            break
           default:
             res = 1
             break
@@ -112,28 +136,7 @@ export const Farms = () => {
   }
 
   const handleOnSort = (sortValue: any) => {
-    console.log('%c ||||| sortValue', 'color:yellowgreen', sortValue)
     setSortBy(sortValue)
-    // if (sortValue !== 'null') {
-    //   setFarmsList((data: any[]) => {
-    //     const dataToSort = data ? [...data] : []
-    //     dataToSort.sort((a: any, b: any) => {
-    //       let res = 0
-    //       switch (sortValue) {
-    //         case 'open':
-    //           res = Number(a[sortValue]) - Number(b[sortValue])
-    //           break
-    //         case 'lpBalance':
-    //         case 'rewardPerBlock':
-    //         default:
-    //           res = Number(b[sortValue]) - Number(a[sortValue])
-    //           break
-    //       }
-    //       return res
-    //     })
-    //     return dataToSort
-    //   })
-    // }
   }
   return (
     <Page>
@@ -156,22 +159,26 @@ export const Farms = () => {
               {farmsList.map((farm: FarmStorage, index: number) => {
                 const lpTokenAddress = farm.lpTokenAddress || ''
                 const farmContract = farmContracts.find((item) => item.address === lpTokenAddress)
-                console.log('%c ||||| farm.open', 'color:yellowgreen', farm.open)
                 return (
-                  <FarmCard
-                    variant={farmsViewVariant}
-                    farmAddress={farm.address}
-                    name={farm.name}
-                    lpTokenAddress={farm.lpTokenAddress}
-                    lpTokenBalance={farm.lpTokenBalance}
-                    currentRewardPerBlock={farm.currentRewardPerBlock}
-                    firstToken={'MVK'}
-                    secondToken={'USDM'}
-                    distributer={farmContract?.creator.alias || ''}
-                    firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
-                    secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
-                    totalLiquidity={1231243}
-                  />
+                  <div>
+                    <p>LpBalance = {farm.lpTokenBalance}</p>
+                    <p>Stake amount = {getSummDepositedAmount(farm.farmAccounts)}</p>
+                    <p>Rewards per block= {farm.currentRewardPerBlock}</p>
+                    <FarmCard
+                      variant={farmsViewVariant}
+                      farmAddress={farm.address}
+                      name={farm.name}
+                      lpTokenAddress={farm.lpTokenAddress}
+                      lpTokenBalance={farm.lpTokenBalance}
+                      currentRewardPerBlock={farm.currentRewardPerBlock}
+                      firstToken={'MVK'}
+                      secondToken={'USDM'}
+                      distributer={farmContract?.creator.alias || ''}
+                      firstTokenAddress={'KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6'}
+                      secondTokenAddress={'KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6'}
+                      totalLiquidity={1231243}
+                    />
+                  </div>
                 )
               })}
             </section>
