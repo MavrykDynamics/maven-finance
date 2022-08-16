@@ -40,7 +40,7 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
   const successReward = governanceStorage.config.successReward
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: proposalTitle,
-    proposalBytes: [PROPOSAL_BYTE],
+    proposalBytes: proposalData?.length ? proposalData : [PROPOSAL_BYTE],
   })
 
   const [validForm, setValidForm] = useState<ValidProposalUpdateForm>({
@@ -51,19 +51,6 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
     title: '',
     proposalBytes: '',
   })
-
-  useEffect(() => {
-    if (proposalData?.length) {
-      const prepareObj = {
-        title: proposalTitle,
-        proposalBytes: proposalData,
-      }
-
-      setForm(prepareObj)
-    }
-  }, [proposalData, proposalTitle])
-
-  console.log('%c ||||| form', 'color:red', form)
 
   const handleOnBlur = (index: number, text: string, type: string) => {
     const validityCheckResultData = Boolean(text)
@@ -111,10 +98,6 @@ export const StageTwoForm = ({ locked, accountPkh, proposalTitle, proposalId, pr
   const handleDeleteProposal = async () => {
     if (proposalId) await dispatch(dropProposal(proposalId))
   }
-
-  useEffect(() => {
-    if (!isProposalRound) clearState()
-  }, [isProposalRound])
 
   return (
     <StageTwoFormView
