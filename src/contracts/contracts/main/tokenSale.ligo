@@ -31,6 +31,7 @@ type tokenSaleAction is
     
     // Housekeeping Entrypoints
     |   SetAdmin                    of address
+    |   SetGovernance               of address
     |   UpdateMetadata              of updateMetadataType
     |   UpdateConfig                of tokenSaleUpdateConfigParamsType
 
@@ -256,6 +257,18 @@ block {
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : tokenSaleStorageType) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.governanceAddress := newGovernanceAddress;
 
 } with (noOperations, s)
 
@@ -685,6 +698,7 @@ function main (const action : tokenSaleAction; const s : tokenSaleStorageType) :
 
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance(parameters)               -> setGovernance(parameters, s)
         |   UpdateMetadata(parameters)              -> updateMetadata(parameters, s)  
         |   UpdateConfig(parameters)                -> updateConfig(parameters, s)
 
