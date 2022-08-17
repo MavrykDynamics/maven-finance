@@ -5,17 +5,12 @@ import { alice } from '../../scripts/sandbox/accounts'
 export type vaultStorageType = {
     
     admin                       : string;
-    metadata            : MichelsonMap<MichelsonMapKey, unknown>;
-
+    metadata                    : MichelsonMap<MichelsonMapKey, unknown>;
+    controllerAddress           : string;
     governanceAddress           : string;
-    breakGlassConfig            : {},
-
-    whitelistContracts          : MichelsonMap<MichelsonMapKey, unknown>;
-    generalContracts            : MichelsonMap<MichelsonMapKey, unknown>;
-
+    
     handle                      : {};
     depositors                  : MichelsonMap<MichelsonMapKey, unknown>;
-    collateralTokenAddresses    : MichelsonMap<MichelsonMapKey, unknown>;
 
     lambdaLedger                : MichelsonMap<MichelsonMapKey, unknown>;
 }

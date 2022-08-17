@@ -25,31 +25,6 @@ type vaultHandleType is [@layout:comb] record [
     owner   : address;
 ]
 
-type vaultBreakGlassConfigType is record [
-    // Vault Entrypoints
-    vaultDelegateTezToBakerIsPaused         : bool; 
-    vaultDelegateMvkToSatelliteIsPaused     : bool;
-    vaultWithdrawIsPaused                   : bool;
-    vaultDepositIsPaused                    : bool;
-    vaultEditDepositorIsPaused              : bool;
-]
-
-
-type vaultPausableEntrypointType is
-
-        // Vault Entrypoints
-        VaultDelegateTezToBaker         of bool
-    |   VaultDelegateMvkToSatellite     of bool
-    |   VaultWithdraw                   of bool
-    |   VaultDeposit                    of bool
-    |   VaultEditDepositor              of bool
-
-type vaultTogglePauseEntrypointType is [@layout:comb] record [
-    targetEntrypoint  : vaultPausableEntrypointType;
-    empty             : unit
-];
-
-
 // ------------------------------------------------------------------------------
 // Action Types
 // ------------------------------------------------------------------------------
@@ -95,13 +70,6 @@ type vaultLambdaActionType is
     |   LambdaSetAdmin                        of (address)
     |   LambdaSetGovernance                   of (address)
     |   LambdaUpdateMetadata                  of updateMetadataType
-    |   LambdaUpdateWhitelistContracts        of updateWhitelistContractsType
-    |   LambdaUpdateGeneralContracts          of updateGeneralContractsType
-
-        // Pause / Break Glass Lambdas
-    |   LambdaPauseAll                        of (unit)
-    |   LambdaUnpauseAll                      of (unit)
-    |   LambdaTogglePauseEntrypoint           of vaultTogglePauseEntrypointType
 
         // Vault Entrypoints
     |   LambdaVaultDelegateTezToBaker         of vaultDelegateTezToBakerType
@@ -118,14 +86,10 @@ type vaultLambdaActionType is
 
 type vaultStorageType is record [
     
-    admin                   : address;                  // vault admin contract - usdm token controller address
+    admin                   : address;                  
     metadata                : metadataType;
-
+    controllerAddress       : address;                  // lending controller address
     governanceAddress       : address; 
-    breakGlassConfig        : vaultBreakGlassConfigType; 
-    
-    whitelistContracts      : whitelistContractsType;
-    generalContracts        : generalContractsType;
 
     handle                  : vaultHandleType;          // owner of the vault
     depositors              : depositorsType;           // users who can deposit into the vault    

@@ -33,16 +33,11 @@ export const vaultStorage: vaultStorageType = {
     
     admin                       : alice.pkh,
     metadata                    : metadata,
-
+    controllerAddress           : zeroAddress,
     governanceAddress           : zeroAddress,
-    breakGlassConfig            : {},
-
-    whitelistContracts          : MichelsonMap.fromLiteral({}),
-    generalContracts            : MichelsonMap.fromLiteral({}),
-
+    
     handle                      : vaultHandle,
     depositors                  : MichelsonMap.fromLiteral({}),
-    collateralTokenAddresses    : MichelsonMap.fromLiteral({}),
 
     lambdaLedger                : MichelsonMap.fromLiteral({}),
 
