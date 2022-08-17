@@ -2,6 +2,7 @@ import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
+import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
 
 import { showToaster } from '../Toaster/Toaster.actions'
 import { getHeadData } from './Menu.actions'
@@ -37,6 +38,7 @@ export const Menu = ({
       ready={ready}
       isExpandedMenu={isExpandedMenu}
       setisExpandedMenu={setisExpandedMenu}
+      openChangeNodePopupHandler={() => dispatch(toggleRPCNodePopup(true))}
     />
   )
 }

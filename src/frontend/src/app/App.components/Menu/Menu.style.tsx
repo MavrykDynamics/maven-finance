@@ -103,7 +103,6 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
   left: 0;
   top: 0;
   bottom: 0;
-  overflow-y: scroll;
   overflow-x: hidden;
 
   .mobile-logo {
