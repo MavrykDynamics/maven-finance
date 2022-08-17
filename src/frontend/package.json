@@ -10,11 +10,13 @@
     "cypress:run": "cypress run",
     "cypress:test": "cypress run -s 'cypress/integration/**/*-spec.js'",
     "import-contracts": "rm -Rf src/deployments && cp -R ../contracts/deployments src/deployments",
-    "open-explorer": "open https://better-call.dev/hangzhou2net/KT1N4WXRdpxmqKVuukhQXX5kgc6JwJwyJrVH/"
+    "open-explorer": "open https://better-call.dev/hangzhou2net/KT1N4WXRdpxmqKVuukhQXX5kgc6JwJwyJrVH/",
+    "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@graphql-codegen/cli": "2.11.6",
     "@mui/material": "^5.4.2",
     "@mui/x-data-grid": "^5.5.1",
     "@silevis/reactgrid": "^4.0.3",
@@ -29,6 +31,7 @@
     "constate": "^3.3.0",
     "dayjs": "^1.10.7",
     "embla-carousel-react": "^6.2.0",
+    "graphql": "16.5.0",
     "gsap": "^3.8.0",
     "history": "^5.0.1",
     "html-react-parser": "^1.4.2",
@@ -71,6 +74,8 @@
   "devDependencies": {
     "@cypress/code-coverage": "^3.9.11",
     "@cypress/instrument-cra": "^1.4.0",
+    "@graphql-codegen/cli": "2.11.6",
+    "@graphql-codegen/typescript": "2.7.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.0",
     "@testing-library/user-event": "^13.2.1",

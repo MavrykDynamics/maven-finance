@@ -1,0 +1,12 @@
+overwrite: true
+schema: 'https://api-dev.mavryk.finance/v1/graphql'
+generates:
+  src/utils/generated/graphqlTypes.tsx:
+    plugins:
+      - 'typescript'
+config:
+  scalars:
+    bigint: number
+    float8: number
+    smallint: number
+    timestamptz: number
