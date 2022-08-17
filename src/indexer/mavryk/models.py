@@ -113,6 +113,16 @@ class WhitelistDeveloper(Model):
     class Meta:
         table = 'whitelist_developer'
 
+class Token(Model):
+    address                                 = fields.CharField(pk=True, max_length=36)
+    name                                    = fields.CharField(max_length=36, default="")
+    token_id                                = fields.SmallIntField(default=0)
+    type                                    = fields.IntEnumField(enum_type=TokenType, default=TokenType.OTHER)
+    decimals                                = fields.SmallIntField(default=0)
+
+    class Meta:
+        table = 'token'
+
 class MVKToken(Model):
     address                                 = fields.CharField(pk=True, max_length=36)
     admin                                   = fields.CharField(max_length=36)
@@ -152,13 +162,11 @@ class Farm(Model):
     admin                                   = fields.CharField(max_length=36, default='')
     governance                              = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
     farm_factory                            = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
+    lp_token                                = fields.ForeignKeyField('models.Token', related_name='farm_lp_tokens', null=True)
     creation_timestamp                      = fields.DatetimeField(null=True)
     name                                    = fields.TextField(default='')
     force_rewards_from_transfer             = fields.BooleanField(default=False)
     infinite                                = fields.BooleanField(default=False)
-    lp_token_address                        = fields.CharField(max_length=36, default='')
-    lp_token_id                             = fields.SmallIntField(default=0)
-    lp_token_standard                       = fields.IntEnumField(enum_type=TokenType, default=TokenType.OTHER)
     lp_token_balance                        = fields.BigIntField(default=0)
     total_blocks                            = fields.BigIntField(default=0)
     current_reward_per_block                = fields.FloatField(default=0)
@@ -735,11 +743,9 @@ class GovernanceProposalRecordPayment(Model):
     id                                      = fields.BigIntField(pk=True)
     record_internal_id                      = fields.SmallIntField(default=0)
     governance_proposal_record              = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='proposal_payments')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_proposal_records_payments_token', null=True)
     title                                   = fields.TextField(default="")
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_payments', null=True)
-    token_address                           = fields.CharField(max_length=36, default="")
-    token_id                                = fields.CharField(max_length=36, default="")
-    token_standard                          = fields.IntEnumField(enum_type=TokenType, default=TokenType.OTHER)
     token_amount                            = fields.FloatField(default=0.0)
 
     class Meta:
@@ -776,14 +782,11 @@ class GovernanceFinancialRequestRecord(Model):
     governance_financial                    = fields.ForeignKeyField('models.GovernanceFinancial', related_name='governance_financial_request_records')
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_request_records')
     requester                               = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_requests_requester')
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_financial_requests_token', null=True)
     request_type                            = fields.CharField(max_length=255)
     status                                  = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
     executed                                = fields.BooleanField()
-    token_contract_address                  = fields.CharField(max_length=36)
     token_amount                            = fields.FloatField(default=0.0)
-    token_name                              = fields.TextField()
-    token_id                                = fields.SmallIntField(default=0)
-    token_type                              = fields.CharField(max_length=12)
     request_purpose                         = fields.TextField(default="")
     key_hash                                = fields.TextField(default="", null=True)
     yay_vote_smvk_total                     = fields.FloatField(default=0.0)
@@ -852,9 +855,7 @@ class GovernanceSatelliteActionRecordParameter(Model):
 class GovernanceSatelliteActionRecordTransfer(Model):
     id                                      = fields.BigIntField(pk=True)
     governance_satellite_action             = fields.ForeignKeyField('models.GovernanceSatelliteActionRecord', related_name='governance_satellite_action_transfers')
-    token_contract_address                  = fields.CharField(max_length=36)
-    token_type                              = fields.IntEnumField(enum_type=TokenType)
-    token_id                                = fields.SmallIntField(default=0)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='governance_satellite_action_transfer_tokens', null=True)
     to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='governance_satellite_action_record_transfer_receiver')
     amount                                  = fields.BigIntField(default=0)
 
@@ -1113,10 +1114,8 @@ class TreasuryTransferHistoryData(Model):
     id                                      = fields.BigIntField(pk=True)
     timestamp                               = fields.DatetimeField()
     treasury                                = fields.ForeignKeyField('models.Treasury', related_name='treasury_transfer_history_data')
-    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver')
-    type                                    = fields.IntEnumField(enum_type=TokenType)
-    token_contract_address                  = fields.CharField(max_length=36, default="")
-    token_id                                = fields.SmallIntField(default=0)
+    token                                   = fields.ForeignKeyField('models.Token', related_name='treasury_transfer_token')
+    to_                                     = fields.ForeignKeyField('models.MavrykUser', related_name='treasury_transfer_receiver', null=True)
     amount                                  = fields.BigIntField(default=0)
 
     class Meta:
