@@ -51,8 +51,9 @@ import {
 import { MvkToken } from '../helpers/mvkHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { TokenSale } from '../helpers/tokenSaleHelper'
 import { LPToken } from "../helpers/testLPHelper"
-import { TokenSale } from "../helpers/tokenSaleHelper"
+
 
 
 // ------------------------------------------------------------------------------
@@ -84,8 +85,9 @@ import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { tokenSaleStorage } from '../../storage/tokenSaleStorage'
 import { lpStorage } from "../../storage/testLPTokenStorage";
-import { tokenSaleStorage } from "../../storage/tokenSaleStorage";
+
 
 // ------------------------------------------------------------------------------
 // Contract Deployment Start
@@ -377,6 +379,19 @@ describe('Contracts Deployment for Tests', async () => {
   
       await saveContractAddress('governanceSatelliteAddress', governanceSatellite.contract.address)
       console.log('Governance Satellite Contract deployed at:', governanceSatellite.contract.address)
+
+
+      tokenSaleStorage.governanceAddress = governance.contract.address;
+      tokenSaleStorage.treasuryAddress   = treasury.contract.address;
+      tokenSaleStorage.mvkTokenAddress   = mvkToken.contract.address;
+      tokenSale = await TokenSale.originate(
+        utils.tezos,
+        tokenSaleStorage
+      )
+
+      await saveContractAddress('tokenSaleAddress', tokenSale.contract.address)
+      console.log('Token Sale Contract deployed at:', tokenSale.contract.address)
+
   
   
       /* ---- ---- ---- ---- ---- */
