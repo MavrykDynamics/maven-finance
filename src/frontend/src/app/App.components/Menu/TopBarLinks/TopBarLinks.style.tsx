@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { cyanColor, silverColor } from 'styles'
+import { cyanColor, darkPurpleColor, silverColor } from 'styles'
 
 export const TopBarLinksStyled = styled.div`
   margin: 0 25px;
@@ -8,7 +8,7 @@ export const TopBarLinksStyled = styled.div`
   display: flex;
   align-items: center;
 
-  @media screen and (max-width: 1360px) {
+  @media screen and (max-width: 1400px) {
     margin: 0 15px;
   }
 
@@ -24,7 +24,7 @@ export const TopBarLinksStyled = styled.div`
     svg {
       width: 20px;
       height: 17px;
-      margin-left: 10px;
+      margin-left: 8px;
       transform: rotate(-90deg);
       transition: 0.35s all;
       display: block;
@@ -39,7 +39,7 @@ export const TopBarLinksStyled = styled.div`
       }
     }
 
-    @media screen and (max-width: 1360px) {
+    @media screen and (max-width: 1380px) {
       font-size: 18px;
     }
   }
@@ -63,7 +63,7 @@ export const TopBarLinksStyled = styled.div`
     top: 80px;
     opacity: 0;
     z-index: 10;
-    padding: 20px 35px 20px 25px;
+    padding: 20px 45px 20px 15px;
     background-color: #160e3f;
     border-radius: 10px;
     border: 1px solid #503eaa;
@@ -79,9 +79,14 @@ export const TopBarLinksStyled = styled.div`
       white-space: nowrap;
       font-size: 18px;
       transition: 0.35s all;
+      width: 120%;
+      padding: 6px 0;
+      padding-left: 10px;
+      border-radius: 5px;
       color: ${silverColor};
       &:hover {
         color: ${cyanColor};
+        background: ${darkPurpleColor};
       }
     }
   }

@@ -10,6 +10,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   position: relative;
   height: 100%;
   min-height: 100vh;
+  width: 1170px;
   max-width: 1170px;
   padding-top: 112px;
 

@@ -30,20 +30,20 @@ type MenuViewProps = {
 
 const SocialIcons = () => (
   <div className="social-wrapper">
+    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
+      <Icon id="socialTwitter" />
+    </a>
     <a href="https://discord.com/invite/7VXPR4gkT6" target="_blank" rel="noreferrer">
       <Icon id="socialDiscord" />
-    </a>
-    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
-      <Icon id="socialGitHub" />
-    </a>
-    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialMedium" />
     </a>
     <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
       <Icon id="socialTelegram" />
     </a>
-    <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-      <Icon id="socialTwitter" />
+    <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
+      <Icon id="socialMedium" />
+    </a>
+    <a href="https://github.com/mavrykfinance/" target="_blank" rel="noreferrer">
+      <Icon id="socialGitHub" />
     </a>
   </div>
 )
@@ -92,24 +92,29 @@ export const MenuView = ({
           <TopBarLinks
             groupName={'Products'}
             groupLinks={[
-              { name: 'link 9', href: 'gdfgd' },
-              { name: 'link 6', href: 'gdfgd' },
+              { name: 'Dapp', href: '/' },
+              { name: 'Liquidity Baking', href: '/' },
+              { name: 'Mavryk Bakery', href: '/' },
+              { name: 'DAO Bakery', href: '/' },
             ]}
           />
           <TopBarLinks
             groupName={'About'}
             groupLinks={[
-              { name: 'link 1', href: 'gdfgd' },
-              { name: 'link 7', href: 'gdfgd' },
+              { name: 'Who we are', href: 'https://mavryk.finance/' },
+              { name: 'MVK Token', href: '/' },
+              { name: 'Team', href: '/' },
+              { name: 'Roadmap', href: '/' },
             ]}
           />
           <TopBarLinks groupName={'Blog 🔥'} groupLinks={[]} />
           <TopBarLinks
             groupName={'Docs'}
             groupLinks={[
-              { name: 'link 1', href: 'gdfgd' },
-              { name: 'link 2', href: 'gdfgd' },
-              { name: 'link 4', href: 'gdfgd' },
+              { name: 'Litepaper', href: 'https://mavryk.finance/litepaper' },
+              { name: 'DAO docs', href: '/' },
+              { name: 'Security Audits', href: '/' },
+              { name: 'Github', href: 'https://github.com/mavrykfinance/' },
             ]}
           />
         </div>

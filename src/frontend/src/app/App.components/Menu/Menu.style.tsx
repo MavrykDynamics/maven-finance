@@ -35,7 +35,6 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   .right-side {
-    margin-left: auto;
     .settingsIcon {
       margin-left: 25px;
       cursor: pointer;
@@ -67,7 +66,7 @@ export const MenuTopStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   .grouped-links {
-    margin-left: 30px;
+    margin: 0 auto;
     height: 100%;
     display: flex;
     align-items: center;
@@ -122,23 +121,21 @@ export const MenuSidebarStyled = styled.div<{ theme: MavrykTheme }>`
     &.menu-expanded {
       width: 100vw;
       display: flex;
-      display: flex;
       align-items: flex-start;
     }
   }
 
-  @media screen and (max-width: 1260px) {
+  @media screen and (max-width: 1400px) {
     top: 0;
     left: 0;
-    z-index: 30;
+    z-index: 10;
     transition: all 0.3s;
 
     &.menu-expanded {
       width: 100vw;
       display: flex;
-      display: flex;
       background: ${backdropColor};
-      z-index: 30;
+      z-index: 10;
       align-items: flex-start;
 
       .menu-backdrop {
@@ -178,6 +175,10 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   svg {
     width: 30px;
     height: 30px;
+  }
+
+  @media screen and (min-width: 1400px) {
+    display: none;
   }
 `
 
