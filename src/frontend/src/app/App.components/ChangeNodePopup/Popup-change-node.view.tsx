@@ -35,13 +35,7 @@ export const PopupChangeNodeView = ({ closeModal }: { closeModal: () => void }) 
 
       <ChangeNodeNodesList className="scroll-block">
         {RPC_NODES.map(({ title, url, nodeLogoUrl }) => (
-          <ChangeNodeNodesListItem
-            onClick={() => {
-              dispatch(selectNewRPCNode(url))
-              setSelectedNodeByClick(url)
-            }}
-            isSelected={REACT_APP_RPC_PROVIDER === url}
-          >
+          <ChangeNodeNodesListItem onClick={() => setSelectedNodeByClick(url)} isSelected={selectedNodeByClick === url}>
             {nodeLogoUrl && (
               <div className="img_wrapper">
                 <img src={`./images/${nodeLogoUrl}`} alt={''} />
