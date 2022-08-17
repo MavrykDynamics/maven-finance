@@ -230,10 +230,26 @@ async def persist_financial_request(action):
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
 
-            treasury, _             = await models.Treasury.get_or_create(
+            treasury, _     = await models.Treasury.get_or_create(
                 address     = treasuryAddress
             )
             await treasury.save()
+
+            token_standard  = models.TokenType.OTHER
+            if token_type == "FA2":
+                token_standard  = models.TokenType.FA2
+            elif token_type == "FA12":
+                token_standard  = models.TokenType.FA12
+            elif token_type == "XTZ":
+                token_standard  = models.TokenType.XTZ
+
+            token, _        = await models.Token.get_or_create(
+                address     = token_contract_address,
+                token_id    = token_id,
+                type        = token_standard
+            )
+            token.name      = token_name
+            await token.save()
 
             requester, _            = await models.MavrykUser.get_or_create(
                 address = requesterAddress
@@ -245,13 +261,10 @@ async def persist_financial_request(action):
                 requester                       = requester,
                 request_type                    = request_type,
                 status                          = statusType,
-                token_type                      = token_type,
                 key_hash                        = key_hash,
                 executed                        = executed,
-                token_contract_address          = token_contract_address,
+                token                           = token,
                 token_amount                    = token_amount,
-                token_name                      = token_name,
-                token_id                        = token_id,
                 request_purpose                 = request_purpose,
                 yay_vote_smvk_total             = yay_vote_smvk_total,
                 nay_vote_smvk_total             = nay_vote_smvk_total,
@@ -374,12 +387,17 @@ async def persist_governance_satellite_action(action):
                     token_contract_address  = value.token.fa2.tokenContractAddress
                 elif type(value.token) == tez:
                     token_type  = models.TokenType.XTZ
+
+                token, _        = await models.Token.get_or_create(
+                    address     = token_contract_address,
+                    token_id    = token_id,
+                    type        = token_type
+                )
+                await token.save()
                     
                 governance_satellite_action_record_transfer = models.GovernanceSatelliteActionRecordTransfer(
                     governance_satellite_action     = action_record,
-                    token_contract_address          = token_contract_address,
-                    token_type                      = token_type,
-                    token_id                        = token_id,
+                    token                           = token,
                     to_                             = receiver,
                     amount                          = amount
                 )
