@@ -20,7 +20,6 @@ import {
   EmergencyGovProposalVoter,
 } from './TypesAndInterfaces/EmergencyGovernance'
 import { FarmStorage } from './TypesAndInterfaces/Farm'
-import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
 import {
   FinancialRequestRecord,
   FinancialRequestVote,
@@ -56,10 +55,6 @@ export default function storageToTypeConverter(contract: string, storage: any): 
     case 'farm':
       res = convertToFarmStorageType(storage)
       setItemInStorage('FarmStorage', res)
-      break
-    case 'farmFactory':
-      res = convertToFarmFactoryStorageType(storage)
-      setItemInStorage('FarmFactoryStorage', res)
       break
     case 'emergencyGovernance':
       res = convertToEmergencyGovernanceStorageType(storage)
@@ -360,17 +355,6 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
   return farms
 }
 
-function convertToFarmFactoryStorageType(storage: any): FarmFactoryStorage {
-  return {
-    address: storage?.address,
-    breakGlassConfig: {
-      createFarmIsPaused: storage?.create_farm_paused,
-      trackFarmIsPaused: storage?.track_farm_paused,
-      untrackFarmIsPaused: storage?.untrack_farm_paused,
-    },
-    trackedFarms: convertToFarmStorageType(storage?.farms),
-  }
-}
 
 function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGovernanceStorage {
   const eGovRecords: EmergencyGovernanceProposalRecord[] = []

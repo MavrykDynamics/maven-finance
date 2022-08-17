@@ -15,7 +15,6 @@ import { council, CouncilState } from './council'
 import { breakGlass, BreakGlassState } from './breakGlass'
 import { vesting, VestingState } from './vesting'
 import { farm, FarmState } from './farm'
-import { farmFactory, FarmFactoryState } from './farmFactory'
 import { preferences, PreferencesState } from './preferences'
 import { modal, ModalState } from './modal'
 import { user, UserState } from './user'
@@ -38,7 +37,6 @@ export const reducers = combineReducers({
   breakGlass,
   vesting,
   farm,
-  farmFactory,
   preferences,
   modal,
   user,
@@ -62,7 +60,6 @@ export interface State {
   breakGlass: BreakGlassState
   vesting: VestingState
   farm: FarmState
-  farmFactory: FarmFactoryState
   preferences: PreferencesState
   modal: ModalState
   user: UserState

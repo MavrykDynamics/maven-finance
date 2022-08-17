@@ -4,7 +4,7 @@ import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Fa
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useCallback, useEffect, useState } from 'react'
-import { getFarmFactoryStorage, getFarmStorage } from './Farms.actions'
+import { getFarmStorage } from './Farms.actions'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { Page } from 'styles'
 import { FarmTopBar } from './FarmTopBar/FarmTopBar.controller'
@@ -34,7 +34,7 @@ export const Farms = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   let { farmStorage, farmContracts } = useSelector((state: State) => state.farm)
-  farmStorage = MOCK_FARMS
+  // farmStorage = MOCK_FARMS
   const [farmsList, setFarmsList] = useState(farmStorage)
   const [farmsListSearch, setFarmsListSearch] = useState<FarmStorage[]>([])
   const [toggleChecked, setToggleChecked] = useState(false)
