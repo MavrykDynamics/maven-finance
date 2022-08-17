@@ -19,7 +19,7 @@ export interface PreferencesState {
 
 const preferencesDefaultState: PreferencesState = {
   darkThemeEnabled: getItemFromStorage('theme') || true,
-  changeNodePopupOpen: true,
+  changeNodePopupOpen: false,
   RPC_NODES: [
     { title: 'MARIGOLD', url: 'https://jakartanet.tezos.marigold.dev/', nodeLogoUrl: 'marigold_logo.png' },
     { title: 'ECADLABS', url: 'https://jakartanet.ecadinfra.com', nodeLogoUrl: 'ECAD_logo.png' },
