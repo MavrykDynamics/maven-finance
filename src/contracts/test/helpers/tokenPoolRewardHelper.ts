@@ -12,7 +12,7 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { treasuryStorageType } from "../types/treasuryStorageType";
+import { tokenPoolRewardStorageType } from "../types/tokenPoolRewardStorageType";
 
 // import treasuryLambdaIndex
 //     from '../../../contracts/contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json';

@@ -9,7 +9,6 @@
 // ------------------------------------------------------------------------------
 
 type vaultIdType                 is nat;
-type usdmAmountType              is nat;
 type tokenBalanceType            is nat;
 
 type vaultOwnerType              is address;
@@ -24,25 +23,28 @@ type collateralNameType          is string;
 
 type lendingControllerConfigType is [@layout:comb] record [
     
-    collateralRatio           : nat;        // collateral ratio
-    liquidationRatio          : nat;        // liquidation ratio
+    collateralRatio              : nat;        // collateral ratio
+    liquidationRatio             : nat;        // liquidation ratio
     
-    liquidationFee            : nat;        // liquidation fee - penalty fee paid by vault owner to liquidator
-    adminLiquidationFee       : nat;        // admin liquidation fee - penalty fee paid by vault owner to treasury
+    liquidationFeePercent        : nat;        // liquidation fee percent - penalty fee paid by vault owner to liquidator
+    adminLiquidationFeePercent   : nat;        // admin liquidation fee percent - penalty fee paid by vault owner to treasury
 
-    minimumLoanFee            : nat;        // minimum loan fee - taken at first minting
+    minimumLoanFeePercent        : nat;        // minimum loan fee percent - taken at first minting
 
     minimumLoanFeeTreasuryShare  : nat;     // percentage of minimum loan fee that goes to the treasury
     interestTreasuryShare        : nat;     // percentage of interest that goes to the treasury
 
-    decimals                     : nat;    // decimals used for percentage calculation
-    maxDecimalsForCalculation    : nat;    // max decimals to be used in calculations
+    decimals                     : nat;     // decimals used for percentage calculation
+    maxDecimalsForCalculation    : nat;     // max decimals to be used in calculations
+
+    maxVaultLiquidationPercent   : nat;     // max percentage of vault debt that can be liquidated (e.g. 50% for AAVE)
+    liquidationDelayInMins       : nat;     // delay before a vault can be liquidated, after it has been marked for liquidation
 
 ]
 
 type lendingControllerBreakGlassConfigType is record [
     
-    // Vault Entrypoints
+    // Lending Controller Vault Entrypoints
     createVaultIsPaused                 : bool; 
     closeVaultIsPaused                  : bool;
     withdrawFromVaultIsPaused           : bool;
@@ -55,6 +57,13 @@ type lendingControllerBreakGlassConfigType is record [
     vaultDepositStakedMvkIsPaused       : bool;
     vaultWithdrawStakedMvkIsPaused      : bool;
     vaultLiquidateStakedMvkIsPaused     : bool;
+
+    // Vault Entrypoints
+    vaultDelegateTezToBakerIsPaused         : bool; 
+    vaultDelegateMvkToSatelliteIsPaused     : bool;
+    vaultWithdrawIsPaused                   : bool;
+    vaultDepositIsPaused                    : bool;
+    vaultEditDepositorIsPaused              : bool;
 
 ]
 
@@ -197,9 +206,9 @@ type lendingControllerUpdateConfigActionType is
         
         ConfigCollateralRatio           of unit
     |   ConfigLiquidationRatio          of unit
-    |   ConfigLiquidationFee            of unit
+    |   ConfigLiquidationFeePercent     of unit
     |   ConfigAdminLiquidationFee       of unit
-    |   ConfigMinimumLoanFee            of unit
+    |   ConfigMinimumLoanFeePercent     of unit
     // |   ConfigAnnualServiceLoanFee      of unit
     // |   ConfigDailyServiceLoanFee       of unit
     |   ConfigMinLoanFeeTreasuryShare   of unit
@@ -333,7 +342,7 @@ type updateRewardsActionType is [@layout:comb] record [
 
 type lendingControllerPausableEntrypointType is
 
-        // Vault Entrypoints
+        // Lending Controller Vault Entrypoints
         CreateVault                 of bool
     |   CloseVault                  of bool
     |   WithdrawFromVault           of bool
@@ -346,6 +355,13 @@ type lendingControllerPausableEntrypointType is
     |   VaultDepositStakedMvk       of bool
     |   VaultWithdrawStakedMvk      of bool
     |   VaultLiquidateStakedMvk     of bool
+
+        // Vault Entrypoints
+    |   VaultDelegateTezToBaker     of bool
+    |   VaultDelegateMvkToSatellite of bool
+    |   VaultWithdraw               of bool
+    |   VaultDeposit                of bool
+    |   VaultEditDepositor          of bool
 
 type lendingControllerTogglePauseEntrypointType is [@layout:comb] record [
     targetEntrypoint  : lendingControllerPausableEntrypointType;

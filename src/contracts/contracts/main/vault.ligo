@@ -35,14 +35,7 @@ type vaultActionType is
     |   SetAdmin                        of (address)
     |   SetGovernance                   of (address)
     |   UpdateMetadata                  of updateMetadataType
-    |   UpdateWhitelistContracts        of updateWhitelistContractsType
-    |   UpdateGeneralContracts          of updateGeneralContractsType
-
-        // Break Glass Entrypoints
-    |   PauseAll                        of (unit)
-    |   UnpauseAll                      of (unit)
-    |   TogglePauseEntrypoint           of vaultTogglePauseEntrypointType
-
+    
         // Vault Entrypoints
     |   VaultDelegateTezToBaker         of vaultDelegateTezToBakerType
     |   VaultDelegateMvkToSatellite     of satelliteAddressType
@@ -267,111 +260,8 @@ block {
 
 } with response
 
-
-
-(* updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : vaultStorageType) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
-
-} with response
-
-
-
-(* updateGeneralContracts entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsType; var s : vaultStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
-
-} with response
-
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Pause / Break Glass Entrypoints Begin
-// ------------------------------------------------------------------------------
-
-(* pauseAll entrypoint *)
-function pauseAll(var s : vaultStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaPauseAll(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
-
-} with response
-
-
-
-(* unpauseAll entrypoint *)
-function unpauseAll(var s : vaultStorageType) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaUnpauseAll(unit);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
-
-} with response
-
-
-
-(*  togglePauseEntrypoint entrypoint  *)
-function togglePauseEntrypoint(const targetEntrypoint : vaultTogglePauseEntrypointType; const s : vaultStorageType) : return is
-block{
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
-        |   Some(_v) -> _v
-        |   None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init vault controller lambda action
-    const vaultLambdaAction : vaultLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, vaultLambdaAction, s);
-
-} with response
-
-// ------------------------------------------------------------------------------
-// Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
 
 
@@ -520,14 +410,7 @@ function main (const vaultAction : vaultActionType; const s : vaultStorageType) 
         |   SetAdmin(parameters)                         -> setAdmin(parameters, s) 
         |   SetGovernance(parameters)                    -> setGovernance(parameters, s) 
         |   UpdateMetadata(parameters)                   -> updateMetadata(parameters, s)
-        |   UpdateWhitelistContracts(parameters)         -> updateWhitelistContracts(parameters, s)
-        |   UpdateGeneralContracts(parameters)           -> updateGeneralContracts(parameters, s)
-
-            // Pause / Break Glass Entrypoints
-        |   PauseAll(_parameters)                         -> pauseAll(s)
-        |   UnpauseAll(_parameters)                       -> unpauseAll(s)
-        |   TogglePauseEntrypoint(parameters)             -> togglePauseEntrypoint(parameters, s)
-
+        
             // Vault Entrypoints 
         |   VaultDelegateTezToBaker(parameters)          -> vaultDelegateTezToBaker(parameters, s)
         |   VaultDelegateMvkToSatellite(parameters)      -> vaultDelegateMvkToSatellite(parameters, s)
