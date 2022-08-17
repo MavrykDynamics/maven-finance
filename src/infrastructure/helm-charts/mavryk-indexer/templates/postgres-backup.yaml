@@ -36,22 +36,22 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_HOST_PROD
+                      key: POSTGRES_HOST
                 - name: PGPORT
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_PORT_PROD
+                      key: POSTGRES_PORT
                 - name: PGUSER
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_USERNAME_PROD
+                      key: POSTGRES_USERNAME
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: indexer
-                      key: POSTGRES_PASSWORD_PROD
+                      key: POSTGRES_PASSWORD
                 - name: BACKUP_RETENTION_IN_DAYS
                   value: '7'
                 - name: BACKUP_FOLDER
