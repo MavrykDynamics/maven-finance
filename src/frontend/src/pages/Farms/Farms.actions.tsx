@@ -4,6 +4,8 @@ import { TezosToolkit } from '@taquito/taquito'
 // types
 import { FarmStorage, FarmContractType } from '../../utils/TypesAndInterfaces/Farm'
 
+//helpers
+import { normalizeFarmStorage } from './Frams.helpers'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
@@ -57,11 +59,12 @@ export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, get
   const state: State = getState()
 
   const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-  const convertedFarmStorage = storageToTypeConverter('farm', storage?.farm)
+  const farmStorage = normalizeFarmStorage(storage?.farm)
+  console.log('%c ||||| farmStorage', 'color:yellowgreen', farmStorage)
   const convertedFarmFactoryStorage = storageToTypeConverter('farmFactory', storage?.farm_factory[0])
   await dispatch({
     type: GET_FARM_STORAGE,
-    farmStorage: convertedFarmStorage,
+    farmStorage,
   })
   await dispatch({
     type: GET_FARM_FACTORY_STORAGE,

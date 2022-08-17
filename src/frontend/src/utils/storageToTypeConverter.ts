@@ -330,7 +330,6 @@ function convertToSatelliteRecordInterface({
 
 function convertToFarmStorageType(storage: any): FarmStorage[] {
   const farms: FarmStorage[] = []
-  console.log('%c ||||| FarmStorage', 'color:yellowgreen', storage)
   storage?.forEach((farmItem: any) => {
     const newFarm: FarmStorage = {
       address: farmItem.address,

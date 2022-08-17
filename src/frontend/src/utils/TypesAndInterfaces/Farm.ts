@@ -1,3 +1,5 @@
+import type {Farm} from '../generated/graphqlTypes'
+
 export interface FarmAccountsType {
   claimed_rewards: number
   deposited_amount: number
@@ -68,4 +70,6 @@ export type FarmContractType = {
   typeHash: number
   codeHash: number
 }
+
+export type FarmGraphQL = Omit<Farm, '__typename'>
 
