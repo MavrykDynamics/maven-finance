@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 
 import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+import { toggleRPCNodePopup } from '../ChangeNodePopup/ChangeNode.actions'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
 import Icon from '../Icon/Icon.view'
 import {
@@ -24,6 +25,7 @@ type MenuViewProps = {
   ready: boolean
   isExpandedMenu: boolean
   setisExpandedMenu: (value: boolean) => void
+  openChangeNodePopupHandler: () => void
 }
 
 const SocialIcons = () => (
@@ -46,7 +48,13 @@ const SocialIcons = () => (
   </div>
 )
 
-export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu }: MenuViewProps) => {
+export const MenuView = ({
+  accountPkh,
+  ready,
+  isExpandedMenu,
+  setisExpandedMenu,
+  openChangeNodePopupHandler,
+}: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
 
@@ -108,7 +116,7 @@ export const MenuView = ({ accountPkh, ready, isExpandedMenu, setisExpandedMenu 
         <div className="right-side">
           <SocialIcons />
           <ConnectWallet type={'main-menu'} />
-          <div className="settingsIcon">
+          <div className="settingsIcon" onClick={openChangeNodePopupHandler}>
             <Icon id="gear" />
           </div>
         </div>
