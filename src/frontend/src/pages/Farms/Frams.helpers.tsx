@@ -1,5 +1,42 @@
 // types
-import { FarmStorage, FarmAccountsType } from '../../utils/TypesAndInterfaces/Farm'
+import { FarmStorage, FarmAccountsType, FarmGraphQL } from '../../utils/TypesAndInterfaces/Farm'
+
+// helpers
+import { calcWithoutMu, calcWithoutPrecision } from '../../utils/calcFunctions'
+
+export const normalizeFarmStorage = (farmList: FarmGraphQL[]): FarmStorage[] => {
+  return farmList.map((farmItem: FarmGraphQL) => {
+    return {
+      address: farmItem.address,
+      name: farmItem.name,
+      lpTokenAddress: farmItem.lp_token_address,
+      open: farmItem.open,
+      withdrawPaused: farmItem.withdraw_paused,
+      claimPaused: farmItem.claim_paused,
+      depositPaused: farmItem.deposit_paused,
+      // blocksPerMinute: farmItem.blocks_per_minute, TODO not exist in grapgQl
+      blocksPerMinute: 0,
+      lpTokenBalance: farmItem.lp_token_balance,
+      currentRewardPerBlock: farmItem.current_reward_per_block,
+      farmFactoryId: farmItem.farm_factory_id || '',
+      infinite: farmItem.infinite,
+      initBlock: farmItem.init_block,
+      // accumulatedMvkPerShare: calcWithoutPrecision(farmItem.accumulated_mvk_per_share), TODO not exist in grapgQl
+      accumulatedMvkPerShare: 0,
+      lastBlockUpdate: farmItem.last_block_update,
+      // lpBalance: calcWithoutPrecision(farmItem.lp_balance), TODO not exist in grapgQl
+      lpBalance: 0,
+      // lpToken: farmItem.lp_token, TODO not exist in grapgQl
+      lpToken: '',
+      // rewardPerBlock: calcWithoutPrecision(farmItem.reward_per_block), TODO not exist in grapgQl
+      rewardPerBlock: 0,
+      // rewardsFromTreasury: farmItem.rewards_from_treasury, TODO not exist in grapgQl
+      rewardsFromTreasury: false,
+      totalBlocks: farmItem.total_blocks,
+      farmAccounts: farmItem.farm_accounts,
+    }
+  })
+}
 
 export const calculateAPR = (currentRewardPerBlock: number, lpTokenBalance: number): string => {
   const rewardRate = currentRewardPerBlock / Math.pow(10, 9)
