@@ -500,6 +500,112 @@ block {
 
 
 
+// helper function send tokens to token pool (%addLiquidity, %liquidateVault)
+function sendTokensToTokenPoolOperation(const from_ : address; const amount : nat; const token : tokenType) : operation is
+block {
+
+    const sendTokensToTokenPoolOperation : operation = case token of [
+        
+        |   Tez(_tez) -> {
+
+                // send tez from sender to Lending Controller token pool
+                const sendTezToPoolOperation : operation = transferTez( (Tezos.get_contract_with_error(Tezos.get_self_address(), "Error. Unable to send tez.") : contract(unit)), amount * 1mutez );
+            
+            } with sendTezToPoolOperation
+
+        |   Fa12(_token) -> {
+
+                checkNoAmount(Unit);
+
+                // send token from sender to Lending Controller token pool
+                const sendTokenToPoolOperation : operation = transferFa12Token(
+                    from_,                      // from_
+                    Tezos.get_self_address(),   // to_
+                    amount,                     // token amount
+                    _token                      // token contract address
+                );
+
+            } with sendTokenToPoolOperation
+
+        |   Fa2(_token) -> {
+
+                checkNoAmount(Unit);
+
+                // send token from sender to Lending Controller token pool
+                const sendTokenToPoolOperation : operation = transferFa2Token(
+                    from_,                          // from_
+                    Tezos.get_self_address(),       // to_
+                    amount,                         // token amount
+                    _token.tokenId,                 // token id
+                    _token.tokenContractAddress     // token contract address
+                );
+
+            } with sendTokenToPoolOperation
+    ];
+
+} with sendTokensToTokenPoolOperation
+
+
+
+// helper function withdraw from vault
+function withdrawFromVaultOperation(const to_ : address; const amount : nat; const token : tokenType; const vaultAddress : address) : operation is
+block {
+
+    const withdrawFromVaultOperation : operation = case token of [
+        
+        |   Tez(_tez) -> {
+
+                const withdrawTezOperationParams : vaultWithdrawType = record [
+                    to_      = to_; 
+                    amount   = amount;
+                    token    = Tez(_tez);
+                ];
+                
+                const withdrawTezOperation : operation = Tezos.transaction(
+                    withdrawTezOperationParams,
+                    0mutez,
+                    getVaultWithdrawEntrypoint(vaultAddress)
+                );
+            
+            } with withdrawTezOperation
+
+        |   Fa12(_token) -> {
+
+                const withdrawFa12OperationParams : vaultWithdrawType = record [
+                    to_      = to_; 
+                    amount   = amount;
+                    token    = Fa12(_token);
+                ];
+
+                const withdrawFa12Operation : operation = Tezos.transaction(
+                    withdrawFa12OperationParams,
+                    0mutez,
+                    getVaultWithdrawEntrypoint(vaultAddress)
+                );
+
+            } with withdrawFa12Operation
+
+        |   Fa2(_token) -> {
+
+                const withdrawFa2OperationParams : vaultWithdrawType = record [
+                    to_      = to_; 
+                    amount   = amount;
+                    token    = Fa2(_token);
+                ];
+
+                const withdrawFa2Operation : operation = Tezos.transaction(
+                    withdrawFa2OperationParams,
+                    0mutez,
+                    getVaultWithdrawEntrypoint(vaultAddress)
+                );
+
+            } with withdrawFa2Operation
+    ];
+
+} with withdrawFromVaultOperation
+
+
+
 // helper function to rebase token decimals
 function rebaseTokenValue(const tokenValueRaw : nat; const rebaseDecimals : nat) : nat is 
 block {
@@ -569,12 +675,8 @@ function getTokenLastCompletedRoundPriceFromOracle(const oracleAddress : address
 block {
 
     // get last completed round price of token from Oracle view
-    const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, oracleAddress);
-    const getTokenLastCompletedRoundPriceOpt : option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
-            Some (_value) -> _value
-        |   None          -> failwith (error_GET_LAST_COMPLETED_ROUND_PRICE_VIEW_IN_AGGREGATOR_CONTRACT_NOT_FOUND)
-    ];
-    const tokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
+    const getTokenLastCompletedRoundPriceView : option (lastCompletedRoundPriceReturnType) = Tezos.call_view ("getLastCompletedRoundPrice", unit, oracleAddress);
+    const tokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceView of [
             Some (_value) -> _value
         |   None          -> failwith (error_LAST_COMPLETED_ROUND_PRICE_NOT_FOUND)
     ];
@@ -583,44 +685,58 @@ block {
 
 
 
+// helper function to calculate token value rebased (to max decimals 1e32)
+function calculateCollateralTokenValueRebased(const tokenName : string; const tokenBalance : nat; const s : lendingControllerStorageType) : nat is 
+block {
+
+    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation; // default 32 decimals i.e. 1e32
+
+    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+            Some(_record) -> _record
+        |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
+    ];
+
+    // get last completed round price of token from Oracle view
+    const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
+    
+    const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+    const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
+    const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
+
+    // calculate required number of decimals to rebase each token to the same unit for comparison
+    // assuming most token decimals are 6, and most price decimals from oracle is 8 - (upper limit of 32 decimals)
+    if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
+    const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
+
+    // calculate raw value of collateral balance
+    const tokenValueRaw : nat = tokenBalance * tokenPrice;
+
+    // rebase token value to 1e32 (or 10^32)
+    const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);                
+
+} with tokenValueRebased
+
+
+
+
 // helper function to calculate vault's collateral value rebased (to max decimals 1e32)
 function calculateVaultCollateralValueRebased(const collateralBalanceLedger : collateralBalanceLedgerType; const s : lendingControllerStorageType) : nat is
 block {
 
     var vaultCollateralValueRebased  : nat := 0n;
-    const maxDecimalsForCalculation  : nat  = s.config.maxDecimalsForCalculation;
 
     for tokenName -> tokenBalance in map collateralBalanceLedger block {
+
+        // get collateral token value based on oracle/aggregator's price and rebase to 1e32 (or 10^32) for comparison
+        const tokenValueRebased : nat = calculateCollateralTokenValueRebased(tokenName, tokenBalance, s);
         
-        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                Some(_record) -> _record
-            |   None          -> failwith(error_COLLATERAL_TOKEN_RECORD_NOT_FOUND)
-        ];
-
-        // get last completed round price of token from Oracle view
-        const collateralTokenLastCompletedRoundPrice : lastCompletedRoundPriceReturnType = getTokenLastCompletedRoundPriceFromOracle(collateralTokenRecord.oracleAddress);
-        
-        const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
-        const priceDecimals    : nat  = collateralTokenLastCompletedRoundPrice.decimals;
-        const tokenPrice       : nat  = collateralTokenLastCompletedRoundPrice.price;            
-
-        // calculate required number of decimals to rebase each token to the same unit for comparison
-        // assuming most token decimals are 6, and most price decimals from oracle is 8 - set upper limit of 24 (e.g. 12 decimals each)
-        if tokenDecimals + priceDecimals > maxDecimalsForCalculation then failwith(error_TOO_MANY_DECIMAL_PLACES_FOR_CALCULATION) else skip;
-        const rebaseDecimals : nat  = abs(maxDecimalsForCalculation - (tokenDecimals + priceDecimals));
-
-        // calculate raw value of collateral balance
-        const tokenValueRaw : nat = tokenBalance * tokenPrice;
-
-        // rebase token value to 1e32 (or 10^32)
-        const tokenValueRebased : nat = rebaseTokenValue(tokenValueRaw, rebaseDecimals);                
-        
-        // increment vault collateral value (1e32 or 10^32)
+        // increment vault collateral value (decimals: 1e32 or 10^32)
         vaultCollateralValueRebased := vaultCollateralValueRebased + tokenValueRebased;      
 
     };
 
 } with vaultCollateralValueRebased
+
 
 
 
@@ -641,6 +757,7 @@ block {
     const loanOutstandingRebaseDecimals : nat = abs(maxDecimalsForCalculation - loanDecimals);
 
     // calculate loan outstanding rebased (1e32 or 10^32)
+    // todo: rebase EUR, Tez, to USD 
     const loanOutstandingRebased : nat = rebaseTokenValue(loanOutstandingTotal, loanOutstandingRebaseDecimals);  
 
     // check is vault is under collaterized based on liquidation ratio
@@ -727,9 +844,10 @@ block{
     *
     *  (1+x)^n = 1+n*x+[n/2*(n-1)]*x^2+[n/6*(n-1)*(n-2)*x^3...
     *
-    * The approximation slightly underpays liquidity providers and undercharges borrowers, with the advantage of great
-    * gas cost reductions. The whitepaper contains reference to the approximation and a table showing the margin of
-    * error per different time periods
+    *  The approximation slightly underpays liquidity providers and undercharges borrowers, with the advantage of great
+    *  gas cost reductions. The whitepaper contains reference to the approximation and a table showing the margin of
+    *  error per different time periods
+    *
     *)
 
     const exp : nat = abs(Tezos.get_level() - lastUpdatedBlockLevel);

@@ -20,7 +20,7 @@
 // ------------------------------------------------------------------------------
 
 // Token Pool Types
-#include "../partials/contractTypes/tokenPoolTypes.ligo"
+#include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
 
 // Token Pool Reward Types
 #include "../partials/contractTypes/tokenPoolRewardTypes.ligo"
@@ -28,7 +28,9 @@
 // ------------------------------------------------------------------------------
 
 
-type tokenPoolAction is 
+type tokenPoolRewardAction is 
+
+    |   Default                        of unit
 
         // Housekeeping Entrypoints    
     |   SetAdmin                        of (address)
@@ -41,7 +43,7 @@ type tokenPoolAction is
         // BreakGlass Entrypoints   
     // |   PauseAll                        of (unit)
     // |   UnpauseAll                      of (unit)
-    // |   TogglePauseEntrypoint           of tokenPoolTogglePauseEntrypointType
+    // |   TogglePauseEntrypoint           of tokenPoolRewardTogglePauseEntrypointType
 
         // Rewards Entrypoints
     // |   OnClaimRewards                  of onClaimRewardsActionType
@@ -50,8 +52,8 @@ const noOperations : list (operation) = nil;
 type return is list (operation) * tokenPoolRewardStorageType
 
 
-// tokenPool contract methods lambdas
-type tokenPoolUnpackLambdaFunctionType is (tokenPoolLambdaActionType * tokenPoolRewardStorageType) -> return
+// tokenPoolReward contract methods lambdas
+type tokenPoolRewardUnpackLambdaFunctionType is (tokenPoolRewardLambdaActionType * tokenPoolRewardStorageType) -> return
 
 
 
@@ -160,11 +162,11 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
-function unpackLambda(const lambdaBytes : bytes; const tokenPoolLambdaAction : tokenPoolLambdaActionType; var s : tokenPoolRewardStorageType) : return is 
+function unpackLambda(const lambdaBytes : bytes; const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType; var s : tokenPoolRewardStorageType) : return is 
 block {
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option(tokenPoolUnpackLambdaFunctionType)) of [
-            Some(f) -> f(tokenPoolLambdaAction, s)
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(tokenPoolRewardUnpackLambdaFunctionType)) of [
+            Some(f) -> f(tokenPoolRewardLambdaAction, s)
         |   None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
@@ -225,10 +227,10 @@ block {
     ];
 
     // init token pool lambda action
-    const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaSetAdmin(newAdminAddress);
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 } with response
 
@@ -244,10 +246,10 @@ block {
     ];
 
     // init token pool lambda action
-    const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 } with response
 
@@ -263,10 +265,10 @@ block {
     ];
 
     // init token pool lambda action
-    const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+    const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+    const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 } with response
 
@@ -282,10 +284,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 // } with response
 
@@ -301,10 +303,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 // } with response
 
@@ -320,10 +322,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 // } with response
 
@@ -339,10 +341,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);  
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);  
 
 // } with response
 
@@ -367,10 +369,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaPauseAll(unit);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaPauseAll(unit);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 // } with response
 
@@ -386,17 +388,17 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaUnpauseAll(unit);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaUnpauseAll(unit);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 // } with response
 
 
 
 // (*  togglePauseEntrypoint entrypoint  *)
-// function togglePauseEntrypoint(const targetEntrypoint : tokenPoolTogglePauseEntrypointType; const s : tokenPoolRewardStorageType) : return is
+// function togglePauseEntrypoint(const targetEntrypoint : tokenPoolRewardTogglePauseEntrypointType; const s : tokenPoolRewardStorageType) : return is
 // block{
   
 //     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseEntrypoint"] of [
@@ -405,10 +407,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaTogglePauseEntrypoint(targetEntrypoint);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
 
 // } with response
 
@@ -432,10 +434,10 @@ block {
 //     ];
 
 //     // init token pool lambda action
-//     const tokenPoolLambdaAction : tokenPoolLambdaActionType = LambdaTransfer(transferParams);
+//     const tokenPoolRewardLambdaAction : tokenPoolRewardLambdaActionType = LambdaTransfer(transferParams);
 
 //     // init response
-//     const response : return = unpackLambda(lambdaBytes, tokenPoolLambdaAction, s);
+//     const response : return = unpackLambda(lambdaBytes, tokenPoolRewardLambdaAction, s);
     
 // } with response
 
@@ -454,10 +456,12 @@ block {
 
 
 (* main entrypoint *)
-function main (const action : tokenPoolAction; const s : tokenPoolRewardStorageType) : return is 
+function main (const action : tokenPoolRewardAction; const s : tokenPoolRewardStorageType) : return is 
 
     case action of [
 
+        |   Default(_params)                              -> ((nil : list(operation)), s)
+        
             // Housekeeping Entrypoints
         |   SetAdmin(parameters)                        -> setAdmin(parameters, s)
         |   SetGovernance(parameters)                   -> setGovernance(parameters, s) 
